@@ -1,0 +1,1 @@
+<div class="subjects_list"><?php echo $content; ?></div>
