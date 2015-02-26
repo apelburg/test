@@ -23,11 +23,6 @@
                     	<td>Адрес доставки</td>
                     	<td><textarea name=""  placeholder="информация отсутствует"><?php echo $client['delivery_address']; ?></textarea></td>
                     </tr>
-                	<tr>
-                    	<td>Дополнительная информация</td>
-                    	<td><textarea placeholder="информация отсутствует" name=""><?php echo (!empty($client['dop_info']))?$client['dop_info']:'' ?></textarea>
-                            </td>
-                    </tr>
                 </table>
         	<td>
             	<?php echo $cont_company_phone; ?>

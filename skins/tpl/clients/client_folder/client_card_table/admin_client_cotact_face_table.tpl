@@ -1,11 +1,4 @@
 <div class="client_table">
-
-                <?php
-                
-                    // echo "<pre>";
-                    // print_r($this_contact_face);
-                    // echo "</pre>";
-                ?>
 	<table class="client_table_gen" >
     	<tr>
         	<td>
@@ -34,8 +27,7 @@
             	<?php echo $cont_company_other; ?>
             </td>
     </tr>
-    </table>
-    
+    </table>    
    
     <div class="border_in_table"></div>
 </div>

@@ -12,11 +12,14 @@ $contact_faces_contacts = Client::cont_faces($client_id);
 
 $edit_show = (isset($_GET['client_edit']))?'admin_':'';
 
+//получаем информацию по клиенту
 ob_start();
 include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_table.tpl');
 $client_content = ob_get_contents();
 ob_get_clean();
 
+
+//получаем информацию по контактным лицам данного клиента
 ob_start();
 $client_content_contact_faces = "";
 $contact_face_d_arr = array();
@@ -30,11 +33,15 @@ foreach($contact_faces_contacts as $k=>$this_contact_face){
 	include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_cotact_face_table.tpl');
 }
 
-	
-
 $client_content_contact_faces .= ob_get_contents();
 ob_get_clean();
 
+//получаем адрес папки и примечания
+ob_start();
+include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_dop_info.tpl');
+$client_content_dop_info = ob_get_contents();
+ob_get_clean();
 
+//выводим общий шаблон
 include('./skins/tpl/clients/client_folder/client_card_table/show.tpl'); 
 ?>

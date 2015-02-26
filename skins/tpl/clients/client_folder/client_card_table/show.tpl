@@ -51,5 +51,6 @@ textarea{ min-height: 70px}
     <div class="white_bg">
         <?php echo $client_content; ?>
         <?php echo $client_content_contact_faces; ?>
+        <?php echo $client_content_dop_info; ?>
     </div>
 </div>
