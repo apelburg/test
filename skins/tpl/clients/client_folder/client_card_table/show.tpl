@@ -18,6 +18,10 @@
 .white_bg{ background: #fff; padding-bottom: 50px}
 #content_general table tr td:nth-of-type(2),#content_general table tr td:nth-of-type(3){vertical-align: baseline;}
 #content_general table tr td:nth-of-type(2) table tr td,#content_general table tr td:nth-of-type(3) table tr td{vertical-align: middle;}
+
+input[type="text"],textarea{ font-family: Arial, Helvetica, sans-serif; font-size: 12px; width: 100%; float: left; }
+
+textarea{ min-height: 70px}
 </style>
 
 <div id="content_general_header">
