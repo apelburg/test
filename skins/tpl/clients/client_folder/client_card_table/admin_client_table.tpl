@@ -5,7 +5,11 @@
             	<table>
                 	<tr>
                     	<td>Название</td>
-                    	<td><input type="text" name=""   placeholder="информация отсутствует" value="<?php echo trim($client['company']); ?>"></td>
+                    	<td>
+                            <input type="text" name=""   placeholder="информация отсутствует" value="<?php echo trim($client['company']); ?>"><br><br>
+                            <div id="test_before"><?php echo trim($client['company']); ?></div>
+
+                        </td>
                     </tr>
                 	<tr>
                     	<td>Рейтинг</td>
@@ -26,9 +30,21 @@
                 </table>
         	<td>
             	<?php echo $cont_company_phone; ?>
+                <table>
+                    <tr>
+                        <td></td>
+                        <td><div class="button_add_new_row">добавить телефон</div></td>
+                    </tr>
+                </table>
             </td>
             <td>
             	<?php echo $cont_company_other; ?>
+                <table>
+                    <tr>
+                        <td></td>
+                        <td><div class="button_add_new_row">добавить...</div></td>
+                    </tr>
+                </table>
             </td>
     </tr>
     </table>

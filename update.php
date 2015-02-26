@@ -2,14 +2,20 @@
 include_once('./libs/config.php');
 include_once('./libs/mysqli.php');
 
-//удаляем таблицу
+//удаляем таблицы
 /*
-//$query = "DROP TABLE IF EXISTS order_manager__clients_contact_information";
+//$query = "
+DROP TABLE IF EXISTS `order_manager__clients_contact_information`; 
+DROP TABLE IF EXISTS `order_manager__client_addres_tbl`;
+";
 $query = "DROP TABLE order_manager__clients_contact_information";
 $result = $mysqli->query($query) or die($mysqli->error);
 echo ($result)?"таблица удалена успешно<br>":'';
-//создаём таблицу
+/
+
+/создаём таблицы
 $query = "
+
 CREATE TABLE IF NOT EXISTS `order_manager__clients_contact_information` (
   `id` int(11) AUTO_INCREMENT,
   `parent_id` int(11) ,
@@ -20,6 +26,24 @@ CREATE TABLE IF NOT EXISTS `order_manager__clients_contact_information` (
   `dop_phone` varchar(255) ,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `order_manager__client_addres_tbl` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) NOT NULL,
+  `table_name` varchar(255) NOT NULL,
+  `adress_type` varchar(255) NOT NULL,
+  `city` varchar(255) NOT NULL,
+  `street` varchar(255) NOT NULL,
+  `house_number` int(11) NOT NULL,
+  `korpus` int(11) NOT NULL,
+  `office` int(11) NOT NULL,
+  `liter` varchar(11) NOT NULL,
+  `bilding` varchar(11) NOT NULL,
+  `postal_code` int(11) NOT NULL,
+  `note` varchar(255) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
 ";
 $result = $mysqli->query($query) or die($mysqli->error);
 echo ($result)?"таблица создана успешно<br>":'';
@@ -121,5 +145,38 @@ $result = $mysqli->multi_query($q) or die($mysqli->error);//сохраняем �
 echo "Из таблицы ".CLIENT_CONT_FACES_TBL." добавлено ".$num_str." строк<br>";
 }
 
+
+function order_manager__client_addres_tbl_update(){
+	global $mysqli;
+	//получаем данные из основной таблицы
+	$query = "SELECT `id`,`addres`,`delivery_address` FROM `".CLIENTS_TBL."`";
+	$result = $mysqli->query($query) or die($mysqli->error);
+	if($result->num_rows > 0){
+		while($row = $result->fetch_assoc()){
+			$arr[] = $row;
+		}
+	}
+	$i = 0;
+	$query = "";
+	foreach ($arr as $key => $value) {
+		if($i == 0){
+			$query .= "INSERT INTO `order_manager__client_addres_tbl` VALUES ('','".$value['id']."','CLIENTS_TBL','','','".addslashes($value['addres'])."','','','','','','',''), ('','".$value['id']."','CLIENTS_TBL','','','".addslashes($value['delivery_address'])."','','','','','','','')";
+			$i++;
+			}else{
+			$i++;
+			$query .=",('','".$value['id']."','CLIENTS_TBL','','','".addslashes($value['addres'])."','','','','','','',''), ('','".$value['id']."','CLIENTS_TBL','','','".addslashes($value['delivery_address'])."','','','','','','','')";
+			}			
+	}
+	$query .= ";";
+
+
+
+	//импортируем
+	$result = $mysqli->query($query) or die($mysqli->error);
+	$query = "DELETE FROM `order_manager__client_addres_tbl` WHERE `street` = ''";
+	//вытираем пустые значения
+	$result = $mysqli->query($query) or die($mysqli->error);
+}
+order_manager__client_addres_tbl_update();
 //client_contact_list_update_1();
-client_contact_list_update_2();
+// client_contact_list_update_2();
