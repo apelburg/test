@@ -22,15 +22,5 @@ input[type="text"],textarea{ font-family: Arial, Helvetica, sans-serif; font-siz
 
 textarea{ min-height: 70px}
 
-#test_before::after{
-	content: "изменить";
-	float: right;
-	color: red;
-	padding: 5px 10px;
-	/*position: absolute;*/
-	/*margin-left: -100px*/
-
-}
-#test_before:hover::before:hover{
-	background: #000
-}
+#test_before::after{content: "изменить";	float: right;	color: red;	padding: 5px 10px;}
+#test_before:hover::before:hover{background: #000}
