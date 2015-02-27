@@ -26,12 +26,6 @@ class Client {
 
 	//вывод доп контактов в табличном виде
 	static function get_contact_row($contact_company, $type,$array_dop_contacts_img){
-		
-		$contact_arr;
-		// echo "<pre>";
-		// print_r($contact_company);
-		// echo "</pre>";
-
 		$str = '<table>';
 		if(isset($type) && $type == "phone"){
 			$i=0;
