@@ -87,13 +87,22 @@
 	 if(isset($_POST['ajax_standart_window'])){
 
 		if($_POST['ajax_standart_window']=="chenge_name_company"){
+			$id = $_POST['id'];
+			$tbl = $_POST['tbl'];
+			$company = $_POST['company'];
 			//тут обновляем название компании
-			global mysqli;
+			global $mysqli;
+
+			$query = "UPDATE  `".constant($tbl)."` SET  `company` =  '".$company."' WHERE  `id` ='".$id."'; ";
 			
-			echo "ля ля ля <br> " .$_POST['ajax_standart_window']. PHP_EOL;
-			echo "<pre>";
+			//echo $query. PHP_EOL;
+
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo "OK";
+			/*echo "<pre>";
 			print_r($_POST);
 			echo "<pre>";
+			*/
 			exit;
 		}
 	}

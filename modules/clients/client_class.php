@@ -21,6 +21,9 @@ class Client {
 		$arr = $this->get_contact_info("CLIENTS_TBL",$id);
 		$this->cont_company_phone = (isset($arr['phone']))?$arr['phone']:''; 
 		$this->cont_company_other = (isset($arr['other']))?$arr['other']:'';
+	}
+
+	public function get_addres($id){
 		
 	}
 

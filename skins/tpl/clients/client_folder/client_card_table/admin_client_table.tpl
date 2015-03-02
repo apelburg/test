@@ -6,24 +6,19 @@ $(document).on('click', '#chenge_name_company', function(event) {
     var type = $(this).attr('data-editType');
     var name = $(this).attr('name');
     if(type != "textarea"){
-        html = '<input type="'+ type +'" name="'+name+'" value="'+$(this).html()+'">';
+        html = '<input type="'+ type +'" name="'+name+'" onkeyup="$(\'#chenge_name_company\').html($(this).val());" value="'+$(this).html()+'">';
     }else{
         html = '<textarea type="'+ type +'" name="'+name+'"> '+$(this).text()+'</textarea>';
-    }  
+    }    
+    var id_row = ($(this).attr('data-idRow') != "")?$(this).attr('data-idRow'):'none';
+    var tbl = ($(this).attr('data-tableName') != "")?$(this).attr('data-tableName'):'none';
     var buttons = $(this).attr('data-button-name-window');
     buttons = (buttons!="")?buttons:'';
-    new_html_modal_window(html,name_window,buttons,'chenge_name_company');
+    new_html_modal_window(html,name_window,buttons,'chenge_name_company', id_row, tbl);
     $('.html_modal_window_body input:nth-of-type(1)').focus();
-
 });
 
-$(document).on('click', '.ok_bw, .send_bw, .greate_bw, .save_bw', function(event) {
-    var str = $('.html_modal_window form').serialize();
-    //console.log(str);
-    $.post('', str, function(data, textStatus, xhr) {
-        //console.log(data);
-    });
-});
+
 
 
 
@@ -41,19 +36,19 @@ $(document).on('click', '.ok_bw, .send_bw, .greate_bw, .save_bw', function(event
                 	<tr>
                     	<td>Название</td>
                     	<td>
-                            <div class="edit_row" id="chenge_name_company" name="company" data-name="company" data-editType="text" data-button-name-window="save"><?php echo trim($client['company']); ?></div>
+                            <div class="edit_row" id="chenge_name_company" name="company" data-name="company" data-editType="text" data-button-name-window="save" data-idRow="<?php echo $client_id; ?>" data-tableName='CLIENTS_TBL'><?php echo trim($client['company']); ?></div>
                         </td>
                     </tr>
                 	<tr>
                     	<td>Рейтинг</td>
                     	<td>
-                            <div class="edit_row">В разработке</div>
+                            <div>В разработке</div>
                         </td>
                     </tr>
                 	<tr>
                     	<td>Деятельность</td>
                     	<td>
-                            <div class="edit_row">В разработке</div>
+                            <div>В разработке</div>
                         </td>
                     </tr>
                 	<tr>

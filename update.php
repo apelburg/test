@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS `order_manager__clients_contact_information` (
   `dop_phone` varchar(255) ,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
+*/
+$query = "
 CREATE TABLE IF NOT EXISTS `order_manager__client_addres_tbl` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_id` int(11) NOT NULL,
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `order_manager__client_addres_tbl` (
 
 ";
 $result = $mysqli->query($query) or die($mysqli->error);
-echo ($result)?"таблица создана успешно<br>":'';
+echo ($result)?"таблица создана успешно<br>":'';/*
 */
 function client_contact_list_update_1(){
 	global $mysqli;
@@ -160,11 +161,11 @@ function order_manager__client_addres_tbl_update(){
 	$query = "";
 	foreach ($arr as $key => $value) {
 		if($i == 0){
-			$query .= "INSERT INTO `order_manager__client_addres_tbl` VALUES ('','".$value['id']."','CLIENTS_TBL','','','".addslashes($value['addres'])."','','','','','','',''), ('','".$value['id']."','CLIENTS_TBL','','','".addslashes($value['delivery_address'])."','','','','','','','')";
+			$query .= "INSERT INTO `order_manager__client_addres_tbl` VALUES ('','".$value['id']."','CLIENTS_TBL','office','','".addslashes($value['addres'])."','','','','','','',''), ('','".$value['id']."','CLIENTS_TBL','delivery','','".addslashes($value['delivery_address'])."','','','','','','','')";
 			$i++;
 			}else{
 			$i++;
-			$query .=",('','".$value['id']."','CLIENTS_TBL','','','".addslashes($value['addres'])."','','','','','','',''), ('','".$value['id']."','CLIENTS_TBL','','','".addslashes($value['delivery_address'])."','','','','','','','')";
+			$query .=",('','".$value['id']."','CLIENTS_TBL','office','','".addslashes($value['addres'])."','','','','','','',''), ('','".$value['id']."','CLIENTS_TBL','delivery','','".addslashes($value['delivery_address'])."','','','','','','','')";
 			}			
 	}
 	$query .= ";";
