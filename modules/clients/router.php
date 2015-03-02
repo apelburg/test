@@ -8,7 +8,7 @@
 	 }
 	 
 	 /////////////////////////////////// AJAX //////////////////////////////////////
-	 
+
 	 if(isset($_GET['update_tr_field_ajax']))
 	 {
 	     update_tr_field(intval($_POST['id']),$_POST['field_name'],$_POST['field_val']);
@@ -82,6 +82,22 @@
 		 //echo $_GET['id'].' '.$_GET['set_status_master_btn'].' '.$_GET['control_num'];
 		 exit;
 	 }
+
+	 //обрабатываем ajax запросы из стандартного окна ОС
+	 if(isset($_POST['ajax_standart_window'])){
+
+		if($_POST['ajax_standart_window']=="chenge_name_company"){
+			//тут обновляем название компании
+			global mysqli;
+			
+			echo "ля ля ля <br> " .$_POST['ajax_standart_window']. PHP_EOL;
+			echo "<pre>";
+			print_r($_POST);
+			echo "<pre>";
+			exit;
+		}
+	}
+
 	 /////////////////////////////////// AJAX //////////////////////////////////////
 	 
 	 ob_start();	

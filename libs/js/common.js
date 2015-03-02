@@ -840,31 +840,17 @@
 	}
 
 	//standart function OS	
-	function new_html_modal_window(html,head_text,buttons){
-		/*var html_buttons = "";
-		var fist_html_buttons = "";
-		if(typeof buttons !=="undefined" && buttons.replace(/\s+/g, '') != ""){
-			buttons = buttons.replace(/\s+/g, '');
-			var all_buttons = buttons.aplit(',');
-			console.log('были указыны кнопки :-)');
-			if (all_buttons.length){
-				$.each(all_buttons, function(index, val) {
-					if(val == "cancel"){
-						fist_html_buttons = 
-					}
-					html_buttons + = "";
-				});
-			};
-		}*/
-
+	function new_html_modal_window(html,head_text,buttons,form_name){
 		var html_buttons = '<span class="grey_bw cancel_bw">Отмена</span><span class="green_bw save_bw">Сохранить</span><span class="green_bw send_bw">Отправить</span><span class="green_bw ok_bw">OK</span><span class="green_bw greate_bw">Создать</span>';
 		if($('#bg_modal_window').length>0){$('#bg_modal_window,.html_modal_window').remove();}
-		$('body').append('<div id="bg_modal_window"></div><div class="html_modal_window"><div class="html_modal_window_head">'+ head_text +'<div class="html_modal_window_head_close">x</div></div><div class="html_modal_window_body">'+ html +'</div><div class="html_modal_window_buttons">'+ html_buttons +'</div></div>');
+		$('body').append('<div id="bg_modal_window"></div><div class="html_modal_window"><form><div class="html_modal_window_head">'+ head_text +'<div class="html_modal_window_head_close">x</div></div><div class="html_modal_window_body">'+ html +'</div><div class="html_modal_window_buttons">'+ html_buttons +'</div></form></div>');
 		if(typeof buttons !=="undefined" && buttons.replace(/\s+/g, '') != ""){
-			console.log("."+buttons);
+			//console.log("."+buttons);
 			$("."+buttons+"_bw").css('display','block');
+			//добавляем в форму инпут с названием кнопки, т.к. кнопки у нас span
+			$(".html_modal_window form").append('<input type="hidden" name="button_name" value="'+ buttons +'" >');			
 		}
-		//$('#html_modal_window').draggable();
+		$(".html_modal_window form").append('<input type="hidden" name="ajax_standart_window" value="'+ form_name +'" >');
 		var he = ($(window).height()/2);
 		var margin = $('.html_modal_window').innerHeight()/2*(-1);
 		$('.html_modal_window').css({'top':he,'margin-top':margin,'display':'block'}).draggable({ handle : ".html_modal_window_head"});	
