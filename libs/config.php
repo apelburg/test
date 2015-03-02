@@ -10,7 +10,7 @@
 	define("CLIENT_REQUISITES_MANAGMENT_FACES_TBL","order_manager__clients_requisites_management");// таблица лиц (контрагентов) имеющих право подписи 
 	define("CLIENT_CONT_FACES_TBL","order_manager__relate_client_cont_faces"); // таблица контактных лиц клиентов  
 	define("CLIENT_CONT_FACES_CONTACT_INFO_TBL", 'order_manager__clients_contact_information'); // таблица контактной информации для контактных лиц клиентов и их компаний
-	
+	define("CLIENT_ADRES_TBL", 'order_manager__client_addres_tbl');//таблица адресов
 
 	define("SUPPLIERS_TBL","order_manager__supplier_list"); // таблица поставщиков
 	define("SUPPLIERS_ACTIVITIES_TBL","order_manager__suppliers_activities"); // таблица видов деятельности поставщиков	

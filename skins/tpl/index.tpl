@@ -5,11 +5,11 @@
 <link href="./skins/css/styles.css" rel="stylesheet" type="text/css">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <link href="./skins/css/styles_sample.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="libs/js/jquery.1.10.2.min.js"></script>
+<script type="text/javascript" src="libs/js/jquery-ui-1.10.4.custom.js"></script>
 <?php
 if(isset($_GET['page']) && ($_GET['page']=="samples" || $_GET['page']=="clients")){
 echo PHP_EOL; //PHP_EOL - константа переноса строки используется вместо /r/n для кроссплатформенности
-echo '<script type="text/javascript" src="libs/js/jquery.1.10.2.min.js"></script>' . PHP_EOL;
-echo '<script type="text/javascript" src="libs/js/jquery-ui-1.10.4.custom.js"></script>' . PHP_EOL;
 echo '<link href="./skins/css/jquery-ui-1.10.4.custom.css" rel="stylesheet" type="text/css">' . PHP_EOL;
 echo '<link href="./skins/css/checkboxes.css" rel="stylesheet" type="text/css">' . PHP_EOL;
 echo '<script type="text/javascript" src="libs/js/accounting.js"></script>' . PHP_EOL; //денежный формат числа

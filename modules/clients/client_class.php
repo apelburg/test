@@ -24,7 +24,16 @@ class Client {
 	}
 
 	public function get_addres($id){
-		
+		global $mysqli;
+		$query = "SELECT * FROM  `order_manager__client_addres_tbl` WHERE `parent_id` = '".(int)$id."'";
+		$arr = array();
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+		return $arr;
 	}
 
 	//вывод доп контактов в табличном виде

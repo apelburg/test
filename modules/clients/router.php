@@ -92,18 +92,56 @@
 			$company = $_POST['company'];
 			//тут обновляем название компании
 			global $mysqli;
-
 			$query = "UPDATE  `".constant($tbl)."` SET  `company` =  '".$company."' WHERE  `id` ='".$id."'; ";
-			
-			//echo $query. PHP_EOL;
-
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo "OK";
-			/*echo "<pre>";
-			print_r($_POST);
-			echo "<pre>";
-			*/
 			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="get_adres"){
+			$id_row = $_POST['id_row'];
+			$tbl = "CLIENT_ADRES_TBL";
+			$query = "SELECT * FROM ".constant($tbl)." WHERE `id` = '".$id_row."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr_adres = $row;
+				}
+			}
+			extract($arr_adres, EXTR_PREFIX_SAME, "wddx");
+			//получаем контент для окна 
+			ob_start();
+			include('./skins/tpl/clients/client_folder/client_card_table/edit_adres.tpl');
+			$content = ob_get_contents();
+			ob_get_clean();
+			echo $content;
+			exit;
+		}
+		if($_POST['ajax_standart_window']=="edit_adress_row"){
+			global $mysqli;
+			$query = "UPDATE  `".constant($_POST['tbl'])."` SET  
+			`city` =  '".$_POST['city']."',
+			`street` =  '".$_POST['street']."',
+			`house_number` =  '".$_POST['house_number']."', 
+			`korpus` =  '".$_POST['korpus']."',
+			`office` =  '".$_POST['office']."',
+			`liter` =  '".$_POST['liter']."', 
+			`bilding` =  '".$_POST['bilding']."',
+			`postal_code` =  '".$_POST['postal_code']."',
+			`note` =  '".$_POST['note']."' WHERE  `id` ='".$_POST['id']."'
+
+
+			
+			 ;";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo "OK";
+			exit;
+			/*
+			korpus:1
+			office:451
+			liter:
+			bilding:
+			*/
 		}
 	}
 

@@ -10,14 +10,26 @@ $client = $clientClass->info;
 
 $contact_faces_contacts = Client::cont_faces($client_id);
 
+$client_address = Client::get_addres($client_id);
 
 $edit_show = (isset($_GET['client_edit']))?'admin_':'';
+
+$adress_name_arr = array('office' => 'офиса', 'delivery' => 'доставки' );
+
+//получаем текущий адрес клиента
+ob_start();
+foreach ($client_address as $adress_number => $adress) {
+	include('./skins/tpl/clients/client_folder/client_card_table/client_adress_row.tpl');
+}
+$client_address_s .= ob_get_contents();
+ob_get_clean();
 
 //получаем информацию по клиенту
 ob_start();
 include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_table.tpl');
 $client_content = ob_get_contents();
 ob_get_clean();
+
 
 
 //получаем информацию по контактным лицам данного клиента
