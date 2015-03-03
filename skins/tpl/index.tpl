@@ -12,7 +12,7 @@ if(isset($_GET['page']) && ($_GET['page']=="samples" || $_GET['page']=="clients"
 echo PHP_EOL; //PHP_EOL - константа переноса строки используется вместо /r/n для кроссплатформенности
 echo '<link href="./skins/css/jquery-ui-1.10.4.custom.css" rel="stylesheet" type="text/css">' . PHP_EOL;
 echo '<link href="./skins/css/checkboxes.css" rel="stylesheet" type="text/css">' . PHP_EOL;
-echo '<script type="text/javascript" src="libs/js/accounting.js"></script>' . PHP_EOL; //денежный формат числа
+//echo '<script type="text/javascript" src="libs/js/accounting.js"></script>' . PHP_EOL; //денежный формат числа
 if(isset($_GET['sample_page']) && $_GET['sample_page']=='received'){
 echo '<script src="libs/js/jquery.printPage.js" type="text/javascript"></script>';
 }

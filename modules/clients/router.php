@@ -128,21 +128,53 @@
 			`liter` =  '".$_POST['liter']."', 
 			`bilding` =  '".$_POST['bilding']."',
 			`postal_code` =  '".$_POST['postal_code']."',
-			`note` =  '".$_POST['note']."' WHERE  `id` ='".$_POST['id']."'
-
-
-			
-			 ;";
+			`note` =  '".$_POST['note']."' WHERE  `id` ='".$_POST['id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo "OK";
 			exit;
-			/*
-			korpus:1
-			office:451
-			liter:
-			bilding:
-			*/
 		}
+		if($_POST['ajax_standart_window']=="delete_adress_row"){
+			
+			$id_row = $_POST['id_row'];
+			$tbl = $_POST['tbl'];
+			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo "OK";
+			exit;
+		}
+		if($_POST['ajax_standart_window']=="add_new_adress_row"){
+			$tbl = $_POST['tbl'];
+			$query = "";
+			$adres_type = (isset($_POST['adress_type']) && $_POST['adress_type']!="")?$_POST['adress_type']:'office';
+			$query = "INSERT INTO `".constant($tbl)."` VALUES (
+			'',
+			'".addslashes($_POST['parent_id'])."',
+			'".addslashes($_POST['tbl'])."',
+			'".addslashes($adres_type)."',
+			'".addslashes($_POST['city'])."',
+			'".addslashes($_POST['street'])."',
+			'".addslashes($_POST['house_number'])."',
+			'".addslashes($_POST['korpus'])."',
+			'".addslashes($_POST['office'])."',
+			'".addslashes($_POST['liter'])."',
+			'".addslashes($_POST['bilding'])."',
+			'".addslashes($_POST['postal_code'])."',
+			'".addslashes($_POST['note'])."'
+			)";
+			//echo "$query";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo $mysqli->insert_id;
+			exit;
+		}
+		if($_POST['ajax_standart_window']=="new_adress_row"){
+			ob_start();
+			include('./skins/tpl/clients/client_folder/client_card_table/new_adres.tpl');
+			$content = ob_get_contents();
+			ob_get_clean();
+			echo $content;
+			exit;
+		}
+		
 	}
 
 	 /////////////////////////////////// AJAX //////////////////////////////////////

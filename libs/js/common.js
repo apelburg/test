@@ -994,6 +994,7 @@
 
 	//standart function OS	
 	function new_html_modal_window(html,head_text,buttons,form_name,id,tbl){
+		if(typeof html == 'object') html = html.outerHTML;
 		var html_buttons = '<span class="grey_bw cancel_bw">Отмена</span><span class="green_bw save_bw">Сохранить</span><span class="green_bw send_bw">Отправить</span><span class="green_bw ok_bw">OK</span><span class="green_bw greate_bw">Создать</span>';
 		if($('#bg_modal_window').length>0){$('#bg_modal_window,.html_modal_window').remove();}
 		$('body').append('<div id="bg_modal_window"></div><div class="html_modal_window"><form><div class="html_modal_window_head">'+ head_text +'<div class="html_modal_window_head_close">x</div></div><div class="html_modal_window_body">'+ html +'</div><div class="html_modal_window_buttons">'+ html_buttons +'</div></form></div>');

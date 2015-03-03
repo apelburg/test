@@ -137,7 +137,7 @@ class Client {
 	static function delete($id){
 		global $mysqli;
 		//выполняем все запросы ипишем ОК
-				
+						
 		//лица имеющих право подписи
 		$query = "DELETE FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` WHERE `requisites_id` IN (SELECT id FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$id."');\n";	
 		//контактные лица компании
