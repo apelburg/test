@@ -23,7 +23,7 @@ class Client {
 		$this->cont_company_other = (isset($arr['other']))?$arr['other']:'';
 	}
 
-	public function get_addres($id){
+	static function get_addres($id){
 		global $mysqli;
 		$query = "SELECT * FROM  `order_manager__client_addres_tbl` WHERE `parent_id` = '".(int)$id."'";
 		$arr = array();

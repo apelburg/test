@@ -1,7 +1,5 @@
 <?php
  
- 
-  
     // client_details
 	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] :((isset($_POST['client_id']))? $_POST['client_id']: '') ;
     $client_data_arr = select_all_client_data($client_id);
@@ -49,40 +47,43 @@
 	$quick_button = '<div class="quick_button_div"><a href="%23" class="button" onclick="openCloseMenu(event,\'quickMenu\'); return false;">&nbsp;</a></div>';
 	$view_button = '<div class="quick_view_button_div"><a href="%23" class="button" onclick="openCloseMenu(event,\'rtViewTypeMenu\'); return false;">&nbsp;</a></div>';
 	
-	
-    ob_start();	
+    //ob_start();	
 	 
     switch($subsection){
 	 
-	    case 'calculate_table':
+	    case 'calculate_table':				
 	    include 'client_folder/calculate_table_controller.php';
 	    break;
-
-	    case 'client_card_table':		
-		include 'client_card_table/client_card_table_controller.php';
-		break;
 		
 		case 'business_offers':
+		include('./skins/tpl/common/quick_bar.tpl');
+		include('./skins/tpl/clients/client_details_field_additional.tpl');
+		include('./skins/tpl/clients/client_details_field_general.tpl');
+		
 	    include 'business_offers/business_offers_controller.php';
 	    break;
+	   
+		case 'client_card_table':
+		include_once('./skins/tpl/common/quick_bar.tpl');
+		//include('./skins/tpl/clients/client_details_field_additional.tpl');
+		include_once('./skins/tpl/clients/client_details_field_general.tpl');
+		
+		include_once ('client_card_table/client_card_table_controller.php');
+		break;
 
 	    default: 
+		include('./skins/tpl/common/quick_bar.tpl');
+		include('./skins/tpl/clients/client_details_field_additional.tpl');
+		include('./skins/tpl/clients/client_details_field_general.tpl');
+		
 	    include 'client_folder/default_controller.php';
 	    break;
 	
 	}
 	
-	$content = ob_get_contents();
-	ob_get_clean();
-	//include('./skins/tpl/common/quick_bar.tpl');
-    //include('./skins/tpl/clients/client_details_field.tpl');
-	include('./skins/tpl/common/quick_bar.tpl');
-	// отключаем для карточки клиента
-	if($subsection!="client_card_table"){
-		include('./skins/tpl/clients/client_details_field_additional.tpl');
-	}
-	include('./skins/tpl/clients/client_details_field_general.tpl');
-	echo $content;
-    unset($content);
+	//$content = ob_get_contents();
+	//ob_get_clean();
+	
+    //unset($content);
     
 ?>
