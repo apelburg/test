@@ -5,6 +5,11 @@
 
     // names base tables
 	define('BASE_TBL','base');
+	define('IMAGES_TBL','new__base_images');
+	define('BASE_DOP_PARAMS_TBL','new__base__dop_params');
+	define('BASE_PRINT_MODE_TBL','new__base__print_mode');
+	define('BASE_COLORS_TBL','new__base_colors');
+	define('BASE_MATERIALS_TBL','new__base_material');
     define("CLIENTS_TBL","order_manager__client_list"); // таблица клиентов
 	define("CLIENT_REQUISITES_TBL","order_manager__clients_requisites"); // таблица реквизитов клиентов
 	define("CLIENT_REQUISITES_MANAGMENT_FACES_TBL","order_manager__clients_requisites_management");// таблица лиц (контрагентов) имеющих право подписи 

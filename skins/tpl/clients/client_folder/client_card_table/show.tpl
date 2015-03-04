@@ -26,5 +26,6 @@
         <?php echo $client_content; ?>
         <?php echo $client_content_contact_faces; ?>
         <?php echo $client_content_dop_info; ?>
+        <?php echo $dialog_windows; ?>
     </div>
 </div>

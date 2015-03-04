@@ -1,3 +1,6 @@
+<style type="text/css">
+    .adress_note{ float: left; padding-top: 10px; color: rgb(176, 175, 175)}
+</style>
 <div class="client_table">
 	<table class="client_table_gen">
     	<tr>            
@@ -15,14 +18,7 @@
                     	<td>Деятельность</td>
                     	<td><span  style="color:red">В разработке</span></td>
                     </tr>
-                	<tr>
-                    	<td>Адрес офиса</td>
-                    	<td><?php echo $client['addres']; ?></td>
-                    </tr>
-                	<tr>
-                    	<td>Адрес доставки</td>
-                    	<td><?php echo $client['delivery_address']; ?></td>
-                    </tr>
+                	<?php echo $client_address_s; ?>
                 	<tr>
                     	<td>Дополнительная информация</td>
                     	<td><?php echo !empty($client['dop_info'])?$client['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?></td>

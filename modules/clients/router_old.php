@@ -1,8 +1,12 @@
 <?php
-     include_once('./libs/php/client_class.php');
+     
+	 include_once('client_class.php');
+	 
+	 	
+	 
 	 
 	 /////////////////////////////////// AJAX //////////////////////////////////////
-	 
+
 	 if(isset($_GET['update_tr_field_ajax']))
 	 {
 	     update_tr_field(intval($_POST['id']),$_POST['field_name'],$_POST['field_val']);
@@ -47,18 +51,14 @@
 		 exit;
      }
 	 
-	 if(isset($_POST['change_kp_comment_old_version'])){
+	 if(isset($_POST['change_file_comment'])){
  
 		 $file_name = $_POST['file_name'];
-		 $file_comment = urldecode($_POST['change_kp_comment_old_version']);
-		 Com_pred::change_comment_old_version($file_name,$file_comment);
+		 $file_comment = urldecode($_POST['change_file_comment']);
+		 change_file_comment($file_name,$file_comment);
 		 exit;
 	 }
-	 if(isset($_POST['change_comment'])){
-	     Com_pred::change_comment($_POST['id'],$_POST['field_val']);
-		 exit;
-	 }
-
+	 
 	 if(isset($_GET['get_client_cont_faces']))
 	 {
 	     echo get_client_cont_faces_ajax($_GET['get_client_cont_faces']);
@@ -80,6 +80,9 @@
 		 //echo $_GET['id'].' '.$_GET['set_status_master_btn'].' '.$_GET['control_num'];
 		 exit;
 	 }
+
+	 
+
 	 /////////////////////////////////// AJAX //////////////////////////////////////
 	 
 	 ob_start();	

@@ -223,11 +223,11 @@
 				//div.style.backgroundColor = '#FF0000';
 				
 				//
-				box = document.createElement('div');
+				var box = document.createElement('div');
 				box.style.margin = 'auto';
 				box.style.backgroundColor = '#FFFFFF';
 				box.style.width = '600px';
-				box.style.border = '2px solid #CCC';
+				//box.style.border = '2px solid #CCC';
 				//
 				kpManager.textarea = document.createElement('textarea');
 			    ///textarea.id = 'message';
@@ -236,29 +236,61 @@
 				//
 				kpManager.contfaceSelect = document.createElement('select');
 				var options_arr = new Array();
-				for( var i = 0 ; i < kpManager.details.mails.length ; i++ ){//.length
-					options_arr[i] = '<option>'+kpManager.details.mails[i]+'</option>';
+				for( var i = 0 ; i < kpManager.details.client_mails.length ; i++ ){//.length
+					options_arr[i] = '<option>'+kpManager.details.client_mails[i].person+' '+kpManager.details.client_mails[i].mail+'</option>';
 				}
 				kpManager.contfaceSelect.innerHTML = options_arr.join("\r\n");
 				
+				kpManager.managerMailsSelect = document.createElement('select');
+				var options_arr = new Array();
+				for( var i = 0 ; i < kpManager.details.manager_mails.length ; i++ ){//.length
+					options_arr[i] = '<option>'+kpManager.details.manager_mails[i]+'</option>';
+				}
+				kpManager.managerMailsSelect.innerHTML = options_arr.join("\r\n");
+				
 				//
-				button = document.createElement('button');
+				var button = document.createElement('button');
 				button.onclick = kpManager.sendKpByMailFinalStep;
 				button.innerHTML = 'send';
 				
-				box.appendChild(document.createTextNode("Дальнейшая система зависит от структуры контактов"));
-				box.appendChild(document.createElement('br'));
-				box.appendChild(document.createTextNode("почтовые ящики"));
-				box.appendChild(kpManager.contfaceSelect);
-				box.appendChild(document.createElement('br'));
-				box.appendChild(document.createTextNode("файл "+kpManager.details.filename));
-				box.appendChild(document.createElement('br'));
-				box.appendChild(document.createTextNode("ваше сообщение"));
+				var br = document.createElement('br')
+				
+				box.appendChild(document.createTextNode("кому:"));
+				box.appendChild(br.cloneNode());
+				box.appendChild(document.createTextNode("почтовые ящики сотрудников"));
+				box.appendChild(kpManager.contfaceSelect.cloneNode(true));
+				box.appendChild(br.cloneNode());
+				box.appendChild(document.createTextNode("другие почтовые ящики"));
+				input = document.createElement('input');
+				input.style.height = "10px";
+				input.style.width = "200px";
+				box.appendChild(input.cloneNode(true));
+				box.appendChild(br.cloneNode());
+				box.appendChild(br.cloneNode());
+				box.appendChild(document.createTextNode("от:"));
+				box.appendChild(kpManager.managerMailsSelect);
+				
+				box.appendChild(br.cloneNode());
+				box.appendChild(br.cloneNode());
+				box.appendChild(document.createTextNode("заголовок письма:"));
+				box.appendChild(br.cloneNode());
+				box.appendChild(input);
+				
+				box.appendChild(br.cloneNode());
+				box.appendChild(document.createTextNode("текст письма:"));
+				box.appendChild(br.cloneNode());
 				box.appendChild(kpManager.textarea);
-				box.appendChild(document.createElement('br'));
+				box.appendChild(br.cloneNode());
+				box.appendChild(br.cloneNode());
+				box.appendChild(document.createTextNode("прикрепленный файл:"));
+				box.appendChild(br.cloneNode());
+				box.appendChild(document.createTextNode(kpManager.details.filename.slice(kpManager.details.filename.lastIndexOf("/")+1)));
+				box.appendChild(br.cloneNode());
+				box.appendChild(br.cloneNode());
 				box.appendChild(button);
-				div.appendChild(box);
-				document.body.appendChild(div);
+				//div.appendChild(box);
+				//document.body.appendChild(div);
+				new_html_modal_window_2(box.outerHTML,'отправка КП на email клиента');
 			}
 	
 		},
@@ -1035,3 +1067,12 @@
 	    });
 	});
 	*/
+	function new_html_modal_window_2(html,head_text){
+		if(typeof html == 'object') html = html.outerHTML;
+		if($('#bg_modal_window').length>0){$('#bg_modal_window,.html_modal_window').remove();}
+		$('body').append('<div id="bg_modal_window"></div><div class="html_modal_window"><div class="html_modal_window_head">'+ head_text +'<div class="html_modal_window_head_close">x</div></div><div class="html_modal_window_body">'+ html +'</div></div>');
+		
+		var he = ($(window).height()/2);
+		var margin = $('.html_modal_window').innerHeight()/2*(-1);
+		$('.html_modal_window').css({'top':he,'margin-top':margin,'display':'block'}).draggable({ handle : ".html_modal_window_head"});	
+	}

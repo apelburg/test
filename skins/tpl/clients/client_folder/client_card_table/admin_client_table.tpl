@@ -19,6 +19,55 @@ $(document).on('dblclick', '#chenge_name_company', function(event) {
 });
 
 
+$(function() {
+    $( "#add_new_phone" ).dialog({
+        autoOpen: false,
+        width: "auto",
+        modal:true,
+        buttons: {
+            Ok: function() {
+                var get_form = $('#add_new_phone form').serialize();
+                //alert($(this).dialog('option', 'table'););
+                var type_phone = $('#type_phone').val();
+                var phone = $('#phone_numver').val();
+                var dopPhone = $('#dop_phone_numver').val();
+                dopPhone = (dopPhone != "")?' доп.' + dopPhone:'';
+                var rou_num = $( "#add_new_row_phone" ).parent().parent().parent().parent().prev().children().children('tr').length;
+                $( this ).dialog( "close" );
+                $.post('', get_form, function(data, textStatus, xhr) {
+                    if (!isNaN(data)){//если вернулось число
+                    //скорее всего вернулся id
+                        //вносим изменения в DOM 
+                        $( "#add_new_row_phone" ).parent().parent().parent().parent().prev().children().append('<tr data-id_row="'+ data +'"><td class="td_phone">' + type_phone + ' ' + rou_num + '</td><td>' + phone +  dopPhone + '</td></tr>');
+                        //очищаем форму
+                        $('#add_new_phone form').trigger( 'reset' );
+                    }else{
+                        //сообщаем, что что-то пошло не так
+                        new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+
+                    }
+                });
+                
+            }
+        }
+    });
+});
+
+//добавление нового телефона
+$(document).on('click','#add_new_row_phone', function(){
+    var tbl = 'CLIENT_CONT_FACES_CONTACT_INFO_TBL';
+    //перечислим поля
+    var parent_id = $(this).attr('data-parent-id');
+    var table = "CLIENT_TBL";
+    var type = "phone";
+    //создадим окно
+    //$("#add_new_phone").dialog ('option', 'title', table);
+    $( "#add_new_phone" ).dialog( "open" );
+    //new_html_modal_window(html,name_window,buttons,'chenge_name_company', id_row, tbl);
+    
+});
+
+
 // создание нового адреса
 $(document).on('click', '.button_add_new_row.adres_row', function(event) {
     var prepend_s = $(this).parent().parent();
@@ -27,7 +76,10 @@ $(document).on('click', '.button_add_new_row.adres_row', function(event) {
     var tbl = 'CLIENT_ADRES_TBL';
     new_html_modal_window(html,'Добавить адрес','greate','add_new_adress_row', '', tbl);
     $.post('', {ajax_standart_window: 'new_adress_row' }, function(data, textStatus, xhr) {
-        $('.html_modal_window_body').html(data);
+        $('.html_modal_window_body').html(data);  
+        $('.html_modal_window form input:nth-of-type(1)').focus();
+        //выравниваем окно
+        $('.html_modal_window').animate({marginTop:$('.html_modal_window').innerHeight()/2*(-1)},200);
     });
     //добавляем поле для передачи parent_id
     $(".html_modal_window form").append('<input type="hidden" name="parent_id" value="'+  $('#chenge_name_company').attr('data-idrow') +'" >');
@@ -37,7 +89,6 @@ $(document).on('click', '.button_add_new_row.adres_row', function(event) {
     if($('.html_modal_window form input[name="ajax_standart_window"]').val()=="add_new_adress_row"){
         var str = $('.html_modal_window form').serialize();
         $.post('', str, function(data, textStatus, xhr) {
-            var re = /^[0-9]*$/;
             if (!isNaN(data)){//если вернулось число
                 //скорее всего вернулся id
                 //копируем соседнее поле
@@ -68,9 +119,13 @@ $(document).on('dblclick', '.edit_adress_row', function(event) {
     var buttons = $(this).attr('data-button-name-window');
     //вызываем окно редактирования адреса
     new_html_modal_window(html,name_window,buttons,'edit_adress_row', id_row, tbl);
+
+    
     //получаем контент для редактирования адреса
     $.post('', {ajax_standart_window: 'get_adres', id_row: id_row }, function(data, textStatus, xhr) {
-        $('.html_modal_window_body').html(data);        
+        $('.html_modal_window_body').html(data);  
+        $('.html_modal_window form input:nth-of-type(1)').focus();
+        $('.html_modal_window').animate({marginTop:$('.html_modal_window').innerHeight()/2*(-1)},200);      
     });  
     //при клике на сохранить...возвращаем всё, что нередактировали на страницу
     $('.green_bw.save_bw').click(function() {
@@ -124,9 +179,9 @@ function get_adress_info_form(){
 
         var bilding = $('.html_modal_window_body input[name="bilding"]').val();
         bilding = (bilding!="")?'строение '+bilding:'';
-        cont_str+=bilding; 
+        cont_str+=bilding;
 
-        cont_str += '<span class="adress_note">' + $('.html_modal_window_body textarea').val() + '</span>';
+        cont_str += '<br><span class="adress_note">' + $('.html_modal_window_body textarea').val() + '</span>';
         return cont_str;
 }
 
@@ -166,9 +221,6 @@ $(document).on('click', '#del_text', function(event) {
 
 });
 
-$(document).ready(function() {
-    // if(os_confirm('вы уверены')){alert('уверен')}else{'не уверен'}
-});
 
 </script>
 <style type="text/css">
@@ -228,7 +280,7 @@ width: 100%;}
                     <tr>
                         <td></td>
                         <td>
-                            <div class="button_add_new_row adres_row">Добавить адрес</div>
+                            <div class="button_add_new_row adres_row" data-parent-id="<?php echo $client_id; ?>">Добавить адрес</div>
                         </td>
                     </tr>
                 </table>
@@ -237,7 +289,7 @@ width: 100%;}
                 <table>
                     <tr>
                         <td></td>
-                        <td><div class="button_add_new_row phone_row">добавить телефон</div></td>
+                        <td><div id="add_new_row_phone" class="button_add_new_row"  data-parent-id="<?php echo $client_id; ?>">добавить телефон</div></td>
                     </tr>
                 </table>
             </td>
@@ -246,7 +298,7 @@ width: 100%;}
                 <table>
                     <tr>
                         <td></td>
-                        <td><div class="button_add_new_row other_row">добавить...</div></td>
+                        <td><div id="add_new_row_other" class="button_add_new_row other_row"  data-parent-id="<?php echo $client_id; ?>">добавить...</div></td>
                     </tr>
                 </table>
             </td>
