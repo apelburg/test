@@ -320,7 +320,7 @@
 					exit;
 				}
 			}
-			$filename = '/apelburg_'.$client_id.'_'.date('Y_i_s').'.pdf';
+			$filename = '/Пробный ПДФ в кириллице _'.$client_id.'_'.date('Y_i_s').'.pdf';
 			$save_to = $document_root.$dirname.$filename;
             Com_pred::save_in_pdf_on_server($kp_id,$client_id,$manager_id,$save_to);
 			return $dirname.$filename;
@@ -330,7 +330,7 @@
 	   
             $html = Com_pred::open_in_blank($kp_id,$client_id,$manager_id);
 			
-			include("./libs/php/mpdf60/mpdf.php");	
+			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
 			$mpdf=new mPDF();
 			$mpdf->WriteHTML($html,2);
 			$mpdf->Output($filename,'F');
@@ -339,7 +339,7 @@
 	   
             $html = Com_pred::open_in_blank($kp_id,$client_id,$manager_id);
 		
-			include("./libs/php/mpdf60/mpdf.php");
+			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
             //$stylesheet = file_get_contents('style.css');
 				
 			$mpdf=new mPDF();

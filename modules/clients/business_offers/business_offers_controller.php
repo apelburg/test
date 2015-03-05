@@ -19,9 +19,9 @@
 	if(isset($_GET['send_kp_by_mail'])){
 	    //echo  $_GET['send_kp_by_mail'];
 	    list($kp_id,$client_id,$manager_id) = json_decode($_GET['send_kp_by_mail']);
-		//$filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
-		 //$filename = $_SERVER['DOCUMENT_ROOT'].$filename;
-       $filename = $_SERVER['DOCUMENT_ROOT'].'/os/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
+		$filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
+		 $filename = $_SERVER['DOCUMENT_ROOT'].$filename;
+       //$filename = $_SERVER['DOCUMENT_ROOT'].'/os/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		echo '{
 		       "filename":"'.$filename.'",
 		       "client_mails":[{"person":"менеджер - Наталья","mail":"premier22@yandex.ru"},{"person":"директор - Елена","mail":"premier_22@yandex.ru"}],
