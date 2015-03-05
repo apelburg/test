@@ -288,9 +288,9 @@
 				box.appendChild(br.cloneNode());
 				box.appendChild(br.cloneNode());
 				box.appendChild(button);
-				//div.appendChild(box);
-				//document.body.appendChild(div);
-				new_html_modal_window_2(box.outerHTML,'отправка КП на email клиента');
+				div.appendChild(box);
+				document.body.appendChild(div);
+				//new_html_modal_window_2(box.outerHTML,'отправка КП на email клиента');
 			}
 	
 		},
@@ -300,7 +300,7 @@
 			// manager_id
 			// client_id
 			// template
-			
+
 			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search;
 			
 			var regexp = /%20/g; // Регулярное выражение соответствующее закодированному пробелу
