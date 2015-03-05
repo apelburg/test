@@ -87,7 +87,8 @@
 			$this->headers .= "From: ".$from."\r\n";
 			if(!$this->multipatr) $this->headers .= "Content-Type:text/html; charset=windows-1251\r\n";
 			if($this->added_headers) foreach($this->added_headers as $header) $this->headers .= $header;
-			
+			//echo $to."\r\n @ \r\n @ \r\n".$subject."\r\n @ \r\n @ \r\n".$message."\r\n @ \r\n @ \r\n".$this->headers;
+			//exit;
 			//if(mail($to,$subject,$message,$this->headers,"-f".$from)){ такой вариант почемуто не сработал
 			if(mail($to,$subject,$message,$this->headers)){
 				  //header('Location:?page=basket&send_ok');//exit;

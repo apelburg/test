@@ -36,7 +36,7 @@
 	    var_dump(json_decode($_POST['send_kp_by_mail_final_step']));
 		
 		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
-		echo gettype($mail_details);
+		//echo gettype($mail_details);
         // вызываем метод выполняющий отправку сообщения
 		$mail = new Mail();
 		$mail->add_bcc('box@yandex.ru');
