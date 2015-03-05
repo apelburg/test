@@ -49,7 +49,7 @@
 		    if(!$this->added_headers) $this->added_headers = array();
 			array_push($this->added_headers,"Content-Type: multipart/mixed; boundary = \"".$this->boundary."\"\r\n");
 			//array_push($this->added_headers,"Content-Type: multipart/mixed; boundary = \"".$this->boundary."\"\r\n".$this->boundary."\r\n");
-			
+			//$filepath = iconv("windows-1251//TRANSLIT","UTF-8", $filepath);
 			$fd = fopen($filepath,"rb");
 			$content = fread($fd,filesize($filepath));
 			$content = chunk_split(base64_encode($content));
@@ -320,7 +320,10 @@
 					exit;
 				}
 			}
-			$filename = '/Пробный ПДФ в кириллице _'.$client_id.'_'.date('Y_i_s').'.pdf';
+			//$filename = '/Пробный_ПДФ_в_кириллицe_'.$client_id.'_'.date('Y_i_s').'.pdf';
+			$filename = '/probe_file_in_latin_'.$client_id.'_'.date('Y_i_s').'.pdf';
+			//$filename_utf = iconv("UTF-8","windows-1251//TRANSLIT", $filename);
+			//$save_to = $document_root.$dirname.$filename_utf;
 			$save_to = $document_root.$dirname.$filename;
             Com_pred::save_in_pdf_on_server($kp_id,$client_id,$manager_id,$save_to);
 			return $dirname.$filename;
