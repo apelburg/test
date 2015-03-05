@@ -97,11 +97,43 @@ ini_set('display_startup_errors', 1);
 			exit;
 		}
 		if($_POST['ajax_standart_window']=="add_new_phone_row"){
-			echo '<pre>';
-			print_r($_POST);
-			echo '</pre>';
+			$query = "INSERT INTO `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` VALUES (
+				'',
+				'".$_POST['client_id']."',
+				'CLIENTS_TBL',
+				'phone',
+				'".$_POST['type_phone']."',
+				'".$_POST['telephone']."',
+				'".$_POST['dop_phone']."'
+				);";
+			// echo "$query";exit;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo $mysqli->insert_id;			
 			exit;
 		}
+		if($_POST['ajax_standart_window']=="add_new_other_row"){
+			$query = "INSERT INTO `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` VALUES (
+				'',
+				'".$_POST['client_id']."',
+				'CLIENTS_TBL',
+				'".$_POST['type']."',
+				'',
+				'".$_POST['input_text']."',
+				''
+				);";
+			// echo "$query";exit;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo $mysqli->insert_id;			
+			exit;
+		}
+		if($_POST['ajax_standart_window']=="delete_dop_cont_row"){
+			$query = "DELETE FROM `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` WHERE `id` = '".$_POST['id']."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo "OK";
+			exit;
+		}
+
+		// CLIENT_CONT_FACES_CONTACT_INFO_TBL
 		
 	}
 	/////////////////////////////////////  AJAX END /////////////////////////////////

@@ -1,4 +1,8 @@
 <script type="text/javascript">
+//
+//      НАЗВАНИЕ КОМПАНИИ
+//
+//МЕНЯЕМ НАЗВАНИЕ КОМПАНИИ
 $(document).on('dblclick', '#chenge_name_company', function(event) {
     var name_window = $(this).parent().prev().html();
     name_window = 'Редактировать '+ name_window.toLowerCase();
@@ -19,6 +23,22 @@ $(document).on('dblclick', '#chenge_name_company', function(event) {
 });
 
 
+//
+//      ТЕЛЕФОНЫ
+//
+// ДОБАВЛЕНИЕ НОВОГО ТЕЛЕФОНА
+$(document).on('click','#add_new_row_phone', function(){
+    var tbl = 'CLIENT_CONT_FACES_CONTACT_INFO_TBL';
+    //перечислим поля
+    var parent_id = $(this).attr('data-parent-id');
+    var table = "CLIENT_TBL";
+    var type = "phone";
+    //создадим окно
+    //$("#add_new_phone").dialog ('option', 'title', table);
+    $( "#add_new_phone" ).dialog( "open" );
+    //new_html_modal_window(html,name_window,buttons,'chenge_name_company', id_row, tbl);
+});
+// ОКНО ДОБАВЛЕНИЯ НОВОГО ТЕЛЕФОНА
 $(function() {
     $( "#add_new_phone" ).dialog({
         autoOpen: false,
@@ -38,7 +58,7 @@ $(function() {
                     if (!isNaN(data)){//если вернулось число
                     //скорее всего вернулся id
                         //вносим изменения в DOM 
-                        $( "#add_new_row_phone" ).parent().parent().parent().parent().prev().children().append('<tr data-id_row="'+ data +'"><td class="td_phone">' + type_phone + ' ' + rou_num + '</td><td>' + phone +  dopPhone + '</td></tr>');
+                        $( "#add_new_row_phone" ).parent().parent().parent().parent().prev().children().append('<tr><td class="td_phone">' + type_phone + ' ' + rou_num + '</td><td><div data-adress-id="'+ data +'">' + phone +  dopPhone + '</div></td></tr>');
                         //очищаем форму
                         $('#add_new_phone form').trigger( 'reset' );
                     }else{
@@ -52,23 +72,127 @@ $(function() {
         }
     });
 });
+// УДАЛЕНИЕ ТЕЛЕФОНОВ И ДОПОЛНИТЕЛЬНЫХ КОНТАКТНЫХ ДАННЫХ
+$(document).on('click', '.table_phone_contact_information #del_text,.table_other_contact_information #del_text', function(event) {
+$(this).parent().parent().addClass('deleting_row');
+$('#delete_one_contact_row').dialog("option",'id',$(this).prev().attr('data-adress-id'))
+$('#delete_one_contact_row').dialog("open");
+})
+// ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ ТЕЛЕФОНОВ И ДОПОЛНИТЕЛЬНЫХ КОНТАКТНЫХ ДАННЫХ
+$(function() {
+    $('#delete_one_contact_row').dialog({
+        width: 'auto',
+        height: 'auto',
+        title: 'Предупреждение',
+        autoOpen : false,
+        buttons: [
+            {
+                text: 'Да',
+                click: function() {
+                    d_elem = $(this);
+                    $.post('', {
+                        id:$(this).dialog('option', 'id'),
+                        ajax_standart_window:"delete_dop_cont_row"
 
-//добавление нового телефона
-$(document).on('click','#add_new_row_phone', function(){
-    var tbl = 'CLIENT_CONT_FACES_CONTACT_INFO_TBL';
-    //перечислим поля
-    var parent_id = $(this).attr('data-parent-id');
-    var table = "CLIENT_TBL";
-    var type = "phone";
-    //создадим окно
-    //$("#add_new_phone").dialog ('option', 'title', table);
-    $( "#add_new_phone" ).dialog( "open" );
-    //new_html_modal_window(html,name_window,buttons,'chenge_name_company', id_row, tbl);
-    
+                    }, function(data, textStatus, xhr) {
+                        if(data=="OK"){
+                            $('.deleting_row').remove();
+                            d_elem.dialog( "close" );                            
+                        }else{
+                            $('.deleting_row').removeClass('deleting_row');
+                            d_elem.dialog( "close" );
+                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                        }
+                    });
+                    
+                }
+            },
+            {
+                text: 'Отмена',
+                click: function() {
+                    $('.deleting_row').removeClass('deleting_row');
+                    $( this ).dialog( "close" );
+
+                }
+            }
+       ]
+    });
 });
 
+//
+//      email, www, VK
+//
+// ДОБАВЛЕНИЕ НОВОЙ СТРОКИ
+$(document).on('click','#add_new_row_other',function(){
+    $('#add_new_row_other').parent().parent().parent().parent().prev().addClass('new_row_dop_iformation');
+    $('#new_other_row_info').dialog("open");
+});
 
-// создание нового адреса
+$(document).on('change','#new_other_row_infoType',function(){
+    $('#new_other_row_infoType_input').val($(this).val());
+    console.log($(this).val());
+});
+
+// ОКНО ДОБАВЛЕНИЯ НОВОЙ СТРОКИ ДОП ИНФО
+$(function() {
+    var array_img = new Object();     
+    array_img["email"] = '<img src="skins/images/img_design/social_icon1.png" >';
+    array_img["skype"] = '<img src="skins/images/img_design/social_icon2.png" >';
+    array_img["isq"] = '<img src="skins/images/img_design/social_icon3.png" >';
+    array_img["twitter"] = '<img src="skins/images/img_design/social_icon4.png" >';
+    array_img["fb"] = '<img src="skins/images/img_design/social_icon5.png" >';
+    array_img["vk"] = '<img src="skins/images/img_design/social_icon6.png" >';
+    array_img["other"] = '<img src="skins/images/img_design/social_icon7.png" >';
+
+    
+    $('#new_other_row_info').dialog({
+        width: 'auto',
+        height: 'auto',
+        title: 'Добавление дополнительной информации о клиенте',
+        autoOpen : false,
+        buttons: [
+            {
+                text: 'ОК',
+                click: function() {
+                    var dialog_w = $( this );
+                    var str = $('#new_other_row_info form').serialize();
+                    if($('#new_other_row_infoType').val()){//проверяем на заполнение
+                        $.post('', str, function(data, textStatus, xhr) {// отправляем запрос
+                            if (!isNaN(data)){//если вернулось число id
+                                //скорее всего вернулся id
+                                //копируем соседнее поле
+                                var html2 = '<tr><td class="td_icons">'+array_img[$('#new_other_row_infoType').val()]+'</td><td><div class="del_text" data-adress-id="'+data+'">'+$('#input_text').val()+'</div></td></tr>';
+                                $('.new_row_dop_iformation').append(html2);
+                                $('.new_row_dop_iformation').removeClass('.new_row_dop_iformation');
+                                dialog_w.dialog( "close" );
+                                $('#bg_modal_window,.html_modal_window').remove();
+                            }else{
+                                //сообщаем, что что-то пошло не так
+                                new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                            }
+                        });  
+                    }else{
+                        new_html_modal_window('Необходимо указать тип записи!!!','Предупреждение об ошибке','','', '', '');
+                    }
+                    $('.deleting_row').removeClass('deleting_row');
+                    $( this ).dialog( "close" );
+                }
+            },
+            {
+                text: 'Отмена',
+                click: function() {
+                    $('.deleting_row').removeClass('deleting_row');
+                    $( this ).dialog( "close" );
+
+                }
+            }
+       ]
+    });
+});
+//
+//      АДРЕС  
+//
+// СОЗДАНИЕ НОВОГО АДРЕСА
 $(document).on('click', '.button_add_new_row.adres_row', function(event) {
     var prepend_s = $(this).parent().parent();
     
@@ -83,32 +207,27 @@ $(document).on('click', '.button_add_new_row.adres_row', function(event) {
     });
     //добавляем поле для передачи parent_id
     $(".html_modal_window form").append('<input type="hidden" name="parent_id" value="'+  $('#chenge_name_company').attr('data-idrow') +'" >');
-
+    //ОБРАБОТКА КЛИКОВ НА ЗЕЛЕНЫЕ КНОПКИ СТАНДАРТНОГО МОДАЛЬНОГО ОКНА
     $('.ok_bw, .send_bw, .greate_bw, .save_bw').click( function(event) {
-    //отправляем, если это создание новой строки адреса
-    if($('.html_modal_window form input[name="ajax_standart_window"]').val()=="add_new_adress_row"){
-        var str = $('.html_modal_window form').serialize();
-        $.post('', str, function(data, textStatus, xhr) {
-            if (!isNaN(data)){//если вернулось число
-                //скорее всего вернулся id
-                //копируем соседнее поле
-                var html2 = '<tr><td>Адрес</td><td><div class="edit_row edit_adress_row del_text" data-tableName="CLIENT_ADRES_TBL" data-editType="input" data-adress-id="'+data+'" data-button-name-window="save">'+get_adress_info_form()+'</div></td></tr>';
-                prepend_s.before(html2);
-                $('#bg_modal_window,.html_modal_window').remove();
-            }else{
-                //сообщаем, что что-то пошло не так
-                new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
-            }
-        });   
-
-    }
-
-    
+        //отправляем, если это создание новой строки адреса
+        if($('.html_modal_window form input[name="ajax_standart_window"]').val()=="add_new_adress_row"){
+            var str = $('.html_modal_window form').serialize();
+            $.post('', str, function(data, textStatus, xhr) {
+                if (!isNaN(data)){//если вернулось число
+                    //скорее всего вернулся id
+                    //копируем соседнее поле
+                    var html2 = '<tr><td>Адрес</td><td><div class="edit_row edit_adress_row del_text" data-tableName="CLIENT_ADRES_TBL" data-editType="input" data-adress-id="'+data+'" data-button-name-window="save">'+get_adress_info_form()+'</div></td></tr>';
+                    prepend_s.before(html2);
+                    $('#bg_modal_window,.html_modal_window').remove();
+                }else{
+                    //сообщаем, что что-то пошло не так
+                    new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                }
+            });   
+        }
+    });
 });
-
-});
-
-// редактирование адреса
+// РЕДАКТИРОВАНИЕ АДРЕСА
 $(document).on('dblclick', '.edit_adress_row', function(event) {
     var name_window = $(this).parent().prev().html();
     var element = $(this);
@@ -131,18 +250,41 @@ $(document).on('dblclick', '.edit_adress_row', function(event) {
     $('.green_bw.save_bw').click(function() {
         element.html(get_adress_info_form());
     });
-    
 });
+// ВЫБОР ТИПА АДРЕСА    адрес офиса/адрес доставки
 $(document).on('click','.type_adress',function(event) {    
     $('.html_modal_window form input[name="adress_type"]').val($(this).attr('data-type'));
     $('.type_adress').removeClass('checked');
     $(this).addClass('checked');
 });
+// БЫСТРОЕ ЗАПОЛНЕНИЕ ПОЛЯ ГОРОД В ОКНАХ ЗАПОЛНЕНЯ АДРЕСА
 $(document).on('click','.city_fast',function(event) {
     $(this).parent().next().find('input').val($(this).attr('data-city'));
 });
+// УДАЛЕНИЕ СТРОКИ С АДРЕСОМ КЛИЕНТА
+$(document).on('click', '.edit_general_info #del_text', function(event) {
+    var del_div = $(this).prev();
+    var id_row = (del_div.attr('data-adress-id') != "")?del_div.attr('data-adress-id'):'none';
+    var tbl = (del_div.attr('data-tablename') != "")?del_div.attr('data-tablename'):'none';
+     console.log(tbl+'');
+    new_html_modal_window('Вы уверены, что хотите удалить данную запись? ','Подтвердите действие','ok','','','');   
+    $('.ok_bw').click(function(event) {
+        $.post('', {
+            ajax_standart_window: 'delete_adress_row',
+            id_row : id_row ,
+            tbl : tbl
+        }, function(data, textStatus, xhr) {
+            if(data=='OK'){
+                $('#bg_modal_window,.html_modal_window').remove();
+                del_div.parent().parent().remove();
+            }else{
+                new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+            }
+        });
+    });
 
-//выбираем информацию об адресе из полей формы и выдаем её в строке 
+});
+//выбираем информацию об адресе из полей формы и выдаем её в строке, для вставки в HTML
 function get_adress_info_form(){
     var cont_str = "";
         var ind = $('.html_modal_window_body input[name="postal_code"]').val();     
@@ -185,7 +327,12 @@ function get_adress_info_form(){
         return cont_str;
 }
 
-// показать/скрыть кнопку удалить
+
+
+
+
+
+// ПОКАЗ КНОПКИ УДАЛИТЬ
 $(document).on('mouseover', '.del_text', function(event) {
     // наведение
     var af = $(this).offset();
@@ -198,27 +345,11 @@ $(document).on('mouseover', '.del_text', function(event) {
     }    
     $('#del_text').css({'top':af.top,'left':wi});
 });
-//удаление строки с информацией
-$(document).on('click', '#del_text', function(event) {
-    var del_div = $(this).prev();
-    var id_row = (del_div.attr('data-adress-id') != "")?del_div.attr('data-adress-id'):'none';
-    var tbl = (del_div.attr('data-tablename') != "")?del_div.attr('data-tablename'):'none';
-    // console.log(tbl+'');
-    new_html_modal_window('Вы уверены, что хотите удалить данную запись? ','Подтвердите действие','ok','','','');
-   
-    $('.ok_bw').click(function(event) {
-        $.post('', {
-            ajax_standart_window: 'delete_adress_row',
-            id_row : id_row ,
-            tbl : tbl
-        }, function(data, textStatus, xhr) {
-            if(data=='OK'){
-                $('#bg_modal_window,.html_modal_window').remove();
-                del_div.parent().parent().remove();
-            }
-        });
-    });
-
+// СОКРЫТИЕ КНОПКИ УДАЛИТЬ
+$(document).on('mouseleave', '.edit_general_info tr td:nth-of-type(2),.table_phone_contact_information tr td:nth-of-type(2),.table_other_contact_information tr td:nth-of-type(2)', function(){
+    if(!$("#del_text").is(":hover")){
+        $('#del_text').fadeOut('fast'); 
+    }
 });
 
 
@@ -245,11 +376,20 @@ padding-right: 1%;border: 1px solid rgb(213, 213, 213);
 color: #C2C2C2;}
 #edit-client-adres .type_adress:active,.city_fast:active{ background-color: grey}
 #edit-client-adres .type_adress.checked{ padding: 5px 7px; background-color: #9dbe8e; color: #000;border: 1px solid #9dbe8e;}
-#del_text{ height:22px; opacity: 0.7; width:36px; float: right; top:5px;right: 20px; position: absolute; background: no-repeat url(http://ssl.gstatic.com/mail/sprites/general_black-16bf964ab5b51c4b7462e4429bfa7fe8.png) 7px -411px; background-color: #BBBBBB;
+#del_text,.del_text2{ height:22px; padding: 0; opacity: 0.7; width:36px; float: right; top:5px;right: 20px; position: absolute; background: no-repeat url(http://ssl.gstatic.com/mail/sprites/general_black-16bf964ab5b51c4b7462e4429bfa7fe8.png) 7px -411px; background-color: #BBBBBB;
 cursor: default; opacity: 0.4}
 .c_r{position:relative; padding-right:48px;float: left;
 width: 100%;}
-#del_text:hover{ opacity: 1}
+#del_text2:hover,#del_text:hover{ opacity: 1}
+.table_other_contact_information tr td:nth-of-type(2) div,.table_phone_contact_information tr td:nth-of-type(2) div{ padding: 5px 5px 5px 0px;height: 100%; float: left; cursor: default;}
+
+.edit_general_info tr td:nth-of-type(2):hover div,
+.table_other_contact_information tr td:nth-of-type(2):hover div,
+.table_phone_contact_information tr td:nth-of-type(2):hover div{ 
+      
+    background-color: rgb(255, 228, 228);
+}
+
 </style>
 
 
@@ -257,7 +397,7 @@ width: 100%;}
 	<table class="client_table_gen">
     	<tr>            
         	<td>
-            	<table>
+            	<table class="edit_general_info">
                 	<tr>
                     	<td>Название</td>
                     	<td>

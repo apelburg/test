@@ -38,14 +38,15 @@ class Client {
 
 	//вывод доп контактов в табличном виде
 	static function get_contact_row($contact_company, $type,$array_dop_contacts_img){
-		$str = '<table>';
+		
 		if(isset($type) && $type == "phone"){
 			$i=0;
+			$str = '<table class="table_phone_contact_information">';
 			if(empty($contact_company)){return;}
 
 			foreach($contact_company as $k=>$v){				
 				if($v['type'] == $type){
-					$str .= "<tr><td class='td_phone'>".$v['telephone_type']." ".$i."</td><td>".$v['contact']." ".$v['dop_phone']."</td></tr>";	
+					$str .= "<tr><td class='td_phone'>".$v['telephone_type']." ".$i."</td><td><div  class='del_text' data-adress-id=".$v['id'].">".$v['contact']." доп.".$v['dop_phone']."</div></td></tr>";	
 					$i++;
 				}
 			}
@@ -53,7 +54,7 @@ class Client {
 			// echo $str;
 			return $str;
 		}else{
-			
+			$str = '<table class="table_other_contact_information">';
 			foreach($contact_company as $k=>$v){
 			if(isset($array_dop_contacts_img[trim($v['type'])])){
 				$icon = $array_dop_contacts_img[trim($v['type'])];
@@ -61,7 +62,7 @@ class Client {
 				@$icon = $array_dop_contacts_img['other'];
 			}
 				if($v['type'] != 'phone'){
-					$str .= "<tr><td class='td_icons'>".$icon."</td><td>".$v['contact']."</td></tr>";	
+					$str .= "<tr><td class='td_icons'>".$icon."</td><td><div   class='del_text' data-adress-id=".$v['id'].">".$v['contact']."<div></td></tr>";	
 				}
 			}
 			$str .= "</table>";	
