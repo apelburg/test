@@ -1,4 +1,9 @@
 <div class="client_table">
+    <?php
+    // echo "<pre>";
+    // print_r($this_contact_face);
+    // echo "</pre>";
+    ?>
 	<table class="client_table_gen" >
     	<tr>
         	<td>
@@ -22,9 +27,21 @@
                 </table>
         	<td>
             	<?php echo $cont_company_phone; ?>
+                <table>
+                    <tr>
+                        <td></td>
+                        <td><div class="add_new_row_phone button_add_new_row" data-parent-id="<?php echo $this_contact_face['id']; ?>" data-parenttable="CLIENT_CONT_FACES_TBL">добавить телефон</div></td>
+                    </tr>
+                </table>                
             </td>
             <td>
             	<?php echo $cont_company_other; ?>
+                <table>
+                    <tr>
+                        <td></td>
+                        <td><div class="button_add_new_row other_row add_new_row_other" data-parenttable="CLIENT_CONT_FACES_TBL"  data-parent-id="<?php echo $this_contact_face['id']; ?>">добавить...</div></td>
+                    </tr>
+                </table>
             </td>
     </tr>
     </table>    

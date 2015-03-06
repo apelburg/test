@@ -40,13 +40,13 @@ class Client {
 	static function get_contact_row($contact_company, $type,$array_dop_contacts_img){
 		
 		if(isset($type) && $type == "phone"){
-			$i=0;
+			$i=1;
 			$str = '<table class="table_phone_contact_information">';
 			if(empty($contact_company)){return;}
 
 			foreach($contact_company as $k=>$v){				
 				if($v['type'] == $type){
-					$str .= "<tr><td class='td_phone'>".$v['telephone_type']." ".$i."</td><td><div  class='del_text' data-adress-id=".$v['id'].">".$v['contact']." доп.".$v['dop_phone']."</div></td></tr>";	
+					$str .= "<tr><td class='td_phone'>".$v['telephone_type']." ".$i."</td><td><div  class='del_text' data-adress-id=".$v['id'].">".$v['contact'].((trim($v['dop_phone'])!=0)?" доп.".$v['dop_phone']:'')."</div></td></tr>";	
 					$i++;
 				}
 			}
