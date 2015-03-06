@@ -74,21 +74,20 @@ ini_set('display_startup_errors', 1);
 			$tbl = $_POST['tbl'];
 			$query = "";
 			$adres_type = (isset($_POST['adress_type']) && $_POST['adress_type']!="")?$_POST['adress_type']:'office';
-			$query = "INSERT INTO `".constant($tbl)."` VALUES (
-			'',
-			'".addslashes($_POST['parent_id'])."',
-			'".addslashes($_POST['tbl'])."',
-			'".addslashes($adres_type)."',
-			'".addslashes($_POST['city'])."',
-			'".addslashes($_POST['street'])."',
-			'".addslashes($_POST['house_number'])."',
-			'".addslashes($_POST['korpus'])."',
-			'".addslashes($_POST['office'])."',
-			'".addslashes($_POST['liter'])."',
-			'".addslashes($_POST['bilding'])."',
-			'".addslashes($_POST['postal_code'])."',
-			'".addslashes($_POST['note'])."'
-			)";
+			$query = "INSERT INTO `".constant($tbl)."` SET 
+			`parent_id` = '".addslashes($_POST['parent_id'])."',
+			`table_name` = '".addslashes($_POST['tbl'])."',
+			`adress_type` = '".addslashes($adres_type)."',
+			`city` = '".addslashes($_POST['city'])."',
+			`street` = '".addslashes($_POST['street'])."',
+			`house_number` = '".addslashes($_POST['house_number'])."',
+			`korpus` = '".addslashes($_POST['korpus'])."',
+			`office` = '".addslashes($_POST['office'])."',
+			`liter` = '".addslashes($_POST['liter'])."',
+			`bilding` = '".addslashes($_POST['bilding'])."',
+			`postal_code` = '".addslashes($_POST['postal_code'])."',
+			`note` = '".addslashes($_POST['note'])."'
+			;";
 			//echo "$query";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo $mysqli->insert_id;
@@ -103,31 +102,29 @@ ini_set('display_startup_errors', 1);
 			exit;
 		}
 		if($_POST['ajax_standart_window']=="add_new_phone_row"){
-			$query = "INSERT INTO `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` VALUES (
-				'',
-				'".$_POST['client_id']."',
-				'".$_POST['parent_tbl']."',
-				'phone',
-				'".$_POST['type_phone']."',
-				'".$_POST['telephone']."',
-				'".((trim($_POST['dop_phone'])!="" && is_numeric(trim($_POST['dop_phone'])))?trim($_POST['dop_phone']):'')."'
-				);";
+			$query = "INSERT INTO `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` SET 
+			`parent_id` ='".$_POST['client_id']."', 
+			`table` = '".$_POST['parent_tbl']."', 
+			`type` = 'phone', 
+			`telephone_type` = '".$_POST['type_phone']."', 
+			`contact` = '".$_POST['telephone']."',
+			`dop_phone` = '".((trim($_POST['dop_phone'])!="" && is_numeric(trim($_POST['dop_phone'])))?trim($_POST['dop_phone']):'')."';";
+
 			// echo "$query";exit;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			echo $mysqli->insert_id;			
+			echo $mysqli->insert_id;
 			exit;
 		}
 		if($_POST['ajax_standart_window']=="add_new_other_row"){
-			$query = "INSERT INTO `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` VALUES (
-				'',
-				'".$_POST['client_id']."',
-				'".$_POST['parent_tbl']."',
-				'".$_POST['type']."',
-				'',
-				'".$_POST['input_text']."',
-				''
-				);";
-			// echo "$query";exit;
+			$query= "INSERT INTO `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` SET 			
+			
+			`parent_id` ='".$_POST['client_id']."', 
+			`table` = '".$_POST['parent_tbl']."', 
+			`type` = '".$_POST['type']."', 
+			`telephone_type` = '', 
+			`contact` = '".$_POST['input_text']."',
+			`dop_phone` = '';";
+			 // echo "$query";exit;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo $mysqli->insert_id;			
 			exit;
@@ -136,6 +133,38 @@ ini_set('display_startup_errors', 1);
 			$query = "DELETE FROM `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` WHERE `id` = '".$_POST['id']."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo "OK";
+			exit;
+		}
+		if($_POST['ajax_standart_window']=="show_cont_face_in_json"){
+			$query = "SELECT * FROM `".CLIENT_CONT_FACES_TBL."` WHERE `id` = '".$_POST['id']."'";
+			$arr = array();
+			// echo $query;exit;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+
+			$my_json = json_encode($arr); 
+			print $my_json; 
+			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="contact_face_edit_form"){
+			global $mysqli;
+			$query = "UPDATE  `".CLIENT_CONT_FACES_TBL."` SET  
+			`surname` =  '".$_POST['surname']."',
+			`last_name` =  '".$_POST['last_name']."',
+			`name` =  '".$_POST['name']."', 
+			`position` =  '".$_POST['position']."',
+			`department` =  '".$_POST['department']."',
+			`note` =  '".$_POST['note']."' WHERE  `id` ='".$_POST['id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{
+		       "response":"1",
+		       "text":"Данные сохранены"
+		      }';
 			exit;
 		}
 

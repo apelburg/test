@@ -63,3 +63,43 @@
 	</form>
 </div>
 
+<!-- contact face edit -->
+<style type="text/css">
+	#contact_face_edit_form{display: none}
+	#contact_face_edit_form table{width: 100%;}
+	#contact_face_edit_form table tr td:nth-of-type(1){width: 70px; text-align: right}
+	#contact_face_edit_form input{width: 100%}
+</style>
+<div id="contact_face_edit_form">	
+	<form>
+		<table>
+			<tr>
+				<td>Фаммилия</td>
+				<td><input type="text" name="last_name" ></td>
+			</tr>
+			<tr>
+				<td>Имя</td>
+				<td><input type="text" name="name" ></td>
+			</tr>
+			<tr>
+				<td>Отчество</td>
+				<td><input type="text" name="surname" ></td>
+			</tr>
+			<tr>
+				<td>Должность</td>
+				<td><input type="text" name="position" ></td>
+			</tr>
+			<tr>
+				<td>Отдел</td>
+				<td><input type="text" name="department" ></td>
+			</tr>
+			<tr>
+				<td>Прим.</td>
+				<td><input type="text" name="note" ></td>
+			</tr>
+		</table>
+		<input type="hidden" name="ajax_standart_window" value="contact_face_edit_form">
+		<input type="hidden" name="id" value="">
+	</form>
+</div>
+

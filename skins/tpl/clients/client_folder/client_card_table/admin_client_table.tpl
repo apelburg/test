@@ -367,6 +367,90 @@ $(document).on('mouseleave', '.edit_general_info tr td:nth-of-type(2),.table_pho
     }
 });
 
+//
+//      КОНТАКТНЫЕ ЛИЦА
+//
+
+// РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ О КОНТАКТНОМ ЛИЦЕ
+$(document).on('dblclick','.contact_face_tbl_edit',function(){  
+    // добавляем класс редактирования
+    $(this).attr('id','contact_face_tbl_edit_enable');  
+    
+
+    var id = $(this).attr('data-contface');
+    //делаем запрос, получаем в JSON
+    $.post('',{ajax_standart_window:"show_cont_face_in_json",id : id},function(data){
+        if(data[0]['id'] != id){
+            // если id не соответствуют, значит ошибка
+            // сообщаем об ошибке
+            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');  
+            $('#contact_face_edit_form').dialog('close');
+        }else{
+            var cont_face = data[0];
+            // подставляем данные в форму
+            $('#contact_face_edit_form input[name="id"]').val(id);
+            $('#contact_face_edit_form input[name="last_name"]').val(cont_face['last_name']);
+            $('#contact_face_edit_form input[name="name"]').val(cont_face['name']);
+            $('#contact_face_edit_form input[name="surname"]').val(cont_face['surname']);
+            $('#contact_face_edit_form input[name="position"]').val(cont_face['position']);
+            $('#contact_face_edit_form input[name="department"]').val(cont_face['department']);
+            $('#contact_face_edit_form input[name="note"]').val(cont_face['note']);
+            // открываем окно
+            $('#contact_face_edit_form').dialog('open');
+        }
+    }, "json");
+    
+
+
+});
+
+// окно РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ О КОНТАКТНОМ ЛИЦЕ 
+$(function(){
+    $('#contact_face_edit_form').dialog({
+        width: 'auto',
+        height: 'auto',
+        title: 'Добавление дополнительной информации о клиенте',
+        autoOpen : false,
+        buttons: [
+            {
+            text: 'Сохранить',
+                click: function() {
+                    var str = $('#contact_face_edit_form form').serialize();
+                        $.post('', str, function(data, textStatus, xhr) {// отправляем запрос
+                            if(data['response']=='1'){
+                                // ЗАНОСИМ ДАННЫЕ В html
+                                // заносим имя
+                                $('#contact_face_tbl_edit_enable tr:nth-of-type(1) td:nth-of-type(2)').html("<strong>"+$('#contact_face_edit_form input[name="last_name"]').val()+" "+$('#contact_face_edit_form input[name="name"]').val()+" "+$('#contact_face_edit_form input[name="surname"]').val()+"</strong>");
+                                // заносим должность
+                                $('#contact_face_tbl_edit_enable tr:nth-of-type(2) td:nth-of-type(2)').html($('#contact_face_edit_form input[name="position"]').val());
+                                // заносим отдел
+                                $('#contact_face_tbl_edit_enable tr:nth-of-type(3) td:nth-of-type(2)').html($('#contact_face_edit_form input[name="department"]').val());
+                                // заносим примечания
+                                $('#contact_face_tbl_edit_enable tr:nth-of-type(4) td:nth-of-type(2)').html($('#contact_face_edit_form input[name="note"]').val());
+
+                                // убираем метку редактирования с таблицы
+                                $('#contact_face_tbl_edit_enable').removeAttr('id');
+                                // очищаем форму
+                                $('#contact_face_edit_form form').trigger( 'reset' );
+                            }else{
+                                new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                            }
+                        },'json');
+                    $('.deleting_row').removeClass('deleting_row');
+                    $( this ).dialog( "close" );
+
+                }
+            },{
+            text: 'Отмена',
+                click: function() {
+                    $('.deleting_row').removeClass('deleting_row');
+                    $( this ).dialog( "close" );
+
+                }}
+        ]
+    });    
+});
+
 
 </script>
 <style type="text/css">
@@ -404,6 +488,7 @@ width: 100%;}
       
     background-color: rgb(255, 228, 228);
 }
+.contact_face_tbl_edit:hover{background-color: rgb(255, 228, 228);}
 
 </style>
 
