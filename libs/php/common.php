@@ -317,7 +317,7 @@
 			$fcontent = fread($fd,filesize($file_name));
 			$fcontent = str_replace('src="../..','src="',$fcontent);
 			
-			echo $fcontent;
+			return $fcontent;
 	   }
 	   function prepare_send_mail($kp_id,$client_id,$manager_id){
 	        // проверяем есть папка данного клента, если её нет то создаем её
@@ -373,13 +373,17 @@
 		   fclose($fd); 
 			
 		   ob_start();	   
-		   foreach($arr as $row){
-			  eval(' ?>'.$rows_template.'<?php ');
-		   }
+			   foreach($arr as $row){
+				  eval(' ?>'.$rows_template.'<?php ');
+			   }
 		   $rows .= ob_get_contents();
 		   ob_get_clean();	
-		   include ('skins/tpl/clients/client_folder/business_offers/kp_table.tpl');
-		   echo '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';			
+		   ob_start();	   
+		      include ('skins/tpl/clients/client_folder/business_offers/kp_table.tpl');
+		   $output .= ob_get_contents();
+		   ob_get_clean();	
+
+		   return $output;			
 	   }
 	   function open_in_blank($kp_id,$client_id,$manager_id,$save_on_disk = false){
 	        global $mysqli;
@@ -398,7 +402,7 @@
 			$rows_data = array_reverse($rows_data);
 			
 			// собираем контент коммерческого предложения
-			if($save_on_disk) echo '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'|'.$client_id.'|'.$manager_id.'">сохранить на диск</a>';//?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'
+			//if($save_on_disk)//?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'
 			$kp_content = '<div style="width:625px;background-color:#FFFFFF;"><div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><br>В компанию: '.$client_data_arr['comp_full_name'].'<br>Кому: '.$cont_face_data_arr['name'].'<br>Контакты: '.$cont_face_data_arr['phone'].'<br>'.$cont_face_data_arr['email'].'<br><br></div>
 			<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center">Коммерческое предложение</div>';
 			$kp_content .=  '<table width="625"  style="border:#CCCCCC solid 1px; border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">';
@@ -654,10 +658,22 @@
 		   
 		   return $kp_content;
 	   }
-	   function create_list($client_id){
-	       global $mysqli;
+	   function create_list($client_id,$certain_kp = FALSE){
+	       
+		    $rows = '';
+			if(!$certain_kp){// если не указан конкретный КП создаем полный список
+				$rows .= Com_pred::create_list_new_version($client_id);
+				$rows .= Com_pred::create_list_old_version($client_id);
+            }
+			else{
+			    if(gettype($certain_kp) == 'integer') $rows .= Com_pred::create_list_new_version($client_id,$certain_kp);
+				if(gettype($certain_kp) == 'string')  $rows .= Com_pred::create_list_old_version($client_id,substr($certain_kp,strpos($certain_kp,"/")+1));
+			}
+			return (!empty($rows))?$rows:"<tr><td colspan='4'>для данного клиента пока небыло создано коммерческих предложений</td></tr>";
+		}
+		function create_list_new_version($client_id,$certain_kp_id = FALSE){
+		   global $mysqli;
 		   global $manager_id;
-		   
 		   // шаблон ряда таблицы списка КП
 		   $tpl_name = 'skins/tpl/clients/client_folder/business_offers/list_table_rows.tpl';
 		   $fd = fopen($tpl_name,'r');
@@ -667,7 +683,7 @@
 		   $rows = '';
 		   
 		   $query="SELECT*FROM `".COM_PRED_LIST."` WHERE `client_id` = '".$client_id."'";
-		   
+		   if($certain_kp_id)$query.= " AND id = '".$certain_kp_id."'";
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if($result->num_rows>0){
 		        ob_start();
@@ -686,10 +702,9 @@
 				
 				
 	        }
-			$rows .= Com_pred::create_list_old_version($client_id);
-			return (!empty($rows))?$rows:"<tr><td colspan='4'>для данного клиента пока небыло создано коммерческих предложений</td></tr>";
+			return $rows;
 		}
-		function create_list_old_version($client_id){
+		function create_list_old_version($client_id,$certain_kp_filename = FALSE){
 		   
             $rows = '';
 		    $prefix = '../admin/order_manager/';
@@ -712,9 +727,15 @@
 				$dir = opendir($dir_name);
 				while($file = readdir($dir)){// считываем файлы и создаем массив с датой создания в качестве ключа
 					if($file != "." && $file != ".." && $file != "comments.txt"){ 
-						 //echo $dir_name.'/'.$file.'<br>'; 
-						$data_mod = date("ymdHis", filemtime($dir_name.'/'.$file));
-						$file_arr[$data_mod] = array(date("d.m.Y", filemtime($dir_name.'/'.$file)),basename($dir_name.'/'.$file));
+						 //echo $dir_name.'/'.$file.'<br>';
+						 if(!$certain_kp_filename){ 
+						     $data_mod = date("ymdHis", filemtime($dir_name.'/'.$file));
+						     $file_arr[$data_mod] = array(date("d.m.Y", filemtime($dir_name.'/'.$file)),basename($dir_name.'/'.$file));
+						 }
+						 else if($certain_kp_filename && $file == $certain_kp_filename) {
+						     $data_mod = date("ymdHis", filemtime($dir_name.'/'.$file));
+						     $file_arr[$data_mod] = array(date("d.m.Y", filemtime($dir_name.'/'.$file)),basename($dir_name.'/'.$file));
+						 }
 					}
 				}
 				closedir($dir);
