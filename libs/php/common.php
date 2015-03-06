@@ -2,6 +2,7 @@
  
     class Art_Img{
 	    public $big;
+		public $small;
     
 		function __construct($art){
 			global $mysqli;
@@ -31,7 +32,7 @@
 
     class Mail{
 	    public $added_headers = NULL;
-		public $multipatr = FALSE;
+		public $multipart = FALSE;
 		public $boundary = NULL;
 		public $message_parts = array();
 	    function __consturct(){
@@ -41,10 +42,15 @@
 		    if(!is_array($to)) $to = array($to);
 			//$headers .= "Bcc: box@yandex.ru \r\n"; 
 			array_push($this->added_headers,"Bcc: ".implode(",",$to)." \r\n");
-		   
+		}
+		function add_cc($to){
+		    if(!$this->added_headers) $this->added_headers = array();
+		    if(!is_array($to)) $to = array($to);
+			//$headers .= "Cc: box@yandex.ru \r\n"; 
+			array_push($this->added_headers,"Cc: ".implode(",",$to)." \r\n");
 		}
 		function attach_file($filepath){
-		    $this->multipatr = TRUE;
+		    $this->multipart = TRUE;
 		    $this->boundary = md5(uniqid(time()));
 		    if(!$this->added_headers) $this->added_headers = array();
 			array_push($this->added_headers,"Content-Type: multipart/mixed; boundary = \"".$this->boundary."\"\r\n");
@@ -62,35 +68,38 @@
 			$this->message_parts[] = $message;
 		}
 		
-	    function send($to,$from,$subject){
-		
-			$subject = "=?utf-8?b?".base64_encode($subject) ."?=";
-			$subject = iconv("UTF-8", "windows-1251", $subject);
+	    function send($to,$from,$subject,$message){
+		    if(empty($to)){
+			    return '[0,"Cообщение не отправлено. Не указан получатель"]';
+			}
+			if(empty($from)){
+			    return '[0,"Cообщение не отправлено. Не указан отправитель"]';
+			}
 			
-			// динамичекские изменяемые части
-			$message = 'Проверка 111';
+			
+			$subject = "=?utf-8?b?".base64_encode($subject) ."?=";
+			//$subject = iconv("UTF-8", "windows-1251", $subject);
+			
 			$message = iconv("UTF-8", "windows-1251", $message);
-			if($this->multipatr){
+			if($this->multipart){
 			    $message= "Content-Type:text/html; charset=windows-1251\r\n\r\n".$message."\r\n";
 			    array_unshift($this->message_parts,$message);
 			    $message =  "--".$this->boundary."\r\n".implode( "--".$this->boundary."\r\n",$this->message_parts). "--".$this->boundary."--\r\n";
-				//$message =  "\r\n--".$this->boundary."--\r\n".implode( "\r\n--".$this->boundary."--\r\n",$this->message_parts). "\r\n--".$this->boundary."--\r\n";
 			}
 			
 			$this->headers  = "MIME-Version: 1.0\r\n";
 			$this->headers .= "Date: ". date('D, d M Y h:i:s O') ."\r\n";
 			$this->headers .= "From: ".$from."\r\n";
-			if(!$this->multipatr) $this->headers .= "Content-Type:text/html; charset=windows-1251\r\n";
+			if(!$this->multipart) $this->headers .= "Content-Type:text/html; charset=windows-1251\r\n";
 			if($this->added_headers) foreach($this->added_headers as $header) $this->headers .= $header;
 			//echo $to."\r\n @ \r\n @ \r\n".$subject."\r\n @ \r\n @ \r\n".$message."\r\n @ \r\n @ \r\n".$this->headers;
 			//exit;
 			//if(mail($to,$subject,$message,$this->headers,"-f".$from)){ такой вариант почемуто не сработал
 			if(mail($to,$subject,$message,$this->headers)){
-				  //header('Location:?page=basket&send_ok');//exit;
+				 return '[1,"Cообщение отправлено"]';
 			}
 			else{
-				 echo 'сообщение не отправлено';
-				 exit;
+				 return '[0,"Cообщение не отправлено"]';
 			}
 	    }
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
