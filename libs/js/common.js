@@ -318,7 +318,9 @@
 			
 			make_ajax_post_request(url,pairs,call_back);
 			function call_back(response){
-				 alert(response);
+				 response = JSON.parse(response);
+				 //alert(response);
+				 new_html_modal_window_2('<div style="text-align:center;font-weight:bold;">'+response[1]+'</div>','Результат отправки письма');
 			}
 		}
 		,

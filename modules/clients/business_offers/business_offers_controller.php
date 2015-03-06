@@ -32,18 +32,18 @@
 	}
 	
 	if(isset($_POST['send_kp_by_mail_final_step'])){
-	    echo($_POST['send_kp_by_mail_final_step']);
-	    var_dump(json_decode($_POST['send_kp_by_mail_final_step']));
-		
+	    //var_dump(json_decode($_POST['send_kp_by_mail_final_step']));
 		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
-		//echo gettype($mail_details);
+
         // вызываем метод выполняющий отправку сообщения
 		$mail = new Mail();
-		$mail->add_bcc('box@yandex.ru');
+		$mail->add_bcc('box1@yandex.ru');
+		$mail->add_cc('box2@yandex.ru');
 		$mail->attach_file($mail_details->filename);
-		$mail->send($mail_details->to,$mail_details->from,$mail_details->subject);
+		echo $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$mail_details->message);
 	    exit;
 	}
+	
 	
 	
 	///////////////////////////////////////  END AJAX  /////////////////////////////////////////////////
