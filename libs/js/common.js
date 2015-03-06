@@ -214,20 +214,13 @@
 				kpManager.client_id = client_id;
 
 				
-				var div = document.createElement('div');
-				div.style.position = 'absolute';
-				div.style.top = '0px';
-				div.style.right = '0px';
-				div.style.left = '0px';
-				div.style.bottom = '0px';
-				//div.style.backgroundColor = '#FF0000';
 				
 				//
 				var box = document.createElement('div');
-				box.style.margin = 'auto';
-				box.style.backgroundColor = '#FFFFFF';
+				box.id = "mailSendDialog";
 				box.style.width = '600px';
-				//box.style.border = '2px solid #CCC';
+				box.style.border = '2px solid #CCC';
+				box.style.display = "none";
 				//
 				kpManager.textarea = document.createElement('textarea');
 			    ///textarea.id = 'message';
@@ -288,9 +281,19 @@
 				box.appendChild(br.cloneNode());
 				box.appendChild(br.cloneNode());
 				box.appendChild(button);
+				
+				document.body.appendChild(box);
+				
+				
+				$("#mailSendDialog").dialog({ 
+											autoOpen: false,
+											width: 600,
+											title: "отправка КП на email клиента"
+											});
+				$("#mailSendDialog").dialog("open");
 				//div.appendChild(box);
-				//document.body.appendChild(div);
-				new_html_modal_window_2(box,'отправка КП на email клиента');
+				//
+				//new_html_modal_window_2(box,'');
 			}
 	
 		},
@@ -320,7 +323,21 @@
 			function call_back(response){
 				 response = JSON.parse(response);
 				 //alert(response);
-				 new_html_modal_window_2('<div style="text-align:center;font-weight:bold;">'+response[1]+'</div>','Результат отправки письма');
+				 var div = document.createElement('div');
+				 div.id = "mailResponseDialog";
+				 div.style.textAlign = "center";
+				 div.style.display = "none";
+				 div.appendChild(document.createTextNode(response[1]));
+				 document.body.appendChild(div);
+				 
+				 if(response[0]) $("#mailSendDialog").dialog("close");
+				 
+				 $("#mailResponseDialog").dialog({ 
+											autoOpen: false,
+											title: "Результат отправки письма"
+											});
+				 $("#mailResponseDialog").dialog("open");
+				 //new_html_modal_window_2('<div style="text-align:center;font-weight:bold;">'+response[1]+'</div>','Результат отправки письма');
 			}
 		}
 		,
