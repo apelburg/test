@@ -1,18 +1,4 @@
 <?php
-    //Временно 
-	if(isset($_GET['save_in_pdf'])){
-	     list($kp_id,$client_id,$manager_id)=(explode("|",$_GET['save_in_pdf']));
-	     Com_pred::save_in_pdf($kp_id,$client_id,$manager_id);
-	}
-	if(isset($_GET['show_kp'])){
-	     Com_pred::open_in_tbl($_GET['show_kp']);
-	}
-	if(isset($_GET['show_old_kp'])){
-	     Com_pred::open_old_kp($_GET['show_old_kp']);
-	}
-	if(isset($_GET['show_kp_in_blank'])){
-	     echo Com_pred::open_in_blank($_GET['show_kp_in_blank'],$client_id,$manager_id,true);
-	}
 	
 	///////////////////////////////////////// AJAX ////////////////////////////////////////////////////
 	
@@ -48,6 +34,37 @@
 	
 	///////////////////////////////////////  END AJAX  /////////////////////////////////////////////////
 	
+	/////////////////////////////////////// Временно /////////////////////////////////////// 
+	if(isset($_GET['save_in_pdf'])){
+	     list($kp_id,$client_id,$manager_id)=(explode("|",$_GET['save_in_pdf']));
+	     Com_pred::save_in_pdf($kp_id,$client_id,$manager_id);
+	}
+	if(isset($_GET['show_kp'])){
+		 $kp_id = (int)$_GET['show_kp'];
+		 $rows = Com_pred::create_list($client_id,$kp_id);
+		 $detailed_view = Com_pred::open_in_tbl($_GET['show_kp']); 
+		 $detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
+		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'|'.$client_id.'|'.$manager_id.'">сохранить на диск</a>';
+		 $dont_show_rows = TRUE;
+	}
+	if(isset($_GET['show_old_kp'])){
+	     
+		 $rows = Com_pred::create_list($client_id,$_GET['show_old_kp']);
+		 $dont_show_rows = TRUE;
+		 $detailed_view = Com_pred::open_old_kp($_GET['show_old_kp']);
+		 
+	}
+	if(isset($_GET['show_kp_in_blank'])){
+	     $kp_id = (int)$_GET['show_kp_in_blank'];
+		 $rows = Com_pred::create_list($client_id,$kp_id);
+		 $dont_show_rows = TRUE;
+		 $detailed_view = Com_pred::open_in_blank($kp_id,$client_id,$manager_id,true);
+		 $detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
+		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'|'.$client_id.'|'.$manager_id.'">сохранить на диск</a>';
+	}
+	/////////////////////////////////////// end Временно /////////////////////////////////////// 
+	
+	
 	 if(isset($_GET['delete_com_offer'])){
 	     if($_GET['old_version']) Com_pred::delete_old_version($_GET['delete_com_offer'],intval($_GET['client_id']),$_GET['id']/* must be string*/);
 		 else Com_pred::delete($_GET['delete_com_offer']);
@@ -57,10 +74,10 @@
 	
 	
 	// Собираем ряды для таблицы коммерческих предложений
-	$rows = Com_pred::create_list($client_id);
+	if(empty($dont_show_rows)) $rows = Com_pred::create_list($client_id);
 	// Подключаем шаблон таблицы списка коммерческих предложений
 	include ('skins/tpl/clients/client_folder/business_offers/list_table.tpl');
-		
+	if(!empty($detailed_view))	echo $detailed_view;
 	
 ?>
 
