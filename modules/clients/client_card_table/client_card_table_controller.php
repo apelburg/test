@@ -204,7 +204,10 @@ include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'clien
 $client_content = ob_get_contents();
 ob_get_clean();
 
-
+// получаем кнопку
+if(isset($_GET['client_edit'])){
+	$quick_button = '';
+}
 
 //получаем информацию по контактным лицам данного клиента
 ob_start();
