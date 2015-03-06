@@ -48,18 +48,13 @@
 		    $this->boundary = md5(uniqid(time()));
 		    if(!$this->added_headers) $this->added_headers = array();
 			array_push($this->added_headers,"Content-Type: multipart/mixed; boundary = \"".$this->boundary."\"\r\n");
-			//array_push($this->added_headers,"Content-Type: multipart/mixed; boundary = \"".$this->boundary."\"\r\n".$this->boundary."\r\n");
-			
-			$fd = fopen($filepath,"rb");
-			$content = fread($fd,filesize($filepath));
+			$filepath_utf = iconv("UTF-8","windows-1251", $filepath);
+
+			$fd = fopen($filepath_utf,"rb");
+			$content = fread($fd,filesize($filepath_utf));
 			$content = chunk_split(base64_encode($content));
 			fclose($fd);
 			$filename = substr($filepath,strrpos($filepath,"/")+1);
-			//$filename = "proba";
-			//$message = "Content-Type: application/pdf; name=\"".$filename."\"\r\n";
-			//$message .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n";
-			//$message .= "Content-Transfer-Encoding: base64\r\n\r\n";
-			//message .= "$content\r\n"; 
 			$message = "Content-Type: application/pdf; name=\"".$filename."\"\r\n";
             $message .= "Content-Transfer-Encoding: base64\r\n";
             $message .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
@@ -87,7 +82,8 @@
 			$this->headers .= "From: ".$from."\r\n";
 			if(!$this->multipatr) $this->headers .= "Content-Type:text/html; charset=windows-1251\r\n";
 			if($this->added_headers) foreach($this->added_headers as $header) $this->headers .= $header;
-			
+			//echo $to."\r\n @ \r\n @ \r\n".$subject."\r\n @ \r\n @ \r\n".$message."\r\n @ \r\n @ \r\n".$this->headers;
+			//exit;
 			//if(mail($to,$subject,$message,$this->headers,"-f".$from)){ такой вариант почемуто не сработал
 			if(mail($to,$subject,$message,$this->headers)){
 				  //header('Location:?page=basket&send_ok');//exit;
@@ -320,8 +316,11 @@
 					exit;
 				}
 			}
-			$filename = '/apelburg_'.$client_id.'_'.date('Y_i_s').'.pdf';
-			$save_to = $document_root.$dirname.$filename;
+			$filename = '/Пробный_ПДФ_в_кириллицe_'.$client_id.'_'.date('Y_i_s').'.pdf';
+			//$filename = '/probe_file_in_latin_'.$client_id.'_'.date('Y_i_s').'.pdf';
+			$filename_utf = iconv("UTF-8","windows-1251", $filename);
+			$save_to = $document_root.$dirname.$filename_utf;
+			
             Com_pred::save_in_pdf_on_server($kp_id,$client_id,$manager_id,$save_to);
 			return $dirname.$filename;
             exit;
@@ -330,7 +329,7 @@
 	   
             $html = Com_pred::open_in_blank($kp_id,$client_id,$manager_id);
 			
-			include("./libs/php/mpdf60/mpdf.php");	
+			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
 			$mpdf=new mPDF();
 			$mpdf->WriteHTML($html,2);
 			$mpdf->Output($filename,'F');
@@ -339,7 +338,7 @@
 	   
             $html = Com_pred::open_in_blank($kp_id,$client_id,$manager_id);
 		
-			include("./libs/php/mpdf60/mpdf.php");
+			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
             //$stylesheet = file_get_contents('style.css');
 				
 			$mpdf=new mPDF();

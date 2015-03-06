@@ -237,14 +237,14 @@
 				kpManager.contfaceSelect = document.createElement('select');
 				var options_arr = new Array();
 				for( var i = 0 ; i < kpManager.details.client_mails.length ; i++ ){//.length
-					options_arr[i] = '<option>'+kpManager.details.client_mails[i].person+' '+kpManager.details.client_mails[i].mail+'</option>';
+					options_arr[i] = '<option value="'+kpManager.details.client_mails[i].mail+'">'+kpManager.details.client_mails[i].person+' '+kpManager.details.client_mails[i].mail+'</option>';
 				}
 				kpManager.contfaceSelect.innerHTML = options_arr.join("\r\n");
 				
 				kpManager.managerMailsSelect = document.createElement('select');
 				var options_arr = new Array();
 				for( var i = 0 ; i < kpManager.details.manager_mails.length ; i++ ){//.length
-					options_arr[i] = '<option>'+kpManager.details.manager_mails[i]+'</option>';
+					options_arr[i] = '<option value="'+kpManager.details.manager_mails[i].mail+'">'+kpManager.details.manager_mails[i]+'</option>';
 				}
 				kpManager.managerMailsSelect.innerHTML = options_arr.join("\r\n");
 				
@@ -290,7 +290,7 @@
 				box.appendChild(button);
 				//div.appendChild(box);
 				//document.body.appendChild(div);
-				new_html_modal_window_2(box.outerHTML,'отправка КП на email клиента');
+				new_html_modal_window_2(box,'отправка КП на email клиента');
 			}
 	
 		},
@@ -300,7 +300,7 @@
 			// manager_id
 			// client_id
 			// template
-			
+
 			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search;
 			
 			var regexp = /%20/g; // Регулярное выражение соответствующее закодированному пробелу
@@ -1068,9 +1068,37 @@
 	});
 	*/
 	function new_html_modal_window_2(html,head_text){
-		if(typeof html == 'object') html = html.outerHTML;
+
 		if($('#bg_modal_window').length>0){$('#bg_modal_window,.html_modal_window').remove();}
-		$('body').append('<div id="bg_modal_window"></div><div class="html_modal_window"><div class="html_modal_window_head">'+ head_text +'<div class="html_modal_window_head_close">x</div></div><div class="html_modal_window_body">'+ html +'</div></div>');
+		
+		var win_bg = document.createElement('div');
+		win_bg.id = "bg_modal_window";
+		
+		var modal_win = document.createElement('div');
+		modal_win.className = "html_modal_window";
+
+		
+		var win_head = document.createElement('div');
+		win_head.className = "html_modal_window_head";
+		win_head.innerHTML = head_text;
+		
+		var close_btn = document.createElement('div');
+		close_btn.className = "html_modal_window_head_close";
+		close_btn.innerHTML = 'x';
+		
+		var win_body = document.createElement('div');
+		win_body.className = "html_modal_window_body";
+        if(typeof html == 'object') win_body.appendChild(html);
+		else win_body.innerHTML = html;
+		
+		win_head.appendChild(close_btn);
+		modal_win.appendChild(win_head);
+		modal_win.appendChild(win_body);
+		
+		$('body').append(win_bg);
+		$('body').append(modal_win);
+		
+		//$('body').append('<div id="bg_modal_window"></div><div class="html_modal_window"><div class="html_modal_window_head">'+ head_text +'<div class="html_modal_window_head_close">x</div></div><div class="html_modal_window_body">'+ html +'</div></div>');
 		
 		var he = ($(window).height()/2);
 		var margin = $('.html_modal_window').innerHeight()/2*(-1);
