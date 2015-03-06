@@ -29,13 +29,17 @@ $(document).on('dblclick', '#chenge_name_company', function(event) {
 // ДОБАВЛЕНИЕ НОВОГО ТЕЛЕФОНА
 $(document).on('click','#add_new_row_phone', function(){
     var tbl = 'CLIENT_CONT_FACES_CONTACT_INFO_TBL';
+    var obj = $(this).parent().parent().parent().parent().prev();
+    obj.addClass('add_new_row_phone1')
+    var num_row = obj.children().children('tr').length;
     //перечислим поля
-    var parent_id = $(this).attr('data-parent-id');
-    var table = "CLIENT_TBL";
-    var type = "phone";
+    $('#add_new_phone form input[name="parent_tbl"]').val($(this).attr('data-parebttable'));
+    $('#add_new_phone form input[name="client_id"]').val($(this).attr('data-parent-id'));
+
+    // var type = "phone";
     //создадим окно
-    //$("#add_new_phone").dialog ('option', 'title', table);
-    $( "#add_new_phone" ).dialog( "open" );
+    $( "#add_new_phone" ).dialog("option",'rou_num',num_row);
+    $( "#add_new_phone" ).dialog( "open");
     //new_html_modal_window(html,name_window,buttons,'chenge_name_company', id_row, tbl);
 });
 // ОКНО ДОБАВЛЕНИЯ НОВОГО ТЕЛЕФОНА
@@ -47,18 +51,19 @@ $(function() {
         buttons: {
             Ok: function() {
                 var get_form = $('#add_new_phone form').serialize();
-                //alert($(this).dialog('option', 'table'););
                 var type_phone = $('#type_phone').val();
                 var phone = $('#phone_numver').val();
                 var dopPhone = $('#dop_phone_numver').val();
                 dopPhone = (dopPhone != "")?' доп.' + dopPhone:'';
-                var rou_num = $( "#add_new_row_phone" ).parent().parent().parent().parent().prev().children().children('tr').length;
+                var rou_num = $(this).dialog('option', 'rou_num');
+
                 $( this ).dialog( "close" );
                 $.post('', get_form, function(data, textStatus, xhr) {
                     if (!isNaN(data)){//если вернулось число
                     //скорее всего вернулся id
                         //вносим изменения в DOM 
-                        $( "#add_new_row_phone" ).parent().parent().parent().parent().prev().children().append('<tr><td class="td_phone">' + type_phone + ' ' + rou_num + '</td><td><div data-adress-id="'+ data +'">' + phone +  dopPhone + '</div></td></tr>');
+                        $( ".add_new_row_phone1").append('<tr><td class="td_phone">' + type_phone + ' ' + rou_num + '</td><td><div class="del_text" data-adress-id="'+ data +'">' + phone +  dopPhone + '</div></td></tr>');
+                        $( ".add_new_row_phone1").removeClass('add_new_row_phone1')
                         //очищаем форму
                         $('#add_new_phone form').trigger( 'reset' );
                     }else{
@@ -429,7 +434,7 @@ width: 100%;}
                 <table>
                     <tr>
                         <td></td>
-                        <td><div id="add_new_row_phone" class="button_add_new_row"  data-parent-id="<?php echo $client_id; ?>">добавить телефон</div></td>
+                        <td><div id="add_new_row_phone" class="add_new_row_phone button_add_new_row"  data-parent-id="<?php echo $client_id; ?>" data-parebttable="CLIENT_TBL">добавить телефон</div></td>
                     </tr>
                 </table>
             </td>

@@ -20,7 +20,8 @@
 			</tr>
 		</table>
 		<input type="hidden" name="ajax_standart_window" value="add_new_phone_row">
-		<input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+		<input type="hidden" name="client_id" value="">
+		<input type="hidden" name="parent_tbl" value="">
 	</form>
 </div>
 
