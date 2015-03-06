@@ -69,12 +69,12 @@
 		}
 		
 	    function send($to,$from,$subject,$message){
-		    if(empty($to)){
-			    return '[0,"Cообщение не отправлено. Не указан получатель"]';
-			}
-			if(empty($from)){
-			    return '[0,"Cообщение не отправлено. Не указан отправитель"]';
-			}
+		    
+		    if(empty($to))$errors[] = 'Не указан отправитель';
+			if(empty($from))$errors[] = 'Не указан получатель'; 
+			if(empty($subject))$errors[] = 'Не указана тема письма'; 
+			if(empty($message))$errors[] = 'Письмо не содержит сообщения'; 
+
 			
 			
 			$subject = "=?utf-8?b?".base64_encode($subject) ."?=";
@@ -94,6 +94,10 @@
 			if($this->added_headers) foreach($this->added_headers as $header) $this->headers .= $header;
 			//echo $to."\r\n @ \r\n @ \r\n".$subject."\r\n @ \r\n @ \r\n".$message."\r\n @ \r\n @ \r\n".$this->headers;
 			//exit;
+			
+			// если были ошибки прерываем дальшейшее выполнение функции
+			if(!empty($errors)) return '[0,"'.implode("<br>",$errors).'"]';
+			
 			//if(mail($to,$subject,$message,$this->headers,"-f".$from)){ такой вариант почемуто не сработал
 			if(mail($to,$subject,$message,$this->headers)){
 				 return '[1,"Cообщение отправлено"]';

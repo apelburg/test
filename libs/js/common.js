@@ -285,15 +285,8 @@
 				document.body.appendChild(box);
 				
 				
-				$("#mailSendDialog").dialog({ 
-											autoOpen: false,
-											width: 600,
-											title: "отправка КП на email клиента"
-											});
+				$("#mailSendDialog").dialog({autoOpen: false,title: "отправка КП на email клиента",modal:true,width: 600});
 				$("#mailSendDialog").dialog("open");
-				//div.appendChild(box);
-				//
-				//new_html_modal_window_2(box,'');
 			}
 	
 		},
@@ -327,18 +320,14 @@
 				 div.id = "mailResponseDialog";
 				 div.style.textAlign = "center";
 				 div.style.display = "none";
-				 div.appendChild(document.createTextNode(response[1]));
+				 div.innerHTML = response[1];
 				 document.body.appendChild(div);
 				 
 				 if(response[0]) $("#mailSendDialog").dialog("close");
 				 
-				 $("#mailResponseDialog").dialog({ 
-											autoOpen: false,
-											title: "Результат отправки письма"
-											});
+				 $("#mailResponseDialog").dialog({autoOpen:false ,title:"Результат отправки письма"});
 				 $("#mailResponseDialog").dialog("open");
-				 //new_html_modal_window_2('<div style="text-align:center;font-weight:bold;">'+response[1]+'</div>','Результат отправки письма');
-			}
+		    }
 		}
 		,
 		kpToPrint:function (version,param){
@@ -1086,40 +1075,3 @@
 	    });
 	});
 	*/
-	function new_html_modal_window_2(html,head_text){
-
-		if($('#bg_modal_window').length>0){$('#bg_modal_window,.html_modal_window').remove();}
-		
-		var win_bg = document.createElement('div');
-		win_bg.id = "bg_modal_window";
-		
-		var modal_win = document.createElement('div');
-		modal_win.className = "html_modal_window";
-
-		
-		var win_head = document.createElement('div');
-		win_head.className = "html_modal_window_head";
-		win_head.innerHTML = head_text;
-		
-		var close_btn = document.createElement('div');
-		close_btn.className = "html_modal_window_head_close";
-		close_btn.innerHTML = 'x';
-		
-		var win_body = document.createElement('div');
-		win_body.className = "html_modal_window_body";
-        if(typeof html == 'object') win_body.appendChild(html);
-		else win_body.innerHTML = html;
-		
-		win_head.appendChild(close_btn);
-		modal_win.appendChild(win_head);
-		modal_win.appendChild(win_body);
-		
-		$('body').append(win_bg);
-		$('body').append(modal_win);
-		
-		//$('body').append('<div id="bg_modal_window"></div><div class="html_modal_window"><div class="html_modal_window_head">'+ head_text +'<div class="html_modal_window_head_close">x</div></div><div class="html_modal_window_body">'+ html +'</div></div>');
-		
-		var he = ($(window).height()/2);
-		var margin = $('.html_modal_window').innerHeight()/2*(-1);
-		$('.html_modal_window').css({'top':he,'margin-top':margin,'display':'block'}).draggable({ handle : ".html_modal_window_head"});	
-	}
