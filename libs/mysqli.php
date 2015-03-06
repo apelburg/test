@@ -1,7 +1,6 @@
 <?php 
 
-    //$mysqli = @new mysqli('localhost','php_3477686','3477686','apelburg_base');
-	$mysqli = @new mysqli('localhost','php','1234','apelburg');
+    $mysqli = @new mysqli('localhost','php_3477686','3477686','apelburg_base');
 	$mysqli->set_charset('utf8');
 	
 	// if version of PHP lower then PHP 5.2.9 and 5.3.0

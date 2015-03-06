@@ -1479,7 +1479,7 @@ body{
 
 .html_modal_window{border: 1px solid #000; background: #fff; position: fixed; top: 50%;left: 50%;
 width: 700px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; display: block;
-margin-left: -350px;}
+margin-left: -350px;z-index: 999;}
 .html_modal_window input[type="text"]:focus { outline: none; }
 .html_modal_window_head{background: #9dbe8e; height: 26px; font-size:17px; padding: 6px 5px 0 15px; cursor: default;}
 .html_modal_window_head_close{float: right;border: 1px solid #7f7e7c;color: #7f7e7c;padding: 0 5px 1px 5px;font-size: 15px;line-height: 14px;margin-top: 1px; margin-right: 5px; cursor: default;}

@@ -2,7 +2,7 @@
 #content_general{ padding:15px 10px; background-color:#d6d6d6}
 .border_in_table{border-bottom:1px solid #979694; width:100%; margin-left:0}
 #content_general_header table td{ padding:0 5px; font-size:12px; }
-#content_general table td{ padding:5px; font-size:12px; }
+#content_general table td{  font-size:12px; }
 #content_general_header table,#content_general table{ width:100%;}
 
 #content_general_header table tr td:nth-of-type(1),#content_general table tr td:nth-of-type(1){ width:50%;}
