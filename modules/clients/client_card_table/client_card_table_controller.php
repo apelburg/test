@@ -16,7 +16,10 @@ ini_set('display_startup_errors', 1);
 			global $mysqli;
 			$query = "UPDATE  `".constant($tbl)."` SET  `company` =  '".$company."' WHERE  `id` ='".$id."'; ";
 			$result = $mysqli->query($query) or die($mysqli->error);
-			echo "OK";
+			echo '{
+		       "response":"1",
+		       "text":"Данные сохранены"
+		      }';
 			exit;
 		}
 
@@ -52,7 +55,10 @@ ini_set('display_startup_errors', 1);
 			`postal_code` =  '".$_POST['postal_code']."',
 			`note` =  '".$_POST['note']."' WHERE  `id` ='".$_POST['id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
-			echo "OK";
+			echo '{
+		       "response":"1",
+		       "text":"Данные сохранены"
+		      }';
 			exit;
 		}
 		if($_POST['ajax_standart_window']=="delete_adress_row"){
@@ -100,11 +106,11 @@ ini_set('display_startup_errors', 1);
 			$query = "INSERT INTO `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` VALUES (
 				'',
 				'".$_POST['client_id']."',
-				'CLIENTS_TBL',
+				'".$_POST['parent_tbl']."',
 				'phone',
 				'".$_POST['type_phone']."',
 				'".$_POST['telephone']."',
-				'".$_POST['dop_phone']."'
+				'".((trim($_POST['dop_phone'])!="" && is_numeric(trim($_POST['dop_phone'])))?trim($_POST['dop_phone']):'')."'
 				);";
 			// echo "$query";exit;
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -115,7 +121,7 @@ ini_set('display_startup_errors', 1);
 			$query = "INSERT INTO `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` VALUES (
 				'',
 				'".$_POST['client_id']."',
-				'CLIENTS_TBL',
+				'".$_POST['parent_tbl']."',
 				'".$_POST['type']."',
 				'',
 				'".$_POST['input_text']."',

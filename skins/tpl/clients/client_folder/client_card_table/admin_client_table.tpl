@@ -27,16 +27,14 @@ $(document).on('dblclick', '#chenge_name_company', function(event) {
 //      ТЕЛЕФОНЫ
 //
 // ДОБАВЛЕНИЕ НОВОГО ТЕЛЕФОНА
-$(document).on('click','#add_new_row_phone', function(){
-    var tbl = 'CLIENT_CONT_FACES_CONTACT_INFO_TBL';
-    var obj = $(this).parent().parent().parent().parent().prev();
-    obj.addClass('add_new_row_phone1')
-    var num_row = obj.children().children('tr').length;
-    //перечислим поля
-    $('#add_new_phone form input[name="parent_tbl"]').val($(this).attr('data-parebttable'));
+$(document).on('click','.add_new_row_phone', function(){
+    var obj = $(this);
+    obj.addClass('add_new_row_phone1');
+    var num_row = obj.parent().parent().parent().parent().prev().children().children('tr').length;
+    // подставим в скрытые поля формы информацию, дополнительную информацию необходимую для запроса
+    // инфу берем из data атрибутов кнопки .add_new_row_phone
+    $('#add_new_phone form input[name="parent_tbl"]').val($(this).attr('data-parenttable'));
     $('#add_new_phone form input[name="client_id"]').val($(this).attr('data-parent-id'));
-
-    // var type = "phone";
     //создадим окно
     $( "#add_new_phone" ).dialog("option",'rou_num',num_row);
     $( "#add_new_phone" ).dialog( "open");
@@ -50,19 +48,33 @@ $(function() {
         modal:true,
         buttons: {
             Ok: function() {
+                //#add_new_phone - скрытый див из dialog_windows.tpl
                 var get_form = $('#add_new_phone form').serialize();
+                // выбираем данные из полей формы
                 var type_phone = $('#type_phone').val();
                 var phone = $('#phone_numver').val();
                 var dopPhone = $('#dop_phone_numver').val();
                 dopPhone = (dopPhone != "")?' доп.' + dopPhone:'';
-                var rou_num = $(this).dialog('option', 'rou_num');
+                // параметр переданный в окно при его инициализации (количество строк в таблице)
+                var rou_num = $(this).dialog('option', 'rou_num')+1;
 
                 $( this ).dialog( "close" );
                 $.post('', get_form, function(data, textStatus, xhr) {
+                    // console.log('data ='+data+'; textStatus ='+textStatus+'; xhr ='+ xhr);
                     if (!isNaN(data)){//если вернулось число
-                    //скорее всего вернулся id
+                        //скорее всего вернулся id
                         //вносим изменения в DOM 
-                        $( ".add_new_row_phone1").append('<tr><td class="td_phone">' + type_phone + ' ' + rou_num + '</td><td><div class="del_text" data-adress-id="'+ data +'">' + phone +  dopPhone + '</div></td></tr>');
+                        var html = '<tr><td class="td_phone">' + type_phone + ' ' + rou_num + '</td><td><div class="del_text" data-adress-id="'+ data +'">' + phone +  dopPhone + '</div></td></tr>';
+                        // если это первая строка
+                        if(rou_num==1){
+                            // значит таблицы не, создаём её и вставляем перед кнопкой    
+                            html = '<table class="table_phone_contact_information">'+html+'</table>';
+                            $( ".add_new_row_phone1").before(html);
+                        }else{
+                            // либо вставляем строку в уже существующую таблицу
+                            $( ".add_new_row_phone1").parent().parent().parent().parent().prev().append(html);
+                        }                       
+                        
                         $( ".add_new_row_phone1").removeClass('add_new_row_phone1')
                         //очищаем форму
                         $('#add_new_phone form').trigger( 'reset' );
@@ -80,7 +92,7 @@ $(function() {
 // УДАЛЕНИЕ ТЕЛЕФОНОВ И ДОПОЛНИТЕЛЬНЫХ КОНТАКТНЫХ ДАННЫХ
 $(document).on('click', '.table_phone_contact_information #del_text,.table_other_contact_information #del_text', function(event) {
 $(this).parent().parent().addClass('deleting_row');
-$('#delete_one_contact_row').dialog("option",'id',$(this).prev().attr('data-adress-id'))
+$('#delete_one_contact_row').dialog("option",'id',$(this).prev().attr('data-adress-id'));
 $('#delete_one_contact_row').dialog("open");
 })
 // ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ ТЕЛЕФОНОВ И ДОПОЛНИТЕЛЬНЫХ КОНТАКТНЫХ ДАННЫХ
@@ -117,7 +129,6 @@ $(function() {
                 click: function() {
                     $('.deleting_row').removeClass('deleting_row');
                     $( this ).dialog( "close" );
-
                 }
             }
        ]
@@ -128,14 +139,12 @@ $(function() {
 //      email, www, VK
 //
 // ДОБАВЛЕНИЕ НОВОЙ СТРОКИ
-$(document).on('click','#add_new_row_other',function(){
-    $('#add_new_row_other').parent().parent().parent().parent().prev().addClass('new_row_dop_iformation');
-    $('#new_other_row_info').dialog("open");
-});
+$(document).on('click','.add_new_row_other',function(){
+    $(this).parent().parent().parent().parent().prev().addClass('new_row_dop_iformation');
+    $('#new_other_row_info form input[name="parent_tbl"]').val($(this).attr('data-parenttable'));
+    $('#new_other_row_info form input[name="client_id"]').val($(this).attr('data-parent-id'));
 
-$(document).on('change','#new_other_row_infoType',function(){
-    $('#new_other_row_infoType_input').val($(this).val());
-    console.log($(this).val());
+    $('#new_other_row_info').dialog("open");
 });
 
 // ОКНО ДОБАВЛЕНИЯ НОВОЙ СТРОКИ ДОП ИНФО
@@ -148,6 +157,7 @@ $(function() {
     array_img["fb"] = '<img src="skins/images/img_design/social_icon5.png" >';
     array_img["vk"] = '<img src="skins/images/img_design/social_icon6.png" >';
     array_img["other"] = '<img src="skins/images/img_design/social_icon7.png" >';
+    array_img["web_site"] = '<img src="skins/images/img_design/social_icon7.png" >';
 
     
     $('#new_other_row_info').dialog({
@@ -278,14 +288,14 @@ $(document).on('click', '.edit_general_info #del_text', function(event) {
             ajax_standart_window: 'delete_adress_row',
             id_row : id_row ,
             tbl : tbl
-        }, function(data, textStatus, xhr) {
-            if(data=='OK'){
+        }, function(data, textStatus, xhr) {            
+            if(data['response']=='1'){
                 $('#bg_modal_window,.html_modal_window').remove();
                 del_div.parent().parent().remove();
             }else{
                 new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
             }
-        });
+        }, "json");
     });
 
 });
@@ -434,7 +444,7 @@ width: 100%;}
                 <table>
                     <tr>
                         <td></td>
-                        <td><div id="add_new_row_phone" class="add_new_row_phone button_add_new_row"  data-parent-id="<?php echo $client_id; ?>" data-parebttable="CLIENT_TBL">добавить телефон</div></td>
+                        <td><div class="add_new_row_phone button_add_new_row"  data-parent-id="<?php echo $client_id; ?>" data-parenttable="CLIENTS_TBL">добавить телефон</div></td>
                     </tr>
                 </table>
             </td>
@@ -443,7 +453,7 @@ width: 100%;}
                 <table>
                     <tr>
                         <td></td>
-                        <td><div id="add_new_row_other" class="button_add_new_row other_row"  data-parent-id="<?php echo $client_id; ?>">добавить...</div></td>
+                        <td><div class="button_add_new_row other_row add_new_row_other"  data-parent-id="<?php echo $client_id; ?>"  data-parenttable="CLIENTS_TBL">добавить...</div></td>
                     </tr>
                 </table>
             </td>
