@@ -40,6 +40,5 @@
             </td>
     </tr>
     </table>    
-   
     <div class="border_in_table"></div>
 </div>

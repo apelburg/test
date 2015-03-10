@@ -29,6 +29,9 @@ $(document).on('dblclick', '#chenge_name_company', function(event) {
 // ДОБАВЛЕНИЕ НОВОГО ТЕЛЕФОНА
 $(document).on('click','.add_new_row_phone', function(){
     var obj = $(this);
+    // убираем отмеченную кнопку
+    $('.add_new_row_phone1').removeClass('add_new_row_phone1');
+    // отмечаем последнюю нажатую
     obj.addClass('add_new_row_phone1');
     var num_row = obj.parent().parent().parent().parent().prev().children().children('tr').length;
     // подставим в скрытые поля формы информацию, дополнительную информацию необходимую для запроса
@@ -45,7 +48,6 @@ $(function() {
     $( "#add_new_phone" ).dialog({
         autoOpen: false,
         width: "auto",
-        modal:true,
         buttons: {
             Ok: function() {
                 //#add_new_phone - скрытый див из dialog_windows.tpl
@@ -242,6 +244,52 @@ $(document).on('click', '.button_add_new_row.adres_row', function(event) {
         }
     });
 });
+
+// РЕДАКТИРОВАНИЕ ДОПОЛНИТЕЛЬНОЙ ИНФОРМАЦИИ ПО КЛИЕНТУ
+
+$(document).on('dblclick','#client_dop_information', function(){  
+    $('#client_dop_information_cont_w').dialog("open");  
+});
+$(function(){
+    $('#client_dop_information_cont_w').dialog({
+        width: 600,
+        height: 'auto',
+        title: 'Добавление дополнительной информации о клиенте',
+        autoOpen : false,
+        buttons: [
+            {
+                text: 'ОК',
+                click: function() { 
+                    var obj_window = $( this );        
+                    var serialize = $('#client_dop_information_cont_w form').serialize();
+                    $.post('', serialize, function(data, textStatus, xhr) {
+                        if(data['response']=='1'){
+                            // сохранение выполнено
+                            $('#client_dop_information tr:nth-of-type(1) td:nth-of-type(2)').html($('#client_dop_information_cont_w form textarea').val());
+                            $('#client_dop_information tr:nth-of-type(2) td:nth-of-type(2)').html('Z:/'+$('#client_dop_information_cont_w form input[name="ftp_folder"]').val());
+                            obj_window.dialog( "close" ); 
+                        }else{
+                            obj_window.dialog( "close" ); 
+                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                        }   
+                    },"json");           
+                    // $('.deleting_row').removeClass('deleting_row');
+                    
+                }
+            },
+            {
+                text: 'Отмена',
+                click: function() {
+                    // $('.deleting_row').removeClass('deleting_row');
+                    $( this ).dialog( "close" );
+
+                }
+            }
+       ]
+    });
+});
+
+
 // РЕДАКТИРОВАНИЕ АДРЕСА
 $(document).on('dblclick', '.edit_adress_row', function(event) {
     var name_window = $(this).parent().prev().html();
@@ -484,12 +532,13 @@ width: 100%;}
 
 .edit_general_info tr td:nth-of-type(2):hover div,
 .table_other_contact_information tr td:nth-of-type(2):hover div,
-.table_phone_contact_information tr td:nth-of-type(2):hover div{ 
+.table_phone_contact_information tr td:nth-of-type(2):hover div,
+.contact_face_tbl_edit:hover,
+#client_dop_information:hover{ 
+    cursor: default;
       
-    background-color: rgb(255, 228, 228);
+    background-color: #EFFAE7;
 }
-.contact_face_tbl_edit:hover{background-color: rgb(255, 228, 228);}
-
 </style>
 
 

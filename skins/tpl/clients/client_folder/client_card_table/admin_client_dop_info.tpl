@@ -2,10 +2,10 @@
 	<table class="client_table_gen">
     	<tr>            
         	<td>
-            	<table>
+            	<table  id="client_dop_information">
                 	<tr>
                     	<td>Дополнительная информация</td>
-                    	<td><textarea placeholder="информация отсутствует" name=""><?php if(!empty($client['dop_info'])){echo $client['dop_info'];} ?></textarea>
+                    	<td><?php echo (!empty($client['dop_info']))?$client['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?>
                             </td>
                     </tr>
                 	<tr>

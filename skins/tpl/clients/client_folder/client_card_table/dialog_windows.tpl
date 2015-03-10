@@ -102,4 +102,31 @@
 		<input type="hidden" name="id" value="">
 	</form>
 </div>
-
+<style type="text/css">
+	#client_dop_information_cont_w{
+		display: none
+	}
+	#client_dop_information_cont_w table{ width:100%}
+	#client_dop_information_cont_w textarea,#client_dop_information_cont_w input{width:100%; font-size: 12px}
+	#client_dop_information_cont_w table tr td:nth-of-type(1){width: 50px}
+</style>
+<div id="client_dop_information_cont_w">
+	<form>
+		<table>
+            <tr>
+                <td>Дополнительная информация</td>
+                <td>
+                	<textarea placeholder="информация отсутствует" name="dop_info"><?php echo (!empty($client['dop_info']))?$client['dop_info']:''; ?></textarea>                	
+               	</td>
+            </tr>
+            <tr>
+                <td>Папка</td>
+                <td>
+                	<input type="text" name="ftp_folder" value="<?php echo (!empty($client['ftp_folder']))?$client['ftp_folder']:'' ?>" placeholder="информация отсутствует">
+                </td>
+            </tr>
+        </table>
+		<input type="hidden" name="ajax_standart_window" value="edit_client_dop_information">
+		<input type="hidden" name="id" value="<?php echo $client_id; ?>">
+	</form>
+</div>

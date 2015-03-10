@@ -67,7 +67,10 @@ ini_set('display_startup_errors', 1);
 			$tbl = $_POST['tbl'];
 			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
-			echo "OK";
+			echo '{
+		       "response":"1",
+		       "text":"Данные успешно удалены"
+		      }';
 			exit;
 		}
 		if($_POST['ajax_standart_window']=="add_new_adress_row"){
@@ -163,7 +166,20 @@ ini_set('display_startup_errors', 1);
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo '{
 		       "response":"1",
-		       "text":"Данные сохранены"
+		       "text":"Данные успешно обновлены"
+		      }';
+			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="edit_client_dop_information"){
+			global $mysqli;
+			$query = "UPDATE  `".CLIENTS_TBL."` SET  
+			`dop_info` =  '".$_POST['dop_info']."',
+			`ftp_folder` =  '".$_POST['ftp_folder']."' WHERE  `id` ='".$_POST['id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{
+		       "response":"1",
+		       "text":"Данные успешно обновлены"
 		      }';
 			exit;
 		}
