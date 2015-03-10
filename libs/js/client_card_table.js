@@ -184,8 +184,9 @@ $(function() {
                                 //копируем соседнее поле
                                 var html2 = '<tr><td class="td_icons">'+array_img[$('#new_other_row_infoType').val()]+'</td><td><div class="del_text" data-adress-id="'+data+'">'+$('#input_text').val()+'</div></td></tr>';
                                 $('.new_row_dop_iformation').append(html2);
-                                $('.new_row_dop_iformation').removeClass('.new_row_dop_iformation');
+                                $('.new_row_dop_iformation').removeClass('new_row_dop_iformation');
                                 dialog_w.dialog( "close" );
+
                                 $('#bg_modal_window,.html_modal_window').remove();
                             }else{
                                 //сообщаем, что что-то пошло не так

@@ -266,6 +266,9 @@ $contact_face_d_arr = array();
 foreach($contact_faces_contacts as $k=>$this_contact_face){
 	//print_r($this_contact_face);
 	$contact_face_d_arr = $clientClass->get_contact_info("CLIENT_CONT_FACES_TBL",$this_contact_face['id']);
+	// echo "<pre>";
+	// print_r($contact_face_d_arr);
+	// echo "</pre>";
 	$cont_company_phone = (isset($contact_face_d_arr['phone']))?$contact_face_d_arr['phone']:''; 
 	$cont_company_other = (isset($contact_face_d_arr['other']))?$contact_face_d_arr['other']:'';
 	
