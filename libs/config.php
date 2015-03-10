@@ -1,8 +1,9 @@
 <?php
-    //$session_path = $_SERVER['DOCUMENT_ROOT'].'/modules/tmp/';
-	// если под Windows
-	//$session_path = strtr($session_path,"/","\\");  
 
+    define('ROOT', $_SERVER['DOCUMENT_ROOT']);
+	define('HOST', 'http://'.$_SERVER['HTTP_HOST'].'/os');
+	define('APELBURG_HOST', 'http://www.apelburg.ru');
+	
     // names base tables
 	define('BASE_TBL','base');
 	define('IMAGES_TBL','new__base_images');

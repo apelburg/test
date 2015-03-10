@@ -1,3 +1,5 @@
+
+<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/kpManagerClass.js"></script>
 <script type="text/javascript">
    tableDataManager.url = '?page=clients&section=client_folder&subsection=calculate_table&client_id=<?php echo $client_id; ?>';
 </script>
