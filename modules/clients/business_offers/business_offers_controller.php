@@ -1,4 +1,7 @@
 <?php
+    
+	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/art_img_class.php");
+	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/com_pred_class.php");
 	
 	///////////////////////////////////////// AJAX ////////////////////////////////////////////////////
 	
@@ -21,7 +24,8 @@
 	    //var_dump(json_decode($_POST['send_kp_by_mail_final_step']));
 		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
 
-        // вызываем метод выполняющий отправку сообщения
+        // вызываем класс выполняющий отправку сообщения
+		include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/mail_class.php");
 		$mail = new Mail();
 		$mail->add_bcc('box1@yandex.ru');
 		$mail->add_cc('box2@yandex.ru');
@@ -34,6 +38,8 @@
 	
 	///////////////////////////////////////  END AJAX  /////////////////////////////////////////////////
 	
+	
+	
 	/////////////////////////////////////// Временно /////////////////////////////////////// 
 	if(isset($_GET['save_in_pdf'])){
 	     list($kp_id,$client_id,$manager_id)=(explode("|",$_GET['save_in_pdf']));
@@ -43,7 +49,7 @@
 		 $kp_id = (int)$_GET['show_kp'];
 		 $rows = Com_pred::create_list($client_id,$kp_id);
 		 $detailed_view = Com_pred::open_in_tbl($_GET['show_kp']); 
-		 $detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
+		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
 		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'|'.$client_id.'|'.$manager_id.'">сохранить на диск</a>';
 		 $dont_show_rows = TRUE;
 	}
@@ -59,7 +65,7 @@
 		 $rows = Com_pred::create_list($client_id,$kp_id);
 		 $dont_show_rows = TRUE;
 		 $detailed_view = Com_pred::open_in_blank($kp_id,$client_id,$manager_id,true);
-		 $detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
+		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
 		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'|'.$client_id.'|'.$manager_id.'">сохранить на диск</a>';
 	}
 	/////////////////////////////////////// end Временно /////////////////////////////////////// 
