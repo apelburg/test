@@ -25,7 +25,7 @@
 		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
 
         // вызываем класс выполняющий отправку сообщения
-		include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/mail_class.php");
+		include(ROOT."/os/libs/php/classes/mail_class.php");
 		$mail = new Mail();
 		$mail->add_bcc('box1@yandex.ru');
 		$mail->add_cc('box2@yandex.ru');
