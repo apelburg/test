@@ -102,6 +102,7 @@
 		<input type="hidden" name="id" value="">
 	</form>
 </div>
+
 <style type="text/css">
 	#client_dop_information_cont_w{
 		display: none
@@ -128,5 +129,52 @@
         </table>
 		<input type="hidden" name="ajax_standart_window" value="edit_client_dop_information">
 		<input type="hidden" name="id" value="<?php echo $client_id; ?>">
+	</form>
+</div>
+
+<!-- удаление строки с контактным лицом -->
+<style type="text/css">
+	#deleteing_row_cont_face{display: none}
+
+</style>
+<div id="deleteing_row_cont_face">Информация о данном контактном лице будет удалена безвозвратно. Продолжить?</div>
+
+<!-- добавление нового контактного лица -->
+<style type="text/css">
+	#contact_face_new_form{display: none}
+	#contact_face_new_form table{width: 100%;}
+	#contact_face_new_form table tr td:nth-of-type(1){width: 70px; text-align: right}
+	#contact_face_new_form input{width: 100%}
+</style>
+<div id="contact_face_new_form">	
+	<form>
+		<table>
+			<tr>
+				<td>Фаммилия</td>
+				<td><input type="text" name="last_name" ></td>
+			</tr>
+			<tr>
+				<td>Имя</td>
+				<td><input type="text" name="name" ></td>
+			</tr>
+			<tr>
+				<td>Отчество</td>
+				<td><input type="text" name="surname" ></td>
+			</tr>
+			<tr>
+				<td>Должность</td>
+				<td><input type="text" name="position" ></td>
+			</tr>
+			<tr>
+				<td>Отдел</td>
+				<td><input type="text" name="department" ></td>
+			</tr>
+			<tr>
+				<td>Прим.</td>
+				<td><input type="text" name="note" ></td>
+			</tr>
+		</table>
+		<input type="hidden" name="ajax_standart_window" value="contact_face_new_form">
+		<input type="hidden" name="parent_id" value="<?php echo $client_id; ?>">
 	</form>
 </div>

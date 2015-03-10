@@ -171,6 +171,25 @@ ini_set('display_startup_errors', 1);
 			exit;
 		}
 
+		if($_POST['ajax_standart_window']=="contact_face_new_form"){
+			global $mysqli;
+			$query = "INSERT INTO  `".CLIENT_CONT_FACES_TBL."` SET  
+			`client_id` =  '".$_POST['parent_id']."',
+			`surname` =  '".$_POST['surname']."',
+			`last_name` =  '".$_POST['last_name']."',
+			`name` =  '".$_POST['name']."', 
+			`position` =  '".$_POST['position']."',
+			`department` =  '".$_POST['department']."',
+			`note` =  '".$_POST['note']."' ";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{
+		       "response":"1",
+		       "id":"'.$mysqli->insert_id.'",
+		       "text":"Данные успешно обновлены"
+		      }';
+			exit;
+		}
+
 		if($_POST['ajax_standart_window']=="edit_client_dop_information"){
 			global $mysqli;
 			$query = "UPDATE  `".CLIENTS_TBL."` SET  
@@ -184,6 +203,21 @@ ini_set('display_startup_errors', 1);
 			exit;
 		}
 
+		if($_POST['ajax_standart_window']=="delete_cont_face_row"){
+			
+			$id_row = $_POST['id'];
+			$tbl = "CLIENT_CONT_FACES_TBL";
+			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			// echo $query;
+			echo '{
+		       "response":"1",
+		       "text":"Данные успешно удалены"
+		      }';
+			exit;
+		}
+
+		
 		// CLIENT_CONT_FACES_CONTACT_INFO_TBL
 		
 	}
@@ -241,6 +275,15 @@ foreach($contact_faces_contacts as $k=>$this_contact_face){
 
 $client_content_contact_faces .= ob_get_contents();
 ob_get_clean();
+
+// AJAX
+// на случай выдачи контента только с контактными лицами
+if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="get_empty_cont_face"){
+	echo $client_content_contact_faces;
+	exit;
+}
+// ALAX END
+
 
 //получаем адрес папки и примечания
 ob_start();
