@@ -1,6 +1,7 @@
 <style type="text/css">
     .adress_note{ float: left; padding-top: 10px; color: rgb(176, 175, 175)}
 </style>
+<script type="text/javascript" src="libs/js/rate_script.js"></script>
 <div class="client_table">
 	<table class="client_table_gen">
     	<tr>            
@@ -12,7 +13,7 @@
                     </tr>
                 	<tr>
                     	<td>Рейтинг</td>
-                    	<td><span  style="color:red">В разработке</span></td>
+                    	<td><?php echo $clientRating; ?></td>
                     </tr>
                 	<tr>
                     	<td>Деятельность</td>

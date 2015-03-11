@@ -217,6 +217,15 @@ ini_set('display_startup_errors', 1);
 			exit;
 		}
 
+		if($_POST['ajax_standart_window']=="update_reiting_cont_face"){
+		$query = "UPDATE  `".CLIENTS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{
+		       "response":"1",
+		       "text":"Данные успешно сохранены"
+		      }';
+		exit;
+		}
 		
 		// CLIENT_CONT_FACES_CONTACT_INFO_TBL
 		
@@ -231,6 +240,8 @@ $cont_company_other = $clientClass->cont_company_other;
 
 $client = $clientClass->info;
 
+//получим рейтинг компании
+$clientRating = Client::get_reiting($client_id,$client['rate']);
 
 $contact_faces_contacts = Client::cont_faces($client_id);
 
