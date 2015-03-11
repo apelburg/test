@@ -34,7 +34,6 @@ width: 100%;}
 .table_phone_contact_information tr td:nth-of-type(2):hover div,
 .contact_face_tbl_edit:hover,
 #client_dop_information:hover{ 
-    cursor: default;
-      
+    cursor: default;      
     background-color: #EFFAE7;
 }

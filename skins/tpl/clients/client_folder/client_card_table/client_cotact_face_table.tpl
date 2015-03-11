@@ -20,6 +20,7 @@
                     	<td><?php echo $this_contact_face['note']; ?></td>
                     </tr>
                 </table>
+                
         	<td>
             	<?php echo $cont_company_phone; ?>
             </td>

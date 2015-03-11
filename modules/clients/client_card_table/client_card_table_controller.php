@@ -240,8 +240,11 @@ $cont_company_other = $clientClass->cont_company_other;
 
 $client = $clientClass->info;
 
-//получим рейтинг компании
+// получаем рейтинг компании
 $clientRating = Client::get_reiting($client_id,$client['rate']);
+
+// получаем реквизиты компании
+$requisites = Client::get_requisites($client_id);
 
 $contact_faces_contacts = Client::cont_faces($client_id);
 

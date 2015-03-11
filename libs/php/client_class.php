@@ -70,6 +70,19 @@ class Client {
 			return $str;		
 		}			
 	}
+	public function get_requisites($client_id){
+		global $mysqli;
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".$client_id."'";
+		$requisites = array();
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$requisites[] = $row;
+			}
+		}
+		return $requisites;
+	}
+
 	public function get_reiting($id,$rate){
 		$arr[0] = array('5','0');
 		$arr[1] = array('5','5');
@@ -103,8 +116,6 @@ class Client {
 			}
 			$contact['phone'] = self::get_contact_row($contacts, 'phone',self::$array_img);
 			$contact['other'] = self::get_contact_row($contacts, 'other',self::$array_img);
-		}else{
-
 		}
 		return $contact;
 

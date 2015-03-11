@@ -178,3 +178,18 @@
 		<input type="hidden" name="parent_id" value="<?php echo $client_id; ?>">
 	</form>
 </div>
+
+<style type="text/css">
+	#requesites_form{display:none;}
+</style>
+<div id="requesites_form">
+	<form>
+		<table>
+			<?php
+				foreach ($requisites as $key => $value) {
+					echo "<tr><td>".++$key.". <a href='#'>".$value['company']."</a></td><td>edit</td><td>delete</td></tr>";
+				}
+			?>
+		</table>
+	</form>
+</div>
