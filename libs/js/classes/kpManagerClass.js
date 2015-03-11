@@ -1,5 +1,55 @@
 // JavaScript Document
-var kpManager = {
+    var kpManager = {
+		createLetterWIndow:function (){
+			
+			    var box = document.createElement('div');
+				box.id = "mailSendDialog";
+				box.style.width = '900px';
+				box.style.display = "none";
+				
+				box.innerHTML = Base64.decode(kpManager.details.main_window_tpl);
+				// help button
+				box.appendChild(help.btn('kp.sendLetter.window'));
+		        document.body.appendChild(box);
+				
+				
+				//инициализируем и навешиваем  поля с данными которые будут отправлены на сервер
+				kpManager.contfaceSelect = document.createElement('select');
+				var options_arr = new Array();
+				for( var i = 0 ; i < kpManager.details.client_mails.length ; i++ ){//.length
+					options_arr[i] = '<option value="'+kpManager.details.client_mails[i].mail+'">'+kpManager.details.client_mails[i].person+' '+kpManager.details.client_mails[i].mail+'</option>';
+				}
+				kpManager.contfaceSelect.innerHTML = options_arr.join("\r\n");
+				document.getElementById('mailSelectTo').appendChild(kpManager.contfaceSelect);
+				
+				
+				kpManager.managerMailsSelect = document.createElement('select');
+				var options_arr = new Array();
+				for( var i = 0 ; i < kpManager.details.manager_mails.length ; i++ ){//.length
+					options_arr[i] = '<option value="'+kpManager.details.manager_mails[i].mail+'">'+kpManager.details.manager_mails[i]+'</option>';
+				}
+				kpManager.managerMailsSelect.innerHTML = options_arr.join("\r\n");
+				document.getElementById('mailSelectFrom').appendChild(kpManager.managerMailsSelect);
+				
+				// поле темы письма
+				kpManager.mailSubject = document.createElement('div');
+				kpManager.mailSubject.style.height = '20px';
+				kpManager.mailSubject.style.border = '2px solid blue';
+				kpManager.mailSubject.contentEditable = "true";
+				document.getElementById('mailSubject').appendChild(kpManager.mailSubject);
+				
+				// поле для ввода текста письма
+				kpManager.textarea = document.createElement('div');
+				kpManager.textarea.style.height = '20px';
+				kpManager.textarea.style.border = '2px solid green';
+				kpManager.textarea.contentEditable = "true";
+				document.getElementById('mailMessage').appendChild(kpManager.textarea);
+				
+				
+				$("#mailSendDialog").dialog({autoOpen: false,title: "отправка КП на email клиента",modal:true,width: 900});
+				$("#mailSendDialog").dialog("open");/**/
+		}
+		,
 		sendKpByMail:function (id,client_id,manager_id){
 		
 			//alert(id+" "+client_id+" "+manager_id);
@@ -10,85 +60,16 @@ var kpManager = {
 				
 				//alert(response);
 			    var response_obj = JSON.parse(response);
-				//for (var prop in response_obj) alert ( prop+' '+response_obj[prop]);
 				kpManager.details = response_obj;
 				kpManager.manager_id = manager_id;
 				kpManager.client_id = client_id;
 
 				
-				
-				//
-				var box = document.createElement('div');
-				box.id = "mailSendDialog";
-				box.style.width = '600px';
-				box.style.border = '2px solid #CCC';
-				box.style.display = "none";
-				//
-				kpManager.textarea = document.createElement('textarea');
-			    ///textarea.id = 'message';
-				//textarea.name = 'message';
-				
-				//
-				kpManager.contfaceSelect = document.createElement('select');
-				var options_arr = new Array();
-				for( var i = 0 ; i < kpManager.details.client_mails.length ; i++ ){//.length
-					options_arr[i] = '<option value="'+kpManager.details.client_mails[i].mail+'">'+kpManager.details.client_mails[i].person+' '+kpManager.details.client_mails[i].mail+'</option>';
-				}
-				kpManager.contfaceSelect.innerHTML = options_arr.join("\r\n");
-				
-				kpManager.managerMailsSelect = document.createElement('select');
-				var options_arr = new Array();
-				for( var i = 0 ; i < kpManager.details.manager_mails.length ; i++ ){//.length
-					options_arr[i] = '<option value="'+kpManager.details.manager_mails[i].mail+'">'+kpManager.details.manager_mails[i]+'</option>';
-				}
-				kpManager.managerMailsSelect.innerHTML = options_arr.join("\r\n");
-				
-				//
-				var button = document.createElement('button');
-				button.onclick = kpManager.sendKpByMailFinalStep;
-				button.innerHTML = 'send';
-				
-				var br = document.createElement('br')
-				
-				box.appendChild(document.createTextNode("кому:"));
-				box.appendChild(br.cloneNode());
-				box.appendChild(document.createTextNode("почтовые ящики сотрудников"));
-				box.appendChild(kpManager.contfaceSelect.cloneNode(true));
-				box.appendChild(br.cloneNode());
-				box.appendChild(document.createTextNode("другие почтовые ящики"));
-				input = document.createElement('input');
-				input.style.height = "10px";
-				input.style.width = "200px";
-				box.appendChild(input.cloneNode(true));
-				box.appendChild(br.cloneNode());
-				box.appendChild(br.cloneNode());
-				box.appendChild(document.createTextNode("от:"));
-				box.appendChild(kpManager.managerMailsSelect);
-				
-				box.appendChild(br.cloneNode());
-				box.appendChild(br.cloneNode());
-				box.appendChild(document.createTextNode("заголовок письма:"));
-				box.appendChild(br.cloneNode());
-				box.appendChild(input);
-				
-				box.appendChild(br.cloneNode());
-				box.appendChild(document.createTextNode("текст письма:"));
-				box.appendChild(br.cloneNode());
-				box.appendChild(kpManager.textarea);
-				box.appendChild(br.cloneNode());
-				box.appendChild(br.cloneNode());
-				box.appendChild(document.createTextNode("прикрепленный файл:"));
-				box.appendChild(br.cloneNode());
-				box.appendChild(document.createTextNode(kpManager.details.filename.slice(kpManager.details.filename.lastIndexOf("/")+1)));
-				box.appendChild(br.cloneNode());
-				box.appendChild(br.cloneNode());
-				box.appendChild(button);
-				
-				document.body.appendChild(box);
+				//for (var prop in response_obj) alert ( prop+' '+response_obj[prop]);
+				kpManager.createLetterWIndow();
 				
 				
-				$("#mailSendDialog").dialog({autoOpen: false,title: "отправка КП на email клиента",modal:true,width: 600});
-				$("#mailSendDialog").dialog("open");
+				
 			}
 	
 		},
@@ -105,18 +86,19 @@ var kpManager = {
 	        
 			var pairs = 'send_kp_by_mail_final_step=';
 		    pairs += '{';
-			pairs += '"message":"'+encodeURIComponent(kpManager.textarea.value).replace(regexp,"+")+'",';
+			pairs += '"message":"'+encodeURIComponent(kpManager.textarea.innerHTML).replace(regexp,"+")+'",';
 			pairs += '"filename":"'+kpManager.details.filename+'",';
 			pairs += '"to":"'+kpManager.contfaceSelect.options[kpManager.contfaceSelect.selectedIndex].value+'",';
 			pairs += '"from":"andrey@apelburg.ru",';
-			pairs += '"subject":"Коммерческое предложение"';
+			pairs += '"subject":"'+kpManager.mailSubject.innerHTML+'"';
 			pairs += '}';
 			
 			
-
+            alert(pairs);
+			
 			make_ajax_post_request(url,pairs,call_back);
 			function call_back(response){
-				 //alert(response);
+				 alert(response);
 				 response = JSON.parse(response);
 				 var div = document.createElement('div');
 				 div.id = "mailResponseDialog";

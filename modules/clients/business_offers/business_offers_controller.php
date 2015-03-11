@@ -8,15 +8,24 @@
 	if(isset($_GET['send_kp_by_mail'])){
 	    //echo  $_GET['send_kp_by_mail'];
 	    list($kp_id,$client_id,$manager_id) = json_decode($_GET['send_kp_by_mail']);
-		$filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
-		$filename = $_SERVER['DOCUMENT_ROOT'].$filename;
-        //$filename = $_SERVER['DOCUMENT_ROOT'].'/os/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
+		//$filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
+		//$filename = $_SERVER['DOCUMENT_ROOT'].$filename;
+        $filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
+		
+		$tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
+		$fd = fopen($tpl_name,'r');
+		$main_window_tpl = fread($fd,filesize($tpl_name));
+	    fclose($fd);
+
+        // кодируем данные в формате HTML перед передачей в формате JSON
+		$main_window_tpl = base64_encode($main_window_tpl); 
 		echo '{
 		       "filename":"'.$filename.'",
 		       "client_mails":[{"person":"менеджер - Наталья","mail":"premier22@yandex.ru"},{"person":"директор - Елена","mail":"premier_22@yandex.ru"}],
 			   "manager_mails":["andrey@apelburg.ru","andrey2@apelburg.ru"],
-			   "template":""
-			  }';
+			   "main_window_tpl":"'.$main_window_tpl.'",
+			   "message_tpls":{"":"","":""}
+			  }';//
 	    exit;
 	}
 	
@@ -25,7 +34,7 @@
 		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
 
         // вызываем класс выполняющий отправку сообщения
-		include(ROOT."/os/libs/php/classes/mail_class.php");
+		include(ROOT."/libs/php/classes/mail_class.php");
 		$mail = new Mail();
 		$mail->add_bcc('box1@yandex.ru');
 		$mail->add_cc('box2@yandex.ru');

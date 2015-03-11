@@ -99,6 +99,42 @@
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}
 	
+	var help = {
+		btn:function(topic){
+
+			var btn = document.createElement('div');
+			//btn.className = 'helpBtn';
+			btn.style.position = 'absolute';
+			btn.style.top = '0px';
+			btn.style.right = '0px';
+			btn.style.cursor = 'pointer';
+			btn.innerHTML = 'help';
+			btn.setAttribute('topic',topic);
+			btn.onclick = help.show;
+			
+			return btn;
+		}
+		,
+		show:function(e){
+			var btn = e.target || e.srcElement;
+			var topic = btn.getAttribute('topic');
+			
+			var url = location.protocol +'//'+ location.hostname+'/os/?help='+topic;
+			
+			make_ajax_request(url,call_back);
+			function call_back(response){
+				//alert(response);
+				
+				var box = document.createElement('div');
+				box.id = "helpDialog";
+				box.innerHTML = response;
+				document.body.appendChild(box);
+				$("#helpDialog").dialog({autoOpen: false,width:800,title: "help", close:function(){$("#mailResponseDialog").remove();} });
+			    $("#helpDialog").dialog("open");
+			}
+		}
+	}
+	
 	function addOrReplaceGetOnURL(new_get,del_get){
  
         // данные из строки запроса

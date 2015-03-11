@@ -1,5 +1,11 @@
 <?php
-   
+    function getHelp($topic){
+	    $filename = ROOT.'/libs/help/'.$topic.'.txt';
+	    $fd = fopen($filename,"rb");
+		$content = fread($fd,filesize($filename));
+		return $content;
+	
+	}
     function addOrReplaceGetOnURL( $new_get, $del_get = NULL ){
 	    // данные из строки запроса
         if($_SERVER['QUERY_STRING'] == '' && $new_get == '') return '';

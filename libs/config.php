@@ -1,6 +1,6 @@
 <?php
 
-    define('ROOT', $_SERVER['DOCUMENT_ROOT']);
+    define('ROOT', $_SERVER['DOCUMENT_ROOT'].'/os');
 	define('HOST', 'http://'.$_SERVER['HTTP_HOST'].'/os');
 	define('APELBURG_HOST', 'http://www.apelburg.ru');
 	
