@@ -36,7 +36,6 @@
     <td><input type="checkbox"/><div id='' class='attachedKpFileName'>Apelburg_презентация_компании.pdf</div></td>
   </tr>
   <tr>
-    <td><div class=''></div></td>
-    <td><button onclick="kpManager.sendKpByMailFinalStep();">send</button></td>
+    <td colspan="2" style="text-align:center"><button onclick="kpManager.sendKpByMailFinalStep();" class="mailSendBtn">send</button></td>
   </tr>
 </table>

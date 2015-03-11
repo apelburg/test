@@ -47,7 +47,7 @@
 				document.getElementById('attachedKpFile').innerHTML = kpManager.details.kp_filename.slice(kpManager.details.kp_filename.lastIndexOf("/")+1);
 				
 				
-				$("#mailSendDialog").dialog({autoOpen: false,title: "отправка КП на email клиента",modal:true,width: 900});
+				$("#mailSendDialog").dialog({autoOpen: false,title: "Отправить коммерческое предложение",modal:true,width: 900});
 				$("#mailSendDialog").dialog("open");/**/
 		}
 		,
