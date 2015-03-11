@@ -54,6 +54,7 @@ class Client {
 			// echo $str;
 			return $str;
 		}else{
+
 			$str = '<table class="table_other_contact_information">';
 			foreach($contact_company as $k=>$v){
 			if(isset($array_dop_contacts_img[trim($v['type'])])){
@@ -66,8 +67,7 @@ class Client {
 				}
 			}
 			$str .= "</table>";	
-			return $str;
-		
+			return $str;		
 		}			
 	}
 	public function get_contact_info($tbl,$parent_id){
@@ -75,13 +75,19 @@ class Client {
 		$query = "SELECT * FROM `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$contact = array('phone'=>'','other'=>'');//инициализируем массив
-		$contacts = array();
+		$contacts = array();		
+		$contact['phone'] = '<table class="table_phone_contact_information"></table>';
+		$contact['other'] = '<table class="table_other_contact_information"></table>';
+		
+		//  
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$contacts[] = $row;
 			}
 			$contact['phone'] = self::get_contact_row($contacts, 'phone',self::$array_img);
 			$contact['other'] = self::get_contact_row($contacts, 'other',self::$array_img);
+		}else{
+
 		}
 		return $contact;
 
