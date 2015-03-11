@@ -187,9 +187,17 @@
 		<table>
 			<?php
 				foreach ($requisites as $key => $value) {
-					echo "<tr><td>".++$key.". <a href='#'>".$value['company']."</a></td><td>edit</td><td>delete</td></tr>";
+					echo "<tr><td>".++$key.". <a class='show_requesit' href='#' data-id='".$value['id']."' title='".$value['company']."'>".$value['company']."</a></td><td>edit</td><td>delete</td></tr>";
 				}
 			?>
 		</table>
 	</form>
+</div>
+
+<style type="text/css">
+	#show_requesit{display:none;}
+</style>
+<div id="show_requesit">
+	
+
 </div>

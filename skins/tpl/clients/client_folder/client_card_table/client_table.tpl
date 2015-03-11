@@ -31,6 +31,44 @@ $(function() {
     });
 });
 
+// 
+// РЕКВИЗИТЫ
+//
+
+// ПОКАЗТЬ РЕКВИЗИТЫ
+$(document).on('click', '#requesites_form a', function(event) {
+    var title = $(this).html();
+    $.post('', {
+        ajax_standart_window: "show_requesit",
+        id:$(this).attr('data-id')
+    }, function(data, textStatus, xhr) {
+        $("#show_requesit").html(data);
+        $("#show_requesit").dialog('option', 'title', title);
+        $("#show_requesit").dialog("open");
+    });    
+});
+
+// ИНИЦИАЛИЗАЦИЯ ОКНА ПОКАЗА РЕКВИЗИТОВ
+$(function(){
+    $("#show_requesit").dialog({
+        width: ($(window).width()-2),
+        height: ($(window).height()-2),
+        position: [0,0],
+        autoOpen : false,
+        draggable: false,
+
+        buttons: [
+            {
+                text: 'Закрыть',
+                click: function() { 
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+
+
 </script>
 
 

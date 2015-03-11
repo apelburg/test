@@ -226,6 +226,20 @@ ini_set('display_startup_errors', 1);
 		      }';
 		exit;
 		}
+
+		if($_POST['ajax_standart_window']=="show_requesit"){
+			$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".$_POST['id']."'";
+			$requesit = array();
+			// echo $query;exit;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$requesit = $row;
+				}
+			}
+			include('./skins/tpl/clients/client_folder/client_card_table/show_requsits.tpl');
+			exit;
+		}
 		
 		// CLIENT_CONT_FACES_CONTACT_INFO_TBL
 		
@@ -245,6 +259,8 @@ $clientRating = Client::get_reiting($client_id,$client['rate']);
 
 // получаем реквизиты компании
 $requisites = Client::get_requisites($client_id);
+
+
 
 $contact_faces_contacts = Client::cont_faces($client_id);
 

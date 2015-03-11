@@ -37,3 +37,14 @@ width: 100%;}
     cursor: default;      
     background-color: #EFFAE7;
 }
+input, textarea{
+	font-size: 12px;
+	  color: #444;
+  height: 1.694em;
+  text-indent: .8em;
+  border: 1px solid #efefef;
+}
+input:hover,textarea:hover,textarea:focus, input:focus{
+	outline: none;
+	box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 6px 0px, rgba(0, 0, 0, 0.0470588) 0px 2px 3px 0px;
+}
