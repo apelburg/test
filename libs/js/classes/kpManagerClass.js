@@ -33,17 +33,18 @@
 				
 				// поле темы письма
 				kpManager.mailSubject = document.createElement('div');
-				kpManager.mailSubject.style.height = '20px';
-				kpManager.mailSubject.style.border = '2px solid blue';
+				kpManager.mailSubject.className = 'mailSubject';
 				kpManager.mailSubject.contentEditable = "true";
 				document.getElementById('mailSubject').appendChild(kpManager.mailSubject);
 				
 				// поле для ввода текста письма
 				kpManager.textarea = document.createElement('div');
-				kpManager.textarea.style.height = '20px';
-				kpManager.textarea.style.border = '2px solid green';
+				kpManager.textarea.className = 'mailTextarea';
 				kpManager.textarea.contentEditable = "true";
 				document.getElementById('mailMessage').appendChild(kpManager.textarea);
+				
+				// поле отображения прикрепленного файла
+				document.getElementById('attachedKpFile').innerHTML = kpManager.details.kp_filename.slice(kpManager.details.kp_filename.lastIndexOf("/")+1);
 				
 				
 				$("#mailSendDialog").dialog({autoOpen: false,title: "отправка КП на email клиента",modal:true,width: 900});
