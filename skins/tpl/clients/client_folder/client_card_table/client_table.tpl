@@ -17,7 +17,7 @@
                     </tr>
                 	<tr>
                     	<td>Деятельность</td>
-                    	<td><span  style="color:red">В разработке</span></td>
+                    	<td><span  style="color:#f1f1f1">В разработке</span></td>
                     </tr>
                 	<?php echo $client_address_s; ?>
                 	<tr>
