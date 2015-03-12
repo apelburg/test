@@ -25,31 +25,37 @@
 			array_push($this->added_headers,"Content-Type: multipart/mixed; boundary = \"".$this->boundary."\"\r\n");
 			$filepath_utf = iconv("UTF-8","windows-1251", $filepath);
 
-			$fd = fopen($filepath_utf,"rb");
-			$content = fread($fd,filesize($filepath_utf));
-			$content = chunk_split(base64_encode($content));
-			fclose($fd);
-			$filename = substr($filepath,strrpos($filepath,"/")+1);
-			$message = "Content-Type: application/pdf; name=\"".$filename."\"\r\n";
-            $message .= "Content-Transfer-Encoding: base64\r\n";
-            $message .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
-            $message .= $content."\r\n\r\n";
-			$this->message_parts[] = $message;
+			if($fd = @fopen($filepath_utf,"rb")){
+				$content = fread($fd,filesize($filepath_utf));
+				$content = chunk_split(base64_encode($content));
+				fclose($fd);
+
+				$filename = substr($filepath,strrpos($filepath,"/")+1);
+				$message = "Content-Type: application/pdf; name=\"".$filename."\"\r\n";
+				$message .= "Content-Transfer-Encoding: base64\r\n";
+				$message .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
+				$message .= $content."\r\n\r\n";
+				$this->message_parts[] = $message;
+			}
+			else $this->errors[] = 'Не удалось прочитать файл с диска'; 
 		}
 		
 	    function send($to,$from,$subject,$message){
 		    
-		    if(empty($to))$errors[] = 'Не указан отправитель';
-			if(empty($from))$errors[] = 'Не указан получатель'; 
-			if(empty($subject))$errors[] = 'Не указана тема письма'; 
-			if(empty($message))$errors[] = 'Письмо не содержит сообщения'; 
+		    if(empty($to))$this->errors[] = 'Не указан отправитель';
+			if(empty($from))$this->errors[] = 'Не указан получатель'; 
+			if(empty($subject))$this->errors[] = 'Не указана тема письма'; 
+			if(empty($message))$this->errors[] = 'Письмо не содержит сообщения'; 
 
-			
-			
-			$subject = "=?utf-8?b?".base64_encode($subject) ."?=";
-			//$subject = iconv("UTF-8", "windows-1251", $subject);
-			
+
+			$message = base64_decode($message);
+			$message = urldecode($message);
 			$message = iconv("UTF-8", "windows-1251", $message);
+			
+			$subject = "=?utf-8?b?".base64_encode($subject)."?=";
+			
+			
+			
 			if($this->multipart){
 			    $message= "Content-Type:text/html; charset=windows-1251\r\n\r\n".$message."\r\n";
 			    array_unshift($this->message_parts,$message);
@@ -65,7 +71,7 @@
 			//exit;
 			
 			// если были ошибки прерываем дальшейшее выполнение функции
-			if(!empty($errors)) return '[0,"'.implode("<br>",$errors).'"]';
+			if(!empty($this->errors)) return '[0,"'.implode("<br>",$this->errors).'"]';
 			
 			//if(mail($to,$subject,$message,$this->headers,"-f".$from)){ такой вариант почемуто не сработал
 			if(mail($to,$subject,$message,$this->headers)){

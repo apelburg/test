@@ -33,6 +33,7 @@
 				
 				// поле темы письма
 				kpManager.mailSubject = document.createElement('div');
+				kpManager.mailSubject.innerHTML = "Тема письма";
 				kpManager.mailSubject.className = 'mailSubject';
 				kpManager.mailSubject.contentEditable = "true";
 				document.getElementById('mailSubject').appendChild(kpManager.mailSubject);
@@ -64,7 +65,7 @@
 				kpManager.details = response_obj;
 				kpManager.manager_id = manager_id;
 				kpManager.client_id = client_id;
-
+                if(kpManager.details.message_tpls) for(var prop in kpManager.details.message_tpls)kpManager.details.message_tpls[prop] = Base64.decode(kpManager.details.message_tpls[prop]);
 				
 				//for (var prop in response_obj) alert ( prop+' '+response_obj[prop]);
 				kpManager.createLetterWIndow();
@@ -75,31 +76,30 @@
 	
 		},
 		sendKpByMailFinalStep:function (){
-			// var filename
-			// message
-			// manager_id
-			// client_id
-			// template
-
-			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search;
 			
+	        // подготавливаем к отправке текст сообщения
+		    var  message = kpManager.textarea.innerHTML;
+			message = encodeURIComponent(message);
+			message = Base64.encode(message);
+			
+			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search;
 			var regexp = /%20/g; // Регулярное выражение соответствующее закодированному пробелу
 	        
 			var pairs = 'send_kp_by_mail_final_step=';
 		    pairs += '{';
-			pairs += '"message":"'+encodeURIComponent(kpManager.textarea.innerHTML).replace(regexp,"+")+'",';
-			pairs += '"filename":"'+kpManager.details.filename+'",';
+			pairs += '"message":"'+message+'",';
+			pairs += '"kp_filename":"'+kpManager.details.kp_filename+'",';
 			pairs += '"to":"'+kpManager.contfaceSelect.options[kpManager.contfaceSelect.selectedIndex].value+'",';
 			pairs += '"from":"andrey@apelburg.ru",';
 			pairs += '"subject":"'+kpManager.mailSubject.innerHTML+'"';
 			pairs += '}';
 			
-			
-            alert(pairs);
+			//return;
+            //alert(pairs);
 			
 			make_ajax_post_request(url,pairs,call_back);
 			function call_back(response){
-				 alert(response);
+				 //alert(response);
 				 response = JSON.parse(response);
 				 var div = document.createElement('div');
 				 div.id = "mailResponseDialog";
@@ -113,6 +113,14 @@
 				 $("#mailResponseDialog").dialog({autoOpen:false ,title:"Результат отправки письма",close: function() {$("#mailResponseDialog").remove();}});
 				 $("#mailResponseDialog").dialog("open");
 		    }
+		}
+		,
+		setMessageTpl:function (name){
+			// если есть текущий установленный шаблон то копируем его состояние в массив хранящий шаблоны
+			if(kpManager.current_message_tpl) kpManager.details.message_tpls[kpManager.current_message_tpl] = kpManager.textarea.innerHTML;
+			// записываем имя текущего шаблона
+			kpManager.current_message_tpl = name;
+			kpManager.textarea.innerHTML = kpManager.details.message_tpls[name];
 		}
 		,
 		kpToPrint:function (version,param){

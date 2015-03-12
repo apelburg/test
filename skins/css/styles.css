@@ -1504,7 +1504,7 @@ margin-left: -350px;z-index: 999;}
 .letterEditWindowTbl .mailSubject{height:20px;border:1px solid #ccc;text-align:left;}
 .letterEditWindowTbl .mailSendWindow_tplBtn{float:left; border:1px solid #ccc;text-align:center; background-color:#AAA;padding:6px 20px; margin:5px 20px 5px 0px; cursor:pointer;}
 .letterEditWindowTbl .mailSendWindow_tplBtn:hover{ background-color:#9dbe8e;}
-.letterEditWindowTbl .mailTextarea { border:1px solid #ccc;height:140px; overflow: auto;}
+.letterEditWindowTbl .mailTextarea { border:1px solid #ccc;height:140px; resize: vertical; overflow: auto;}
 .letterEditWindowTbl input[type="checkbox"]{float:left; display:block;}
 .letterEditWindowTbl .attachedKpFileName { margin:2px 0 0 0}
 .letterEditWindowTbl .mailSendBtn{  font-size:14px;padding:10px 90px;margin-top:10px;cursor:pointer;}

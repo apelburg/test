@@ -8,24 +8,34 @@
 	if(isset($_GET['send_kp_by_mail'])){
 	    //echo  $_GET['send_kp_by_mail'];
 	    list($kp_id,$client_id,$manager_id) = json_decode($_GET['send_kp_by_mail']);
-		//$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
-		//$kp_filename = $_SERVER['DOCUMENT_ROOT'].$kp_filename;
-        $kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
+		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
+		$kp_filename = $_SERVER['DOCUMENT_ROOT'].$kp_filename;
+        ////$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		
-		$tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
-		$fd = fopen($tpl_name,'r');
-		$main_window_tpl = fread($fd,filesize($tpl_name));
+		$main_window_tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
+		$fd = fopen($main_window_tpl_name,'r');
+		$main_window_tpl = fread($fd,filesize($main_window_tpl_name));
 	    fclose($fd);
-
+        
         // кодируем данные в формате HTML перед передачей в формате JSON
 		$main_window_tpl = base64_encode($main_window_tpl); 
+		
+		$message_tpl_filenames = array('recalculation','new_kp_new_client','new_kp',);
+		foreach($message_tpl_filenames as $tpl_filename){
+			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
+			$fd = fopen($tpl_path,'r');
+			$tpl = fread($fd,filesize($tpl_path));
+			fclose($fd);
+			$message_tpls[] = '"'.$tpl_filename.'":"'.base64_encode($tpl).'"';
+		}
+		
 		echo '{
 		       "kp_filename":"'.$kp_filename.'",
 		       "client_mails":[{"person":"менеджер - Наталья","mail":"premier22@yandex.ru"},{"person":"директор - Елена","mail":"premier_22@yandex.ru"}],
 			   "manager_mails":["andrey@apelburg.ru","andrey2@apelburg.ru"],
-			   "main_window_tpl":"'.$main_window_tpl.'",
-			   "message_tpls":{"":"","":""}
-			  }';//
+			   "main_window_tpl":"'.$main_window_tpl.'",';
+		if(isset($message_tpls)) echo '"message_tpls":{'.implode(',',$message_tpls).'}';
+		echo '}';
 	    exit;
 	}
 	
@@ -38,7 +48,7 @@
 		$mail = new Mail();
 		$mail->add_bcc('box1@yandex.ru');
 		$mail->add_cc('box2@yandex.ru');
-		$mail->attach_file($mail_details->filename);
+		$mail->attach_file($mail_details->kp_filename);
 		echo $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$mail_details->message);
 	    exit;
 	}
