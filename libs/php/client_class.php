@@ -70,6 +70,36 @@ class Client {
 			return $str;		
 		}			
 	}
+	public function get_requisites($client_id){
+		global $mysqli;
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".$client_id."'";
+		$requisites = array();
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$requisites[] = $row;
+			}
+		}
+		return $requisites;
+	}
+
+	public function get_reiting($id,$rate){
+		$arr[0] = array('5','0');
+		$arr[1] = array('5','5');
+		$arr[2] = array('5','10');
+		$arr[3] = array('5','15');
+		$arr[4] = array('5','20');
+		$arr[5] = array('5','25');
+
+		$r = '<div id="rate_1" data-id="'.$id.'">
+			<input type="hidden" name="review_count" value="'.$arr[$rate]['0'].'" />
+			<input type="hidden" name="review_rate" value="'.$arr[$rate]['1'].'" />
+		</div>';
+		return $r;
+	}
+
+
+	
 	public function get_contact_info($tbl,$parent_id){
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
@@ -86,8 +116,6 @@ class Client {
 			}
 			$contact['phone'] = self::get_contact_row($contacts, 'phone',self::$array_img);
 			$contact['other'] = self::get_contact_row($contacts, 'other',self::$array_img);
-		}else{
-
 		}
 		return $contact;
 

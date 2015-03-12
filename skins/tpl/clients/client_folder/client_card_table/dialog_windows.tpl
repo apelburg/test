@@ -178,3 +178,26 @@
 		<input type="hidden" name="parent_id" value="<?php echo $client_id; ?>">
 	</form>
 </div>
+
+<style type="text/css">
+	#requesites_form{display:none;}
+</style>
+<div id="requesites_form">
+	<form>
+		<table>
+			<?php
+				foreach ($requisites as $key => $value) {
+					echo "<tr><td>".++$key.". <a class='show_requesit' href='#' data-id='".$value['id']."' title='".$value['company']."'>".$value['company']."</a></td><td>edit</td><td>delete</td></tr>";
+				}
+			?>
+		</table>
+	</form>
+</div>
+
+<style type="text/css">
+	#show_requesit{display:none;}
+</style>
+<div id="show_requesit">
+	
+
+</div>

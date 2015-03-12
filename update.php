@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `order_manager__clients_contact_information` (
   `dop_phone` varchar(255) ,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-*/
+*//*
 $query = "
 CREATE TABLE IF NOT EXISTS `order_manager__client_addres_tbl` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -49,6 +49,70 @@ CREATE TABLE IF NOT EXISTS `order_manager__client_addres_tbl` (
 $result = $mysqli->query($query) or die($mysqli->error);
 echo ($result)?"таблица создана успешно<br>":'';/*
 */
+
+function rebuild_rate(){
+	global $mysqli;
+	$query = "SELECT * FROM `".CLIENTS_TBL."`";
+	$result = $mysqli->query($query) or die($mysqli->error);
+	if($result->num_rows > 0){
+		while($row = $result->fetch_assoc()){
+			$arr[] = $row;
+		}
+	}
+	$i1=$i2=$i3=$i4= 1 ;
+	$s1=$s2=$s3=$s3="";
+
+	foreach ($arr as $key => $val) {
+		switch ($val['rate']) {
+			case '0':
+				if($i1>1){$s1 .=",";}
+				# code...
+				$s1 .= "'".$val['id']."'";
+				$i1++;
+				break;
+			case '1':
+				if($i2>1){$s2.=",";}
+				# code...
+				$s2 .= "'".$val['id']."'";
+				$i2++;
+				break;
+			case '2':
+				if($i3>1){$s3.=",";}
+				# code...
+				$s3 .= "'".$val['id']."'";
+				$i3++;
+				break;
+			case '3':
+				if($i4>1){$s4.=",";}
+				# code...
+				$s4 .= "'".$val['id']."'";
+				$i4++;
+				break;			
+			default:
+				if($i1>1){$s1.=",";}
+				# code...
+				$s1 .= "'".$val['id']."'";
+				$i1++;
+				break;
+		}
+		
+
+
+	}
+	$q = "
+		UPDATE `order_manager__client_list` SET `rate` = '0' WHERE `id` IN (".$s1.");
+		UPDATE `order_manager__client_list` SET `rate` = '1' WHERE `id` IN (".$s4.");
+		UPDATE `order_manager__client_list` SET `rate` = '3' WHERE `id` IN (".$s3.");
+		UPDATE `order_manager__client_list` SET `rate` = '5' WHERE `id` IN (".$s2.");
+		";
+		// echo $query;
+		$result = $mysqli->multi_query($q) or die($mysqli->error);//сохраняем выборку из 1 таблицы
+		if($result){
+			echo "Ребилд таблицы произведён успешно";
+		}
+}
+
+
 function client_contact_list_update_1(){
 	global $mysqli;
 //получаем данные из основной таблицы
@@ -178,6 +242,9 @@ function order_manager__client_addres_tbl_update(){
 	//вытираем пустые значения
 	$result = $mysqli->query($query) or die($mysqli->error);
 }
-order_manager__client_addres_tbl_update();
+// переформатируем адреса в другую таблицу
+// order_manager__client_addres_tbl_update();
+// перезапись таблицы клиентов по новым рейтингам
+rebuild_rate();
 //client_contact_list_update_1();
 // client_contact_list_update_2();
