@@ -950,3 +950,39 @@
 	    });
 	});
 	*/
+
+	//статус сохранения отредактированного поля
+function check_loading_ajax(){
+		window.l++;
+		console.log(jQuery.active);
+		if(jQuery.active>0){
+			if($('#alert_saving_status').length==0){
+				$('body').append('<div style="position:fixed; float:left;font-family: arial,sans-serif; left:50%; top:100px; margin-left:-100px; background-color:#F9EDBE;border:1px solid #F0C36D; padding:7px 15px; font-size:12px" id="alert_saving_status"><div id="ll">Данные сохраняются...</div><div id="lll" style="text-align:center"></div><div id="lll1"><div id="lll2" style="width:0%;background: #F0C36D; height:5px; border:0"></div></div></div>');	
+				$('#alert_saving_status').stop(true, true).fadeIn('fast');
+			}else{
+				$('#alert_saving_status').fadeIn('fast');			
+			}
+			var p = jQuery.active;
+			var q = window.l / 100;
+			var per = Math.ceil((100-p/q));
+			$('#lll').html(per +' %');
+			$('#lll2').width(per+'%');
+			setTimeout(check_loading_ajax, 300);
+			return false;
+		}else{
+			
+			// $('#ll').html('Данные успешно сохранены.')
+			$('#ll').html('Запрос успешно завершен.');
+			$('#lll').html('100 %');
+			$('#lll2').width('100%');		
+			$('#alert_saving_status').delay(1000).animate({opacity:0},700,function(){$(this).remove()});
+			
+			//setTimeout($('#alert_saving_status').fadeOut('fast').remove(), 3000)	
+			window.l = 0;
+			return true;	
+		}
+	};
+	$(document).ready(function(){
+	window.l = 0;
+	window.onbeforeunload = function () {return ((check_loading_ajax()==false) ? "Измененные данные не сохранены. Закрыть страницу?" : null);}
+	});
