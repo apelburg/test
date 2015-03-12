@@ -70,7 +70,7 @@ class Client {
 			return $str;		
 		}			
 	}
-	public function get_requisites($client_id){
+	static function get_requisites($client_id){
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".$client_id."'";
 		$requisites = array();
@@ -83,7 +83,7 @@ class Client {
 		return $requisites;
 	}
 
-	public function get_reiting($id,$rate){
+	static function get_reiting($id,$rate){
 		$arr[0] = array('5','0');
 		$arr[1] = array('5','5');
 		$arr[2] = array('5','10');
