@@ -12,6 +12,7 @@
 	define('BASE_COLORS_TBL','new__base_colors');
 	define('BASE_MATERIALS_TBL','new__base_material');
     define("CLIENTS_TBL","order_manager__client_list"); // таблица клиентов
+    define("CLIENT_PERSON_REQ_TBL","order_manager__clients_persons_for_requisites"); // список должностей для лиц емеющих право подписи
 	define("CLIENT_REQUISITES_TBL","order_manager__clients_requisites"); // таблица реквизитов клиентов
 	define("CLIENT_REQUISITES_MANAGMENT_FACES_TBL","order_manager__clients_requisites_management");// таблица лиц (контрагентов) имеющих право подписи 
 	define("CLIENT_CONT_FACES_TBL","order_manager__relate_client_cont_faces"); // таблица контактных лиц клиентов  

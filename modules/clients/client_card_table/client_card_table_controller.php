@@ -217,6 +217,28 @@ ini_set('display_startup_errors', 1);
 			exit;
 		}
 
+		if($_POST['ajax_standart_window']=="delete_cont_requisits_row"){			
+			$id_row = $_POST['id'];
+			$tbl = $_POST['tbl'];
+			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			// echo $query;
+			echo '{
+		       "response":"1",
+		       "text":"Данные успешно удалены"
+		      }';
+			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="update_requisites"){	
+			echo "<pre>";		
+			print_r($_POST);
+			echo "</pre>";
+			exit;
+		}
+
+
+
 		if($_POST['ajax_standart_window']=="update_reiting_cont_face"){
 		$query = "UPDATE  `".CLIENTS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -240,6 +262,25 @@ ini_set('display_startup_errors', 1);
 			include('./skins/tpl/clients/client_folder/client_card_table/show_requsits.tpl');
 			exit;
 		}
+
+		if($_POST['ajax_standart_window']=="edit_requesit"){
+			$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".$_POST['id']."'";
+			$requesit = array();
+			// echo $query;exit;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$requesit = $row;
+				}
+			}
+			// получаем список должностей для персональных данных контактных лиц из реквизитов
+			//$get__clients_persons_for_requisites = Client::get__clients_persons_for_requisites($client_id);
+			// получаем контактные лица для реквизитов
+
+
+			include('./skins/tpl/clients/client_folder/client_card_table/edit_requsits.tpl');
+			exit;
+		}
 		
 		// CLIENT_CONT_FACES_CONTACT_INFO_TBL
 		
@@ -260,6 +301,8 @@ $clientRating = Client::get_reiting($client_id,$client['rate']);
 // получаем реквизиты компании
 $requisites = Client::get_requisites($client_id);
 
+// кураторы
+$manager_names = Client::get_relate_managers($client_id);
 
 
 $contact_faces_contacts = Client::cont_faces($client_id);
