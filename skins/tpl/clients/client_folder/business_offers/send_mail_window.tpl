@@ -14,9 +14,9 @@
   <tr>
     <td class='fieldName'>Шаблон:</td>
     <td>
-       <div class='mailSendWindow_tplBtn' type="recalculation">Перерасчет КП</div>
-       <div class='mailSendWindow_tplBtn' type="new_kp_new_client">Новое КП / новый клиент</div>
-       <div class='mailSendWindow_tplBtn' type="new_kp">Новое КП / постоянный клиент</div>
+       <div class='mailSendWindow_tplBtn' type="recalculation" onclick="kpManager.setMessageTpl('recalculation');">Перерасчет КП</div>
+       <div class='mailSendWindow_tplBtn' type="new_kp_new_client" onclick="kpManager.setMessageTpl('new_kp_new_client');">Новое КП / новый клиент</div>
+       <div class='mailSendWindow_tplBtn' type="new_kp" onclick="kpManager.setMessageTpl('new_kp');">Новое КП / постоянный клиент</div>
     </td>
   </tr>
   <tr>
@@ -36,7 +36,6 @@
     <td><input type="checkbox"/><div id='' class='attachedKpFileName'>Apelburg_презентация_компании.pdf</div></td>
   </tr>
   <tr>
-    <td><div class=''></div></td>
-    <td><button onclick="kpManager.sendKpByMailFinalStep();">send</button></td>
+    <td colspan="2" style="text-align:center"><button onclick="kpManager.sendKpByMailFinalStep();" class="mailSendBtn">Отправить</button></td>
   </tr>
 </table>
