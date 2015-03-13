@@ -99,18 +99,18 @@
 			
 			make_ajax_post_request(url,pairs,call_back);
 			function call_back(response){
-				 //alert(response);
-				 response = JSON.parse(response);
+				 //alert(response);//
+				 //response = JSON.parse(response);
 				 var div = document.createElement('div');
 				 div.id = "mailResponseDialog";
 				 div.style.textAlign = "center";
 				 div.style.display = "none";
-				 div.innerHTML = response[1];
+				 div.innerHTML = response;
 				 document.body.appendChild(div);
 				 
 				 if(response[0]) $("#mailSendDialog").dialog("close");
 				 
-				 $("#mailResponseDialog").dialog({autoOpen:false ,title:"Результат отправки письма",close: function() {$("#mailResponseDialog").remove();}});
+				 $("#mailResponseDialog").dialog({autoOpen:false ,title:"Результат отправки письма",width: 1200,close: function() {$("#mailResponseDialog").remove();}});
 				 $("#mailResponseDialog").dialog("open");
 		    }
 		}
