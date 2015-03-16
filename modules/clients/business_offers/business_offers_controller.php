@@ -50,7 +50,6 @@
 		$mail->add_cc('e-project1@mail.ru');
 		$mail->attach_file($mail_details->kp_filename);
 		$mail->attach_file(ROOT.'/skins/tpl/common/mail_files_to_attache/lazer_print_price.pdf');
-		$mail->attach_file(ROOT.'/skins/images/img_design/header_logo.jpg');
 		echo $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$mail_details->message);
 	    exit;
 	}
