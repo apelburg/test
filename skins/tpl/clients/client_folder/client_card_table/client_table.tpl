@@ -165,6 +165,7 @@ $(function(){
                 text: 'Сохранить',
                 click: function() {
                     var post = $("#requisits_edit_form").serialize();
+                    //alert(post);
                     $.post('', post, function(data, textStatus, xhr) {
                         new_html_modal_window(data,'пришло на сервер:','','', '', '');
                     });
