@@ -313,18 +313,57 @@ $(function(){
     });
 });
 
+// ДОБАВЛЕНИЕ ДОЛЖНОСТИ В РЕКВИЗИТЫ
 
+$(document).on('click','.new_person_type_req',function(){
+  $('#new_person_type_req').dialog('open');
+});
+// ОКНО ДОБАВЛЕНИЕ ДОЛЖНОСТИ В РЕКВИЗИТЫ
+$(function(){
+    $('#new_person_type_req').dialog({
+        width: 600,
+        autoOpen : false,
+        modal:true,
+        buttons: [
+            {
+                text: 'Добавить',
+                click: function() {
+                    var position = $('#new_person_type_req form input[name="position"]').val();
+                    var position_in_padeg = $('#new_person_type_req form input[name="position_in_padeg"]').val();
+                    if(position!="" && position_in_padeg !=""){
+                      var post = $('#new_person_type_req form').serialize();
+                      $.post('', post, function(data, textStatus, xhr) {
+                          if(data['response']==1){
+                            $('#chief_fields_div select').each(function(index, el) {
+                              $(el).append('<option value="'+data['id_new_row']+'">'+position+'</option>');                   
+                            });
+                          }else{
+                             new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                          }
+                      },'json');
+                      $('#new_person_type_req form').trigger( 'reset' );
+                      $( this ).dialog( "close" );
+                    }else{
+                      new_html_modal_window('Чтобы добавить новую должность поля не должны быть пустыми','Предупреждение об ошибке','','', '', '');
+                    }
+                }
+            },
+            {
+                text: 'Отменить',
+                click: function() { 
+                  $('#new_person_type_req form').trigger( 'reset' );
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
 
 
 </script>
 
 
 <div class="client_table">
-    <?php
-    // echo "<pre>";
-    // print_r(Client::get_requisites($client_id));
-    // echo "</pre>";
-    ?>
 	<table class="client_table_gen">
     	<tr>            
         	<td>

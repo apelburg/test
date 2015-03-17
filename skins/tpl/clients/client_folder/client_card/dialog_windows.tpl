@@ -207,10 +207,33 @@
 </div>
 
 <style type="text/css">
-	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2,#create_requesit{display:none;}
+	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2,#create_requesit,#new_person_type_req{display:none;}
+	#new_person_type_req table{width: 100%}
+	#new_person_type_req input{width: 90%}
 </style>
 <div id="show_requesit"></div>
 <div id="create_requesit"></div>
 <div id="edit_requesit"></div>
+<div id="new_person_type_req">
+	<form>
+		<input type="hidden" name="ajax_standart_window" value="new_person_type_req">
+		<table>
+			<tr>
+				<td>
+					Должность: <br>
+					<input type="text" name="position"><br>
+					<span style="font-size:8px; float:left; color:#E45A71; margin-bottom:5px;">ВНИМАНИЕ! Должность пишите с большой буквы</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Должность в родительном падеже(кого? чего?): <br>
+					<input type="text" name="position_in_padeg"><br>
+					<span style="font-size:8px; float:left; color:#E45A71; margin-bottom:5px;">ВНИМАНИЕ! Должность пишите с большой буквы</span>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
 <div id="dialog-confirm">Данные об этом контакте будут удалены безвозвратно. Продолжить? </div>
 <div id="dialog-confirm2">Данные реквизиты будут удалены безвозвратно. Продолжить? </div>

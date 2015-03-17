@@ -234,27 +234,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 
 		if($_POST['ajax_standart_window']=="update_requisites"){	
 			global $mysqli;
-			// echo "<pre>";		
-			// print_r($_POST);
-			// echo "</pre><br>";
-			// exit;	
-			/*
-	INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
-			`client_id`='".$_POST['client_id']."', 
-			`company`='".$_POST['company']."', 
-			`comp_full_name`='".$_POST['form_data']['comp_full_name']."', 
-			`postal_address`='".$_POST['form_data']['postal_address']."', 
-			`legal_address`='".$_POST['form_data']['legal_address']."', 
-			`inn`='".$_POST['form_data']['inn']."', 
-			`kpp`='".$_POST['form_data']['kpp']."', 
-			`bank`='".$_POST['form_data']['bank']."', 
-			`bank_address`='".$_POST['form_data']['bank_address']."', 
-			`r_account`='".$_POST['form_data']['r_account']."', 
-			`cor_account`='".$_POST['form_data']['cor_account']."', 
-			`ogrn`='".$_POST['form_data']['bik']."', 
-			`okpo`='".$_POST['form_data']['okpo']."', 
-			`dop_info`='".$_POST['form_data']['dop_info']."'
-			*/		
+
 			$query = "
 			UPDATE  `".CLIENT_REQUISITES_TBL."` SET
 			`client_id`='".$_POST['client_id']."', 
@@ -431,8 +411,23 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 			include('./skins/tpl/clients/client_folder/client_card/new_requsits.tpl');
 			exit;
 		}
-		
-		// CLIENT_CONT_FACES_CONTACT_INFO_TBL
+
+		if($_POST['ajax_standart_window']=="new_person_type_req"){
+			global $mysqli;
+			$query = "INSERT INTO  `".CLIENT_PERSON_REQ_TBL."` SET  
+			`type` =  '',
+			`position` =  '".$_POST['position']."',
+			`position_in_padeg` =  '".$_POST['position_in_padeg']."'";
+			 $result = $mysqli->query($query) or die($mysqli->error);
+			// echo $query;
+			$id_row = $mysqli->insert_id;
+			echo '{
+		       "response":"1",
+		       "id_new_row":"'.$id_row.'",
+		       "text":"Данные успешно обновлены"
+		      }';
+			exit;
+		}
 		
 	}
 	/////////////////////////////////////  AJAX END /////////////////////////////////
