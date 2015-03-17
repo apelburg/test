@@ -1,5 +1,5 @@
 <?php
-     include_once('./libs/php/client_class.php');
+     include_once('./libs/php/classes/client_class.php');
 	 
 	 /////////////////////////////////// AJAX //////////////////////////////////////
 	
