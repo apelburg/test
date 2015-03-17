@@ -239,7 +239,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 			// echo "</pre><br>";
 			// exit;	
 			/*
-INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
+	INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
 			`client_id`='".$_POST['client_id']."', 
 			`company`='".$_POST['company']."', 
 			`comp_full_name`='".$_POST['form_data']['comp_full_name']."', 
@@ -296,11 +296,72 @@ INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
 				}
 				
 			}
-			echo $query;
+			//echo $query;
 			$result = $mysqli->multi_query($query) or die($mysqli->error);
 			echo '{
 			    "response":"1",
 				"text":"Данные успешно обновлены"
+			}';
+			// echo $query;
+
+			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="create_new_requisites"){	
+			global $mysqli;
+			// echo "<pre>";		
+			// print_r($_POST);
+			// echo "</pre><br>";
+			// echo '{
+			//     "response":"1",
+			// 	"text":"Данные успешно обновлены"
+			// }';
+			// // echo $query;
+
+			// exit;
+				
+			$query = "
+			INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
+			`client_id`='".$_POST['client_id']."', 
+			`company`='".$_POST['company']."', 
+			`comp_full_name`='".$_POST['form_data']['comp_full_name']."', 
+			`postal_address`='".$_POST['form_data']['postal_address']."', 
+			`legal_address`='".$_POST['form_data']['legal_address']."', 
+			`inn`='".$_POST['form_data']['inn']."', 
+			`kpp`='".$_POST['form_data']['kpp']."', 
+			`bank`='".$_POST['form_data']['bank']."', 
+			`bank_address`='".$_POST['form_data']['bank_address']."', 
+			`r_account`='".$_POST['form_data']['r_account']."', 
+			`cor_account`='".$_POST['form_data']['cor_account']."', 
+			`ogrn`='".$_POST['form_data']['bik']."', 
+			`okpo`='".$_POST['form_data']['okpo']."', 
+			`dop_info`='".$_POST['form_data']['dop_info']."'
+			";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			// запоминаем id созданной записи
+			$req_new_id = $mysqli->insert_id;
+
+			
+
+			if(isset($_POST['form_data']['managment1'])){
+				$query="";
+				foreach ($_POST['form_data']['managment1'] as $key => $val) {				
+					$query .= "INSERT INTO  `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` SET  
+					`requisites_id` =  '".$req_new_id."',
+					`type` =  '".$val['type']."',
+					`post_id` =  '".$val['post_id']."',
+					`basic_doc` =  '".$val['basic_doc']."',
+					`name` =  '".$val['name']."',
+					`name_in_padeg` =  '".$val['name_in_padeg']."',
+					`acting` =  '".$val['acting']."';";				
+				}
+				//echo $query;
+				$result = $mysqli->multi_query($query) or die($mysqli->error);
+			}
+			echo '{
+			    "response":"1",
+				"id_new_req":"'.$req_new_id.'",
+				"company":"'.$_POST['company'].'"
 			}';
 			// echo $query;
 
@@ -362,6 +423,12 @@ INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
 
 
 			include('./skins/tpl/clients/client_folder/client_card/edit_requsits.tpl');
+			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="create_requesit"){
+			
+			include('./skins/tpl/clients/client_folder/client_card/new_requsits.tpl');
 			exit;
 		}
 		

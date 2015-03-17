@@ -17,13 +17,57 @@ $(function() {
         buttons: [
             {
                 text: 'Добавить',
-                click: function() {                    
-                    $( this ).dialog( "close" );                    
+                click: function() {
+                    $.post('', {ajax_standart_window: "create_requesit"}, function(data, textStatus, xhr) {
+                      $('#create_requesit').html(data).dialog('open'); 
+                    });     
+                    
+                    $( this ).dialog( "close" );                  
                 }
             },
             {
                 text: 'Закрыть',
                 click: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+
+// показать окно с добавлением новых реквизитов
+
+$(function() {
+    $('#create_requesit').dialog({
+        width: ($(window).width()-2),
+        height: ($(window).height()-2),
+        position: [0,0],
+        autoOpen : false,
+        draggable: false,
+        title: 'Добавить реквизиты',
+        modal:true,
+        buttons: [
+            {
+                text: 'Сохранить',
+                click: function() {      
+                    var post = $("#create_requisits_form").serialize();
+                    //alert(post);
+                    $.post('', post, function(data, textStatus, xhr) {
+                       // new_html_modal_window(data,'данные','','', '', '');
+                       if(data['response']=='1'){ 
+                            $('#requesites_form table').append('<tr><td>'+($('#requesites_form table tr').length+1)+'. <a class="show_requesit" href="#" data-id="" title="'+data['company']+'">'+data['company']+'</a></td><td><img title="Редактор реквизитов" class="edit_this_req" data-id="'+data['id_new_req']+'" src="skins/images/img_design/edit.png" ><img title="Редактор реквизитов" class="delete_this_req" data-id="'+data['id_new_req']+'" src="skins/images/img_design/delete.png" ></td></tr>');
+                        }else{
+                          new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                        }
+                    },'json');
+                    $('#create_requesit').html('');
+                    $( this ).dialog( "close" );                  
+                }
+            },
+            {
+                text: 'Отмена',
+                click: function() {
+                    $('#create_requesit').html('');
                     $( this ).dialog( "close" );
                 }
             }
@@ -167,7 +211,7 @@ $(document).on('click', '.cont_faces_field_delete_btn', function(){
 $(document).on('click', '#requesites_form table tr td:nth-of-type(2) img:nth-of-type(1)', function(event) {
     var title = $(this).attr('title');
     $.post('', {
-        ajax_standart_window: "delete_requesit_row",
+        ajax_standart_window: "edit_requesit",
         id:$(this).attr('data-id')
     }, function(data, textStatus, xhr) {
         $("#edit_requesit").html(data);
@@ -198,12 +242,14 @@ $(function(){
                             new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
                         } 
                     },'json');
+                    $("#edit_requesit").html('');
                     $( this ).dialog( "close" );
                 }
             },
             {
                 text: 'Отменить',
                 click: function() { 
+                    $("#edit_requesit").html('');
                     $( this ).dialog( "close" );
                 }
             }
