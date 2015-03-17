@@ -25,15 +25,15 @@
   </tr>
   <tr>
     <td class='fieldName'>Док-ты:</td>
-    <td><input type="checkbox"/ checked="checked"><div id='attachedKpFile' class='attachedKpFileName'></div></td>
+    <td><input type="checkbox" name="attachedFile" id='attachedKpFileInput' value="" checked="checked"/><div id='attachedKpFile' class='attachedKpFileName'></div></td>
   </tr>
   <tr>
     <td class='fieldName'></td>
-    <td><input type="checkbox"/><div id='' class='attachedKpFileName'>Apelburg_порядок_проведения_заказа.pdf</div></td>
+    <td><input type="checkbox" name="attachedFile"  value="/os/skins/tpl/common/mail_files_to_attache/Apelburg_порядок_проведения_заказа.pdf"/><div class='attachedKpFileName'>Apelburg_порядок_проведения_заказа.pdf</div></td>
   </tr>
   <tr>
     <td class='fieldName'></td>
-    <td><input type="checkbox"/><div id='' class='attachedKpFileName'>Apelburg_презентация_компании.pdf</div></td>
+    <td><input type="checkbox" name="attachedFile"  value="/os/skins/tpl/common/mail_files_to_attache/Apelburg_презентация_компании.pdf"/><div class='attachedKpFileName'>Apelburg_презентация_компании.pdf</div></td>
   </tr>
   <tr>
     <td colspan="2" style="text-align:center"><button onclick="kpManager.sendKpByMailFinalStep();" class="mailSendBtn">Отправить</button></td>

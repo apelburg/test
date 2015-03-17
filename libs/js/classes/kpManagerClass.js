@@ -45,7 +45,9 @@
 				document.getElementById('mailMessage').appendChild(kpManager.textarea);
 				
 				// поле отображения прикрепленного файла
+                document.getElementById('attachedKpFileInput').value = kpManager.details.kp_filename;
 				document.getElementById('attachedKpFile').innerHTML = kpManager.details.kp_filename.slice(kpManager.details.kp_filename.lastIndexOf("/")+1);
+				
 				
 				
 				$("#mailSendDialog").dialog({autoOpen: false,title: "Отправить коммерческое предложение",modal:true,width: 900});
@@ -85,27 +87,37 @@
 			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search;
 			var regexp = /%20/g; // Регулярное выражение соответствующее закодированному пробелу
 	        
+			// снимаем данные о прикрепленных файлах
+			var inputs = document.getElementsByTagName("input");
+			var attached_files_arr = [];
+			for( var i = 0 ; i < inputs.length ; i++ ){
+				if(inputs[i].type == 'checkbox'){
+					if(inputs[i].name == 'attachedFile'){
+						if(inputs[i].checked == true) attached_files_arr.push(inputs[i].value);//alert(inputs[i].value);
+				    }
+				}
+			}
+
 			var pairs = 'send_kp_by_mail_final_step=';
 		    pairs += '{';
-			pairs += '"message":"'+message+'",';
-			pairs += '"kp_filename":"'+kpManager.details.kp_filename+'",';
 			pairs += '"to":"'+kpManager.contfaceSelect.options[kpManager.contfaceSelect.selectedIndex].value+'",';
 			pairs += '"from":"andrey@apelburg.ru",';
-			pairs += '"subject":"'+kpManager.mailSubject.innerHTML+'"';
+			pairs += '"subject":"'+kpManager.mailSubject.innerHTML+'",';
+			pairs += '"message":"'+message+'"';
+			if(attached_files_arr.length) pairs += ',"attached_files":["'+attached_files_arr.join('","')+'"]';
 			pairs += '}';
-			
-			//return;
-            //alert(pairs);
+		
 			
 			make_ajax_post_request(url,pairs,call_back);
 			function call_back(response){
-				 //alert(response);//
-				 //response = JSON.parse(response);
+				 //alert(response);
+				 
+				 response = JSON.parse(response);
 				 var div = document.createElement('div');
 				 div.id = "mailResponseDialog";
 				 div.style.textAlign = "center";
 				 div.style.display = "none";
-				 div.innerHTML = response;
+				 div.innerHTML = response[0];
 				 document.body.appendChild(div);
 				 
 				 if(response[0]) $("#mailSendDialog").dialog("close");

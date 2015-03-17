@@ -9,8 +9,7 @@
 	    //echo  $_GET['send_kp_by_mail'];
 	    list($kp_id,$client_id,$manager_id) = json_decode($_GET['send_kp_by_mail']);
 		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
-		$kp_filename = $_SERVER['DOCUMENT_ROOT'].$kp_filename;
-        ////$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
+        //$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		
 		$main_window_tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
 		$fd = fopen($main_window_tpl_name,'r');
@@ -40,7 +39,7 @@
 	}
 	
 	if(isset($_POST['send_kp_by_mail_final_step'])){
-	    //var_dump(json_decode($_POST['send_kp_by_mail_final_step']));
+	    //var_dump(json_decode($_POST['send_kp_by_mail_final_step']));exit;
 		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
 
         // вызываем класс выполняющий отправку сообщения
@@ -48,8 +47,9 @@
 		$mail = new Mail();
 		$mail->add_bcc('box1@yandex.ru');
 		$mail->add_cc('e-project1@mail.ru');
-		$mail->attach_file($mail_details->kp_filename);
-		$mail->attach_file(ROOT.'/skins/tpl/common/mail_files_to_attache/lazer_print_price.pdf');
+		if($mail_details->attached_files){
+		    foreach($mail_details->attached_files as $file) $mail->attach_file($_SERVER['DOCUMENT_ROOT'].$file);
+		}
 		echo $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$mail_details->message);
 	    exit;
 	}
