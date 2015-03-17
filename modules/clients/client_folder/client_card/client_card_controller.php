@@ -38,7 +38,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 			extract($arr_adres, EXTR_PREFIX_SAME, "wddx");
 			//получаем контент для окна 
 			ob_start();
-			include('./skins/tpl/clients/client_folder/client_card_table/edit_adres.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/edit_adres.tpl');
 			$content = ob_get_contents();
 			ob_get_clean();
 			echo $content;
@@ -100,7 +100,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 		}
 		if($_POST['ajax_standart_window']=="new_adress_row"){
 			ob_start();
-			include('./skins/tpl/clients/client_folder/client_card_table/new_adres.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/new_adres.tpl');
 			$content = ob_get_contents();
 			ob_get_clean();
 			echo $content;
@@ -329,7 +329,7 @@ INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
 					$requesit = $row;
 				}
 			}
-			include('./skins/tpl/clients/client_folder/client_card_table/show_requsits.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/show_requsits.tpl');
 			exit;
 		}
 
@@ -348,7 +348,7 @@ INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
 			// получаем контактные лица для реквизитов
 
 
-			include('./skins/tpl/clients/client_folder/client_card_table/edit_requsits.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/edit_requsits.tpl');
 			exit;
 		}
 		
@@ -386,14 +386,14 @@ $adress_name_arr = array('office' => 'офиса', 'delivery' => 'доставк
 //получаем текущий адрес клиента
 ob_start();
 foreach ($client_address as $adress_number => $adress) {
-	include('./skins/tpl/clients/client_folder/client_card_table/client_adress_row.tpl');
+	include('./skins/tpl/clients/client_folder/client_card/client_adress_row.tpl');
 }
 $client_address_s .= ob_get_contents();
 ob_get_clean();
 
 //получаем информацию по клиенту
 ob_start();
-include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_table.tpl');
+include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_table.tpl');
 $client_content = ob_get_contents();
 ob_get_clean();
 
@@ -416,7 +416,7 @@ foreach($contact_faces_contacts as $k=>$this_contact_face){
 	$cont_company_other = (isset($contact_face_d_arr['other']))?$contact_face_d_arr['other']:'';
 	
 	//echo $clientClass->$this->get_contact_info("CLIENTS_TBL",$id)($contact_face_d_arr, 'phone',Client::$array_img);
-	include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_cotact_face_table.tpl');
+	include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_cotact_face_table.tpl');
 }
 
 $client_content_contact_faces .= ob_get_contents();
@@ -433,16 +433,16 @@ if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="get
 
 //получаем адрес папки и примечания
 ob_start();
-include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_dop_info.tpl');
+include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_dop_info.tpl');
 $client_content_dop_info = ob_get_contents();
 ob_get_clean();
 
 // получаем подготовленный контент для модальных окон
 ob_start();
-include('./skins/tpl/clients/client_folder/client_card_table/dialog_windows.tpl');
+include('./skins/tpl/clients/client_folder/client_card/dialog_windows.tpl');
 $dialog_windows = ob_get_contents();
 ob_get_clean();
 
 //выводим общий шаблон
-include('./skins/tpl/clients/client_folder/client_card_table/show.tpl'); 
+include('./skins/tpl/clients/client_folder/client_card/show.tpl'); 
 ?>
