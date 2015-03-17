@@ -208,8 +208,10 @@ $(document).on('click', '.cont_faces_field_delete_btn', function(){
     
 });
 // УДАЛЕНИЕ РЕКВИЗИТОВ
-$(document).on('click', '#requesites_form table tr td:nth-of-type(2) img:nth-of-type(1)', function(event) {
+$(document).on('click', '#requesites_form table tr td .edit_this_req', function(event) {
     var title = $(this).attr('title');
+    // присвоим идентификатор для возможности отредактировать название
+    $(this).parent().parent().find('a.show_requesit').attr('id','redaction_requsits_company');
     $.post('', {
         ajax_standart_window: "edit_requesit",
         id:$(this).attr('data-id')
@@ -236,13 +238,18 @@ $(function(){
                 text: 'Сохранить',
                 click: function() {
                     var post = $("#requisits_edit_form").serialize();
-                    //alert(post);
+                    $('#redaction_requsits_company').text($('#form_data_company').val());
                     $.post('', post, function(data, textStatus, xhr) {
-                       if(data['response']!='1'){ 
-                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
-                        } 
+                      if(data['response']=='1'){ 
+                        // обновляем имя компании
+                                                     
+                      }else{
+                        new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                      }
                     },'json');
                     $("#edit_requesit").html('');
+                    //удаляем более ненужный id
+                    $('#redaction_requsits_company').removeAttr('id');
                     $( this ).dialog( "close" );
                 }
             },
@@ -250,6 +257,8 @@ $(function(){
                 text: 'Отменить',
                 click: function() { 
                     $("#edit_requesit").html('');
+                    //удаляем более ненужный id
+                    $('#redaction_requsits_company').removeAttr('id');
                     $( this ).dialog( "close" );
                 }
             }
