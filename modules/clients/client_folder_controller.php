@@ -75,9 +75,9 @@
 	include('./skins/tpl/common/quick_bar.tpl');
 	// отключаем для карточки клиента
 	if($subsection!="client_card_table"){
-		include('./skins/tpl/clients/client_details_field_additional.tpl');
+		include('./skins/tpl/clients/client_folder/client_details_field_additional.tpl');
 	}
-	include('./skins/tpl/clients/client_details_field_general.tpl');
+	include('./skins/tpl/clients/client_folder/client_details_field_general.tpl');
 	echo $content;
     unset($content);
     
