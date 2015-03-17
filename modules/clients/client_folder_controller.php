@@ -56,7 +56,7 @@
 	    break;
 
 	    case 'client_card_table':		
-		include 'client_card_table/client_card_table_controller.php';
+		include 'client_folder/client_card/client_card_controller.php';
 		break;
 		
 		case 'business_offers':
