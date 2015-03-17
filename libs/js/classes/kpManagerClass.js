@@ -50,7 +50,7 @@
 				
 				
 				
-				$("#mailSendDialog").dialog({autoOpen: false,title: "Отправить коммерческое предложение",modal:true,width: 900,close: function() {this.remove();$("#mailResponseDialog").remove();}});
+				$("#mailSendDialog").dialog({autoOpen: false,title: "Отправить коммерческое предложение",modal:true,width: 900,close: function() {this.remove();$("#mailResponseDialog").remove();kpManager.current_message_tpl =false;}});
 				$("#mailSendDialog").dialog("open");/**/
 		}
 		,
