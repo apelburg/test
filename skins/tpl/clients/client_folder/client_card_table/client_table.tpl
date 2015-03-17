@@ -98,18 +98,44 @@ function add_new_management_element(container_name){
       // функция копирования строки контактов из старой ОС 2
       function clean_fiedls(element){
           var input_arr = element.getElementsByTagName("input");
+          var select = element.getElementsByTagName("select");
+          for(var i=0;i<select.length;i++){ 
+              select[i].name = (select[i].name).slice(0,(select[i].name).indexOf('][')+2) + (parseInt((select[i].name).slice((select[i].name).indexOf('][')+2))+1) + (select[i].name).slice((select[i].name).lastIndexOf(']['));
+          }
           for(var i=0;i<input_arr.length;i++){ 
               input_arr[i].name = (input_arr[i].name).slice(0,(input_arr[i].name).indexOf('][')+2) + (parseInt((input_arr[i].name).slice((input_arr[i].name).indexOf('][')+2))+1) + (input_arr[i].name).slice((input_arr[i].name).lastIndexOf(']['));
+
+
               if(!input_arr[i].getAttribute("field_type")) input_arr[i].value = ''; 
               if(input_arr[i].getAttribute("field_type") && input_arr[i].getAttribute("field_type") == 'id') input_arr[i].value = '';
               if(input_arr[i].getAttribute("field_type") && input_arr[i].getAttribute("field_type") == 'acting'){
+                  input_arr[i].name = 'acting';
                   input_arr[i].value = '';
                   input_arr[i].checked = false;
               }
           }
       }
-   }
 
+
+
+    function drop_radio_buttons(elem){ 
+       var inputs_arr = document.getElementsByTagName('input');
+       for(var i=0;i<inputs_arr.length;i++){
+           if(inputs_arr[i].type == 'radio'){
+               if(attr)
+               {
+                 if(inputs_arr[i].getAttribute(attr) && inputs_arr[i].getAttribute(attr)==attr_value)  inputs_arr[i].checked=false; 
+               }
+               else inputs_arr[i].checked=false;
+           }
+       }
+       element.checked=true;
+   }
+   }
+$(document).on('click','.radio_acting',function(){
+    $('.acting_check').val('0');
+    $(this).parent().find('.acting_check').val(1);
+});
 // УДАЛЕНИЕ КОНТАКТНОГО ЛИЦА ИЗ РЕКВИЗИТОВ
 $(document).on('click', '.cont_faces_field_delete_btn', function(){
     var id = $(this).attr('data-id');
@@ -167,8 +193,10 @@ $(function(){
                     var post = $("#requisits_edit_form").serialize();
                     //alert(post);
                     $.post('', post, function(data, textStatus, xhr) {
-                        new_html_modal_window(data,'пришло на сервер:','','', '', '');
-                    });
+                       if(data['response']!='1'){ 
+                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                        } 
+                    },'json');
                     $( this ).dialog( "close" );
                 }
             },

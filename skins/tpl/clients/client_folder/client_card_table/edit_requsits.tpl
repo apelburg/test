@@ -98,17 +98,18 @@ input:hover,textarea:hover,textarea:focus, input:focus{
     <td width="23%">
        <input id="form_data_company" type="text" name="company" value="ООО Приладка тест">
        <input id="form_data_company" type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+       <input type="hidden" name="requesit_id" value="<?php echo $requesit['id']; ?>">
        <input type="hidden" name="form_data[phone2]" value="">
        <input type="hidden" name="form_data[phone1]" value="">
     </td>
     <td rowspan="2" width="10%">Юр.адрес</td>
     <td rowspan="2" width="23%">
-      <textarea name="legal_address" id="legalqqq" style="height:70px"></textarea>
+      <textarea name="form_data[legal_address]" id="legalqqq" style="height:70px"><?php echo $requesit['legal_address']; ?></textarea>
     </td>
     <td rowspan="2" width="10%"> Почт.адрес<br>
         <span onclick="document.getElementById('postal').innerHTML=document.getElementById('legalqqq').innerHTML;document.getElementById('postal').value=document.getElementById('legalqqq').value;" style="float:left; font-size:9px; background: #75B775; color:white; cursor:pointer; text-align:center; margin:3px 0 0 0; line-height:10px; padding:2px; border:1px solid white;">Скопировать юр. адрес</span></td>
     <td rowspan="2" width="23%">
-       <textarea name="form_data[postal_address]" id="postal" style="height:70px"></textarea>
+       <textarea name="form_data[postal_address]" id="postal" style="height:70px"><?php echo $requesit['postal_address']; ?></textarea>
     </td>
   </tr>
   <tr>
@@ -117,21 +118,17 @@ input:hover,textarea:hover,textarea:focus, input:focus{
     <span onclick="document.getElementById('comp_full_name').innerHTML='Закрытое акционерное общество «»'" style="float:left; font-size:9px; background: #75B775; color:white; cursor:pointer; text-align:center; margin:3px 0 0 3px; line-height:10px; padding:2px; border:1px solid white;">ЗАО</span>
     </td>
     <td width="23%">
-       <textarea name="form_data[comp_full_name]" id="comp_full_name" style="height:100%"></textarea>
+       <textarea name="form_data[comp_full_name]" id="comp_full_name" style="height:100%"><?php echo $requesit['comp_full_name']; ?></textarea>
     </td>
   </tr>
 </table>
 <!-- разделитель --><div class="div_between_form_rows"></div><!-- // разделитель -->
 
 
-
+<div id="chief_fields_div">
 <?php 
-// echo "<pre>";
-// print_r(Client::edit_requsits_show_person($requesit['id']));
-// echo "</pre>";
-
 Client::edit_requsits_show_person_all(Client::edit_requsits_show_person($requesit['id']),$client_id);?>
-
+</div>
 <!-- разделитель --><div class="div_between_form_rows"></div><!-- // разделитель -->
 
     <div class="cont_faces_delete_btn">

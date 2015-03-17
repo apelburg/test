@@ -231,9 +231,77 @@ ini_set('display_startup_errors', 1);
 		}
 
 		if($_POST['ajax_standart_window']=="update_requisites"){	
-			echo "<pre>";		
-			print_r($_POST);
-			echo "</pre>";
+			global $mysqli;
+			// echo "<pre>";		
+			// print_r($_POST);
+			// echo "</pre><br>";
+			// exit;	
+			/*
+INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
+			`client_id`='".$_POST['client_id']."', 
+			`company`='".$_POST['company']."', 
+			`comp_full_name`='".$_POST['form_data']['comp_full_name']."', 
+			`postal_address`='".$_POST['form_data']['postal_address']."', 
+			`legal_address`='".$_POST['form_data']['legal_address']."', 
+			`inn`='".$_POST['form_data']['inn']."', 
+			`kpp`='".$_POST['form_data']['kpp']."', 
+			`bank`='".$_POST['form_data']['bank']."', 
+			`bank_address`='".$_POST['form_data']['bank_address']."', 
+			`r_account`='".$_POST['form_data']['r_account']."', 
+			`cor_account`='".$_POST['form_data']['cor_account']."', 
+			`ogrn`='".$_POST['form_data']['bik']."', 
+			`okpo`='".$_POST['form_data']['okpo']."', 
+			`dop_info`='".$_POST['form_data']['dop_info']."'
+			*/		
+			$query = "
+			UPDATE  `".CLIENT_REQUISITES_TBL."` SET
+			`client_id`='".$_POST['client_id']."', 
+			`company`='".$_POST['company']."', 
+			`comp_full_name`='".$_POST['form_data']['comp_full_name']."', 
+			`postal_address`='".$_POST['form_data']['postal_address']."', 
+			`legal_address`='".$_POST['form_data']['legal_address']."', 
+			`inn`='".$_POST['form_data']['inn']."', 
+			`kpp`='".$_POST['form_data']['kpp']."', 
+			`bank`='".$_POST['form_data']['bank']."', 
+			`bank_address`='".$_POST['form_data']['bank_address']."', 
+			`r_account`='".$_POST['form_data']['r_account']."', 
+			`cor_account`='".$_POST['form_data']['cor_account']."', 
+			`ogrn`='".$_POST['form_data']['bik']."', 
+			`okpo`='".$_POST['form_data']['okpo']."', 
+			`dop_info`='".$_POST['form_data']['dop_info']."' WHERE id = '".$_POST['requesit_id']."';";
+
+
+			foreach ($_POST['form_data']['managment1'] as $key => $val) {
+				if(trim($val['id'])!=""){
+					$query .= "UPDATE  `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` SET  
+					`requisites_id` =  '".$val['requisites_id']."',
+					`type` =  '".$val['type']."',
+					`post_id` =  '".$val['post_id']."',
+					`basic_doc` =  '".$val['basic_doc']."',
+					`name` =  '".$val['name']."',
+					`name_in_padeg` =  '".$val['name_in_padeg']."',
+					`acting` =  '".$val['acting']."'
+					WHERE  `id` ='".$val['id']."'; ";
+				}else{
+					$query .= "INSERT INTO  `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` SET  
+					`requisites_id` =  '".$val['requisites_id']."',
+					`type` =  '".$val['type']."',
+					`post_id` =  '".$val['post_id']."',
+					`basic_doc` =  '".$val['basic_doc']."',
+					`name` =  '".$val['name']."',
+					`name_in_padeg` =  '".$val['name_in_padeg']."',
+					`acting` =  '".$val['acting']."';";
+				}
+				
+			}
+			echo $query;
+			$result = $mysqli->multi_query($query) or die($mysqli->error);
+			echo '{
+			    "response":"1",
+				"text":"Данные успешно обновлены"
+			}';
+			// echo $query;
+
 			exit;
 		}
 
