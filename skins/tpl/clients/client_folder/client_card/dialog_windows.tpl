@@ -196,8 +196,8 @@
 								".++$key.". <a class=\"show_requesit\" href=\"#\" data-id=\"".$value['id']."\" title=\"".$client['company']."\">".$value['company']."</a>
 							</td>
 							<td>
-								<img title=\"Редактор реквизитов\"  data-id=\"".$value['id']."\" src=\"skins/images/img_design/edit.png\" >
-								<img title=\"Редактор реквизитов\" src=\"skins/images/img_design/delete.png\" >
+								<img title=\"Редактор реквизитов\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/edit.png\" >
+								<img title=\"Редактор реквизитов\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/delete.png\" >
 							</td>
 						</tr>";
 				}
@@ -207,8 +207,9 @@
 </div>
 
 <style type="text/css">
-	#show_requesit,#edit_requesit,#dialog-confirm{display:none;}
+	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2{display:none;}
 </style>
 <div id="show_requesit"></div>
 <div id="edit_requesit"></div>
 <div id="dialog-confirm">Данные об этом контакте будут удалены безвозвратно. Продолжить? </div>
+<div id="dialog-confirm2">Данные реквизиты будут удалены безвозвратно. Продолжить? </div>

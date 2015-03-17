@@ -308,6 +308,19 @@ INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
 		}
 
 
+		if($_POST['ajax_standart_window']=="delete_requesit_row"){			
+			$id_row = $_POST['id'];
+			$query = "DELETE FROM ".CLIENT_REQUISITES_TBL." WHERE `id`= '".$id_row."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			//echo $query;
+			echo '{
+		       "response":"1",
+		       "text":"Данные успешно удалены"
+		      }';
+			exit;
+		}
+
+
 
 		if($_POST['ajax_standart_window']=="update_reiting_cont_face"){
 		$query = "UPDATE  `".CLIENTS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";

@@ -163,12 +163,11 @@ $(document).on('click', '.cont_faces_field_delete_btn', function(){
         });
     
 });
-
-//  РЕДАКТОР РЕКВИЗИТОВ
+// УДАЛЕНИЕ РЕКВИЗИТОВ
 $(document).on('click', '#requesites_form table tr td:nth-of-type(2) img:nth-of-type(1)', function(event) {
     var title = $(this).attr('title');
     $.post('', {
-        ajax_standart_window: "edit_requesit",
+        ajax_standart_window: "delete_requesit_row",
         id:$(this).attr('data-id')
     }, function(data, textStatus, xhr) {
         $("#edit_requesit").html(data);
@@ -176,6 +175,8 @@ $(document).on('click', '#requesites_form table tr td:nth-of-type(2) img:nth-of-
         $("#edit_requesit").dialog("open");
     });    
 });
+
+
 // ИНИЦИАЛИЗАЦИЯ ОКНА РЕДАКТОРА РЕКВИЗИТОВ
 $(function(){
     $("#edit_requesit").dialog({
@@ -195,6 +196,53 @@ $(function(){
                     $.post('', post, function(data, textStatus, xhr) {
                        if(data['response']!='1'){ 
                             new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                        } 
+                    },'json');
+                    $( this ).dialog( "close" );
+                }
+            },
+            {
+                text: 'Отменить',
+                click: function() { 
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+//  ОТКРЫВАЕМ ОКНО ПОДТВЕРЖДЕНИЯ ДЛЯ УДАЛЕНИЯ РЕКВИЗИТОВ
+$(document).on('click', '#requesites_form table tr td:nth-of-type(2) img:nth-of-type(2)', function(event) {
+  var id = $(this).attr('data-id');
+  $("#dialog-confirm2").dialog('option', 'id', id);
+  $("#dialog-confirm2").dialog('open');
+});
+
+
+// ИНИЦИАЛИЗАЦИЯ ОКНА УДАЛЕНИЯ РЕКВИЗИТОВ
+$(function(){
+    $("#dialog-confirm2").dialog({
+        width: 600,
+        autoOpen : false,
+        modal:true,
+        buttons: [
+            {
+                text: 'Подтвердить',
+                click: function() {
+                    //alert(post);
+                    var id_row = $(this).dialog('option', 'id');
+                    $.post('', {
+                        ajax_standart_window: "delete_requesit_row",
+                        id:id_row
+                    }, function(data, textStatus, xhr) {
+                       if(data['response']!='1'){ 
+                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                        }else{
+                          $('#requesites_form table tr td:nth-of-type(2) img:nth-of-type(2)').each(function(index, el) {
+                            if($(this).attr('data-id')==id_row){
+                              $(this).parent().parent().remove();  
+                            }
+                          });
+                          //убрать строку с названием реквизита из окна                          
                         } 
                     },'json');
                     $( this ).dialog( "close" );
