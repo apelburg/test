@@ -536,7 +536,7 @@
 		   
 		   $rows = '';
 		   
-		   $query="SELECT*FROM `".COM_PRED_LIST."` WHERE `client_id` = '".$client_id."'";
+		   $query="SELECT*FROM `".COM_PRED_LIST."` WHERE `client_id` = '".$client_id."' ORDER BY id DESC";
 		   if($certain_kp_id)$query.= " AND id = '".$certain_kp_id."'";
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if($result->num_rows>0){

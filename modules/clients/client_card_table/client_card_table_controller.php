@@ -3,6 +3,8 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
+$quick_button = '<div class="quick_button_div"><a href="#11" class="button">&nbsp;</a></div>';
+$view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 
 ////////////////////////////// AJAX ///////////////////////////////////////
 //обрабатываем ajax запросы из стандартного окна ОС
