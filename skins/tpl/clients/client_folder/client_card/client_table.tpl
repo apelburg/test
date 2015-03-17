@@ -66,7 +66,7 @@ $(function() {
                     $.post('', post, function(data, textStatus, xhr) {
                        // new_html_modal_window(data,'данные','','', '', '');
                        if(data['response']=='1'){ 
-                            $('#requesites_form table').append('<tr><td>'+($('#requesites_form table tr').length+1)+'. <a class="show_requesit" href="#" data-id="" title="'+data['company']+'">'+data['company']+'</a></td><td><img title="Редактор реквизитов" class="edit_this_req" data-id="'+data['id_new_req']+'" src="skins/images/img_design/edit.png" ><img title="Редактор реквизитов" class="delete_this_req" data-id="'+data['id_new_req']+'" src="skins/images/img_design/delete.png" ></td></tr>');
+                            $('#requesites_form table').append('<tr><td>'+($('#requesites_form table tr').length+1)+'. <a class="show_requesit" href="#" data-id="'+data['id_new_req']+'" title="'+data['company']+'">'+data['company']+'</a></td><td><img title="Редактор реквизитов" class="edit_this_req" data-id="'+data['id_new_req']+'" src="skins/images/img_design/edit.png" ><img title="Редактор реквизитов" class="delete_this_req" data-id="'+data['id_new_req']+'" src="skins/images/img_design/delete.png" ></td></tr>');
                         }else{
                           new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
                         }
