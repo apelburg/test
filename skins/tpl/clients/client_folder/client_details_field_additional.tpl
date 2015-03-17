@@ -9,7 +9,7 @@
         <table id="details_tbl" class="details_tbl">
             <tr>
                 <td class="company">
-                    <div class="container"><a href="?page=clients&client_id=<?php  echo $client_id; ?>&razdel=show_client_data" target="_blank"><?php echo $client_name; ?></a></div>
+                    <div class="container"><a href="?page=clients&section=client_folder&subsection=client_card_table&client_id=<?php  echo $client_id; ?>" target="_blank"><?php echo $client_name; ?></a></div>
                 </td>
                 <td class="cap" style="width:70px;">
                     Контакт:

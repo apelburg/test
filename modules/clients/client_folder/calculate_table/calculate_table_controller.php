@@ -1,6 +1,8 @@
 <?php
 
-    
+    $quick_button = '<div class="quick_button_div"><a href="#" class="button" onclick="openCloseMenu(event,\'quickMenu\'); return false;">&nbsp;</a></div>';
+	$view_button = '<div class="quick_view_button_div"><a href="%23" class="button" onclick="openCloseMenu(event,\'rtViewTypeMenu\'); return false;">&nbsp;</a></div>';
+	
     $control_num = get_control_num();
 	 
 	 /* 

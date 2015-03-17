@@ -1,4 +1,7 @@
 <?php
+    $quick_button = '<div class="quick_button_div"><a href="#11" class="button">&nbsp;</a></div>';
+	$view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
+
     
 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/art_img_class.php");
 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/com_pred_class.php");
@@ -7,10 +10,10 @@
 	
 	if(isset($_GET['send_kp_by_mail'])){
 	    //echo  $_GET['send_kp_by_mail'];
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/manager_class.php");
 	    list($kp_id,$client_id,$manager_id) = json_decode($_GET['send_kp_by_mail']);
 		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
-		$kp_filename = $_SERVER['DOCUMENT_ROOT'].$kp_filename;
-        ////$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
+        //$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		
 		$main_window_tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
 		$fd = fopen($main_window_tpl_name,'r');
@@ -20,11 +23,13 @@
         // кодируем данные в формате HTML перед передачей в формате JSON
 		$main_window_tpl = base64_encode($main_window_tpl); 
 		
+		
 		$message_tpl_filenames = array('recalculation','new_kp_new_client','new_kp',);
 		foreach($message_tpl_filenames as $tpl_filename){
 			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
 			$fd = fopen($tpl_path,'r');
 			$tpl = fread($fd,filesize($tpl_path));
+			$tpl = str_replace('[MANAGER_DATA]',Manager::get_mail_signature($manager_id),$tpl);
 			fclose($fd);
 			$message_tpls[] = '"'.$tpl_filename.'":"'.base64_encode($tpl).'"';
 		}
@@ -40,7 +45,7 @@
 	}
 	
 	if(isset($_POST['send_kp_by_mail_final_step'])){
-	    //var_dump(json_decode($_POST['send_kp_by_mail_final_step']));
+	    //var_dump(json_decode($_POST['send_kp_by_mail_final_step']));exit;
 		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
 
         // вызываем класс выполняющий отправку сообщения
@@ -48,9 +53,9 @@
 		$mail = new Mail();
 		$mail->add_bcc('box1@yandex.ru');
 		$mail->add_cc('e-project1@mail.ru');
-		$mail->attach_file($mail_details->kp_filename);
-		$mail->attach_file(ROOT.'/skins/tpl/common/mail_files_to_attache/lazer_print_price.pdf');
-		$mail->attach_file(ROOT.'/skins/images/img_design/header_logo.jpg');
+		if($mail_details->attached_files){
+		    foreach($mail_details->attached_files as $file) $mail->attach_file($_SERVER['DOCUMENT_ROOT'].$file);
+		}
 		echo $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$mail_details->message);
 	    exit;
 	}

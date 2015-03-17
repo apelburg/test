@@ -46,16 +46,13 @@
 	$main_cont_face_data = get_main_client_cont_face($client_id);
 	//echo '<pre>'; print_r($main_cont_face_data); echo '</pre>';
 	
-	$quick_button = '<div class="quick_button_div"><a href="%23" class="button" onclick="openCloseMenu(event,\'quickMenu\'); return false;">&nbsp;</a></div>';
-	$view_button = '<div class="quick_view_button_div"><a href="%23" class="button" onclick="openCloseMenu(event,\'rtViewTypeMenu\'); return false;">&nbsp;</a></div>';
-	
 	
     ob_start();	
 	 
     switch($subsection){
 	 
 	    case 'calculate_table':
-	    include 'client_folder/calculate_table_controller.php';
+	    include 'client_folder/calculate_table/calculate_table_controller.php';
 	    break;
 
 	    case 'client_card_table':		
@@ -63,7 +60,7 @@
 		break;
 		
 		case 'business_offers':
-	    include 'business_offers/business_offers_controller.php';
+	    include 'client_folder/business_offers/business_offers_controller.php';
 	    break;
 
 	    default: 
@@ -74,14 +71,13 @@
 	
 	$content = ob_get_contents();
 	ob_get_clean();
-	//include('./skins/tpl/common/quick_bar.tpl');
-    //include('./skins/tpl/clients/client_details_field.tpl');
+	
 	include('./skins/tpl/common/quick_bar.tpl');
 	// отключаем для карточки клиента
 	if($subsection!="client_card_table"){
-		include('./skins/tpl/clients/client_details_field_additional.tpl');
+		include('./skins/tpl/clients/client_folder/client_details_field_additional.tpl');
 	}
-	include('./skins/tpl/clients/client_details_field_general.tpl');
+	include('./skins/tpl/clients/client_folder/client_details_field_general.tpl');
 	echo $content;
     unset($content);
     

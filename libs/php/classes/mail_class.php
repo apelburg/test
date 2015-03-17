@@ -42,36 +42,29 @@
 			}
 			else $this->errors[] = 'Не удалось прочитать файл '.$filepath_utf.' с диска'; 
 		}
-		public function add_img_in_letter($filepath){
+		public function add_img_in_letter($filepath,$filename){
 		    if(!$this->multipart) $this->multipart = TRUE;
 
 			
 			$filepath_utf = substr(ROOT,0,strrpos(ROOT,"/")).iconv("UTF-8","windows-1251", $filepath);
-            $filename = substr($filepath,strrpos($filepath,"/")+1);
 			
-			//echo $filepath_utf;
-
 			if($fd = @fopen($filepath_utf,"rb")){
 
 				$content = fread($fd,filesize($filepath_utf));
 				$content = chunk_split(base64_encode($content));
 				fclose($fd);
-				unset($fd);
-                
-				$filename = substr($filepath,strrpos($filepath,"/")+1);
-				//$filename = "=?utf-8?b?".base64_encode($filename)."?=";
 				
-				$this->relatedparts = "Content-type: image/jpeg; name=\"".$filename."\"\r\n";
-				$this->relatedparts .= "Content-Disposition: inline; filename=\"".$filename."\"\r\n";
-				$this->relatedparts .= "Content-Transfer-Encoding: base64\r\n";
-				$this->relatedparts .= "X-Attachment-Id: ii_14504dc8ea704442\r\n";
-				$this->relatedparts .= "Content-ID: ii_14504dc8ea704442\r\n\r\n";
+				$extention = strtolower(substr($filename,strrpos($filename,".")+1));
+                $extention = ($extention == 'jpg' )? 'jpeg': $extention;
 				
-				//$message = "Content-type: application/octet-stream; name=\"".$filename."\"\r\n";
-				//$message .= "Content-Transfer-Encoding: base64\r\n";
-				//$message .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
-				//$message .= "Content-ID: ".$filename."\r\n";
-				$this->relatedparts .= $content."\r\n\r\n";
+				$part = "Content-type: image/".$filename."; name=\"".$filename."\"\r\n";
+				$part .= "Content-Disposition: inline; filename=\"".$filename."\"\r\n";
+				$part .= "Content-Transfer-Encoding: base64\r\n";
+				$part .= "X-Attachment-Id: ".$filename."\r\n";
+				$part .= "Content-ID: ".$filename."\r\n\r\n";
+				$part .= $content."\r\n\r\n";
+				$index = isset($this->related_parts)?count($this->related_parts):0;
+				$this->related_parts[$index] = $part; 
 			}
 			else $this->errors[] = 'Не удалось прочитать файл '.$filepath_utf.' с диска'; 
         }
@@ -82,30 +75,42 @@
 			if(empty($subject))$this->errors[] = 'Не указана тема письма'; 
 			if(empty($message))$this->errors[] = 'Письмо не содержит сообщения'; 
 
-
+            // Декодируем текст сообщения
 			$message = base64_decode($message);
 			$message = urldecode($message);
-			//$pattern = '/<img.+href=[\'\"](.+)[\'\"]/is';
-			$pattern = '/<img.+src=[\'\"]{1}([^\'\"]+)[\'\"]{1}>/is';
+			// Проверяем сообщение на наличие в нем вложенного изображения - тега <img>
+			$pattern = '/<img.+src=[\'\"]{1}([^\'\"]+)[\'\"]{1}>/isU';
+			///$pattern = '/<img.+src="([^\"]+)">/isU';
 			if(preg_match_all($pattern,$message,$matches)){
-			    //print_r($matches); exit;
-				//$message = str_replace($matches[0][0],'<img src="cid:'.substr($matches[1][0],strrpos($matches[1][0],"/")+1).'" />',$message);
-				$message = str_replace($matches[0][0],'<img src="cid:ii_14504dc8ea704442" />',$message);
-				
-				$this->add_img_in_letter($matches[1][0]);
+			    // print_r($matches); exit;
+			    for( $i = 0 ; $i < count($matches[0]); $i++){
+					//! * обрабатывает только первое найденое изображение в тексте
+					
+					$filepath = $matches[1][$i];
+					//! если тег найден, модифицируем атрибут src в соответсвии с протоколом формирования письма - <img src="cid:идентификатор" />
+					//-> в качестве идентификатора используем имя файла
+					$filename = substr($filepath,strrpos($filepath,"/")+1);
+	
+					//-> корректируем текст письма
+					$message = str_replace($matches[0][$i],'<img src="cid:'.$filename.'" />',$message);
+					//-> вызываем метод "прикрепляющий" изображение к письму
+					$this->add_img_in_letter($filepath,$filename);
+				}
+			    
 			}
 			$message = iconv("UTF-8", "windows-1251", $message);
 			
-			$subject = "=?utf-8?b?".base64_encode($subject)."?=";
-			
-			
-			
 			if($this->multipart){
-			    $message= "Content-Type:text/html; charset=\"windows-1251\"\r\n\r\n".$message."\r\n";
-                if(isset($this->relatedparts)){
+			    $text_message= "Content-Type:text/html; charset=\"windows-1251\"\r\n\r\n".$message."\r\n";
+                if(isset($this->related_parts)){
 				     $boundary_related = md5(uniqid(time()));
-					 $header = 'Content-Type: multipart/related; boundary='.$boundary_related."\r\n";
-					 $message = $header."\r\n"."--".$boundary_related."\r\n".$message."\r\n"."--".$boundary_related."\r\n".$this->relatedparts."\r\n"."--".$boundary_related."--\r\n";
+					 $header = 'Content-Type: multipart/related; boundary='.$boundary_related."\r\n\r\n";
+					 $message  = $header;
+					 $message .= "--".$boundary_related."\r\n";
+					 $message .= $text_message."\r\n";
+					 $message .= "--".$boundary_related."\r\n";
+					 $message .= implode( "--".$boundary_related."\r\n",$this->related_parts);
+					 $message .= "--".$boundary_related."--\r\n";
 				}
 			    
 			    array_unshift($this->message_parts,$message);
@@ -125,6 +130,8 @@
 			
 			//if(mail($to,$subject,$message,$this->headers,"-f".$from)){ такой вариант почемуто не сработал
 			//echo $message; exit;
+			$subject = "=?utf-8?b?".base64_encode($subject)."?=";
+			
 			if(mail($to,$subject,$message,$this->headers)){
 				 return '[1,"Cообщение отправлено"]';
 			}
@@ -133,8 +140,88 @@
 			}
 	    }
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
-			////////////////////////////////////    SENDING LETTER      ////////////////////////////////////////////
+			////////////////////////////////////     SENDING LETTER      ////////////////////////////////////////////
+			////////////////////////////////////     СХЕМА ПРОТОКОЛА     ////////////////////////////////////////////
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
+			
+			/*
+			
+			Письмо с вложеннным изображением и тремя прикрепленными файлами
+			Схема в картинке лежит в одной директории с файлом класса и назвается 
+			
+			
+			Message-Id: <201503131348.t2DDmSEe030419@vps76774.vps.tech-logol.ru>
+			X-Authentication-Warning: vps76774.vps.tech-logol.ru: apache set sender to kapitonoval2012@gmail.com using -f
+			
+			
+			
+			To: premier22@yandex.ru
+			Subject: =?utf-8?b?0KLQtdC80LAg0L/QuNGB0YzQvNCw?=
+			X-PHP-Originating-Script: 500:mail_class.php
+			MIME-Version: 1.0
+			Date: Fri, 13 Mar 2015 01:48:28 +0000
+			From: andrey@apelburg.ru
+			Cc: e-project1@mail.ru
+			Return-Path: kapitonoval2012@gmail.com
+	   !!!  Content-Type: multipart/mixed; boundary = "b3c881727c949658c508690556a4d793"
+	   !!!  Content-Type: multipart/mixed; boundary = "b3c881727c949658c508690556a4d793"
+	   !!!  Content-Type: multipart/mixed; boundary = "b3c881727c949658c508690556a4d793"
+			
+			
+			
+			--b3c881727c949658c508690556a4d793
+			Content-Type: multipart/related; boundary=4b1fffed5d45e856bd9db66668fb69dd
+			
+			--4b1fffed5d45e856bd9db66668fb69dd
+			Content-Type:text/html; charset="windows-1251"
+			
+			
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<img src="cid:ii_14504dc8ea704442" />
+			
+			--4b1fffed5d45e856bd9db66668fb69dd
+			Content-type: image/jpeg; name="header_logo.jpg"
+			Content-Disposition: inline; filename="header_logo.jpg"
+			Content-Transfer-Encoding: base64
+			X-Attachment-Id: ii_14504dc8ea704442
+			Content-ID: ii_14504dc8ea704442
+			
+			данные описывающие вложенную в текст картинку
+			
+
+			--4b1fffed5d45e856bd9db66668fb69dd--
+			--b3c881727c949658c508690556a4d793
+			Content-Type: application/pdf; name="=?utf-8?b?yX9C60LjRgNC40LvQu9C40YZlXzE4OTRfMjAx=?="
+			Content-Transfer-Encoding: base64
+			Content-Disposition: attachment; filename="=?utf-8?b?yX9C60LjRgNC40LvQu9C40YZlXzE4OTRfMjAx=?="
+			
+			данные описывающие прикрепленный файл
+			
+			
+			--b3c881727c949658c508690556a4d793
+			Content-Type: application/pdf; name="=?utf-8?b?bGF6ZXJfcHJpbnRfcHJpY2UucGRm?="
+			Content-Transfer-Encoding: base64
+			Content-Disposition: attachment; filename="=?utf-8?b?bGF6ZXJfcHJpbnRfcHJpY2UucGRm?="
+			
+			данные описывающие прикрепленный файл
+			
+			--b3c881727c949658c508690556a4d793
+			Content-Type: application/pdf; name="=?utf-8?b?aGVhZGVyX2xvZ28uanBn?="
+			Content-Transfer-Encoding: base64
+			Content-Disposition: attachment; filename="=?utf-8?b?aGVhZGVyX2xvZ28uanBn?="
+			
+			данные описывающие прикрепленный файл
+			
+			
+			--b3c881727c949658c508690556a4d793--
+*/
+			
+			
+			
 		
 			/*$boundary = md5(uniqid(time()));// разграничитель
 			$boundary_2 = md5(uniqid(time()))."2";// разграничитель 2
