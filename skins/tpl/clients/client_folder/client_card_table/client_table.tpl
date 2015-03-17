@@ -37,7 +37,7 @@ $(function() {
 
 // ПОКАЗТЬ РЕКВИЗИТЫ
 $(document).on('click', '#requesites_form a', function(event) {
-    var title = $(this).html();
+    var title = $(this).attr('title');
     $.post('', {
         ajax_standart_window: "show_requesit",
         id:$(this).attr('data-id')
@@ -51,11 +51,13 @@ $(document).on('click', '#requesites_form a', function(event) {
 // ИНИЦИАЛИЗАЦИЯ ОКНА ПОКАЗА РЕКВИЗИТОВ
 $(function(){
     $("#show_requesit").dialog({
-        width: ($(window).width()-2),
-        height: ($(window).height()-2),
-        position: [0,0],
+        // width: ($(window).width()-2),
+        width: 800,
+        // height: ($(window).height()-2),
+        // position: [0,0],
         autoOpen : false,
         draggable: false,
+        modal:true,
 
         buttons: [
             {
@@ -67,6 +69,120 @@ $(function(){
        ]
     });
 });
+function add_new_management_element(container_name){
+      // get container
+      var container = document.getElementById(container_name);
+      
+      var div_arr = get_divs(container);
+
+      var new_element = div_arr[div_arr.length-1].cloneNode(true);
+      clean_fiedls(new_element);
+      
+      if(new_element.getElementsByTagName('delete_btn')[0]) new_element.getElementsByTagName('delete_btn')[0].parentNode.removeChild(new_element.getElementsByTagName('delete_btn')[0]);
+
+      container.appendChild(new_element);
+      
+      return false; 
+       
+      // функция копирования строки контактов из старой ОС
+      function get_divs(div){
+          var nodes_arr = div.childNodes;
+          for(var i=0;i<nodes_arr.length;i++){
+              if((nodes_arr[i].nodeName).toLowerCase()=='div'){
+                  if(!div_arr) var div_arr = [];
+                  div_arr.push(nodes_arr[i]);
+              }
+          }          
+          return div_arr;
+      }     
+      // функция копирования строки контактов из старой ОС 2
+      function clean_fiedls(element){
+          var input_arr = element.getElementsByTagName("input");
+          for(var i=0;i<input_arr.length;i++){ 
+              input_arr[i].name = (input_arr[i].name).slice(0,(input_arr[i].name).indexOf('][')+2) + (parseInt((input_arr[i].name).slice((input_arr[i].name).indexOf('][')+2))+1) + (input_arr[i].name).slice((input_arr[i].name).lastIndexOf(']['));
+              if(!input_arr[i].getAttribute("field_type")) input_arr[i].value = ''; 
+              if(input_arr[i].getAttribute("field_type") && input_arr[i].getAttribute("field_type") == 'id') input_arr[i].value = '';
+              if(input_arr[i].getAttribute("field_type") && input_arr[i].getAttribute("field_type") == 'acting'){
+                  input_arr[i].value = '';
+                  input_arr[i].checked = false;
+              }
+          }
+      }
+   }
+
+// УДАЛЕНИЕ КОНТАКТНОГО ЛИЦА ИЗ РЕКВИЗИТОВ
+$(document).on('click', '.cont_faces_field_delete_btn', function(){
+    var id = $(this).attr('data-id');
+    var e =$(this);
+    var tbl = $(this).attr('data-tbl');
+    // показываем UI confirm
+    $( "#dialog-confirm" ).dialog({
+            resizable: false,
+            height:160,
+            modal: true,
+            buttons: {
+                "Удалить": function() {
+                    e.parent().parent().parent().parent().parent().remove();
+                    $.post('', {ajax_standart_window:"delete_cont_requisits_row",id: id,tbl:tbl}, function(data, textStatus, xhr) {
+                        if(data['response']!=1){
+                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                        }
+                    },'json');
+                    $( this ).dialog( "close" );
+                },
+                Отмена: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    
+});
+
+//  РЕДАКТОР РЕКВИЗИТОВ
+$(document).on('click', '#requesites_form table tr td:nth-of-type(2) img:nth-of-type(1)', function(event) {
+    var title = $(this).attr('title');
+    $.post('', {
+        ajax_standart_window: "edit_requesit",
+        id:$(this).attr('data-id')
+    }, function(data, textStatus, xhr) {
+        $("#edit_requesit").html(data);
+        $("#edit_requesit").dialog('option', 'title', title);
+        $("#edit_requesit").dialog("open");
+    });    
+});
+// ИНИЦИАЛИЗАЦИЯ ОКНА РЕДАКТОРА РЕКВИЗИТОВ
+$(function(){
+    $("#edit_requesit").dialog({
+        width: ($(window).width()-2),
+        height: ($(window).height()-2),
+        position: [0,0],
+        autoOpen : false,
+        draggable: false,
+        modal:true,
+
+        buttons: [
+            {
+                text: 'Сохранить',
+                click: function() {
+                    var post = $("#requisits_edit_form").serialize();
+                    //alert(post);
+                    $.post('', post, function(data, textStatus, xhr) {
+                        new_html_modal_window(data,'пришло на сервер:','','', '', '');
+                    });
+                    $( this ).dialog( "close" );
+                }
+            },
+            {
+                text: 'Отменить',
+                click: function() { 
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+
+
 
 
 </script>
@@ -90,6 +206,10 @@ $(function(){
                 	<tr>
                     	<td>Рейтинг</td>
                     	<td><?php echo $clientRating; ?></td>
+                    </tr>
+                    <tr>
+                        <td>Кураторы</td>
+                        <td><?php echo $manager_names; ?></td>
                     </tr>
                 	<tr>
                     	<td>Деятельность</td>

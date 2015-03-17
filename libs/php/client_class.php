@@ -70,7 +70,74 @@ class Client {
 			return $str;		
 		}			
 	}
-	public function get_requisites($client_id){
+	static function get__clients_persons_for_requisites($type){
+		// string
+		// отдает список <option> с названиями занесенных в базу должностей сотрудников для реквизитов
+		global $mysqli;
+		$query = "SELECT * FROM `".CLIENT_PERSON_REQ_TBL."`";
+		$str = "<option value=\"0\">Выберите должность...</option>".PHP_EOL;
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$str .= "<option value=\"".$row['id']."\" ".(($type==$row['id'])?'selected':'').">".$row['position']."</option>".PHP_EOL;
+			}
+		}
+		return $str;
+	} 
+
+	static function edit_requsits_show_person($person_id){
+		// array
+		// отдаёт контакты для реквизитов в массиве
+		global $mysqli;
+		$arr = "";
+
+		// $query = "SELECT * FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` INNER JOIN   `".CLIENT_PERSON_REQ_TBL."` ON   `".CLIENT_PERSON_REQ_TBL."`.`id` = `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."`.`post_id` WHERE `requisites_id` = '".$person_id."'";
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` WHERE `requisites_id` = '".$person_id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+		return $arr;
+	}
+
+	static function edit_requsits_show_person_all($arr,$client_id){
+		// string (html)
+		// обрабатывает массив контактных данных из реквизитов и создаёт html
+		// ob_start();
+
+		// получаем список должностей для персональных данных контактных лиц из реквизитов
+		
+		
+		// echo "<pre>";
+		// print_r($arr);
+		// echo "</pre>";
+		foreach ($arr as $key => $contact) {
+			$get__clients_persons_for_requisites = Client::get__clients_persons_for_requisites($contact['post_id']);
+			include('./skins/tpl/clients/client_folder/client_card_table/edit_requsits_show_person.tpl');
+		}
+		// $html = ob_get_contents();
+		// ob_get_clean();
+
+		// return $html;
+	}
+
+	static function get_relate_managers($client_id){
+		global $mysqli;
+		$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `id` IN (SELECT `manager_id` FROM  `".RELATE_CLIENT_MANAGER_TBL."`  WHERE `client_id` IN (SELECT `id` FROM `".CLIENTS_TBL."` WHERE `id` = 1894 ));";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$manager_names = "";				
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				if($manager_names!=""){$manager_names .=", ";}
+				$manager_names .= $row['name'];
+			}
+		}
+		return $manager_names;
+	}
+
+	static function get_requisites($client_id){
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".$client_id."'";
 		$requisites = array();
@@ -83,7 +150,7 @@ class Client {
 		return $requisites;
 	}
 
-	public function get_reiting($id,$rate){
+	static function get_reiting($id,$rate){
 		$arr[0] = array('5','0');
 		$arr[1] = array('5','5');
 		$arr[2] = array('5','10');
