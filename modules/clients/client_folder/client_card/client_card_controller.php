@@ -3,7 +3,16 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
-$quick_button = '<div class="quick_button_div"><a href="#11" class="button">&nbsp;</a></div>';
+$url_string = 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+if(isset($_GET['client_edit'])){
+	$url_string = str_replace("&client_edit", "", $url_string);
+}else{
+	$url_string .= "&client_edit";
+}
+
+$quick_button = '<div class="quick_button_div"><a href="'.$url_string.'" id="" class="button ">'.((isset($_GET['client_edit']))?'Сохранить':'Редактировать').'</a></div>';
+
+
 $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 
 ////////////////////////////// AJAX ///////////////////////////////////////
@@ -471,11 +480,6 @@ ob_start();
 include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_table.tpl');
 $client_content = ob_get_contents();
 ob_get_clean();
-
-// получаем кнопку
-if(isset($_GET['client_edit'])){
-	$quick_button = '';
-}
 
 //получаем информацию по контактным лицам данного клиента
 ob_start();
