@@ -1,4 +1,5 @@
 <script type="text/javascript" src="libs/js/client_card_table.js"></script>
+<script type="text/javascript" src="libs/js/rate_script.js"></script>
 <link href="./skins/css/client_card_table.css" rel="stylesheet" type="text/css">
 <style type="text/css">
     body .quick_bar_tbl td .quick_button_div{
@@ -11,7 +12,8 @@
       background: #D94A38;
       color: #fff;
     }
-    
+    .no_edit:hover div,.no_edit:hover{ background: none}
+
 </style>
 
 <div class="client_table">
@@ -27,14 +29,14 @@
                     </tr>
                 	<tr>
                     	<td>Рейтинг</td>
-                    	<td>
-                            <div style="padding:5px">В разработке</div>
+                    	<td class="no_edit">
+                            <?php echo $clientRating; ?>
                         </td>
                     </tr>
                 	<tr>
                     	<td>Деятельность</td>
                     	<td>
-                            <div style="padding:5px">В разработке</div>
+                            <span style="color:#f1f1f1">В разработке</span>
                         </td>
                     </tr>
                 	<?php echo $client_address_s; ?>                    
