@@ -50,7 +50,7 @@
 				
 				
 				
-				$("#mailSendDialog").dialog({autoOpen: false,title: "Отправить коммерческое предложение",modal:true,width: 900});
+				$("#mailSendDialog").dialog({autoOpen: false,title: "Отправить коммерческое предложение",modal:true,width: 900,close: function() {this.remove();$("#mailResponseDialog").remove();}});
 				$("#mailSendDialog").dialog("open");/**/
 		}
 		,
@@ -117,12 +117,16 @@
 				 div.id = "mailResponseDialog";
 				 div.style.textAlign = "center";
 				 div.style.display = "none";
-				 div.innerHTML = response[0];
+				 div.innerHTML = response[1];
 				 document.body.appendChild(div);
 				 
-				 if(response[0]) $("#mailSendDialog").dialog("close");
+				 // если отправка прошла удачно удаляем окно редактирования сообщения и обнуляем значение kpManager.current_message_tpl
+				 if(response[0]){
+					 $("#mailSendDialog").remove();
+					 kpManager.current_message_tpl =false;
+				 }
 				 
-				 $("#mailResponseDialog").dialog({autoOpen:false ,title:"Результат отправки письма",width: 1200,close: function() {$("#mailResponseDialog").remove();}});
+				 $("#mailResponseDialog").dialog({autoOpen:false ,title:"Результат отправки письма",width: 1200,close: function() {this.remove();}});
 				 $("#mailResponseDialog").dialog("open");
 		    }
 		}

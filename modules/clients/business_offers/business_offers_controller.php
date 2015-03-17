@@ -24,6 +24,7 @@
 			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
 			$fd = fopen($tpl_path,'r');
 			$tpl = fread($fd,filesize($tpl_path));
+			$tpl = str_replace('[MANAGER_DATA]',"С наилучщими пожеланиями<br>подпись менеджера",$tpl);
 			fclose($fd);
 			$message_tpls[] = '"'.$tpl_filename.'":"'.base64_encode($tpl).'"';
 		}
