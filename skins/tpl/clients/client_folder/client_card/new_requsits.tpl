@@ -86,8 +86,8 @@ input:hover,textarea:hover,textarea:focus, input:focus{
 
 </style>
 
-<form action="" id="requisits_edit_form" onsubmit="return sendform_1()" name="form" method="POST">
-<input type="hidden" name="ajax_standart_window" value="update_requisites">
+<form action="" id="create_requisits_form" onsubmit="return sendform_1()" name="form" method="POST">
+<input type="hidden" name="ajax_standart_window" value="create_new_requisites">
 <table class="client_form_table" style="margin-top:15px;">
   <tr>
       <td></td>
@@ -96,14 +96,15 @@ input:hover,textarea:hover,textarea:focus, input:focus{
   <tr>
     <td width="10%"></td>
     <td width="23%">
-       <input id="form_data_company" type="text" name="company" value="ООО Приладка тест">
+       <input id="form_data_company" type="text" name="company" placeholder="название компании" value="">
        <input id="form_data_company" type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+       <input type="hidden" name="requesit_id" value="">
        <input type="hidden" name="form_data[phone2]" value="">
        <input type="hidden" name="form_data[phone1]" value="">
     </td>
     <td rowspan="2" width="10%">Юр.адрес</td>
     <td rowspan="2" width="23%">
-      <textarea name="legal_address" id="legalqqq" style="height:70px"></textarea>
+      <textarea name="form_data[legal_address]" id="legalqqq" style="height:70px"></textarea>
     </td>
     <td rowspan="2" width="10%"> Почт.адрес<br>
         <span onclick="document.getElementById('postal').innerHTML=document.getElementById('legalqqq').innerHTML;document.getElementById('postal').value=document.getElementById('legalqqq').value;" style="float:left; font-size:9px; background: #75B775; color:white; cursor:pointer; text-align:center; margin:3px 0 0 0; line-height:10px; padding:2px; border:1px solid white;">Скопировать юр. адрес</span></td>
@@ -124,14 +125,80 @@ input:hover,textarea:hover,textarea:focus, input:focus{
 <!-- разделитель --><div class="div_between_form_rows"></div><!-- // разделитель -->
 
 
+<div id="chief_fields_div">
+<!-- КОНТАКТНЫЕ ДАННЫЕ ДЛЯ РЕКВИЗИТОВ -->
+  <div>    
+  <table class="client_form_table" id="chief_fields_tbl">      
+    <tr>
+    </tr>
+            <tr>
+            <td></td>
+            <td colspan="2"><div style="text-align:left;font-weight:bold; height:15px;">Сотрудники</div></td>
+            <td colspan="3">
+              <input type="radio" class="radio_acting" field_type="acting" name="acting" checked> Лицо, подписывающее договор  
+              <input type="hidden" class="acting_check" name="form_data[managment1][1][acting]" value="1">
+              <input type="hidden" field_type="id" name="form_data[managment1][1][id]" value="">
+              <input type="hidden" field_type="requisites_id" name="form_data[managment1][1][requisites_id]" value="">
+              <input type="hidden" field_type="type" name="form_data[managment1][1][type]" value="">
+           </td>
+    </tr>
+        <tr>
+            <td width="10%" align="right">Должность</td>
+            <td width="23%"> 
+              <!-- <input type="hidden" name="form_data[managment1][1][position]" value="Генеральный директор"> -->
+                <select class="my_select" name="form_data[managment1][1][post_id]">
+                    <?php 
+                    echo Client::get__clients_persons_for_requisites(0);
+                    ?>
+                </select>
+                <style type="text/css">
+                
+                </style>
+                <div class="new_person_type_req">+</div>
+              
+        <div class="note_div" style="margin:22px 0 0 3px; ">
+                <div class="note">Должность пишите с большой буквы.</div>
+      </div>
+          </td>
+          <td width="10%">На основании</td>
+            <td width="23%">
+                <input type="text" name="form_data[managment1][1][basic_doc]" value="">
+                <div class="note_div">
+                  <span onclick="this.parentNode.parentNode.getElementsByTagName('input')[0].value=this.innerHTML" style="float:left; font-size:9px; background: #75B775; color:white; cursor:pointer; text-align:center; margin:3px 10px 0 0; line-height:10px; padding:2px; border:1px solid white;">Устава</span>
+                  <span onclick="this.parentNode.parentNode.getElementsByTagName('input')[0].value=this.innerHTML" style="float:left; font-size:9px; background: #75B775; color:white; cursor:pointer; text-align:center; margin:3px 10px 0 0; line-height:10px; padding:2px; border:1px solid white;">доверенности</span>
+                </div>
+            </td>
+          <td colspan="2" width="23%" align="center">           
+          </td>
+          <td rowspan="2" width="10%" style="padding-left:50px;">
+              <delete_btn>
+                <span class="cont_faces_field_delete_btn" data-tbl="CLIENT_REQUISITES_MANAGMENT_FACES_TBL" data-id="" style="display:none;cursor:default">x</span>
+              </delete_btn>
+          </td>
+    </tr>
+    <tr>
+            <td width="180" align="right">ФИО</td>
+            <td width="220">
+                <input type="text" name="form_data[managment1][1][name]" value="">
+                <div class="note_div">
+                   <div class="note">ФИО указывайте полностью и в следующем порядке:<br>Иванов Иван Иванович.</div>
+                </div>
+            </td>
+            <td width="40" align="right">В падеже</td>
+            <td width="220">
+                <input type="text" name="form_data[managment1][1][name_in_padeg]" value="1">
+                <div class="note_div">
+                   <div class="note">В родительном падеже.</div>
+                </div>
+            </td>
+           
+            <td colspan="2">
+            </td>
+    </tr>
+    </table>
+</div>
 
-<?php 
-// echo "<pre>";
-// print_r(Client::edit_requsits_show_person($requesit['id']));
-// echo "</pre>";
-
-Client::edit_requsits_show_person_all(Client::edit_requsits_show_person($requesit['id']),$client_id);?>
-
+</div>
 <!-- разделитель --><div class="div_between_form_rows"></div><!-- // разделитель -->
 
     <div class="cont_faces_delete_btn">

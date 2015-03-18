@@ -115,7 +115,7 @@ class Client {
 		// echo "</pre>";
 		foreach ($arr as $key => $contact) {
 			$get__clients_persons_for_requisites = Client::get__clients_persons_for_requisites($contact['post_id']);
-			include('./skins/tpl/clients/client_folder/client_card_table/edit_requsits_show_person.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/edit_requsits_show_person.tpl');
 		}
 		// $html = ob_get_contents();
 		// ob_get_clean();

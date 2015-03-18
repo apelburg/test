@@ -3,7 +3,16 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
-$quick_button = '<div class="quick_button_div"><a href="#11" class="button">&nbsp;</a></div>';
+$url_string = 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+if(isset($_GET['client_edit'])){
+	$url_string = str_replace("&client_edit", "", $url_string);
+}else{
+	$url_string .= "&client_edit";
+}
+
+$quick_button = '<div class="quick_button_div"><a href="'.$url_string.'" id="" class="button ">'.((isset($_GET['client_edit']))?'Сохранить':'Редактировать').'</a></div>';
+
+
 $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 
 ////////////////////////////// AJAX ///////////////////////////////////////
@@ -38,7 +47,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 			extract($arr_adres, EXTR_PREFIX_SAME, "wddx");
 			//получаем контент для окна 
 			ob_start();
-			include('./skins/tpl/clients/client_folder/client_card_table/edit_adres.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/edit_adres.tpl');
 			$content = ob_get_contents();
 			ob_get_clean();
 			echo $content;
@@ -100,7 +109,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 		}
 		if($_POST['ajax_standart_window']=="new_adress_row"){
 			ob_start();
-			include('./skins/tpl/clients/client_folder/client_card_table/new_adres.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/new_adres.tpl');
 			$content = ob_get_contents();
 			ob_get_clean();
 			echo $content;
@@ -233,9 +242,131 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 		}
 
 		if($_POST['ajax_standart_window']=="update_requisites"){	
-			echo "<pre>";		
-			print_r($_POST);
-			echo "</pre>";
+			global $mysqli;
+
+			$query = "
+			UPDATE  `".CLIENT_REQUISITES_TBL."` SET
+			`client_id`='".$_POST['client_id']."', 
+			`company`='".$_POST['company']."', 
+			`comp_full_name`='".$_POST['form_data']['comp_full_name']."', 
+			`postal_address`='".$_POST['form_data']['postal_address']."', 
+			`legal_address`='".$_POST['form_data']['legal_address']."', 
+			`inn`='".$_POST['form_data']['inn']."', 
+			`kpp`='".$_POST['form_data']['kpp']."', 
+			`bank`='".$_POST['form_data']['bank']."', 
+			`bank_address`='".$_POST['form_data']['bank_address']."', 
+			`r_account`='".$_POST['form_data']['r_account']."', 
+			`cor_account`='".$_POST['form_data']['cor_account']."', 
+			`ogrn`='".$_POST['form_data']['bik']."', 
+			`okpo`='".$_POST['form_data']['okpo']."', 
+			`dop_info`='".$_POST['form_data']['dop_info']."' WHERE id = '".$_POST['requesit_id']."';";
+
+
+			foreach ($_POST['form_data']['managment1'] as $key => $val) {
+				if(trim($val['id'])!=""){
+					$query .= "UPDATE  `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` SET  
+					`requisites_id` =  '".$val['requisites_id']."',
+					`type` =  '".$val['type']."',
+					`post_id` =  '".$val['post_id']."',
+					`basic_doc` =  '".$val['basic_doc']."',
+					`name` =  '".$val['name']."',
+					`name_in_padeg` =  '".$val['name_in_padeg']."',
+					`acting` =  '".$val['acting']."'
+					WHERE  `id` ='".$val['id']."'; ";
+				}else{
+					$query .= "INSERT INTO  `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` SET  
+					`requisites_id` =  '".$val['requisites_id']."',
+					`type` =  '".$val['type']."',
+					`post_id` =  '".$val['post_id']."',
+					`basic_doc` =  '".$val['basic_doc']."',
+					`name` =  '".$val['name']."',
+					`name_in_padeg` =  '".$val['name_in_padeg']."',
+					`acting` =  '".$val['acting']."';";
+				}
+				
+			}
+			//echo $query;
+			$result = $mysqli->multi_query($query) or die($mysqli->error);
+			echo '{
+			    "response":"1",
+				"text":"Данные успешно обновлены"
+			}';
+			// echo $query;
+
+			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="create_new_requisites"){	
+			global $mysqli;
+			// echo "<pre>";		
+			// print_r($_POST);
+			// echo "</pre><br>";
+			// echo '{
+			//     "response":"1",
+			// 	"text":"Данные успешно обновлены"
+			// }';
+			// // echo $query;
+
+			// exit;
+				
+			$query = "
+			INSERT INTO `".CLIENT_REQUISITES_TBL."` SET id = '".$_POST['requesit_id']."',
+			`client_id`='".$_POST['client_id']."', 
+			`company`='".$_POST['company']."', 
+			`comp_full_name`='".$_POST['form_data']['comp_full_name']."', 
+			`postal_address`='".$_POST['form_data']['postal_address']."', 
+			`legal_address`='".$_POST['form_data']['legal_address']."', 
+			`inn`='".$_POST['form_data']['inn']."', 
+			`kpp`='".$_POST['form_data']['kpp']."', 
+			`bank`='".$_POST['form_data']['bank']."', 
+			`bank_address`='".$_POST['form_data']['bank_address']."', 
+			`r_account`='".$_POST['form_data']['r_account']."', 
+			`cor_account`='".$_POST['form_data']['cor_account']."', 
+			`ogrn`='".$_POST['form_data']['bik']."', 
+			`okpo`='".$_POST['form_data']['okpo']."', 
+			`dop_info`='".$_POST['form_data']['dop_info']."'
+			";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			// запоминаем id созданной записи
+			$req_new_id = $mysqli->insert_id;
+
+			
+
+			if(isset($_POST['form_data']['managment1'])){
+				$query="";
+				foreach ($_POST['form_data']['managment1'] as $key => $val) {				
+					$query .= "INSERT INTO  `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` SET  
+					`requisites_id` =  '".$req_new_id."',
+					`type` =  '".$val['type']."',
+					`post_id` =  '".$val['post_id']."',
+					`basic_doc` =  '".$val['basic_doc']."',
+					`name` =  '".$val['name']."',
+					`name_in_padeg` =  '".$val['name_in_padeg']."',
+					`acting` =  '".$val['acting']."';";				
+				}
+				//echo $query;
+				$result = $mysqli->multi_query($query) or die($mysqli->error);
+			}
+			echo '{
+			    "response":"1",
+				"id_new_req":"'.$req_new_id.'",
+				"company":"'.$_POST['company'].'"
+			}';
+			// echo $query;
+
+			exit;
+		}
+
+
+		if($_POST['ajax_standart_window']=="delete_requesit_row"){			
+			$id_row = $_POST['id'];
+			$query = "DELETE FROM ".CLIENT_REQUISITES_TBL." WHERE `id`= '".$id_row."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			//echo $query;
+			echo '{
+		       "response":"1",
+		       "text":"Данные успешно удалены"
+		      }';
 			exit;
 		}
 
@@ -261,7 +392,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 					$requesit = $row;
 				}
 			}
-			include('./skins/tpl/clients/client_folder/client_card_table/show_requsits.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/show_requsits.tpl');
 			exit;
 		}
 
@@ -280,11 +411,32 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 			// получаем контактные лица для реквизитов
 
 
-			include('./skins/tpl/clients/client_folder/client_card_table/edit_requsits.tpl');
+			include('./skins/tpl/clients/client_folder/client_card/edit_requsits.tpl');
 			exit;
 		}
-		
-		// CLIENT_CONT_FACES_CONTACT_INFO_TBL
+
+		if($_POST['ajax_standart_window']=="create_requesit"){
+			
+			include('./skins/tpl/clients/client_folder/client_card/new_requsits.tpl');
+			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="new_person_type_req"){
+			global $mysqli;
+			$query = "INSERT INTO  `".CLIENT_PERSON_REQ_TBL."` SET  
+			`type` =  '',
+			`position` =  '".$_POST['position']."',
+			`position_in_padeg` =  '".$_POST['position_in_padeg']."'";
+			 $result = $mysqli->query($query) or die($mysqli->error);
+			// echo $query;
+			$id_row = $mysqli->insert_id;
+			echo '{
+		       "response":"1",
+		       "id_new_row":"'.$id_row.'",
+		       "text":"Данные успешно обновлены"
+		      }';
+			exit;
+		}
 		
 	}
 	/////////////////////////////////////  AJAX END /////////////////////////////////
@@ -318,21 +470,16 @@ $adress_name_arr = array('office' => 'офиса', 'delivery' => 'доставк
 //получаем текущий адрес клиента
 ob_start();
 foreach ($client_address as $adress_number => $adress) {
-	include('./skins/tpl/clients/client_folder/client_card_table/client_adress_row.tpl');
+	include('./skins/tpl/clients/client_folder/client_card/client_adress_row.tpl');
 }
 $client_address_s .= ob_get_contents();
 ob_get_clean();
 
 //получаем информацию по клиенту
 ob_start();
-include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_table.tpl');
+include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_table.tpl');
 $client_content = ob_get_contents();
 ob_get_clean();
-
-// получаем кнопку
-if(isset($_GET['client_edit'])){
-	$quick_button = '';
-}
 
 //получаем информацию по контактным лицам данного клиента
 ob_start();
@@ -348,7 +495,7 @@ foreach($contact_faces_contacts as $k=>$this_contact_face){
 	$cont_company_other = (isset($contact_face_d_arr['other']))?$contact_face_d_arr['other']:'';
 	
 	//echo $clientClass->$this->get_contact_info("CLIENTS_TBL",$id)($contact_face_d_arr, 'phone',Client::$array_img);
-	include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_cotact_face_table.tpl');
+	include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_cotact_face_table.tpl');
 }
 
 $client_content_contact_faces .= ob_get_contents();
@@ -365,16 +512,16 @@ if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="get
 
 //получаем адрес папки и примечания
 ob_start();
-include('./skins/tpl/clients/client_folder/client_card_table/'.$edit_show.'client_dop_info.tpl');
+include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_dop_info.tpl');
 $client_content_dop_info = ob_get_contents();
 ob_get_clean();
 
 // получаем подготовленный контент для модальных окон
 ob_start();
-include('./skins/tpl/clients/client_folder/client_card_table/dialog_windows.tpl');
+include('./skins/tpl/clients/client_folder/client_card/dialog_windows.tpl');
 $dialog_windows = ob_get_contents();
 ob_get_clean();
 
 //выводим общий шаблон
-include('./skins/tpl/clients/client_folder/client_card_table/show.tpl'); 
+include('./skins/tpl/clients/client_folder/client_card/show.tpl'); 
 ?>
