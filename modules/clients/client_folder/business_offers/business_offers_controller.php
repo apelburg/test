@@ -11,8 +11,10 @@
 	if(isset($_GET['send_kp_by_mail'])){
 	    //echo  $_GET['send_kp_by_mail'];
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/manager_class.php");
-	    list($kp_id,$client_id,$manager_id) = json_decode($_GET['send_kp_by_mail']);
-		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$manager_id);
+		$manager = new Manager($user_id);
+
+	    $kp_id = $_GET['send_kp_by_mail'];
+		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$user_id);
         //$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		
 		$main_window_tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
@@ -29,7 +31,7 @@
 			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
 			$fd = fopen($tpl_path,'r');
 			$tpl = fread($fd,filesize($tpl_path));
-			$tpl = str_replace('[MANAGER_DATA]',Manager::get_mail_signature($manager_id),$tpl);
+			$tpl = str_replace('[MANAGER_DATA]',convert_bb_tags($manager->data['mail_signature']),$tpl);
 			fclose($fd);
 			$message_tpls[] = '"'.$tpl_filename.'":"'.base64_encode($tpl).'"';
 		}
@@ -37,7 +39,7 @@
 		echo '{
 		       "kp_filename":"'.$kp_filename.'",
 		       "client_mails":[{"person":"менеджер - Наталья","mail":"premier22@yandex.ru"},{"person":"директор - Елена","mail":"premier_22@yandex.ru"}],
-			   "manager_mails":["andrey@apelburg.ru","andrey2@apelburg.ru"],
+			   "manager_mails":["'.$manager->data['email'].'","'.$manager->data['email_2'].'"],
 			   "main_window_tpl":"'.$main_window_tpl.'",';
 		if(isset($message_tpls)) echo '"message_tpls":{'.implode(',',$message_tpls).'}';
 		echo '}';
@@ -68,31 +70,30 @@
 	
 	/////////////////////////////////////// Временно /////////////////////////////////////// 
 	if(isset($_GET['save_in_pdf'])){
-	     list($kp_id,$client_id,$manager_id)=(explode("|",$_GET['save_in_pdf']));
-	     Com_pred::save_in_pdf($kp_id,$client_id,$manager_id);
+	     $kp_id=(int)$_GET['save_in_pdf'];
+	     Com_pred::save_in_pdf($kp_id,$client_id,$user_id);
 	}
 	if(isset($_GET['show_kp'])){
 		 $kp_id = (int)$_GET['show_kp'];
-		 $rows = Com_pred::create_list($client_id,$kp_id);
+		 $rows = Com_pred::create_list($client_id,array('type'=>'new','kp'=>$kp_id));
 		 $detailed_view = Com_pred::open_in_tbl($_GET['show_kp']); 
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
-		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'|'.$client_id.'|'.$manager_id.'">сохранить на диск</a>';
+		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'">сохранить на диск</a>';
 		 $dont_show_rows = TRUE;
 	}
 	if(isset($_GET['show_old_kp'])){
-	     
-		 $rows = Com_pred::create_list($client_id,$_GET['show_old_kp']);
+		 $rows = Com_pred::create_list($client_id,array('type'=>'old','kp'=>$_GET['show_old_kp']));
 		 $dont_show_rows = TRUE;
 		 $detailed_view = Com_pred::open_old_kp($_GET['show_old_kp']);
 		 
 	}
 	if(isset($_GET['show_kp_in_blank'])){
 	     $kp_id = (int)$_GET['show_kp_in_blank'];
-		 $rows = Com_pred::create_list($client_id,$kp_id);
+		 $rows = Com_pred::create_list($client_id,array('type'=>'new','kp'=>$kp_id));
 		 $dont_show_rows = TRUE;
-		 $detailed_view = Com_pred::open_in_blank($kp_id,$client_id,$manager_id,true);
+		 $detailed_view = Com_pred::open_in_blank($kp_id,$client_id,$user_id,true);
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
-		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'|'.$client_id.'|'.$manager_id.'">сохранить на диск</a>';
+		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'">сохранить на диск</a>';
 	}
 	/////////////////////////////////////// end Временно /////////////////////////////////////// 
 	

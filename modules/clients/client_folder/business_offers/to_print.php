@@ -22,7 +22,7 @@
 	    list($id,$client_id,$manager_id) = explode('-',$param);
 	    echo Com_pred::open_in_blank($id,$client_id,$manager_id);
 	}
-	if($version == 'old') Com_pred::open_old_kp($param);
+	if($version == 'old') echo Com_pred::open_old_kp($param);
 	exit;
 	
 ?>

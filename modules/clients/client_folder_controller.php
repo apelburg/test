@@ -17,9 +17,9 @@
 	 //print_r($_POST);
 	 $manager_id_arr = detect_manager_for_client($client_id);
 	 $forbidd_flag = true;	
-	 foreach($manager_id_arr as $manager_id){
-	     if($user_id == $manager_id)$forbidd_flag = false;
-	     $manager_nickname .= get_manager_nickname_by_id($manager_id).', ';	 
+	 foreach($manager_id_arr as $mng_id){
+	     if($user_id == $mng_id)$forbidd_flag = false;
+	     $manager_nickname .= get_manager_nickname_by_id($mng_id).', ';	 
 	 }
 	 $manager_nickname = trim($manager_nickname,', ');
 	 if($forbidd_flag && $user_status!='1'){

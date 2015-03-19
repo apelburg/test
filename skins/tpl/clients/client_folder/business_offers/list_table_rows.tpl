@@ -8,8 +8,8 @@
          <table class="options_tbl">
              <tr>
                  <td><a href="?<?php  echo addOrReplaceGetOnURL('','show_kp_in_blank&show_kp').'&'.(isset($_GET['show_kp_in_blank'])? 'show_kp':'show_kp_in_blank').'='.$row['id']; ?>">посмотреть</a></td>
-                 <td><a href='/os/modules/clients/business_offers/to_print.php?data=<?php  echo 'new{@}'.$row['id'].'-'.$client_id.'-'.$manager_id; ?>' target="_blank">напечатать</a></td>
-                 <td><a href='#' onclick="kpManager.sendKpByMail(<?php  echo $row['id'].",".$client_id.",".$manager_id; ?>);">письмо</a></td>
+                 <td><a href='/os/modules/clients/client_folder/business_offers/to_print.php?data=<?php  echo 'new{@}'.$row['id'].'-'.$client_id.'-'.$user_id; ?>' target="_blank">напечатать</a></td>
+                 <td><a href='#' onclick="kpManager.sendKpByMail(<?php  echo $row['id']; ?>);">письмо</a></td>
              </tr>
          </table>
   
