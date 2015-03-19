@@ -11,13 +11,16 @@
 		   if($result->num_rows>0){
 		         // получаем необходимые данные для помещения в таблицу
 		         $row=$result->fetch_assoc();
+				 //print_r($row);
 		         // записываем данные о КП в таблицу COM_PRED_LIST
                  $query2="INSERT INTO `".COM_PRED_LIST."` 
 					              SET 
+								  `create_time` = NOW(),
 								  `client_id` = '".$row['client_id']."',
 								  `manager_id` = '".$row['manager_id']."',
 								  `order_num` = '".$row['order_num']."'
 								  ";
+								  
 				 $result2 = $mysqli->query($query2)or die($mysqli->error);
 				 if(!$result2) return 2;
 				 $kp_id = $mysqli->insert_id;
@@ -182,18 +185,48 @@
 					exit;
 				}
 			}
-			$filename = '/Пробный_ПДФ_в_кириллицe_'.$client_id.'_'.date('Y_i_s').'.pdf';
-			//$filename = '/probe_file_in_latin_'.$client_id.'_'.date('Y_i_s').'.pdf';
+			$dirname = $dirname.'/'.strval(intval($kp_id));
+			if(!file_exists($document_root.$dirname)){
+				if(!mkdir($document_root.$dirname, 0777)){
+					echo 'ошибка создания папки клиента (kp#1)'.$document_root.$dirname;
+					exit;
+				}
+			}
+			
+			$filename = '/Пробный_ПДФ_в_кириллицe_'.$client_id.'_'.$kp_id.'_'.date('Ymd_His').'.pdf';
+			//$filename = '/probe_file_in_latin_'.$client_id.'_'.date('Ymd_His').'.pdf';
 			$filename_utf = iconv("UTF-8","windows-1251", $filename);
 			$save_to = $document_root.$dirname.$filename_utf;
 			
-            Com_pred::save_in_pdf_on_server($kp_id,$client_id,$user_id,$save_to);
+            self::save_in_pdf_on_server($kp_id,$client_id,$user_id,$save_to);
 			return $dirname.$filename;
             exit;
 	   }
+	   function clear_client_kp_folder($kp_id,$attached_files){
+	        $dirname = $_SERVER['DOCUMENT_ROOT'].'/os/data/com_offers/'.strval(intval($_GET['client_id'])).'/'.strval(intval($kp_id));
+	        if($files_arr = read_Dir($dirname)){
+			    foreach($files_arr as $file){
+				     $flag=TRUE;
+				     foreach($attached_files as $attached_file){
+					     $attached_file = substr($attached_file,strrpos($attached_file,"/")+1);
+						 $file_utf = iconv("windows-1251","UTF-8", $file);
+					     if($file_utf==$attached_file) $flag=FALSE;
+					 }
+					 if($flag) unlink($dirname.'/'.$file);
+				}
+			} 
+	   }
+	   function save_mail_send_time($kp_id){
+	        global $mysqli;
+			 
+			$query="UPDATE `".COM_PRED_LIST."` SET 	`send_time` = NOW() WHERE `id` = '".$kp_id."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+				//$row=$result->fetch_assoc();
+
+	   }
 	   function save_in_pdf_on_server($kp_id,$client_id,$user_id,$filename){
 	   
-            $html = Com_pred::open_in_blank($kp_id,$client_id,$user_id);
+            $html = self::open_in_blank($kp_id,$client_id,$user_id);
 			
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
 			$mpdf=new mPDF();
@@ -202,7 +235,7 @@
 	   }
 	   function save_in_pdf($kp_id,$client_id,$user_id,$filename = '1.pdf'){
 	   
-            $html = Com_pred::open_in_blank($kp_id,$client_id,$user_id);
+            $html = self::open_in_blank($kp_id,$client_id,$user_id);
 		
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
             //$stylesheet = file_get_contents('style.css');
@@ -215,7 +248,7 @@
             exit;
 	   }
 	   function open_in_tbl($kp_id){
-	       $arr=Com_pred::fetch_kp_rows($kp_id);
+	       $arr=self::fetch_kp_rows($kp_id);
 
 		   //!!! разобраться с отображением marker_summ_print hide_article_marker
 		   
@@ -252,7 +285,7 @@
 			
 			//print_r($cont_face_data_arr);
 			//exit;
-			$rows_data=Com_pred::fetch_kp_rows($kp_id);
+			$rows_data=self::fetch_kp_rows($kp_id);
 			$rows_data = array_reverse($rows_data);
 			
 			// собираем контент коммерческого предложения
@@ -516,12 +549,12 @@
 	       
 		    $rows = '';
 			if(!$certain_kp){// если не указан конкретный КП создаем полный список
-				$rows .= Com_pred::create_list_new_version($client_id);
-				$rows .= Com_pred::create_list_old_version($client_id);
+				$rows .= self::create_list_new_version($client_id);
+				$rows .= self::create_list_old_version($client_id);
             }
 			else{
-			    if($certain_kp['type'] == 'new') $rows .= Com_pred::create_list_new_version($client_id,$certain_kp['kp']);
-				if($certain_kp['type'] == 'old')  $rows .= Com_pred::create_list_old_version($client_id,substr($certain_kp['kp'],strpos($certain_kp['kp'],"/")+1));
+			    if($certain_kp['type'] == 'new') $rows .= self::create_list_new_version($client_id,$certain_kp['kp']);
+				if($certain_kp['type'] == 'old')  $rows .= self::create_list_old_version($client_id,substr($certain_kp['kp'],strpos($certain_kp['kp'],"/")+1));
 			}
 			return (!empty($rows))?$rows:"<tr><td colspan='4'>для данного клиента пока небыло создано коммерческих предложений</td></tr>";
 		}
@@ -543,7 +576,8 @@
 		   if($result->num_rows>0){
 		        ob_start();
 		        while($row=$result->fetch_assoc()){ //
-				
+				     $send_time = substr($row['send_time'],0,10);
+					 $send_time = ($send_time!='0000-00-00')? $send_time:'не отправленно';
 					 $date_arr = explode("-",substr($row['create_time'],0,10));
 					 $date = implode(".",array_reverse($date_arr));
 					 $order_num = $row['order_num'] ;

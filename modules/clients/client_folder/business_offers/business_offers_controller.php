@@ -58,7 +58,17 @@
 		if($mail_details->attached_files){
 		    foreach($mail_details->attached_files as $file) $mail->attach_file($_SERVER['DOCUMENT_ROOT'].$file);
 		}
-		echo $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$mail_details->message);
+		$out_data = $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$mail_details->message);
+		// если отправка прошла успешно
+		// a. сохраняем дату в таблицу COM_PRED_LIST
+		// b. удаляем предыдущий(ие) ПДФки по этому КП  
+		$out_data_arr = json_decode($out_data);
+		if($out_data_arr[0]=='1'){
+		     Com_pred::save_mail_send_time($mail_details->kp_id);
+			 Com_pred::clear_client_kp_folder($mail_details->kp_id,$mail_details->attached_files);
+		}
+		
+		echo $out_data;
 	    exit;
 	}
 	

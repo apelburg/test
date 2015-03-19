@@ -12,6 +12,7 @@
         <td style="width:180px;">Для контактного лица:</td>
         <td style="width:250px;">Действия</td>
         <td style="width:auto;">Комментарии</td>
+        <td style="width:110px;">Дата отправки</td>
         <td style="width:60px;border-right:none;">Удалить</td>
         <td style="width:  7px;border:none;">&nbsp;</td>
     </tr>

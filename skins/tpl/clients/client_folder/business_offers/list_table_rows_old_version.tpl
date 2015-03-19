@@ -26,6 +26,9 @@
         <a href='#' onclick='delete_file_comment("<?php  echo $file; ?>");return false;' style='text-decoration:none;' title="удалить комментарий">-</a>-->
         
    </td>
+   <td class="left grey">
+      ----
+   </td>
    <td class="center italic grey">
        <a href='?page=clients&section=client_folder&subsection=business_offers&client_id=<?php  echo $client_id; ?>&delete_com_offer=<?php  echo urlencode($file); ?>&id=<?php  echo $com_pred_data["id"]; ?>&old_version=true' onclick='if(confirm(" Внимание! КП будет удалено!\r\n Вы действительно хотите удалить КП?")){ return true;} else{ return false;}'>DEL</a>
    </td>

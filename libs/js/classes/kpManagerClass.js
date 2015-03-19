@@ -55,9 +55,10 @@
 		}
 		,
 		sendKpByMail:function (id){
-		
+		    
+			kpManager.kp_id = id;
 			//alert(id+" "+client_id+" "+manager_id);
-			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search+'&send_kp_by_mail='+id;
+			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search+'&send_kp_by_mail='+kpManager.kp_id;
 			
 			make_ajax_request(url,call_back);
 			function call_back(response){
@@ -98,6 +99,8 @@
 
 			var pairs = 'send_kp_by_mail_final_step=';
 		    pairs += '{';
+			
+			pairs += '"kp_id":"'+kpManager.kp_id+'",';
 			pairs += '"to":"'+kpManager.contfaceSelect.options[kpManager.contfaceSelect.selectedIndex].value+'",';
 			pairs += '"from":"andrey@apelburg.ru",';
 			pairs += '"subject":"'+kpManager.mailSubject.innerHTML+'",';

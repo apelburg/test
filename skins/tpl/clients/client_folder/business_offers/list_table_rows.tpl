@@ -22,6 +22,9 @@
            <?php  echo $comment; ?>
        </div>
    </td>
+   <td class="left">
+      <?php  echo $send_time; ?>
+   </td>
    <td class="center italic grey">
      <a href="?page=clients&section=client_folder&subsection=business_offers&client_id=<?php  echo $client_id; ?>&delete_com_offer=<?php  echo urlencode($row['id']); ?>" onclick='if(confirm(" Внимание! КП будет удалено!\r\n Вы действительно хотите удалить КП?")){ return true;} else{ return false;}'>DEL</a>
    </td>
