@@ -172,7 +172,7 @@
 			
 			return $fcontent;
 	   }
-	   function prepare_send_mail($kp_id,$client_id,$manager_id){
+	   function prepare_send_mail($kp_id,$client_id,$user_id){
 	        // проверяем есть папка данного клента, если её нет то создаем её
 	        $document_root = $_SERVER['DOCUMENT_ROOT'];
 			$dirname = '/os/data/com_offers/'.strval(intval($_GET['client_id']));
@@ -187,22 +187,22 @@
 			$filename_utf = iconv("UTF-8","windows-1251", $filename);
 			$save_to = $document_root.$dirname.$filename_utf;
 			
-            Com_pred::save_in_pdf_on_server($kp_id,$client_id,$manager_id,$save_to);
+            Com_pred::save_in_pdf_on_server($kp_id,$client_id,$user_id,$save_to);
 			return $dirname.$filename;
             exit;
 	   }
-	   function save_in_pdf_on_server($kp_id,$client_id,$manager_id,$filename){
+	   function save_in_pdf_on_server($kp_id,$client_id,$user_id,$filename){
 	   
-            $html = Com_pred::open_in_blank($kp_id,$client_id,$manager_id);
+            $html = Com_pred::open_in_blank($kp_id,$client_id,$user_id);
 			
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
 			$mpdf=new mPDF();
 			$mpdf->WriteHTML($html,2);
 			$mpdf->Output($filename,'F');
 	   }
-	   function save_in_pdf($kp_id,$client_id,$manager_id,$filename = '1.pdf'){
+	   function save_in_pdf($kp_id,$client_id,$user_id,$filename = '1.pdf'){
 	   
-            $html = Com_pred::open_in_blank($kp_id,$client_id,$manager_id);
+            $html = Com_pred::open_in_blank($kp_id,$client_id,$user_id);
 		
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
             //$stylesheet = file_get_contents('style.css');
@@ -239,7 +239,7 @@
 
 		   return $output;			
 	   }
-	   function open_in_blank($kp_id,$client_id,$manager_id,$save_on_disk = false){
+	   function open_in_blank($kp_id,$client_id,$user_id,$save_on_disk = false){
 	        global $mysqli;
 			$stock = false;
 			$com_offer_descriptions = array();
@@ -247,7 +247,7 @@
 			$string = $article_string = $ordinary_string = $print_string = $itog_string = $previos_marker_summ_print = '';
 		    // Здесь делаем то что в старой версии делали при сохранении КП в файл
 		   
-		    $cont_face_data_arr = get_client_cont_face_by_id($client_id,$manager_id,true);
+		    $cont_face_data_arr = get_client_cont_face_by_id($client_id,$user_id,true);
 		    $client_data_arr = select_all_client_data($client_id);
 			
 			//print_r($cont_face_data_arr);
@@ -508,7 +508,7 @@
 			
 			// записываем все данные в строку предварительно развернув массив
 		   $kp_content .= implode('',array_reverse($tbl_rows)).'</td></tr></table>
-		   <div style="text-align:right;font-family:verdana;font-size:12px;line-height:20px;"><br>'.convert_bb_tags(mysql_result(select_manager_data($manager_id),0,'mail_signature')).'<br><br><br></div></div>';
+		   <div style="text-align:right;font-family:verdana;font-size:12px;line-height:20px;"><br>'.convert_bb_tags(mysql_result(select_manager_data($user_id),0,'mail_signature')).'<br><br><br></div></div>';
 		   
 		   return $kp_content;
 	   }
@@ -527,7 +527,7 @@
 		}
 		function create_list_new_version($client_id,$certain_kp_id = FALSE){
 		   global $mysqli;
-		   global $manager_id;
+		   global $user_id;
 		   // шаблон ряда таблицы списка КП
 		   $tpl_name = 'skins/tpl/clients/client_folder/business_offers/list_table_rows.tpl';
 		   $fd = fopen($tpl_name,'r');
