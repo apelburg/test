@@ -8,7 +8,7 @@
          <table class="options_tbl">
              <tr>
                  <td><a href="?<?php  echo $_SERVER['QUERY_STRING'].'&show_old_kp='.$client_id.'/'.$file; ?>">посмотреть</a></td>
-                 <td><a href='/os/modules/clients/business_offers/to_print.php?data=<?php  echo 'old{@}'.$client_id.'/'.$file; ?>' target="_blank">напечатать</a></td>
+                 <td><a href='/os/modules/clients/client_folder/business_offers/to_print.php?data=<?php  echo 'old{@}'.$client_id.'/'.$file; ?>' target="_blank">напечатать</a></td>
                 <!-- onclick="kp_to_print('old','<?php  echo $client_id.'/'.$file; ?>');"-->
                  <td><a href='#' onclick="alert('старая версия КП не имеет опции отправки по почте');">письмо</a></td>
              </tr>

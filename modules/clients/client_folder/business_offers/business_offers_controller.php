@@ -73,22 +73,21 @@
 	}
 	if(isset($_GET['show_kp'])){
 		 $kp_id = (int)$_GET['show_kp'];
-		 $rows = Com_pred::create_list($client_id,$kp_id);
+		 $rows = Com_pred::create_list($client_id,array('type'=>'new','kp'=>$kp_id));
 		 $detailed_view = Com_pred::open_in_tbl($_GET['show_kp']); 
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
 		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'|'.$client_id.'|'.$manager_id.'">сохранить на диск</a>';
 		 $dont_show_rows = TRUE;
 	}
 	if(isset($_GET['show_old_kp'])){
-	     
-		 $rows = Com_pred::create_list($client_id,$_GET['show_old_kp']);
+		 $rows = Com_pred::create_list($client_id,array('type'=>'old','kp'=>$_GET['show_old_kp']));
 		 $dont_show_rows = TRUE;
 		 $detailed_view = Com_pred::open_old_kp($_GET['show_old_kp']);
 		 
 	}
 	if(isset($_GET['show_kp_in_blank'])){
 	     $kp_id = (int)$_GET['show_kp_in_blank'];
-		 $rows = Com_pred::create_list($client_id,$kp_id);
+		 $rows = Com_pred::create_list($client_id,array('type'=>'new','kp'=>$kp_id));
 		 $dont_show_rows = TRUE;
 		 $detailed_view = Com_pred::open_in_blank($kp_id,$client_id,$manager_id,true);
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';

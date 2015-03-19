@@ -520,8 +520,8 @@
 				$rows .= Com_pred::create_list_old_version($client_id);
             }
 			else{
-			    if(gettype($certain_kp) == 'integer') $rows .= Com_pred::create_list_new_version($client_id,$certain_kp);
-				if(gettype($certain_kp) == 'string')  $rows .= Com_pred::create_list_old_version($client_id,substr($certain_kp,strpos($certain_kp,"/")+1));
+			    if($certain_kp['type'] == 'new') $rows .= Com_pred::create_list_new_version($client_id,$certain_kp['kp']);
+				if($certain_kp['type'] == 'old')  $rows .= Com_pred::create_list_old_version($client_id,substr($certain_kp['kp'],strpos($certain_kp['kp'],"/")+1));
 			}
 			return (!empty($rows))?$rows:"<tr><td colspan='4'>для данного клиента пока небыло создано коммерческих предложений</td></tr>";
 		}
@@ -536,8 +536,9 @@
 		   
 		   $rows = '';
 		   
-		   $query="SELECT*FROM `".COM_PRED_LIST."` WHERE `client_id` = '".$client_id."' ORDER BY id DESC";
+		   $query="SELECT*FROM `".COM_PRED_LIST."` WHERE `client_id` = '".$client_id."'";
 		   if($certain_kp_id)$query.= " AND id = '".$certain_kp_id."'";
+		   $query.= " ORDER BY id DESC";
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if($result->num_rows>0){
 		        ob_start();
