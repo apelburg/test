@@ -165,7 +165,38 @@ class Client {
 		return $r;
 	}
 
+	public function get_contact_info_arr($tbl,$type,$parent_id){
+		global $mysqli;
+		$contacts = array();
+		$query = "SELECT * FROM `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."'".(($type!='')?" AND `type` = '".$type."'":'')." AND `parent_id` = '".$parent_id."'";
+		echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$contacts[] = $row;
+			}
+		}
+		return $contacts;
+	}
 
+	static function get_contats_info_all($type, $client_id){
+		// получаем данные по клиенту
+		$contacts = self::get_contact_info_arr('CLIENTS_TBL',$type,$client_id);
+
+		// получаем массив контактных лиц клиента
+		$contact_faces_contacts = Client::cont_faces($client_id);
+		foreach($contact_faces_contacts as $k => $this_contact_face){
+			unset($arr);
+			// получаем для каждого контактного лица 
+			// необходимые нам контактные данные (email, www, fb, vk ......)
+			$arr = self::get_contact_info_arr("CLIENT_CONT_FACES_TBL",$type,$this_contact_face['id']);
+			foreach ($arr as $key => $val) {
+				$contacts[] = $val;
+			}
+		}
+		return $contacts;
+
+	}
 	
 	public function get_contact_info($tbl,$parent_id){
 		global $mysqli;
