@@ -207,13 +207,36 @@
 </div>
 
 <style type="text/css">
-	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2,#create_requesit,#new_person_type_req{display:none;}
+	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2,#create_requesit,#create_client,#new_person_type_req{display:none;}#create_client input{width: 100%}
 	#new_person_type_req table{width: 100%}
 	#new_person_type_req input{width: 90%}
+	#create_client input{width: 100%}
 </style>
 <div id="show_requesit"></div>
 <div id="create_requesit"></div>
 <div id="edit_requesit"></div>
+<div id="create_client">
+	<form>
+		
+		<table>
+		<tr>
+			<td>Название</td>
+			<td>
+				<input type="text" name="company">
+				<input type="hidden" name="ajax_standart_window" value="create_client">
+				<input type="hidden" name="rate" value="0">
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2"></td>
+		</tr>	
+		<tr>
+			<td>Дополнительная информация</td>
+			<td><textarea type="text" name="dop_info"></textarea></td>
+		</tr>	
+	</table>
+	</form>
+</div>
 <div id="new_person_type_req">
 	<form>
 		<input type="hidden" name="ajax_standart_window" value="new_person_type_req">

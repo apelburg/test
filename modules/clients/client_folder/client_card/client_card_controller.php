@@ -19,6 +19,9 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 //обрабатываем ajax запросы из стандартного окна ОС
 	 if(isset($_POST['ajax_standart_window'])){
 
+
+
+
 		if($_POST['ajax_standart_window']=="chenge_name_company"){
 			$id = $_POST['id'];
 			$tbl = $_POST['tbl'];
@@ -107,6 +110,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 			echo $mysqli->insert_id;
 			exit;
 		}
+		
 		if($_POST['ajax_standart_window']=="new_adress_row"){
 			ob_start();
 			include('./skins/tpl/clients/client_folder/client_card/new_adres.tpl');
