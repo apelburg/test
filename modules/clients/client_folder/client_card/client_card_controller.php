@@ -245,8 +245,13 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="client_delete"){			
-			if(Client::delete($_POST['id'])=='1'){
+		if($_POST['ajax_standart_window']=="client_delete"){
+			if($_SESSION['access']['access']==1){
+				$outer = Client::delete($_POST['id']);
+			}else{
+				$outer = Client::delete_for_manager($_POST['id'],$_SESSION['access']['user_id']);
+			}			
+			if($outer=='1'){
 				echo '{
 		       "response":"1",
 		       "text":"Данные успешно удалены"

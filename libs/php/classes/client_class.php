@@ -352,7 +352,7 @@ class Client {
 		//КП
 		$query .= "DELETE FROM `".COM_PRED_LIST."` WHERE `client_id` = '".(int)$id."';\n";
 		//протокол добавления
-		$query .= "DELETE FROM `".CALCULATE_TBL_PROTOCOL."` WHERE `client` = '".(int)$id."';\n";			
+		// $query .= "DELETE FROM `".CALCULATE_TBL_PROTOCOL."` WHERE `client` = '".(int)$id."';\n";			
 		//планы
 		$query .= "DELETE FROM `".PLANNER."` WHERE `id` = '".(int)$id."';\n";
 		//удаляем клинта из основной таблицы		
@@ -364,7 +364,20 @@ class Client {
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 		
 		return "1";		
-	}	
+	}
+
+	static function delete_for_manager($client_id, $manager_id){
+		global $mysqli;
+		//выполняем все запросы ипишем ОК
+						
+		//прикреплённые менеджеры		
+		$query .= "DELETE FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".(int)$client_id."', `manager_id` = '".(int)$manager_id."';\n";
+		
+		//return $query;
+		$result = $mysqli->multi_query($query) or die($mysqli->error);		
+		return "1";		
+	}
+
 	static function cor_data_for_SQL($data){
 	    if(is_int($data) || is_double($data)) return($data);
 	    //return strtr($data,"1","2");
