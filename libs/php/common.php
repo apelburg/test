@@ -55,6 +55,17 @@
 		$data = strip_tags($data,'<b><br><a>');
 		return mysql_real_escape_string($data);
 	}
+	
+	/*   Чтение директрорий  */
+	function read_Dir($path){
+	     $dir = opendir($path);
+		 while($item = readdir($dir)){
+		    if($item != '.' && $item != '..' && strtolower($item) != 'thumbs.db'){
+		        $item_arr[] = $item;
+			}
+		 }
+	     return (isset($item_arr))? $item_arr : false ;
+	 }
   
     /*   Проверка наличия изображения  */
 	function checkImgExists($path,$no_image_name = NULL ){
