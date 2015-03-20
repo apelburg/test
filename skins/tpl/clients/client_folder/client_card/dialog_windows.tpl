@@ -207,7 +207,7 @@
 </div>
 
 <style type="text/css">
-	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2,#create_requesit,#create_client,#new_person_type_req{display:none;}#create_client input{width: 100%}
+	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2,#create_requesit,#create_client,#new_person_type_req,#client_delete_div{display:none;}#create_client input{width: 100%}
 	#new_person_type_req table{width: 100%}
 	#new_person_type_req input{width: 90%}
 	#create_client input{width: 100%}
@@ -260,3 +260,4 @@
 </div>
 <div id="dialog-confirm">Данные об этом контакте будут удалены безвозвратно. Продолжить? </div>
 <div id="dialog-confirm2">Данные реквизиты будут удалены безвозвратно. Продолжить? </div>
+<div id="client_delete_div">Все данные связанные с этим клиентом будут удален ы безвозвратно. Продолжить?</div>

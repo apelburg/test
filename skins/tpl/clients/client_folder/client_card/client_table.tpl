@@ -19,6 +19,8 @@ $(document).on('click',' #requisits_button', function(){
     $('#requesites_form').dialog("open");
 });
 
+
+
 $(function() {
     $('#requesites_form').dialog({
         width: 'auto',

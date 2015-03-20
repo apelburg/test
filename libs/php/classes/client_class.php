@@ -98,6 +98,8 @@ class Client {
 	*/
 	public function __construct($id) {
 		global $mysqli;		
+		$this->info = 0;
+		$this->name = 0;
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -201,19 +203,24 @@ class Client {
 		}
 		return $requisites;
 	}
-	static function get_reiting($id,$rate){
-		$arr[0] = array('5','0');
-		$arr[1] = array('5','5');
-		$arr[2] = array('5','10');
-		$arr[3] = array('5','15');
-		$arr[4] = array('5','20');
-		$arr[5] = array('5','25');
 
-		$r = '<div id="rate_1" data-id="'.$id.'">
-			<input type="hidden" name="review_count" value="'.$arr[$rate]['0'].'" />
-			<input type="hidden" name="review_rate" value="'.$arr[$rate]['1'].'" />
-		</div>';
-		return $r;
+	static function get_reiting($id,$rate){
+		if(!empty($rate)){
+			$arr[0] = array('5','0');
+			$arr[1] = array('5','5');
+			$arr[2] = array('5','10');
+			$arr[3] = array('5','15');
+			$arr[4] = array('5','20');
+			$arr[5] = array('5','25');
+
+			$r = '<div id="rate_1" data-id="'.$id.'">
+				<input type="hidden" name="review_count" value="'.$arr[$rate]['0'].'" />
+				<input type="hidden" name="review_rate" value="'.$arr[$rate]['1'].'" />
+			</div>';
+			return $r;
+		}else{
+			return "<span style='color:#f1f1f1'>информация отсутствует</span>";
+		}
 	}
 	public function get_contact_info_arr($tbl,$type,$parent_id){
 		global $mysqli;
@@ -355,7 +362,8 @@ class Client {
 		$query .= "DELETE FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".(int)$id."';";
 		//return $query;
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
-		return "Клиент id ".$id." успешно удален.";		
+		
+		return "1";		
 	}	
 	static function cor_data_for_SQL($data){
 	    if(is_int($data) || is_double($data)) return($data);

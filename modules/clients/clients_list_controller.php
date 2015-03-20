@@ -8,7 +8,7 @@
 		echo implode('[&]',$managers);
 		exit;
 	}
-	if($_POST['ajax_standart_window']=="create_client"){
+	if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="create_client"){
 		$arr['company'] = $_POST['company'];
 		$arr['dop_info'] = $_POST['dop_info'];
 		$arr['rate'] = $_POST['rate'];

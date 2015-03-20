@@ -8,7 +8,7 @@
 	//echo '<pre>'; print_r($client_data_arr); echo '</pre>';
 	$client_name = $client_data_arr['company'];
 	$client_reg_date_arr = explode('-',$client_data_arr['set_client_date']);
-	$client_reg_date = $client_reg_date_arr[2].'.'.$client_reg_date_arr[1].'.'.substr($client_reg_date_arr[0],2);
+	@$client_reg_date = $client_reg_date_arr[2].'.'.$client_reg_date_arr[1].'.'.substr($client_reg_date_arr[0],2);
 	
 	
 	// кураторы //////////////

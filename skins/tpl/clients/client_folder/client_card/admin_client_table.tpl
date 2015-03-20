@@ -1,21 +1,6 @@
 <script type="text/javascript" src="libs/js/client_card_table.js"></script>
 <script type="text/javascript" src="libs/js/rate_script.js"></script>
-<link href="./skins/css/client_card_table.css" rel="stylesheet" type="text/css">
-<style type="text/css">
-    body .quick_bar_tbl td .quick_button_div{
-      background: none;
-    }
-    body .quick_bar_tbl td .quick_button_div .button {
-      text-decoration: none;
-      display: block;
-      line-height: 30px;
-      background: #D94A38;
-      color: #fff;
-    }
-    .no_edit:hover div,.no_edit:hover{ background: none}
-
-</style>
-
+<link href="./skins/css/client_card.css" rel="stylesheet" type="text/css">
 <div class="client_table">
 	<table class="client_table_gen">
     	<tr>            

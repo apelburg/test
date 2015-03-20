@@ -641,3 +641,45 @@ $(function(){
         ]
         });
 });
+
+// окно создания клиента
+$(document).on('click','#client_delete',function(){
+    $('#client_delete_div').dialog('option','id',$(this).attr('data-id'));
+    $('#client_delete_div').dialog('open');
+});
+$(function(){
+    $('#client_delete_div').dialog({
+        width: 'auto',
+        height: 'auto',
+        title: 'Удалить клиента',
+        autoOpen : false,
+        buttons: [
+            {
+            text: 'Удалить',
+                click: function() {
+                    var id = $(this).dialog('option', 'id')
+                    $.post('', {
+                        ajax_standart_window:"client_delete",
+                        id:id
+                    }, function(data, textStatus, xhr) {
+                        if(data['response']=='1'){
+                            // all Okey
+                            window.location = "http://"+location.hostname+"/os/?page=clients&section=clients_list";                    
+                        }else{
+                            $('#delete_cont_f_row'+id).removeAttr('id');
+                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                         }
+                    }, "json");
+
+                    $( this ).dialog( "close" );
+                }
+            },
+            {
+            text: 'Отмена',
+                click: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        ]
+        });
+});
