@@ -96,6 +96,8 @@ class Client {
 	// выовд контактных данных в html
 
 	*/
+	
+	
 	public function __construct($id) {
 		global $mysqli;		
 		//получаем данные из основной таблицы
@@ -296,6 +298,7 @@ class Client {
 		
 		return $array;
 	}
+
 	static function relate_managers($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".MANAGERS_TBL."` INNER JOIN `".RELATE_CLIENT_MANAGER_TBL."` ON `".RELATE_CLIENT_MANAGER_TBL."`.`manager_id` = `".MANAGERS_TBL."`.`id` WHERE `".RELATE_CLIENT_MANAGER_TBL."`.`client_id` = '".(int)$id."'";
