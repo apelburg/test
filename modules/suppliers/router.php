@@ -1,6 +1,6 @@
 <?php
     
-
+	include_once('./libs/php/classes/supplier_class.php');
 	 /////////////////////////////////// AJAX //////////////////////////////////////
 	 
 	
@@ -15,7 +15,7 @@
 	   include 'suppliers_list_controller.php';
 	   break;
 	   
-	   case 'supplier_data':
+	   case 'suppliers_data':
 	   include 'supplier_data_controller.php';
 	   break;
 	   
@@ -32,10 +32,12 @@
 	   break;
 	
 	}
-	
 	$content = ob_get_contents();
 	ob_get_clean();
 
-	include'./skins/tpl/clients/show.tpl';
+	include('./skins/tpl/common/quick_bar.tpl');
+	
+	echo $content;
+    unset($content);
 	
 ?>

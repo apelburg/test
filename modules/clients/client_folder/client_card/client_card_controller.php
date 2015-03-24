@@ -500,6 +500,7 @@ if($client==0){
 	foreach ($client_address as $adress_number => $adress) {
 		include('./skins/tpl/clients/client_folder/client_card/client_adress_row.tpl');
 	}
+	
 	$client_address_s .= ob_get_contents();
 	ob_get_clean();
 
