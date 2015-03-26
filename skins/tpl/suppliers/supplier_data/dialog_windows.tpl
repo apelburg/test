@@ -56,7 +56,7 @@
 				<td><input type="text" name="input_text" id="input_text"></td>
 				<input type="hidden" name="ajax_standart_window" value="add_new_other_row">
 				<!-- <input type="hidden" name="type" id="new_other_row_infoType_input"> -->
-				<input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+				<input type="hidden" name="client_id" value="<?php //echo $client_id; ?>">
 				<input type="hidden" name="parent_tbl" value="">
 			</tr>
 		</table>
@@ -117,18 +117,18 @@
             <tr>
                 <td>Дополнительная информация</td>
                 <td>
-                	<textarea placeholder="информация отсутствует" name="dop_info"><?php echo (!empty($client['dop_info']))?$client['dop_info']:''; ?></textarea>                	
+                	<textarea placeholder="информация отсутствует" name="dop_info"><?php //echo (!empty($client['dop_info']))?$client['dop_info']:''; ?></textarea>                	
                	</td>
             </tr>
             <tr>
                 <td>Папка</td>
                 <td>
-                	<input type="text" name="ftp_folder" value="<?php echo (!empty($client['ftp_folder']))?$client['ftp_folder']:'' ?>" placeholder="информация отсутствует">
+                	<input type="text" name="ftp_folder" value="<?php //echo (!empty($client['ftp_folder']))?$client['ftp_folder']:'' ?>" placeholder="информация отсутствует">
                 </td>
             </tr>
         </table>
 		<input type="hidden" name="ajax_standart_window" value="edit_client_dop_information">
-		<input type="hidden" name="id" value="<?php echo $client_id; ?>">
+		<input type="hidden" name="id" value="<?php //echo $client_id; ?>">
 	</form>
 </div>
 
@@ -175,7 +175,7 @@
 			</tr>
 		</table>
 		<input type="hidden" name="ajax_standart_window" value="contact_face_new_form">
-		<input type="hidden" name="parent_id" value="<?php echo $client_id; ?>">
+		<input type="hidden" name="parent_id" value="<?php //echo $client_id; ?>">
 	</form>
 </div>
 
@@ -190,17 +190,17 @@
 	<form>
 		<table>
 			<?php
-				foreach ($requisites as $key => $value) {
-					echo "<tr>
-							<td>
-								".++$key.". <a class=\"show_requesit\" href=\"#\" data-id=\"".$value['id']."\" title=\"".$client['company']."\">".$value['company']."</a>
-							</td>
-							<td>
-								<img title=\"Редактор реквизитов\" class=\"edit_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/edit.png\" >
-								<img title=\"Редактор реквизитов\" class=\"delete_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/delete.png\" >
-							</td>
-						</tr>";
-				}
+				//foreach ($requisites as $key => $value) {
+					// echo "<tr>
+					// 		<td>
+					// 			".++$key.". <a class=\"show_requesit\" href=\"#\" data-id=\"".$value['id']."\" title=\"".$supplier['nickName']."\">".$value['company']."</a>
+					// 		</td>
+					// 		<td>
+					// 			<img title=\"Редактор реквизитов\" class=\"edit_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/edit.png\" >
+					// 			<img title=\"Редактор реквизитов\" class=\"delete_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/delete.png\" >
+					// 		</td>
+					// 	</tr>";
+				//}
 			?>
 		</table>
 	</form>

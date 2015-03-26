@@ -19,6 +19,9 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 //обрабатываем ajax запросы из стандартного окна ОС
 	 if(isset($_POST['ajax_standart_window'])){
 
+
+
+
 		if($_POST['ajax_standart_window']=="chenge_name_company"){
 			$id = $_POST['id'];
 			$tbl = $_POST['tbl'];
@@ -107,6 +110,7 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 			echo $mysqli->insert_id;
 			exit;
 		}
+		
 		if($_POST['ajax_standart_window']=="new_adress_row"){
 			ob_start();
 			include('./skins/tpl/clients/client_folder/client_card/new_adres.tpl');
@@ -238,6 +242,26 @@ $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">
 		       "response":"1",
 		       "text":"Данные успешно удалены"
 		      }';
+			exit;
+		}
+
+		if($_POST['ajax_standart_window']=="client_delete"){
+			if($_SESSION['access']['access']==1){
+				$outer = Client::delete($_POST['id']);
+			}else{
+				$outer = Client::delete_for_manager($_POST['id'],$_SESSION['access']['user_id']);
+			}			
+			if($outer=='1'){
+				echo '{
+		       "response":"1",
+		       "text":"Данные успешно удалены"
+		      }';
+		  }else{
+		  		echo '{
+		       "response":"0",
+		       "text":"Что-то пошло не так."
+		      }';
+		  }			
 			exit;
 		}
 
@@ -448,80 +472,87 @@ $cont_company_phone = $clientClass->cont_company_phone;
 $cont_company_other = $clientClass->cont_company_other;
 
 $client = $clientClass->info;
+if($client==0){
+	//такого клиента не существует
+	$quick_button = '<div class="quick_button_div"><a href="http://'.$_SERVER['SERVER_NAME'].'/os/?page=clients&section=clients_list" id="" class="button ">Показать всех</a></div>';
+	include('./skins/tpl/clients/client_folder/client_card/default.tpl'); 	
+}else{
+	// получаем рейтинг компании
+	$clientRating = Client::get_reiting($client_id,$client['rate']);
 
-// получаем рейтинг компании
-$clientRating = Client::get_reiting($client_id,$client['rate']);
+	// получаем реквизиты компании
+	$requisites = Client::get_requisites($client_id);
 
-// получаем реквизиты компании
-$requisites = Client::get_requisites($client_id);
-
-// кураторы
-$manager_names = Client::get_relate_managers($client_id);
+	// кураторы
+	$manager_names = Client::get_relate_managers($client_id);
 
 
-$contact_faces_contacts = Client::cont_faces($client_id);
+	$contact_faces_contacts = Client::cont_faces($client_id);
 
-$client_address = Client::get_addres($client_id);
+	$client_address = Client::get_addres($client_id);
 
-$edit_show = (isset($_GET['client_edit']))?'admin_':'';
+	$edit_show = (isset($_GET['client_edit']))?'admin_':'';
 
-$adress_name_arr = array('office' => 'офиса', 'delivery' => 'доставки' );
+	$adress_name_arr = array('office' => 'офиса', 'delivery' => 'доставки' );
 
-//получаем текущий адрес клиента
-ob_start();
-foreach ($client_address as $adress_number => $adress) {
-	include('./skins/tpl/clients/client_folder/client_card/client_adress_row.tpl');
-}
-$client_address_s .= ob_get_contents();
-ob_get_clean();
-
-//получаем информацию по клиенту
-ob_start();
-include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_table.tpl');
-$client_content = ob_get_contents();
-ob_get_clean();
-
-//получаем информацию по контактным лицам данного клиента
-ob_start();
-$client_content_contact_faces = "";
-$contact_face_d_arr = array();
-foreach($contact_faces_contacts as $k=>$this_contact_face){
-	//print_r($this_contact_face);
-	$contact_face_d_arr = $clientClass->get_contact_info("CLIENT_CONT_FACES_TBL",$this_contact_face['id']);
-	// echo "<pre>";
-	// print_r($contact_face_d_arr);
-	// echo "</pre>";
-	$cont_company_phone = (isset($contact_face_d_arr['phone']))?$contact_face_d_arr['phone']:''; 
-	$cont_company_other = (isset($contact_face_d_arr['other']))?$contact_face_d_arr['other']:'';
+	//получаем текущий адрес клиента
+	ob_start();
+	foreach ($client_address as $adress_number => $adress) {
+		include('./skins/tpl/clients/client_folder/client_card/client_adress_row.tpl');
+	}
 	
-	//echo $clientClass->$this->get_contact_info("CLIENTS_TBL",$id)($contact_face_d_arr, 'phone',Client::$array_img);
-	include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_cotact_face_table.tpl');
+	$client_address_s .= ob_get_contents();
+	ob_get_clean();
+
+	//получаем информацию по клиенту
+	ob_start();
+	include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_table.tpl');
+	$client_content = ob_get_contents();
+	ob_get_clean();
+
+	//получаем информацию по контактным лицам данного клиента
+	ob_start();
+	$client_content_contact_faces = "";
+	$contact_face_d_arr = array();
+	foreach($contact_faces_contacts as $k=>$this_contact_face){
+		//print_r($this_contact_face);
+		$contact_face_d_arr = $clientClass->get_contact_info("CLIENT_CONT_FACES_TBL",$this_contact_face['id']);
+		// echo "<pre>";
+		// print_r($contact_face_d_arr);
+		// echo "</pre>";
+		$cont_company_phone = (isset($contact_face_d_arr['phone']))?$contact_face_d_arr['phone']:''; 
+		$cont_company_other = (isset($contact_face_d_arr['other']))?$contact_face_d_arr['other']:'';
+		
+		//echo $clientClass->$this->get_contact_info("CLIENTS_TBL",$id)($contact_face_d_arr, 'phone',Client::$array_img);
+		include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_cotact_face_table.tpl');
+	}
+
+	$client_content_contact_faces .= ob_get_contents();
+	ob_get_clean();
+
+	// AJAX
+	// на случай выдачи контента только с контактными лицами
+	if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="get_empty_cont_face"){
+		echo $client_content_contact_faces;
+		exit;
+	}
+	// ALAX END
+
+
+	//получаем адрес папки и примечания
+	ob_start();
+	include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_dop_info.tpl');
+	$client_content_dop_info = ob_get_contents();
+	ob_get_clean();
+
+	// получаем подготовленный контент для модальных окон
+	ob_start();
+	include('./skins/tpl/clients/client_folder/client_card/dialog_windows.tpl');
+	$dialog_windows = ob_get_contents();
+	ob_get_clean();
+
+
+	//выводим общий шаблон
+	include('./skins/tpl/clients/client_folder/client_card/show.tpl'); 
 }
-
-$client_content_contact_faces .= ob_get_contents();
-ob_get_clean();
-
-// AJAX
-// на случай выдачи контента только с контактными лицами
-if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="get_empty_cont_face"){
-	echo $client_content_contact_faces;
-	exit;
-}
-// ALAX END
-
-
-//получаем адрес папки и примечания
-ob_start();
-include('./skins/tpl/clients/client_folder/client_card/'.$edit_show.'client_dop_info.tpl');
-$client_content_dop_info = ob_get_contents();
-ob_get_clean();
-
-// получаем подготовленный контент для модальных окон
-ob_start();
-include('./skins/tpl/clients/client_folder/client_card/dialog_windows.tpl');
-$dialog_windows = ob_get_contents();
-ob_get_clean();
-
-//выводим общий шаблон
-include('./skins/tpl/clients/client_folder/client_card/show.tpl'); 
 ?>

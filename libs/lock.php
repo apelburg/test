@@ -9,7 +9,7 @@
 		 else{
 		 
 		 
-		     $query = "SELECT*FROM order_manager__manager_list WHERE `nickname` = '".$_POST['login']."' AND `pass` = '".md5($_POST['password'])."'";
+		     $query = "SELECT*FROM `".MANAGERS_TBL."` WHERE `nickname` = '".$_POST['login']."' AND `pass` = '".md5($_POST['password'])."'";
 	         $result = mysql_query($query,$db);
 	         if(!$result)exit(mysql_error());
 	         if(mysql_num_rows($result)>0 && $_POST['session_id'] === session_id()){

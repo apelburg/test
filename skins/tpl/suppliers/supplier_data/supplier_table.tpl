@@ -380,28 +380,29 @@ $(function(){
 	<table class="client_table_gen">
     	<tr>            
         	<td>
-<div id="requisits_button">Реквизиты</div>
+<!-- <div id="requisits_button">Реквизиты</div> -->
             	<table>
-                	<tr>
-                    	<td>Название</td>
-                    	<td><strong><?php echo trim($client['company']); ?></strong></td>
+                  <tr>
+                      <td>Сокращенное название</td>
+                      <td><strong><?php echo trim($supplier['nickName']); ?></strong></td>
                     </tr>
-                	<tr>
+                  <tr>
+                  <tr>
+                      <td>Полное название</td>
+                      <td><strong><?php echo trim($supplier['fullName']); ?></strong></td>
+                    </tr>
+                  <tr>
                     	<td>Рейтинг</td>
-                    	<td><?php echo $clientRating; ?></td>
-                    </tr>
-                    <tr>
-                        <td>Кураторы</td>
-                        <td><?php echo $manager_names; ?></td>
+                    	<td><?php echo $supplierRating; ?></td>
                     </tr>
                 	<tr>
                     	<td>Деятельность</td>
                     	<td><span  style="color:#f1f1f1">В разработке</span></td>
                     </tr>
-                	<?php echo $client_address_s; ?>
+                	<?php echo $supplier_address_s; ?>
                 	<tr>
                     	<td>Дополнительная информация</td>
-                    	<td><?php echo !empty($client['dop_info'])?$client['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?></td>
+                    	<td><?php echo !empty($client['dop_info'])?$supplier['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?></td>
                     </tr>
                 </table>
 

@@ -19,15 +19,6 @@
 	define("CLIENT_CONT_FACES_CONTACT_INFO_TBL", 'os__clients_contact_information'); // таблица контактной информации для контактных лиц клиентов и их компаний
 	define("CLIENT_ADRES_TBL", 'os__client_addres_tbl');//таблица адресов
 
-	define("SUPPLIERS_TBL","os__supplier_list"); // таблица поставщиков
-	define("SUPPLIERS_ACTIVITIES_TBL","os__suppliers_activities"); // таблица видов деятельности поставщиков	
-	define("SUPPLIERS_CONT_FACES_TBL","os__supplier_cont_faces_relation"); // таблица контактных лиц поставщиков
-	define("SUPPLIERS_RATINGS_TBL","os__suppliers_rating"); // таблица контактных лиц поставщиков	
-	define("RELATE_SUPPLIERS_ACTIVITIES_TBL","os__supplier_activity_relation"); // таблица соотношения клиентов и видов деятельности
-	define("MANAGERS_TBL","os__manager_list"); // таблица менеджеров
-	define("MANAGERS_DOP_INFO_TBL","os__manager_dop_info"); // таблица менеджеров c дополнительной информацией
-	define("PERSONAL_MANAGERS_GROUPS_TBL","os__personal_managers_groups"); // группы для страницы на сайте - "персональный менеджер"
-	
 	define("DEPARTMENTS_TBL","os__departments_tbl"); // таблица отделов
 	define("RELATE_CLIENT_MANAGER_TBL","os__client_manager_relation"); // таблица соотношения клиентов и менеджеров
 	define("RELATE_ORDER_MANAGER_CLIENT_TBL","os__order_manager_client_relation"); // таблица соотношения заказов менеджеров и клиентов 

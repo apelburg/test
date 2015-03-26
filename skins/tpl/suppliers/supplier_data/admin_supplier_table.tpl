@@ -1,6 +1,8 @@
+
 <script type="text/javascript" src="libs/js/client_card_table.js"></script>
 <script type="text/javascript" src="libs/js/rate_script.js"></script>
 <link href="./skins/css/client_card.css" rel="stylesheet" type="text/css">
+<style type="text/css">.client_table{width:100%;}</style>
 <div class="client_table">
 	<table class="client_table_gen">
     	<tr>            
@@ -9,13 +11,13 @@
                 	<tr>
                     	<td>Название</td>
                     	<td>
-                            <div class="edit_row edit" id="chenge_name_company" name="company" data-name="company" data-editType="text" data-button-name-window="save" data-idRow="<?php echo $client_id; ?>" data-tableName='CLIENTS_TBL'><?php echo trim($client['company']); ?></div>
+                            <div class="edit_row edit" id="chenge_name_company" name="company" data-name="company" data-editType="text" data-button-name-window="save" data-idRow="<?php //echo $client_id; ?>" data-tableName='CLIENTS_TBL'><?php echo trim($supplier['nickName']); ?></div>
                         </td>
                     </tr>
                 	<tr>
                     	<td>Рейтинг</td>
                     	<td class="no_edit">
-                            <?php echo $clientRating; ?>
+                            <?php echo $supplierRating; ?>
                         </td>
                     </tr>
                 	<tr>
@@ -24,11 +26,11 @@
                             <span style="color:#f1f1f1">В разработке</span>
                         </td>
                     </tr>
-                	<?php echo $client_address_s; ?>                    
+                	<?php echo $supplier_address_s; ?>                    
                     <tr>
                         <td></td>
                         <td>
-                            <div class="button_add_new_row adres_row" data-parent-id="<?php echo $client_id; ?>">Добавить адрес</div>
+                            <div class="button_add_new_row adres_row" data-parent-id="<?php //echo $client_id; ?>">Добавить адрес</div>
                         </td>
                     </tr>
                 </table>

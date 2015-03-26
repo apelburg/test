@@ -114,6 +114,31 @@ class Client {
 		$this->cont_company_phone = (isset($arr['phone']))?$arr['phone']:''; 
 		$this->cont_company_other = (isset($arr['other']))?$arr['other']:'';
 	}
+	
+	static function cont_face_communications($client_id,$options = FALSE){
+		global $mysqli;
+	
+		$tbls_constant_names = array('CLIENT_CONT_FACES_TBL','CLIENT_REQUISITES_MANAGMENT_FACES_TBL');
+		if(!empty($options['tbls'])) {
+		   $tbls_constant_names = (is_array($options['tbls']))? $options['tbls'] :array($options['tbls']);
+		}
+		foreach($tbls_constant_names as $tbl_name){
+		    if($tbl_name == 'CLIENT_REQUISITES_MANAGMENT_FACES_TBL'){
+			    $query_arr[] = "(SELECT position, name FROM `".constant($tbl_name)."` WHERE requisites_id IN (SELECT id FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".$client_id."')) ";
+			}
+		    else $query_arr[] = "(SELECT position, name FROM `".constant($tbl_name)."` WHERE `client_id` = '".$client_id."')";
+		}
+		// print_r($query_arr);
+		$query = implode(' UNION ', $query_arr);
+		//echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		while($row = $result->fetch_assoc()){
+		    print_r($row);
+			echo '<br>';
+		}
+        // 
+	}
+	
 	static function get_addres($id){
 		global $mysqli;
 		$query = "SELECT * FROM  `".CLIENT_ADRES_TBL."` WHERE `parent_id` = '".(int)$id."'";

@@ -8,9 +8,20 @@
 		echo implode('[&]',$managers);
 		exit;
 	}
+	if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="create_client"){
+		$arr['company'] = $_POST['company'];
+		$arr['dop_info'] = $_POST['dop_info'];
+		$arr['rate'] = $_POST['rate'];
+		echo '{
+	       "response":"1",
+	       "id":"'.Client::create($arr).'"
+	      }';
+		exit;
+	}
     /////////////////////////////////////////////////////////////////////////////
 	
-    $quick_button = '<div class="quick_button_div"><a href="/os/?page=clients&section=client_data" class="button">&nbsp;</a></div>';
+    $quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_client" style="  text-decoration: none;
+  display: block;  line-height: 30px;  background: #D94A38;  color: #fff;" class="button">Добавить</a></div>';
 	
 	$_SESSION['view_type']['clients_list']  = isset($_GET['view']) ? $_GET['view'] :( isset($_SESSION['view_type']['clients_list']) ? $_SESSION['view_type']['clients_list'] :'ordinary');
 	$curViewType = $_SESSION['view_type']['clients_list'];
@@ -220,11 +231,17 @@
 	$by_creating_date_class = ((isset($_GET['sotring']) && $_GET['sotring'] == 'by_creating_date')?'active':'');
 	
 	ob_start();
+	include('./skins/tpl/clients/client_list/dialog_windows.tpl');
+	$dialog_windows = ob_get_contents();
+	ob_get_clean();
+
+	ob_start();
 	include('./skins/tpl/clients/client_list/top_plank.tpl');
 	include('./skins/tpl/clients/client_list/list.tpl');
 	$content = ob_get_contents();
 	ob_get_clean();
 	
+
 	include('./skins/tpl/common/quick_bar.tpl');
 	include('./skins/tpl/clients/client_list/show.tpl');
 	
