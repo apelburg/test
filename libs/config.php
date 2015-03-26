@@ -20,6 +20,7 @@
 	define("CLIENT_ADRES_TBL", 'os__client_addres_tbl');//таблица адресов
 
 	define("DEPARTMENTS_TBL","os__departments_tbl"); // таблица отделов
+	define("MANAGERS_TBL","os__manager_list"); // таблица менеджеров
 	define("RELATE_CLIENT_MANAGER_TBL","os__client_manager_relation"); // таблица соотношения клиентов и менеджеров
 	define("RELATE_ORDER_MANAGER_CLIENT_TBL","os__order_manager_client_relation"); // таблица соотношения заказов менеджеров и клиентов 
 	//define("RELATE_MANAGERS_BY_DEPARTMENTS_TBL","os__relate_managers_by_departments_tbl"); // таблица отношения менеджеров к отделам
