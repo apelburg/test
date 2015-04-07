@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 class Client {	
 	#################################
 	###         СВОЙСТВА          ###
@@ -96,6 +96,8 @@ class Client {
 	// выовд контактных данных в html
 
 	*/
+	
+	
 	public function __construct($id) {
 		global $mysqli;		
 		//получаем данные из основной таблицы
@@ -455,3 +457,5 @@ class Client {
 	}
 	
 }
+
+?>

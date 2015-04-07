@@ -19,25 +19,13 @@
 	define("CLIENT_CONT_FACES_CONTACT_INFO_TBL", 'os__clients_contact_information'); // таблица контактной информации для контактных лиц клиентов и их компаний
 	define("CLIENT_ADRES_TBL", 'os__client_addres_tbl');//таблица адресов
 
-	define("SUPPLIERS_TBL","os__supplier_list"); // таблица поставщиков
-	define("SUPPLIERS_ACTIVITIES_TBL","os__suppliers_activities"); // таблица видов деятельности поставщиков	
-	//добавлены столбцы
-	//1.  surname 
-	//2.  last_name
-	//3.  note
-	define("SUPPLIERS_CONT_FACES_TBL","os__supplier_cont_faces_relation"); // таблица контактных лиц поставщиков
-	define("SUPPLIERS_RATINGS_TBL","os__suppliers_rating"); // таблица контактных лиц поставщиков	
-	define("RELATE_SUPPLIERS_ACTIVITIES_TBL","os__supplier_activity_relation"); // таблица соотношения клиентов и видов деятельности
-	define("MANAGERS_TBL","os__manager_list"); // таблица менеджеров
-	define("MANAGERS_DOP_INFO_TBL","os__manager_dop_info"); // таблица менеджеров c дополнительной информацией
-	define("PERSONAL_MANAGERS_GROUPS_TBL","os__personal_managers_groups"); // группы для страницы на сайте - "персональный менеджер"
-	
 	define("DEPARTMENTS_TBL","os__departments_tbl"); // таблица отделов
+	define("MANAGERS_TBL","os__manager_list"); // таблица менеджеров
 	define("RELATE_CLIENT_MANAGER_TBL","os__client_manager_relation"); // таблица соотношения клиентов и менеджеров
 	define("RELATE_ORDER_MANAGER_CLIENT_TBL","os__order_manager_client_relation"); // таблица соотношения заказов менеджеров и клиентов 
 	//define("RELATE_MANAGERS_BY_DEPARTMENTS_TBL","os__relate_managers_by_departments_tbl"); // таблица отношения менеджеров к отделам
-	define("CLIENT_ORDERS_TBL","orders"); // таблица заказов
-	define("CLIENT_ORDERS_TABLE_PART_TBL","orders_table_part"); // табличная часть заказов
+	define("CLIENT_ORDERS_TBL","os__orders"); // таблица заказов
+	define("CLIENT_ORDERS_TABLE_PART_TBL","os__orders_table_part"); // табличная часть заказов
 	define("CALCULATE_TBL","os__orders_calculate_table"); // расчетная таблица
 	define("CALCULATE_TBL_PROTOCOL","os__orders_calculate_insert_delete_protocol"); // протокол добавления, удаления строк из РТ 
 	define("COM_PRED_LIST","os__com_pred_list"); // КП
