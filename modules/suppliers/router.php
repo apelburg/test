@@ -35,7 +35,7 @@
 	$content = ob_get_contents();
 	ob_get_clean();
 
-	include('./skins/tpl/common/quick_bar.tpl');
+	
 	
 	echo $content;
     unset($content);

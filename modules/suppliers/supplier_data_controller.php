@@ -3,6 +3,8 @@
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 
+
+
 	$supplier_id = (isset($_GET['suppliers_id']) && $_GET['suppliers_id']!=0)?$_GET['suppliers_id']:0;
 
 
@@ -18,6 +20,9 @@
 
 	$view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 
+
+
+	include('./skins/tpl/common/quick_bar.tpl');
 	/////////////////////////////////// AJAX //////////////////////////////////////
 	if(isset($_POST['ajax_standart_window'])){
 		echo '{
@@ -109,6 +114,7 @@
 		// echo "</pre>";
 
 	}
+
 
 
 
