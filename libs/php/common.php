@@ -262,6 +262,8 @@
 		$query = "SELECT suppliers_tbl.id id,suppliers_tbl.nickName nickName FROM ".SUPPLIERS_TBL." suppliers_tbl";
 		
 		$where = array();
+		// кроме тех которые в корзине
+		$where[] = "suppliers_tbl.basket = '0'"; 
 		
 		if($range && $range['by'] == 'cities'){
 			 $cities_name_patterns= array('msk' => array('мск','москва'),'spb' => array('спб','петербург','питер'));
@@ -325,6 +327,15 @@
 			
 	}
 	
+	function get_all_suppliers_list_from_basket($order_by){
+	    global $db;
+		$query = "SELECT*FROM `".SUPPLIER_TBL."` WHERE `basket` = '1'  ORDER BY `".$order_by."`";		
+		$result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		if(mysql_num_rows($result)>0) while($item = mysql_fetch_assoc($result)) $supplier_arr[] =  array('id' => $item['id'],'nickname' => $item['nickName']);
+		else $supplier_arr = 'в корзине нет поставщиков';
+		return $supplier_arr;
+	}
 	
 	function get_clients_list($range = false/*or array('by'=>some_value,'id'=>id_string)*/,$order,$filters,$search,$limit_str){
 	    global $db;
