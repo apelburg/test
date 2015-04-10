@@ -18,17 +18,15 @@
                             <?php echo $clientRating; ?>
                         </td>
                     </tr>
-                	<tr>
-                    	<td>Деятельность</td>
-                    	<td>
-                            <span style="color:#f1f1f1">В разработке</span>
-                        </td>
+                    <tr>
+                        <td>Кураторы</td>
+                        <td><?php echo $manager_names; ?></td>
                     </tr>
                 	<?php echo $client_address_s; ?>                    
                     <tr>
                         <td></td>
                         <td>
-                            <div class="button_add_new_row adres_row" data-parent-id="<?php echo $client_id; ?>">Добавить адрес</div>
+                            <div class="button_add_new_row adres_row" data-tbl="CLIENTS_TBL" data-parent-id="<?php echo $client_id; ?>">Добавить адрес</div>
                         </td>
                     </tr>
                 </table>

@@ -24,7 +24,7 @@
             	                <table>
                     <tbody><tr>
                         <td></td>
-                        <td><div class="add_new_row_phone button_add_new_row" data-parent-id="<?php echo $_POST['id']; ?>" data-parenttable="CLIENT_CONT_FACES_TBL">добавить телефон</div></td>
+                        <td><div class="add_new_row_phone button_add_new_row" data-parent-id="<?php echo $_POST['id']; ?>" data-parenttable="SUPPLIERS_CONT_FACES_TBL">добавить телефон</div></td>
                     </tr>
                 </tbody></table>                
             </td>

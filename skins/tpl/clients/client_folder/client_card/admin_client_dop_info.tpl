@@ -27,5 +27,5 @@
     </tr>
     </table>
     <div class="border_in_table"></div>
-    <div id="client_delete" data-id="<?php echo $client_id; ?>">Удалить клиента</div>
+    <div id="client_delete" data-id="<?php echo $client_id; ?>">Отказаться от клиента</div>
 </div>

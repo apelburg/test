@@ -10,12 +10,12 @@
                 	<tr>
                     	<td>Дополнительная информация</td>
                     	<td>
-                            <?php echo (!empty($client['dop_info']))?$client['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?>
+                            <?php echo (!empty($supplier['dop_info']))?$supplier['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?>
                         </td>
                     </tr>
                 	<tr>
                     	<td>Папка</td>
-                    	<td><?php echo (!empty($client['ftp_folder']))?'Z:/'.$client['ftp_folder']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>' ?></td>
+                    	<td><?php echo (!empty($supplier['ftp_folder']))?'Z:/'.$supplier['ftp_folder']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>' ?></td>
                     </tr>
                 </table>
         	<td>
@@ -27,5 +27,5 @@
     </tr>
     </table>
     <div class="border_in_table"></div>
-    <div id="client_delete" data-id="<?php echo $client_id; ?>">Удалить клиента</div>
+    <div id="client_delete" data-id="<?php echo $supplier_id; ?>">Удалить поставщика</div>
 </div>

@@ -396,8 +396,8 @@ $(function(){
                     	<td><?php echo $supplierRating; ?></td>
                     </tr>
                 	<tr>
-                    	<td>Деятельность</td>
-                    	<td><span  style="color:#f1f1f1">В разработке</span></td>
+                    	<td>Профили</td>
+                    	<td><?php echo $get_activities; ?></td>
                     </tr>
                 	<?php echo $supplier_address_s; ?>
                 	<tr>

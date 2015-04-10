@@ -1508,3 +1508,14 @@ margin-left: -350px;z-index: 999;}
 .letterEditWindowTbl input[type="checkbox"]{float:left; display:block;}
 .letterEditWindowTbl .attachedKpFileName { margin:2px 0 0 0}
 .letterEditWindowTbl .mailSendBtn{  font-size:14px;padding:6px 90px;margin-top:6px;cursor:pointer;}
+
+ #content_general{}
+.add_del_curator{ float: left; margin-left: 10px;  margin-bottom: 5px;  cursor: default;  font-size: 15px;  background-color: #A6CC8B;color: #fff; padding: 2px 7px;}
+.add_del_curator:nth-of-type(1){ margin-left: 0}
+.add_del_curator:hover{ background-color: #929292;}
+.del_curator{ padding: 2px 5px; margin-left: 5px}
+.del_curator:hover{ background-color: #E12929}
+.column_chose_window{  float: left;  width: 31%;  padding: 0 1% 0 1%;font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif;}
+.chose_curators{ padding: 4px 0; width: 99%; margin-top:5px; padding-left: 5%; float:left; font-size:12px;}
+.chose_curators:hover{ background-color: #EDB4B4; cursor:default}
+.chose_curators.enabled {  background-color: #A6CC8B;  font-weight: bold;  color: #fff;}

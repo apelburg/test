@@ -15,12 +15,12 @@
 </style>
 <script type="text/javascript" src="libs/js/rate_script.js"></script>
 <script type="text/javascript">
+
+
+// ОКНО РЕКВИЗИТЫ 
 $(document).on('click',' #requisits_button', function(){
     $('#requesites_form').dialog("open");
 });
-
-
-
 $(function() {
     $('#requesites_form').dialog({
         width: 'auto',
@@ -48,8 +48,8 @@ $(function() {
     });
 });
 
-// показать окно с добавлением новых реквизитов
 
+// показать окно с добавлением новых реквизитов
 $(function() {
     $('#create_requesit').dialog({
         width: ($(window).width()-2),
@@ -87,6 +87,7 @@ $(function() {
        ]
     });
 });
+
 
 // 
 // РЕКВИЗИТЫ
@@ -126,6 +127,7 @@ $(function(){
        ]
     });
 });
+
 function add_new_management_element(container_name){
       // get container
       var container = document.getElementById(container_name);
@@ -193,6 +195,7 @@ $(document).on('click','.radio_acting',function(){
     $('.acting_check').val('0');
     $(this).parent().find('.acting_check').val(1);
 });
+
 // УДАЛЕНИЕ КОНТАКТНОГО ЛИЦА ИЗ РЕКВИЗИТОВ
 $(document).on('click', '.cont_faces_field_delete_btn', function(){
     var id = $(this).attr('data-id');
@@ -220,6 +223,7 @@ $(document).on('click', '.cont_faces_field_delete_btn', function(){
         });
     
 });
+
 // УДАЛЕНИЕ РЕКВИЗИТОВ
 $(document).on('click', '#requesites_form table tr td .edit_this_req', function(event) {
     var title = $(this).attr('title');
@@ -234,7 +238,6 @@ $(document).on('click', '#requesites_form table tr td .edit_this_req', function(
         $("#edit_requesit").dialog("open");
     });    
 });
-
 
 // ИНИЦИАЛИЗАЦИЯ ОКНА РЕДАКТОРА РЕКВИЗИТОВ
 $(function(){
@@ -278,13 +281,13 @@ $(function(){
        ]
     });
 });
+
 //  ОТКРЫВАЕМ ОКНО ПОДТВЕРЖДЕНИЯ ДЛЯ УДАЛЕНИЯ РЕКВИЗИТОВ
 $(document).on('click', '#requesites_form table tr td:nth-of-type(2) img:nth-of-type(2)', function(event) {
   var id = $(this).attr('data-id');
   $("#dialog-confirm2").dialog('option', 'id', id);
   $("#dialog-confirm2").dialog('open');
 });
-
 
 // ИНИЦИАЛИЗАЦИЯ ОКНА УДАЛЕНИЯ РЕКВИЗИТОВ
 $(function(){
@@ -399,10 +402,6 @@ $(function(){
                     	<td><span  style="color:#f1f1f1">В разработке</span></td>
                     </tr>
                 	<?php echo $client_address_s; ?>
-                	<tr>
-                    	<td>Дополнительная информация</td>
-                    	<td><?php echo !empty($client['dop_info'])?$client['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?></td>
-                    </tr>
                 </table>
 
         	<td>
