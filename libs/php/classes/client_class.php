@@ -1,4 +1,6 @@
 <?php
+
+
 class Client {	
 	#################################
 	###         СВОЙСТВА          ###
@@ -360,21 +362,22 @@ class Client {
 	}
 	static function delete_for_manager($client_id,$manager_id){
 		global $mysqli;
-		// открепить менеджера от клиента	
+		// открепить менеджера от клиента в пользу юзера для раздачи	
 		$query ="UPDATE  `".RELATE_CLIENT_MANAGER_TBL."` SET  `manager_id` =  '61' WHERE `client_id` = '".(int)$client_id."' AND `manager_id` = '".(int)$manager_id."';";	
 		$result = $mysqli->multi_query($query) or die($mysqli->error);	
-		return 1;	
+		return 1;
 	}
 
 	static function remove_curator($client_id,$manager_id){
 		global $mysqli;
-		// открепить менеджера от клиента	
+		// открепить менеджера от клиента
 		$query ="DELETE FROM  `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".(int)$client_id."' AND `manager_id` = '".(int)$manager_id."';";	
 		$result = $mysqli->multi_query($query) or die($mysqli->error);	
-		return 1;	
+		return 1;
 	}
 
 	static function delete($id){
+		/*
 		global $mysqli;
 		//выполняем все запросы ипишем ОК
 						
@@ -407,21 +410,32 @@ class Client {
 		$query .= "DELETE FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".(int)$id."';";
 		//return $query;
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
-		return 1;		
+		return 1;	
+		*/	
+		return 1;
 	}	
 	public function create($array_in){
 		if(empty($array_in))return "не достаточно данных";
 		global $mysqli;
+		global $mailClass;
 		global $user_id;
 		//return $user_id;	
 		extract($array_in);
 		$rate =(empty($rate))? 1 : $rate ;		
+		// $query ="INSERT INTO `".CLIENTS_TBL."` SET
+		// 	`set_client_date` = CURRENT_DATE(),
+		//     `company` = '".$this->cor_data_for_SQL($company)."',
+		//     `delivery_address` = '".$this->cor_data_for_SQL($delivery_address)."',
+		// 	`email` = '".$this->cor_data_for_SQL($email)."', 
+		// 	`phone` = '".$this->cor_data_for_SQL($phone)."',
+		// 	`addres` = '".$this->cor_data_for_SQL($addres)."', 
+		// 	`web_site` = '".$this->cor_data_for_SQL($web_site)."',
+		// 	`dop_info` = '".$this->cor_data_for_SQL($dop_info)."', 
+		// 	`rate` = '".$rate."'";
 		$query ="INSERT INTO `".CLIENTS_TBL."` SET
-					 `set_client_date` = CURRENT_DATE(),
-		             `company` = '".$this->cor_data_for_SQL($company)."', `delivery_address` = '".$this->cor_data_for_SQL($delivery_address)."',
-					 `email` = '".$this->cor_data_for_SQL($email)."', `phone` = '".$this->cor_data_for_SQL($phone)."',
-					 `addres` = '".$this->cor_data_for_SQL($addres)."', `web_site` = '".$this->cor_data_for_SQL($web_site)."',
-					 `dop_info` = '".$this->cor_data_for_SQL($dop_info)."', `rate` = '".$rate."'";
+			`set_client_date` = CURRENT_DATE(),
+		    `company` = '".$this->cor_data_for_SQL($company)."',
+			`dop_info` = '".$this->cor_data_for_SQL($dop_info)."'";
 		 
 	    $result = $mysqli->query($query) or die($mysqli->error);
 		$client_id = $mysqli->insert_id;
@@ -429,20 +443,21 @@ class Client {
 		///////////////////////////////////////////////////
 		// add new data in CLIENT_CONT_FACES_TBL
 		///////////////////////////////////////////////////
-
-		foreach($_POST['cont_faces_data'] as $cont_face){
-			   $query = "INSERT INTO `".CLIENT_CONT_FACES_TBL."` 
-		              SET 
-					 `client_id` = '".$client_id."',
-					 `set_main` = '".@$this->cor_data_for_SQL($cont_face['set_main'])."', 
-					 `name` = '".$this->cor_data_for_SQL($cont_face['name'])."',
-					 `position` = '".$this->cor_data_for_SQL($cont_face['position'])."',
-					 `department` = '".$this->cor_data_for_SQL($cont_face['department'])."',
-					 `email` = '".$this->cor_data_for_SQL($cont_face['email'])."',
-					 `phone` = '".$this->cor_data_for_SQL($cont_face['phone'])."',
-					 `isq_skype` = '".$this->cor_data_for_SQL($cont_face['isq_skype'])."'";
-					 
-		   $result = $mysqli->query($query) or die($mysqli->error);		   
+		if(isset($_POST['cont_faces_data'])){
+			foreach($_POST['cont_faces_data'] as $cont_face){
+				   $query = "INSERT INTO `".CLIENT_CONT_FACES_TBL."` 
+			              SET 
+						 `client_id` = '".$client_id."',
+						 `set_main` = '".@$this->cor_data_for_SQL($cont_face['set_main'])."', 
+						 `name` = '".$this->cor_data_for_SQL($cont_face['name'])."',
+						 `position` = '".$this->cor_data_for_SQL($cont_face['position'])."',
+						 `department` = '".$this->cor_data_for_SQL($cont_face['department'])."',
+						 `email` = '".$this->cor_data_for_SQL($cont_face['email'])."',
+						 `phone` = '".$this->cor_data_for_SQL($cont_face['phone'])."',
+						 `isq_skype` = '".$this->cor_data_for_SQL($cont_face['isq_skype'])."'";
+						 
+			   $result = $mysqli->query($query) or die($mysqli->error);		   
+			}
 		}
 	
 	    $query = "INSERT INTO `".RELATE_CLIENT_MANAGER_TBL."` VALUES('','$client_id','$user_id')";
@@ -457,7 +472,7 @@ class Client {
 				   <a href="http://apelburg.ru/admin/order_manager/?page=clients&client_id='.$client_id.'&razdel=show_client_data">ссылка на карточку клиента</a>';
 		/**/
 		//$mail->sendMail(2,'apelburg.m7@gmail.com','Новый клиент',$message,$headers);		
-		$mail->sendMail(2,'kapitonoval2012@gmail.com','Новый клиент',$message,$headers);		
+		$mailClass->send('kapitonoval2012@gmail.com','os@apelburg.ru','Новый клиент',$message);		
 		return $client_id;
 	}		
 	private function cor_data_for_SQL($data){

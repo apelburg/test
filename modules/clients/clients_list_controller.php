@@ -1,5 +1,7 @@
 <?php
-
+	$mailClass = new Mail;
+	$clientClass = new Client($client_id);
+	
     ////////////////////////////////  AJAX   ////////////////////////////////////
     if(isset($_GET['generate_manager_list'])){
 	    $arr = get_managers_list();
@@ -14,7 +16,7 @@
 		$arr['rate'] = $_POST['rate'];
 		echo '{
 	       "response":"1",
-	       "id":"'.Client::create($arr).'"
+	       "id":"'.$clientClass->create($arr).'"
 	      }';
 		exit;
 	}

@@ -1,8 +1,8 @@
 <?php
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-
+// ini_set('error_reporting', E_ALL);
+// ini_set('error_reporting', E_ERROR);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 $url_string = 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 if (isset($_GET['client_edit'])) {
     $url_string = str_replace("&client_edit", "", $url_string);
@@ -250,6 +250,7 @@ if (isset($_POST['ajax_standart_window'])) {
     }
     
     if ($_POST['ajax_standart_window'] == "client_delete") {
+        //echo $user_name.' '. $user_last_name;exit;
         
         //if($user_status==1){
         //	$outer = Client::delete($_POST['id']);
@@ -258,7 +259,8 @@ if (isset($_POST['ajax_standart_window'])) {
         
         //}
         if ($outer == '1') {
-            Client::history($user_id, $_POST['notice']);
+            $text = (isset($_POST['text']))?$_POST['text']:'Куратор '.$user_name.' '. $user_last_name.' был откреплен от клиента ( сообщение ОС ).';
+            Client::history($user_id, $text);
             echo '{
 		       "response":"1",
 		       "text":"Данные успешно удалены"

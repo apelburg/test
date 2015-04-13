@@ -260,4 +260,12 @@
 </div>
 <div id="dialog-confirm">Данные об этом контакте будут удалены безвозвратно. Продолжить? </div>
 <div id="dialog-confirm2">Данные реквизиты будут удалены безвозвратно. Продолжить? </div>
-<div id="client_delete_div">Вы уверены, что хотите отказаться от этого клиента? Продолжить?</div>
+<div id="client_delete_div">
+Укажите причину отказа от клиента:
+<form>
+	<textarea name="text" style="width:100%; height:100%;  min-height: 150px;"></textarea>
+	<input type="hidden" name="ajax_standart_window" value="client_delete">
+	<input type="hidden" name="id" value="<?php echo $client_id; ?>">
+</form>
+
+</div>

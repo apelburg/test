@@ -13,6 +13,7 @@
     #requisits_button{display: block;float: right;padding: 3px 10px 2px 10px;background-color: #F3F5F5;border:1px solid #D0D7D8;position: absolute;right: 50%;margin-right: 20px; cursor: default;}
     #requisits_button:hover{ background-color: #E4E8E8;}
 </style>
+<script type="text/javascript" src="libs/js/client_card_table.js"></script>
 <script type="text/javascript" src="libs/js/rate_script.js"></script>
 <script type="text/javascript">
 
