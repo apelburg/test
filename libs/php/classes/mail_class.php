@@ -75,9 +75,6 @@
 			if(empty($subject))$this->errors[] = 'Не указана тема письма'; 
 			if(empty($message))$this->errors[] = 'Письмо не содержит сообщения'; 
 
-            // Декодируем текст сообщения
-			$message = base64_decode($message);
-			$message = urldecode($message);
 			// Проверяем сообщение на наличие в нем вложенного изображения - тега <img>
 			$pattern = '/<img.+src=[\'\"]{1}([^\'\"]+)[\'\"]{1}>/isU';
 			///$pattern = '/<img.+src="([^\"]+)">/isU';
@@ -132,7 +129,7 @@
 			//echo $message; exit;
 			$subject = "=?utf-8?b?".base64_encode($subject)."?=";
 			
-			if(mail($to,$subject,$message,$this->headers)){
+			if(mail($to,$subject,$message,$this->headers,'-f online_service@apelburg.ru')){
 				 return '[1,"Cообщение отправлено"]';
 			}
 			else{

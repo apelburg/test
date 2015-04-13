@@ -58,7 +58,10 @@
 		if($mail_details->attached_files){
 		    foreach($mail_details->attached_files as $file) $mail->attach_file($_SERVER['DOCUMENT_ROOT'].$file);
 		}
-		$out_data = $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$mail_details->message);
+		// Декодируем текст сообщения
+	    $message = base64_decode($mail_details->message);
+		$message = urldecode($message);
+		$out_data = $mail->send($mail_details->to,$mail_details->from,$mail_details->subject,$message);
 		// если отправка прошла успешно
 		// a. сохраняем дату в таблицу COM_PRED_LIST
 		// b. удаляем предыдущий(ие) ПДФки по этому КП  
