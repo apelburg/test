@@ -9,18 +9,38 @@ $(document).on('dblclick', '#chenge_name_company', function(event) {
     var type = $(this).attr('data-editType');
     var name = $(this).attr('name');
     if(type != "textarea"){
-        html = '<input type="'+ type +'" name="'+name+'" onkeyup="$(\'#chenge_name_company\').html($(this).val());" value="'+$(this).html()+'">';
+        html = '<input type="'+ type +'" name="'+name+'" onkeyup="$(\'#'+$(this).attr('id')+'\').html($(this).val());" value="'+$(this).html()+'">';
     }else{
         html = '<textarea type="'+ type +'" name="'+name+'"> '+$(this).text()+'</textarea>';
     }    
     var id_row = ($(this).attr('data-idRow') != "")?$(this).attr('data-idRow'):'none';
-    var tbl = ($(this).attr('data-tableName') != "")?$(this).attr('data-tableName'):'none';
+    var tbl = ($(this).attr('data-tableName') != "")?$(this).attr('data-tablename'):'none';
     var buttons = $(this).attr('data-button-name-window');
     buttons = (buttons!="")?buttons:'';
     new_html_modal_window(html,name_window,buttons,'chenge_name_company', id_row, tbl);
     $('.html_modal_window_body input:nth-of-type(1)').focus();
 });
 
+
+// МЕНЯЕМ ПОЛНОЕ НАИМЕНОВАНИЕ ПОСТАВЩИКА
+$(document).on('dblclick', '#chenge_fullname_company', function(event) {
+    var name_window = $(this).parent().prev().html();
+    name_window = 'Редактировать '+ name_window.toLowerCase();
+    var html = '';
+    var type = $(this).attr('data-editType');
+    var name = $(this).attr('name');
+    if(type != "textarea"){
+        html = '<input type="'+ type +'" name="'+name+'" onkeyup="$(\'#'+$(this).attr('id')+'\').html($(this).val());" value="'+$(this).html()+'">';
+    }else{
+        html = '<textarea type="'+ type +'" name="'+name+'"> '+$(this).text()+'</textarea>';
+    }    
+    var id_row = ($(this).attr('data-idRow') != "")?$(this).attr('data-idRow'):'none';
+    var tbl = ($(this).attr('data-tableName') != "")?$(this).attr('data-tablename'):'none';
+    var buttons = $(this).attr('data-button-name-window');
+    buttons = (buttons!="")?buttons:'';
+    new_html_modal_window(html,name_window,buttons,'chenge_fullname_company', id_row, tbl);
+    $('.html_modal_window_body input:nth-of-type(1)').focus();
+});
 
 //
 //      ТЕЛЕФОНЫ
@@ -298,7 +318,6 @@ $(function(){
     });
 });
 
-
 // РЕДАКТИРОВАНИЕ АДРЕСА
 $(document).on('dblclick', '.edit_adress_row', function(event) {
     var name_window = $(this).parent().prev().html();
@@ -423,6 +442,7 @@ $(document).on('mouseleave', '.edit_general_info tr td:nth-of-type(2),.table_pho
     }
 });
 
+
 //
 //      КОНТАКТНЫЕ ЛИЦА
 //
@@ -432,6 +452,7 @@ $(document).on('dblclick','.contact_face_tbl_edit',function(){
     // добавляем класс редактирования
     $(this).attr('id','contact_face_tbl_edit_enable');  
     
+
 
     var id = $(this).attr('data-contface');
     //делаем запрос, получаем в JSON
@@ -602,47 +623,6 @@ $(function(){
         });
 });
 
-
-//
-// окно создания клиента
-$(document).on('click','#create_new_client',function(){
-    $('#create_client').dialog('open');
-});
-$(function(){
-    $('#create_client').dialog({
-        width: 'auto',
-        height: 'auto',
-        title: 'Завести нового клиента',
-        autoOpen : false,
-        buttons: [
-            {
-            text: 'Сохранить',
-                click: function() {
-                    var post = $('#create_client form').serialize();
-                    $.post('', post, function(data, textStatus, xhr) {
-                        if(data['response']=='1'){
-                            // all Okey
-                            window.location = "http://"+location.hostname+"/os/?page=clients&section=client_folder&subsection=client_card_table&client_id="+data['id']+"&client_edit";
-                    
-                        }else{
-                            $('#delete_cont_f_row'+id).removeAttr('id');
-                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
-                         }
-                    }, "json");
-
-                    $( this ).dialog( "close" );
-                }
-            },
-            {
-            text: 'Отмена',
-                click: function() {
-                    $( this ).dialog( "close" );
-                }
-            }
-        ]
-        });
-});
-
 // окно удаления клиента
 $(document).on('click','#client_delete',function(){
     $('#client_delete_div').dialog('option','id',$(this).attr('data-id'));
@@ -656,7 +636,7 @@ $(function(){
         autoOpen : false,
         buttons: [
             {
-            text: 'Да',
+            text: 'Удалить',
                 click: function() {
                     var id = $(this).dialog('option', 'id')
                     $.post('', {
@@ -686,7 +666,7 @@ $(function(){
 });
 
 
-// ДОБАВИТЬ КУРАТОРА
+// ДОБАВИТЬ ПРОФИЛЬ ПОСТАВЩИКА
 $(document).on('click','#add_curator',function(){
   var id = 'dialog_window_'+$('dialog_window').length;
   $('body').append('<div class="dialog_window" id="'+id+'"></div>');
@@ -704,7 +684,7 @@ $(document).on('click','#add_curator',function(){
       });  
       var json = JSON.stringify(id_man);
       // console.log(json);
-      $.post('', {ajax_standart_window:'update_curator_list_for_client',managers_id: json}, function(data, textStatus, xhr) {
+      $.post('', {ajax_standart_window:'update_profile_list_for_supplier',profile_id: json}, function(data, textStatus, xhr) {
            console.log(data['response'] + ' '+ data['text']);
 
             
@@ -731,14 +711,14 @@ $(document).on('click','#add_curator',function(){
   
 
   $('#'+id).dialog({
-        width: 600,
-        height: 'auto',
-        title: 'Добавление куратора',
+        width: 800,
+        height: 600,
+        title: 'Добавление профиля',
         autoOpen : false,
         buttons: buttons
   });
  
-  $.post('', {ajax_standart_window: "get_manager_lis_for_curator"}, function(data) {
+  $.post('', {ajax_standart_window: "get_suppliers_profile"}, function(data) {
     $('#'+id).html(data);
     $('#'+id).dialog("option", 'id', id);
     $('#'+id).dialog("open");

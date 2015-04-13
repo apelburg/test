@@ -4,6 +4,9 @@ class Supplier{
 	#################################
 	###         СВОЙСТВА          ###
 	#################################
+	// содержит название и пути к изображениям для каждого типа контактных данных
+		static $array_img = array('email'=>'<img src="skins/images/img_design/social_icon1.png" >','skype' => '<img src="skins/images/img_design/social_icon2.png" >','isq' => '<img src="skins/images/img_design/social_icon3.png" >','twitter' => '<img src="skins/images/img_design/social_icon4.png" >','fb' => '<img src="skins/images/img_design/social_icon5.png" >',
+	'vk' => '<img src="skins/images/img_design/social_icon6.png" >','other' => '<img src="skins/images/img_design/social_icon7.png" >');
 
 	#################################
 	###          МЕТОДЫ           ###
@@ -31,7 +34,7 @@ class Supplier{
 
 	public function get_contact_info($tbl,$parent_id){
 		global $mysqli;
-		$query = "SELECT * FROM `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
+		$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$contact = array('phone'=>'','other'=>'');//инициализируем массив
 		$contacts = array();		
@@ -47,6 +50,25 @@ class Supplier{
 			$contact['other'] = self::get_contact_row($contacts, 'other',self::$array_img);
 		}
 		return $contact;
+	}
+
+	static function get_activities($client_id){
+		global $mysqli;
+		$query = "
+			SELECT  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` . * ,  `".SUPPLIERS_ACTIVITIES_TBL."`.`name` AS  `name` 
+			FROM  `".SUPPLIERS_ACTIVITIES_TBL."` 
+			INNER JOIN  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` ON  `".SUPPLIERS_ACTIVITIES_TBL."`.`id` =  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."`.`activity_id` 
+			WHERE  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."`.`supplier_id` =  '".$client_id."'
+		";
+		$arr = array();
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+		return $arr;
+		
 	}
 
 	static function get_addres($id){

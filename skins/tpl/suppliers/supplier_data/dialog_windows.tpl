@@ -56,7 +56,7 @@
 				<td><input type="text" name="input_text" id="input_text"></td>
 				<input type="hidden" name="ajax_standart_window" value="add_new_other_row">
 				<!-- <input type="hidden" name="type" id="new_other_row_infoType_input"> -->
-				<input type="hidden" name="client_id" value="<?php //echo $client_id; ?>">
+				<input type="hidden" name="client_id" value="<?php echo $supplier_id; ?>">
 				<input type="hidden" name="parent_tbl" value="">
 			</tr>
 		</table>
@@ -117,18 +117,18 @@
             <tr>
                 <td>Дополнительная информация</td>
                 <td>
-                	<textarea placeholder="информация отсутствует" name="dop_info"><?php //echo (!empty($client['dop_info']))?$client['dop_info']:''; ?></textarea>                	
+                	<textarea placeholder="информация отсутствует" name="dop_info"><?php echo (!empty($supplier['dop_info']))?$supplier['dop_info']:''; ?></textarea>                	
                	</td>
             </tr>
             <tr>
                 <td>Папка</td>
                 <td>
-                	<input type="text" name="ftp_folder" value="<?php //echo (!empty($client['ftp_folder']))?$client['ftp_folder']:'' ?>" placeholder="информация отсутствует">
+                	<input type="text" name="ftp_folder" value="<?php echo (!empty($supplier['ftp_folder']))?$supplier['ftp_folder']:'' ?>" placeholder="информация отсутствует">
                 </td>
             </tr>
         </table>
 		<input type="hidden" name="ajax_standart_window" value="edit_client_dop_information">
-		<input type="hidden" name="id" value="<?php //echo $client_id; ?>">
+		<input type="hidden" name="id" value="<?php echo $supplier_id; ?>">
 	</form>
 </div>
 
@@ -175,7 +175,7 @@
 			</tr>
 		</table>
 		<input type="hidden" name="ajax_standart_window" value="contact_face_new_form">
-		<input type="hidden" name="parent_id" value="<?php //echo $client_id; ?>">
+		<input type="hidden" name="parent_id" value="<?php echo $supplier_id; ?>">
 	</form>
 </div>
 

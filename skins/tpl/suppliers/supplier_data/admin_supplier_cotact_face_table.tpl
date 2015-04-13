@@ -29,7 +29,7 @@
                 <table>
                     <tr>
                         <td></td>
-                        <td><div class="add_new_row_phone button_add_new_row" data-parent-id="<?php echo $this_contact_face['id']; ?>" data-parenttable="CLIENT_CONT_FACES_TBL">добавить телефон</div></td>
+                        <td><div class="add_new_row_phone button_add_new_row" data-parent-id="<?php echo $this_contact_face['id']; ?>" data-parenttable="SUPPLIERS_CONT_FACES_TBL">добавить телефон</div></td>
                     </tr>
                 </table>                
             </td>
@@ -38,7 +38,7 @@
                 <table>
                     <tr>
                         <td></td>
-                        <td><div class="button_add_new_row other_row add_new_row_other" data-parenttable="CLIENT_CONT_FACES_TBL"  data-parent-id="<?php echo $this_contact_face['id']; ?>">добавить...</div></td>
+                        <td><div class="button_add_new_row other_row add_new_row_other" data-parenttable="SUPPLIERS_CONT_FACES_TBL"  data-parent-id="<?php echo $this_contact_face['id']; ?>">добавить...</div></td>
                     </tr>
                 </table>
             </td>

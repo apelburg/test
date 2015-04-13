@@ -245,7 +245,7 @@ class Client {
 	public function get_contact_info_arr($tbl,$type,$parent_id){
 		global $mysqli;
 		$contacts = array();
-		$query = "SELECT * FROM `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."'".(($type!='')?" AND `type` = '".$type."'":'')." AND `parent_id` = '".$parent_id."'";
+		$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."'".(($type!='')?" AND `type` = '".$type."'":'')." AND `parent_id` = '".$parent_id."'";
 		echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
@@ -274,7 +274,7 @@ class Client {
 	}	
 	public function get_contact_info($tbl,$parent_id){
 		global $mysqli;
-		$query = "SELECT * FROM `".CLIENT_CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
+		$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$contact = array('phone'=>'','other'=>'');//инициализируем массив
 		$contacts = array();		
@@ -341,15 +341,39 @@ class Client {
 		global $mysqli;
 		$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `id` IN (SELECT `manager_id` FROM  `".RELATE_CLIENT_MANAGER_TBL."`  WHERE `client_id` IN (SELECT `id` FROM `".CLIENTS_TBL."` WHERE `id` = ".$client_id." ));";
 		$result = $mysqli->query($query) or die($mysqli->error);
-		$manager_names = "";				
+		$manager_names = array();			
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				if($manager_names!=""){$manager_names .=", ";}
-				$manager_names .= $row['name'];
+				//if($manager_names!=""){$manager_names .=", ";}
+				//$manager_names .= $row['name'];
+				$manager_names[] = $row;
 			}
 		}
 		return $manager_names;
 	}
+	static function history($user_id, $notice){
+		$query ="INSERT INTO `".CLIENT_HISTORY."` SET
+		             `user_id` = '".$user_id."',
+					 `user_nick` = (SELECT `nickname` FROM `".MANAGERS_TBL."` WHERE `id` = '".$user_id."'),
+					 `date` = CURRENT_TIME(),
+					 `notice` = '".$notice."'";
+	}
+	static function delete_for_manager($client_id,$manager_id){
+		global $mysqli;
+		// открепить менеджера от клиента	
+		$query ="UPDATE  `".RELATE_CLIENT_MANAGER_TBL."` SET  `manager_id` =  '61' WHERE `client_id` = '".(int)$client_id."' AND `manager_id` = '".(int)$manager_id."';";	
+		$result = $mysqli->multi_query($query) or die($mysqli->error);	
+		return 1;	
+	}
+
+	static function remove_curator($client_id,$manager_id){
+		global $mysqli;
+		// открепить менеджера от клиента	
+		$query ="DELETE FROM  `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".(int)$client_id."' AND `manager_id` = '".(int)$manager_id."';";	
+		$result = $mysqli->multi_query($query) or die($mysqli->error);	
+		return 1;	
+	}
+
 	static function delete($id){
 		global $mysqli;
 		//выполняем все запросы ипишем ОК
@@ -383,7 +407,7 @@ class Client {
 		$query .= "DELETE FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".(int)$id."';";
 		//return $query;
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
-		return "Клиент id ".$id." успешно удален.";		
+		return 1;		
 	}	
 	public function create($array_in){
 		if(empty($array_in))return "не достаточно данных";
@@ -455,6 +479,7 @@ class Client {
 		}
 		return $array;
 	}
+
 	
 }
 
