@@ -623,14 +623,17 @@ $(function(){
                         if(data['response']=='1'){
                             // all Okey
                             window.location = "http://"+location.hostname+"/os/?page=clients&section=client_folder&subsection=client_card_table&client_id="+data['id']+"&client_edit";
-                    
+                            $( this ).dialog( "close" );
+                        }else if(data['response']=='2'){
+                            new_html_modal_window(data['text'],'Предупреждение об ошибке','','', '', '');                            
                         }else{
                             $('#delete_cont_f_row'+id).removeAttr('id');
                             new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
-                         }
+                            $( this ).dialog( "close" );
+                        }
                     }, "json");
 
-                    $( this ).dialog( "close" );
+                    
                 }
             },
             {

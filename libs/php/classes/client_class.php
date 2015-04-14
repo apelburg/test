@@ -116,6 +116,15 @@ class Client {
 		$this->cont_company_phone = (isset($arr['phone']))?$arr['phone']:''; 
 		$this->cont_company_other = (isset($arr['other']))?$arr['other']:'';
 	}
+
+	public function search_name($name){
+		global $mysqli;
+		$query = "SELECT `id` FROM `".CLIENTS_TBL."` WHERE `company` = '".$name."' OR `comp_full_name` = '".$name."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+
+		$row_cnt = $result->num_rows;
+		return $row_cnt;
+	}
 	
 	static function cont_face_communications($client_id,$options = FALSE){
 		global $mysqli;
