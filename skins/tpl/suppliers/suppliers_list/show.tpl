@@ -1,5 +1,7 @@
 <!-- begin skins/tpl/suppliers/suppliers_list/show.tpl -->  
-   <script type="text/javascript" src="libs/js/assosiatingScrolledTable.js"></script>       
+   <script type="text/javascript" src="libs/js/assosiatingScrolledTable.js"></script>
+   <script type="text/javascript" src="libs/js/supplier_card.js"></script>  
+   <link href="skins/css/client_card.css" rel="stylesheet" type="text/css">     
    <div class="subjects_list">
         <?php echo $top_plank; ?>
         <?php echo $header_tbl; ?>

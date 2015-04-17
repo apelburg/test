@@ -23,6 +23,23 @@
 	/////////////////////////////////// AJAX //////////////////////////////////////
 	if(isset($_POST['ajax_standart_window'])){
 
+		if($_POST['ajax_standart_window']=="client_delete"){
+			$id_row2 = base64_encode($_POST['id']);
+			$username = $user_name.' '.$user_last_name;
+			$response = Supplier::removal_request(trim($id_row2),$username);			
+			if($response=='1'){
+				echo '{
+			       "response":"1",
+			       "text":"Запрос на удаление поставщика отправлен."
+			    }';
+		  	}else{
+		  		echo '{
+		       "response":"0",
+		       "text":"Что-то пошло не так."
+		    }';
+		  	}			
+			exit;
+		}
 
 		if($_POST['ajax_standart_window']=="add_new_phone_row"){
 			$query = "INSERT INTO `".CONT_FACES_CONTACT_INFO_TBL."` SET 
@@ -38,6 +55,7 @@
 			echo $mysqli->insert_id;
 			exit;
 		}
+		
 		if($_POST['ajax_standart_window']=="update_reiting_cont_face"){
 		$query = "UPDATE  `".SUPPLIERS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -126,7 +144,12 @@
 		      }';
 			exit;
 		}
-
+		if($_POST['ajax_standart_window']=="remove_curator"){
+			$query = "DELETE FROM `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` WHERE `supplier_id` = '".$_GET['suppliers_id']."' AND `activity_id` = '".$_POST['id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo "Delete OK";
+			exit;
+		}
 		if($_POST['ajax_standart_window']=="delete_dop_cont_row"){
 			$query = "DELETE FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `id` = '".$_POST['id']."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -216,25 +239,8 @@
 			echo $mysqli->insert_id;
 			exit;
 		}
-		if($_POST['ajax_standart_window']=="client_delete"){
-			if($_SESSION['access']['access']==1){
-				$outer = Client::delete($_POST['id']);
-			}else{
-				$outer = Client::delete_for_manager($_POST['id'],$_SESSION['access']['user_id']);
-			}			
-			if($outer=='1'){
-				echo '{
-		       "response":"1",
-		       "text":"Данные успешно удалены"
-		      }';
-		  }else{
-		  		echo '{
-		       "response":"0",
-		       "text":"Что-то пошло не так."
-		      }';
-		  }			
-			exit;
-		}
+
+		
 
 		if($_POST['ajax_standart_window']=="add_new_other_row"){
 			$query= "INSERT INTO `".CONT_FACES_CONTACT_INFO_TBL."` SET 			
@@ -385,16 +391,21 @@
 	}else{
 		//получаем информацию по профилям поставщика
 		$get_activities_arr = Supplier::get_activities($_GET['suppliers_id']);
+		// echo '<pre>';
+		// print_r($get_activities_arr);
+		// echo '</pre>';exit;
 		$get_activities = '';
 	    
 	    foreach ($get_activities_arr as $k => $v) {
-	        $get_activities.= '<span class="add_del_curator curator_names" data-id="' . $v['id'] . '"><span>' . $v['name'] . '</span><span class="del_curator">X</span></span>';
-	    }    
-	    $get_activities.= '<span class="add_del_curator" id="add_curator"> + </span>';
+	    	$del = (isset($_GET['supplier_edit']))?'<span class="del_curator">X</span>':'';
+	        $get_activities.= '<span class="add_del_curator curator_names" data-id="' . $v['activity_id'] . '"><span>' . $v['name'] . '</span>'.$del.'</span>';
+	    }
+
+	    $get_activities.= (isset($_GET['supplier_edit']))?'<span class="add_del_curator" id="add_curator"> + </span>':'';
 
 
 		// получаем рейтинг компании
-		$supplierRating = Supplier::get_reiting($supplier_id,$supplier['rate']);
+		$supplierRating = Supplier::get_reiting($supplier_id);
 
 		//получаем текущий адрес поставщика
 		ob_start();

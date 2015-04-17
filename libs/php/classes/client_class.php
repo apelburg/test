@@ -471,7 +471,6 @@ class Client {
 	
 	    $query = "INSERT INTO `".RELATE_CLIENT_MANAGER_TBL."` VALUES('','$client_id','$user_id')";
         $result = $mysqli->query($query) or die($mysqli->error);
-		global $mail;
 		//$headers = 'Cc : andrey@apelburg.ru';
 		//$headers = 'Cc : '.implode(',',array('runman@mail.ru','slava@apelburg.ru'));
 		$headers = ''; 

@@ -14,7 +14,7 @@
     #requisits_button:hover{ background-color: #E4E8E8;}
 </style>
 <script type="text/javascript" src="libs/js/client_card_table.js"></script>
-<script type="text/javascript" src="libs/js/rate_script.js"></script>
+<script type="text/javascript" src="libs/js/rate_client.js"></script>
 <script type="text/javascript">
 
 

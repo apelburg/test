@@ -1,8 +1,40 @@
-<?php  
+<?php 
+    ////////////////////////////////////////////////////  AJAX /////////////////////////////////////////////////////////////////
+	if(isset($_POST['ajax_standart_window'])){
+		if($_POST['ajax_standart_window']=='create_supplier'){
+			$nickName = $_POST['nickName'];
+			$dop_info = $_POST['dop_info'];
+			$fullName = $_POST['fullName'];
+			if(Supplier::search_name($nickName)==0){
+				if(Supplier::search_name($fullName)==0){
+					echo '{
+				       "response":"1",
+				       "id":"'.Supplier::create($nickName,$fullName,$dop_info).'",
+				       "text":"Данные успешно сохранены"
+				      }';
+				}else{
+					echo '{
+				       "response":"0",
+				       "error":"2",
+				       "text":"Название данной организации уже содержится в базе ОС"
+				      }';
+				}
+			}else{
+				echo '{
+			       "response":"0",
+				    "error":"1",
+			       "text":"Это сокращённое название уже содержится в базе ОС"
+			      }';
+			}			
+			exit;
+		}
+	}
+    ////////////////////////////////////////////////////  AJAX /////////////////////////////////////////////////////////////////
+
     ///////////////////////////////////////////////////   quick_bar   ///////////////////////////////////////////////////
 	
 	// $quick_button = '<div class="quick_button_div"><a href="/os/?page=suppliers&section=supplier_data" class="button">&nbsp;</a></div>';
-	$quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_client" style="  text-decoration: none;
+	$quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_supplier" style="  text-decoration: none;
   display: block;  line-height: 30px;  background: #D94A38;  color: #fff;" class="button">Добавить</a></div>';
 	$_SESSION['view_type']['supplier_list']  = isset($_GET['view']) ? $_GET['view'] :( isset($_SESSION['view_type']['supplier_list']) ? $_SESSION['view_type']['supplier_list'] :'ordinary');
 	$curViewType = $_SESSION['view_type']['supplier_list'];

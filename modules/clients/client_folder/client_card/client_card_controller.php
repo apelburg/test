@@ -585,9 +585,10 @@ else {
     $manager_names = '';
     
     foreach ($manager_names_arr as $k => $v) {
-        $manager_names.= '<span class="add_del_curator curator_names" data-id="' . $v['id'] . '"><span>' . $v['name'] . ' ' . $v['last_name'] . '</span><span class="del_curator">X</span></span>';
+        $del = (isset($_GET['client_edit']))?'<span class="del_curator">X</span>':'';
+        $manager_names.= '<span class="add_del_curator curator_names" data-id="' . $v['id'] . '"><span>' . $v['name'] . ' ' . $v['last_name'] . '</span>'.$del.'</span>';
     }    
-    $manager_names.= '<span class="add_del_curator" id="add_curator"> + </span>';
+    $manager_names.= (isset($_GET['client_edit']))?'<span class="add_del_curator" id="add_curator"> + </span>':'';
     
 
 

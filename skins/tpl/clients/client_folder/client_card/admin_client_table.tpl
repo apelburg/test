@@ -1,5 +1,5 @@
 <script type="text/javascript" src="libs/js/client_card_table.js"></script>
-<script type="text/javascript" src="libs/js/rate_script.js"></script>
+<script type="text/javascript" src="libs/js/rate_client.js"></script>
 <link href="./skins/css/client_card.css" rel="stylesheet" type="text/css">
 <div class="client_table">
 	<table class="client_table_gen">
