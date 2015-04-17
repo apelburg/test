@@ -8,9 +8,11 @@
 	include('libs/mysqli.php');
     include('libs/config.php');
 	include('libs/lock.php');
+	include('libs/php/classes/mail_class.php');
 	include('libs/php/common.php');
     include('libs/autorization.php');
 	include('libs/variables.php');
+
 	
 
 	if(!($user_status == 1 || (isset($_SESSION['access']['come_back_in_own_profile']) && mysql_result(select_manager_data($_SESSION['access']['come_back_in_own_profile']),0,'access') == 1))) exit;

@@ -5,10 +5,7 @@
          if(!isset($_POST['password']) || ( $_POST['password'] == '' || $_POST['login']== '')){
 	         include('./skins/tpl/sequrity.tpl');
 		     exit;
-	     }
-		 else{
-		 
-		 
+	     }else{		 		 
 		     $query = "SELECT*FROM `".MANAGERS_TBL."` WHERE `nickname` = '".$_POST['login']."' AND `pass` = '".md5($_POST['password'])."'";
 	         $result = mysql_query($query,$db);
 	         if(!$result)exit(mysql_error());

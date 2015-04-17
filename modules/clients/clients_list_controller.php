@@ -1,5 +1,7 @@
 <?php
-
+	$mailClass = new Mail;
+	$clientClass = new Client($client_id);
+	
     ////////////////////////////////  AJAX   ////////////////////////////////////
     if(isset($_GET['generate_manager_list'])){
 	    $arr = get_managers_list();
@@ -9,13 +11,21 @@
 		exit;
 	}
 	if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="create_client"){
-		$arr['company'] = $_POST['company'];
-		$arr['dop_info'] = $_POST['dop_info'];
-		$arr['rate'] = $_POST['rate'];
+		$arr_2['company'] = urldecode ($_POST['company']);
+		$arr_2['dop_info'] = urldecode ($_POST['dop_info']);
+		$arr_2['rate'] = $_POST['rate'];
+		// если клиентов с таким именем не существует - добавляем нового
+		if($clientClass->search_name($arr_2['company'])==0){		
 		echo '{
 	       "response":"1",
-	       "id":"'.Client::create($arr).'"
+	       "id":"'.$clientClass->create($arr_2).'"
 	      }';
+		}else{		
+		echo '{
+	       "response":"2",
+	       "text":"Клиент с таким именем уже содержится в базе Апельбурга."
+	      }';
+		}
 		exit;
 	}
     /////////////////////////////////////////////////////////////////////////////

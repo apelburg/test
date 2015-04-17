@@ -2,7 +2,7 @@
 <!-- <script type="text/javascript" src="libs/js/client_card_table.js"></script> -->
 <script type="text/javascript" src="libs/js/client_folders.js"></script><!--// для отправки стандартного окна методом POST -->
 <script type="text/javascript" src="libs/js/supplier_card.js"></script>
-<script type="text/javascript" src="libs/js/rate_script.js"></script>
+<script type="text/javascript" src="libs/js/rate_supplier.js"></script>
 <link href="./skins/css/client_card.css" rel="stylesheet" type="text/css">
 <div class="client_table">
 	<table class="client_table_gen">

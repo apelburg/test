@@ -623,14 +623,17 @@ $(function(){
                         if(data['response']=='1'){
                             // all Okey
                             window.location = "http://"+location.hostname+"/os/?page=clients&section=client_folder&subsection=client_card_table&client_id="+data['id']+"&client_edit";
-                    
+                            $( this ).dialog( "close" );
+                        }else if(data['response']=='2'){
+                            new_html_modal_window(data['text'],'Предупреждение об ошибке','','', '', '');                            
                         }else{
                             $('#delete_cont_f_row'+id).removeAttr('id');
                             new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
-                         }
+                            $( this ).dialog( "close" );
+                        }
                     }, "json");
 
-                    $( this ).dialog( "close" );
+                    
                 }
             },
             {
@@ -650,19 +653,18 @@ $(document).on('click','#client_delete',function(){
 });
 $(function(){
     $('#client_delete_div').dialog({
-        width: 'auto',
-        height: 'auto',
-        title: 'Удалить клиента',
+        width: 500,
+        height: 300,
+        title: 'Укажите причину отказа от клиента',
         autoOpen : false,
         buttons: [
             {
-            text: 'Да',
+            text: 'Продолжить',
                 click: function() {
+                    if($('#client_delete_div textarea').val().length>15){
+                    var send = $('#client_delete_div form').serialize();
                     var id = $(this).dialog('option', 'id')
-                    $.post('', {
-                        ajax_standart_window:"client_delete",
-                        id:id
-                    }, function(data, textStatus, xhr) {
+                    $.post('', send, function(data, textStatus, xhr) {
                         if(data['response']=='1'){
                             // all Okey
                             window.location = "http://"+location.hostname+"/os/?page=clients&section=clients_list";                    
@@ -673,6 +675,9 @@ $(function(){
                     }, "json");
 
                     $( this ).dialog( "close" );
+                }else{
+                    alert("Пожалуйста напишите хотя бы несколько строк о причине вашего отказа от данного клиента");
+                }
                 }
             },
             {
@@ -725,11 +730,7 @@ $(document).on('click','#add_curator',function(){
       $('#'+id).remove();
     }
   });
-
-
-
   
-
   $('#'+id).dialog({
         width: 600,
         height: 'auto',

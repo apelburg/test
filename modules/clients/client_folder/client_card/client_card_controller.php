@@ -250,6 +250,7 @@ if (isset($_POST['ajax_standart_window'])) {
     }
     
     if ($_POST['ajax_standart_window'] == "client_delete") {
+        //echo $user_name.' '. $user_last_name;exit;
         
         //if($user_status==1){
         //	$outer = Client::delete($_POST['id']);
@@ -258,7 +259,8 @@ if (isset($_POST['ajax_standart_window'])) {
         
         //}
         if ($outer == '1') {
-            Client::history($user_id, $_POST['notice']);
+            $text = (isset($_POST['text']))?$_POST['text']:'Куратор '.$user_name.' '. $user_last_name.' был откреплен от клиента ( сообщение ОС ).';
+            Client::history($user_id, $text);
             echo '{
 		       "response":"1",
 		       "text":"Данные успешно удалены"
@@ -583,9 +585,10 @@ else {
     $manager_names = '';
     
     foreach ($manager_names_arr as $k => $v) {
-        $manager_names.= '<span class="add_del_curator curator_names" data-id="' . $v['id'] . '"><span>' . $v['name'] . ' ' . $v['last_name'] . '</span><span class="del_curator">X</span></span>';
+        $del = (isset($_GET['client_edit']))?'<span class="del_curator">X</span>':'';
+        $manager_names.= '<span class="add_del_curator curator_names" data-id="' . $v['id'] . '"><span>' . $v['name'] . ' ' . $v['last_name'] . '</span>'.$del.'</span>';
     }    
-    $manager_names.= '<span class="add_del_curator" id="add_curator"> + </span>';
+    $manager_names.= (isset($_GET['client_edit']))?'<span class="add_del_curator" id="add_curator"> + </span>':'';
     
 
 

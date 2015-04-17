@@ -2,6 +2,7 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<meta charset="UTF-8" />    
 <link href="./skins/css/styles.css" rel="stylesheet" type="text/css">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <link href="./skins/css/styles_sample.css" rel="stylesheet" type="text/css">
@@ -10,6 +11,7 @@
 <link href="libs/js/jquery_ui/jquery-ui.theme.css" rel="stylesheet" type="text/css">
 <link href="libs/js/jquery_ui/jquery-ui.structure.css" rel="stylesheet" type="text/css">
 <?php
+// echo phpinfo();
 if(isset($_GET['page']) && ($_GET['page']=="samples" || $_GET['page']=="clients")){
 echo PHP_EOL; //PHP_EOL - константа переноса строки используется вместо /r/n для кроссплатформенности
 // echo '<link href="./skins/css/jquery-ui-1.10.4.custom.css" rel="stylesheet" type="text/css">' . PHP_EOL;

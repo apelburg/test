@@ -51,7 +51,37 @@ class Supplier{
 		}
 		return $contact;
 	}
+	static function removal_request($supplier_id,$username){
+		$mail = new Mail();
+		$mail->add_bcc('kapitonoval2012@gmail.com');
+		$to = 'premier22@yandex.ru';
+		$from = 'Оналайн Сервис <online_service@apelburg.ru>';
+		$subject = 'Заявка на удаление поставщика';
+	    $message = 'Прошу удалить поставщика № '.$supplier_id.' '.$username.'';
+		$out_data = $mail->send($to,$from,$subject,$message);
+		return 1;		
+	}
+	static function search_name($name){
+		global $mysqli;
+		$query = "SELECT `id` FROM `".SUPPLIERS_TBL."` WHERE `fullName` = '".$name."' OR `nickName` = '".$name."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
 
+		$row_cnt = $result->num_rows;
+		return $row_cnt;
+	}
+	static function create($name,$fullname,$dop_info){
+		global $mysqli;
+		$query ="INSERT INTO `".SUPPLIERS_TBL."` SET
+			`nickName` = '".$name."',
+		    `fullName` = '".$fullname."',
+			`dop_info` = '".$dop_info."'";
+		 
+	    $result = $mysqli->query($query) or die($mysqli->error);
+
+	    
+		return $mysqli->insert_id;
+
+	}
 	static function get_activities($client_id){
 		global $mysqli;
 		$query = "
@@ -117,7 +147,21 @@ class Supplier{
 		}			
 	}
 
-	static function get_reiting($id,$rate){
+	static function get_reiting($supplier_id){
+		global $mysqli;
+		// SUPPLIERS_RATINGS_TBL subject_id
+		$query = "SELECT * FROM `".SUPPLIERS_RATINGS_TBL."` WHERE `subject_id` = '".(int)$supplier_id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$rate = 0;
+		if($result->num_rows > 0){
+			$sum = 0;
+			$i = 0;			
+			while($row = $result->fetch_assoc()){
+				$sum = $row['rate'];
+				$i++;
+			}
+			$rate = floor ($sum/$i);
+		}		
 		$arr[0] = array('5','0');
 		$arr[1] = array('5','5');
 		$arr[2] = array('5','10');
@@ -125,7 +169,7 @@ class Supplier{
 		$arr[4] = array('5','20');
 		$arr[5] = array('5','25');
 
-		$r = '<div id="rate_1" data-id="'.$id.'">
+		$r = '<div id="rate_1" data-id="'.$supplier_id.'">
 			<input type="hidden" name="review_count" value="'.$arr[$rate]['0'].'" />
 			<input type="hidden" name="review_rate" value="'.$arr[$rate]['1'].'" />
 		</div>';
