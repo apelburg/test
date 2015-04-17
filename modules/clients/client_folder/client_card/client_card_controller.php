@@ -23,7 +23,16 @@ if (isset($_POST['ajax_standart_window'])) {
         $id = $_POST['id'];
         $tbl = $_POST['tbl'];
         $company = $_POST['company'];
-        
+
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' изменил название клиента с '.$client_name_i.' на '.$company;
+        Client::history($user_id, $text_history ,'update_name_company',$_GET['client_id']);
+        //-- END -- //  логирование
+
+
         //тут обновляем название компании
         global $mysqli;
         $query = "UPDATE  `" . constant($tbl) . "` SET  `company` =  '" . $company . "' WHERE  `id` ='" . $id . "'; ";
@@ -56,6 +65,37 @@ if (isset($_POST['ajax_standart_window'])) {
         exit;
     }
     if ($_POST['ajax_standart_window'] == "edit_adress_row") {
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' отредактировал адрес клиента '.$client_name_i.' ';
+
+        $id_row = $_POST['id'];
+        $tbl = "CLIENT_ADRES_TBL";
+        $query = "SELECT * FROM " . constant($tbl) . " WHERE `id` = '" . $id_row . "'";
+        $i=0;
+        $result = $mysqli->query($query) or die($mysqli->error);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $arr_adres = $row;
+            }
+        }
+        // пишем в лог предыдущие данные
+        foreach ($arr_adres as $key => $value) {
+            if(isset($_POST[$key]) && trim($arr_adres[$key])!=trim($_POST[$key])){
+                if($i!=0 || count($arr_adres)!=($i-1)){
+                    $text_history.=",";
+                }
+                $text_history .= "поле ".$key ." изменено с ". $value." на ".$_POST[$key];
+            }
+        }
+
+        Client::history($user_id, $text_history ,'edit_adress_row',$_GET['client_id']);
+        //-- END -- //  логирование
+
+        //-- START --// сохранение данных
         global $mysqli;
         $query = "UPDATE  `" . constant($_POST['tbl']) . "` SET  
 			`city` =  '" . $_POST['city'] . "',
@@ -72,10 +112,39 @@ if (isset($_POST['ajax_standart_window'])) {
 		       "response":"1",
 		       "text":"Данные сохранены"
 		      }';
+        //-- END --// сохранение данных
         exit;
     }
     if ($_POST['ajax_standart_window'] == "delete_adress_row") {
-        
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' удалил(а) адрес клиента '.$client_name_i.' ';
+
+        $id_row = $_POST['id_row'];
+        $tbl = "CLIENT_ADRES_TBL";
+        $query = "SELECT * FROM " . constant($tbl) . " WHERE `id` = '" . $id_row . "'";
+        $i=0;
+        $result = $mysqli->query($query) or die($mysqli->error);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $arr_adres = $row;
+            }
+        }
+        // пишем в лог предыдущие данные
+        foreach ($arr_adres as $key => $value) {
+            if($i!=0 || count($arr_adres)!=($i-1)){
+                $text_history.=",";
+            }
+            $text_history .= "поле ".$key ." = ". $value;
+            
+        }
+
+        Client::history($user_id, $text_history ,'delete_adress_row',$_GET['client_id']);
+        //-- END -- //  логирование
+
         $id_row = $_POST['id_row'];
         $tbl = $_POST['tbl'];
         $query = "DELETE FROM " . constant($tbl) . " WHERE `id`= '" . $id_row . "'";
@@ -87,6 +156,17 @@ if (isset($_POST['ajax_standart_window'])) {
         exit;
     }
     if ($_POST['ajax_standart_window'] == "add_new_adress_row") {
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' создал новый адрес для клиента '.$client_name_i.' ';
+        
+        Client::history($user_id, $text_history ,'add_new_adress_row',$_GET['client_id']);
+        //-- END -- //  логирование
+
+
         $tbl = 'CLIENT_ADRES_TBL';
         $query = "";
         $adres_type = (isset($_POST['adress_type']) && $_POST['adress_type'] != "") ? $_POST['adress_type'] : 'office';
@@ -105,7 +185,6 @@ if (isset($_POST['ajax_standart_window'])) {
 			`note` = '" . addslashes($_POST['note']) . "'
 			;";
         
-        //echo "$query";
         $result = $mysqli->query($query) or die($mysqli->error);
         echo $mysqli->insert_id;
         exit;
@@ -120,6 +199,7 @@ if (isset($_POST['ajax_standart_window'])) {
         exit;
     }
     if ($_POST['ajax_standart_window'] == "add_new_phone_row") {
+        
         $query = "INSERT INTO `" . CONT_FACES_CONTACT_INFO_TBL . "` SET 
 			`parent_id` ='" . $_POST['client_id'] . "', 
 			`table` = '" . $_POST['parent_tbl'] . "', 
@@ -128,9 +208,21 @@ if (isset($_POST['ajax_standart_window'])) {
 			`contact` = '" . $_POST['telephone'] . "',
 			`dop_phone` = '" . ((trim($_POST['dop_phone']) != "" && is_numeric(trim($_POST['dop_phone']))) ? trim($_POST['dop_phone']) : '') . "';";
         
-        // echo "$query";exit;
+        
         $result = $mysqli->query($query) or die($mysqli->error);
-        echo $mysqli->insert_id;
+        $id_i = $mysqli->insert_id;
+
+        //-- START -- //  логирование
+        $client = new Client($_POST['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' завел новый контактный телефон для клиента '.$client_name_i.'(id = '.$id_i.') ';
+        
+        Client::history($user_id, $text_history ,'add_new_phone',$_POST['client_id']);
+        //-- END -- //  логирование
+
+        echo $id_i;
         exit;
     }
     if ($_POST['ajax_standart_window'] == "add_new_other_row") {
@@ -145,10 +237,51 @@ if (isset($_POST['ajax_standart_window'])) {
         
         // echo "$query";exit;
         $result = $mysqli->query($query) or die($mysqli->error);
-        echo $mysqli->insert_id;
+        $insert_id = $mysqli->insert_id;
+        //-- START -- //  логирование
+        $client = new Client($_POST['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' завел новую запись '.$_POST['type'].' для клиента '.$client_name_i.'(id = '.$insert_id.') ';
+        
+        Client::history($user_id, $text_history ,'add_new_other',$_POST['client_id']);
+        //-- END -- //  логирование
+
+        echo $insert_id;
         exit;
     }
     if ($_POST['ajax_standart_window'] == "delete_dop_cont_row") {
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        
+        $query = "SELECT * FROM `" . CONT_FACES_CONTACT_INFO_TBL . "` WHERE `id` = '" . $_POST['id'] . "'";
+        $i=0;
+        $result = $mysqli->query($query) or die($mysqli->error);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $arr_adres = $row;
+            }
+        }
+
+
+        $text_history = $user_n.' удалил запись '.$arr_adres['type'].' из доп. контактов у клиента '.$client_name_i;
+        
+        // пишем в лог предыдущие данные
+        foreach ($arr_adres as $key => $value) {
+            if($i!=0 || count($arr_adres)!=($i-1)){
+                $text_history.=",";
+            }
+            $text_history .= "поле ".$key ." = ". $value;
+            
+        }
+
+        Client::history($user_id, $text_history ,'delete_other_row',$_GET['client_id']);
+        //-- END -- //  логирование
+
         $query = "DELETE FROM `" . CONT_FACES_CONTACT_INFO_TBL . "` WHERE `id` = '" . $_POST['id'] . "'";
         $result = $mysqli->query($query) or die($mysqli->error);
         echo "OK";
@@ -172,6 +305,39 @@ if (isset($_POST['ajax_standart_window'])) {
     }
     
     if ($_POST['ajax_standart_window'] == "contact_face_edit_form") {
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' отредактировал данные из контактного лица '.$client_name_i.' ';
+
+        $id_row = $_POST['id'];
+        $tbl = "CLIENT_ADRES_TBL";
+        $query = "SELECT * FROM " . CLIENT_CONT_FACES_TBL . " WHERE `id` = '" . $_POST['id'] . "'";
+        $i=0;
+        $result = $mysqli->query($query) or die($mysqli->error);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $arr_adres = $row;
+            }
+        }
+        // пишем в лог предыдущие данные
+        foreach ($arr_adres as $key => $value){
+            if(isset($_POST[$key]) && trim($arr_adres[$key])!=trim($_POST[$key])){
+                if($i!=0 || count($arr_adres)!=($i-1)){
+                    $text_history.=",";
+                }
+                $i++;
+                $text_history .= "поле ".$key ." изменено с ". $value." на ".$_POST[$key];
+            }
+        }
+        if($i>0){
+            Client::history($user_id, $text_history ,'edit_contact_face',$_GET['client_id']);
+        }
+        //-- END -- //  логирование
+
+
         global $mysqli;
         $query = "UPDATE  `" . CLIENT_CONT_FACES_TBL . "` SET  
 			`surname` =  '" . $_POST['surname'] . "',
@@ -199,16 +365,49 @@ if (isset($_POST['ajax_standart_window'])) {
 			`department` =  '" . $_POST['department'] . "',
 			`note` =  '" . $_POST['note'] . "' ";
         $result = $mysqli->query($query) or die($mysqli->error);
+
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' создал новый контакт для клиента '.$client_name_i.' ';
+        
+        Client::history($user_id, $text_history ,'add_new_contact_row',$_GET['client_id']);
+        //-- END -- //  логирование
         echo '{
 		       "response":"1",
 		       "id":"' . $mysqli->insert_id . '",
-		       "text":"Данные успешно обновлены"
+		       "text":"Данные успешно добавлены"
 		      }';
         exit;
     }
     
     if ($_POST['ajax_standart_window'] == "edit_client_dop_information") {
         global $mysqli;
+        //-- START -- //  логирование
+        $client = new Client($client_id);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        
+        $query = "SELECT * FROM  `" . CLIENTS_TBL . "` WHERE  `id` ='" . $_POST['id'] . "';";
+        $result = $mysqli->query($query) or die($mysqli->error);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $dop_info = $row['dop_info'];
+            }
+        }
+
+        if(trim($_POST['dop_info'])!=trim($dop_info)){
+            $text_history = $user_n.' обновил блок доп. инфо. у клиента '.$client_name_i.'c '.$dop_info.' на '.$_POST['dop_info'];
+            Client::history($user_id, $text_history ,'update_client_dop_info',$_GET['client_id']);
+        }
+        //-- END -- //
+
+
+
+        
         $query = "UPDATE  `" . CLIENTS_TBL . "` SET  
 			`dop_info` =  '" . $_POST['dop_info'] . "',
 			`ftp_folder` =  '" . $_POST['ftp_folder'] . "' WHERE  `id` ='" . $_POST['id'] . "';";
@@ -221,7 +420,35 @@ if (isset($_POST['ajax_standart_window'])) {
     }
     
     if ($_POST['ajax_standart_window'] == "delete_cont_face_row") {
+        //-- START -- //  логирование
+        $client = new Client($client_id);
+        $client_name_i = $client->name; // получаем название клиента
+        // $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' удалил контактное лицо у клиента '.$client_name_i;
         
+        $id_row = $_POST['id'];
+        $tbl = "CLIENT_CONT_FACES_TBL";
+        $query = "SELECT * FROM " . constant($tbl) . " WHERE `id`= '" . $id_row . "'";
+        $i=0;
+        $result = $mysqli->query($query) or die($mysqli->error);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $arr_adres = $row;
+            }
+        }
+        // пишем в лог предыдущие данные
+        foreach ($arr_adres as $key => $value) {
+            if($i!=0 || count($arr_adres)!=($i-1)){
+                $text_history.=",";
+            }
+            $text_history .= "поле ".$key ." = ". $value;
+            
+        }
+
+        Client::history($user_id, $text_history ,'delete_cont_face',$_GET['client_id']);
+        //-- END -- //  
+
         $id_row = $_POST['id'];
         $tbl = "CLIENT_CONT_FACES_TBL";
         $query = "DELETE FROM " . constant($tbl) . " WHERE `id`= '" . $id_row . "'";
@@ -250,17 +477,14 @@ if (isset($_POST['ajax_standart_window'])) {
     }
     
     if ($_POST['ajax_standart_window'] == "client_delete") {
-        //echo $user_name.' '. $user_last_name;exit;
-        
-        //if($user_status==1){
-        //	$outer = Client::delete($_POST['id']);
-        //}else{
+
         $outer = Client::delete_for_manager($_POST['id'], $user_id);
         
-        //}
         if ($outer == '1') {
-            $text = (isset($_POST['text']))?$_POST['text']:'Куратор '.$user_name.' '. $user_last_name.' был откреплен от клиента ( сообщение ОС ).';
-            Client::history($user_id, $text);
+            $client = new Client($_GET['client_id']);
+            $client_name_i = $client->name;
+            $text = (isset($_POST['text']))?'Куратор '.$user_name.' '. $user_last_name.' отказался от клиента '.$client_name_i.'. Причина: '.$_POST['text']:'Куратор '.$user_name.' '. $user_last_name.' отказался от клиента не указав причину.';
+            Client::history($user_id, $text ,'rejection_of_the_client',$_GET['client_id']);
             echo '{
 		       "response":"1",
 		       "text":"Данные успешно удалены"
@@ -318,33 +542,17 @@ if (isset($_POST['ajax_standart_window'])) {
 					`acting` =  '" . $val['acting'] . "';";
             }
         }
-        
-        //echo $query;
         $result = $mysqli->multi_query($query) or die($mysqli->error);
         echo '{
 			    "response":"1",
 				"text":"Данные успешно обновлены"
 			}';
         
-        // echo $query;
-        
         exit;
     }
     
     if ($_POST['ajax_standart_window'] == "create_new_requisites") {
         global $mysqli;
-        
-        // echo "<pre>";
-        // print_r($_POST);
-        // echo "</pre><br>";
-        // echo '{
-        //     "response":"1",
-        // 	"text":"Данные успешно обновлены"
-        // }';
-        // // echo $query;
-        
-        // exit;
-        
         $query = "
 			INSERT INTO `" . CLIENT_REQUISITES_TBL . "` SET id = '" . $_POST['requesit_id'] . "',
 			`client_id`='" . $_POST['client_id'] . "', 
@@ -380,17 +588,13 @@ if (isset($_POST['ajax_standart_window'])) {
 					`acting` =  '" . $val['acting'] . "';";
             }
             
-            //echo $query;
             $result = $mysqli->multi_query($query) or die($mysqli->error);
         }
         echo '{
 			    "response":"1",
 				"id_new_req":"' . $req_new_id . '",
 				"company":"' . $_POST['company'] . '"
-			}';
-        
-        // echo $query;
-        
+			}';        
         exit;
     }
     
@@ -399,7 +603,6 @@ if (isset($_POST['ajax_standart_window'])) {
         $query = "DELETE FROM " . CLIENT_REQUISITES_TBL . " WHERE `id`= '" . $id_row . "'";
         $result = $mysqli->query($query) or die($mysqli->error);
         
-        //echo $query;
         echo '{
 		       "response":"1",
 		       "text":"Данные успешно удалены"
@@ -408,6 +611,7 @@ if (isset($_POST['ajax_standart_window'])) {
     }
     
     if ($_POST['ajax_standart_window'] == "update_reiting_cont_face") {
+
         $query = "UPDATE  `" . CLIENTS_TBL . "` SET  `rate` =  '" . $_POST['rate'] . "' WHERE  `id` = '" . $_POST['id'] . "';";
         $result = $mysqli->query($query) or die($mysqli->error);
         echo '{
@@ -421,7 +625,6 @@ if (isset($_POST['ajax_standart_window'])) {
         $query = "SELECT * FROM `" . CLIENT_REQUISITES_TBL . "` WHERE `id` = '" . $_POST['id'] . "'";
         $requesit = array();
         
-        // echo $query;exit;
         $result = $mysqli->query($query) or die($mysqli->error);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -504,12 +707,13 @@ if (isset($_POST['ajax_standart_window'])) {
         $client_id = $_GET['client_id'];
         $json = $_POST['managers_id'];
         $manager_id = json_decode($json,true);
-
-
-        //echo $client_id;
-        // echo '<br>';
-        // print_r($manager_id);
-        // echo '</pre>';
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name;
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' обновил список кураторов для клиента '.$client_name_i;
+        Client::history($user_id, $text_history ,'update_curator_list',$_GET['client_id']);
+        //-- END -- //  логирование
         $str_id = '';
         $query = "";
         foreach($manager_id as $k => $v){
@@ -537,6 +741,15 @@ if (isset($_POST['ajax_standart_window'])) {
         $client_id = $_GET['client_id'];
         $manager_id = $_POST['id'];
         Client::remove_curator($client_id,$manager_id);
+        //-- START -- //  логирование
+        $client = new Client($_GET['client_id']);
+        $client_name_i = $client->name; // получаем название клиента
+        $manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+        $user_n = $user_name.' '.$user_last_name;
+        $text_history = $user_n.' удалил куратора '.$manager_name_i.' у клиента '.$client_name_i;
+        Client::history($user_id, $text_history ,'remove_curator',$_GET['client_id']);
+        //-- END -- //  логирование
+
         exit;
     }
     if ($_POST['ajax_standart_window'] == "new_person_type_req") {

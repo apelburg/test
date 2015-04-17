@@ -37,7 +37,11 @@
 	//define("RELATE_MANAGERS_BY_DEPARTMENTS_TBL","os__relate_managers_by_departments_tbl"); // таблица отношения менеджеров к отделам
 	define("CLIENT_ORDERS_TBL","orders"); // таблица заказов
 
-	define("CLIENT_HISTORY", "os__client_log"); // история по изменениям клиента
+	
+	// define("CLIENT_HISTORY", "os__log_client"); // история по изменениям клиента
+	define("LOG_GENARAL", "os_log_general"); // общий лог
+	define("LOG_CLIENT", "os__log_client"); // история по изменениям клиента
+	define("LOG_SUPPLIER", "os__log_supplier"); // история по изменениям клиента
 
 	define("CLIENT_ORDERS_TABLE_PART_TBL","orders_table_part"); // табличная часть заказов
 	define("CALCULATE_TBL","os__orders_calculate_table"); // расчетная таблица

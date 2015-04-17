@@ -355,19 +355,35 @@ class Client {
 		$manager_names = array();			
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				//if($manager_names!=""){$manager_names .=", ";}
-				//$manager_names .= $row['name'];
 				$manager_names[] = $row;
 			}
 		}
 		return $manager_names;
 	}
-	static function history($user_id, $notice){
-		$query ="INSERT INTO `".CLIENT_HISTORY."` SET
+	static function get_manager_name($manager_id){
+		global $mysqli;
+		$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `id` IN (".$manager_id.");";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$manager_names = "";			
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$manager_names = $row['name'].' '.$row['last_name'];
+				if(trim($manager_names)==""){$manager_names=$row['nickname'];}
+			}
+		}
+		return $manager_name;
+	}
+	static function history($user_id, $notice, $type, $client_id){
+		global $mysqli;
+		$query ="INSERT INTO `".LOG_CLIENT."` SET
 		             `user_id` = '".$user_id."',
+		             `client_id` = '".$client_id."',
 					 `user_nick` = (SELECT `nickname` FROM `".MANAGERS_TBL."` WHERE `id` = '".$user_id."'),
-					 `date` = CURRENT_TIME(),
+					 `date` = CURRENT_TIMESTAMP,
+					 `type` = '".$type."',
 					 `notice` = '".$notice."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);	
+		return 1;
 	}
 	static function delete_for_manager($client_id,$manager_id){
 		global $mysqli;

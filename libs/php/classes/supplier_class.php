@@ -113,6 +113,14 @@ class Supplier{
 		}
 		return $arr;
 	}
+	static function history($user_id, $notice, $type){
+		$query ="INSERT INTO `".LOG_SUPPLIER."` SET
+		             `user_id` = '".$user_id."',
+					 `user_nick` = (SELECT `nickname` FROM `".MANAGERS_TBL."` WHERE `id` = '".$user_id."'),
+					 `date` = CURRENT_TIME(),
+					 `type` = '".$type."',
+					 `notice` = '".$notice."'";
+	}
 	static function get_contact_row($contact_company, $type,$array_dop_contacts_img){
 		
 		if(isset($type) && $type == "phone"){
