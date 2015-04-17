@@ -68,8 +68,15 @@
 			}
 			else $this->errors[] = 'Не удалось прочитать файл '.$filepath_utf.' с диска'; 
         }
-	    public function send($to,$from,$subject,$message){
-		    
+	    public function send($to,$from,$subject,$message,$add_f_flag = FALSE){
+		    // помимо всех прочих необходимых параметров есть еще один важный $add_f_flag который регулирует нужно ли передавать
+			// флаг '-f' функции mail()
+			// практика показала что где-то например в скриптах работающих через крон этот флаг необходим без него mail() не отрабатывает
+			// в других местах как например отправка КП наоборот наличие '-f' флага в не дает срабатывать mail(), он там мешает так что 
+			// в разных местах возникает необходимость по разному вызывать mail() , этот флаг позволяет это сделать при вызове метода send()
+			// если в методе send() передам в для этого TRUE параметра то флаг '-f' добавляется,
+			// по умолчанию ничего  в методе send() передавать  не надо и флаг '-f' добавлен не будет 
+			
 		    if(empty($to))$this->errors[] = 'Не указан отправитель';
 			if(empty($from))$this->errors[] = 'Не указан получатель'; 
 			if(empty($subject))$this->errors[] = 'Не указана тема письма'; 
@@ -129,7 +136,10 @@
 			//echo $message; exit;
 			$subject = "=?utf-8?b?".base64_encode($subject)."?=";
 			
-			if(mail($to,$subject,$message,$this->headers,'-f online_service@apelburg.ru')){
+			$f_flag =($add_f_flag)? '-fonline_service@apelburg.ru' : '';
+
+			if(mail($to,$subject,$message,$this->headers,$f_flag)){
+			
 				 return '[1,"Cообщение отправлено"]';
 			}
 			else{

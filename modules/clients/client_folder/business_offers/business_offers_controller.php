@@ -1,4 +1,5 @@
 <?php
+
     $quick_button = '<div class="quick_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 	$view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 	
@@ -31,7 +32,7 @@
 			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
 			$fd = fopen($tpl_path,'r');
 			$tpl = fread($fd,filesize($tpl_path));
-			$tpl = str_replace('[MANAGER_DATA]',convert_bb_tags($manager->data['mail_signature']),$tpl);
+			$tpl = str_replace('[MANAGER_DATA]',convert_bb_tags($manager->mail_signature),$tpl);
 			fclose($fd);
 			$message_tpls[] = '"'.$tpl_filename.'":"'.base64_encode($tpl).'"';
 		}
@@ -39,7 +40,7 @@
 		echo '{
 		       "kp_filename":"'.$kp_filename.'",
 		       "client_mails":[{"person":"менеджер - Наталья","mail":"premier22@yandex.ru"},{"person":"директор - Елена","mail":"premier_22@yandex.ru"}],
-			   "manager_mails":["'.$manager->data['email'].'","'.$manager->data['email_2'].'"],
+			   "manager_mails":["'.$manager->email.'","'.$manager->email_2.'"],
 			   "main_window_tpl":"'.$main_window_tpl.'",';
 		if(isset($message_tpls)) echo '"message_tpls":{'.implode(',',$message_tpls).'}';
 		echo '}';
@@ -58,6 +59,7 @@
 		if($mail_details->attached_files){
 		    foreach($mail_details->attached_files as $file) $mail->attach_file($_SERVER['DOCUMENT_ROOT'].$file);
 		}
+		
 		// Декодируем текст сообщения
 	    $message = base64_decode($mail_details->message);
 		$message = urldecode($message);

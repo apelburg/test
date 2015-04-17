@@ -15,7 +15,9 @@ class Manager {
 	    $query="SELECT*FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
 	    $result = $mysqli->query($query)or die($mysqli->error);
 	    if($result->num_rows>0){
-		    $this->data=$result->fetch_assoc();
+			foreach($result->fetch_assoc() as $key => $val){
+			   $this->{$key} = $val;
+			}
 	    }
 	    else{
 	        // обработка пустой выборки
