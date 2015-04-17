@@ -1,5 +1,13 @@
 <?php
-    
+
+    // ** БЕЗОПАСНОСТЬ **
+	// проверяем выдан ли доступ на вход на эту страницу
+	// если нет $ACCESS['suppliers']['access'] или она равна FALSE прерываем работу скирпта 
+	if(!@$ACCESS['suppliers']['access']) exit($ACCESS_NOTICE);
+	// ** БЕЗОПАСНОСТЬ **
+	
+	
+	
 	include_once('./libs/php/classes/supplier_class.php');
 	include_once('./libs/php/classes/mail_class.php');
 	 

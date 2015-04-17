@@ -1,4 +1,10 @@
 <?php
+
+    // ** БЕЗОПАСНОСТЬ **
+	// проверяем выдан ли доступ на вход на эту страницу
+	// если нет $ACCESS['название раздела']['access'] или она равна FALSE прерываем работу скирпта 
+	if(!@$ACCESS['clients']['access']) exit($ACCESS_NOTICE);
+	// ** БЕЗОПАСНОСТЬ **
 	
      include_once('./libs/php/classes/client_class.php');
 	 
