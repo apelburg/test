@@ -385,6 +385,70 @@ class Client {
 		$result = $mysqli->multi_query($query) or die($mysqli->error);	
 		return 1;
 	}
+	# запись в лог
+	static function history_edit_type($client_id, $user_id, $text ,$type,$tbl,$post,$id_row){
+		global $mysqli;
+
+		$query = "SELECT * FROM " . constant($tbl) . " WHERE `id` = '" . $_POST['id'] . "'";
+        $i=0;
+        $result = $mysqli->query($query) or die($mysqli->error);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $arr_adres = $row;
+            }
+        }
+        // пишем в лог предыдущие данные
+        foreach ($arr_adres as $key => $value){
+            if(isset($post[$key]) && trim($value)!=trim($post[$key])){
+                if($i>0 && count($arr_adres)!=($i-1)){
+                    $text.=",";
+                }
+                $i++;
+                $text .= "поле ".$key ." изменено с ". $value." на ".$_POST[$key];
+            }
+        }
+        if($i>0){
+            self::history($user_id, $text ,$type,$client_id);
+        }
+        return 1;
+
+	}
+	static function history_delete_type($client_id, $user_id, $text ,$type,$tbl,$post,$id_row){
+		global $mysqli;
+		$query = "SELECT * FROM " . constant($tbl) . " WHERE `id`= '" . $id_row . "'";
+        $i=0;
+        $result = $mysqli->query($query) or die($mysqli->error);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $arr_adres = $row;
+            }
+        }
+        // пишем в лог предыдущие данные
+        foreach ($arr_adres as $key => $value) {
+            if($i!=0 || count($arr_adres)!=($i-1)){
+                $text.=",";
+            }
+            $text .= "поле ".$key ." = ". $value;
+            
+        }
+        self::history($user_id, $text ,$type, $client_id);
+		return 1;
+	}
+
+	static function get_client_name($id){
+		global $mysqli;		
+		$name = "";
+		//получаем данные из основной таблицы
+		$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$name = $row['company'];
+			}
+		}
+		return $name;
+	}
+
 	static function delete_for_manager($client_id,$manager_id){
 		global $mysqli;
 		// открепить менеджера от клиента в пользу юзера для раздачи	
