@@ -1,3 +1,6 @@
+<style>
+.test_data{font-size:9px;}
+</style>
 <?php
 
     // ** БЕЗОПАСНОСТЬ **
@@ -9,9 +12,11 @@
 	
 	// Данные расчетной таблицы хронятся в 3-х таблицах базы данных
 	// 1-я таблица является родительской для 2-ой , 2-ая родительской для 3-ей
-	// os__rt_main_rows (RT_MAIN_ROWS)  1-я таблица основные ряды таблицы, содержащие описательные данные о товарной позиции (наименование, тип )
-	// os__rt_dop_data (RT_DOP_DATA)  2-я таблица содрежит данные о количестве и цене для каждого варианта расчета товарной позиции (к каждой строке из 1-ой таблицы может соответсвовать любое количество стро из 2-ой таблицы)
+	// os__rt_main_rows  (RT_MAIN_ROWS)  1-я таблица основные ряды таблицы, содержащие описательные данные о товарной позиции (наименование, тип )
+	// os__rt_dop_data   (RT_DOP_DATA)  2-я таблица содрежит данные о количестве и цене для каждого варианта расчета товарной позиции (к каждой строке из 1-ой таблицы может соответсвовать любое количество стро из 2-ой таблицы)
+	// os__rt_dop_uslugi (RT_DOP_USLUGI) 3-я таблица содержит данные о расчетах о дополнительных услугах к ним относятся - нанесение, доставка, упаковка. Причем данные в таблице разделены на группы нанесение входит в группу print, все остальное в группу extra (к каждой строке из 2-ой таблицы может соответсвовать любое количество строк из 3-ей таблицы)
 	// os__rt_print_data (RT_PRINT_DATA) 3-я таблица содержит данные о расчетах нанесения (к каждой строке из 2-ой таблицы может соответсвовать любое количество стро из 3-ей таблицы)
+	
 	
 	//  cat catalogs - товары из каталогов 
 	//  pol polygraphy - полиграфия 
@@ -26,14 +31,14 @@
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.in_price AS dop_t_in_price , dop_data_tbl.out_price AS dop_t_out_price , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.final AS final,  dop_data_tbl.draft AS draft,
 						  
-						  print_data_tbl.id AS print_id , print_data_tbl.dop_row_id AS print_t_dop_row_id ,print_data_tbl.type AS print_t_type ,
-		                  print_data_tbl.quantity AS print_t_quantity ,print_data_tbl.price AS print_t_price 
+						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
+		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price AS uslugi_t_price 
 		          FROM 
 		          `".RT_MAIN_ROWS."`  main_tbl 
 				  LEFT JOIN 
 				  `".RT_DOP_DATA."`   dop_data_tbl   ON  main_tbl.id = dop_data_tbl.row_id
 				  LEFT JOIN 
-				  `".RT_PRINT_DATA."` print_data_tbl ON  dop_data_tbl.id = print_data_tbl.dop_row_id
+				  `".RT_DOP_USLUGI."` dop_uslugi_tbl ON  dop_data_tbl.id = dop_uslugi_tbl.dop_row_id
 		          WHERE main_tbl.order_num ='".$order_num."' ORDER BY main_tbl.id";
 				  
 		 $result = $mysqli->query($query) or die($mysqli->error);
@@ -44,7 +49,7 @@
 				 $multi_dim_arr[$row['main_id']]['art'] = $row['art'];
 				 $multi_dim_arr[$row['main_id']]['name'] = $row['item_name'];
 			 }
-			 //$multi_dim_arr[$row['main_id']]['print_id'][] = $row['print_id'];
+			 //$multi_dim_arr[$row['main_id']]['uslugi_id'][] = $row['uslugi_id'];
 			 if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
 			     $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']] = array(
 				                                                    'final' => $row['final'],
@@ -53,12 +58,12 @@
 																	'in_price' => $row['dop_t_in_price'],
 																	'out_price' => $row['dop_t_out_price']);
 		    }
-			if(isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) && !empty($row['print_id'])){
-			    $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['print_data'][$row['print_id']] = array(
-																									'type' => $row['print_t_type'],
-																									'quantity' => $row['print_t_quantity'],
-																									'price' => $row['print_t_price'],
-																									'print_id' => $row['print_id']
+			if(isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) && !empty($row['uslugi_id'])){
+			    $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['dop_uslugi'][$row['uslugi_t_glob_type']][$row['uslugi_id']] = array(
+																									'type' => $row['uslugi_t_type'],
+																									'quantity' => $row['uslugi_t_quantity'],
+																									'price' => $row['uslugi_t_price'],
+																									'uslugi_id' => $row['uslugi_id']
 																									);
 			}
 			
@@ -73,7 +78,7 @@
 	 $rows = fetch_rows_from_rt(10147);
 	 
 	 
-	 
+	 $test_data = FALSE; // TRUE
 	 // Построение таблицы РТ
 	 // основой для рядов таблицы (тегов <tr>) является второй уровень массива $rows[0], тоесть это те данные которые лежат в $row['dop_data']
 	 // каждый элемент этого массива выводится как отдельный ряд (в ходе обработки вывода могут быть добавлены дополнительные вспомагательные 
@@ -81,7 +86,7 @@
 	 // Тоесть таблица, количество (тегов <tr>), формируется на основе уровня $row['dop_data'], остальные уровни только влияют на результирующий
 	 // вид таблицы
 	 // элементы первого уровня выводятся один раз на весь блок элементов $row['dop_data']
-	 // элементы третьего уровня $dop_row['print_data'] выводятся в виде ссылки внутри существующего ряда, если $dop_row['print_data'] существует
+	 // элементы третьего уровня $dop_row['dop_uslugi'] выводятся в виде ссылки внутри существующего ряда, если $dop_row['dop_uslugi'] существует
 	 // РЯДЫ ДЛЯ РАСЧЕТА ВАРИАНТОВ!!! $dop_row['draft'] - для реализации функционала при котором позиция может иметь несколько расчетов, 
 	 // при этом может быть что ни один из низ не выбран как окончательный, или один выбран а остальные остаются вариантами, введено понятие
 	 // draft - (черновик,проект,эскиз) для маркирования таких рядов в базе данных - объявляется следующее правило - если позиция имеет один  
@@ -116,7 +121,7 @@
 		 if(!$all_draft) array_unshift($row['dop_data'],$row_to_lift_up);
 		 // здесь определяем выводить ли дополнительный вспомогательный пустой ряд сверху
 		 // когда все остальные являются draft то выводим  т.е. (если не все draft то невыводим)
-		 if($all_draft) array_unshift($row['dop_data'],array('quantity'=>0,'in_price'=>0,'out_price'=>0,'print_data'=>0));
+		 if($all_draft) array_unshift($row['dop_data'],array('quantity'=>0,'in_price'=>0,'out_price'=>0));
 		 
 		 // здесь мы определяем значение для атрибута rowspan тегов td которые будут выводится единой ячейкой для всей товарной позиции
 		 $row_span = count($row['dop_data']);
@@ -124,10 +129,33 @@
 		 
 		 // Проходим в цикле по второму уровню массива($row['dop_data']) на основе которого стороится основной шаблон таблицы
 	     foreach($row['dop_data'] as $dop_key => $dop_row){
-		     // определяем что выводить в поле отбражения вариантов печати
-		     // если данных по печати нет выводи +(плюс), если есть проверям чтобы $dop_row['print_data'] был массивом, если это не массив значит 
-			 // специально добавленное значение чтобы обозначить что это пустой первый ряд
-		     $print_btn = !isset($dop_row['print_data']) ? 'печать +' : ( is_array($dop_row['print_data'])? 'печать '.count($dop_row['print_data']) : '' );
+		     // работаем с информацией о дополнительных услугах определяя что будет выводиться и где
+			 if(isset($dop_row['dop_uslugi']['print'])){
+				 // определяем что выводить в поле отбражения вариантов печати
+				 // если данных по печати нет выводи +(плюс), если есть проверям чтобы $dop_row['print_data'] был массивом, если это не массив значит 
+				 // специально добавленное значение чтобы обозначить что это пустой первый ряд
+		     //$print_btn = !isset($dop_row['print_data']) ? 'печать +' : ( is_array($dop_row['print_data'])? 'печать '.count($dop_row['print_data']) : '' );
+				 $print_btn = 'печать '.count($dop_row['dop_uslugi']['print']); 
+			     if($test_data) $print_open_data = print_r($dop_row['dop_uslugi']['print'],TRUE);
+			 }
+			 else{
+			     $print_btn = ($all_draft && $counter==0)? '' : 'печать +';
+				 if($test_data) $print_open_data =($all_draft && $counter==0)? 0:'- печать 0-';
+			 }
+			 if(isset($dop_row['dop_uslugi']['extra'])){
+			     foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
+				     $summ[] = $extra_data['quantity']*$extra_data['price'];
+				 }
+			     $dop_uslugi_summ = array_sum($summ);
+                 if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);
+			 }
+			 else{
+			     $dop_uslugi_summ = ($all_draft && $counter==0)? '' : 'extra +';
+			     if($test_data) $extra_open_data =($all_draft && $counter==0)? 0:'- extra 0-';
+			 }
+			 
+			
+			 
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr>';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'">'.$key.'</td>':'';
@@ -138,13 +166,15 @@
 			               <td>'.@$dop_row['draft'].'</td>
 						   <td>'.$dop_row['in_price'].'</td>
 						   <td>'.$dop_row['out_price'].'</td>
-						   <td>'.$print_btn.'</td> 
-					   </tr>';
-		    $tbl_rows[]= $cur_row;
-		    $counter++;
-		     // rowspan=""$tbl_rows[] = '<div style="border:#000 solid 1px">'.$dop_row['quantity'].'  '.$dop_row['in_price'].'  <td>'.print_r($dop_row,TRUE).'</td>'$dop_row['out_price'].'</div>';
-		
-		
+						   <td>'.$print_btn.'</td>
+						   <td>'.$dop_uslugi_summ.'</td> ';
+			 if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td> ';
+			 if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td> ';
+			 $cur_row .= '</tr>';
+			 
+			 // загружаем сформированный ряд в итоговый массив
+		     $tbl_rows[]= $cur_row;
+		     $counter++;
 		 }
 	 }
 	 
@@ -175,5 +205,22 @@
 		 if(!$final_row && count($row['dop_data'])>1) array_unshift($row['dop_data'],array('quantity'=>0,'in_price'=>0,'out_price'=>0,'print_data'=>0));
 		 $row_span = count($row['dop_data']);
 		 $counter=0;
+		 
+		 
+		  ВАРИАНТ С RT_PRINT_DATA
+		 
+		  $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,
+		 
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.in_price AS dop_t_in_price , dop_data_tbl.out_price AS dop_t_out_price , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.final AS final,  dop_data_tbl.draft AS draft,
+						  
+						  print_data_tbl.id AS print_id , print_data_tbl.dop_row_id AS print_t_dop_row_id ,print_data_tbl.type AS print_t_type ,
+		                  print_data_tbl.quantity AS print_t_quantity ,print_data_tbl.price AS print_t_price 
+		          FROM 
+		          `".RT_MAIN_ROWS."`  main_tbl 
+				  LEFT JOIN 
+				  `".RT_DOP_DATA."`   dop_data_tbl   ON  main_tbl.id = dop_data_tbl.row_id
+				  LEFT JOIN 
+				  `".RT_PRINT_DATA."` print_data_tbl ON  dop_data_tbl.id = print_data_tbl.dop_row_id
+		          WHERE main_tbl.order_num ='".$order_num."' ORDER BY main_tbl.id";
 		 */
 ?>
