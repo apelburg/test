@@ -55,6 +55,11 @@
 	define("GENERATED_SPECIFICATIONS_TBL","os__generated_specifications"); // таблица созданных договоров
 	define("PLANNER","os__planner"); // 
 	
+	// новая РТ
+	define("RT_MAIN_ROWS","os__rt_main_rows"); //
+	define("RT_DOP_DATA","os__rt_dop_data"); //
+	define("RT_PRINT_DATA","os__rt_print_data"); // 
+	
 
 
 	

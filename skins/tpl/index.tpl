@@ -72,6 +72,9 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
             <td>
                 <a href="?page=empty4" class="<?php if($page=='empty4')echo'selected'; ?>">Ещё</a>
             </td>
+            <td>
+                <a href="?page=_test_rt" class="<?php if($page=='empty4')echo'selected'; ?>">test_rt</a>
+            </td>
             <td style="width:auto;">&nbsp;
                 
             </td>

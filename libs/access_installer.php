@@ -52,7 +52,11 @@
 										'access'=> true,
 										'__foo___'=> true
 										),
-						'default'=> array(
+					   '_test_rt'=> array(
+										'access'=> true,
+										'__foo___'=> true
+										),
+					   'default'=> array(
 										'access'=> true
 										),
 				       );
