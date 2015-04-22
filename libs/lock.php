@@ -1,6 +1,6 @@
 <?php
     session_start();
-	
+
     if(!isset($_SESSION['access'])){
          if(!isset($_POST['password']) || ( $_POST['password'] == '' || $_POST['login']== '')){
 	         include('./skins/tpl/sequrity.tpl');
@@ -12,6 +12,8 @@
 	         if(mysql_num_rows($result)>0 && $_POST['session_id'] === session_id()){
 				 $_SESSION['access']['user_id'] = mysql_result($result,0,'id');
 				 $_SESSION['access']['email'] = mysql_result($result,0,'email');
+				 $_SESSION['access']['access'] = mysql_result($result,0,'access');
+
 			 }
 			 
 			 header('Location:'.$_SERVER['REQUEST_URI']);

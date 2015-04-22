@@ -24,9 +24,15 @@
 	if(isset($_POST['ajax_standart_window'])){
 
 		if($_POST['ajax_standart_window']=="client_delete"){
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' запросил удаление поставщика '.$supplier_name_i;
+	        Supplier::history($user_id, $text_history ,'contact_face_new_form',$supplier_id);
+	        //-- END -- //
 			$id_row2 = base64_encode($_POST['id']);
 			$username = $user_name.' '.$user_last_name;
-			$response = Supplier::removal_request(trim($id_row2),$username);			
+			$response = Supplier::removal_request(trim($id_row2),$username);						
 			if($response=='1'){
 				echo '{
 			       "response":"1",
@@ -34,14 +40,21 @@
 			    }';
 		  	}else{
 		  		echo '{
-		       "response":"0",
-		       "text":"Что-то пошло не так."
-		    }';
+			       "response":"0",
+			       "text":"Что-то пошло не так."
+		    	}';
 		  	}			
 			exit;
 		}
 
 		if($_POST['ajax_standart_window']=="add_new_phone_row"){
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' добавил новый контактный телефон '.$supplier_name_i;
+	        Supplier::history($user_id, $text_history ,'contact_face_new_form',$supplier_id);
+	        //-- END -- //
+
 			$query = "INSERT INTO `".CONT_FACES_CONTACT_INFO_TBL."` SET 
 			`parent_id` ='".$_POST['client_id']."', 
 			`table` = '".$_POST['parent_tbl']."', 
@@ -49,21 +62,19 @@
 			`telephone_type` = '".$_POST['type_phone']."', 
 			`contact` = '".$_POST['telephone']."',
 			`dop_phone` = '".((trim($_POST['dop_phone'])!="" && is_numeric(trim($_POST['dop_phone'])))?trim($_POST['dop_phone']):'')."';";
-
-			// echo "$query";exit;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo $mysqli->insert_id;
 			exit;
 		}
 		
 		if($_POST['ajax_standart_window']=="update_reiting_cont_face"){
-		$query = "UPDATE  `".SUPPLIERS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";
-		$result = $mysqli->query($query) or die($mysqli->error);
-		echo '{
-		       "response":"1",
-		       "text":"Данные успешно сохранены"
-		      }';
-		exit;
+			$query = "UPDATE  `".SUPPLIERS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{
+			       "response":"1",
+			       "text":"Данные успешно сохранены"
+			      }';
+			exit;
 		}
 		if($_POST['ajax_standart_window']=="show_cont_face_in_json"){
 			$query = "SELECT * FROM `".SUPPLIERS_CONT_FACES_TBL."` WHERE `id` = '".$_POST['id']."'";
@@ -82,6 +93,15 @@
 		}
 
 		if($_POST['ajax_standart_window']=="contact_face_edit_form"){
+			$tbl = "SUPPLIERS_CONT_FACES_TBL";
+			$id_row = $_POST['id'];
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' обновил информацию по контактному лицу '.$supplier_name_i;
+	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'contact_face_edit_form',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
 			global $mysqli;
 			$query = "UPDATE  `".SUPPLIERS_CONT_FACES_TBL."` SET  
 			`surname` =  '".$_POST['surname']."',
@@ -100,6 +120,14 @@
 
 
 		if($_POST['ajax_standart_window']=="contact_face_new_form"){
+			$tbl = "SUPPLIERS_CONT_FACES_TBL";
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' добавил новое контактное лицо '.$supplier_name_i;
+	        Supplier::history($user_id, $text_history ,'contact_face_new_form',$supplier_id);
+	        //-- END -- //
+
 			global $mysqli;
 			$query = "INSERT INTO  `".SUPPLIERS_CONT_FACES_TBL."` SET  
 			`supplier_id` =  '".$_POST['parent_id']."',
@@ -119,9 +147,16 @@
 		}
 
 		if($_POST['ajax_standart_window']=="delete_cont_face_row"){
-			
+
 			$id_row = $_POST['id'];
 			$tbl = "SUPPLIERS_CONT_FACES_TBL";
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' удалил контактное лицо у поставщика '.$supplier_name_i;
+	        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
 			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			// echo $query;
@@ -133,10 +168,23 @@
 		}
 
 		if($_POST['ajax_standart_window']=="edit_client_dop_information"){
+			$tbl = "SUPPLIERS_TBL";
+			$id_row = $_POST['id'];
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' обновил информацию по поставщику '.$supplier_name_i;
+	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
 			global $mysqli;
-			$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
+			# пока что без папки поставщика
+			/*$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
 			`dop_info` =  '".$_POST['dop_info']."',
-			`ftp_folder` =  '".$_POST['ftp_folder']."' WHERE  `id` ='".$_POST['id']."';";
+			`ftp_folder` =  '".$_POST['ftp_folder']."' WHERE  `id` ='".$_POST['id']."';";*/
+			$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
+			`dop_info` =  '".$_POST['dop_info']."' WHERE  `id` ='".$_POST['id']."';";
+
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo '{
 		       "response":"1",
@@ -151,7 +199,17 @@
 			exit;
 		}
 		if($_POST['ajax_standart_window']=="delete_dop_cont_row"){
-			$query = "DELETE FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `id` = '".$_POST['id']."'";
+			
+			$id_row = $_POST['id'];
+			$tbl = "CONT_FACES_CONTACT_INFO_TBL";
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' удалил поле с доп. контактной информацией (email,www, VK)  '.$supplier_name_i;
+	        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
+			$query = "DELETE FROM `".constant($tbl)."` WHERE `id` = '".$id_row."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo "OK";
 			exit;
@@ -161,6 +219,13 @@
 			$id = $_POST['id'];
 			$tbl = $_POST['tbl'];
 			$company = $_POST['company'];
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' обновил информацию по поставщику '.$supplier_name_i;
+	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'chenge_name_company',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
 			//тут обновляем название компании
 			global $mysqli;
 			$query = "UPDATE  `".constant($tbl)."` SET  `nickName` =  '".$company."' WHERE  `id` ='".$id."'; ";
@@ -176,6 +241,12 @@
 			$id = $_POST['id'];
 			$tbl = $_POST['tbl'];
 			$company = $_POST['company'];
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' обновил информацию по поставщику '.$supplier_name_i;
+	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'chenge_fullname_company',$tbl,$_POST,$id_row);
+	        //-- END -- //
 			//тут обновляем название компании
 			global $mysqli;
 			$query = "UPDATE  `".constant($tbl)."` SET  `fullName` =  '".$company."' WHERE  `id` ='".$id."'; ";
@@ -243,6 +314,13 @@
 		
 
 		if($_POST['ajax_standart_window']=="add_new_other_row"){
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' добавил новый доп. контакт к поставщику '.$supplier_name_i;
+	        Supplier::history($user_id, $text_history ,'add_new_other_row',$supplier_id);
+	        //-- END -- //
+
 			$query= "INSERT INTO `".CONT_FACES_CONTACT_INFO_TBL."` SET 			
 			
 			`parent_id` ='".$_POST['client_id']."', 
@@ -306,12 +384,6 @@
         $suppliers_id = $_GET['suppliers_id'];
         $json = $_POST['profile_id'];
         $activity_id = json_decode($json,true);
-
-
-        //echo $client_id;
-        // echo '<br>';
-        // print_r($manager_id);
-        // echo '</pre>';
         $str_id = '';
         $query = "";
         foreach($activity_id as $k => $v){
@@ -334,14 +406,18 @@
         exit;
 
 
-    }
-
-
-
+    	}
 		if($_POST['ajax_standart_window']=="delete_adress_row"){
 			
 			$id_row = $_POST['id_row'];
 			$tbl = $_POST['tbl'];
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' удалил поле адрес у поставщика '.$supplier_name_i;
+	        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_adress_row',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
 			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo '{
