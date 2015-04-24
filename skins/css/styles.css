@@ -91,26 +91,27 @@ body{
 }
 .main_menu_tbl{
   width:100%;
-  background-color:#91C18D;
+  background-color:#007036;
   border-collapse:collapse;
 }
-
+.main_menu_tbl td:nth-of-type(1){ text-align: left;}
+.main_menu_tbl td:nth-of-type(1) div{ padding-left: 32px}
 .main_menu_tbl td{
-  width:60px;
+  /*width:60px;*/
   text-align:center;
   /*font-family:Helvetica, Verdana, Arial,  sans-serif;*/
   font-size:13px;
-  font-weight:bold;
-  padding:3px 5px;
+  /*font-weight:bold;*/
+  
   border:#000000 solid 0px;
 }
 
 .main_menu_tbl td a{
   text-decoration:none;
-  color:#000;
+  color:#fff;padding: 3px 10px;
 }
 .main_menu_tbl td a.selected {
-  color:#FFF;
+  color:#FFF; background-color: #92b73e;
 }
 .main_menu_tbl td a.s1 {
   color:#FFF;
@@ -121,10 +122,16 @@ body{
 .main_menu_tbl td a:hover{
   color:#fff;
 }
+#authentication_menu_div a{
+  color:#000;
+}
 .main_menu_tbl .authentication_plank_tbl{
   width:100%;
   /*background-color:#FFC18D;*/
   border-collapse:collapse;
+  color:#fff;
+  margin-top: 3px;
+    text-transform: uppercase;
 }
 .main_menu_tbl .authentication_plank_tbl td{
   width:24px;
@@ -182,6 +189,7 @@ body{
   /*border:#fff solid 0px;*/
   border-bottom:#969699 solid 1px;
   width:auto;
+  padding: 0;
 }
 .quick_bar_tbl td.quick_button{
   width:150px;
@@ -189,23 +197,49 @@ body{
   text-align:left;*/
 }
 .quick_bar_tbl td .quick_button_div{
-  width:137px;
+  /*width:137px;
   height:30px;
   margin:9px 0px 9px 7px;
   text-align:center;
   border:#000 solid 0px;
   background-image:url(../images/img_design/quick_button.png);
-  background-repeat:no-repeat;
+  background-repeat:no-repeat;*/
 }
 
+#quick_button_back{
+  float: left;  
+  width: 33px;
+  height: 44px;
+}
+#quick_button_back a{
+  float: left; 
+  width: 33px;
+  height: 44px;background: url(../images/img_design/quick_button_back.png);background-repeat:no-repeat;
+}
 .quick_bar_tbl td .quick_button_div:hover{
-  background-image:url(../images/img_design/quick_button_over.png)
+ /* background-image:url(../images/img_design/quick_button_over.png)*/
 }
 .quick_bar_tbl td .quick_button_div .button{
   text-decoration:none;
-  display:block;
   line-height:30px;
+  font-size: 14px; float: left;
+  padding: 0 35px 0 10px;
+  margin-top: 6px;
+  margin-left: 20px;
+  
+  
+  background-color: #CD2328;
+  color: #fff;
 }
+.quick_bar_tbl td .quick_button_div .button.edit{
+  background: url(../images/img_design/button_edit.png); 
+  background-position: top right; background-repeat: no-repeat;background-color: #CD2328;
+}
+.quick_bar_tbl td .quick_button_div .button.add{
+  background: url(../images/img_design/button_add.png);
+  background-position: top right; background-repeat: no-repeat;background-color: #CD2328;
+
+  }
 
 .quick_bar_tbl td .quick_view_button_div{
   width:54px;
@@ -230,35 +264,38 @@ body{
   text-align:left;
 }
 .quick_bar_tbl .search_div{
-  margin:auto;
-  width:600px;
+  /*margin:auto;*/
+  /*width:600px;*/
+  margin-top: 7px;
+  float: left;
   border:#000 solid 0px;
 }
 .quick_bar_tbl .search_div .search_cap{
   float:left;
   font-size:18px;
   font-weight:bold;
-  color:#0d5131;
+  color:#007036;
   padding:5px 0px 0px 0px;
 }
 .quick_bar_tbl .search_div .search_field{
   float:left;
   position:relative;
-  padding:4px 20px 0px 16px;
+  /*padding:4px 20px 0px 16px;*/
+  padding: 2px 0 0 4px;height: 29px;
 }
 .quick_bar_tbl .search_div .search_field .undo_btn{
   position: absolute;
-  text-align:center;
-  top:8px;
-  right:25px;
-  padding:1px 0px 0px 0px;
-  /*height:15px;*/
-  width:18px;
-  background-color:#BBB;
+  text-align: center;
+  top: 6px;
+  right: 7px;
+  padding: 1px 0px 0px 0px;
+  /* height: 15px; */
+  width: 18px;
+  background-color: #BBB;
   border-radius: 10px;
   -moz-border-radius: 12px;
-  -webkit-border-radius: 12px;/**/
-  cursor:pointer;
+  -webkit-border-radius: 12px;
+  cursor: pointer;
 }
 .quick_bar_tbl .search_div .search_field .undo_btn:hover{
   background-color:#DDD;
@@ -273,11 +310,11 @@ body{
   color:#FFF;
 }
 .quick_bar_tbl .search_div .search_field input{
-  width:375px;
-  height:22px;
-  border:#969699 solid 1px;
-  padding-left:5px;
-  padding-right:25px;
+  width: 375px;
+  height: 22px;
+  border: #969699 solid 1px;
+  padding-left: 5px;
+  padding-right: 25px;
 }
 .quick_bar_tbl .search_div .search_button{
   
@@ -288,18 +325,26 @@ body{
   clear:both;
 }
 .quick_bar_tbl .search_div .search_button{
-  float:left;
-  margin:2px 0px;
-  width:61px;
-  height:29px;
-  cursor:pointer;
-  background-image:url(../images/img_design/quick_search_button.png);
-  background-repeat:no-repeat;
+  float: left;
+  margin: 2px 0px;
+  width: 61px;
+  height: 29px;
+  cursor: pointer;
+  background-image: url(../images/img_design/quick_search_button.png);
+  background-repeat: no-repeat;
 }
 
 .quick_bar_tbl .search_div .search_button:hover{
-  background-image:url(../images/img_design/quick_search_button_over.png)
 }
+.quick_bar_tbl .std_button{ background-color: #92b73e; cursor: default; padding: 4px 7px; float: left; font-size: 14px; color:#fff;}
+.quick_bar_tbl .std_button:hover{background-color: #86AB33;}
+.quick_bar_tbl .quick_button_circle{float: left; margin-right: 5px; margin-left: 5px}
+
+.quick_bar_tbl .quick_button_circle{float: left; padding: 3px;  margin-right: 5px; margin-left: 5px}
+.quick_bar_tbl .quick_button_circle:hover{background-color: #f1f1f1;}
+.quick_bar_tbl .quick_button_circle__text{ cursor: default; font-size: 14px;  float: left;  margin-top: 9px;  padding-left: 5px;}
+.quick_bar_tbl .quick_button_circle__alert{ background-color: red;color: #fff; float: right; font-size: 12px; line-height: 12px; margin-right: -3px; margin-top: -3px}
+.quick_bar_tbl .quick_button_circle .quick_button_circle__circle{ border: 1px solid #fff;float: left;width: 33px; height: 33px; border-radius: 17px; bor}
 .options_bar .block{
   margin:0px 10px 0px 10px; 
   float:left;
@@ -1519,3 +1564,13 @@ margin-left: -350px;z-index: 999;}
 .chose_curators{ padding: 4px 0; width: 99%; margin-top:5px; padding-left: 5%; float:left; font-size:12px;}
 .chose_curators:hover{ background-color: #EDB4B4; cursor:default}
 .chose_curators.enabled {  background-color: #A6CC8B;  font-weight: bold;  color: #fff;}
+
+#general_button_red{
+  text-decoration: none;
+  line-height: 30px;
+  background-color: #b0282c;
+  color: #fff;
+  float: left;
+  font-size: 14px;
+  padding: 0px 35px 0 10px;
+}
