@@ -393,7 +393,8 @@ div.sample_content_tables table tbody tr td img{
 }
 /** / END окно доставки  *****/
 .quick_bar_tbl td.quick_button{
-  width:500px;
+  width: 245px;
+  height: 60px;
  /* padding:9px 0px 9px 7px;
   text-align:left;*/
 }

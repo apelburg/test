@@ -39,7 +39,7 @@ input:hover,textarea:hover,textarea:focus, input:focus{outline: none;box-shadow:
  }
  textarea{padding:1px 0;}
 body .quick_bar_tbl td .quick_button_div{background: none;}
-body .quick_bar_tbl td .quick_button_div .button {text-decoration: none; display: block; line-height: 30px;background: #D94A38;color: #fff; }
+body .quick_bar_tbl td .quick_button_div .button {text-decoration: none; display: block; line-height: 30px;background-color: #CD2328;color: #fff; }
 .no_edit:hover div,.no_edit:hover{ background: none}
 #client_delete{ float: left; margin-top: 15px; color: grey; background: #f3f3f3; padding: 5px 10px; cursor: default;border: 1px solid grey}
 #client_delete:hover{ float: left; background: #D3D3D3;}

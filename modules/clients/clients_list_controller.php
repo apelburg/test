@@ -30,8 +30,8 @@
 	}
     /////////////////////////////////////////////////////////////////////////////
 	
-    $quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_client" style="  text-decoration: none;
-  display: block;  line-height: 30px;  background: #D94A38;  color: #fff;" class="button">Добавить</a></div>';
+    $quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_client" style="
+  display: block;" class="button add">Добавить</a></div>';
 	
 	$_SESSION['view_type']['clients_list']  = isset($_GET['view']) ? $_GET['view'] :( isset($_SESSION['view_type']['clients_list']) ? $_SESSION['view_type']['clients_list'] :'ordinary');
 	$curViewType = $_SESSION['view_type']['clients_list'];

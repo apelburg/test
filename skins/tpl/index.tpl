@@ -40,40 +40,31 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
     <table class="main_menu_tbl noselect">
         <tr>
             <td>
-                <a href="?page=clients&section=clients_list" class="<?php if($page=='clients')echo'selected'; ?>">Клиенты</a>
-            </td>
-            <td>
-                <a href="?page=suppliers&section=suppliers_list" class="<?php if($page=='suppliers')echo'selected'; ?>">Поставщики</a>
-            </td>
-            <td>
-                <a href="?page=planner" class="<?php if($page=='planner')echo'selected'; ?>">Планы</a>
-            </td>
-            <td>
-                <a href="?page=orders" class="<?php if($page=='orders')echo'selected'; ?>">Заказы</a>
-            </td>
-             <td>
-                <a href="?page=documents" class="<?php if($page=='documents')echo'selected'; ?>">Документы</a>
-            </td>
-            <td>
-                <a href="?page=samples&sample_page=start" class="<?php if($page=='samples')echo'selected'; ?>">Образцы</a>
-            </td>
-            <td>
-                <a href="?page=delivery" class="<?php if($page=='delivery')echo'selected'; ?>">Доставка</a>
-            </td>
-            <td>
-                <a href="?page=design" class="<?php if($page=='design')echo'selected'; ?>">Дизайн</a>
-            </td>
-            <td>
-                <a href="?page=empty2" class="<?php if($page=='empty2')echo'selected'; ?>">Производство</a>
-            </td>
-            <td>
-                <a href="?page=empty3" class="<?php if($page=='empty3')echo'selected'; ?>">Уведомления</a>
-            </td>
-            <td>
-                <a href="?page=empty4" class="<?php if($page=='empty4')echo'selected'; ?>">Ещё</a>
-            </td>
-            <td>
-                <a href="?page=_test_rt" class="<?php if($page=='empty4')echo'selected'; ?>">test_rt</a>
+                <div>
+                    <a href="?page=clients&section=clients_list" class="<?php if($page=='clients')echo'selected'; ?>">Клиенты</a>
+                
+                    <a href="?page=suppliers&section=suppliers_list" class="<?php if($page=='suppliers')echo'selected'; ?>">Поставщики</a>
+                
+                    <a href="?page=planner" class="<?php if($page=='planner')echo'selected'; ?>">Планы</a>
+                
+                    <a href="?page=orders" class="<?php if($page=='orders')echo'selected'; ?>">Заказы</a>
+                
+                    <a href="?page=documents" class="<?php if($page=='documents')echo'selected'; ?>">Документы</a>
+                
+                    <a href="?page=samples&sample_page=start" class="<?php if($page=='samples')echo'selected'; ?>">Образцы</a>
+                
+                    <a href="?page=delivery" class="<?php if($page=='delivery')echo'selected'; ?>">Доставка</a>
+                
+                    <a href="?page=design" class="<?php if($page=='design')echo'selected'; ?>">Дизайн</a>
+                
+                    <a href="?page=empty2" class="<?php if($page=='empty2')echo'selected'; ?>">Производство</a>
+                
+                    <a href="?page=empty3" class="<?php if($page=='empty3')echo'selected'; ?>">Уведомления</a>
+                
+                    <a href="?page=empty4" class="<?php if($page=='empty4')echo'selected'; ?>">Ещё</a>
+                
+                    <a href="?page=_test_rt" class="<?php if($page=='empty4')echo'selected'; ?>">test_rt</a>
+                </div>
             </td>
             <td style="width:auto;">&nbsp;
                 
@@ -82,7 +73,7 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
                 <table class="authentication_plank_tbl">
                     <tr>
                         <td style="width:auto;text-align:right;">
-                            <div style="width:228px;overflow:hidden;">
+                            <div style="overflow:hidden;">
                                 <nobr><?php echo $position.': '.$user_name.' '.$user_last_name; ?></nobr>
                             </div>
                         </td>

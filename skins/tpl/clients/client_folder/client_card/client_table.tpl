@@ -2,13 +2,6 @@
     body .quick_bar_tbl td .quick_button_div{
       background: none;
     }
-    body .quick_bar_tbl td .quick_button_div .button {
-      text-decoration: none;
-      display: block;
-      line-height: 30px;
-      background: #D94A38;
-      color: #fff;
-    }
     .adress_note{ float: left; padding-top: 10px; color: rgb(176, 175, 175)}
     #requisits_button{display: block;float: right;padding: 3px 10px 2px 10px;background-color: #F3F5F5;border:1px solid #D0D7D8;position: absolute;right: 50%;margin-right: 20px; cursor: default;}
     #requisits_button:hover{ background-color: #E4E8E8;}

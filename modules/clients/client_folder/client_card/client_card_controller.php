@@ -11,7 +11,7 @@ else {
     $url_string.= "&client_edit";
 }
 
-$quick_button = '<div class="quick_button_div"><a href="' . $url_string . '" id="" class="button ">' . ((isset($_GET['client_edit'])) ? 'Сохранить' : 'Редактировать') . '</a></div>';
+$quick_button = '<div class="quick_button_div"><a href="' . $url_string . '" id="" class="button ' . ((isset($_GET['client_edit'])) ? 'add' : 'edit') . '">' . ((isset($_GET['client_edit'])) ? 'Сохранить' : 'Редактировать') . '</a></div>';
 
 $view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 
