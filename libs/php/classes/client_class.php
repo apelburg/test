@@ -105,6 +105,7 @@ class Client {
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
+		$this->info = 0;
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$this->info = $row;
