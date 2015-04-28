@@ -39,6 +39,8 @@ var rt_calculator = {
 	// значений в итоговые суммы таблицы
     tbl:false,
     tbl_model:false,
+	previos_data:{},
+	difference:{},
 	init_tbl:function(tbl_id){// метод запускаемый при наступлении события window.onload()
 	                          // вызывает методы:
 							  // collect_data - для создания модели таблицы
@@ -72,9 +74,13 @@ var rt_calculator = {
 		//**print_r(rt_calculator.tbl_model[row_id]);
 		
 		// сохраняем итоговые суммы ряда до изменения ячейки
-		var previos_data = {}
-		previos_data['in_summ'] = rt_calculator.tbl_model[row_id]['in_summ'];
-		previos_data['out_summ'] = rt_calculator.tbl_model[row_id]['out_summ'];
+		rt_calculator.previos_data['price_in_summ'] = rt_calculator.tbl_model[row_id]['price_in_summ'];
+		rt_calculator.previos_data['price_out_summ'] = rt_calculator.tbl_model[row_id]['price_out_summ'];
+		rt_calculator.previos_data['in_summ'] = rt_calculator.tbl_model[row_id]['in_summ'];
+		rt_calculator.previos_data['out_summ'] = rt_calculator.tbl_model[row_id]['out_summ'];
+		rt_calculator.previos_data['delta'] = rt_calculator.tbl_model[row_id]['delta'];
+		rt_calculator.previos_data['margin'] = rt_calculator.tbl_model[row_id]['margin'];
+		
 		
 		// вносим изменённое значение в соответствующую ячейку this.tbl_model
 		rt_calculator.tbl_model[row_id][cell.getAttribute('type')] = cell.innerHTML;
@@ -91,25 +97,44 @@ var rt_calculator = {
 	,
 	calculate_row:function(row_id){
 	    // метод который рассчитывает итоговые суммы конкретного ряда таблицы
-		// методу передается id конкретного ряда таблицы, дальше метод выделят этот ряд в модели таблицы rt_calculator.tbl_model
+		// методу передается id затронутого ряда таблицы, дальше метод выделят этот ряд в модели таблицы rt_calculator.tbl_model
 		// и рассчитывает его
 		var row = rt_calculator.tbl_model[row_id];
-		row['in_summ'] = (row['quantity']*row['price_in'])+row['print_in_summ']+row['dop_uslugi_in_summ'];
-		row['out_summ'] = row['quantity']*row['price_out']+row['print_out_summ']+row['dop_uslugi_out_summ'];
+		row['price_in_summ'] = row['quantity']*row['price_in'];
+		row['price_out_summ'] = row['quantity']*row['price_out'];
+		row['in_summ'] = row['price_in_summ']+row['print_in_summ']+row['dop_uslugi_in_summ'];
+		row['out_summ'] = row['price_out_summ']+row['print_out_summ']+row['dop_uslugi_out_summ'];
         row['delta'] = row['margin'] = row['out_summ']-row['in_summ'];
+		
+		// расчитываем разницу появивщуюся в результате изменений 
+		rt_calculator.tbl_model['total_row']['price_in_summ'] += row['price_in_summ'] - rt_calculator.previos_data['price_in_summ'];
+		rt_calculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rt_calculator.previos_data['price_out_summ'];
+		rt_calculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rt_calculator.previos_data['in_summ'];
+		rt_calculator.tbl_model['total_row']['out_summ'] += row['out_summ'] - rt_calculator.previos_data['out_summ'];
+		rt_calculator.tbl_model['total_row']['delta'] +=  row['delta'] - rt_calculator.previos_data['delta'];
+		rt_calculator.tbl_model['total_row']['margin'] +=  row['margin'] - rt_calculator.previos_data['margin'];
 	}
 	,
 	change_html:function(cur_tr,row_id){
 	    // метод который вносит изменения (итоги рассчетов в таблицу HTML)
+		
+		// внесение изменений в затронутый ряд
 		var tds_arr = cur_tr.getElementsByTagName('td');
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
-				if(tds_arr[j].getAttribute('type') == 'in_summ') tds_arr[j].innerHTML = rt_calculator.tbl_model[row_id]['in_summ'];
-				if(tds_arr[j].getAttribute('type') == 'out_summ') tds_arr[j].innerHTML = rt_calculator.tbl_model[row_id]['out_summ'];
-				if(tds_arr[j].getAttribute('type') == 'delta') tds_arr[j].innerHTML = rt_calculator.tbl_model[row_id]['delta'];
-				if(tds_arr[j].getAttribute('type') == 'margin') tds_arr[j].innerHTML = rt_calculator.tbl_model[row_id]['margin'];
+			    tds_arr[j].innerHTML = rt_calculator.tbl_model[row_id][tds_arr[j].getAttribute('type')];
+			    /*if(tds_arr[j].getAttribute('type') == 'in_summ') tds_arr[j].innerHTML = rt_calculator.tbl_model[row_id]['in_summ'];*/
 			}
 		}
+		
+		// внесение изменений в итоговый ряд
+		var tds_arr =this.tbl_total_row.getElementsByTagName('td');
+		for(var j = 0;j < tds_arr.length;j++){
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+			    tds_arr[j].innerHTML = rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')];
+			}
+		}
+		
 	}
 	,
     collect_data:function(){
@@ -118,18 +143,34 @@ var rt_calculator = {
 	    var trs_arr = this.tbl.getElementsByTagName('tr');
 	
 		for(var i = 0;i < trs_arr.length;i++){
-		    var row_id = trs_arr[i].getAttribute('row_id');
-			if(row_id!=0){// row_id==0 у вспомогательных рядов их пропускаем
-				var tds_arr = trs_arr[i].getElementsByTagName('td');
-				for(var j = 0;j < tds_arr.length;j++){
-					if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
-						if(!this.tbl_model[row_id]) this.tbl_model[row_id] = {};
-						this.tbl_model[row_id][tds_arr[j].getAttribute('type')] = parseFloat(tds_arr[j].innerHTML);
+		    // если ряд не имеет атрибута row_id пропускаем его
+		    if(!trs_arr[i].getAttribute('row_id')) continue;
+			
+			var row_id = trs_arr[i].getAttribute('row_id');
+			
+			// row_id==0 у вспомогательных рядов их пропускаем
+			if(row_id==0) continue; //trs_arr[i].style.backgroundColor = '#FFFF00';
+			
+            if(row_id=='total_row') this.tbl_total_row = trs_arr[i];
+			
+			var tds_arr = trs_arr[i].getElementsByTagName('td');
+			for(var j = 0;j < tds_arr.length;j++){
+				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+					if(!this.tbl_model[row_id]) this.tbl_model[row_id] = {};
+					this.tbl_model[row_id][tds_arr[j].getAttribute('type')] = parseFloat(tds_arr[j].innerHTML);
+					
+					
+					/*// если это ряд содержащий абсолютные ссуммы сохраняем постоянные ссылки на его ячейки , чтобы затем вносить в них изменения
+					// КАК ТО НЕ ПОЛУЧИЛОСЬ
+					if(row_id=='total_row'){
+					    if(!this.tbl_model['total_row_links']) this.tbl_model['total_row_links'] = {};
+					    this.tbl_model['total_row_links'][tds_arr[j].getAttribute('type')] = tds_arr_1[j];
 					}
+					*/
 				}
 			}
+		
 		}
-		/**/
 	    //print_r(this.tbl_model);
 		return true;  
 	},
@@ -330,12 +371,24 @@ var rt_calculator = {
 			 
 			 // подсчет сумм ряду
 			 // 1. подсчитываем входящую сумму
-			 $in_summ = $dop_row['quantity']*$dop_row['price_in']+$print_in_summ+$dop_uslugi_in_summ;
+			 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
+			 $in_summ = $price_in_summ+$print_in_summ+$dop_uslugi_in_summ;
 			 // 2. подсчитываем исходящую сумму 
-			 $out_summ =  $dop_row['quantity']*$dop_row['price_out']+$print_out_summ+$dop_uslugi_out_summ;
+			 $price_out_summ =  $dop_row['quantity']*$dop_row['price_out'];
+			 $out_summ =  $price_out_summ+$print_out_summ+$dop_uslugi_out_summ;
 			 
 			 $delta = $out_summ-$in_summ; 
 			 $margin = $out_summ-$in_summ;
+			 
+			 @$total['price_in_summ'] += $price_in_summ;
+			 @$total['price_out_summ'] += $price_out_summ;
+			 @$total['print_in_summ'] += $print_in_summ;
+			 @$total['print_out_summ'] += $print_out_summ;
+			 @$total['dop_uslugi_in_summ'] += $dop_uslugi_in_summ;
+			 @$total['dop_uslugi_out_summ'] += $dop_uslugi_out_summ;
+			 @$total['in_summ'] += $in_summ;
+			 @$total['out_summ'] += $out_summ;
+			 //$total_delta$total_margin
 			 
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr row_id="'.$dop_key.'">';
@@ -346,7 +399,9 @@ var rt_calculator = {
 			               <td>'.$dop_row['row_status'].'</td>
 			               <td type="quantity" editable="true">'.$dop_row['quantity'].'</td>
 						   <td type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
+						   <td type="price_in_summ" class="in">'.$price_in_summ.'</td>
 						   <td type="price_out" class="out" editable="true">'.$dop_row['price_out'].'</td>
+						   <td type="price_out_summ" class="out">'.$price_out_summ.'</td>
 						   <td class="grey">'.$print_btn.'</td>';
                 if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
 			    if($test_data)	 $cur_row .=  '<td type="print_in_summ" class="test_data in">'.$print_in_summ.'</td>';
@@ -377,6 +432,8 @@ var rt_calculator = {
 				  <td>статус ряда</td>
 				  <td>кол-во</td>
 				  <td>вход</td>
+				  <td>вход</td>
+				  <td>выход</td>
 				  <td>выход</td>
 				  <td>нанесение</td>';
 	if($test_data)	 echo '<td class="test_data_cap">нанес подробн</td>';
@@ -391,6 +448,31 @@ var rt_calculator = {
 				  <td>дельта</td>
 				  <td>маржинальность</td>
                   <td>статус</td>';              
+	 echo     '</tr>
+	           <tr row_id="total_row">
+	              <td></td>
+				  <td></td>
+				  <td></td>
+				  <td></td>
+				  <td></td>
+				  <td></td>
+				  <td></td>
+				  <td type="price_in_summ">'.$total['price_in_summ'].'</td>
+				  <td></td>
+				  <td type="price_out_summ">'.$total['price_out_summ'].'</td>
+				  <td>нанесение</td>';
+	if($test_data)	 echo '<td class="test_data_cap"></td>';
+	if($test_data)	 echo '<td  type="print_in_summ" class="test_data_cap">'.$total['print_in_summ'].'</td>';		  
+			echo '<td type="print_out_summ">'.$total['print_out_summ'].'</td>
+			      <td>доп.усл</td>';
+    if($test_data)	 echo '<td class="test_data_cap"></td>';
+    if($test_data)	 echo '<td type="dop_uslugi_in_summ" class="test_data_cap">'.$total['dop_uslugi_in_summ'].'</td>';
+			echo '<td type="dop_uslugi_out_summ">'.$total['dop_uslugi_out_summ'].'</td>
+			      <td type="in_summ">'.$total['in_summ'].'</td>
+				  <td type="out_summ">'.$total['out_summ'].'</td>
+				  <td type="delta">'.($total['out_summ']-$total['in_summ']).'</td>
+				  <td type="margin">'.($total['out_summ']-$total['in_summ']).'</td>
+                  <td></td>';              
 	 echo     '</tr>'
 	         .implode('',$tbl_rows).'
 		   </table>';
