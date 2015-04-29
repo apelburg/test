@@ -7,6 +7,7 @@
 .in{ background-color: #CCFFFF;}
 .out{ background-color: #FFFFCC;}
 .grey{ background-color: #DDD;}
+.red_cell{ color: #FF0000;}
 .top{ vertical-align:top}
 </style>
 <script type="text/javascript">
@@ -39,8 +40,8 @@ var rt_calculator = {
 	// значений в итоговые суммы таблицы
     tbl:false,
     tbl_model:false,
+	tbl_total_row:false,
 	previos_data:{},
-	difference:{},
 	init_tbl:function(tbl_id){// метод запускаемый при наступлении события window.onload()
 	                          // вызывает методы:
 							  // collect_data - для создания модели таблицы
@@ -55,18 +56,139 @@ var rt_calculator = {
 		// и навешивает обработчик события onkeyup
 		var tds_arr = this.tbl.getElementsByTagName('td');
 	    for(var i in tds_arr){
-		    if(tds_arr[i].getAttribute && tds_arr[i].getAttribute('editable')){
-		        tds_arr[i].onkeyup = this.make_calculations;
-		        tds_arr[i].setAttribute("contenteditable",true);
+		    if(tds_arr[i].getAttribute){
+			    if(tds_arr[i].getAttribute('editable')){
+					//tds_arr[i].onkeyup = this.make_calculations;
+					tds_arr[i].onkeyup = this.check;
+					tds_arr[i].setAttribute("contenteditable",true);
+			    }
+				if(tds_arr[i].getAttribute('tumbler') && tds_arr[i].getAttribute('tumbler')=='count_in_total'){
+					tds_arr[i].onclick = this.expel_row_from_total;
+				}
 		    }
+			
 	    }
 	}
 	,
-    make_calculations:function(e){
+	check:function(e){
+	    e = e || window.event;
+		var cell = e.target || e.srcElement;
+		
+		//alert(floatLengthToFixed (cell.innerHTML));
+		if(cell.getAttribute('type') == 'quantity')  var result = correctToInt(cell.innerHTML);
+		else  var result = correctToFloat(cell.innerHTML);
+		
+		placeCaretAtEnd(cell);
+		
+		if(result !== false) rt_calculator.make_calculations(cell);
+		
+		
+		
+	    function correctToFloat(str){// корректировка значений вводимых пользователем в поле ввода типа Float
+		    var wrong_input = false;
+			
+			// если строка пустая правим на 0.00
+			if(str == ''){ wrong_input = true; str = '0.00';}
+			
+			// если строка содержит запятую меняем её на точку
+			var pattern = /,/; 
+		    if(str.match(pattern)){ wrong_input = true;  str =  str.replace(',','.');}
+			
+			// если строка содержит что-то кроме цифры или точки вырезаем этот символ
+			var pattern = /[^\d\.]+/; 
+			var result = pattern.exec(str);
+		    if(result !== null){ 
+			    wrong_input = true;
+				var substr_arr = str.split(result[0]);
+				str =  substr_arr[0] + substr_arr[1];
+			    
+		    }
+			
+			// если строка содержит более одной точки вырезаем оставляем только одну точку
+			var pattern = /\./g; 
+			var counter = 0;
+			var result;
+			while ((result = pattern.exec(str)) !== null) {
+			  if(counter++>0){
+				  wrong_input = true;
+				  str =  str.replace('.','');
+			  }
+			 
+			}
+			//  если после точки введено менее или более 2 цифр исправляем до 2-х
+			var pattern = /^\d+\.\d{2}$/; 
+		    if(!str.match(pattern)){ wrong_input = true; str = parseFloat(str).toFixed(2);}
+		
+			/**/
+			// если был выявлен некорректный ввод исправляем содержимое ячейки 
+			if(wrong_input) cell.innerHTML = str;
+			
+			//alert(str);
+			return true; //parseFloat(str).toFixed(2);
+		}
+		function correctToInt(str){// корректировка значений вводимых пользователем в поле ввода типа Integer
+		    var wrong_input = false;
+
+			
+			// если строка пустая правим на 0.00
+			if(str == ''){ wrong_input = true; str = '0';}
+			
+			// если строка содержит что-то кроме цифры или точки вырезаем этот символ
+			var pattern = /[^\d]+/; 
+			var result = pattern.exec(str);
+		    if(result !== null){ 
+			    wrong_input = true;
+				var substr_arr = str.split(result[0]);
+				str =  substr_arr[0] + substr_arr[1];
+			    
+		    }
+			
+		    // если был выявлен некорректный ввод исправляем содержимое ячейки 
+			if(wrong_input) cell.innerHTML = str ;  
+		}
+		function placeCaretAtEnd(el) {
+			el.focus();
+			if (typeof window.getSelection != "undefined"
+					&& typeof document.createRange != "undefined") {
+				var range = document.createRange();
+				range.selectNodeContents(el);
+				range.collapse(false);
+				var sel = window.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+			} else if (typeof document.body.createTextRange != "undefined") {
+				var textRange = document.body.createTextRange();
+				textRange.moveToElementText(el);
+				textRange.collapse(false);
+				textRange.select();
+			}
+		}
+		function setSelectionRange(input, selectionStart, selectionEnd) {
+		  if (input.setSelectionRange) {
+			input.focus();
+			input.setSelectionRange(selectionStart, selectionEnd);
+		  }
+		  else if (input.createTextRange) {
+			var range = input.createTextRange();
+			range.collapse(true);
+			range.moveEnd('character', selectionEnd);
+			range.moveStart('character', selectionStart);
+			range.select();
+		  }
+		}
+		 
+		function setCaretToPos (input, pos) {
+		  setSelectionRange(input, pos, pos);
+		}
+		
+		return true;//parseInt(str);
+    }
+	,
+    make_calculations:function(cell){
 	    // Когда в ячейке(поле ввода) в результате каких то действий происходит изменение содержимого нужно вызывать этот метод
 		// метод производит калькуляцию текущих данных, и вычисляет разность текущих данных с теми которые были до изменения 
-		e = e || window.event;
-		var cell = e.target || e.srcElement;
+		//e = e || window.event;
+		//var cell = e.target || e.srcElement;
 		// получаем id ряда
 		var cur_tr = cell.parentNode;
 		var row_id = cell.parentNode.getAttribute('row_id');
@@ -100,13 +222,24 @@ var rt_calculator = {
 		// методу передается id затронутого ряда таблицы, дальше метод выделят этот ряд в модели таблицы rt_calculator.tbl_model
 		// и рассчитывает его
 		var row = rt_calculator.tbl_model[row_id];
+		
+		/*row['price_in_summ'] = rt_calculator.multiplication(row['quantity'],row['price_in']);
+		row['price_out_summ'] = rt_calculator.multiplication(row['quantity'],row['price_out']);*/
 		row['price_in_summ'] = row['quantity']*row['price_in'];
 		row['price_out_summ'] = row['quantity']*row['price_out'];
+		
+		/*row['in_summ'] = rt_calculator.sum(row['price_in_summ'],row['print_in_summ'],row['dop_uslugi_in_summ']);
+		row['out_summ'] = rt_calculator.sum(row['price_out_summ'],row['print_out_summ'],row['dop_uslugi_out_summ']);*/
 		row['in_summ'] = row['price_in_summ']+row['print_in_summ']+row['dop_uslugi_in_summ'];
 		row['out_summ'] = row['price_out_summ']+row['print_out_summ']+row['dop_uslugi_out_summ'];
-        row['delta'] = row['margin'] = row['out_summ']-row['in_summ'];
-		
-		// расчитываем разницу появивщуюся в результате изменений 
+       
+		// расчитываем разницу появивщуюся в результате изменений и помещаем данные 
+		/*rt_calculator.tbl_model['total_row']['price_in_summ'] =  ((rt_calculator.sum(rt_calculator.tbl_model['total_row']['price_in_summ'],row['price_in_summ'])-rt_calculator.previos_data['price_in_summ']) *1000000)/ 1000000;
+		rt_calculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rt_calculator.previos_data['price_out_summ'];
+		rt_calculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rt_calculator.previos_data['in_summ'];
+		rt_calculator.tbl_model['total_row']['out_summ'] += row['out_summ'] - rt_calculator.previos_data['out_summ'];
+		rt_calculator.tbl_model['total_row']['delta'] +=  row['delta'] - rt_calculator.previos_data['delta'];
+		rt_calculator.tbl_model['total_row']['margin'] +=  row['margin'] - rt_calculator.previos_data['margin'];*/
 		rt_calculator.tbl_model['total_row']['price_in_summ'] += row['price_in_summ'] - rt_calculator.previos_data['price_in_summ'];
 		rt_calculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rt_calculator.previos_data['price_out_summ'];
 		rt_calculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rt_calculator.previos_data['in_summ'];
@@ -135,6 +268,67 @@ var rt_calculator = {
 			}
 		}
 		
+	}
+	,
+	sub:function () {
+		var result = 0;
+		for (var i = 0, max = arguments.length; i< max; i++ ) {
+		  result -= arguments[i];
+		}
+		return (result *1000000)/ 1000000;
+	  }
+	,
+	sum:function () {
+		var result = 0;
+		for (var i = 0, max = arguments.length; i< max; i++ ) {
+		  result += arguments[i];
+		}
+		return (result *1000000)/ 1000000;
+	  }
+	,
+	multiplication:function () {
+		var result = 1;
+		for (var i = 0, max = arguments.length; i< max; i++ ) {
+		  result = result*arguments[i];
+		}
+		return (result *1000000)/ 1000000;
+	  }
+	,
+	expel_row_from_total:function(e){// метод исключающий или включающий ряд в подсчете окончательных сумм по всей таблице (итоговый ряд)
+	    if(rt_calculator.expel_row_from_total.in_process) return; 
+		rt_calculator.expel_row_from_total.in_process = true;
+		
+	    e = e || window.event;
+		var cell = e.target || e.srcElement;
+		
+	    
+		// в зависимости от состояния маркера мы либо вычитаем данные ряда из итоговых сумм либо добавляем к ним
+		if(cell.getAttribute('tumbler_status') == undefined){ alert('attribute tumbler_status dont exists'); return;}
+		var status = !!cell.getAttribute('tumbler_status');
+        
+		var row_id = cell.parentNode.getAttribute('row_id');
+		if(row_id == undefined) { alert('attribute row_id dont exists'); return;}
+		
+		var tds_arr = rt_calculator.tbl_total_row.getElementsByTagName('td');
+		//alert(status);
+		for(var j = 0;j < tds_arr.length;j++){
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+			   if(status){
+			      
+			       rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')] -= rt_calculator.tbl_model[row_id][tds_arr[j].getAttribute('type')];
+				   
+			   }
+			   else{
+			       rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')] = rt_calculator.sum(rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')],rt_calculator.tbl_model[row_id][tds_arr[j].getAttribute('type')]);
+				   
+			   }
+			   tds_arr[j].innerHTML = rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')];
+			
+			}
+		}
+		cell.setAttribute('tumbler_status',((status)? '':1));
+	    cell.className = (status)? cell.className+' red_cell':cell.className.slice(0,cell.className.indexOf("red_cell")-1);
+		rt_calculator.expel_row_from_total.in_process = false;
 	}
 	,
     collect_data:function(){
@@ -395,7 +589,7 @@ var rt_calculator = {
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top">'.$row['art'].''.$row['name'].'</td>':'';
-			 $cur_row .=  '<td>'.@$dop_row['draft'].' - '.$dop_key.'</td>
+			 $cur_row .=  '<td onclick="rt_calculator.expel_row_from_total('.$dop_key.')">'.@$dop_row['draft'].'</td>
 			               <td>'.$dop_row['row_status'].'</td>
 			               <td type="quantity" editable="true">'.$dop_row['quantity'].'</td>
 						   <td type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
@@ -410,7 +604,7 @@ var rt_calculator = {
 			    if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			    if($test_data)	 $cur_row .=  '<td type="dop_uslugi_in_summ" class="test_data in">'.$dop_uslugi_in_summ.'</td>';
 			 $cur_row .=  '<td type="dop_uslugi_out_summ" class="out">'.$dop_uslugi_out_summ.'</td>
-						   <td type="in_summ" class="in">'.$in_summ.'</td>
+						   <td type="in_summ" class="in" tumbler="count_in_total" tumbler_status="1">'.$in_summ.'</td>
 						   <td type="out_summ" class="out">'.$out_summ.'</td>
 						   <td type="delta" >'.$delta.'</td>
 						   <td type="margin" >'.$margin.'</td>';
