@@ -78,8 +78,8 @@ var rt_calculator = {
 		if(cell.getAttribute('type') == 'quantity')  var result = correctToInt(cell.innerHTML);
 		else  var result = correctToFloat(cell.innerHTML);
 		
-		placeCaretAtEnd(cell);
-		
+		//placeCaretAtEnd(cell);
+		setCaretToPos2(cell,2);
 		if(result !== false) rt_calculator.make_calculations(cell);
 		
 		
@@ -180,7 +180,16 @@ var rt_calculator = {
 		function setCaretToPos (input, pos) {
 		  setSelectionRange(input, pos, pos);
 		}
-		
+		function setCaretToPos2(el, pos) {
+		    var range = document.createRange();
+			var sel = window.getSelection();
+			range.setStart(el.childNodes[0], pos);
+			range.collapse(true);
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+
+
 		return true;//parseInt(str);
     }
 	,
