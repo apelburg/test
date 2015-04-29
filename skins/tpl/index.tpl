@@ -60,6 +60,8 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
                     <a href="?page=empty2" class="<?php if($page=='empty2')echo'selected'; ?>">Производство</a>
                 
                     <a href="?page=empty3" class="<?php if($page=='empty3')echo'selected'; ?>">Уведомления</a>
+
+                    <a href="?page=cabinet" class="<?php if($page=='cabinet')echo'selected'; ?>">Кабинет</a>
                 
                     <a href="?page=empty4" class="<?php if($page=='empty4')echo'selected'; ?>">Ещё</a>
                 

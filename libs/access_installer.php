@@ -44,6 +44,70 @@
 										'full_clients_delete'=> true,
 										'show___foo___'=> false
 										),
+				       'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( // 1
+											'important'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'all' => array('access'=>true)
+													)
+												),
+											'requests'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'no_worcked' => array('access'=>true),
+													'in_work' => array('access'=>true),
+													'send_to_snab' => array('access'=>true),
+													'calk_snab' => array('access'=>true),
+													'ready_KP' => array('access'=>true),
+													'denied' => array('access'=>true),
+													'all' => array('access'=>true)
+													)
+												), 
+											'paperwork'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'create_spec' => array('access'=>true),
+													'signed' => array('access'=>true),
+													'expense' => array('access'=>true)
+													)
+												), 
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'start' => array('access'=>true),
+													'purchase' => array('access'=>true),
+													'design' => array('access'=>true),
+													'production' => array('access'=>true),
+													'ready_for_shipment' => array('access'=>true),
+													'paused' => array('access'=>true),
+													'all' => array('access'=>true)
+													)
+												),
+											'for_shipping'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'order_of_documents' => array('access'=>true),
+													'arrange_delivery' => array('access'=>true),
+													'delivery' => array('access'=>true),
+													'pclosing_documents' => array('access'=>true)
+													)
+												),
+											'closed'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												),
+											'simples'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												)
+											)
+										),
 					   'suppliers'=> array(
 										'access'=> true,
 										'full_suppliers_delete'=> true
