@@ -27,6 +27,10 @@
 	
 	  
 	   
+	   case 'cabinet':
+	   include 'modules/cabinet/router.php';
+	   break;
+
 	   case 'clients':
 	   include 'modules/clients/router.php';
 	   break;
