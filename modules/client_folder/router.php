@@ -15,6 +15,10 @@
 	   include 'rt_controller.php';
 	   break;
 
+	   case 'order_art_edit':
+	   include 'order_art_edit/router.php';
+	   break;
+
 	   default: 
 	   include 'rt_controller.php';
 	   break;

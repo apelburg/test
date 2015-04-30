@@ -44,11 +44,13 @@
 										'full_clients_delete'=> true,
 										'show___foo___'=> false
 										),
-
 					   'client_folder'=> array(
 										'access'=> true,
-										'show___foo___'=> false
-										),
+										'show___foo___'=> false,
+										'section'=> array( // 1
+											'order_art_edit'=> array('access'=>true)
+											)	
+										),					   
 				       'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1

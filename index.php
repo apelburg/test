@@ -46,10 +46,6 @@
 	   case '_test_rt':
 	   include 'modules/_test_rt/router.php';
 	   break;
-
-	   case 'order_art_edit':
-	   include 'modules/order_art_edit/router.php';
-	   break;
 	   
 	   case 'client_folder':
 	   include 'modules/client_folder/router.php';
