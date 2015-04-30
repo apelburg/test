@@ -63,7 +63,7 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
 
                     <a href="?page=cabinet" class="<?php if($page=='cabinet')echo'selected'; ?>">Кабинет</a>
                     
-                    <a href="?page=client_folder&section=rt" class="<?php if($page=='client_folder')echo'selected'; ?>">Папка клиента</a>
+                    <a href="?page=client_folder" class="<?php if($page=='client_folder')echo'selected'; ?>">Папка клиента</a>
                     
                     <a href="?page=empty4" class="<?php if($page=='empty4')echo'selected'; ?>">Ещё</a>
                 
