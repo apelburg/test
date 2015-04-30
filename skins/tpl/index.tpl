@@ -62,10 +62,12 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
                     <a href="?page=empty3" class="<?php if($page=='empty3')echo'selected'; ?>">Уведомления</a>
 
                     <a href="?page=cabinet" class="<?php if($page=='cabinet')echo'selected'; ?>">Кабинет</a>
-                
+                    
+                    <a href="?page=client_folder&section=rt" class="<?php if($page=='client_folder')echo'selected'; ?>">Папка клиента</a>
+                    
                     <a href="?page=empty4" class="<?php if($page=='empty4')echo'selected'; ?>">Ещё</a>
                 
-                    <a href="?page=_test_rt" class="<?php if($page=='empty4')echo'selected'; ?>">test_rt</a>
+                    <!--<a href="?page=_test_rt" class="<?php if($page=='empty4')echo'selected'; ?>">test_rt</a>-->
                 </div>
             </td>
             <td style="width:auto;">&nbsp;

@@ -44,6 +44,10 @@
 										'full_clients_delete'=> true,
 										'show___foo___'=> false
 										),
+					   'client_folder'=> array(
+										'access'=> true,
+										'show___foo___'=> false
+										),
 				       'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1

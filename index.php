@@ -47,6 +47,9 @@
 	   include 'modules/_test_rt/router.php';
 	   break;
 	   
+	   case 'client_folder':
+	   include 'modules/client_folder/router.php';
+	   break;
 	   /*
 	   case 'orders':
 	   include 'modules/orders/router.php';
