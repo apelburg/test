@@ -62,7 +62,7 @@ var rt_calculator = {
 					tds_arr[i].onkeyup = this.check;
 					tds_arr[i].setAttribute("contenteditable",true);
 			    }
-				if(tds_arr[i].getAttribute('tumbler') && tds_arr[i].getAttribute('tumbler')=='count_in_total'){
+				if(tds_arr[i].getAttribute('expel')){
 					tds_arr[i].onclick = this.expel_row_from_total;
 				}
 		    }
@@ -202,34 +202,27 @@ var rt_calculator = {
 	}
 	,
 	calculate_row:function(row_id){
-	    // метод который рассчитывает итоговые суммы конкретного ряда таблицы
+	    // метод который рассчитывает итоговые суммы конкретного ряда таблицы и если ряд не исключен из итоговых расчетов
+		// делает изменения в ряду содержащем абсолютные суммы total_row
 		// методу передается id затронутого ряда таблицы, дальше метод выделят этот ряд в модели таблицы rt_calculator.tbl_model
 		// и рассчитывает его
 		var row = rt_calculator.tbl_model[row_id];
 		
-		/*row['price_in_summ'] = rt_calculator.multiplication(row['quantity'],row['price_in']);
-		row['price_out_summ'] = rt_calculator.multiplication(row['quantity'],row['price_out']);*/
 		row['price_in_summ'] = row['quantity']*row['price_in'];
 		row['price_out_summ'] = row['quantity']*row['price_out'];
 		
-		/*row['in_summ'] = rt_calculator.sum(row['price_in_summ'],row['print_in_summ'],row['dop_uslugi_in_summ']);
-		row['out_summ'] = rt_calculator.sum(row['price_out_summ'],row['print_out_summ'],row['dop_uslugi_out_summ']);*/
 		row['in_summ'] = row['price_in_summ']+row['print_in_summ']+row['dop_uslugi_in_summ'];
 		row['out_summ'] = row['price_out_summ']+row['print_out_summ']+row['dop_uslugi_out_summ'];
        
-		// расчитываем разницу появивщуюся в результате изменений и помещаем данные 
-		/*rt_calculator.tbl_model['total_row']['price_in_summ'] =  ((rt_calculator.sum(rt_calculator.tbl_model['total_row']['price_in_summ'],row['price_in_summ'])-rt_calculator.previos_data['price_in_summ']) *1000000)/ 1000000;
-		rt_calculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rt_calculator.previos_data['price_out_summ'];
-		rt_calculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rt_calculator.previos_data['in_summ'];
-		rt_calculator.tbl_model['total_row']['out_summ'] += row['out_summ'] - rt_calculator.previos_data['out_summ'];
-		rt_calculator.tbl_model['total_row']['delta'] +=  row['delta'] - rt_calculator.previos_data['delta'];
-		rt_calculator.tbl_model['total_row']['margin'] +=  row['margin'] - rt_calculator.previos_data['margin'];*/
-		rt_calculator.tbl_model['total_row']['price_in_summ'] += row['price_in_summ'] - rt_calculator.previos_data['price_in_summ'];
-		rt_calculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rt_calculator.previos_data['price_out_summ'];
-		rt_calculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rt_calculator.previos_data['in_summ'];
-		rt_calculator.tbl_model['total_row']['out_summ'] += row['out_summ'] - rt_calculator.previos_data['out_summ'];
-		rt_calculator.tbl_model['total_row']['delta'] +=  row['delta'] - rt_calculator.previos_data['delta'];
-		rt_calculator.tbl_model['total_row']['margin'] +=  row['margin'] - rt_calculator.previos_data['margin'];
+		// если ряд не исключен из рассчетов расчитываем разницу появивщуюся в результате изменений и помещаем данные 
+	    if(!row['expel']){
+			rt_calculator.tbl_model['total_row']['price_in_summ'] += row['price_in_summ'] - rt_calculator.previos_data['price_in_summ'];
+			rt_calculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rt_calculator.previos_data['price_out_summ'];
+			rt_calculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rt_calculator.previos_data['in_summ'];
+			rt_calculator.tbl_model['total_row']['out_summ'] += row['out_summ'] - rt_calculator.previos_data['out_summ'];
+			rt_calculator.tbl_model['total_row']['delta'] +=  row['delta'] - rt_calculator.previos_data['delta'];
+			rt_calculator.tbl_model['total_row']['margin'] +=  row['margin'] - rt_calculator.previos_data['margin'];
+		}
 	}
 	,
 	change_html:function(cur_tr,row_id){
@@ -245,41 +238,19 @@ var rt_calculator = {
 			}
 		}
 		
-		// внесение изменений в итоговый ряд
-		var tds_arr =this.tbl_total_row.getElementsByTagName('td');
-		for(var j = 0;j < tds_arr.length;j++){
-			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
-			    var type = tds_arr[j].getAttribute('type');
-			    //tds_arr[j].innerHTML = rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')];
-				tds_arr[j].innerHTML = (type=='quantity')? rt_calculator.tbl_model['total_row'][type]:(rt_calculator.tbl_model['total_row'][type]).toFixed(2); 
+		// если ряд не исключен из рассчетов внoсим изменения в итоговый ряд
+	    if(!rt_calculator.tbl_model[row_id]['dop_data']['expel']){
+			var tds_arr =this.tbl_total_row.getElementsByTagName('td');
+			for(var j = 0;j < tds_arr.length;j++){
+				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+					var type = tds_arr[j].getAttribute('type');
+					//tds_arr[j].innerHTML = rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')];
+					tds_arr[j].innerHTML = (type=='quantity')? rt_calculator.tbl_model['total_row'][type]:(rt_calculator.tbl_model['total_row'][type]).toFixed(2); 
+				}
 			}
 		}
 		
 	}
-	,
-	sub:function () {
-		var result = 0;
-		for (var i = 0, max = arguments.length; i< max; i++ ) {
-		  result -= arguments[i];
-		}
-		return (result *1000000)/ 1000000;
-	  }
-	,
-	sum:function () {
-		var result = 0;
-		for (var i = 0, max = arguments.length; i< max; i++ ) {
-		  result += arguments[i];
-		}
-		return (result *1000000)/ 1000000;
-	  }
-	,
-	multiplication:function () {
-		var result = 1;
-		for (var i = 0, max = arguments.length; i< max; i++ ) {
-		  result = result*arguments[i];
-		}
-		return (result *1000000)/ 1000000;
-	  }
 	,
 	expel_row_from_total:function(e){// метод исключающий или включающий ряд в подсчете окончательных сумм по всей таблице (итоговый ряд)
 	    if(rt_calculator.expel_row_from_total.in_process) return; 
@@ -289,36 +260,52 @@ var rt_calculator = {
 		var cell = e.target || e.srcElement;
 		
 	    
-		// в зависимости от состояния маркера мы либо вычитаем данные ряда из итоговых сумм либо добавляем к ним
-		if(cell.getAttribute('tumbler_status') == undefined){ alert('attribute tumbler_status dont exists'); return;}
-		var status = !!cell.getAttribute('tumbler_status');
+		// в зависимости от состояния маркера итоговых сумм либо добавляем к ним
+		
+		if(cell.getAttribute('expel') == undefined){ alert('attribute expel dont exists'); return;}
+		var status = !!parseInt(cell.getAttribute('expel'));
+		//alert(status+' '+cell.getAttribute('expel')+' '+cell.getAttribute('type'));
         
 		var row_id = cell.parentNode.getAttribute('row_id');
 		if(row_id == undefined) { alert('attribute row_id dont exists'); return;}
-
-		if(row_id == 0) {  rt_calculator.expel_row_from_total.in_process = false; return;} // вспомогательный ряд
+		 //alert(row_id);
+		if(row_id == 0) {  rt_calculator.expel_row_from_total.in_process = false; return;}  // прерываем выполнение - вспомогательный ряд
+		var type = cell.getAttribute('type');
+		if(type =='out_summ') rt_calculator.tbl_model[row_id]['dop_data']['expel']['main'] = (status)?false:true;
+		else if(type =='print_out_summ') rt_calculator.tbl_model[row_id]['dop_data']['expel']['print'] = (status)?false:true;
+		else if(type =='dop_uslugi_out_summ') rt_calculator.tbl_model[row_id]['dop_data']['expel']['dop'] = (status)?false:true;
 		
+		cell.setAttribute('expel',((status)? 0:1));
+	    cell.className = (status)? cell.className.slice(0,cell.className.indexOf("red_cell")-1):cell.className+' red_cell';
+		
+		// перебираем ячейки ряда с итоговыми суммами
 		var tds_arr = rt_calculator.tbl_total_row.getElementsByTagName('td');
-		//alert(status);
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
-			   if(status){
-			      
-			       rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')] -= rt_calculator.tbl_model[row_id][tds_arr[j].getAttribute('type')];
-				   
-			   }
-			   else{
-			       rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')] = rt_calculator.sum(rt_calculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')],rt_calculator.tbl_model[row_id][tds_arr[j].getAttribute('type')]);
-				   
-			   }
+			    // определяем тип ячейки
 			    var type = tds_arr[j].getAttribute('type');
-				tds_arr[j].innerHTML = (type=='quantity')? rt_calculator.tbl_model['total_row'][type]:(rt_calculator.tbl_model['total_row'][type]).toFixed(2); 
-
-			
+				// прогоняем цикл по модели таблицы
+				var summ = 0;
+				for(var id in rt_calculator.tbl_model){
+				    // итоговый ряд пропускаем
+					if(id =='total_row') continue;
+					// если в ряд не участвует в расчете конечных сумм пропускаем его
+					if(rt_calculator.tbl_model[id]['dop_data']['expel']['main']) continue; 
+					//alert(id +' '+row_id+' '+type);
+					var row = rt_calculator.tbl_model[id];
+					
+					for(var prop in row){
+					    if(prop==type){
+						    // если ячеки не участвуют в расчете конечных сумм пропускаем её
+						    if((type=='print_out_summ' && row['dop_data']['expel']['print']) || (type=='dop_uslugi_out_summ' && row['dop_data']['expel']['dop'])) continue;
+							else summ+=row[prop];
+						} 
+					}
+				}
+				tds_arr[j].innerHTML =  (type=='quantity')? summ:(summ).toFixed(2); 
 			}
 		}
-		cell.setAttribute('tumbler_status',((status)? '':1));
-	    cell.className = (status)? cell.className+' red_cell':cell.className.slice(0,cell.className.indexOf("red_cell")-1);
+		
 		rt_calculator.expel_row_from_total.in_process = false;
 	}
 	,
@@ -338,12 +325,36 @@ var rt_calculator = {
 			
             if(row_id=='total_row') this.tbl_total_row = trs_arr[i];
 			
+			if(!this.tbl_model[row_id]) this.tbl_model[row_id] = {}; 
+			
+			// заносим информацию об исключении ряда из расчета
+			/*if(row_id!='total_row'){
+			    var expel = !!parseInt(trs_arr[i].getAttribute('expel'));
+			    this.tbl_model[row_id].dop_data={'expel':expel};
+			}*/
+			
 			var tds_arr = trs_arr[i].getElementsByTagName('td');
 			for(var j = 0;j < tds_arr.length;j++){
 				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
-					if(!this.tbl_model[row_id]) this.tbl_model[row_id] = {};
-					this.tbl_model[row_id][tds_arr[j].getAttribute('type')] = parseFloat(tds_arr[j].innerHTML);
+					var type = tds_arr[j].getAttribute('type');
+					this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
 					
+					if(row_id!='total_row'){
+					    if(tds_arr[j].getAttribute('expel')){
+						    if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {"expel":{}};
+						    var expel = !!parseInt(tds_arr[j].getAttribute('expel'));
+							if(type=='out_summ'){
+								this.tbl_model[row_id].dop_data.expel.main=expel;
+							}
+							else if(type=='print_out_summ'){
+							    this.tbl_model[row_id].dop_data.expel.print=expel;
+							}
+							else if(type=='dop_uslugi_out_summ'){
+							    this.tbl_model[row_id].dop_data.expel.dop=expel;
+							}
+						    
+						}
+					}
 					
 					/*// если это ряд содержащий абсолютные ссуммы сохраняем постоянные ссылки на его ячейки , чтобы затем вносить в них изменения
 					// КАК ТО НЕ ПОЛУЧИЛОСЬ
@@ -400,7 +411,7 @@ var rt_calculator = {
 		 
 		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,
 		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.in_price AS dop_t_in_price , dop_data_tbl.out_price AS dop_t_out_price , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.draft AS draft,
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.in_price AS dop_t_in_price , dop_data_tbl.out_price AS dop_t_out_price , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.draft AS draft, dop_data_tbl.expel AS expel,
 						  
 						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out
@@ -424,6 +435,7 @@ var rt_calculator = {
 			 if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
 			     $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']] = array(
 																	'draft' => $row['draft'],
+																	'expel' => $row['expel'],
 																	'row_status' => $row['row_status'],
 																	'glob_status' => $row['glob_status'],
 																	'quantity' => $row['dop_t_quantity'],
@@ -472,8 +484,9 @@ var rt_calculator = {
 	 // был еще вариант обратный маркировать окончательные финальные ряды - пока от него ушли
 	 // ФИНАЛЬНЫЙ РЯД!!! $dop_row['final'] - для реализации функционала при котором позиция может иметь несколько расчетов, при этом может быть
 	 // что ни один из низ не является финальным, или один может быть установлен как финальный и тогда он участвует в дальнейшем расчете заказа
-	 ////
-	  //echo '<pre>'; print_r($rows[0]); echo '</pre>';
+	 //
+	 //echo '<pre>'; print_r($rows[0]); echo '</pre>';
+	 
 	 $service_row[0] = array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0);
 	 foreach($rows[0] as $key => $row){
          // Проходим по первому уровню и определям некоторые моменты отображения таблицы, которые будут применены при проходе по второму
@@ -508,13 +521,23 @@ var rt_calculator = {
 		 
 		 //array_unshift($row['dop_data'],array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0));
 		 
+		 
 		 // здесь мы определяем значение для атрибута rowspan тегов td которые будут выводится единой ячейкой для всей товарной позиции
 		 $row_span = count($row['dop_data']);
 		 $counter=0;
+		  
 		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>---';
 		 // Проходим в цикле по второму уровню массива($row['dop_data']) на основе которого стороится основной шаблон таблицы
 	     foreach($row['dop_data'] as $dop_key => $dop_row){
-		 
+		     // определяем какие расчеты будут учитываться в конечных суммах а какие нет и их отображение в таблице
+		     // json_decode($row['details']);
+			 $expel = array ("main"=>0,"print"=>0,"dop"=>0);
+			 if(@$dop_row['expel']!=''){
+			    $obj = @json_decode($dop_row['expel']);
+				foreach($obj as $expel_key => $expel_val) $expel[$expel_key] = $expel_val;
+			 }
+			 //echo '<br>'; print_r($expel);
+			 
 		     // работаем с информацией о дополнительных услугах определяя что будет выводиться и где
 			 // 1. определяем данные описывающие варианты нанесения логотипа, они хранятся в $dop_row['dop_uslugi']['print']
 			 if(isset($dop_row['dop_uslugi']['print'])){ // если $dop_row['dop_uslugi']['print'] есть выводим данные о нанесениях 
@@ -558,30 +581,36 @@ var rt_calculator = {
 			 // подсчет сумм ряду
 			 // 1. подсчитываем входящую сумму
 			 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
-			 $in_summ = $price_in_summ+$print_in_summ+$dop_uslugi_in_summ;
+			 $in_summ = $price_in_summ;
+			 if(!(!!$expel["print"]))$in_summ += $print_in_summ;
+			 if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
 			 // 2. подсчитываем исходящую сумму 
 			 $price_out_summ =  $dop_row['quantity']*$dop_row['price_out'];
-			 $out_summ =  $price_out_summ+$print_out_summ+$dop_uslugi_out_summ;
+			 $out_summ =  $price_out_summ;
+			 if(!(!!$expel["print"]))$out_summ += $print_out_summ;
+			 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
 			 
 			 $delta = $out_summ-$in_summ; 
 			 $margin = $out_summ-$in_summ;
 			 
-			 @$total['price_in_summ'] += $price_in_summ;
-			 @$total['price_out_summ'] += $price_out_summ;
-			 @$total['print_in_summ'] += $print_in_summ;
-			 @$total['print_out_summ'] += $print_out_summ;
-			 @$total['dop_uslugi_in_summ'] += $dop_uslugi_in_summ;
-			 @$total['dop_uslugi_out_summ'] += $dop_uslugi_out_summ;
-			 @$total['in_summ'] += $in_summ;
-			 @$total['out_summ'] += $out_summ;
+			 if(!(!!$expel["main"])){
+				 @$total['price_in_summ'] += $price_in_summ;
+				 @$total['price_out_summ'] += $price_out_summ;
+				 @$total['print_in_summ'] += $print_in_summ;
+				 @$total['print_out_summ'] += $print_out_summ;
+				 @$total['dop_uslugi_in_summ'] += $dop_uslugi_in_summ;
+				 @$total['dop_uslugi_out_summ'] += $dop_uslugi_out_summ;
+				 @$total['in_summ'] += $in_summ;
+				 @$total['out_summ'] += $out_summ;
+			 }
 			 //$total_delta$total_margin
-			 
+		 
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr row_id="'.$dop_key.'">';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top">'.$row['art'].''.$row['name'].'</td>':'';
-			 $cur_row .=  '<td onclick="rt_calculator.expel_row_from_total('.$dop_key.')">'.@$dop_row['draft'].'</td>
+			 $cur_row .=  '<td>'.@$dop_row['draft'].'</td>
 			               <td>'.$dop_row['row_status'].'</td>
 			               <td type="quantity" editable="true">'.$dop_row['quantity'].'</td>
 						   <td type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
@@ -591,13 +620,13 @@ var rt_calculator = {
 						   <td class="grey">'.$print_btn.'</td>';
                 if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
 			    if($test_data)	 $cur_row .=  '<td type="print_in_summ" class="test_data in">'.$print_in_summ.'</td>';
-			 $cur_row .=  '<td type="print_out_summ" class="out">'.$print_out_summ.'</td>
+			 $cur_row .=  '<td type="print_out_summ" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.$print_out_summ.'</td>
 			               <td>'.$dop_uslugi_btn.'</td>';
 			    if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			    if($test_data)	 $cur_row .=  '<td type="dop_uslugi_in_summ" class="test_data in">'.$dop_uslugi_in_summ.'</td>';
-			 $cur_row .=  '<td type="dop_uslugi_out_summ" class="out">'.$dop_uslugi_out_summ.'</td>
-						   <td type="in_summ" class="in" tumbler="count_in_total" tumbler_status="1">'.$in_summ.'</td>
-						   <td type="out_summ" class="out">'.$out_summ.'</td>
+			 $cur_row .=  '<td type="dop_uslugi_out_summ" class="out '.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ.'</td>
+						   <td type="in_summ" class="in">'.$in_summ.'</td>
+						   <td type="out_summ" class="out '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'">'.$out_summ.'</td>
 						   <td type="delta" >'.$delta.'</td>
 						   <td type="margin" >'.$margin.'</td>';
 			 $cur_row .=  '<td>'.$dop_row['glob_status'].'</td>';  
