@@ -44,6 +44,9 @@
 										'full_clients_delete'=> true,
 										'show___foo___'=> false
 										),
+				       'order_art_edit'=> array(
+										'access'=> true
+										),
 				       'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
