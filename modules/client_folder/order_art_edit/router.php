@@ -6,6 +6,9 @@
 	if(!@$ACCESS['client_folder']['section']['order_art_edit']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 	
+	include 'controller.php';
+
+
 	// шаблон поиска
 	include'./skins/tpl/common/quick_bar.tpl';
 
