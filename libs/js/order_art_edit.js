@@ -62,3 +62,6 @@ $(document).on('click','#btn_date_var',function(){
 	$('#btn_date_std').removeClass('checked');
 	$(this).parent().find('input').removeAttr('readonly').removeClass('input_disabled');
 });
+
+
+

@@ -1,0 +1,25 @@
+#forum_mess{ margin-top: 15px;}
+#forum_mess_head{  background-color: #c7c8ca; padding-bottom: 3px;  padding-top: 3px;}
+#forum_mess_head table tr td span{ padding: 6px 15px;}
+#forum_mess_head table tr td span:nth-of-type(1){ font-weight: bold; padding-left: 30px; padding-right: 45px}
+#forum_mess_head table tr td span#add_comment{background-color: #cbdfa7; cursor: default;}
+#forum_mess_head table tr td span#add_comment:hover{background-color: #B7CF8D;}
+#forum_mess_head table tr td span.forum_mess_alert_red{ color: red;padding-right: 0px;font-size: 10px;}
+#forum_mess_head table tr td span.forum_mess_alert_black{ color: #000;padding-left: 0px; font-size: 10px;}
+
+#forum_mess_padding{padding: 0 28px 0 28px}
+#forum_mess_body table{ width: 100%;border-collapse: collapse}
+#forum_mess_body table tr td{ border-bottom: 2px solid #e4e5e7}
+#forum_mess_body table tr:nth-of-type(1) td:nth-of-type(2){ border-bottom: none}
+
+.mess_manager_name{width: 143px; padding-top: 10px}
+.mess_manager_name span:nth-of-type(1){ color: #000; font-size: 12px}
+.mess_manager_name span:nth-of-type(2){ color: #595b5f; font-size: 10px}
+.mess_manager_name span:nth-of-type(3){ color: #595b5f; font-size: 10px}
+
+.mess_comment_cont{ padding-left: 10px; padding-top: 10px; padding-bottom: 12px }
+.mess_quick_buttons{ text-align: right; padding: 5px }
+
+.mess_quick_buttons span{cursor:default;padding: 5px 15px; margin-right: 12px;border: 1px solid #e4e5e7;border-bottom: none;}
+.mess_quick_buttons span.grey_buttons{ background-color: #e4e5e7; padding-right: 30px; padding-left: 30px}
+.mess_quick_buttons span:hover{background-color: #C7C8CA;}

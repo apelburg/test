@@ -4,14 +4,37 @@
 	define('HOST', 'http://'.$_SERVER['HTTP_HOST'].'/os');
 	define('APELBURG_HOST', 'http://www.apelburg.ru');
 	
+
+	
+	
+    
+	
+	
+	
+	define('GIFTS_MENU_TBL','menu_for_gifts_new');
+	define('GIFTS_MENU_OLD_TBL','menu_for_gifts');
+	define('BASE_ARTS_CATS_RELATION','new__base__articles_categories_relation');
+    define('ACTIVITY_LOG','activity_log');
+	define('STAT_SEARCH','statistics_search');// таблица статистики поисковых запросов на сайте
+    define('HOLIDAY_BTN', 'menu_for_gifts_new_holiday_button'); // список праздников для отображения в кнопке в шапке
+
     // names base tables
-	define('BASE_TBL','base');
+	// define('BASE_TBL','base');
+	define('BASE_OLD_TBL','base');
+	define('BASE_TBL','new__base');
 	define('IMAGES_TBL','new__base_images');
+
 	define('BASE_DOP_PARAMS_TBL','new__base__dop_params');
+
 	define('BASE_PRINT_MODE_TBL','new__base__print_mode');
 	define('BASE_COLORS_TBL','new__base_colors');
+
 	define('BASE_MATERIALS_TBL','new__base_material');
+
+	// define('FILTERS_PRESET_TBL','new__filters_preset');
 	
+
+
     define("CLIENTS_TBL","os__client_list"); // таблица клиентов
     define("CLIENT_PERSON_REQ_TBL","os__clients_persons_for_requisites"); // список должностей для лиц емеющих право подписи
 	define("CLIENT_REQUISITES_TBL","os__clients_requisites"); // таблица реквизитов клиентов
@@ -35,8 +58,10 @@
 	define("RELATE_CLIENT_MANAGER_TBL","os__client_manager_relation"); // таблица соотношения клиентов и менеджеров
 	define("RELATE_ORDER_MANAGER_CLIENT_TBL","os__order_manager_client_relation"); // таблица соотношения заказов менеджеров и клиентов 
 	//define("RELATE_MANAGERS_BY_DEPARTMENTS_TBL","os__relate_managers_by_departments_tbl"); // таблица отношения менеджеров к отделам
-	define("CLIENT_ORDERS_TBL","orders"); // таблица заказов
+	// define("CLIENT_ORDERS_TBL","orders"); // старая таблица заказов
 
+	define("CLIENT_ORDERS_TBL","os__orders"); // таблица заказов
+	
 	
 	// define("CLIENT_HISTORY", "os__log_client"); // история по изменениям клиента
 	define("LOG_GENARAL", "os_log_general"); // общий лог
