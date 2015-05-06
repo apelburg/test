@@ -186,6 +186,7 @@ $(document).ready(function() {
 							<li id="new_variant">&nbsp;</li>
 							<li class="variant_name checked">Вариант 1</li>
 							<li class="variant_name">Вариант 2</li>
+							<li id="choose_end_variant">Выбрать окончательный</li>
 						</ul>
 					</div>
 					<div id="variants_dop_info">
@@ -201,13 +202,13 @@ $(document).ready(function() {
 								<td>
 									<strong>Дата отгрузки:</strong>
 									<span class="btn_var_std">Стандартно</span>
-									<input type="text" value="25.05.2015"> 
-									<input type="text" value="15:00">
+									<input type="text" id="datepicker2" name="datepicker2" value="25.05.2015"> 
+									<input type="text" id="timepicker2" name="timepicker2" value="15:00">
 								</td>
 								<td>
 									<strong>Изготовление р/д:</strong>
 									<span class="btn_var_std">Стандартно</span> 
-									<input type="text" value="10"> р/д	
+									<input type="text" id="fddtime_rd2" name="fddtime_rd2" value="10"> р/д	
 								</td>
 							</tr>
 						</table>
@@ -222,8 +223,8 @@ $(document).ready(function() {
 										<th>%</th>
 										<th>$ исход.</th>
 										<th>прибыль</th>
-										<th>ред.</th>
-										<th>del</th>
+										<th class="edit_cell">ред.</th>
+										<th class="del_cell">del</th>
 									</tr>
 									<tr>
 										<td>1 шт.</td>
@@ -231,7 +232,9 @@ $(document).ready(function() {
 										<td rowspan="2">20%</td>
 										<td>195,00р</td>
 										<td>12,00</td>
-										<td rowspan="2">ред.</td>
+										<td rowspan="2">
+											<span class="edit_row_variants"></span>
+										</td>
 										<td rowspan="2"></td>
 									</tr>
 									<tr>
@@ -252,8 +255,12 @@ $(document).ready(function() {
 										<td rowspan="2">20%</td>
 										<td>195,00р</td>
 										<td>12,00</td>
-										<td rowspan="2">ред.</td>
-										<td rowspan="2"></td>
+										<td rowspan="2">
+											<span class="edit_row_variants"></span>
+										</td>
+										<td rowspan="2">
+											<span class="del_row_variants"></span>
+										</td>
 									</tr>
 									<tr>
 										<td>тираж</td>
