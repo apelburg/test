@@ -14,6 +14,29 @@
 	<div id="forum_mess_padding">
 		<div id="forum_mess_body">
 			<table>
+				<!-- сообщение 1 -->
+				<tr>
+					<td  rowspan="2" class="mess_manager_name">
+						<span>Валина Палетко</span><br>
+						<span>Менеджер проекта</span><br>
+						<span>03.03.15 12:35</span><br>
+					</td>
+					<td class="mess_comment_cont">
+						текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  текст Сообщения....  
+					</td>
+				</tr>
+				<tr>
+					<td class="mess_quick_buttons">
+						<span class="grey_buttons">Ответить</span>
+						<span class="grey_buttons">Ответить с цитированием</span>
+						<span>Спасибо, принято</span>
+						<span>Отвечу позже</span>
+						<span>Ok, угу, ага</span>
+						<span>Нах?</span>
+						<span>Нах!</span>
+					</td>
+				</tr>
+				<!-- сообщение 2 -->
 				<tr>
 					<td  rowspan="2" class="mess_manager_name">
 						<span>Валина Палетко</span><br>
@@ -38,41 +61,29 @@
 			</table>
 		</div>
 		<div id="forum_mess_add">
-			<table>
+			<table id="forum_mess_add_tbl">
 				<tr>
 					<td>
-						<span>Добавить комментарий:</span>
-						<span>без адресата</span>
-						<span>выбрать адресата</span>
+						<span>Добавить комментарий:</span><br>
+						<span class="btn_green btn_span">без адресата</span><br>
+						<span class="btn_grey btn_span">выбрать адресата</span>
 					</td>
 					<td>
-						<textarea></textarea>
+						<div id="new_comment_text" contenteditable="true"></div>
 					</td>
 				</tr>
 			</table>
 			<div  id="forum_mess_add_buttons">
-				<table>
-					<tr>
-						<td>
-							<span class="forum_mess_alert_red">ничего не написано</span>
-						</td>
-						<td></td>
-						<td>
-							<span>Написать</span>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<span class="forum_mess_alert_red">добавлен текст или адресат</span>
-						</td>					
-						<td>
-							<span>Стереть</span>
-						</td>
-						<td>
-							<span>Добавить</span>
-						</td>
-					</tr>
-				</table>
+				<div>
+					<span id="btn_to_write_comment" class="btn_green btn_span">Написать</span>
+					<span class="btn_transparency btn_span"></span>
+					<span class="forum_mess_alert_red">ничего не написано</span>	
+				</div>
+				<div>
+					<span id="btn_to_add_comment" class="btn_green btn_span">Добавить</span>
+					<span id="btn_clean" class="btn_grey btn_span">Стереть</span>
+					<span class="forum_mess_alert_red">добавлен текст или адресат</span>
+				</div>
 			</div>
 		</div>
 	</div>
