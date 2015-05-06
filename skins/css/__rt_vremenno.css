@@ -1,0 +1,16 @@
+@charset "utf-8";
+/* CSS Document */
+
+.tbl {border-collapse:collapse}
+.tbl td{ border:#AAA solid 1px;}
+.cap td{font-size:13px;padding-bottom:12px;}
+.test_data{font-size:9px;}
+.test_data_cap{ background-color:#CCCCCC;}
+.in{ background-color: #CCFFFF;}
+.out{ background-color: #FFFFCC;}
+.grey{ background-color: #DDD;}
+.red_cell{ color: #FF0000;}
+.top{ vertical-align:top}
+.hidden{ display:none; }
+
+
