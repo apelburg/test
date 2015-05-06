@@ -13,7 +13,23 @@
 
 	$art = '375190.60';
 
-	function fetch_images_for_article2($art,$id){
+	$ARTICUL = new Articul($_GET['art_id']);
+	// основная информация по артикулу
+	$articul = $ARTICUL->info;
+	//цвет
+	$art_colors = implode(",", $ARTICUL->color);
+	// материал
+	$art_materials = implode(",", $ARTICUL->material);
+	// вид печати
+	$art_get_print_mode = implode(",", $ARTICUL->get_print_mode);
+	
+	// echo $art_colors;
+	// echo '<pre>';
+	// print_r($ARTICUL->color);
+	// echo '</pre>';
+
+
+	function fetch_images_for_article2($art){
 		global $db;
 		// основная картинка
 		$i=0;

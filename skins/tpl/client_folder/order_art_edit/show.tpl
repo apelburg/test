@@ -59,7 +59,7 @@ $(document).ready(function() {
 			<li id="claim_number">Запрос №2585631</li>
 			<li id="claim_date"><span>от 12.11.15 19:38</span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
-			<li id="art_name_topic"><span>Тема:</span> Футболка белая «T-bolka 140»</li>
+			<li id="art_name_topic"><span>Тема:</span> <?php echo $articul['name']; ?></li>
 		</ul>
 	</div>
 	<div id="number_position_and_type">
@@ -114,15 +114,15 @@ $(document).ready(function() {
 											<div class="table">
 												<div class="row">
 													<div class="cell">Артикул</div>
-													<div class="cell">375190.60</div>
+													<div class="cell"><?php echo $articul['art']; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">Номенклатура</div>
-													<div class="cell">Футболка белая «T-bolka 140»</div>
+													<div class="cell"><?php echo $articul['name']; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">Бренд</div>
-													<div class="cell">T-bolka 140</div>
+													<div class="cell"><?php echo $articul['brand']; ?></div>
 												</div>
 											</div>
 										</div>
@@ -130,15 +130,15 @@ $(document).ready(function() {
 											<div class="table">
 												<div class="row">
 													<div class="cell">Цвет</div>
-													<div class="cell">белый</div>
+													<div class="cell"><?php echo $art_colors; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">Материал</div>
-													<div class="cell">хлопок</div>
+													<div class="cell"><?php echo $art_materials; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">вид нанесения</div>
-													<div class="cell">шелкография</div>
+													<div class="cell"><?php echo $art_get_print_mode; ?></div>
 												</div>
 											</div>
 										</div>

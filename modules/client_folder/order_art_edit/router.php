@@ -1,5 +1,6 @@
 <?php
-
+	
+	include './libs/php/classes/articul_class.php';
     // ** БЕЗОПАСНОСТЬ **
 	// проверяем выдан ли доступ на вход на эту страницу
 	// если нет $ACCESS['suppliers']['access'] или она равна FALSE прерываем работу скирпта 

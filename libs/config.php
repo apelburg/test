@@ -4,13 +4,6 @@
 	define('HOST', 'http://'.$_SERVER['HTTP_HOST'].'/os');
 	define('APELBURG_HOST', 'http://www.apelburg.ru');
 	
-
-	
-	
-    
-	
-	
-	
 	define('GIFTS_MENU_TBL','menu_for_gifts_new');
 	define('GIFTS_MENU_OLD_TBL','menu_for_gifts');
 	define('BASE_ARTS_CATS_RELATION','new__base__articles_categories_relation');
