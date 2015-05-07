@@ -19,8 +19,10 @@
 #number_position_and_type span{ color: #5a5c61; font-size: 10px}
 
 #order_art_edit_content_table{width: 100%}
-#order_art_edit_left{ width: 277px}
-#order_art_edit_centr{}
+#order_art_edit_left{ width: 277px; padding-left: 10px}
+#order_art_edit_centr{
+	vertical-align: baseline;
+}
 
 #order_art_edit_content_table{padding: 10px 0}
 #order_art_edit_content_table .cell.b_r{border-right: 1px solid #adacab}
@@ -32,14 +34,14 @@
 #characteristics_art .table .row .cell{ padding: 5px}
 #characteristics_art .table .row .cell:nth-of-type(1){color: #7E7F83;}
 #technical_assignment{float: left; background-color: #cbcbcb; color: #5F5F5F; margin-top: 10px; margin-left: 15px; padding: 10px 15px}
-#timepicker1{width: 35px;}
-#datepicker1{width: 70px}
+#timepicker1,#timepicker2{width: 35px;}
+#datepicker1,#datepicker2{width: 70px}
 #fddtime .row .cell {padding:5px 0 5px 0;}
 #fddtime input{ margin-left: 5px}
 /*#btn_make_std,#btn_make_var,#btn_date_std,#btn_date_var*/
 .btn_var_std{ margin-left: 5px; cursor: default; padding: 4px 10px; border:1px solid #e2e2e4; color:#e2e2e4;}
 .btn_var_std.checked{ background-color: #c7c8ca; border-color: #c7c8ca; color:#000; }
-#fddtime_rd{ width: 30px}
+#fddtime_rd,#fddtime_rd2{ width: 30px}
 .input_disabled{ border:1px solid #c7c8ca; color:#c7c8ca; padding: 2px 1px}
 #status_art_z{ float: right;}
 
@@ -61,6 +63,7 @@
 
 
 #size_card{ width: 30%; min-width: 300px}
+
 #variant_info table tr#variant_calc_itogo td{ background-color:#CBDFA7;}
 #variant_info table tr#variant_calc_itogo td:nth-of-type(1){ font-weight: bold}
 
@@ -68,9 +71,29 @@
 #variant_info table tr th{ padding: 2px 5px}
 #variant_info .table_spacer{ height: 10px}
 
-
+#variants_name ul li#choose_end_variant{background-image: url('../images/img_design/choose_end_variant.png'); background-repeat: no-repeat; padding-left: 45px; float: right; background-position: 12px 0;}
+#variant_info .row .cell table tr td .edit_row_variants{ 
+	background: url('../images/img_design/edit_row_variants.png') no-repeat; 
+	float: right; 
+	margin:auto;
+	  width: 30px;
+  height: 30px;
+  background-position: 0px 2px;
+  border: 1px solid #fff;
+}
+#variant_info .row .cell table tr td .del_row_variants{ 
+	background: url('../images/img_design/del_row_variants.png') no-repeat; 
+	float: right; 
+	margin:auto;
+	  width: 30px;
+  height: 30px;
+  background-position: 5px 5px;
+  border: 1px solid #fff;
+}
+#variant_info .row .cell table tr td .edit_row_variants:hover,#variant_info .row .cell table tr td .del_row_variants:hover{border-color: #E8E8E8;}
 
 #variant_info .row .cell table tr td input[type="text"]{background-color: #c7c8ca; border: none; text-align: right; width: 70px }
+
 #variant_info #size_card table tr td:nth-of-type(3){ color: #5a5c61; font-size: 10px;}
 #variant_info #size_card table tr td:nth-of-type(2){ color: #5a5c61; font-size: 10px;}
 #variant_info #size_card table tr td:nth-of-type(4) input[type="text"]{ width: 50px;padding: 3px 5px}
@@ -81,7 +104,122 @@
 #variant_info .row .cell table{width:100%; border:none;border-collapse: collapse}
 #variant_info .row .cell table tr th{ background-color: #c7c8ca;  font-weight: normal; text-align: right;color: #5a5c61;
   font-size: 10px; }
+#variant_info .row .cell table tr th.del_cell,#variant_info .row .cell table tr th.edit_cell{width: 32px; text-align: center;}
 #variant_info .row .cell table tr td{  text-align: right; }
 #variant_info .row .cell table tr th:nth-of-type(2){min-width: 50px}
 #variant_info .row .cell table tr th:nth-of-type(1){font-weight: bold; text-align: left; font-size: 12px; color:#000;padding-left: 15px}
 #variant_info .row .cell table tr td:nth-of-type(1){text-align: left; padding-left: 15px}
+/* image block */
+#articulusImagesBigImg .showImagegallery, #galleryWindowInArtPages .showImagegallery {
+  position: absolute;
+  display: none;
+  top: 68px;
+  left: 20px;
+  width: 27px;
+  height: 27px;
+}
+#articulusImagesPrevBigImg {
+  float: left;
+}
+#articulusImagesPrevBigImg .carousel {
+  max-width: 1080px;
+  margin: 0px auto;
+  width: 286px;
+}
+#articulusImagesPrevBigImg .carousel-block, #galleryWindowInArtPages .carousel-block {
+  display: inline-flex;
+  min-height: 60px;
+}
+#articulusImagesPrevBigImg img {
+  margin: auto;
+  border: 1px solid white;
+  border-radius: 3px;
+  cursor: pointer;
+  max-height: 60px;
+  max-width: 72px;
+}
+.carousel-button-left {
+  float: left;
+}
+.articulusImagesArrow2 {
+  height: 70px;
+  background-repeat: no-repeat;
+  background-position: 5px 25px;
+  width: 18px;
+  float: left;
+  cursor: pointer;
+}
+
+#articulusImagesBigImg img {
+  margin: auto;
+}
+#articulusImagesBigImg {
+  text-align: center;
+  margin-top: 30px;
+  min-height: 286px;
+  margin-bottom: 30px;
+  float: left;
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+}
+#articulusImagesBigImg {
+  text-align: center;
+  margin-top: 30px;
+  min-height: 286px;
+  margin-bottom: 30px;
+  float: left;
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+}
+#articulusImages {
+  float: left;
+  padding-top: 20px;
+}
+#articulusImagesMiniImg, #articulusImagesMiniImgGallery {
+  float: left;
+  margin-left: 5px;
+}
+#articulusImagesMiniImg .carousel, #articulusImagesMiniImg, #articulusImagesMiniImgGallery .carousel, #articulusImagesPrevBigImg .carousel {
+  max-width: 1080px;
+  margin: 0px auto;
+  width: 286px;
+}
+.carousel-wrapper {
+  margin: 0px 20px 0px 12px;
+  overflow: hidden;
+  position: relative;
+}
+.carousel-items {
+  width: 10000px;
+  position: relative;
+}
+#articulusImagesMiniImg .carousel-block, #articulusImagesMiniImgGallery .carousel-block {
+  float: left;
+  text-align: center;
+  margin: 0 2px 0 0px;
+  padding: 0px;
+  cursor: pointer;
+  border: 1px solid #fff;
+}
+#articulusImagesMiniImg .carousel-block img, #articulusImagesMiniImgGallery .carousel-block img {
+  height: 35px;
+  width: auto;
+  float: none;
+  margin: 0 auto;
+}
+#articulusImagesMiniImg .carousel-block {
+  width: 36px;
+  text-align: center;
+}
+.carousel-block {
+  text-align: center;
+  float: left;
+  width: 76px;
+  text-align: center;
+  margin: 0 1px 0px 0px;
+  padding: 0px;
+  cursor: pointer;
+  border: 3px solid #fff;
+}

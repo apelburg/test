@@ -1,10 +1,55 @@
 <link href="./skins/css/order_art_edit.css" rel="stylesheet" type="text/css">
+<link href="./skins/css/forum.css" rel="stylesheet" type="text/css">
 <link href="libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript" src="libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 
 <script type="text/javascript" src="libs/js/order_art_edit.js"></script>
+<!-- <script type="text/javascript" src="../libs/js/jqGeneralScript.js"></script> -->
+<script type="text/javascript" src="../libs/js/jquery.uploadify.min.js"></script>
 
+<script type="text/javascript" src="../libs/js/jsArticulus.js"></script>
+
+<script type="text/javascript">
+    // uploudify 
+$(document).ready(function() {    
+
+    $("#uploadify").uploadify({
+        method        : 'post',
+        buttonText    : 'Добавить изображение...',
+        formData      : {
+            'timestamp' : '1430900188',
+            'token'     : '5706ee40da63f684301236821796cd66',
+            'article'   : '375190.80',
+            'art_id'    : '32286',
+            'add_image_ok'      : '1'
+        },
+        height        : 30,
+        swf           : '../libs/php/uploadify.swf',
+        uploader      : '',
+        cancelImg     : 'skins/images/img_design/cancel.png',
+        width         : 120,
+        //auto          : false
+        auto          : true,
+        'onUploadSuccess' : function(file, data, response) {
+            var img = jQuery.parseJSON(data);
+            var dele = '<div class="catalog_delete_img_link"><a href="#" title="удалить изображение из базы" data-del="'+HOST+'/admin/order_manager/?page=common&delete_img_from_base_by_id='+img.big_img_name+'|'+img.small_img_name+'"  onclick="if(confirm(\' изображение будет удалено из базы!\')){$.get( $(this).attr(\'data-del\'),function( data ) {});remover_image(this); return false; } else{ return false;}">&#215</a></div>';
+            
+            $('#articulusImagesPrevBigImg .carousel-wrapper .carousel-items').append('<div  class="carousel-block"><img class="articulusImagesMiniImg imagePr" alt="" height="60px" src="'+HOST+'/img/'+img.small_img_name+'" data-src_IMG_link="'+HOST+'/img/'+img.big_img_name+'">'+dele+'</div>')
+            $("#status_r2")
+                .addClass("success")
+                .html('Файл ' + file.name + ' успешно загружен.')
+                .fadeIn('fast')
+                .delay(3000)
+                .fadeOut('slow');
+            //$("#upload_more_images").hide();
+                
+            },
+                
+        'width'    : 200
+    });
+});
+</script>
 
 
 <div id="order_art_edit">
@@ -14,7 +59,7 @@
 			<li id="claim_number">Запрос №2585631</li>
 			<li id="claim_date"><span>от 12.11.15 19:38</span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
-			<li id="art_name_topic"><span>Тема:</span> Футболка белая «T-bolka 140»</li>
+			<li id="art_name_topic"><span>Тема:</span> <?php echo $articul['name']; ?></li>
 		</ul>
 	</div>
 	<div id="number_position_and_type">
@@ -27,8 +72,9 @@
 	<div class="table" id="order_art_edit_content_table" >
 		<div class="row">
 			<div class="cell b_r" id="order_art_edit_left" >
+				<!-- image block show.tpl -->
 				<div id="articulusImages">
-		            <?php //echo $color_variants_block; $alt = altAndTitle($name); ?>
+		            <?php echo $color_variants_block;$alt='';// $alt = altAndTitle($name); ?>
 		            
 		            <div id="articulusImagesBigImg">
 		                <div class="showImagegallery"></div>
@@ -37,9 +83,21 @@
 		max-height: 300px;'>
 		            </div>
 		            <div id="articulusImagesPrevBigImg"> 
-		                <?php echo $images_data['previews_block']; ?>                  
+		                <?php echo $images_data['previews_block']; ?>
+		                <!-- загрузка изображения на сервер -->
+		                <div id="status_r2" style="width:90%; display:none; margin-bottom:10px; margin-top:15px; background-color:#FF9091; color:#fff; text-align:center"></div>  
+		                <div id="upload_more_images" style="width:100%; margin:15px 0; display:none">
+		                    <form>
+		                        <div id="queue"></div>
+		                        <input id="uploadify" name="file_upload" type="file" multiple>
+		                    </form>
+		                    
+		                    <!--<a href="javascript:$('#uploadify').uploadifyUpload();">Загрузить файлы.</a>-->
+		    			</div> 
+		    			<!--// загрузка изображения на сервер -->               
 		            </div>
 		        </div>
+		        <!-- // image block show.tpl -->
 				<?php
 					
 				?>
@@ -56,15 +114,15 @@
 											<div class="table">
 												<div class="row">
 													<div class="cell">Артикул</div>
-													<div class="cell">375190.60</div>
+													<div class="cell"><?php echo $articul['art']; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">Номенклатура</div>
-													<div class="cell">Футболка белая «T-bolka 140»</div>
+													<div class="cell"><?php echo $articul['name']; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">Бренд</div>
-													<div class="cell">T-bolka 140</div>
+													<div class="cell"><?php echo $articul['brand']; ?></div>
 												</div>
 											</div>
 										</div>
@@ -72,15 +130,15 @@
 											<div class="table">
 												<div class="row">
 													<div class="cell">Цвет</div>
-													<div class="cell">белый</div>
+													<div class="cell"><?php echo $art_colors; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">Материал</div>
-													<div class="cell">хлопок</div>
+													<div class="cell"><?php echo $art_materials; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">вид нанесения</div>
-													<div class="cell">шелкография</div>
+													<div class="cell"><?php echo $art_get_print_mode; ?></div>
 												</div>
 											</div>
 										</div>
@@ -128,6 +186,7 @@
 							<li id="new_variant">&nbsp;</li>
 							<li class="variant_name checked">Вариант 1</li>
 							<li class="variant_name">Вариант 2</li>
+							<li id="choose_end_variant">Выбрать окончательный</li>
 						</ul>
 					</div>
 					<div id="variants_dop_info">
@@ -143,13 +202,13 @@
 								<td>
 									<strong>Дата отгрузки:</strong>
 									<span class="btn_var_std">Стандартно</span>
-									<input type="text" value="25.05.2015"> 
-									<input type="text" value="15:00">
+									<input type="text" id="datepicker2" name="datepicker2" value="25.05.2015"> 
+									<input type="text" id="timepicker2" name="timepicker2" value="15:00">
 								</td>
 								<td>
 									<strong>Изготовление р/д:</strong>
 									<span class="btn_var_std">Стандартно</span> 
-									<input type="text" value="10"> р/д	
+									<input type="text" id="fddtime_rd2" name="fddtime_rd2" value="10"> р/д	
 								</td>
 							</tr>
 						</table>
@@ -164,8 +223,8 @@
 										<th>%</th>
 										<th>$ исход.</th>
 										<th>прибыль</th>
-										<th>ред.</th>
-										<th>del</th>
+										<th class="edit_cell">ред.</th>
+										<th class="del_cell">del</th>
 									</tr>
 									<tr>
 										<td>1 шт.</td>
@@ -173,7 +232,9 @@
 										<td rowspan="2">20%</td>
 										<td>195,00р</td>
 										<td>12,00</td>
-										<td rowspan="2">ред.</td>
+										<td rowspan="2">
+											<span class="edit_row_variants"></span>
+										</td>
 										<td rowspan="2"></td>
 									</tr>
 									<tr>
@@ -194,8 +255,12 @@
 										<td rowspan="2">20%</td>
 										<td>195,00р</td>
 										<td>12,00</td>
-										<td rowspan="2">ред.</td>
-										<td rowspan="2"></td>
+										<td rowspan="2">
+											<span class="edit_row_variants"></span>
+										</td>
+										<td rowspan="2">
+											<span class="del_row_variants"></span>
+										</td>
 									</tr>
 									<tr>
 										<td>тираж</td>
@@ -273,31 +338,6 @@
 			</div>
 		</div>
 	</div>
+	<?php echo $forum; ?>
 </div>
 
-<?php 
-
-
-function get_weekends(){
-	$n=1;
-	$sut = 6;
-	$sun = 7;
-	//ближайшее воскресенье
-	for ($i=1; $i <= 3 ; $i++) { 
-		for ($k=1; $k <= 5; $k++) { 
-			$sut2 = $sut+ $i*$k*7;
-			$sun2 = $sun+ $i*$k*7;
-			// субботы
-			$d  = mktime(0, 0, 0, date("m"), date("d")+ $sut2 - date("N"), date("Y"));
-			if($n>1){echo ', ';}else{$n++;}
-			echo "'".date('d.m.Y', $d)."'";
-			// воскресенья
-
-			$d  = mktime(0, 0, 0, date("m"), date("d")+ $sun2 - date("N"), date("Y"));
-			echo ",'".date('d.m.Y', $d)."'";
-		}
-	}
-}
-
-// echo get_weekends();
-?>
