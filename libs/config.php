@@ -81,7 +81,6 @@
 	define("RT_MAIN_ROWS","os__rt_main_rows"); //
 	define("RT_DOP_DATA","os__rt_dop_data"); //
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
-	define("RT_PRINT_DATA","os__rt_print_data"); // 
 	
 
 

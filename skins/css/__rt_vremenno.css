@@ -12,5 +12,6 @@
 .red_cell{ color: #FF0000;}
 .top{ vertical-align:top}
 .hidden{ display:none; }
+.active{ background-color: #EEE;}
 
 

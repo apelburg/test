@@ -5,6 +5,22 @@
 	// если нет $ACCESS['suppliers']['access'] или она равна FALSE прерываем работу скирпта 
 	if(!@$ACCESS['client_folder']['section']['rt']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
+	include ROOT.'/libs/php/classes/rt_class.php';
+	
+	
+	////////////////////////  AJAX  //////////////////////// 
+	if(isset($_GET['save_rt_changes'])){
+	     //print_r(json_decode($_GET['save_rt_changes']));
+		 RT::save_rt_changes(json_decode($_GET['save_rt_changes']));
+		 exit;
+	}
+	if(isset($_GET['expel_value_from_calculation'])){
+	     //print_r(json_decode($_GET['expel_value_from_calculation']));
+		 RT::expel_value_from_calculation($_GET['id'],$_GET['expel_value_from_calculation']);
+		 exit;
+	}
+	
+	/////////////////////  END  AJAX  ////////////////////// 
 	
 	// client_details
 	

@@ -1,11 +1,4 @@
 <?php
-
-    // ** БЕЗОПАСНОСТЬ **
-	// проверяем выдан ли доступ на вход на эту страницу
-	// если нет $ACCESS['suppliers']['access'] или она равна FALSE прерываем работу скирпта 
-	if(!@$ACCESS['_test_rt']['access']) exit($ACCESS_NOTICE);
-	// ** БЕЗОПАСНОСТЬ **
-	
 	
 	// Данные расчетной таблицы хронятся в 3-х таблицах базы данных
 	// 1-я таблица является родительской для 2-ой , 2-ая родительской для 3-ей
@@ -34,7 +27,7 @@
 		 
 		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,
 		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.in_price AS dop_t_in_price , dop_data_tbl.out_price AS dop_t_out_price , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.draft AS draft, dop_data_tbl.expel AS expel,
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.draft AS draft, dop_data_tbl.expel AS expel,
 						  
 						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out
@@ -62,8 +55,8 @@
 																	'row_status' => $row['row_status'],
 																	'glob_status' => $row['glob_status'],
 																	'quantity' => $row['dop_t_quantity'],
-																	'price_in' => $row['dop_t_in_price'],
-																	'price_out' => $row['dop_t_out_price']);
+																	'price_in' => $row['dop_t_price_in'],
+																	'price_out' => $row['dop_t_price_out']);
 		    }
 			if(isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) && !empty($row['uslugi_id'])){
 			    $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['dop_uslugi'][$row['uslugi_t_glob_type']][$row['uslugi_id']] = array(
@@ -333,7 +326,7 @@
 		 if($final_row) array_unshift($row['dop_data'],$final_row);
 		 // если товарная позиция имеет больше одного варианта расчета и ни один из этих вариатов расчета не обозначен как финальный 
 		 // добавляем пустой ряд в начало строки
-		 if(!$final_row && count($row['dop_data'])>1) array_unshift($row['dop_data'],array('quantity'=>0,'in_price'=>0,'out_price'=>0,'print_data'=>0));
+		 if(!$final_row && count($row['dop_data'])>1) array_unshift($row['dop_data'],array('quantity'=>0,'price_in'=>0,'price_out'=>0,'print_data'=>0));
 		 $row_span = count($row['dop_data']);
 		 $counter=0;
 		 
@@ -342,7 +335,7 @@
 		 
 		  $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,
 		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.in_price AS dop_t_in_price , dop_data_tbl.out_price AS dop_t_out_price , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.final AS final,  dop_data_tbl.draft AS draft,
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.final AS final,  dop_data_tbl.draft AS draft,
 						  
 						  print_data_tbl.id AS print_id , print_data_tbl.dop_row_id AS print_t_dop_row_id ,print_data_tbl.type AS print_t_type ,
 		                  print_data_tbl.quantity AS print_t_quantity ,print_data_tbl.price AS print_t_price 
