@@ -56,8 +56,8 @@ $(document).ready(function() {
 	<div id="info_string_on_query">
 		<ul>
 			<li id="back_to_string_of_claim"></li>
-			<li id="claim_number">Запрос №2585631</li>
-			<li id="claim_date"><span>от 12.11.15 19:38</span></li>
+			<li id="claim_number">Запрос № <?php echo  $order_num; ?></li>
+			<li id="claim_date"><span>от <?php echo $order_num_date; ?></span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
 			<li id="art_name_topic"><span>Тема:</span> <?php echo $articul['name']; ?></li>
 		</ul>
@@ -118,7 +118,7 @@ $(document).ready(function() {
 												</div>
 												<div class="row">
 													<div class="cell">Номенклатура</div>
-													<div class="cell"><?php echo $articul['name']; ?></div>
+													<div class="cell"><?php echo $art_name; ?></div>
 												</div>
 												<div class="row">
 													<div class="cell">Бренд</div>
@@ -228,7 +228,7 @@ $(document).ready(function() {
 									</tr>
 									<tr>
 										<td>1 шт.</td>
-										<td> 133,00р</td>
+										<td contenteditable="true"> 133,00р</td>
 										<td rowspan="2">20%</td>
 										<td>195,00р</td>
 										<td>12,00</td>
@@ -286,51 +286,7 @@ $(document).ready(function() {
 								</table>
 							</div>
 							<div class="cell" id="size_card">
-								<table>
-									<tr>
-										<th>Размеры</th>
-										<th>на складе</th>
-										<th>свободно</th>
-										<th>тираж</th>
-										<th>пригон</th>
-									</tr>
-									<tr>
-										<td>S</td>
-										<td>24<br><span>(в пути) 3000</span></td>
-										<td>6</td>
-										<td><input type="text"  value="250"></td>
-										<td><input type="text"  value="2"></td>
-									</tr>
-									<tr>
-										<td>M</td>
-										<td>20<br><span>(в пути) 2600</span></td>
-										<td>3</td>
-										<td><input type="text"  value="150"></td>
-										<td><input type="text"  value="2"></td>
-									</tr>
-									<tr>
-										<td>XL</td>
-										<td>20<br><span>(в пути) 1000</span></td>
-										<td>3</td>
-										<td><input type="text"  value="20"></td>
-										<td><input type="text"  value="0"></td>
-									</tr>
-									<tr>
-										<td>XXL</td>
-										<td>20<br><span>(в пути) 1000</span></td>
-										<td>3</td>
-										<td><input type="text"  value="20"></td>
-										<td><input type="text"  value="0"></td>
-									</tr>
-									<tr>
-										<td>XXXL</td>
-										<td>20<br><span>(в пути) 1000</span></td>
-										<td>3</td>
-										<td><input type="text"  value="20"></td>
-										<td><input type="text"  value="0"></td>
-									</tr>
-									
-								</table>
+								<?php echo $ARTICUL->get_size_table($art_id); ?>
 							</div>
 						</div>
 					</div>
