@@ -30,7 +30,6 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
 <script type="text/javascript" src="libs/js/common.js"></script>
 <script type="text/javascript" src="libs/js/geometry.js"></script>
 <script type="text/javascript" src="libs/js/upWindowMenu.js"></script>
-<script type="text/javascript" src="libs/js/tableDataManager.js"></script>
 <script type="text/javascript" src="libs/js/sample.js"></script>
 <title>Онлайн сервис</title>
 </head>

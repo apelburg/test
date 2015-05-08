@@ -14,4 +14,13 @@
 .hidden{ display:none; }
 .active{ background-color: #EEE;}
 
+.scrolled_tbl_container{ 
+
+}
+.scrolled_tbl_movable_part{
+overflow-y:scroll; 
+height:200px;
+  /*overflow-y:auto;
+  background-color:#CCC;*/
+}
 

@@ -16,7 +16,11 @@ else{
 		if(typeof old_handler == 'function') old_handler();
 		tableDataManager.install();
 	}
-}*/
+}
+if(window.addEventListener) window.addEventListener('load',tableDataManager.install,false);
+	else if(window.attachEvent) window.attachEvent('onload',tableDataManager.install);
+	else window.onload = tableDataManager.install;
+*/
 	
 window.unload = function(){// пока с этим не ясно
    alert(1);
@@ -49,7 +53,8 @@ var rtCalculator = {
     tbl_model:false,
 	tbl_total_row:false,
 	previos_data:{},
-	primary_val:false,
+	primary_val:false
+	,
 	init_tbl:function(tbl_id){// метод запускаемый при наступлении события window.onload()
 	                          // вызывает методы:
 							  // collect_data - для создания модели таблицы
@@ -58,6 +63,68 @@ var rtCalculator = {
 		//alert(this.tbl);
 		this.collect_data();
 		this.set_editable_cells();
+	}
+	,
+    collect_data:function(){
+	    // метод считывающий данные таблицы РТ и сохраняющий их в свойство this.tbl_model 
+	    this.tbl_model={};
+	    var trs_arr = this.tbl.getElementsByTagName('tr');
+	
+		for(var i = 0;i < trs_arr.length;i++){
+		    // если ряд не имеет атрибута row_id пропускаем его
+		    if(!trs_arr[i].getAttribute('row_id')) continue;
+			
+			var row_id = trs_arr[i].getAttribute('row_id');
+			
+			// row_id==0 у вспомогательных рядов их пропускаем
+			if(row_id==0) continue; //trs_arr[i].style.backgroundColor = '#FFFF00';
+			
+            if(row_id=='total_row') this.tbl_total_row = trs_arr[i];
+			
+			if(!this.tbl_model[row_id]) this.tbl_model[row_id] = {}; 
+			
+			// заносим информацию об исключении ряда из расчета
+			/*if(row_id!='total_row'){
+			    var expel = !!parseInt(trs_arr[i].getAttribute('expel'));
+			    this.tbl_model[row_id].dop_data={'expel':expel};
+			}*/
+			
+			var tds_arr = trs_arr[i].getElementsByTagName('td');
+			for(var j = 0;j < tds_arr.length;j++){
+				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+					var type = tds_arr[j].getAttribute('type');
+					this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
+					
+					if(row_id!='total_row'){
+					    if(tds_arr[j].getAttribute('expel')){
+						    if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {"expel":{}};
+						    var expel = !!parseInt(tds_arr[j].getAttribute('expel'));
+							if(type=='out_summ'){
+								this.tbl_model[row_id].dop_data.expel.main=expel;
+							}
+							else if(type=='print_out_summ'){
+							    this.tbl_model[row_id].dop_data.expel.print=expel;
+							}
+							else if(type=='dop_uslugi_out_summ'){
+							    this.tbl_model[row_id].dop_data.expel.dop=expel;
+							}
+						    
+						}
+					}
+					
+					/*// если это ряд содержащий абсолютные ссуммы сохраняем постоянные ссылки на его ячейки , чтобы затем вносить в них изменения
+					// КАК ТО НЕ ПОЛУЧИЛОСЬ
+					if(row_id=='total_row'){
+					    if(!this.tbl_model['total_row_links']) this.tbl_model['total_row_links'] = {};
+					    this.tbl_model['total_row_links'][tds_arr[j].getAttribute('type')] = tds_arr_1[j];
+					}
+					*/
+				}
+			}
+		
+		}
+	    //print_r(this.tbl_model);
+		return true;  
 	},
 	set_editable_cells:function(){
 	    // Этот метод устанавливает необходимым ячекам свойство contenteditable
@@ -412,82 +479,14 @@ var rtCalculator = {
 		for(var prop in rtCalculator.tbl_model[row_id]['dop_data']['expel']){
 			 if(rtCalculator.tbl_model[row_id]['dop_data']['expel'][prop]) markers[prop] = "1";
 		}
-		//var val_obj = {"id":row_id,"val":markers};
+
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('expel_value_from_calculation='+JSON.stringify(markers)+'&id='+row_id);
-		//var url = OS_HOST+'?' + addOrReplaceGetOnURL('expel_value_from_calculation='+JSON.stringify(rtCalculator.tbl_model[row_id]['dop_data']['expel']));
-		//alert(JSON.stringify(rtCalculator.tbl_model[row_id]['dop_data']['expel']));
 		rtCalculator.send_ajax(url,callback);
-		alert(url);
 		
-		function callback(response){ alert(response);}
+		function callback(response){ /*alert(response);*/}
 	    // вызываем метод производящий замену значений в HTML
 		rtCalculator.change_html(cell.parentNode,row_id);
 
 		rtCalculator.expel_value_from_calculation.in_process = false;
-	}
-	,
-    collect_data:function(){
-	    // метод считывающий данные таблицы РТ и сохраняющий их в свойство this.tbl_model 
-	    this.tbl_model={};
-	    var trs_arr = this.tbl.getElementsByTagName('tr');
-	
-		for(var i = 0;i < trs_arr.length;i++){
-		    // если ряд не имеет атрибута row_id пропускаем его
-		    if(!trs_arr[i].getAttribute('row_id')) continue;
-			
-			var row_id = trs_arr[i].getAttribute('row_id');
-			
-			// row_id==0 у вспомогательных рядов их пропускаем
-			if(row_id==0) continue; //trs_arr[i].style.backgroundColor = '#FFFF00';
-			
-            if(row_id=='total_row') this.tbl_total_row = trs_arr[i];
-			
-			if(!this.tbl_model[row_id]) this.tbl_model[row_id] = {}; 
-			
-			// заносим информацию об исключении ряда из расчета
-			/*if(row_id!='total_row'){
-			    var expel = !!parseInt(trs_arr[i].getAttribute('expel'));
-			    this.tbl_model[row_id].dop_data={'expel':expel};
-			}*/
-			
-			var tds_arr = trs_arr[i].getElementsByTagName('td');
-			for(var j = 0;j < tds_arr.length;j++){
-				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
-					var type = tds_arr[j].getAttribute('type');
-					this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
-					
-					if(row_id!='total_row'){
-					    if(tds_arr[j].getAttribute('expel')){
-						    if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {"expel":{}};
-						    var expel = !!parseInt(tds_arr[j].getAttribute('expel'));
-							if(type=='out_summ'){
-								this.tbl_model[row_id].dop_data.expel.main=expel;
-							}
-							else if(type=='print_out_summ'){
-							    this.tbl_model[row_id].dop_data.expel.print=expel;
-							}
-							else if(type=='dop_uslugi_out_summ'){
-							    this.tbl_model[row_id].dop_data.expel.dop=expel;
-							}
-						    
-						}
-					}
-					
-					/*// если это ряд содержащий абсолютные ссуммы сохраняем постоянные ссылки на его ячейки , чтобы затем вносить в них изменения
-					// КАК ТО НЕ ПОЛУЧИЛОСЬ
-					if(row_id=='total_row'){
-					    if(!this.tbl_model['total_row_links']) this.tbl_model['total_row_links'] = {};
-					    this.tbl_model['total_row_links'][tds_arr[j].getAttribute('type')] = tds_arr_1[j];
-					}
-					*/
-				}
-			}
-		
-		}
-	    //print_r(this.tbl_model);
-		return true;  
-	},
-    execute:function(){
-	    alert(2);
 	}
 }

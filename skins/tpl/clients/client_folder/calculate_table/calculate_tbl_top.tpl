@@ -2,6 +2,7 @@
 <script type="text/javascript" src="libs/js/apl_calculators.js"></script> 
 <script type="text/javascript" src="libs/js/calculatingTableEmulator.js"></script>
 <script type="text/javascript" src="libs/js/assosiatingScrolledTable.js"></script>
+<script type="text/javascript" src="libs/js/tableDataManager.js"></script>  
 <script type="text/javascript">
    tableDataManager.url = '?page=clients&section=client_folder&subsection=calculate_table&client_id=<?php echo $client_id; ?>&update_tr_field_ajax=1';
 </script>
