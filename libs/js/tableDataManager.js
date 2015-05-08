@@ -14,6 +14,7 @@
 					  if(all_tables[i].getAttribute('tbl') && all_tables[i].getAttribute('tbl') == 'managed') var table = all_tables[i];
 				 }
 				 //table.style.border = '#FF0000 solid 2px';
+				 if(!table) alert('нет "managed" таблиц');
 				 
 				 var all_divs = table.getElementsByTagName('div');
 				 for(var i = 0; i < all_divs.length; i++)

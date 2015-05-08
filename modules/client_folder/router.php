@@ -28,7 +28,7 @@
 	$content = ob_get_contents();
 	ob_get_clean();
 
-	include'./skins/tpl/clients/show.tpl';
+	include'./skins/tpl/client_folder/show.tpl';
 	
 	unset($content);
 ?>

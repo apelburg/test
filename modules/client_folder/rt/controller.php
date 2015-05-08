@@ -95,7 +95,7 @@
 	 // расчетный ряд то он не может быть draft (он окончательный и участвует в дальнейших расчетах), если несколько они могут все быть draft,
 	 // (и в дальшейших расчетах не участвуют) если один из низ не draft значит он окончательный (он окончательный и участвует в дальнейших
 	 // расчетах), если позиция имеет несколько расчетных рядов, то не draft из них может быть только один
-	 // если этот вариант останется рабочим удалить из таблицы поле final
+	 // ПРИМ. если этот вариант останется рабочим удалить из таблицы поле final
 	 //
 	 // был еще вариант обратный маркировать окончательные финальные ряды - пока от него ушли
 	 // ФИНАЛЬНЫЙ РЯД!!! $dop_row['final'] - для реализации функционала при котором позиция может иметь несколько расчетов, при этом может быть
@@ -162,17 +162,17 @@
 				     $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
 					 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 				 }
-				 $print_btn = 'печать '.count($dop_row['dop_uslugi']['print']); 
+				 $print_btn = count($dop_row['dop_uslugi']['print']); 
 				 $print_in_summ = array_sum($summ_in);
 			     $print_out_summ = array_sum($summ_out);
 			     if($test_data) $print_open_data = print_r($dop_row['dop_uslugi']['print'],TRUE);
 			 }
 			 else{// если данных по печати нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да то
 			      // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление нанесения
-			     $print_btn = ($all_draft && $counter==0)? '' : 'печать +';
+			     $print_btn = ($all_draft && $counter==0)? '' : '+';
 				 $print_in_summ = 0;
 			     $print_out_summ = 0;
-				 if($test_data) $print_open_data =($all_draft && $counter==0)? 0:'- печать 0-';
+				 if($test_data) $print_open_data =($all_draft && $counter==0)? 0:'0';
 			 }
 			 // 2. определяем данные описывающие варианты дополнительных услуг, они хранятся в $dop_row['dop_uslugi']['extra']
 			 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
@@ -183,15 +183,15 @@
 				 }
 				 $dop_uslugi_in_summ = array_sum($summ_in);
 			     $dop_uslugi_out_summ = array_sum($summ_out);
-				 $dop_uslugi_btn = 'extra '.count($dop_row['dop_uslugi']['extra']);
+				 $dop_uslugi_btn = count($dop_row['dop_uslugi']['extra']);
                  if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);
 			 }
 			 else{// если данных по дополнительным услугам нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да 
 			      // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление дополнительных услуг
 			     $dop_uslugi_in_summ = 0;
 				 $dop_uslugi_out_summ = 0;
-				 $dop_uslugi_btn = ($all_draft && $counter==0)? '' : 'extra +';
-			     if($test_data) $extra_open_data =($all_draft && $counter==0)? 0:'- extra 0-';
+				 $dop_uslugi_btn = ($all_draft && $counter==0)? '' : '+';
+			     if($test_data) $extra_open_data =($all_draft && $counter==0)? 0:'0';
 			 }
 			 
 			 // подсчет сумм ряду
@@ -223,25 +223,25 @@
 			 //$total_delta$total_margin
 		 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr row_id="'.$dop_key.'">';
+		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($counter==0)?'pos_edge':'').'">';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
-			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top">'.$row['art'].''.$row['name'].'</td>':'';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
 			 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
-			               <td>'.$dop_row['row_status'].'</td>
-			               <td type="quantity" editable="true">'.$dop_row['quantity'].'</td>
-						   <td type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
-						   <td type="price_in_summ" class="in">'.number_format($price_in_summ,'2','.','').'</td>
-						   <td type="price_out" class="out" editable="true">'.$dop_row['price_out'].'</td>
-						   <td type="price_out_summ" class="out">'.number_format($price_out_summ,'2','.','').'</td>
-						   <td class="grey">'.$print_btn.'</td>';
+			               <td width="50">'.$dop_row['row_status'].'</td>
+			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
+						   <td width="70" type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
+						   <td width="90" type="price_in_summ" class="in">'.number_format($price_in_summ,'2','.','').'</td>
+						   <td width="70" type="price_out" class="out" editable="true">'.$dop_row['price_out'].'</td>
+						   <td width="90" type="price_out_summ" class="out r_border">'.number_format($price_out_summ,'2','.','').'</td>
+						   <td width="20">'.$print_btn.'</td>';
                  if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
-			 $cur_row .=  '<td type="print_in_summ" class="test_data in hidden">'.$print_in_summ.'</td>';
-			 $cur_row .=  '<td type="print_out_summ" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.number_format($print_out_summ,'2','.','').'</td>
-			               <td>'.$dop_uslugi_btn.'</td>';
+			 $cur_row .=  '<td width="90" type="print_in_summ" class="test_data in hidden">'.$print_in_summ.'</td>';
+			 $cur_row .=  '<td width="70" type="print_out_summ" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.number_format($print_out_summ,'2','.','').'</td>
+			               <td width="20">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			 $cur_row .=  '<td type="dop_uslugi_in_summ" class="test_data in hidden">'.$dop_uslugi_in_summ.'</td>';
-			 $cur_row .=  '<td type="dop_uslugi_out_summ" class="out '.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.number_format($dop_uslugi_out_summ,'2','.','').'</td>
+			 $cur_row .=  '<td width="90" type="dop_uslugi_out_summ" class="out r_border'.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.number_format($dop_uslugi_out_summ,'2','.','').'</td>
 						   <td type="in_summ" class="in">'.number_format($in_summ,'2','.','').'</td>
 						   <td type="out_summ" class="out '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'">'.number_format($out_summ,'2','.','').'</td>
 						   <td type="delta" >'.number_format($delta,'2','.','').'</td>
@@ -254,33 +254,88 @@
 		     $counter++;
 		 }
 	 }
-	 
-	 echo '<table id="rt_tbl" class="tbl">
+	 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;">
 	          <tr class="cap">
 	              <td class="hidden"></td>
-				  <td class="hidden">тип ряда</td>
-				  <td width="100">&nbsp;<a href="#" onclick="print_r(rt_calculator.tbl_model);">_</a>наименование</td>
-				  <td width="50" class="hidden">draft</td>
-				  <td>статус ряда</td>
-				  <td>кол-во</td>
-				  <td>вход</td>
-				  <td>вход</td>
-				  <td>выход</td>
-				  <td>выход</td>
-				  <td>нанесение</td>';
-	if($test_data)	 echo '<td class="test_data_cap">нанес подробн</td>';
-	        echo '<td class="test_data_cap hidden">нанес вход</td> 	  
+				  <td class="hidden">тип</td>
+				  <td width="300">&nbsp;<a href="#" onclick="print_r(rt_calculator.tbl_model);">_</a>наименование</td>
+				  <td class="hidden">draft</td>
+				  <td width="50">статус</td>
+				  <td width="50" class="r_border">кол-во</td>
+				  <td width="70">вход</td>
+				  <td width="90">вход</td>
+				  <td width="70">выход</td>
+				  <td width="90" class="r_border">выход</td>
+				  <td width="20"></td>';
+	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
+	       $rt.= '<td width="70" class="test_data_cap hidden">нанес вход</td> 	  
+			      <td width="90">нанесение выход</td>
+			      <td width="20"></td>';
+    if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
+           $rt.= '<td class="test_data_cap hidden">доп.усл вход</td> 
+			      <td width="90" class="out r_border">доп.усл выход</td>
+				  <td>сумма вход</td>
+				  <td>сумма выход</td>
+				  <td>дельта</td>
+				  <td>маржинальность</td>
+                  <td width="70">статус</td>';              
+	    $rt.= '</tr>
+	           <tr row_id="total_row">
+	              <td class="hidden"></td>
+				  <td class="hidden"></td>
+				  <td></td>
+				  <td class="hidden"></td>
+				  <td></td>
+				  <td class="r_border"></td>
+				  <td></td>
+				  <td type="price_in_summ">'.number_format($total['price_in_summ'],'2','.','').'</td>
+				  <td></td>
+				  <td class="r_border" type="price_out_summ">'.number_format($total['price_out_summ'],'2','.','').'</td>
+				  <td></td>';
+	if($test_data)	$rt.= '<td class="test_data_cap"></td>';
+	       $rt.= '<td type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  
+			      <td type="print_out_summ">'.number_format($total['print_out_summ'],'2','.','').'</td>
+			      <td></td>';
+    if($test_data)	$rt.= '<td class="test_data_cap"></td>';
+           $rt.= '<td type="dop_uslugi_in_summ" class="test_data_cap hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'</td> 
+			      <td type="dop_uslugi_out_summ" class="out r_border">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'</td>
+			      <td type="in_summ">'.number_format($total['in_summ'],'2','.','').'</td>
+				  <td type="out_summ">'.number_format($total['out_summ'],'2','.','').'</td>
+				  <td type="delta">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
+				  <td type="margin">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
+                  <td></td>';              
+	   $rt.= '</tr>
+	          </table>
+			  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
+	          <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body">'.implode('',$tbl_rows).'</table>
+			  </div>';
+			  
+/*	 $rt = '<table class="rt_tbl_head" scrolled="head" style="width: 100%;">
+	          <tr class="cap">
+	              <td class="hidden"></td>
+				  <td class="hidden">тип</td>
+				  <td width="300">&nbsp;<a href="#" onclick="print_r(rt_calculator.tbl_model);">_</a>наименование</td>
+				  <td class="hidden">draft</td>
+				  <td width="50">статус</td>
+				  <td width="50">кол-во</td>
+				  <td width="70">вход</td>
+				  <td width="70">вход</td>
+				  <td width="70">выход</td>
+				  <td width="70">выход</td>
+				  <td width="20"></td>';
+	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
+	       $rt.= '<td width="70" class="test_data_cap hidden">нанес вход</td> 	  
 			      <td width="70">нанесение выход</td>
-			      <td width="70">доп.усл</td>';
-    if($test_data)	 echo '<td class="test_data_cap">доп.усл подробн</td>';
-            echo '<td class="test_data_cap hidden">доп.усл вход</td> 
+			      <td width="20"></td>';
+    if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
+           $rt.= '<td class="test_data_cap hidden">доп.усл вход</td> 
 			      <td width="70">доп.усл выход</td>
 				  <td>сумма вход</td>
 				  <td>сумма выход</td>
 				  <td>дельта</td>
 				  <td>маржинальность</td>
-                  <td>статус</td>';              
-	 echo     '</tr>
+                  <td width="70">статус</td>';              
+	    $rt.= '</tr>
 	           <tr row_id="total_row">
 	              <td class="hidden"></td>
 				  <td class="hidden"></td>
@@ -292,22 +347,24 @@
 				  <td type="price_in_summ">'.number_format($total['price_in_summ'],'2','.','').'</td>
 				  <td></td>
 				  <td type="price_out_summ">'.number_format($total['price_out_summ'],'2','.','').'</td>
-				  <td>нанесение</td>';
-	if($test_data)	 echo '<td class="test_data_cap"></td>';
-	        echo '<td  type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  
+				  <td></td>';
+	if($test_data)	$rt.= '<td class="test_data_cap"></td>';
+	       $rt.= '<td  type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  
 			      <td type="print_out_summ">'.number_format($total['print_out_summ'],'2','.','').'</td>
-			      <td>доп.усл</td>';
-    if($test_data)	 echo '<td class="test_data_cap"></td>';
-            echo '<td type="dop_uslugi_in_summ" class="test_data_cap hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'</td> 
+			      <td></td>';
+    if($test_data)	$rt.= '<td class="test_data_cap"></td>';
+           $rt.= '<td type="dop_uslugi_in_summ" class="test_data_cap hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'</td> 
 			      <td type="dop_uslugi_out_summ">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'</td>
 			      <td type="in_summ">'.number_format($total['in_summ'],'2','.','').'</td>
 				  <td type="out_summ">'.number_format($total['out_summ'],'2','.','').'</td>
 				  <td type="delta">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
 				  <td type="margin">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
                   <td></td>';              
-	 echo     '</tr>'
-	         .implode('',$tbl_rows).'
-		   </table>';
+	   $rt.= '</tr>
+	          </table>
+			  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
+	          <table class="rt_tbl_body" id="rt_tbl" scrolled="body">'.implode('',$tbl_rows).'</table>
+			  </div>';*/
 	 
 	
 	
