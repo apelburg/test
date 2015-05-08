@@ -1,6 +1,6 @@
 // JavaScript Document
 window.onload = function(){
-   rtCalculator.init_tbl('rt_tbl');
+   rtCalculator.init_tbl('rt_tbl_head','rt_tbl_body');
 }
 
 // инициализация
@@ -55,11 +55,12 @@ var rtCalculator = {
 	previos_data:{},
 	primary_val:false
 	,
-	init_tbl:function(tbl_id){// метод запускаемый при наступлении события window.onload()
+	init_tbl:function(head_tbl_id,body_tbl_id){// метод запускаемый при наступлении события window.onload()
 	                          // вызывает методы:
 							  // collect_data - для создания модели таблицы
 							  // set_editable_cells - для установки полей ввода
-	    this.tbl = document.getElementById(tbl_id);
+	    this.head_tbl = document.getElementById(head_tbl_id);
+	    this.body_tbl = document.getElementById(body_tbl_id);
 		//alert(this.tbl);
 		this.collect_data();
 		this.set_editable_cells();
@@ -68,7 +69,29 @@ var rtCalculator = {
     collect_data:function(){
 	    // метод считывающий данные таблицы РТ и сохраняющий их в свойство this.tbl_model 
 	    this.tbl_model={};
-	    var trs_arr = this.tbl.getElementsByTagName('tr');
+		var trs_arr = this.head_tbl.getElementsByTagName('tr');
+		for(var i = 0;i < trs_arr.length;i++){ 
+		
+		    if(!trs_arr[i].getAttribute('row_id')) continue;
+			
+			var row_id = trs_arr[i].getAttribute('row_id');
+			
+			if(!this.tbl_model[row_id]) this.tbl_model[row_id] = {}; 
+			
+		    if(row_id=='total_row') this.tbl_total_row = trs_arr[i]; 
+			
+			
+			var tds_arr = trs_arr[i].getElementsByTagName('td');
+			//alert(row_id);
+			for(var j = 0;j < tds_arr.length;j++){
+				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+					var type = tds_arr[j].getAttribute('type');
+				    this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
+				}
+			}/**/
+	    }
+		
+	    var trs_arr = this.body_tbl.getElementsByTagName('tr');
 	
 		for(var i = 0;i < trs_arr.length;i++){
 		    // если ряд не имеет атрибута row_id пропускаем его
@@ -78,8 +101,6 @@ var rtCalculator = {
 			
 			// row_id==0 у вспомогательных рядов их пропускаем
 			if(row_id==0) continue; //trs_arr[i].style.backgroundColor = '#FFFF00';
-			
-            if(row_id=='total_row') this.tbl_total_row = trs_arr[i];
 			
 			if(!this.tbl_model[row_id]) this.tbl_model[row_id] = {}; 
 			
@@ -95,22 +116,22 @@ var rtCalculator = {
 					var type = tds_arr[j].getAttribute('type');
 					this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
 					
-					if(row_id!='total_row'){
-					    if(tds_arr[j].getAttribute('expel')){
-						    if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {"expel":{}};
-						    var expel = !!parseInt(tds_arr[j].getAttribute('expel'));
-							if(type=='out_summ'){
-								this.tbl_model[row_id].dop_data.expel.main=expel;
-							}
-							else if(type=='print_out_summ'){
-							    this.tbl_model[row_id].dop_data.expel.print=expel;
-							}
-							else if(type=='dop_uslugi_out_summ'){
-							    this.tbl_model[row_id].dop_data.expel.dop=expel;
-							}
-						    
+	
+					if(tds_arr[j].getAttribute('expel')){
+						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {"expel":{}};
+						var expel = !!parseInt(tds_arr[j].getAttribute('expel'));
+						if(type=='out_summ'){
+							this.tbl_model[row_id].dop_data.expel.main=expel;
 						}
+						else if(type=='print_out_summ'){
+							this.tbl_model[row_id].dop_data.expel.print=expel;
+						}
+						else if(type=='dop_uslugi_out_summ'){
+							this.tbl_model[row_id].dop_data.expel.dop=expel;
+						}
+						
 					}
+					
 					
 					/*// если это ряд содержащий абсолютные ссуммы сохраняем постоянные ссылки на его ячейки , чтобы затем вносить в них изменения
 					// КАК ТО НЕ ПОЛУЧИЛОСЬ
@@ -129,7 +150,7 @@ var rtCalculator = {
 	set_editable_cells:function(){
 	    // Этот метод устанавливает необходимым ячекам свойство contenteditable
 		// и навешивает обработчик события onkeyup
-		var tds_arr = this.tbl.getElementsByTagName('td');
+		var tds_arr = this.body_tbl.getElementsByTagName('td');
 	    for(var i in tds_arr){
 		    if(tds_arr[i].getAttribute){
 			    if(tds_arr[i].getAttribute('editable')){
@@ -202,7 +223,7 @@ var rtCalculator = {
 		//////////////////////////////////////////////////////////////////////////////////////////	
 	}
 	,
-	check:function(e){
+	check:function(e){// корректировка значений вводимых пользователем
 	    e = e || window.event;
 		var cell = e.target || e.srcElement;
 		

@@ -1,5 +1,5 @@
 // JavaScript Document
-
+    // для корректной работы скрипта желательно чтобы были установленны большинство размеров в одних и теж же ячейках head и body таблиц
     window.addEventListener('load',scrolledTableSizeFixing,false);
 	
 	function scrolledTableSizeFixing(){
@@ -23,7 +23,9 @@
 	
 		if(top_head_tds.length != top_body_tds.length){ alert('num colls in head and body RT not equal'); return;}
 		
-		// присваиваем значению ширина ячеек тела таблицы, значения  ширины ячеек верзней панели
+		// присваиваем значению ширина ячеек тела таблицы, значения  ширины ячеек верхней панели
+		// для корректировки присваеваемой ширины будем вычитать из offsetWidth 1(единицу)(предпологая что ширина border = 1px)
+		// потому что offsetWidth вкючает в себя ширину border
 		var correstion = 1;
 		for(var i =0; i < top_head_tds.length ; i++ ){
 			// скрытые ряды пропускаем (со значением offsetWidth == 0)
@@ -31,22 +33,15 @@
 			// последний ряд пропускаем чтобы он выставился автоматически так как он упирается в полосу прокрутки
 			if(i==(top_head_tds.length-1)) continue;
 			
-           // alert(top_head_tds[i].style.border);
 			//if(i==3 || i==10 || i==15) var correstion = 2;
-
-			else top_body_tds[i].style.width = (top_head_tds[i].offsetWidth -correstion) + "px";
+			top_body_tds[i].style.width = (top_head_tds[i].offsetWidth -correstion) + "px";
 			top_body_tds[i].style.border =  "#FF0000 solid 1px";top_head_tds[i].style.border =  "#FF0000 solid 1px";
 		
 		}
 
-		
-
-
-		
 		var container = document.getElementById('scrolled_part_container');
 		var top = define_top(container);
 		container.style.height = Geometry.getViewportHeight() - top + 'px';
-		//container.style.height = 400 + 'px';
 		
 		function define_top(element){
 			var top = 0;

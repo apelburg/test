@@ -22,19 +22,22 @@
 .rt_tbl_head td{ 
 padding:0px;
  font-size:12px;
-
+ border:#FF0000 solid 1px;
 }
 
 .rt_tbl_body{
 border-collapse:collapse;
-/*table-layout:fixed;
-*/
+table-layout:fixed;
+/**/
 }
 .rt_tbl_body td{
 height:40px;
 padding:0px;
-/*overflow-x:scroll;*/
+/*overflow-x:hidden;*/
+overflow:hidden; white-space: nowrap;
+ text-overflow: ellipsis;
  font-size:12px; 
+ border:#FF0000 solid 1px;
 
 }
 
