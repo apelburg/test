@@ -14,6 +14,30 @@
 .hidden{ display:none; }
 .active{ background-color: #EEE;}
 
+.rt_tbl_head{ 
+ /*table-layout:fixed;*/
+ border-collapse:collapse;
+
+}
+.rt_tbl_head td{ 
+padding:0px;
+ font-size:12px;
+
+}
+
+.rt_tbl_body{
+border-collapse:collapse;
+/*table-layout:fixed;
+*/
+}
+.rt_tbl_body td{
+height:40px;
+padding:0px;
+/*overflow-x:scroll;*/
+ font-size:12px; 
+
+}
+
 .scrolled_tbl_container{ 
 
 }

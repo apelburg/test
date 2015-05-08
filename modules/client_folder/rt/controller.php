@@ -255,23 +255,23 @@
 		 }
 	 }
 	 
-	 $rt = '<table class="tbl">
+	 $rt = '<table class="rt_tbl_head" scrolled="head" style="width: 100%;">
 	          <tr class="cap">
 	              <td class="hidden"></td>
-				  <td class="hidden">тип ряда</td>
-				  <td width="100">&nbsp;<a href="#" onclick="print_r(rt_calculator.tbl_model);">_</a>наименование</td>
-				  <td width="50" class="hidden">draft</td>
-				  <td>статус ряда</td>
-				  <td>кол-во</td>
-				  <td>вход</td>
-				  <td>вход</td>
-				  <td>выход</td>
-				  <td>выход</td>
-				  <td></td>';
+				  <td class="hidden">тип</td>
+				  <td width="300">&nbsp;<a href="#" onclick="print_r(rt_calculator.tbl_model);">_</a>наименование</td>
+				  <td class="hidden">draft</td>
+				  <td width="50">статус</td>
+				  <td width="50">кол-во</td>
+				  <td width="70">вход</td>
+				  <td width="70">вход</td>
+				  <td width="70">выход</td>
+				  <td width="70">выход</td>
+				  <td width="20"></td>';
 	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
-	       $rt.= '<td class="test_data_cap hidden">нанес вход</td> 	  
+	       $rt.= '<td width="70" class="test_data_cap hidden">нанес вход</td> 	  
 			      <td width="70">нанесение выход</td>
-			      <td width="70"></td>';
+			      <td width="20"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
            $rt.= '<td class="test_data_cap hidden">доп.усл вход</td> 
 			      <td width="70">доп.усл выход</td>
@@ -279,7 +279,7 @@
 				  <td>сумма выход</td>
 				  <td>дельта</td>
 				  <td>маржинальность</td>
-                  <td>статус</td>';              
+                  <td width="70">статус</td>';              
 	    $rt.= '</tr>
 	           <tr row_id="total_row">
 	              <td class="hidden"></td>
@@ -307,8 +307,8 @@
                   <td></td>';              
 	   $rt.= '</tr>
 	          </table>
-			  <div class="scrolled_tbl_movable_part">
-	          <table id="rt_tbl">'.implode('',$tbl_rows).'</table>
+			  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
+	          <table class="rt_tbl_body" id="rt_tbl" scrolled="body">'.implode('',$tbl_rows).'</table>
 			  </div>';
 	 
 	
