@@ -1,5 +1,5 @@
 <?php
-	
+	$forum = '';
 	include './libs/php/classes/articul_class.php';
     // ** БЕЗОПАСНОСТЬ **
 	// проверяем выдан ли доступ на вход на эту страницу
@@ -14,12 +14,13 @@
 	include'./skins/tpl/common/quick_bar.tpl';
 
 	// шаблон forum
-	ob_start();	
+	// ob_start();	
 	
-	include 'skins/tpl/client_folder/order_art_edit/forum.tpl';
+	// include 'skins/tpl/client_folder/order_art_edit/forum.tpl';
 	
-	$forum = ob_get_contents();
-	ob_get_clean();
+	// $forum = ob_get_contents();
+	// ob_get_clean();
+
 	
 	
 
