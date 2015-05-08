@@ -56,7 +56,7 @@ $(document).ready(function() {
 	<div id="info_string_on_query">
 		<ul>
 			<li id="back_to_string_of_claim"></li>
-			<li id="claim_number">Запрос № <?php echo  $order_num; ?></li>
+			<li id="claim_number" data-order="<?php echo  $order_num_id; ?>">Запрос № <?php echo  $order_num; ?></li>
 			<li id="claim_date"><span>от <?php echo $order_num_date; ?></span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
 			<li id="art_name_topic"><span>Тема:</span> <?php echo $articul['name']; ?></li>
@@ -184,112 +184,13 @@ $(document).ready(function() {
 					<div id="variants_name">
 						<ul>
 							<li id="new_variant">&nbsp;</li>
-							<li class="variant_name checked">Вариант 1</li>
-							<li class="variant_name">Вариант 2</li>
-							<li id="choose_end_variant">Выбрать окончательный</li>
+							<!-- вставка кнопок вариантов -->
+							<?php echo $ARTICUL->generate_variants_menu($variants,$draft_enable); ?>
+							<li id="choose_end_variant">Сделать основным</li>
 						</ul>
 					</div>
-					<div id="variants_dop_info">
-						<table>
-							<tr>
-								<td>
-									<strong>Тираж:</strong>
-									<input type="text" class="tirage_var" value="300 шт"> + 
-									<input type="text" class="dop_tirage_var" value="3">
-									<span class="btn_var_std">ПЗ</span>
-									<span class="btn_var_std">НПЗ</span>
-								</td>
-								<td>
-									<strong>Дата отгрузки:</strong>
-									<span class="btn_var_std">Стандартно</span>
-									<input type="text" id="datepicker2" name="datepicker2" value="25.05.2015"> 
-									<input type="text" id="timepicker2" name="timepicker2" value="15:00">
-								</td>
-								<td>
-									<strong>Изготовление р/д:</strong>
-									<span class="btn_var_std">Стандартно</span> 
-									<input type="text" id="fddtime_rd2" name="fddtime_rd2" value="10"> р/д	
-								</td>
-							</tr>
-						</table>
-					</div>
-					<div id="variant_info" class="table">
-						<div class="row">
-							<div class="cell">
-								<table>
-									<tr>
-										<th>Стоимость товара</th>
-										<th>$ вход.</th>
-										<th>%</th>
-										<th>$ исход.</th>
-										<th>прибыль</th>
-										<th class="edit_cell">ред.</th>
-										<th class="del_cell">del</th>
-									</tr>
-									<tr>
-										<td>1 шт.</td>
-										<td contenteditable="true"> 133,00р</td>
-										<td rowspan="2">20%</td>
-										<td>195,00р</td>
-										<td>12,00</td>
-										<td rowspan="2">
-											<span class="edit_row_variants"></span>
-										</td>
-										<td rowspan="2"></td>
-									</tr>
-									<tr>
-										<td>тираж</td>
-										<td> 39 900,00р</td>
-										<td>85 600,00р</td>
-										<td>25 452,00</td>
-									</tr>
-
-
-
-									<tr>
-										<th colspan="7"><span class="add_row">+</span>печать</th>
-									</tr>
-									<tr>
-										<td>1 шт.</td>
-										<td> 133,00р</td>
-										<td rowspan="2">20%</td>
-										<td>195,00р</td>
-										<td>12,00</td>
-										<td rowspan="2">
-											<span class="edit_row_variants"></span>
-										</td>
-										<td rowspan="2">
-											<span class="del_row_variants"></span>
-										</td>
-									</tr>
-									<tr>
-										<td>тираж</td>
-										<td> 39 900,00р</td>
-										<td>85 600,00р</td>
-										<td>25 452,00</td>
-									</tr>
-									<tr>
-										<th colspan="7"> + добавить ещё услуги</th>
-									</tr>
-									<tr>
-										<td colspan="7" class="table_spacer"> </td>
-									</tr>
-									<tr id="variant_calc_itogo">
-										<td>ИТОГО:</td>
-										<td> 57 254,00р</td>
-										<td>%</td>
-										<td>78 864,15р</td>
-										<td>35 365,45р</td>
-										<td></td>
-										<td></td>
-									</tr>
-								</table>
-							</div>
-							<div class="cell" id="size_card">
-								<?php echo $ARTICUL->get_size_table($art_id); ?>
-							</div>
-						</div>
-					</div>
+					<!-- вставка блоков вариантов -->
+					<?php echo $variants_content; ?>
 				</div>
 			</div>
 		</div>
