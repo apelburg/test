@@ -69,6 +69,8 @@ var rtCalculator = {
     collect_data:function(){
 	    // метод считывающий данные таблицы РТ и сохраняющий их в свойство this.tbl_model 
 	    this.tbl_model={};
+		
+		// считываем данные из head_tbl
 		var trs_arr = this.head_tbl.getElementsByTagName('tr');
 		for(var i = 0;i < trs_arr.length;i++){ 
 		
@@ -91,8 +93,8 @@ var rtCalculator = {
 			}/**/
 	    }
 		
+		//  считываем данные из body_tbl
 	    var trs_arr = this.body_tbl.getElementsByTagName('tr');
-	
 		for(var i = 0;i < trs_arr.length;i++){
 		    // если ряд не имеет атрибута row_id пропускаем его
 		    if(!trs_arr[i].getAttribute('row_id')) continue;

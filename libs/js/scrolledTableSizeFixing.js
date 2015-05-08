@@ -35,7 +35,7 @@
 			
 			//if(i==3 || i==10 || i==15) var correstion = 2;
 			top_body_tds[i].style.width = (top_head_tds[i].offsetWidth -correstion) + "px";
-			top_body_tds[i].style.border =  "#FF0000 solid 1px";top_head_tds[i].style.border =  "#FF0000 solid 1px";
+			//top_body_tds[i].style.border =  "#FF0000 solid 1px";top_head_tds[i].style.border =  "#FF0000 solid 1px";
 		
 		}
 

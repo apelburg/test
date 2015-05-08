@@ -223,17 +223,17 @@
 			 //$total_delta$total_margin
 		 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr row_id="'.$dop_key.'">';
+		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($counter==0)?'pos_edge':'').'">';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
 			 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
 			               <td width="50">'.$dop_row['row_status'].'</td>
-			               <td width="50" type="quantity" editable="true">'.$dop_row['quantity'].'</td>
+			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="70" type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
 						   <td width="90" type="price_in_summ" class="in">'.number_format($price_in_summ,'2','.','').'</td>
 						   <td width="70" type="price_out" class="out" editable="true">'.$dop_row['price_out'].'</td>
-						   <td width="90" type="price_out_summ" class="out">'.number_format($price_out_summ,'2','.','').'</td>
+						   <td width="90" type="price_out_summ" class="out r_border">'.number_format($price_out_summ,'2','.','').'</td>
 						   <td width="20">'.$print_btn.'</td>';
                  if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
 			 $cur_row .=  '<td width="90" type="print_in_summ" class="test_data in hidden">'.$print_in_summ.'</td>';
@@ -241,7 +241,7 @@
 			               <td width="20">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			 $cur_row .=  '<td type="dop_uslugi_in_summ" class="test_data in hidden">'.$dop_uslugi_in_summ.'</td>';
-			 $cur_row .=  '<td width="90" type="dop_uslugi_out_summ" class="out '.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.number_format($dop_uslugi_out_summ,'2','.','').'</td>
+			 $cur_row .=  '<td width="90" type="dop_uslugi_out_summ" class="out r_border'.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.number_format($dop_uslugi_out_summ,'2','.','').'</td>
 						   <td type="in_summ" class="in">'.number_format($in_summ,'2','.','').'</td>
 						   <td type="out_summ" class="out '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'">'.number_format($out_summ,'2','.','').'</td>
 						   <td type="delta" >'.number_format($delta,'2','.','').'</td>
@@ -261,11 +261,11 @@
 				  <td width="300">&nbsp;<a href="#" onclick="print_r(rt_calculator.tbl_model);">_</a>наименование</td>
 				  <td class="hidden">draft</td>
 				  <td width="50">статус</td>
-				  <td width="50">кол-во</td>
+				  <td width="50" class="r_border">кол-во</td>
 				  <td width="70">вход</td>
 				  <td width="90">вход</td>
 				  <td width="70">выход</td>
-				  <td width="90">выход</td>
+				  <td width="90" class="r_border">выход</td>
 				  <td width="20"></td>';
 	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
 	       $rt.= '<td width="70" class="test_data_cap hidden">нанес вход</td> 	  
@@ -273,7 +273,7 @@
 			      <td width="20"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
            $rt.= '<td class="test_data_cap hidden">доп.усл вход</td> 
-			      <td width="90">доп.усл выход</td>
+			      <td width="90" class="out r_border">доп.усл выход</td>
 				  <td>сумма вход</td>
 				  <td>сумма выход</td>
 				  <td>дельта</td>
@@ -286,19 +286,19 @@
 				  <td></td>
 				  <td class="hidden"></td>
 				  <td></td>
-				  <td></td>
+				  <td class="r_border"></td>
 				  <td></td>
 				  <td type="price_in_summ">'.number_format($total['price_in_summ'],'2','.','').'</td>
 				  <td></td>
-				  <td type="price_out_summ">'.number_format($total['price_out_summ'],'2','.','').'</td>
+				  <td class="r_border" type="price_out_summ">'.number_format($total['price_out_summ'],'2','.','').'</td>
 				  <td></td>';
 	if($test_data)	$rt.= '<td class="test_data_cap"></td>';
-	       $rt.= '<td  type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  
+	       $rt.= '<td type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  
 			      <td type="print_out_summ">'.number_format($total['print_out_summ'],'2','.','').'</td>
 			      <td></td>';
     if($test_data)	$rt.= '<td class="test_data_cap"></td>';
            $rt.= '<td type="dop_uslugi_in_summ" class="test_data_cap hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'</td> 
-			      <td type="dop_uslugi_out_summ">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'</td>
+			      <td type="dop_uslugi_out_summ" class="out r_border">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'</td>
 			      <td type="in_summ">'.number_format($total['in_summ'],'2','.','').'</td>
 				  <td type="out_summ">'.number_format($total['out_summ'],'2','.','').'</td>
 				  <td type="delta">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>

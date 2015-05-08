@@ -6,8 +6,8 @@
 .cap td{font-size:13px;padding-bottom:12px;}
 .test_data{font-size:9px;}
 .test_data_cap{ background-color:#CCCCCC;}
-.in{ background-color: #CCFFFF;}
-.out{ background-color: #FFFFCC;}
+.in{ /*background-color: #CCFFFF;*/}
+.out{/* background-color: #FFFFCC;*/}
 .grey{ background-color: #DDD;}
 .red_cell{ color: #FF0000;}
 .top{ vertical-align:top}
@@ -22,7 +22,7 @@
 .rt_tbl_head td{ 
 padding:0px;
  font-size:12px;
- border:#FF0000 solid 1px;
+ border:#EEE solid 0px;
 }
 
 .rt_tbl_body{
@@ -37,7 +37,7 @@ padding:0px;
 overflow:hidden; white-space: nowrap;
  text-overflow: ellipsis;
  font-size:12px; 
- border:#FF0000 solid 1px;
+ border:#FF0000 solid 0px;
 
 }
 
@@ -50,4 +50,9 @@ height:200px;
   /*overflow-y:auto;
   background-color:#CCC;*/
 }
-
+.rt_tbl_body .pos_edge{
+ border-top:#EEE solid 2px;
+ }
+.rt_tbl_body .r_border, .rt_tbl_head .r_border{
+ border-right:#EEE solid 2px;
+ }
