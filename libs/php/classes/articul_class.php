@@ -50,8 +50,8 @@ class Articul{
 		}
 		return $arr;
 	}
-	
-	
+
+
 	private function get_print_mode($art_id){
 		// выгружает данные запроса в массив
 		global $mysqli;
@@ -74,6 +74,12 @@ class Articul{
 		global $mysqli;
 		$query = "SELECT * FROM `".BASE_DOP_PARAMS_TBL."` WHERE `art_id` = '".(int)$art_id."'";
 		// echo $query;
+
+		/*$query = "SELECT `".BASE_DOP_PARAMS_TBL."`.* , `".RT_ART_SIZE."`.`variant_id`,`".RT_ART_SIZE."`.`tirage`,`".RT_ART_SIZE."`.`id` AS id2, `".RT_ART_SIZE."`.`tirage_dop` 
+		FROM `".BASE_DOP_PARAMS_TBL."` 
+		left JOIN `".RT_ART_SIZE."` ON `".RT_ART_SIZE."`.`size_id` = `".BASE_DOP_PARAMS_TBL."`.`id`  
+		WHERE `".BASE_DOP_PARAMS_TBL."`.`art_id` = '".$art_id."'";
+*/
 		$arr = array();
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$this->info = 0;

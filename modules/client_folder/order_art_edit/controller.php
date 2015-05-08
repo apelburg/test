@@ -28,7 +28,7 @@
 	}
 
 	// получаем все варианты просчёта по данному артикулу
-	$query = "SELECT * FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$id."'";
+	$query = "SELECT `".RT_DOP_DATA."`.*,`".RT_ART_SIZE."`.`tirage_json` FROM `".RT_DOP_DATA."` INNER JOIN `".RT_ART_SIZE."` ON `".RT_ART_SIZE."`.`variant_id` = `".RT_DOP_DATA."`.`id` WHERE `".RT_DOP_DATA."`.`row_id` = '".$id."'";
 	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
 	// $this->info = 0;
@@ -38,13 +38,13 @@
 		}
 	}
 
-
+	
 
 	// echo $order_num_date;
 
-	// echo '<pre>';
-	// print_r($arra);
-	// echo '</pre>';
+	echo '<pre>';
+	print_r($variants);
+	echo '</pre>';
 
 
 
