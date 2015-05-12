@@ -39,6 +39,37 @@
 			echo '{"response":"1","text":"test"}';
 			exit;
 		}
+
+		if(isset($_POST['change_name']) && $_POST['change_name']=='new_variant'){
+			$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, draft,row_status,final_delete,quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, draft,row_status,final_delete,quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id']."')";
+			//$query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
+			// $query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
+			//$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '1', `archiv` = '0' WHERE  `id` ='".$_POST['id']."';";
+			//$result = $mysqli->multi_query($query) or die($mysqli->error);
+			$result = $mysqli->query($query) or die($mysqli->error);
+			// запоминаем новый id
+			$insert_id = $mysqli->insert_id;
+			// узнаем количество строк
+			$query = "SELECT COUNT( * ) AS `num`
+					FROM  `os__rt_dop_data` 
+					WHERE  `row_id` ='1'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$num_rows = $row['num'];
+				}
+			}
+			// echo $num_rows;
+
+
+			echo '{ "response":"1",
+					"text":"test",
+					"new_id":"'.$insert_id.'",
+					"num_row":"'.($num_rows-1).'",
+					"num_row_for_name":"Вариант '.$num_rows.'"
+					}';
+			exit;
+		}
 	}
 
 

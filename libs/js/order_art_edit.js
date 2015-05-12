@@ -32,14 +32,54 @@ $(document).ready(function() {
 });
 
 $(document).on('click','#new_variant',function(){
+	/*******************************************************************/
+
+
+
+
+
+
+
+
+
+	/*****************************************************************/
+	var id = $('#variants_name .variant_name.checked ').attr('data-id');
+	var row_id = $('#claim_number').attr('data-order');	
 	$.post('',{
 		global_change: 'AJAX',
 		change_name: 'new_variant',
-		var id = $('#variants_name .variant_name.checked ').attr('data-id');
-		var row_id = $('#claim_number').attr('data-order');	
+		id:id,
+		row_id:row_id
+		
 	}, function(data, textStatus, xhr) {
-		/*optional stuff to do after success */
-	});
+		if(data['response']=='1'){
+			// клонируем html вкладки текущего расчета
+			var menu_li = $('#variants_name .variant_name.checked ').clone();
+			// ставим название и на всякий подчищаем архивный класс, если он есть
+			menu_li.html(data['num_row_for_name']).removeClass('show_archive');		
+			// получаем id текущего пблока расчёта
+			var id_div = menu_li.attr('data-cont_id');
+			// меняем id для для работы вкладки с новым блоком 
+			menu_li.attr('data-cont_id','variant_content_block_'+data['num_row']);
+			// убираем класс "выбрано" со всех вкладок
+			$('#variants_name .variant_name').removeClass('checked');
+			// вставляем html
+			$('#variants_name .variant_name:last-of-type').after(menu_li);
+			// post запрос для названия вкладки и получения id для склонированного контента
+
+
+			// клонируем html текущего расчёта со всеми данными
+			var div_html = $('#'+id_div).clone();
+			// id на новый
+			div_html.attr('id','variant_content_block_'+data['num_row']);
+			// подчищаем архивный класс, если есть
+			div_html.removeClass('archiv_opacity');
+			// скрываем все видимые блоки расчета
+			$('#edit_variants_content .variant_content_block').css({'display':'none'})
+			// вставляем html
+			$('#edit_variants_content .variant_content_block:last-of-type').after(div_html);
+		}
+	},"json");
 });
 
 // отработка клика по быстрым кнопкам
