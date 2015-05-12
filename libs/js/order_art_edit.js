@@ -31,6 +31,17 @@ $(document).ready(function() {
 	});	
 });
 
+$(document).on('click','#new_variant',function(){
+	$.post('',{
+		global_change: 'AJAX',
+		change_name: 'new_variant',
+		var id = $('#variants_name .variant_name.checked ').attr('data-id');
+		var row_id = $('#claim_number').attr('data-order');	
+	}, function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+	});
+});
+
 // отработка клика по быстрым кнопкам
 $(document).on('click','#btn_make_std',function(){
 	$(this).addClass('checked');
