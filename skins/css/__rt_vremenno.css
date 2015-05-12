@@ -33,9 +33,9 @@ table-layout:fixed;
 .rt_tbl_body td{
 height:40px;
 padding:0px;
-/*overflow-x:hidden;*/
+/*overflow-x:hidden;
 overflow:hidden; white-space: nowrap;
- text-overflow: ellipsis;
+ text-overflow: ellipsis;*/
  font-size:12px; 
  border:#FF0000 solid 0px;
 
@@ -58,3 +58,17 @@ height:200px;
  }
 .rt_tbl_body .right{ text-align:right;}
 .rt_tbl_body .left{ text-align:left;}
+.rt_tbl_body .pointer{ cursor:pointer;}
+
+.rt_tbl_body .svetofor{
+ position:relative;
+}
+.rt_tbl_body .svetofor_div{
+ position:absolute;
+ top:0px;
+ left:0px;
+ background-color: #EEE;
+ width:80px;
+ height:30px;
+ display:block;
+}

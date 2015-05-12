@@ -166,6 +166,11 @@ var rtCalculator = {
 				if(tds_arr[i].getAttribute('expel')){
 					tds_arr[i].onclick = this.expel_value_from_calculation;
 				}
+				if(tds_arr[i].getAttribute('svetofor')){
+					console.log(i+' svetofor');
+					if(tds_arr[i].getElementsByTagName('img')[0]) $(tds_arr[i].getElementsByTagName('img')[0]).mouseenter(this.show_svetofor);
+					
+				}
 		    }
 			
 	    }
@@ -446,8 +451,16 @@ var rtCalculator = {
 		if(type=='print_out_summ' || type=='dop_uslugi_out_summ'){
 		    // получаем значения входящей и исходящей суммы по данному типу ячейки
 		    var cur_out_summ = parseFloat(cell.innerHTML);
-		    var cur_in_summ  = parseFloat(cell.previousSibling.innerHTML); // соседняя ячейка
-			
+			// соседняя ячейка
+			var sibling_cell = cell.previousSibling;
+			while(sibling_cell != null){
+				if(sibling_cell.nodeName == 'TD'){
+					 var cur_in_summ  = parseFloat(sibling_cell.innerHTML);
+					 break;
+				}
+				sibling_cell = sibling_cell.previousSibling;
+			}
+
 			// получаем значения входящей и исходящей суммы по данному типу ячейки
 			if(status){// исключить из расчетов
 			    rtCalculator.tbl_model[row_id]['out_summ']-= cur_out_summ;
@@ -507,10 +520,84 @@ var rtCalculator = {
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('expel_value_from_calculation='+JSON.stringify(markers)+'&id='+row_id);
 		rtCalculator.send_ajax(url,callback);
 		
-		function callback(response){ /*alert(response);*/}
-	    // вызываем метод производящий замену значений в HTML
-		rtCalculator.change_html(cell.parentNode,row_id);
+		function callback(response){ /*alert(response);*/
+			// вызываем метод производящий замену значений в HTML
+			rtCalculator.change_html(cell.parentNode,row_id);
+	
+			rtCalculator.expel_value_from_calculation.in_process = false;
+		}
+	}
+	,
+	show_svetofor:function(e){ 
+	     e = e|| windows.event;
+		var img = e.target || e.srcElement;
+	    if(rtCalculator.show_svetofor.last_img && rtCalculator.show_svetofor.last_img == img && rtCalculator.show_svetofor.last_click) return; 
+		//if(rtCalculator.show_svetofor.last_click) return; 
+		if(rtCalculator.show_svetofor.in_process) return; 
+		rtCalculator.show_svetofor.in_process = true;
+		rtCalculator.show_svetofor.last_img = img;
+	   
+		
+		var td = img.parentNode;
+		if(!rtCalculator.show_svetofor.svetofor_plank){
+			console.log('plank');
+			var sourse_src = OS_HOST + '/skins/images/img_design/';
+			/*var red = new Image();
+			red.src = sourse_src + 'rt_svetofor_red.png';
+			red.onclick = function(){rtCalculator.change_svetofor('red');}
+			var green = new Image();
+			green.src = sourse_src + 'rt_svetofor_green.png';
+			var grey = new Image();
+			grey.src = sourse_src + 'rt_svetofor_grey.png'; plank.appendChild(green);
+			plank.appendChild(grey);
+			plank.appendChild(red);*/
+			
+			var arr = ['red','green','grey'];
+            var plank = document.createElement('div');
+			
+			for(var i = 0;i < arr.length;i++){ 
+			   var img_btn = new Image();
+			   img_btn.src = sourse_src + 'rt_svetofor_'+arr[i]+'.png';
+			   img_btn.setAttribute("status",arr[i]);
+			   img_btn.onclick = rtCalculator.change_svetofor;
+			   plank.appendChild(img_btn);
+			}
+			
+			rtCalculator.show_svetofor.svetofor_plank = plank;
+		}
+		
+		rtCalculator.show_svetofor.div = document.createElement('div');
+		rtCalculator.show_svetofor.div.className = 'svetofor_div';
+		$(rtCalculator.show_svetofor.div).mouseleave(rtCalculator.hide_svetofor);
 
-		rtCalculator.expel_value_from_calculation.in_process = false;
+	
+	    $(td).mouseleave(rtCalculator.hide_svetofor);
+	
+	    rtCalculator.show_svetofor.div.appendChild(rtCalculator.show_svetofor.svetofor_plank);
+		td.appendChild(rtCalculator.show_svetofor.div);
+	}
+	,
+	hide_svetofor:function(){ 
+	 
+		
+		if(rtCalculator.show_svetofor.div) rtCalculator.show_svetofor.div.parentNode.removeChild(rtCalculator.show_svetofor.div);
+		if(rtCalculator.show_svetofor.in_process) rtCalculator.show_svetofor.in_process = false;
+		console.log('hide_svetofor');
+	}
+	,
+	change_svetofor:function(e){ 
+		
+	    e = e|| windows.event;
+		var img = e.target || e.srcElement;
+		console.log(img.getAttribute("status"));
+		
+		if(rtCalculator.show_svetofor.div) rtCalculator.show_svetofor.div.parentNode.removeChild(rtCalculator.show_svetofor.div);
+		if(rtCalculator.show_svetofor.in_process) rtCalculator.show_svetofor.in_process = false;
+		setTimeout( dorr, 700 );
+		
+		//rtCalculator.show_svetofor.last_img = img;
+		rtCalculator.show_svetofor.last_click = true;
+		function dorr(){console.log('dorr');rtCalculator.show_svetofor.last_click = false;}
+		console.log('hide_svetofor');
 	}
 }
