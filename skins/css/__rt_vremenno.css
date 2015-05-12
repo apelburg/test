@@ -56,3 +56,5 @@ height:200px;
 .rt_tbl_body .r_border, .rt_tbl_head .r_border{
  border-right:#EEE solid 2px;
  }
+.rt_tbl_body .right{ text-align:right;}
+.rt_tbl_body .left{ text-align:left;}

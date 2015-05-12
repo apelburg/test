@@ -232,12 +232,14 @@
 			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="70" type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
 						   <td width="90" type="price_in_summ" class="in">'.number_format($price_in_summ,'2','.','').'</td>
-						   <td width="70" type="price_out" class="out" editable="true">'.$dop_row['price_out'].'</td>
-						   <td width="90" type="price_out_summ" class="out r_border">'.number_format($price_out_summ,'2','.','').'</td>
+						   <td width="70" type="price_out" class="out right" editable="true">'.$dop_row['price_out'].'</td>
+						   <td width="15" class="currency left">р</td>
+						   <td width="90" type="price_out_summ" class="out right">'.number_format($price_out_summ,'2','.','').'</td>
+						   <td width="15" class="currency left r_border">р</td>
 						   <td width="20">'.$print_btn.'</td>';
                  if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
-			 $cur_row .=  '<td width="90" type="print_in_summ" class="test_data in hidden">'.$print_in_summ.'</td>';
-			 $cur_row .=  '<td width="70" type="print_out_summ" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.number_format($print_out_summ,'2','.','').'</td>
+			 $cur_row .=  '<td width="90" type="print_in_summ" class="test_data in hidden">'.$print_in_summ.'</td> 
+			               <td width="70" type="print_out_summ" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.number_format($print_out_summ,'2','.','').'</td>
 			               <td width="20">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			 $cur_row .=  '<td type="dop_uslugi_in_summ" class="test_data in hidden">'.$dop_uslugi_in_summ.'</td>';
@@ -265,7 +267,9 @@
 				  <td width="70">вход</td>
 				  <td width="90">вход</td>
 				  <td width="70">выход</td>
-				  <td width="90" class="r_border">выход</td>
+				  <td width="15">x</td>
+				  <td width="90">выход</td>
+				  <td width="15" class="r_border">x</td>
 				  <td width="20"></td>';
 	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
 	       $rt.= '<td width="70" class="test_data_cap hidden">нанес вход</td> 	  
@@ -290,7 +294,9 @@
 				  <td></td>
 				  <td type="price_in_summ">'.number_format($total['price_in_summ'],'2','.','').'</td>
 				  <td></td>
-				  <td class="r_border" type="price_out_summ">'.number_format($total['price_out_summ'],'2','.','').'</td>
+				  <td width="15">x</td>
+				  <td class="right" type="price_out_summ">'.number_format($total['price_out_summ'],'2','.','').'</td>
+				  <td width="15" class="r_border">x</td>
 				  <td></td>';
 	if($test_data)	$rt.= '<td class="test_data_cap"></td>';
 	       $rt.= '<td type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  

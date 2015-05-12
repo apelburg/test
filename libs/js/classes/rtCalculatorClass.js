@@ -158,9 +158,10 @@ var rtCalculator = {
 			    if(tds_arr[i].getAttribute('editable')){
 					//tds_arr[i].onkeyup = this.make_calculations;
 					tds_arr[i].onkeyup = this.check;
-					tds_arr[i].onfocus = function(){ rtCalculator.primary_val = this.innerHTML; this.className+= ' active';}
+					tds_arr[i].onfocus = function(){ rtCalculator.primary_val = this.innerHTML; /*this.className+= ' active';*/}
 					tds_arr[i].onblur = this.complite_input;
 					tds_arr[i].setAttribute("contenteditable",true);
+					tds_arr[i].style.outline="none";
 			    }
 				if(tds_arr[i].getAttribute('expel')){
 					tds_arr[i].onclick = this.expel_value_from_calculation;
@@ -189,7 +190,7 @@ var rtCalculator = {
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+cell.parentNode.getAttribute('row_id')+'","prop":"'+cell.getAttribute('type')+'","val":"'+last_val+'"}');
 		rtCalculator.send_ajax(url,callback);
 		//alert(last_val);
-		function callback(){ cell.className = cell.className.slice(0,cell.className.indexOf("active")-1);}
+		function callback(){ /*cell.className = cell.className.slice(0,cell.className.indexOf("active")-1);*/}
 	}
 	,
 	send_ajax:function(url,callback){
