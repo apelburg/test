@@ -23,9 +23,19 @@
 		}
 
 		if(isset($_POST['change_name']) && $_POST['change_name']=='change_draft'){
-			$query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `draft`= '0';";
+			$query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
 			$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '0' WHERE  `id` ='".$_POST['id']."';";
 			$result = $mysqli->multi_query($query) or die($mysqli->error);
+			echo '{"response":"1","text":"test"}';
+			exit;
+		}
+
+		if(isset($_POST['change_name']) && $_POST['change_name']=='change_archiv'){
+			$query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
+			// $query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
+			$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '1', `archiv` = '0' WHERE  `id` ='".$_POST['id']."';";
+			$result = $mysqli->multi_query($query) or die($mysqli->error);
+			// $result = $mysqli->query($query) or die($mysqli->error);
 			echo '{"response":"1","text":"test"}';
 			exit;
 		}

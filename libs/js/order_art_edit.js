@@ -75,7 +75,39 @@ $(document).on('click', '#variants_name .variant_name', function(){
 	var id = $(this).attr('data-cont_id');
 	$('.variant_content_block').css({'display':'none'});
 	$('#'+id).css({'display':'block'});
-	//chenge_draft_name();// сменим имя если требуется
+
+	test_chenge_archive_list();
+});
+
+function test_chenge_archive_list(){
+	if($('#all_variants_menu .variant_name.checked').hasClass('show_archive')){
+		$('#choose_end_variant').html('Извлечь расчёт из архива').attr('id','extract_from_archive');
+	}else{
+		$('#extract_from_archive').html('Выбрать основной').attr('id','choose_end_variant');
+	}
+}
+
+$(document).on('click','#extract_from_archive',function(){
+	
+	// отправляем запрос на смену статуса (на "не архив")
+	var id = $('#variants_name .variant_name.checked ').attr('data-id');
+	var row_id = $('#claim_number').attr('data-order');	
+	$.post('', 
+		{
+			global_change: 'AJAX',
+			change_name: 'change_archiv',
+			id:id,
+			row_id:row_id
+		}, function(data, textStatus, xhr) {
+		if(data['response']!='1'){
+			alert('что-то пошло не так.');
+		}else{
+			// меняем html получив положительный ответ
+			var id_div = $('#all_variants_menu .variant_name.checked').removeClass('show_archive').attr('data-cont_id');
+			$('#'+id_div).removeClass('archiv_opacity');
+			test_chenge_archive_list();			
+		}
+	},'json');
 });
 
 $(document).on('click','#choose_end_variant',function(){
@@ -95,7 +127,13 @@ $(document).on('click','#choose_end_variant',function(){
 			// присваиваем статус варианта Основной
 			$('#variants_name .variant_name').each(function(index, el) {
 				if(!$(this).hasClass('checked')){
-					$(this).remove();
+					if($('#show_archive a').attr('data-true')!='1'){
+						$(this).remove();
+					}else{
+						$(this).addClass('show_archive');
+						$('#'+$(this).attr('data-cont_id')).addClass('archiv_opacity');
+
+					}
 				}
 			});
 			//$('#choose_end_variant').attr('data-back','1').html('Сделать черновиком');
@@ -130,6 +168,7 @@ $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
 		console.log(data);
 	});
 });
+
 
 $(document).on('click','.btn_var_std[name="std"]',function(){
 	
