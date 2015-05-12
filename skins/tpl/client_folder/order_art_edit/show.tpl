@@ -186,7 +186,7 @@ $(document).ready(function() {
 							<li id="new_variant">&nbsp;</li>
 							<!-- вставка кнопок вариантов -->
 							<?php echo $ARTICUL->generate_variants_menu($variants,$draft_enable); ?>
-							<li id="choose_end_variant">Сделать основным</li>
+							<li id="choose_end_variant">Выбрать основной</li>
 						</ul>
 					</div>
 					<!-- вставка блоков вариантов -->

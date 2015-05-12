@@ -63,6 +63,9 @@ $(document).on('click','#btn_date_var',function(){
 });
 
 
+$(document).ready(function() {
+	chenge_draft_name();		
+});
 
 $(document).on('click', '#variants_name .variant_name', function(){
 	// отработка показа / скрытия вариантов расчёта
@@ -72,27 +75,33 @@ $(document).on('click', '#variants_name .variant_name', function(){
 	var id = $(this).attr('data-cont_id');
 	$('.variant_content_block').css({'display':'none'});
 	$('#'+id).css({'display':'block'});
+	//chenge_draft_name();// сменим имя если требуется
 });
 
 $(document).on('click','#choose_end_variant',function(){
 	var id = $('#variants_name .variant_name.checked ').attr('data-id');
-
-	var row_id = $('#claim_number').attr('data-order');
-
-	$('#variants_name .variant_name').removeClass('osnovnoy');
-	$('#variants_name .variant_name.checked').addClass('osnovnoy');
-
+	var row_id = $('#claim_number').attr('data-order');	
+	// отправляем запрос на смену статуса варианта на Основной
 	$.post('', 
 		{
 			global_change: 'AJAX',
 			change_name: 'change_draft',
 			id:id,
-			row_id:row_id
+			row_id:row_id,
 		}, function(data, textStatus, xhr) {
 		if(data['response']!='1'){
 			alert('что-то пошло не так.');
+		}else{
+			// присваиваем статус варианта Основной
+			$('#variants_name .variant_name').each(function(index, el) {
+				if(!$(this).hasClass('checked')){
+					$(this).remove();
+				}
+			});
+			//$('#choose_end_variant').attr('data-back','1').html('Сделать черновиком');
 		}
 	},'json');
+	
 })
 
 // колькуляция и сохранение изменённых данных от тираже в таблице размеров

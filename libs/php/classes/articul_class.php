@@ -93,18 +93,24 @@ class Articul{
 
 	public function generate_variants_menu($variants,$draft_enable){
 		$html = '';
+		$checked = '';
+		$draft = '';
 		for ($i=0; $i < count($variants); $i++) { 
 			// если есть $draft_enable=1, т.е. мы знаем, что в списке есть основной
-			// вариант, то грузим его выбранным по умолчанию
-			$checked = '';
-			if($draft_enable){
-				$draft = ($variants[$i]['draft']=='0')?'osnovnoy checked':'';
+			// вариант, то грузим только его, остальное является историей		
+			if($draft_enable){				
+				if($variants[$i]['draft']=='0'){
+					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name checked">Вариант '.($i+1).'</li>';
+				}
 			}else{
-			// если же все варианты являются черновиками, то выбираем первый по списку
-			// для одного черновика схема отработает соответственно
-				$checked = ($i==0)?'checked':'';				
+			// если же все варианты являются черновиками, то выгружаем все, 
+			// первый по списку будет выделен для просмотра
+			// если вариант всего 1, 
+			//он и будет являтся главным вариантом для создания спецификации 
+				$checked = ($i==0)?'checked':'';
+				$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$draft.' '.$checked.'">Вариант '.($i+1).'</li>';
 			}
-			$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$draft.' '.$checked.'">Вариант '.($i+1).'</li>';
+			
 		}
 		return $html;
 	}
@@ -157,6 +163,7 @@ class Articul{
 
 	// далее старые функции 
 	public function fetch_images_for_article2($art){
+		if(!$art || $art=='0'){return array();}
 		global $db;
 		// основная картинка
 		$i=0;

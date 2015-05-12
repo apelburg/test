@@ -1,10 +1,4 @@
 <?php
-
-    // ** БЕЗОПАСНОСТЬ **
-	// проверяем выдан ли доступ на вход на эту страницу
-	// если нет $ACCESS['suppliers']['access'] или она равна FALSE прерываем работу скирпта 
-	if(!@$ACCESS['suppliers']['access']) exit($ACCESS_NOTICE);
-	// ** БЕЗОПАСНОСТЬ **
 	
 	/*******************************   AJAX   ***********************************/
 	if(isset($_POST['global_change'])){
@@ -29,10 +23,10 @@
 		}
 
 		if(isset($_POST['change_name']) && $_POST['change_name']=='change_draft'){
-			$query = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."';";
+			$query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `draft`= '0';";
 			$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '0' WHERE  `id` ='".$_POST['id']."';";
 			$result = $mysqli->multi_query($query) or die($mysqli->error);
-			echo "{'response':'1'}";
+			echo '{"response":"1","text":"test"}';
 			exit;
 		}
 	}
