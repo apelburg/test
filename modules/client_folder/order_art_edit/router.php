@@ -31,21 +31,36 @@
 		if($v['draft']=='0'){$draft_enable = 1;}
 	}	
 
+	$display_this_block = ' style="display:block"';
+	$di = 0;
 	foreach ($variants as $key => $value) {
-		// формируем размерную таблицу
-		if($draft_enable){
-			$display_this_block = ($value['draft']=='0')?' style="display:block"':' style="display:none"';
-		}else{
-			$display_this_block = ($key==0)?' style="display:block"':' style="display:none"';
+		if(!isset($_GET['show_archive']) && $value['archiv']=='1'){ continue;}
+
+		if((int)$value['archiv']){$show_archive_class = " archiv_opacity";}else{$show_archive_class ='';}
+
+
+		$var = $value['draft'].$value['archiv'];
+		switch ($var) {
+			case '00':// не история - главный вариант расчёта
+				if($di>0){$display_this_block = ' style="display:none"';}else{
+					$display_this_block = ' style="display:block"';$di++;}
+			break;
+			
+			case '10':// не история - обычный вариант расчёта
+				if($draft_enable || $di>0){$display_this_block=' style="display:none"';
+				}else{//$display_this_block = ' style="display:block"';
+					$di++;}
+			break;
+						
+			default: // архив, остальное не важно				
+					$display_this_block = ' style="display:none"';
+			break;
 		}
 		
 		$get_size_table = $ARTICUL->get_size_table($art_dop_params,$value);
-		// echo $value;
+
 		$rr = json_decode($value['tirage_json'], true);
 		$sum_tir = $sum_dop = 0;
-		// echo '<pre>';
-		// print_r($value);
-		// echo '</pre>';
 		foreach ($rr as $k => $v) {
 			$sum_tir += (isset($v['tir']))?(int)$v['tir']:0;
 			$sum_dop += (isset($v['dop']))?(int)$v['dop']:0;
@@ -56,14 +71,6 @@
 		$sum_of_tirage_out = round($value['price_out']*($sum_tir+$sum_dop),2);
 		// сумма прибыль
 		$sum_prib_of_tirage = $sum_of_tirage_out-$sum_of_tirage_in;
-
-		
-
-
-		// echo '<pre>';
-		// print_r($rr);
-		// echo '</pre>';
-
 
 		include 'skins/tpl/client_folder/order_art_edit/variants_template.tpl';
 

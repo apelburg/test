@@ -182,12 +182,36 @@ $(document).ready(function() {
 				</div>
 				<div id="edit_variants_content">
 					<div id="variants_name">
-						<ul>
-							<li id="new_variant">&nbsp;</li>
-							<!-- вставка кнопок вариантов -->
-							<?php echo $ARTICUL->generate_variants_menu($variants,$draft_enable); ?>
-							<li id="choose_end_variant">Сделать основным</li>
-						</ul>
+						<table>
+							<tr>
+								<td>
+									<ul id="new_variant_UL">
+										<li id="new_variant">&nbsp;</li>
+									</ul>
+								</td>
+								<td>
+									<ul id="all_variants_menu">
+										<!-- вставка кнопок вариантов -->
+										<?php echo $ARTICUL->generate_variants_menu($variants,$draft_enable); ?>
+									</ul>
+								</td>
+								<td>
+									<ul>
+										<li id="choose_end_variant">Выбрать основной</li>
+										<li id="show_archive">
+											<?php
+												if(isset($_GET['show_archive'])){
+													echo '<a data-true="1" href="'.str_replace('&show_archive', '', $_SERVER['REQUEST_URI']).'">Скрыть архив</a></li>';
+												}else{
+													echo '<a data-true="0" href="'.$_SERVER['REQUEST_URI'].'&show_archive">Показать архив </a></li>';
+
+												}
+											?>										
+									</ul>
+								</td>
+							</tr>
+						</table>
+						
 					</div>
 					<!-- вставка блоков вариантов -->
 					<?php echo $variants_content; ?>

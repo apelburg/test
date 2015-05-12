@@ -90,8 +90,7 @@ class Articul{
 		}
 		return $arr;
 	}
-
-	public function generate_variants_menu($variants,$draft_enable){
+	public function generate_variants_menu_OLD($variants,$draft_enable){
 		$html = '';
 		for ($i=0; $i < count($variants); $i++) { 
 			// если есть $draft_enable=1, т.е. мы знаем, что в списке есть основной
@@ -105,6 +104,47 @@ class Articul{
 				$checked = ($i==0)?'checked':'';				
 			}
 			$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$draft.' '.$checked.'">Вариант '.($i+1).'</li>';
+		}
+		return $html;
+	}
+	public function generate_variants_menu($variants,$draft_enable){		
+		$html = ''; // контент функции
+		$checked = 'checked'; // имя класса для выбранного элемента
+		$ch = 0; // счетчик количества выбранных элементов, может не больше одного
+		
+		for ($i=0; $i < count($variants); $i++) { 
+			// если есть $draft_enable=1, т.е. мы знаем, что в списке есть основной
+			// вариант, то грузим только его, остальное является историей
+			$var = $variants[$i]['draft'].$variants[$i]['archiv'];
+			switch ($var) {
+				case '00':// не история - главный вариант расчёта
+					// в случае существования такогого он имеет первое приимущество на
+					// то, чтобы быть выделенным, т.к. с ним вероятнее всего будет производиться
+					// основная работа
+					if($ch>0){$checked='';}else{$checked = 'checked';$ch++;}
+					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'</li>';
+				break;
+				
+				case '10':// не история - обычный вариант расчёта
+					// тут у нас обычный вариант расчета, ни чем не примечательный
+					
+					// если $draft_enableпередан, значит обычный вариант расчёта не сможет 
+					// быть выделен при старте, эту роль на себя возьмёт заранее известный 
+					// главный вариант - обнуляем имя класса, чтобы оно не попало в вывод 
+					// если если класс был использован ранее, тоже обнуляем имя класса
+					if($draft_enable || $ch>0){$checked='';}else{$ch++;}
+					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'</li>';
+				break;
+							
+				default: // архив, остальное не важно
+					// это архивные записи, видны только в случае существования $_GET['show_archive']
+					// не могут быть выделенными по умолчанию, кроме этих вкладок всегда найдутся
+					// или главный вариант или хотябы один обычный вариант расчёта (который пока один и является главным)
+					if(isset($_GET['show_archive'])){
+						$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name show_archive">Вариант '.($i+1).'</li>';
+					}
+				break;
+			}
 		}
 		return $html;
 	}
@@ -157,6 +197,7 @@ class Articul{
 
 	// далее старые функции 
 	public function fetch_images_for_article2($art){
+		if(!$art || $art=='0'){return array();}
 		global $db;
 		// основная картинка
 		$i=0;

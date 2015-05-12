@@ -9,19 +9,19 @@
 	
 	ob_start();	
 	 
-	 switch($section){
+	switch($section){
 	 
-	   case 'rt':
-	   include 'rt/router.php';
-	   break;
+		case 'rt':
+		include 'rt/router.php';
+		break;
 
-	   case 'order_art_edit':
-	   include 'order_art_edit/router.php';
-	   break;
+		case 'order_art_edit':
+		include 'order_art_edit/router.php';
+		break;
 
-	   default: 
-	   include 'rt/router.php';
-	   break;
+		default: 
+		include 'rt/router.php';
+		break;
 	
 	}
 	
