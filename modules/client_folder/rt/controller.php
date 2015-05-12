@@ -220,15 +220,20 @@
 				 @$total['in_summ'] += $in_summ;
 				 @$total['out_summ'] += $out_summ;
 			 }
-			 //$total_delta$total_margin
+			 $img_design_path = HOST.'/skins/images/img_design/';
+			 $svetofor_src = ($dop_row['row_status']=='')? $img_design_path.'rt_svetofor_green.png':$img_design_path.'rt_svetofor_'.$dop_row['row_status'].'.png';
+			 $svetofor = '<img src="'.$svetofor_src.'">';
 		 
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($counter==0)?'pos_edge':'').'">';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
+			/* $cur_row .= '<td rowspan="" class="hidden">'.$dop_key.'</td>';
+		     $cur_row .= '<td rowspan="" class="hidden">'.$row['row_type'].'</td>';
+			 $cur_row .=  '<td rowspan="" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>';*/
 			 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
-			               <td width="50">'.$dop_row['row_status'].'</td>
+			               <td width="50" svetofor="1" class="svetofor pointer">'.$svetofor.'</td>
 			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="70" type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
 						   <td width="90" type="price_in_summ" class="in">'.number_format($price_in_summ,'2','.','').'</td>
@@ -256,7 +261,7 @@
 		     $counter++;
 		 }
 	 }
-	 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;">
+	 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;" border="0">
 	          <tr class="cap">
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
@@ -289,7 +294,7 @@
 				  <td class="hidden"></td>
 				  <td></td>
 				  <td class="hidden"></td>
-				  <td></td>
+				  <td><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
 				  <td class="r_border"></td>
 				  <td></td>
 				  <td type="price_in_summ">'.number_format($total['price_in_summ'],'2','.','').'</td>
@@ -313,7 +318,7 @@
 	   $rt.= '</tr>
 	          </table>
 			  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
-	          <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body">'.implode('',$tbl_rows).'</table>
+	          <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body"  border="0">'.implode('',$tbl_rows).'</table>
 			  </div>';
 			  
 /*	 $rt = '<table class="rt_tbl_head" scrolled="head" style="width: 100%;">
