@@ -56,12 +56,112 @@ $(document).on('click','#btn_date_std',function(){
 	$('#btn_date_var').removeClass('checked');
 	$('#datepicker1').val(cmm).attr('readonly','true').addClass('input_disabled');
 });
-$(document).on('click','#btn_date_var',function(){
-	
+$(document).on('click','#btn_date_var',function(){	
 	$(this).addClass('checked');
 	$('#btn_date_std').removeClass('checked');
 	$(this).parent().find('input').removeAttr('readonly').removeClass('input_disabled');
 });
 
+
+
+$(document).on('click', '#variants_name .variant_name', function(){
+	// отработка показа / скрытия вариантов расчёта
+	// при клике по кнопкам вариантов
+	$('.variant_name').removeClass('checked');
+	$(this).addClass('checked');	
+	var id = $(this).attr('data-cont_id');
+	$('.variant_content_block').css({'display':'none'});
+	$('#'+id).css({'display':'block'});
+});
+
+$(document).on('click','#choose_end_variant',function(){
+	var id = $('#variants_name .variant_name.checked ').attr('data-id');
+
+	var row_id = $('#claim_number').attr('data-order');
+
+	$('#variants_name .variant_name').removeClass('osnovnoy');
+	$('#variants_name .variant_name.checked').addClass('osnovnoy');
+
+	$.post('', 
+		{
+			global_change: 'AJAX',
+			change_name: 'change_draft',
+			id:id,
+			row_id:row_id
+		}, function(data, textStatus, xhr) {
+		if(data['response']!='1'){
+			alert('что-то пошло не так.');
+		}
+	},'json');
+})
+
+// колькуляция и сохранение изменённых данных от тираже в таблице размеров
+$(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
+	var summ = 0;
+	$('#'+$('.variant_name.checked').attr('data-cont_id')+' .'+$(this).attr('class')).each(function(index, el) {
+		summ += Number($(this).val());
+	});
+	console.log('-'+$(this).attr('class')+'- = -val_tirag-');
+	if($(this).attr('class') == 'val_tirage'){
+		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .tirage_var';
+	}else{
+		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .dop_tirage_var';	
+	}
+	$(id).val(summ);
+
+
+	$.post('', {
+		global_change: 'AJAX',
+		change_name: 'size_in_var',
+		val:$(this).val(),
+		key:$(this).attr('data-id_size'),
+		dop:$(this).attr('data-dop'),
+		id: $(this).attr('data-var_id')
+	}, function(data, textStatus, xhr) {
+		console.log(data);
+	});
+});
+
+$(document).on('click','.btn_var_std[name="std"]',function(){
+	
+	$(this).addClass('checked');
+	$(this).parent().find('input').val(10);
+});
+
+$(document).on('keyup','.fddtime_rd2',function(){
+	if($(this).val()!='10'){
+		$(this).prev().removeClass('checked');
+	}else{
+		if(!$(this).prev().hasClass('checked')){
+			$(this).prev().addClass('checked');
+		}		
+	}
+});
+
+
+// отслеживание нажатий функциональных клавиш с клавиатуры
+$(document).keydown(function(e) {
+	if(e.keyCode == 27){//ESC	
+	// alert();
+	}	
+	if(e.keyCode == 38){//вверх		
+		// alert()
+		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .fddtime_rd2';
+		if($(id).is( ":focus" )){			
+			$(id).val(Number($(id).val())+1);
+			$(id).setCursorPosition($(id).val().length);
+		}		
+	}
+	if(e.keyCode == 40){//вниз		
+		// alert()
+		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .fddtime_rd2';
+		if($(id).is( ":focus" )){			
+			$(id).val(Number($(id).val())-1);
+			// $(id).setCursorPosition($(id).val().length);
+		}	
+	}
+	
+
+});
 
 

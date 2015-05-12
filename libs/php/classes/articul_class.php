@@ -50,8 +50,8 @@ class Articul{
 		}
 		return $arr;
 	}
-	
-	
+
+
 	private function get_print_mode($art_id){
 		// выгружает данные запроса в массив
 		global $mysqli;
@@ -74,6 +74,12 @@ class Articul{
 		global $mysqli;
 		$query = "SELECT * FROM `".BASE_DOP_PARAMS_TBL."` WHERE `art_id` = '".(int)$art_id."'";
 		// echo $query;
+
+		/*$query = "SELECT `".BASE_DOP_PARAMS_TBL."`.* , `".RT_ART_SIZE."`.`variant_id`,`".RT_ART_SIZE."`.`tirage`,`".RT_ART_SIZE."`.`id` AS id2, `".RT_ART_SIZE."`.`tirage_dop` 
+		FROM `".BASE_DOP_PARAMS_TBL."` 
+		left JOIN `".RT_ART_SIZE."` ON `".RT_ART_SIZE."`.`size_id` = `".BASE_DOP_PARAMS_TBL."`.`id`  
+		WHERE `".BASE_DOP_PARAMS_TBL."`.`art_id` = '".$art_id."'";
+*/
 		$arr = array();
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$this->info = 0;
@@ -85,23 +91,35 @@ class Articul{
 		return $arr;
 	}
 
+	public function generate_variants_menu($variants,$draft_enable){
+		$html = '';
+		for ($i=0; $i < count($variants); $i++) { 
+			// если есть $draft_enable=1, т.е. мы знаем, что в списке есть основной
+			// вариант, то грузим его выбранным по умолчанию
+			$checked = '';
+			if($draft_enable){
+				$draft = ($variants[$i]['draft']=='0')?'osnovnoy checked':'';
+			}else{
+			// если же все варианты являются черновиками, то выбираем первый по списку
+			// для одного черновика схема отработает соответственно
+				$checked = ($i==0)?'checked':'';				
+			}
+			$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$draft.' '.$checked.'">Вариант '.($i+1).'</li>';
+		}
+		return $html;
+	}
 
-
-	public function get_size_table($art_id){
+	public function get_size_table($dop_params_arr, $val){
 		// преобразует массив дополнительных параметров в таблицу размеров
-		$html = "";
-		$dop_params_arr = $this->get_dop_params($art_id);
-		// print_r($arr);
 
+		// выборка данных о введённых ранее размерах из строки JSON 
+		$tirage_json = json_decode($val['tirage_json'], true);
+
+		$html = "";
 		if(count($dop_params_arr)==0){
 			$html = "Дополнительная информация отсутствует. Обратитесь к администратору.";
 			return $html;
 		};
-		// проверяем наличие размерной колонки
-		// $isset_size = 0;
-		// foreach ($dop_params_arr as $k => $v) {
-		// 	if(trim($v['size'])!=""){$isset_size++;}
-		// }
 
 		// собираем таблицу с доп размерами
 		$html = '
@@ -115,17 +133,20 @@ class Articul{
 				</tr>
 		';
 		// перебираем строки таблицы
+		
 		foreach ($dop_params_arr as $k => $v) {
-			// if(trim($v['size'])!=""){$isset_size++;}
+			$value = (isset($tirage_json[$v['id']]['tir']))?$tirage_json[$v['id']]['tir']:0;
+			$value_dop = (isset($tirage_json[$v['id']]['dop']))?$tirage_json[$v['id']]['dop']:0;
+			$no_edit_class = (($v['ostatok_free']=='0')?' input_disabled':'');
+			$rearonly = (($v['ostatok_free']=='0')?'readonly="readonly"':'');
 			$html .= '
 					<tr>
 						<td>'.$v['size'].'</td>
 						<td>'.$v['ostatok'].'<br><span>(в пути) '.$v['on_way_free'].'</span></td>
 						<td>'.$v['ostatok_free'].'</td>
-						<td><input type="text" data-id="'.$v['id'].'"  value="0" '.(($v['ostatok_free']=='0')?'class="input_disabled" readonly="readonly"':'').'></td>
-						<td><input type="text"  value="0" '.(($v['ostatok_free']=='0')?'class="input_disabled" readonly="readonly"':'').'></td>
+						<td><input type="text" data-dop="tir" data-var_id="'.$val['id'].'" class="val_tirage'.$no_edit_class.'" data-id_size="'.$v['id'].'"  value="'.$value.'" '.$rearonly.'></td>
+						<td><input type="text" data-dop="dop" data-var_id="'.$val['id'].'" class="val_tirage_dop'.$no_edit_class.'" data-id_size="'.$v['id'].'"  value="'.$value_dop.'" '.$rearonly.'></td>
 					</tr>
-
 			';
 		}
 		$html .= '</table>';
@@ -134,7 +155,7 @@ class Articul{
 	}
 
 
-	// старые функции 
+	// далее старые функции 
 	public function fetch_images_for_article2($art){
 		global $db;
 		// основная картинка
