@@ -71,6 +71,14 @@
 		$sum_of_tirage_out = round($value['price_out']*($sum_tir+$sum_dop),2);
 		// сумма прибыль
 		$sum_prib_of_tirage = $sum_of_tirage_out-$sum_of_tirage_in;
+		// печатаем / не печатаем запас
+		$print_z = ($value['print_z']=='1')?'checked':'';
+		$print_z_no = ($value['print_z']=='0')?'checked':'';
+
+		// стандартное время изготовления
+		// $std_pr = ($value['standart']=='10' && $type_tovar=='cat')?1:0;
+		$std_time_print = ($value['standart']=='10' && $type_tovar=='cat')?'checked':'';
+
 
 		include 'skins/tpl/client_folder/order_art_edit/variants_template.tpl';
 

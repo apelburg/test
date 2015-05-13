@@ -34,8 +34,8 @@
 #characteristics_art .table .row .cell{ padding: 5px}
 #characteristics_art .table .row .cell:nth-of-type(1){color: #7E7F83;}
 #technical_assignment{float: left; background-color: #cbcbcb; color: #5F5F5F; margin-top: 10px; margin-left: 15px; padding: 10px 15px}
-#timepicker1,#timepicker2{width: 35px;}
-#datepicker1,#datepicker2{width: 70px}
+#timepicker1,#edit_variants_content .timepicker2{width: 33px;}
+#datepicker1,#edit_variants_content .datepicker2{width: 70px}
 #fddtime .row .cell {padding:5px 0 5px 0;}
 #fddtime input{ margin-left: 5px}
 /*#btn_make_std,#btn_make_var,#btn_date_std,#btn_date_var*/

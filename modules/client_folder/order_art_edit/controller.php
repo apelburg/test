@@ -40,12 +40,46 @@
 			exit;
 		}
 
+		if(isset($_POST['change_name']) && $_POST['change_name']=='change_tirage_pz'){
+			$query = "UPDATE `".RT_DOP_DATA."` SET `print_z` = '".$_POST['pz']."' WHERE  `id` ='".$_POST['id']."'";	
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+
+		if(isset($_POST['change_name']) && $_POST['change_name']=='change_variante_shipping_time'){
+			$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_time` = '".$_POST['time']."', `standart` = '' WHERE  `id` ='".$_POST['id']."'";	
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+
+		if(isset($_POST['change_name']) && $_POST['change_name']=='change_variante_shipping_date'){
+			$date = $_POST['date'];
+			$date = strtotime($date);
+			$date = date("Y-m-d", $date);
+			// exit;
+
+			$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."' , `standart` = '' WHERE  `id` ='".$_POST['id']."'";	
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+
+		if(isset($_POST['change_name']) && $_POST['change_name']=='save_standart_day'){
+			$query = "UPDATE `".RT_DOP_DATA."` 
+					SET `shipping_time` = '00:00:00',
+					`shipping_date` = '0000-00-00' ,
+					`standart` =  '".$_POST['standart']."'
+					WHERE  `id` ='".$_POST['id']."'";	
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+
 		if(isset($_POST['change_name']) && $_POST['change_name']=='new_variant'){
+			// собираем запрос, копируем строку в БД
 			$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, draft,row_status,final_delete,quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, draft,row_status,final_delete,quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id']."')";
-			//$query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
-			// $query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
-			//$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '1', `archiv` = '0' WHERE  `id` ='".$_POST['id']."';";
-			//$result = $mysqli->multi_query($query) or die($mysqli->error);
 			$result = $mysqli->query($query) or die($mysqli->error);
 			// запоминаем новый id
 			$insert_id = $mysqli->insert_id;
@@ -59,9 +93,6 @@
 					$num_rows = $row['num'];
 				}
 			}
-			// echo $num_rows;
-
-
 			echo '{ "response":"1",
 					"text":"test",
 					"new_id":"'.$insert_id.'",
@@ -87,23 +118,39 @@
 	
 	// чеерез get параметр id мы получаем id 1 из строк запроса
 	// получаем основные хар-ки артикула из таблицы артикулов входящих в запрос
-	$query = "SELECT DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`, `order_num`, `name`,`id`, `art_id` FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."'";
+	$query = "SELECT DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`, `order_num`, `name`,`id`, `art_id`, `type` FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."'";
 	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
 	// $this->info = 0;
 	if($result->num_rows > 0){
 		while($row = $result->fetch_assoc()){
-			$order_num_id = $row['id']; // id записи 
-			$order_num = $row['order_num']; // номер запроса
-			$art_name = $row['name']; // название артикула, возможно отредактированное менеджером
-			$art_id = $row['art_id']; // id строки артикула в базе
-			$order_num_date = $row['date_create']; // дата создания строки
+			// id записи 
+			$order_num_id = $row['id']; 
+			
+			// номер запроса
+			$order_num = $row['order_num']; 
+			
+			// название артикула, возможно отредактированное менеджером
+			$art_name = $row['name']; 
+			
+			// id строки артикула в базе
+			$art_id = $row['art_id']; 
+			
+			// дата создания строки
+			$order_num_date = $row['date_create']; 
+			
+			// тип товара : 
+			// каталог /cat, 
+			// полиграфия /pol, 
+			// сувениры под заказ /ext, 
+			// нанесение на чужом сувенире /не определено
+			$type_tovar = $row['type']; 
 		}
 	}
 
 	// получаем все варианты просчёта по данному артикулу
 	//$query = "SELECT `".RT_DOP_DATA."`.*,`".RT_ART_SIZE."`.`tirage_json`,`".RT_ART_SIZE."`.`id` AS `id_2` FROM `".RT_DOP_DATA."` INNER JOIN `".RT_ART_SIZE."` ON `".RT_ART_SIZE."`.`variant_id` = `".RT_DOP_DATA."`.`id` WHERE `".RT_DOP_DATA."`.`row_id` = '".$id."'";
-	$query = "SELECT `".RT_DOP_DATA."`.* FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$id."'";
+	$query = "SELECT `".RT_DOP_DATA."`.*, DATE_FORMAT(shipping_date,'%d.%m.%Y') AS `shipping_date` FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$id."'";
 	
 	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
