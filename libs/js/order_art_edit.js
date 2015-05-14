@@ -640,7 +640,7 @@ $(document).on('keyup','#edit_variants_content .dop_tirage_var',function(){
 		// 		nu = general_tirage-old_tirage;
 		// 		// if(nu<=0){return true;}			
 		// 	}
-		// }
+		// } 
 
 		/*********************************/
 		//  ПЕРЕДЕЛКА КОНЕЦ						
