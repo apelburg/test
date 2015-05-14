@@ -1,4 +1,5 @@
 <?php
+	// ПРИМЕЧАНИЕ - после заверщения скрипта убрать из common.js функции с окончанием Old
 	
 	// Данные расчетной таблицы хронятся в 3-х таблицах базы данных
 	// 1-я таблица является родительской для 2-ой , 2-ая родительской для 3-ей
@@ -26,7 +27,7 @@
 		 
 		 $rows = array();
 		 
-		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,
+		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn ,
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.draft AS draft, dop_data_tbl.expel AS expel,
 						  
@@ -45,6 +46,7 @@
 	     while($row = $result->fetch_assoc()){
 		     if(!isset($multi_dim_arr[$row['main_id']])){
 			     $multi_dim_arr[$row['main_id']]['row_type'] = $row['main_row_type'];
+				 $multi_dim_arr[$row['main_id']]['master_btn'] = $row['master_btn'];
 				 $multi_dim_arr[$row['main_id']]['art'] = $row['art'];
 				 $multi_dim_arr[$row['main_id']]['name'] = $row['item_name'];
 			 }
@@ -228,26 +230,18 @@
 			 $img_design_path = HOST.'/skins/images/img_design/';
 			 $svetofor_src = ($dop_row['row_status']=='')? $img_design_path.'rt_svetofor_green.png':$img_design_path.'rt_svetofor_'.$dop_row['row_status'].'.png';
 			 $svetofor = ($dop_key!=0)? '<img src="'.$svetofor_src.'">':'';
-		  /*<div class="<?php echo ($rt_master_btn == 1)? '':'container'; ?>" id="masterBtnContainer<?php echo $rt_id; ?>">
-           <input type="checkbox" id="masterBtn<?php echo $rt_id; ?>" name="masterBtn" rowIdNum="<?php echo $rt_id; ?>" onclick="onClickMasterBtn(this,<?php echo $rt_id; ?>);return false;" <?php echo ($rt_master_btn == 1)? 'checked':''; ?> /><label for="masterBtn<?php echo $rt_id; ?>"></label>
-        </div>*/
-		 /* <div class="" id="masterBtnContainer'.$key.'">
-           <input type="checkbox" id="masterBtn'.$key.'" name="masterBtn" rowIdNum="'.$key.'" /><label for="masterBtn'.$key.'"></label>
-        '.$key.'</div>*/
+		
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($key>1 && $counter==0)?'pos_edge':'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="30">'.$glob_counter.'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top master_btn noselect" width="80">   
 											<div class="" id="">
-											   <input type="checkbox" id="masterBtn'.$key.'" rowIdNum="'.$key.'" name="masterBtn" /><label for="masterBtn'.$key.'"></label>
+											   <input type="checkbox" id="masterBtn'.$key.'" rowIdNum="'.$key.'" name="masterBtn"   onclick="return onClickMasterBtn(this,\'rt_tbl_body\','.$key.');" '.(($row['master_btn'] == 1)? 'checked':'').'/><label for="masterBtn'.$key.'"></label>
 											</div>
 			                              </td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
-			/* $cur_row .= '<td rowspan="" class="hidden">'.$dop_key.'</td>';
-		     $cur_row .= '<td rowspan="" class="hidden">'.$row['row_type'].'</td>';
-			 $cur_row .=  '<td rowspan="" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>';*/
 			 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
 			               <td width="50" svetofor="1" class="svetofor pointer">'.$svetofor.'</td>
 			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
@@ -286,7 +280,7 @@
 			       <td width="80">
 					  <div class="master_button noselect">
 						<a href="#" onclick="openCloseMenu(event,\'rtMenu\'); return false;">&nbsp;</a>
-						<div id="reset_master_button" class="reset_button" onclick="resetMasterBtn(this);">&nbsp;</div>
+						<div id="reset_master_button" class="reset_button" onclick="resetMasterBtn(this,\'rt_tbl_body\');">&nbsp;</div>
 					  </div>
 				  </td>
 	              <td class="hidden"></td>

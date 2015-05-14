@@ -27,6 +27,11 @@
 		 RT::make_com_offer(json_decode($_GET['make_com_offer']));
 		 exit;
 	}
+	if(isset($_GET['set_masterBtn_status'])){
+		 RT::set_masterBtn_status(json_decode($_GET['set_masterBtn_status']));
+		 exit;
+	}
+	
 	/////////////////////  END  AJAX  ////////////////////// 
 	
 	// client_details
