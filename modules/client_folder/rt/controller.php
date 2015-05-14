@@ -105,7 +105,9 @@
 	 //echo '<pre>'; print_r($rows[0]); echo '</pre>';
 	 
 	 $service_row[0] = array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0);
+	 $glob_counter = 0;
 	 foreach($rows[0] as $key => $row){
+	     $glob_counter++;
          // Проходим по первому уровню и определям некоторые моменты отображения таблицы, которые будут применены при проходе по второму
 		 // уровню массива, ряды таблицы будут создаваться там
 		 
@@ -114,7 +116,7 @@
 		 // при этом мы указываем $all_draft = FALSE; что не все ряды являются draft
 		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>';
 		 $all_draft = FALSE;
-		 if(count($row['dop_data'])>1){
+		 if(isset($row['dop_data']) && count($row['dop_data'])>1){
 		     $all_draft = TRUE;
 			 foreach($row['dop_data'] as $dop_key => $dop_row){
 				 if($dop_row['draft']!=1){
@@ -123,13 +125,15 @@
 					  unset($row['dop_data'][$dop_key]);
 				  }
 			 }
-			 // использование в данном случае не возможно потомучто этот метод приводит к переиндексации ключей а ключи у нас содержат id ряда 
+			 // использование в данном случае не возможно потому что этот метод приводит к переиндексации ключей а ключи у нас содержат id ряда 
 			 if(isset($row_to_lift_up)){
 			      $row['dop_data']= $row_to_lift_up + $row['dop_data']; 
 				  unset($row_to_lift_up);
 			 }
 		 }
-		
+		 else{
+		     // !!! НАДО КАК_ТО ЭТО ОТРАБОТАТЬ
+		 }
 		 
 		 // здесь определяем выводить ли дополнительный вспомогательный пустой ряд сверху
 		 // когда все остальные являются draft то выводим  т.е. (если не все draft то невыводим)
@@ -224,11 +228,20 @@
 			 $img_design_path = HOST.'/skins/images/img_design/';
 			 $svetofor_src = ($dop_row['row_status']=='')? $img_design_path.'rt_svetofor_green.png':$img_design_path.'rt_svetofor_'.$dop_row['row_status'].'.png';
 			 $svetofor = ($dop_key!=0)? '<img src="'.$svetofor_src.'">':'';
-		 
+		  /*<div class="<?php echo ($rt_master_btn == 1)? '':'container'; ?>" id="masterBtnContainer<?php echo $rt_id; ?>">
+           <input type="checkbox" id="masterBtn<?php echo $rt_id; ?>" name="masterBtn" rowIdNum="<?php echo $rt_id; ?>" onclick="onClickMasterBtn(this,<?php echo $rt_id; ?>);return false;" <?php echo ($rt_master_btn == 1)? 'checked':''; ?> /><label for="masterBtn<?php echo $rt_id; ?>"></label>
+        </div>*/
+		 /* <div class="" id="masterBtnContainer'.$key.'">
+           <input type="checkbox" id="masterBtn'.$key.'" name="masterBtn" rowIdNum="'.$key.'" /><label for="masterBtn'.$key.'"></label>
+        '.$key.'</div>*/
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($counter==0)?'pos_edge':'').'">';
-			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="30">'.$key.'</td>':'';
-			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="80">MK</td>':'';
+		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($key>1 && $counter==0)?'pos_edge':'').'">';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="30">'.$glob_counter.'</td>':'';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top master_btn noselect" width="80">   
+											<div class="" id="">
+											   <input type="checkbox" id="masterBtn'.$key.'" rowIdNum="'.$key.'" name="masterBtn" /><label for="masterBtn'.$key.'"></label>
+											</div>
+			                              </td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
@@ -248,16 +261,17 @@
 						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left r_border hidden">р</td>
 						   <td width="20">'.$print_btn.'</td>';
                  if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
-			 $cur_row .=  '<td width="90" type="print_in_summ" class="test_data in hidden">'.$print_in_summ.'</td> 
-			               <td width="70" type="print_out_summ" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.number_format($print_out_summ,'2','.','').'</td>
+			 $cur_row .=  '<td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden">'.$print_in_summ.'р</td> 
+			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.number_format($print_out_summ,'2','.','').'р</td>
 			               <td width="20">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
-			 $cur_row .=  '<td type="dop_uslugi_in_summ" class="test_data in hidden">'.$dop_uslugi_in_summ.'</td>';
-			 $cur_row .=  '<td width="90" type="dop_uslugi_out_summ" class="out r_border'.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.number_format($dop_uslugi_out_summ,'2','.','').'</td>
-						   <td type="in_summ" connected_vals="total_summ" c_stat="0" class="in hidden" width="100">'.number_format($in_summ,'2','.','').'</td>
-						   <td type="out_summ" connected_vals="total_summ" c_stat="1" class="out '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'" width="100">'.number_format($out_summ,'2','.','').'</td>
-						   <td type="delta" >'.number_format($delta,'2','.','').'</td>
-						   <td type="margin" >'.number_format($margin,'2','.','').'</td>';
+			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden">'.$dop_uslugi_in_summ.'р</td>';
+			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border'.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.number_format($dop_uslugi_out_summ,'2','.','').'р</td>
+						   <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="in right hidden">'.number_format($in_summ,'2','.','').'</td>
+						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'" >'.number_format($out_summ,'2','.','').'</td>
+						   <td width="100" type="delta" class="right">'.number_format($delta,'2','.','').'</td>
+						   <td width="100" type="margin" class="right">'.number_format($margin,'2','.','').'</td>
+						   <td stretch_column>&nbsp;</td>';
 			 $cur_row .=  '<td>'.$dop_row['glob_status'].'</td>';  
 			 $cur_row .= '</tr>';
 			 
@@ -271,7 +285,7 @@
 			      <td width="30"></td>
 			       <td width="80">
 					  <div class="master_button noselect">
-						<a href="#" onclick="openCloseMenu(event,\'tableMenu\'); return false;">&nbsp;</a>
+						<a href="#" onclick="openCloseMenu(event,\'rtMenu\'); return false;">&nbsp;</a>
 						<div id="reset_master_button" class="reset_button" onclick="resetMasterBtn(this);">&nbsp;</div>
 					  </div>
 				  </td>
@@ -294,20 +308,21 @@
 				  <td width="15" connected_vals="art_price" c_stat="0" class="r_border hidden"></td>
 				  <td width="20"></td>';
 	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
-	       $rt.= '<td width="70" class="test_data_cap hidden">нанес вход</td> 	  
-			      <td width="90">нанесение выход</td>
+	       $rt.= '<td width="80" connected_vals="print" c_stat="0" class="pointer hidden">$ печать<br><span class="small">входящая тираж</span></td> 	  
+			      <td width="80" connected_vals="print" c_stat="1" class="pointer">$ печать<br><span class="small">исходящая тираж</span></td>
 			      <td width="20"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
-           $rt.= '<td class="test_data_cap hidden">доп.усл вход</td> 
-			      <td width="90" class="out r_border">доп.усл выход</td>
-				  <td width="100" connected_vals="total_summ" c_stat="0" class="hidden">сумма вход</td>
-				  <td width="100" connected_vals="total_summ" c_stat="1">сумма выход</td>
-				  <td>дельта</td>
-				  <td>маржина-<br>льность</td>
+           $rt.= '<td width="80"  connected_vals="uslugi" c_stat="0" class="pointer r_border hidden">$ доп. услуги<br><span class="small">входящая тираж</span></td> 
+			      <td width="80"  connected_vals="uslugi" c_stat="1" class="out pointer r_border">$ доп. услуги<br><span class="small">исходящая тираж</span></td>
+				  <td width="100" connected_vals="total_summ" c_stat="0" class="pointer hidden center">итого<br><span class="small">входящая</span></td>
+				  <td width="100" connected_vals="total_summ" c_stat="1" class="pointer center">итого<br><span class="small">исходящая</span></td>
+				  <td width="100" class="center">delta</td>
+				  <td width="100"  class="center">маржина-<br>льность</td>
+				  <td stretch_column>&nbsp;</td>
                   <td width="70">статус</td>';              
 	    $rt.= '</tr>
-	           <tr row_id="total_row">
-			      <td width="30"></td>
+	           <tr row_id="total_row" class="grey bottom_border">
+			      <td width="30" height="18"></td>
 			      <td width="80"></td>
 	              <td class="hidden"></td>
 				  <td class="hidden"></td>
@@ -325,16 +340,17 @@
 				  <td width="15" connected_vals="art_price" c_stat="0" class="r_border hidden">р</td>
 				  <td></td>';
 	if($test_data)	$rt.= '<td class="test_data_cap"></td>';
-	       $rt.= '<td type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  
-			      <td type="print_out_summ">'.number_format($total['print_out_summ'],'2','.','').'</td>
+	       $rt.= '<td type="print_in_summ" connected_vals="print" c_stat="0" class="hidden">'.number_format($total['print_in_summ'],'2','.','').'р</td> 		  
+			      <td type="print_out_summ" connected_vals="print" c_stat="1">'.number_format($total['print_out_summ'],'2','.','').'р</td>
 			      <td></td>';
     if($test_data)	$rt.= '<td class="test_data_cap"></td>';
-           $rt.= '<td type="dop_uslugi_in_summ" class="test_data_cap hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'</td> 
-			      <td type="dop_uslugi_out_summ" class="out r_border">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'</td>
-			      <td type="in_summ" connected_vals="total_summ" c_stat="0" class="hidden" width="100">'.number_format($total['in_summ'],'2','.','').'</td>
-				  <td type="out_summ" connected_vals="total_summ" c_stat="1"  width="100">'.number_format($total['out_summ'],'2','.','').'</td>
-				  <td type="delta">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
-				  <td type="margin">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
+           $rt.= '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0"  class="r_border hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'р</td> 
+			      <td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1" class="out r_border">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'р</td>
+			      <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="right hidden">'.number_format($total['in_summ'],'2','.','').'</td>
+				  <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="right">'.number_format($total['out_summ'],'2','.','').'</td>
+				  <td width="100" type="delta" class="right">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
+				  <td width="100" type="margin" class="right">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
+				  <td stretch_column>&nbsp;</td>
                   <td></td>';              
 	   $rt.= '</tr>
 	          </table>

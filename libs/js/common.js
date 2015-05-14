@@ -338,9 +338,9 @@
 		}
 	}
 	
-	function getIdsOfCheckedRows(){
-		var calculate_tbl = document.getElementById("calculate_tbl");
-		var inputs = calculate_tbl.getElementsByTagName('input');
+	function getIdsOfCheckedRows(element_id){
+		var element = document.getElementById(element_id);
+		var inputs = element.getElementsByTagName('input');
 		var idsArr = [];
 		for( var i= 0 ; i < inputs.length; i++){
 		   if(inputs[i].type == 'checkbox'){
@@ -349,6 +349,7 @@
 			   }
 		   }
 		}
+		//console.log(idsArr.join(';'));
 		return idsArr.join(';');
 		
 	}
@@ -532,14 +533,14 @@
 		var viewportHeight = Geometry.getViewportHeight();
 		var viewportWidth = Geometry.getViewportWidth();
 		
-		var div = document.createElement('div');
-		div.style.position = 'absolute';
-		div.style.top = '0px';
-		div.style.left = '0px';
+		show_processing_timer.container = document.createElement('div');
+		show_processing_timer.container.style.position = 'absolute';
+		show_processing_timer.container.style.top = '0px';
+		show_processing_timer.container.style.left = '0px';
 		//div.style.height = Geometry.getDocumentHeight() + 'px';
 		//div.style.width = Geometry.getDocumentWidth() + 'px';
-		div.style.height = viewportHeight + 'px';
-		div.style.width = viewportWidth + 'px';
+		show_processing_timer.container.style.height = viewportHeight + 'px';
+		show_processing_timer.container.style.width = viewportWidth + 'px';
         //div.style.backgroundColor = '#FCFCFC';
 		//div.style.filter = "alpha(opacity=20)";
 		//div.style.opacity = "0.20";
@@ -556,8 +557,11 @@
 		img.src ='http://'+ location.host+location.pathname+'skins/images/img_design/preloader.gif';
 
 		timer_container.appendChild(img);
-		div.appendChild(timer_container);
-		document.body.appendChild(div);
+		show_processing_timer.container.appendChild(timer_container);
+		document.body.appendChild(show_processing_timer.container);
+	}
+	function close_processing_timer(){
+		show_processing_timer.container.parentNode.removeChild(show_processing_timer.container);
 	}
 	
 	function do_search(element,params_to_clear){

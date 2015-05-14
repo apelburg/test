@@ -219,39 +219,6 @@ var rtCalculator = {
 		function callback(){ /*cell.className = cell.className.slice(0,cell.className.indexOf("active")-1);*/}
 	}
 	,
-	send_ajax:function(url,callback){
-		
-		
-	    //////////////////////////////////////////////////////////////////////////////////////////
-		/////////////////////////////////////    AJAX  ///////////////////////////////////////////
-		
-		var request = HTTP.newRequest();
-		
-	   
-	    // производим запрос
-	    request.open("GET", url, true);
-	    request.send(null);
-	   
-		request.onreadystatechange = function(){ // создаем обработчик события
-		   if(request.readyState == 4){ // проверяем состояние запроса если запрос == 4 значит ответ получен полностью
-			   if(request.status == 200){ // проверяем состояние ответа (код состояния HTTP) если все впорядке продолжаем 
-				   ///////////////////////////////////////////
-				   // обрабатываем ответ сервера
-					
-					var request_response = request.responseText;
-				    //alert(request_response);
-                    if(callback) callback(request_response);
-				 
-			    }
-			    else{
-				  alert("Частота запросов превысила допустимое значение\rдля данного интернет-соединения, попробуйте\rперезагрузить сайт, для этого нажмите F5");
-			    }
-		     }
-	     }
-		
-		//////////////////////////////////////////////////////////////////////////////////////////	
-	}
-	,
 	check:function(e){// корректировка значений вводимых пользователем
 	    e = e || window.event;
 		var cell = e.target || e.srcElement;
@@ -655,5 +622,38 @@ var rtCalculator = {
 				}
 			}
 		}
+	}
+	,
+	send_ajax:function(url,callback){
+		
+		
+	    //////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////    AJAX  ///////////////////////////////////////////
+		
+		var request = HTTP.newRequest();
+		
+	   
+	    // производим запрос
+	    request.open("GET", url, true);
+	    request.send(null);
+	   
+		request.onreadystatechange = function(){ // создаем обработчик события
+		   if(request.readyState == 4){ // проверяем состояние запроса если запрос == 4 значит ответ получен полностью
+			   if(request.status == 200){ // проверяем состояние ответа (код состояния HTTP) если все впорядке продолжаем 
+				   ///////////////////////////////////////////
+				   // обрабатываем ответ сервера
+					
+					var request_response = request.responseText;
+				    //alert(request_response);
+                    if(callback) callback(request_response);
+				 
+			    }
+			    else{
+				  alert("Частота запросов превысила допустимое значение\rдля данного интернет-соединения, попробуйте\rперезагрузить сайт, для этого нажмите F5");
+			    }
+		     }
+	     }
+		
+		//////////////////////////////////////////////////////////////////////////////////////////	
 	}
 }

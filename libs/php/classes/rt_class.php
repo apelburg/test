@@ -24,6 +24,9 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
+		static function make_com_offer($data_obj){
+		    echo $data_obj->ids.' '.$data_obj->order_num;
+		}
 		
     }
 

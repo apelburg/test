@@ -20,8 +20,11 @@
 		 exit;
 	}
 	if(isset($_GET['change_svetofor'])){
-	     //print_r(json_decode($_GET['expel_value_from_calculation']));
 		 RT::change_svetofor($_GET['id'],$_GET['change_svetofor']);
+		 exit;
+	}
+	if(isset($_GET['make_com_offer'])){
+		 RT::make_com_offer(json_decode($_GET['make_com_offer']));
 		 exit;
 	}
 	/////////////////////  END  AJAX  ////////////////////// 
