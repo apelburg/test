@@ -183,7 +183,7 @@ class Articul{
 					<tr>
 						<td>'.$v['size'].'</td>
 						<td>'.$v['ostatok'].'<br><span>(в пути) '.$v['on_way_free'].'</span></td>
-						<td>'.$v['ostatok_free'].'</td>
+						<td class="ostatok_free">'.$v['ostatok_free'].'</td>
 						<td><input type="text" data-dop="tir" data-var_id="'.$val['id'].'" class="val_tirage'.$no_edit_class.'" data-id_size="'.$v['id'].'"  value="'.$value.'" '.$rearonly.'></td>
 						<td><input type="text" data-dop="dop" data-var_id="'.$val['id'].'" class="val_tirage_dop'.$no_edit_class.'" data-id_size="'.$v['id'].'"  value="'.$value_dop.'" '.$rearonly.'></td>
 					</tr>

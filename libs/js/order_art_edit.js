@@ -312,16 +312,34 @@ $(document).on('click','#choose_end_variant',function(){
 
 // колькуляция и сохранение изменённых данных от тираже в таблице размеров
 $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
+	
+	//console.log('-'+$(this).attr('class')+'- = -val_tirag-');
+	// определяем максимальный тираж по данному размеру
+	var max_tirage = Number($(this).parent().parent().find('.ostatok_free').html());
+
+
+
+	if($(this).attr('class') == 'val_tirage'){
+		// редактируется тираж для размера
+
+		// определяем введённый запас
+		var zapas = Number($(this).parent().parent().find('.val_tirage_dop').val());
+		var our_tirage_for_size = Number($(this).val()) + zapas;
+		if(our_tirage_for_size> max_tirage){}
+		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .tirage_var';
+	}else{
+		// редактируется запас для размера
+		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .dop_tirage_var';	
+	}
+
+
+
+
 	var summ = 0;
 	$('#'+$('.variant_name.checked').attr('data-cont_id')+' .'+$(this).attr('class')).each(function(index, el) {
 		summ += Number($(this).val());
 	});
-	console.log('-'+$(this).attr('class')+'- = -val_tirag-');
-	if($(this).attr('class') == 'val_tirage'){
-		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .tirage_var';
-	}else{
-		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .dop_tirage_var';	
-	}
+
 	$(id).val(summ);
 
 
@@ -387,7 +405,6 @@ $(document).on('keyup','.fddtime_rd2',function(){
 // отслеживание нажатий функциональных клавиш с клавиатуры
 $(document).keydown(function(e) {
 	if(e.keyCode == 27){//ESC	
-	// alert();
 	}	
 	if(e.keyCode == 38){//вверх		
 		// alert()
@@ -405,8 +422,38 @@ $(document).keydown(function(e) {
 			// $(id).setCursorPosition($(id).val().length);
 		}	
 	}
-	
+});
 
+// ИЗМЕНЕНИЕ ТИРАЖА ИЗ ОБЩЕГО input
+$(document).on('keyup','#edit_variants_content .tirage_var',function(){
+	var max_tirage = 0;
+	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	$(id_variant+' .ostatok_free').each(function(index, el) {
+		max_tirage += Number($(this).html());
+	});
+	var zapas = Number($(id_variant+' .dop_tirage_var').val());
+	max_tirage = max_tirage-zapas;
+
+	console.log(max_tirage);
+	if(Number($(this).val())>max_tirage)$(this).val(max_tirage);return;
+
+});
+
+
+// ИЗМЕНЕНИЕ запаса ИЗ ОБЩЕГО input
+$(document).on('keyup','#edit_variants_content .dop_tirage_var',function(){
+	var max_tirage = 0;
+	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	$(id_variant+' .ostatok_free').each(function(index, el) {
+		max_tirage += Number($(this).html());
+	});
+	
+	var tirage = Number($(id_variant+' .tirage_var').val());
+	max_zapas = max_tirage-tirage;
+
+	console.log(max_zapas);
+	if(Number($(this).val())>max_zapas)$(this).val(max_zapas);return;
+	
 });
 
 
