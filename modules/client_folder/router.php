@@ -18,6 +18,10 @@
 		case 'order_art_edit':
 		include 'order_art_edit/router.php';
 		break;
+		
+		case 'business_offers':
+		include 'business_offers/router.php';
+		break;
 
 		default: 
 		include 'rt/router.php';

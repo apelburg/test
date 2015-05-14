@@ -1,5 +1,5 @@
 <?php
-    
+    echo "Коммерческие предложения должны отображаться для этого запроса или для килента?<br>Какой Интерфейс этой страницы";
     $quick_button = '<div class="quick_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 	$view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 	

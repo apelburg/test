@@ -20,6 +20,7 @@
 	//
 	//
 
+
 	function fetch_rows_from_rt($order_num){
 	     global $mysqli;
 		 
@@ -222,10 +223,12 @@
 			 }
 			 $img_design_path = HOST.'/skins/images/img_design/';
 			 $svetofor_src = ($dop_row['row_status']=='')? $img_design_path.'rt_svetofor_green.png':$img_design_path.'rt_svetofor_'.$dop_row['row_status'].'.png';
-			 $svetofor = '<img src="'.$svetofor_src.'">';
+			 $svetofor = ($dop_key!=0)? '<img src="'.$svetofor_src.'">':'';
 		 
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($counter==0)?'pos_edge':'').'">';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="30">'.$key.'</td>':'';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="80">MK</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
@@ -235,12 +238,14 @@
 			 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
 			               <td width="50" svetofor="1" class="svetofor pointer">'.$svetofor.'</td>
 			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
-						   <td width="70" type="price_in" class="in" editable="true">'.$dop_row['price_in'].'</td>
-						   <td width="90" type="price_in_summ" class="in">'.number_format($price_in_summ,'2','.','').'</td>
-						   <td width="70" type="price_out" class="out right" editable="true">'.$dop_row['price_out'].'</td>
-						   <td width="15" class="currency left">р</td>
-						   <td width="90" type="price_out_summ" class="out right">'.number_format($price_out_summ,'2','.','').'</td>
-						   <td width="15" class="currency left r_border">р</td>
+						   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
+						   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">р</td>
+						   <td width="90" type="price_in_summ" connected_vals="art_price" c_stat="0" class="in right hidden">'.number_format($price_in_summ,'2','.','').'</td>
+						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left hidden">р</td>
+						   <td width="90" type="price_out" editable="true" connected_vals="art_price" c_stat="1" class="out right">'.$dop_row['price_out'].'</td>
+						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >р</td>
+						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.number_format($price_out_summ,'2','.','').'</td>
+						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left r_border hidden">р</td>
 						   <td width="20">'.$print_btn.'</td>';
                  if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
 			 $cur_row .=  '<td width="90" type="print_in_summ" class="test_data in hidden">'.$print_in_summ.'</td> 
@@ -249,8 +254,8 @@
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			 $cur_row .=  '<td type="dop_uslugi_in_summ" class="test_data in hidden">'.$dop_uslugi_in_summ.'</td>';
 			 $cur_row .=  '<td width="90" type="dop_uslugi_out_summ" class="out r_border'.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.number_format($dop_uslugi_out_summ,'2','.','').'</td>
-						   <td type="in_summ" class="in">'.number_format($in_summ,'2','.','').'</td>
-						   <td type="out_summ" class="out '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'">'.number_format($out_summ,'2','.','').'</td>
+						   <td type="in_summ" connected_vals="total_summ" c_stat="0" class="in hidden" width="100">'.number_format($in_summ,'2','.','').'</td>
+						   <td type="out_summ" connected_vals="total_summ" c_stat="1" class="out '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'" width="100">'.number_format($out_summ,'2','.','').'</td>
 						   <td type="delta" >'.number_format($delta,'2','.','').'</td>
 						   <td type="margin" >'.number_format($margin,'2','.','').'</td>';
 			 $cur_row .=  '<td>'.$dop_row['glob_status'].'</td>';  
@@ -263,18 +268,30 @@
 	 }
 	 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;" border="0">
 	          <tr class="cap">
+			      <td width="30"></td>
+			       <td width="80">
+					  <div class="master_button noselect">
+						<a href="#" onclick="openCloseMenu(event,\'tableMenu\'); return false;">&nbsp;</a>
+						<div id="reset_master_button" class="reset_button" onclick="resetMasterBtn(this);">&nbsp;</div>
+					  </div>
+				  </td>
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
-				  <td width="300">&nbsp;<a href="#" onclick="print_r(rt_calculator.tbl_model);">_</a>наименование</td>
+				  <td width="300" class="right">
+				      &nbsp;<a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
+					  прибыль ???? р подробно?
+				  </td>
 				  <td class="hidden">draft</td>
-				  <td width="50">статус</td>
-				  <td width="50" class="r_border">кол-во</td>
-				  <td width="70">вход</td>
-				  <td width="90">вход</td>
-				  <td width="70">выход</td>
-				  <td width="15">x</td>
-				  <td width="90">выход</td>
-				  <td width="15" class="r_border">x</td>
+				  <td width="50"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
+				  <td width="50" class="r_border">тираж</td>
+				  <td width="90" connected_vals="art_price" c_stat="1" class="right pointer">$ товара<br><span class="small">входящая штука</span></td>
+				  <td width="15" connected_vals="art_price" c_stat="1"</td>
+				  <td width="90" connected_vals="art_price" c_stat="0" class="right hidden pointer">$ товара<br><span class="small">входящая тираж</span></td>
+				  <td width="15" connected_vals="art_price" c_stat="0" class="hidden"></td>
+				  <td width="90" connected_vals="art_price" c_stat="1" class="right pointer">$ товара<br><span class="small">исходящая штука</span></td>
+				  <td width="15" connected_vals="art_price" c_stat="1"class="r_border"></td>
+				  <td width="90" connected_vals="art_price" c_stat="0" class="right pointer hidden">$ товара<br><span class="small">исходящая тираж</span></td>
+				  <td width="15" connected_vals="art_price" c_stat="0" class="r_border hidden"></td>
 				  <td width="20"></td>';
 	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
 	       $rt.= '<td width="70" class="test_data_cap hidden">нанес вход</td> 	  
@@ -283,25 +300,29 @@
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
            $rt.= '<td class="test_data_cap hidden">доп.усл вход</td> 
 			      <td width="90" class="out r_border">доп.усл выход</td>
-				  <td>сумма вход</td>
-				  <td>сумма выход</td>
+				  <td width="100" connected_vals="total_summ" c_stat="0" class="hidden">сумма вход</td>
+				  <td width="100" connected_vals="total_summ" c_stat="1">сумма выход</td>
 				  <td>дельта</td>
-				  <td>маржинальность</td>
+				  <td>маржина-<br>льность</td>
                   <td width="70">статус</td>';              
 	    $rt.= '</tr>
 	           <tr row_id="total_row">
+			      <td width="30"></td>
+			      <td width="80"></td>
 	              <td class="hidden"></td>
 				  <td class="hidden"></td>
+				  <td class="hidden">44</td>
+				  <td class="right">Счет №45384? оплата 70%?</td>
 				  <td></td>
-				  <td class="hidden"></td>
-				  <td><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
-				  <td class="r_border"></td>
-				  <td></td>
-				  <td type="price_in_summ">'.number_format($total['price_in_summ'],'2','.','').'</td>
-				  <td></td>
-				  <td width="15">x</td>
-				  <td class="right" type="price_out_summ">'.number_format($total['price_out_summ'],'2','.','').'</td>
-				  <td width="15" class="r_border">x</td>
+				  <td class="r_border"></td>  
+				  <td connected_vals="art_price" c_stat="1"></td>
+				  <td width="15" connected_vals="art_price" c_stat="1"></td>
+				  <td type="price_in_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format($total['price_in_summ'],'2','.','').'</td>
+				  <td width="15" connected_vals="art_price" c_stat="0" class="hidden">р</td>
+				  <td connected_vals="art_price" c_stat="1"></td>
+				  <td width="15" connected_vals="art_price" c_stat="1" class="r_border"></td>
+				  <td type="price_out_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format($total['price_out_summ'],'2','.','').'</td>
+				  <td width="15" connected_vals="art_price" c_stat="0" class="r_border hidden">р</td>
 				  <td></td>';
 	if($test_data)	$rt.= '<td class="test_data_cap"></td>';
 	       $rt.= '<td type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  
@@ -310,8 +331,8 @@
     if($test_data)	$rt.= '<td class="test_data_cap"></td>';
            $rt.= '<td type="dop_uslugi_in_summ" class="test_data_cap hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'</td> 
 			      <td type="dop_uslugi_out_summ" class="out r_border">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'</td>
-			      <td type="in_summ">'.number_format($total['in_summ'],'2','.','').'</td>
-				  <td type="out_summ">'.number_format($total['out_summ'],'2','.','').'</td>
+			      <td type="in_summ" connected_vals="total_summ" c_stat="0" class="hidden" width="100">'.number_format($total['in_summ'],'2','.','').'</td>
+				  <td type="out_summ" connected_vals="total_summ" c_stat="1"  width="100">'.number_format($total['out_summ'],'2','.','').'</td>
 				  <td type="delta">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
 				  <td type="margin">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
                   <td></td>';              
