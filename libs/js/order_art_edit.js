@@ -1,7 +1,91 @@
 
 $(document).ready(function() {
+	/* отработка верхней части */
 	//календарь для даты отгрузки
-	$('#datepicker1').datetimepicker({
+	// $('#datepicker1,#datepicker2').datetimepicker({
+	// 	minDate:new Date(),
+	// 	// disabledDates:['07.05.2015'],
+	// 	timepicker:false,
+	//  	dayOfWeekStart: 1,
+	//  	onGenerate:function( ct ){
+	// 		$(this).find('.xdsoft_date.xdsoft_weekend')
+	// 			.addClass('xdsoft_disabled');
+	// 		$(this).find('.xdsoft_date');
+	// 	},
+	// 	onSelectDate: function(ct){
+	// 		//$('#datepicker1').removeAttr('readonly').removeClass('input_disabled');
+	// 		$('#btn_date_var').click();
+	// 	},
+	//  	format:'d.m.Y',
+	 	
+	// });
+	// // время для даты отгрузки
+	// $('#timepicker1,#timepicker2').datetimepicker({
+	//  datepicker:false,
+	//  format:'H:i',
+	//  // minTime:'9:00',
+	//  // maxTime:'21:00'
+	//  allowTimes:[
+	// 	  '09:00', '10:00', '11:00', '12:00','13:00', '14:00','15:00', 
+	// 	  '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'
+	//  ]
+	// });	
+
+	/* отработака индивидуальной части для каждого варианта*/
+	//************************************************/
+	//                ВРЕМЯ И ДАТА ОТГРУЗКИ
+	//************************************************/
+	// ДАТА
+	create_datepicker_for_variant_cont();
+
+	// ВРЕМЯ
+	create_timepicker_for_variant_cont();
+});
+
+function destroy_datetimepicker_for_variant_cont(){
+	$('#edit_variants_content .datepicker2').datetimepicker('destroy');
+	$('#edit_variants_content .timepicker2').datetimepicker('destroy');
+}
+
+function create_timepicker_for_variant_cont(){
+	$('#edit_variants_content .timepicker2').datetimepicker({
+	 datepicker:false,
+	 format:'H:i',
+	 closeOnDateSelect:true,
+	 onChangeDateTime: function(dp,$input){// событие выбора даты
+			// меняем html
+			var id_variant = $('#variants_name .variant_name.checked ').attr('data-cont_id');
+			$('#'+id_variant+' .fddtime_rd2').val('');
+			$('#'+id_variant+' .btn_var_std[name="std"]').removeClass('checked');
+
+			// получение данных для отправки на сервер
+			var id = $('#variants_name .variant_name.checked ').attr('data-id');
+			var row_id = $('#claim_number').attr('data-order');	
+			var time = $input.val()+':00';
+
+			// alert($input.attr('class'));
+			$.post('', {
+				global_change: 'AJAX',
+				change_name: 'change_variante_shipping_time',
+				id: id,
+				row_id: row_id,
+				time: time
+			}, function(data, textStatus, xhr) {
+				/*optional stuff to do after success */
+			},"json");
+		},
+	 // minTime:'9:00',
+	 // maxTime:'21:00'
+	 allowTimes:[
+		  '00:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00',
+		  '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'
+	 ]
+	});	
+}
+
+
+function create_datepicker_for_variant_cont(){
+	$('#edit_variants_content .datepicker2').datetimepicker({
 		minDate:new Date(),
 		// disabledDates:['07.05.2015'],
 		timepicker:false,
@@ -11,25 +95,106 @@ $(document).ready(function() {
 				.addClass('xdsoft_disabled');
 			$(this).find('.xdsoft_date');
 		},
-		onSelectDate: function(ct){
-			//$('#datepicker1').removeAttr('readonly').removeClass('input_disabled');
-			$('#btn_date_var').click();
+		closeOnDateSelect:true,
+		onChangeDateTime: function(dp,$input){// событие выбора даты
+			// меняем html
+			var id_variant = $('#variants_name .variant_name.checked ').attr('data-cont_id');
+			$('#'+id_variant+' .timepicker2').show().val(''); // показать поле время
+			$('#'+id_variant+' .fddtime_rd2').val('');
+			$('#'+id_variant+' .btn_var_std[name="std"]').removeClass('checked');		
+
+
+			// получение данных для отправки на сервер
+			var id = $('#variants_name .variant_name.checked ').attr('data-id');
+			var row_id = $('#claim_number').attr('data-order');	
+			var date = $input.val();
+
+			//alert($input.attr('class'));
+			$.post('', {
+				global_change: 'AJAX',
+				change_name: 'change_variante_shipping_date',
+				id: id,
+				row_id: row_id,
+				date: date
+			}, function(data, textStatus, xhr) {
+				/*optional stuff to do after success */
+			},"json");
 		},
 	 	format:'d.m.Y',
 	 	
 	});
-	// время для даты отгрузки
-	$('#timepicker1').datetimepicker({
-	 datepicker:false,
-	 format:'H:i',
-	 // minTime:'9:00',
-	 // maxTime:'21:00'
-	 allowTimes:[
-		  '09:00', '10:00', '11:00', '12:00','13:00', '14:00','15:00', 
-		  '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'
-	 ]
-	});	
+}
+
+
+
+$(document).on('click','#new_variant',function(){
+	var id = $('#variants_name .variant_name.checked ').attr('data-id');
+	var row_id = $('#claim_number').attr('data-order');	
+	$.post('',{
+		global_change: 'AJAX',
+		change_name: 'new_variant',
+		id:id,
+		row_id:row_id
+		
+	}, function(data, textStatus, xhr) {
+		if(data['response']=='1'){
+			// клонируем html вкладки текущего расчета
+			var menu_li = $('#variants_name .variant_name.checked ').clone();
+			// ставим название и на всякий подчищаем архивный класс, если он есть
+			menu_li.html(data['num_row_for_name']).removeClass('show_archive');		
+			// получаем id текущего пблока расчёта
+			var id_div = menu_li.attr('data-cont_id');
+			// меняем id для для работы вкладки с новым блоком 
+			menu_li.attr('data-cont_id','variant_content_block_'+data['num_row']);
+			// убираем класс "выбрано" со всех вкладок
+			$('#variants_name .variant_name').removeClass('checked');
+			// вставляем html
+			$('#variants_name .variant_name:last-of-type').after(menu_li);
+			// post запрос для названия вкладки и получения id для склонированного контента
+
+			// клонируем html текущего расчёта со всеми данными
+			var div_html = $('#'+id_div).clone();
+			// id на новый
+			div_html.attr('id','variant_content_block_'+data['num_row']);
+			// подчищаем архивный класс, если есть
+			div_html.removeClass('archiv_opacity');
+			// скрываем все видимые блоки расчета
+			$('#edit_variants_content .variant_content_block').css({'display':'none'})
+			// вставляем html
+			$('#edit_variants_content .variant_content_block:last-of-type').after(div_html);
+
+			// убиваем календари 
+			destroy_datetimepicker_for_variant_cont()
+			// создаем календари для всех по новой
+			create_datepicker_for_variant_cont();// ДАТА
+			create_timepicker_for_variant_cont();// ВРЕМЯ
+			
+		}
+	},"json");
 });
+
+
+// обработка кнопок ПЗ, НПЗ
+$(document).on('click', '#edit_variants_content .tirage_buttons .btn_var_std', function(event) {
+	// отработка html
+	$('#edit_variants_content .tirage_buttons .btn_var_std').removeClass('checked');
+	$(this).addClass('checked');
+	// получение данных для отправки на сервер
+	var id = $('#variants_name .variant_name.checked ').attr('data-id');
+	var row_id = $('#claim_number').attr('data-order');	
+	var pz = ($(this).html() == 'ПЗ')?1:0; // печатать \ не печатать запас
+	// отправка данных на сервер
+	$.post('', {
+		global_change: 'AJAX',
+		change_name: 'change_tirage_pz',
+		id:id,
+		row_id:row_id,
+		pz: pz
+	}, function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+	},'json');
+});
+
 
 // отработка клика по быстрым кнопкам
 $(document).on('click','#btn_make_std',function(){
@@ -88,10 +253,13 @@ function test_chenge_archive_list(){
 }
 
 $(document).on('click','#extract_from_archive',function(){
-	
 	// отправляем запрос на смену статуса (на "не архив")
+	
+	// получение данных для отправки на сервер
 	var id = $('#variants_name .variant_name.checked ').attr('data-id');
 	var row_id = $('#claim_number').attr('data-order');	
+
+	// отправка данных на сервер
 	$.post('', 
 		{
 			global_change: 'AJAX',
@@ -170,11 +338,38 @@ $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
 });
 
 
-$(document).on('click','.btn_var_std[name="std"]',function(){
-	
+
+
+// изменеие информации по изготовлению в р/д в текущем варианте
+function save_standart_day(){
+	// получение данных для отправки на сервер
+	var id = $('#variants_name .variant_name.checked ').attr('data-id');
+	var row_id = $('#claim_number').attr('data-order');	
+	var id_variant = $('#variants_name .variant_name.checked ').attr('data-cont_id');
+	$('#'+id_variant+' .timepicker2').hide(); // показать поле время
+	$('#'+id_variant+' .datepicker2, #'+id_variant+' .timepicker2').val('');
+	var standart = $('#'+id_variant+' .fddtime_rd2[name="fddtime_rd2"]').val();
+	// var time = $input.val()+':00';
+	// alert($input.attr('class'));
+	$.post('', {
+		global_change: 'AJAX',
+		change_name: 'save_standart_day',
+		id: id,
+		row_id: row_id,
+		standart:standart
+	}, function(data, textStatus, xhr) {
+	/*optional stuff to do after success */
+	},"json");
+}
+
+$(document).on('click','.btn_var_std[name="std"]',function(){	
 	$(this).addClass('checked');
 	$(this).parent().find('input').val(10);
+	// сохраняемся и меняем html
+	save_standart_day();
 });
+
+
 
 $(document).on('keyup','.fddtime_rd2',function(){
 	if($(this).val()!='10'){
@@ -184,6 +379,8 @@ $(document).on('keyup','.fddtime_rd2',function(){
 			$(this).prev().addClass('checked');
 		}		
 	}
+	// сохраняемся и меняем html
+	save_standart_day();
 });
 
 

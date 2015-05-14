@@ -146,7 +146,7 @@ $(document).ready(function() {
 								</div>								
 							</div>
 							<div class="cell">
-								<form id="fddtime_form">
+								<!-- <form id="fddtime_form">
 								<div class="table" id="fddtime">
 									<div class="row">
 										<div class="cell">
@@ -157,7 +157,7 @@ $(document).ready(function() {
 											<span id="btn_date_std" class="btn_var_std">стандартно</span>
 											<input type="text" name="date" id="datepicker1">
 											<input type="text" name="time" id="timepicker1">
-											<!-- <input type="hidden" name="status_time_delivery" id="status_time_delivery"> -->
+											<input type="hidden" name="status_time_delivery" id="status_time_delivery">
 										</div>
 									</div>
 									<div  class="row">
@@ -168,11 +168,11 @@ $(document).ready(function() {
 											<span id="btn_make_var" class="btn_var_std">варианты</span>
 											<span id="btn_make_std" class="btn_var_std">стандартно</span>
 											<input type="text" name="rd" id="fddtime_rd" value="10"> р/д
-											<!-- <input type="hidden" name="status_time_make" id="status_time_make" > -->
+											
 										</div>
 									</div>
 								</div>
-								</form>
+								</form> -->
 								
 								<div id="technical_assignment">Техническое задание</div>
 								

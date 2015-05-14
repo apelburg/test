@@ -1,24 +1,36 @@
 <div id="variant_content_block_<?php echo $key;?>" <?php echo $display_this_block; ?> class="variant_content_block<?php echo $show_archive_class;?>">
 	<div id="variants_dop_info_<?php echo $key; ?>" class="variants_dop_info">
 		<table>
-			<tr>
-				<td>
+			<tr class="tirage_option_and_date_print">
+				<td class="tirage_buttons">
 					<strong>Тираж:</strong>
 					<input type="text" class="tirage_var" id="tirage_var_<?php echo $key;?>" value="<?php echo $sum_tir; ?>"> + 
 					<input type="text" class="dop_tirage_var" id="dop_tirage_var_<?php echo $key;?>" value="<?php echo $sum_dop; ?>">
-					<span class="btn_var_std" name="pz">ПЗ</span>
-					<span class="btn_var_std" name="npz">НПЗ</span>
+					<span class="btn_var_std <?php echo $print_z; ?>" name="pz">ПЗ</span>
+					<span class="btn_var_std <?php echo $print_z_no; ?>" name="npz">НПЗ</span>
 				</td>
 				<td>
 					<strong>Дата отгрузки:</strong>
-					<span class="btn_var_std">Стандартно</span>
-					<input type="text" id="datepicker2" name="datepicker2" value="25.05.2015"> 
-					<input type="text" id="timepicker2" name="timepicker2" value="15:00">
+					<!-- <span class="btn_var_std">Стандартно</span> -->
+					<input type="text" class="datepicker2" name="datepicker2" value="<?php echo ($value['shipping_date']!="00.00.0000")?$value['shipping_date']:''; ?>"> 
+					<?php
+					if($value['shipping_date']!="00.00.0000"){
+						if($value['shipping_time']!="00:00:00"){
+							echo '<input type="text" class="timepicker2" name="timepicker2" value="'.$value['shipping_time'].'">';
+						}else{
+							echo '<input type="text" class="timepicker2" name="timepicker2" value="">';
+						}
+					}else{
+						echo '<input type="text" class="timepicker2" name="timepicker2" value="" style="display:none">';
+					}
+
+					?>
+					
 				</td>
 				<td>
 					<strong>Изготовление р/д:</strong>
-					<span class="btn_var_std" name="std">Стандартно</span> 
-					<input type="text" class="fddtime_rd2" name="fddtime_rd2" value="10"> р/д</td>
+					<span class="btn_var_std <?php echo $std_time_print;?>" name="std">Стандартно</span> 
+					<input type="text" class="fddtime_rd2" name="fddtime_rd2" value="<?php echo $value['standart']; ?>"> р/д</td>
 			<tr>
 		</table>
 	</div>
