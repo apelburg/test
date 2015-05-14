@@ -24,6 +24,16 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
+		static function set_masterBtn_status($data_obj){
+		    global $mysqli;   //print_r($data); 
+
+			$query="UPDATE `".RT_MAIN_ROWS."` SET  `master_btn` = '".$data_obj->status."'  WHERE `id` IN('".str_replace(";","','",$data_obj->ids)."')";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);
+		}
+		static function make_com_offer($data_obj){
+		    echo $data_obj->ids.' '.$data_obj->order_num;
+		}
 		
     }
 

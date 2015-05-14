@@ -280,7 +280,44 @@
 			
 	}
 	
-	function onClickMasterBtn(element,id){
+	function onClickMasterBtn(element,target_id,row_id){
+		
+		if(onClickMasterBtn.onProcessing){
+			// возвращаем те значения которые в данный момент в обработке
+			element.checked = !onClickMasterBtn.status;
+		    return !onClickMasterBtn.status;
+		}
+		onClickMasterBtn.status = !!element.checked;
+		onClickMasterBtn.onProcessing = true;
+		
+
+		// формируем url для AJAX запроса
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('set_masterBtn_status={"ids":"'+row_id+'","status":"'+Number(onClickMasterBtn.status)+'"}');
+		make_ajax_request(url,callback);
+		
+		function callback(response){
+			console.log(onClickMasterBtn.status);
+			// устанавливаем значение чекбокса именно здесь потому что нам надо чтобы оно установилось после срабатывания ajax запроса
+			// срабатывание установки назначения checked по умолчанию - отключено 
+			element.checked = onClickMasterBtn.status;
+			
+			var data = (getCountOfCheckedAndAllCeckboxes(target_id)).split('|');
+		    var class_name = 'reset_button';
+		    if(data[0] == data[1]) class_name = 'reset_button on';
+		    if(data[0] == 0) class_name = 'reset_button none';
+		    document.getElementById("reset_master_button").className = class_name;/**/
+			
+			onClickMasterBtn.onProcessing = false;
+			
+		}
+
+		// возвращаем значение обратное тому что отдает чекбокс при клике, тем самым устанавливая ему значение которое было
+		// до клика (оставляем его не изменным) потому что нам надо чтобы чекбокс не менялся пока не пройдет ajax запрос
+		element.checked = !onClickMasterBtn.status;
+		return !onClickMasterBtn.status;
+	}
+	
+	function onClickMasterBtnOld(element,id){
 		if(onClickMasterBtn.onProcessing) return;
 		onClickMasterBtn.onProcessing = true;
 		
@@ -301,20 +338,54 @@
 		}
 	}
 	
-	function resetMasterBtn(element){
+	function resetMasterBtn(element,target_id){
         if(resetMasterBtn.onProcessing) return;
 		resetMasterBtn.onProcessing = true;
-		var data = (getCountOfCheckedAndAllCeckboxes()).split('|');
+		var data = (getCountOfCheckedAndAllCeckboxes(target_id)).split('|');
+		console.log(data);
+		var status = false;
+		if(data[0]==0){
+			var idsSting = getIdsOfAllRows(target_id);
+			status = true;
+		}
+		else if(data[0]==data[1]) var idsSting = getIdsOfAllRows(target_id);
+		else var idsSting = getIdsOfCheckedRows(target_id);
+
+
+		
+		// формируем url для AJAX запроса
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('set_masterBtn_status={"ids":"'+idsSting+'","status":"'+Number(status)+'"}');
+		make_ajax_request(url,callback);
+
+		function callback(response){
+			console.log(response);
+			var calculate_tbl = document.getElementById(target_id);
+			var inputs = calculate_tbl.getElementsByTagName('input');
+			for( var i= 0 ; i < inputs.length; i++){
+			   if(inputs[i].type == 'checkbox'){
+				   if(inputs[i].name == 'masterBtn'){
+					   inputs[i].checked = status;
+				   }
+			   }
+			}
+			resetMasterBtn.onProcessing = false;
+		}
+	}
+	function resetMasterBtnOld(element,target_id){
+        if(resetMasterBtn.onProcessing) return;
+		resetMasterBtn.onProcessing = true;
+		var data = (getCountOfCheckedAndAllCeckboxes(target_id)).split('|');
+		console.log(data);
 		var status = false;
 		var class_name1 = 'container';
 		var class_name2 = 'reset_button none';
 		if(data[0]==0){
-			var idsSting = getIdsOfAllRows();
+			var idsSting = getIdsOfAllRows(target_id);
 			status = true;
 			class_name1 = '';
 		    class_name2 = 'reset_button on';
 		}
-		else if(data[0]==data[1]) var idsSting = getIdsOfAllRows();
+		else if(data[0]==data[1]) var idsSting = getIdsOfAllRows(target_id);
 		else var idsSting = getIdsOfCheckedRows();
 
 
@@ -337,10 +408,9 @@
 			resetMasterBtn.onProcessing = false;
 		}
 	}
-	
-	function getIdsOfCheckedRows(){
-		var calculate_tbl = document.getElementById("calculate_tbl");
-		var inputs = calculate_tbl.getElementsByTagName('input');
+	function getIdsOfCheckedRows(element_id){
+		var element = document.getElementById(element_id);
+		var inputs = element.getElementsByTagName('input');
 		var idsArr = [];
 		for( var i= 0 ; i < inputs.length; i++){
 		   if(inputs[i].type == 'checkbox'){
@@ -349,12 +419,13 @@
 			   }
 		   }
 		}
+		//console.log(idsArr.join(';'));
 		return idsArr.join(';');
 		
 	}
 	
-	function getIdsOfAllRows(){
-		var calculate_tbl = document.getElementById("calculate_tbl");
+	function getIdsOfAllRows(target_id){
+		var calculate_tbl = document.getElementById(target_id);
 		var inputs = calculate_tbl.getElementsByTagName('input');
 		var idsArr = [];
 		for( var i= 0 ; i < inputs.length; i++){
@@ -367,8 +438,8 @@
 		
 	}
 	
-	function getCountOfCheckedAndAllCeckboxes(){
-		var calculate_tbl = document.getElementById("calculate_tbl");
+	function getCountOfCheckedAndAllCeckboxes(element_id){
+		var calculate_tbl = document.getElementById(element_id);
 		var inputs = calculate_tbl.getElementsByTagName('input');
 		var all_checkboxes = 0;
 		var checked_checkboxes = 0;
@@ -532,14 +603,14 @@
 		var viewportHeight = Geometry.getViewportHeight();
 		var viewportWidth = Geometry.getViewportWidth();
 		
-		var div = document.createElement('div');
-		div.style.position = 'absolute';
-		div.style.top = '0px';
-		div.style.left = '0px';
+		show_processing_timer.container = document.createElement('div');
+		show_processing_timer.container.style.position = 'absolute';
+		show_processing_timer.container.style.top = '0px';
+		show_processing_timer.container.style.left = '0px';
 		//div.style.height = Geometry.getDocumentHeight() + 'px';
 		//div.style.width = Geometry.getDocumentWidth() + 'px';
-		div.style.height = viewportHeight + 'px';
-		div.style.width = viewportWidth + 'px';
+		show_processing_timer.container.style.height = viewportHeight + 'px';
+		show_processing_timer.container.style.width = viewportWidth + 'px';
         //div.style.backgroundColor = '#FCFCFC';
 		//div.style.filter = "alpha(opacity=20)";
 		//div.style.opacity = "0.20";
@@ -556,8 +627,11 @@
 		img.src ='http://'+ location.host+location.pathname+'skins/images/img_design/preloader.gif';
 
 		timer_container.appendChild(img);
-		div.appendChild(timer_container);
-		document.body.appendChild(div);
+		show_processing_timer.container.appendChild(timer_container);
+		document.body.appendChild(show_processing_timer.container);
+	}
+	function close_processing_timer(){
+		show_processing_timer.container.parentNode.removeChild(show_processing_timer.container);
 	}
 	
 	function do_search(element,params_to_clear){

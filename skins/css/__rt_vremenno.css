@@ -8,7 +8,7 @@
 .test_data_cap{ background-color:#CCCCCC;}
 .in{ /*background-color: #CCFFFF;*/}
 .out{/* background-color: #FFFFCC;*/}
-.grey{ background-color: #DDD;}
+.grey{ background-color: #EEE;}
 .red_cell{ color: #FF0000;}
 .top{ vertical-align:top}
 .hidden{ display:none; }
@@ -20,10 +20,11 @@
 
 }
 .rt_tbl_head td{ 
-padding:0px;
- font-size:12px;
+ padding:0px;
+ font-size:11px;
  border:#EEE solid 0px;
 }
+.rt_tbl_head .bottom_border td{ border-bottom: #999 solid 2px;}
 .rt_tbl_head span.small{ 
  font-size:9px;
  border:#EEE solid 0px;
@@ -136,6 +137,7 @@ height:200px;
  }
 .rt_tbl_body .right, .rt_tbl_head .right{ text-align:right;}
 .rt_tbl_body .left, .rt_tbl_head .left{ text-align:left;}
+.rt_tbl_body .center, .rt_tbl_head .center{ text-align:center;}
 .rt_tbl_body .pointer, .rt_tbl_head .pointer{ cursor:pointer;}
 
 .rt_tbl_body .svetofor{

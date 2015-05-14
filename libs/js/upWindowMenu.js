@@ -23,6 +23,7 @@
 		
 		if(type == 'contextmenu') openCloseContextMenu(e,params.id,params.control_num);
 		if(type == 'tableMenu') openCloseTableMenu(e);
+		if(type == 'rtMenu') openCloseRtMenu(e);
 		if(type == 'quickMenu') openCloseQuickMenu(e);
 		if(type == 'clientManagerMenu') openClientManagerMenu(e);
 		if(type == 'rtViewTypeMenu') openCloseRtViewTypeMenu(e);
@@ -32,6 +33,170 @@
 		
 
 		
+		
+	}
+	
+	function openCloseRtMenu(e){
+		
+		var target = e.target || e.srcElement;
+		
+		target = target.parentNode;
+		
+		target.addEventListener('click',setMenuWindow,false);
+		function setMenuWindow(e){
+			e.stopPropagation();
+		}
+		/*if(openCloseMenu.lastElement === target ){ 
+			openCloseMenu.lastWindow.parentNode.removeChild(openCloseMenu.lastWindow);
+			openCloseMenu.lastWindow = null;
+			openCloseMenu.lastElement = null;
+			return;
+		}*/
+		if(openCloseMenu.lastElement === target ) return;
+		
+		if(openCloseMenu.lastWindow){
+			openCloseMenu.lastWindow.parentNode.removeChild(openCloseMenu.lastWindow);
+			openCloseMenu.lastWindow = null;
+			openCloseMenu.lastWindow = null;
+			openCloseMenu.lastElement.style.backgroundColor = '#FFFFFF'
+		}
+
+		target.style.position = 'relative';
+	
+		// building menu
+		var div = document.createElement('div');
+		div.className = "contextWindow";
+		//div.id = "quickContextExtraWindow";
+		div.style.width = "200px";
+		div.style.top =  "19px";
+		div.style.left = "-3px";
+		div.style.display = "block";
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.href = '#';
+		a.appendChild(document.createTextNode('Нет в наличии'));
+		
+		var span = document.createElement('span');
+		span.className = "notWork";
+		span.appendChild(document.createTextNode('x'));
+		a.appendChild(span);
+		
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.href = '#';
+		a.appendChild(document.createTextNode('Отказано'));
+		
+		var span = document.createElement('span');
+		span.className = "notWork";
+		span.appendChild(document.createTextNode('x'));
+		a.appendChild(span);
+		
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "fence";
+		div.appendChild(innerDiv);
+		
+	    var innerDiv = document.createElement('div');
+		innerDiv.className = "cup";
+		innerDiv.appendChild(document.createTextNode('Установить единую:'));
+		div.appendChild(innerDiv);
+		
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link2";
+		var a = document.createElement('a');
+		a.href = '#';
+		a.appendChild(document.createTextNode('Дату сдачи'));
+		
+		var span = document.createElement('span');
+		span.className = "notWork";
+		span.appendChild(document.createTextNode('x'));
+		a.appendChild(span);
+		
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link2";
+		var a = document.createElement('a');
+		a.href = '#';
+		a.appendChild(document.createTextNode('Наценку'));
+		
+		var span = document.createElement('span');
+		span.className = "notWork";
+		span.appendChild(document.createTextNode('x'));
+		a.appendChild(span);
+		
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+	
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "fence";
+		div.appendChild(innerDiv);
+		
+	    var innerDiv = document.createElement('div');
+		innerDiv.className = "cup";
+		innerDiv.appendChild(document.createTextNode('Сформировать:'));
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link2";
+		var a = document.createElement('a');
+		a.href = '#';
+		a.onclick = makeComOffer;
+		//a.setAttribute('stock',0);
+		a.appendChild(document.createTextNode('Коммерческое предложение'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link2";
+		var a = document.createElement('a');
+		a.href = '#';
+		a.onclick ='';
+		a.appendChild(document.createTextNode('Окончательный заказ'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var span = document.createElement('span');
+		span.className = "notWork";
+		span.appendChild(document.createTextNode('x'));
+		a.appendChild(span);
+		
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link2";
+		var a = document.createElement('a');
+		a.href = '#';
+		a.onclick = '';
+		a.appendChild(document.createTextNode('Спецификацию'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+	
+	    var span = document.createElement('span');
+		span.className = "notWork";
+		span.appendChild(document.createTextNode('x'));
+		a.appendChild(span);
+	  
+		
+		target.appendChild(div);
+		
+		openCloseMenu.lastWindow = div;
+	    openCloseMenu.lastElement = target;
+		
+		e.stopPropagation();
 		
 	}
 
@@ -1025,13 +1190,36 @@
 		
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}
-	
 	function makeComOffer(e){
 		
 		e = e || window.event;
 		var element = e.target;
 		
-		var str_for_url = getIdsOfCheckedRows();
+		var str_for_url = getIdsOfCheckedRows('rt_tbl_body');
+		//var conrtol_num = getControlNum();
+
+		if(str_for_url == ''){
+			alert('вы не выбрали ни одной позиции');
+			return;
+		}
+
+		
+		show_processing_timer();
+		
+	// формируем url для AJAX запроса
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_com_offer={"ids":"'+str_for_url+'","order_num":"'+1111+'"}');
+		// AJAX запрос
+		make_ajax_request(url,callback);
+		//alert(last_val);
+		function callback(response){  /*console.log(response);*/ close_processing_timer(); closeAllMenuWindows();}	  
+	}
+	
+	function makeComOfferOld(e){
+		
+		e = e || window.event;
+		var element = e.target;
+		
+		var str_for_url = getIdsOfCheckedRows('rt_tbl_body');
 		var order_data = getFirstRelatedOrderNumAndManagerName(str_for_url);
 		var conrtol_num = getControlNum();
 
