@@ -195,7 +195,7 @@ class Articul{
 			$no_edit_class = (($v['ostatok_free']=='0' && $summ_ostatok>=$summ_zakaz && $pod_zakaz!=1)?' input_disabled':'');
 			$rearonly = (($v['ostatok_free']=='0' && $summ_ostatok>=$summ_zakaz  && $pod_zakaz!=1)?'readonly="readonly"':'');
 			$html .= '
-					<tr>
+					<tr class="size_row_tbl">
 						<td>'.$v['size'].'</td>
 						<td>'.$v['ostatok'].'<br><span>(в пути) '.$v['on_way_free'].'</span></td>
 						<td class="ostatok_free">'.$v['ostatok_free'].'</td>
