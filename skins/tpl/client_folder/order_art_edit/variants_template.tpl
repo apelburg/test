@@ -109,6 +109,7 @@
 							</div>
 							<div class="cell size_card">
 								<?php echo $get_size_table; ?>
+								
 							</div>
 						</div>
 					</div>

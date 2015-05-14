@@ -22,6 +22,44 @@
 			exit;
 		}
 
+		if(isset($_POST['change_name']) && $_POST['change_name']=='size_in_var_all'){
+			echo "<pre>";
+			print_r($_POST);
+			echo "</pre>";
+
+			$tir = $_POST['val']; // array / тиражи
+			$key2 = $_POST['key']; // array / id _ row size
+			$dop = $_POST['dop']; // array / запас
+			$id = $_POST['id']; // array / id 
+
+			$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$_POST['id']."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$json = '';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$json = $row['tirage_json'];
+					//echo $row['tirage_json'];
+				}
+			}
+			//echo $json;
+			//$r = $json;
+			$arr_json = json_decode($json,true);
+
+			foreach ($key2 as $key => $value) {
+				//echo $value;
+				$arr_json[$value]['dop'] = $dop[$key];
+				$arr_json[$value]['tir'] = $tir[$key];
+			}
+
+			// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
+			//echo $r .'   -   ';
+			echo json_encode($arr_json);
+			$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
+			// // echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+
 		if(isset($_POST['change_name']) && $_POST['change_name']=='change_draft'){
 			$query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
 			$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '0' WHERE  `id` ='".$_POST['id']."';";
