@@ -49,6 +49,7 @@
 										'show___foo___'=> false,
 										'section'=> array( // 1
 										    'rt'=> array('access'=>true),
+											'business_offers'=> array('access'=>true),
 											'order_art_edit'=> array('access'=>true)
 											)	
 										),					   

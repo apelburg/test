@@ -19,7 +19,11 @@
 		 RT::expel_value_from_calculation($_GET['id'],$_GET['expel_value_from_calculation']);
 		 exit;
 	}
-	
+	if(isset($_GET['change_svetofor'])){
+	     //print_r(json_decode($_GET['expel_value_from_calculation']));
+		 RT::change_svetofor($_GET['id'],$_GET['change_svetofor']);
+		 exit;
+	}
 	/////////////////////  END  AJAX  ////////////////////// 
 	
 	// client_details
@@ -51,11 +55,14 @@
 	 // end кураторы /////////
 	$main_cont_face_data = get_main_client_cont_face($client_id);
 	///////////////////////////////////////////  end  информация о клиенте   ////////////////////////////////////////////////
+	$theme = 'Откуда берется тема?';
+	
+	
 	
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';
-	include ROOT.'/skins/tpl/client_folder/client_details_field_additional.tpl';
-	include ROOT.'/skins/tpl/client_folder/client_details_field_general.tpl';
+	include ROOT.'/skins/tpl/client_folder/rt/client_details_bar.tpl';
+	include ROOT.'/skins/tpl/client_folder/rt/options_bar.tpl';
 
     include 'controller.php';
 	// шаблон страницы

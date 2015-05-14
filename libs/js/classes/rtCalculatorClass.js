@@ -58,12 +58,12 @@ var rtCalculator = {
 	init_tbl:function(head_tbl_id,body_tbl_id){// метод запускаемый при наступлении события window.onload()
 	                          // вызывает методы:
 							  // collect_data - для создания модели таблицы
-							  // set_editable_cells - для установки полей ввода
+							  // set_interactive_cells - для установки интерактивных полей таблицы ( поля ввода, переключатели, маркеры)
 	    this.head_tbl = document.getElementById(head_tbl_id);
 	    this.body_tbl = document.getElementById(body_tbl_id);
 		//alert(this.tbl);
 		this.collect_data();
-		this.set_editable_cells();
+		this.set_interactive_cells();
 	}
 	,
     collect_data:function(){
@@ -149,31 +149,52 @@ var rtCalculator = {
 	    //print_r(this.tbl_model);
 		return true;  
 	},
-	set_editable_cells:function(){
-	    // Этот метод устанавливает необходимым ячекам свойство contenteditable
-		// и навешивает обработчик события onkeyup
-		var tds_arr = this.body_tbl.getElementsByTagName('td');
-	    for(var i in tds_arr){
-		    if(tds_arr[i].getAttribute){
-			    if(tds_arr[i].getAttribute('editable')){
-					//tds_arr[i].onkeyup = this.make_calculations;
-					tds_arr[i].onkeyup = this.check;
-					tds_arr[i].onfocus = function(){ rtCalculator.primary_val = this.innerHTML; /*this.className+= ' active';*/}
-					tds_arr[i].onblur = this.complite_input;
-					tds_arr[i].setAttribute("contenteditable",true);
-					tds_arr[i].style.outline="none";
-			    }
-				if(tds_arr[i].getAttribute('expel')){
-					tds_arr[i].onclick = this.expel_value_from_calculation;
-				}
-				if(tds_arr[i].getAttribute('svetofor')){
-					console.log(i+' svetofor');
-					if(tds_arr[i].getElementsByTagName('img')[0]) $(tds_arr[i].getElementsByTagName('img')[0]).mouseenter(this.show_svetofor);
-					
-				}
+	set_interactive_cells:function(){
+	    // Этот метод устанавливает необходимым ячекам различные интерактивные свойства
+		// и навешивает обработчики событий
+		var trs_arr = this.head_tbl.getElementsByTagName('tr');
+		for(var i in trs_arr){
+	        if(trs_arr[i].nodeName=='TR'){
+				//console.log(trs_arr[i]);
+				var tds_arr = trs_arr[i].getElementsByTagName('td');
+				for(var j in tds_arr){
+					if(tds_arr[j].nodeName == 'TD'){
+				        if(i == 0 && tds_arr[j].getAttribute('connected_vals')){// взаимно переключаемые ряды (ед/тираж, вход/выход)
+						   tds_arr[j].onclick = this.relay_connected_cols;
+					    }
+					}
+			    }	
 		    }
-			
-	    }
+		}
+		
+		var trs_arr = this.body_tbl.getElementsByTagName('tr');
+		for(var i in trs_arr){
+			if(trs_arr[i].getAttribute){
+			    if(trs_arr[i].getAttribute("row_id")!='0'){
+					var tds_arr = trs_arr[i].getElementsByTagName('td');
+					for(var j in tds_arr){
+						if(tds_arr[j].getAttribute){
+							if(tds_arr[j].getAttribute('editable')){
+								//tds_arr[j].onkeyup = this.make_calculations;
+								tds_arr[j].onkeyup = this.check;
+								tds_arr[j].onfocus = function(){ rtCalculator.primary_val = this.innerHTML; /*this.className+= ' active';*/}
+								tds_arr[j].onblur = this.complite_input;
+								tds_arr[j].setAttribute("contenteditable",true);
+								tds_arr[j].style.outline="none";
+							}
+							if(tds_arr[j].getAttribute('expel')){
+								tds_arr[j].onclick = this.expel_value_from_calculation;
+							}
+							if(tds_arr[j].getAttribute('svetofor')){
+								//console.log(j+' svetofor');
+								if(tds_arr[j].getElementsByTagName('img')[0]) $(tds_arr[j].getElementsByTagName('img')[0]).mouseenter(this.show_svetofor);
+								
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	,
 	complite_input:function(e){
@@ -442,7 +463,7 @@ var rtCalculator = {
 		var row_id = cell.parentNode.getAttribute('row_id');
 		if(row_id == undefined) { alert('attribute row_id dont exists'); return;}
 		if(row_id == 0) {  rtCalculator.expel_value_from_calculation.in_process = false; return;}  // прерываем выполнение - вспомогательный ряд
-		//alert(row_id);
+		//console.log(row_id);
 		
 		var type = cell.getAttribute('type');
 		
@@ -529,31 +550,30 @@ var rtCalculator = {
 	}
 	,
 	show_svetofor:function(e){ 
-	     e = e|| windows.event;
+	   
+	    e = e|| window.event;
 		var img = e.target || e.srcElement;
-	    if(rtCalculator.show_svetofor.last_img && rtCalculator.show_svetofor.last_img == img && rtCalculator.show_svetofor.last_click) return; 
-		//if(rtCalculator.show_svetofor.last_click) return; 
+		
+		// проверяем не является ли изображение на котором был сделан клик тем же самым что было в последний раз если да проверяем не 
+		// установленнна ли пауза, это все делается для того чтобы сделать некоторую паузу после закрытия всплывающего дива и 
+		// его открытия по новой - важно при клике на маркер распологающийся над главной кнопкой.
+	    if(rtCalculator.show_svetofor.last_img && rtCalculator.show_svetofor.last_img == img && rtCalculator.show_svetofor.pause) return; 
+		rtCalculator.show_svetofor.last_img = img;
+		//
 		if(rtCalculator.show_svetofor.in_process) return; 
 		rtCalculator.show_svetofor.in_process = true;
-		rtCalculator.show_svetofor.last_img = img;
-	   
 		
 		var td = img.parentNode;
-		if(!rtCalculator.show_svetofor.svetofor_plank){
-			console.log('plank');
+		
+		// если еще не создана всплывающая планка с кнопками создаем её
+		if(!rtCalculator.show_svetofor.plank){
+			//console.log('plank');
 			var sourse_src = OS_HOST + '/skins/images/img_design/';
-			/*var red = new Image();
-			red.src = sourse_src + 'rt_svetofor_red.png';
-			red.onclick = function(){rtCalculator.change_svetofor('red');}
-			var green = new Image();
-			green.src = sourse_src + 'rt_svetofor_green.png';
-			var grey = new Image();
-			grey.src = sourse_src + 'rt_svetofor_grey.png'; plank.appendChild(green);
-			plank.appendChild(grey);
-			plank.appendChild(red);*/
 			
 			var arr = ['red','green','grey'];
             var plank = document.createElement('div');
+			plank.className = 'svetofor_plank';
+			$(plank).mouseleave(rtCalculator.hide_svetofor);
 			
 			for(var i = 0;i < arr.length;i++){ 
 			   var img_btn = new Image();
@@ -562,42 +582,78 @@ var rtCalculator = {
 			   img_btn.onclick = rtCalculator.change_svetofor;
 			   plank.appendChild(img_btn);
 			}
-			
-			rtCalculator.show_svetofor.svetofor_plank = plank;
+			// помещаем планку в переменную 
+			rtCalculator.show_svetofor.plank = plank;
 		}
-		
-		rtCalculator.show_svetofor.div = document.createElement('div');
-		rtCalculator.show_svetofor.div.className = 'svetofor_div';
-		$(rtCalculator.show_svetofor.div).mouseleave(rtCalculator.hide_svetofor);
-
-	
 	    $(td).mouseleave(rtCalculator.hide_svetofor);
-	
-	    rtCalculator.show_svetofor.div.appendChild(rtCalculator.show_svetofor.svetofor_plank);
-		td.appendChild(rtCalculator.show_svetofor.div);
+		td.appendChild(rtCalculator.show_svetofor.plank);
 	}
 	,
 	hide_svetofor:function(){ 
-	 
-		
-		if(rtCalculator.show_svetofor.div) rtCalculator.show_svetofor.div.parentNode.removeChild(rtCalculator.show_svetofor.div);
+	
+		if(rtCalculator.show_svetofor.plank.parentNode){// именно так - если у plank есть parentNode тоесть если он добавлен
+		                                                //  куданибудь как Child то тогда его удаляем с помощью removeChild
+			rtCalculator.show_svetofor.plank.parentNode.removeChild(rtCalculator.show_svetofor.plank);
+		}
 		if(rtCalculator.show_svetofor.in_process) rtCalculator.show_svetofor.in_process = false;
-		console.log('hide_svetofor');
+		
 	}
 	,
 	change_svetofor:function(e){ 
+	   
+	    e = e|| window.event;
+		var img_btn = e.target || e.srcElement;
+		//console.log();
+		var td = img_btn.parentNode.parentNode;
+		var row_id = td.parentNode.getAttribute("row_id");
+		var status = img_btn.getAttribute("status");
 		
-	    e = e|| windows.event;
-		var img = e.target || e.srcElement;
-		console.log(img.getAttribute("status"));
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_svetofor='+ status +'&id='+row_id);
+		rtCalculator.send_ajax(url,callback);
+		function callback(response){ /*alert(response);*/
+		   td.getElementsByTagName('img')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_'+status+'.png';
+		}
 		
-		if(rtCalculator.show_svetofor.div) rtCalculator.show_svetofor.div.parentNode.removeChild(rtCalculator.show_svetofor.div);
-		if(rtCalculator.show_svetofor.in_process) rtCalculator.show_svetofor.in_process = false;
-		setTimeout( dorr, 700 );
+		rtCalculator.hide_svetofor();
+		rtCalculator.show_svetofor.pause = true;
+		setTimeout( pause, 300 );
+		function pause(){ rtCalculator.show_svetofor.pause = false; }
+	}
+	,
+	relay_connected_cols:function(e){ 
+	   
+	    e = e|| window.event;
+		var cell = e.target || e.srcElement;
+		if(cell.nodeName=='SPAN') cell = cell.parentNode;
 		
-		//rtCalculator.show_svetofor.last_img = img;
-		rtCalculator.show_svetofor.last_click = true;
-		function dorr(){console.log('dorr');rtCalculator.show_svetofor.last_click = false;}
-		console.log('hide_svetofor');
+		var value =  cell.getAttribute("connected_vals");
+
+		var tds_arr = rtCalculator.head_tbl.getElementsByTagName('td');
+		relay(tds_arr,value);
+		var tds_arr = rtCalculator.body_tbl.getElementsByTagName('td');
+		relay(tds_arr,value);
+		function relay(tds_arr,value){
+			for(var j in tds_arr){
+				if(tds_arr[j].getAttribute){
+					if(tds_arr[j].getAttribute('connected_vals') && tds_arr[j].getAttribute('connected_vals')==value){
+						//console.log(value+" "+tds_arr[j].getAttribute('connected_vals'));
+						var stat = parseInt(tds_arr[j].getAttribute("c_stat"));
+						var new_stat = (stat+1)%2;
+						tds_arr[j].setAttribute("c_stat",new_stat);
+						//console.log(stat+' '+new_stat);
+						var class_arr = tds_arr[j].className.split(' ');
+						if(new_stat==1){
+							var class_arr_clone = class_arr; 
+							class_arr=[];
+							for(var s in class_arr_clone) if(class_arr_clone[s]!='hidden')class_arr.push(class_arr_clone[s]);
+						}
+						else{
+							class_arr.push('hidden');
+						}
+						tds_arr[j].className = class_arr.join(' ');
+					}
+				}
+			}
+		}
 	}
 }

@@ -6,14 +6,17 @@
 			<li id="claim_number">Запрос №2585631</li>
 			<li id="claim_date"><span>от 12.11.15 19:38</span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
-			<li id="art_name_topic"><span>Тема:</span> <?php echo @$articul['name']; ?></li>
+			<li id="art_name_topic"><span>Тема:</span> <?php echo $theme; ?></li>
 		</ul>
 	</div>
-	<div id="number_position_and_type" style=" background-color:#92b73e;">
+	<div id="options_bar" style="background-color:#92b73e;">
 		<ul>
-			<li title="порядковый номер позиции в заказе">Позиция № 1</li>
-			<li>В работе</li>
+			<li>Позиции № 1</li>
+			<li>В работе select</li>
 			<li>Каталожные</li>
+            <li>Не принятые</li>
+            <li>2 п</li>
+            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&client_id=2">Коммерческие предложения</a></li>
 		</ul>
 	</div>
  </div>    
