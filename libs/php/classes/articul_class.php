@@ -172,15 +172,30 @@ class Articul{
 					<th>пригон</th>
 				</tr>
 		';
-		// перебираем строки таблицы
 		
+		
+		// подсчитываем сумму заказа и общий остаток для их сравнения
+		$summ_zakaz = 0;
+		$summ_ostatok = 0;
+		
+		// флаг под заказ
+		$pod_zakaz = 0;
+
 		foreach ($dop_params_arr as $k => $v) {
 			$value = (isset($tirage_json[$v['id']]['tir']))?$tirage_json[$v['id']]['tir']:0;
 			$value_dop = (isset($tirage_json[$v['id']]['dop']))?$tirage_json[$v['id']]['dop']:0;
-			$no_edit_class = (($v['ostatok_free']=='0')?' input_disabled':'');
-			$rearonly = (($v['ostatok_free']=='0')?'readonly="readonly"':'');
+			$summ_ostatok += $v['ostatok_free'];
+			$summ_zakaz += $value + $value_dop;
+			if($v['ostatok_free']<($value + $value_dop)){$pod_zakaz = 1;}
+		}
+		// перебираем строки размерной таблицы
+		foreach ($dop_params_arr as $k => $v) {
+			$value = (isset($tirage_json[$v['id']]['tir']))?$tirage_json[$v['id']]['tir']:0;
+			$value_dop = (isset($tirage_json[$v['id']]['dop']))?$tirage_json[$v['id']]['dop']:0;
+			$no_edit_class = (($v['ostatok_free']=='0' && $summ_ostatok>=$summ_zakaz && $pod_zakaz!=1)?' input_disabled':'');
+			$rearonly = (($v['ostatok_free']=='0' && $summ_ostatok>=$summ_zakaz  && $pod_zakaz!=1)?'readonly="readonly"':'');
 			$html .= '
-					<tr>
+					<tr class="size_row_tbl">
 						<td>'.$v['size'].'</td>
 						<td>'.$v['ostatok'].'<br><span>(в пути) '.$v['on_way_free'].'</span></td>
 						<td class="ostatok_free">'.$v['ostatok_free'].'</td>
@@ -190,6 +205,14 @@ class Articul{
 			';
 		}
 		$html .= '</table>';
+
+		$html .= '
+			<div class="sevrice_button_size_table">
+				<span onclick="chenge_hidden_input_status(\'0\',this);" class="btn_var_std '.(($pod_zakaz==1)?'checked':'').'" name="order">под заказ</span>
+				<span onclick="chenge_hidden_input_status(\'1\',this);" class="btn_var_std '.(($pod_zakaz==0)?'checked':'').'" name="reserve">под резерв</span>
+			</div>
+			';
+
 		return $html;
 
 	}

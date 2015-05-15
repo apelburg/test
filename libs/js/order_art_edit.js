@@ -308,41 +308,356 @@ $(document).on('click','#choose_end_variant',function(){
 		}
 	},'json');
 	
-})
+});
+
+// ИЗМЕНЕНИЕ тиража ИЗ ОБЩЕГО input варианта
+$(document).on('keyup','#edit_variants_content .tirage_var',function(){
+	chenge_the_general_input();
+});
+
+// ИЗМЕНЕНИЕ запаса ИЗ ОБЩЕГО input варианта
+$(document).on('keyup','#edit_variants_content .dop_tirage_var',function(){
+	chenge_the_general_input();
+});
+
+// функция сохранения размерной сетки
+function save_all_table_size(){
+	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	var id_size = new Array();
+	var tirage = new Array();
+	var var_id = new Array();
+	var dop = new Array();
+	$(id_variant+' .size_card .val_tirage').each(function(index, el) {
+		id_size[index] = $(this).attr('data-id_size');
+		tirage[index] = $(this).val();
+		var_id[index] = $(this).attr('data-var_id');
+		dop[index] = $(this).parent().parent().find('.val_tirage_dop').val();
+	});
+
+	$.post('', {
+		global_change: 'AJAX',
+		change_name: 'size_in_var_all',
+		val:tirage,
+		key:id_size,
+		dop:dop,
+		id: var_id
+	}, function(data, textStatus, xhr) {
+		console.log(data);
+	});
+
+}
+
+// расчитывает размер с наибольшим свободным местом
+// возвращает объект (массив) с информацией о строке размера
+function get_info_for_ost(){
+	var id = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	var max = 0; // максимальное значение остатка, исключая полностью заполненные менеджером
+	var ostatok = 0; // доступный остаток у поставщика по данному размеру
+	var tir = 0; // введённый тираж
+	var prigon = 0;
+	var ind = 0;
+	var tir_out = 0;
+	var prigon_out = 0;
+
+	$(id+' .size_card .ostatok_free').each(function(index, el) {
+		ostatok = Number($(this).html());
+		prigon = Number($(this).parent().find('.val_tirage_dop').val());
+		tir = Number($(this).parent().find('.val_tirage').val());		
+
+		if(ostatok>max && ostatok>(tir+prigon)){
+			ind = index+1;
+			tir_out = Number($(this).parent().find('.val_tirage').val());
+			prigon_out = Number($(this).parent().find('.val_tirage_dop').val());
+			max = Number($(this).html()); // свободно у поставщика максимально
+		}
+	});
+	var arr = [max, tir_out, ostatok, prigon_out, ind];
+	return arr;
+}
+
+// обсчет и трансляция общего тиража и запаса в размерную таблицу
+function chenge_the_general_input(){
+	// получаем id активного блока
+	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	
+	// считаем тираж до изменения	
+	var old_tirage = 0;
+	$(id_active_variant +' .val_tirage').each(function(index, el) {
+		old_tirage += Number($(this).val());
+	});
+	
+	// получаем общий старый запас
+	var old_zapas = 0;
+	$(id_active_variant +' .val_tirage_dop').each(function(index, el) {
+		old_zapas += Number($(this).val());
+	});
+	
+	// получаем максимальный остаток
+	var max_ostatok = 0;
+	$(id_active_variant +' .ostatok_free').each(function(index, el) {
+		max_ostatok += Number($(this).html());
+	});
+
+	// определяем значение общего поля тиража
+	var general_tirage = Number($(id_active_variant+ ' .tirage_var').val());
+	// определяем значение общего поля запаса
+	var general_zapas = Number($(id_active_variant+ ' .dop_tirage_var').val());
+	
+	// определяем ограничиваем ли тираж и запас по остаткам
+	var reserv =($(id_active_variant+' .size_card .sevrice_button_size_table span[name="reserve"]').hasClass('checked'))?1:0;
+	
+
+	//определяем что именно было изменено и в какую сторону +/-
+	var raznost = 0;
+	if(general_tirage != old_tirage){
+		/*******************************/
+		/*           TIRAGE            */
+		/*******************************/		
+		if(reserv){// ограничения по резерву
+			// уменьшаем до максимально допустимого значения
+			if(max_ostatok<(general_tirage+general_zapas)){
+				general_tirage = max_ostatok - general_zapas;
+				$(id_active_variant+ ' .tirage_var').val(general_tirage);
+			}	
+			// изменения коснулись тиража, кнопка резерв активирована
+			if(general_tirage > old_tirage){//тираж увеличен
+				raznost = general_tirage - old_tirage;
+				/*******************************/
+				/*             CALC            */
+				/*******************************/
+				var service_val = 0;
+
+				while(raznost>0){
+					var obj = get_info_for_ost(); //arr = [max, tir_out, ostatok, prigon_out, ind];
+					// размер не занятых единиц тиража в строке размера
+					var sv = obj[0] - obj[1] - obj[3]; 
+					// индекс строки размерной сетки
+					var ind = obj[4], 
+
+					// обсчитываем тираж в размерной сетке по новой			
+					old_tirage = 0;	
+					$(id_active_variant + ' .val_tirage').each(function(index, el) {
+						old_tirage += Number($(this).val());
+					});
+					// считаем разностть
+					raznost = general_tirage - old_tirage;
+					// выходим из цикла , если разность равна 0
+					if(raznost==0) break;
+					
+					// запоминаем значение тиража в размерной сетке данного размера
+					var object = $(id_active_variant+' .size_card table tr:nth-of-type('+(ind+1)+') td .val_tirage');
+					service_val = Number(object.val());
+
+					if(sv>=raznost){// если свободные единицы тиража больше или равны разности		
+						object.val(service_val+raznost);
+						console.log(obj[4] + ' - '+object.val());
+					}else{				
+						object.val(service_val+sv);
+						console.log(obj[4] + ' - '+object.val());
+					}
+				}
+				
+				/*******************************/
+				/*         END CALC            */
+				/*******************************/
+
+			}else{// тираж уменьшен
+				raznost = old_tirage - general_tirage;				
+				if(raznost==0){return false;}
+				/*******************************/
+				/*             CALC            */
+				/*******************************/
+				/*
+				raznost - это разность между новым тиражом и тиражом из размерной сетки
+				- то есть это число на которое нам необходимо понизить наш тираж
+				*/ 
+				
+				// заведём переменные тиража в строке 
+				var size_tir = 0;
+				// переберём в цикле все размеры
+				$(id_active_variant +' .val_tirage').each(function(index, el) {
+					// запоминаем тираж в данном размере
+					size_tir = Number($(this).val());
+					// если тираж по данному размеру <1
+					if(size_tir<1){return true;}
+					// вычитаем из него наше число
+					if(size_tir >= raznost){
+						$(this).val(size_tir-raznost);
+						raznost = 0;
+					}else{
+						raznost = (raznost - size_tir);
+						$(this).val(0);
+					}
+					return ( raznost !== 0 );
+				});
+			}				
+		}else{// кнопка резерв не активна
+			export_gen_input_in_size_tbl();
+		}
+		
+	}else{
+		/*******************************/
+		/*            ZAPAS            */
+		/*******************************/
+		if(reserv){// ограничения по резерву
+			// уменьшаем до максимально допустимого значения
+			if(max_ostatok<(general_tirage+general_zapas)){
+				general_zapas = max_ostatok - general_tirage;
+				$(id_active_variant+ ' .dop_tirage_var').val(general_zapas);
+			}	
+			// изменения коснулись запаса, кнопка резерв активирована
+			if(general_zapas > old_zapas){//запас увеличен
+				raznost = general_zapas - old_zapas;
+				/*******************************/
+				/*             CALC            */
+				/*******************************/
+				var service_val = 0;
+
+				while(raznost>0){
+					var obj = get_info_for_ost(); //arr = [max, tir_out, ostatok, prigon_out, ind];
+					// размер не занятых единиц тиража в строке размера
+					var sv = obj[0] - obj[1] - obj[3]; 
+					// индекс строки размерной сетки
+					var ind = obj[4], 
+
+					// обсчитываем запас в размерной сетке по новой			
+					old_zapas = 0;	
+					$(id_active_variant + ' .val_tirage_dop').each(function(index, el) {
+						old_zapas += Number($(this).val());
+					});
+					// считаем разностть
+					raznost = general_zapas - old_zapas;
+					// выходим из цикла , если разность равна 0
+					if(raznost==0) break;
+					
+					// запоминаем значение запаса в размерной сетке данного размера
+					var object = $(id_active_variant+' .size_card table tr:nth-of-type('+(ind+1)+') td .val_tirage_dop');
+					service_val = Number(object.val());
+
+					if(sv>=raznost){// если свободные единицы тиража больше или равны разности		
+						object.val(service_val+raznost);
+						console.log(obj[4] + ' - '+object.val());
+					}else{				
+						object.val(service_val+sv);
+						console.log(obj[4] + ' - '+object.val());
+					}
+				}
+				
+				/*******************************/
+				/*         END CALC            */
+				/*******************************/
+
+			}else{// запас уменьшен
+				raznost = old_zapas - general_zapas;
+				if(raznost==0){return false;}	
+				/*******************************/
+				/*             CALC            */
+				/*******************************/
+				/*
+				raznost - это разность между новым запасом и запасом из размерной сетки
+				- то есть это число на которое нам необходимо понизить наш запасом
+				*/ 
+				
+				// заведём переменные запаса в строке 
+				var size_zap = 0;
+				// переберём в цикле все размеры
+				$(id_active_variant +' .val_tirage_dop').each(function(index, el) {
+					// запоминаем тираж в данном размере
+					size_zap = Number($(this).val());
+					// если запасом по данному размеру <1 переходим к следующей интерации
+					if(size_zap<1){return true;}
+					console.log(size_zap);
+					// вычитаем из него наше число
+					if(size_zap >= raznost){
+						$(this).val(size_zap-raznost);
+						raznost = 0;
+					}else{
+						raznost = (raznost - size_zap);
+						$(this).val(0);
+					}
+					return ( raznost !== 0 );
+				});
+			}				
+		}else{// кнопка резерв не активна
+			export_gen_input_in_size_tbl();
+		}
+
+	}
+	// сохраняем размерную таблицу
+	save_all_table_size();
+}
+
+// перенос содержимого общего тиража и запаса в первое поле размерной сетки, остальное трется
+function export_gen_input_in_size_tbl(){
+	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	// определяем значение общего поля тиража
+	var general_tirage = Number($(id_active_variant+ ' .tirage_var').val());
+	// определяем значение общего поля запаса
+	var general_zapas = Number($(id_active_variant+ ' .dop_tirage_var').val());
+	$(id_active_variant+' .size_card .val_tirage,'+id_active_variant+' .size_card .val_tirage_dop').val(0);
+	$(id_active_variant+' .size_card .val_tirage:first').val(general_tirage);
+	$(id_active_variant+' .size_card .val_tirage_dop:first').val(general_zapas);
+}
 
 // колькуляция и сохранение изменённых данных от тираже в таблице размеров
 $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
-	
-	//console.log('-'+$(this).attr('class')+'- = -val_tirag-');
+	// console.log($(this).parent('div').html());
+	var id = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	// $(id+' .size_card').
+
 	// определяем максимальный тираж по данному размеру
 	var max_tirage = Number($(this).parent().parent().find('.ostatok_free').html());
+	// запоминаем введённые данные
+	var save_val = Number($(this).val());
+	// если введенные данные меньше нуля
+	if(save_val<0){$(this).val(0);}
 
-
-
-	if($(this).attr('class') == 'val_tirage'){
-		// редактируется тираж для размера
-
-		// определяем введённый запас
-		var zapas = Number($(this).parent().parent().find('.val_tirage_dop').val());
-		var our_tirage_for_size = Number($(this).val()) + zapas;
-		if(our_tirage_for_size> max_tirage){}
+	if($(this).attr('class') == 'val_tirage'){// редактируется тираж для размера
+		// если считаем под резерв
+		if($(id+' .size_card .btn_var_std[name="reserve"]').hasClass('checked')){
+			// определяем введённый запас
+			var zapas = Number($(this).parent().parent().find('.val_tirage_dop').val());
+			// определяем общее количество введенного в поле товара: сумму запаса и тиража
+			var general_tirage_this_size = save_val + zapas;
+			// определяем максимальный тираж по данному размеру сувенира
+			max_tirage_size = max_tirage - zapas;
+			// проверяем на привышения тиража по заданному размеру, 
+			// если надо правим на максимально возможную цифру
+			if(general_tirage_this_size > max_tirage){$(this).val(max_tirage_size);}
+		}
+		// определяем адрес общего поля тиража
 		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .tirage_var';
-	}else{
-		// редактируется запас для размера
+	}else{// редактируется запас для размера
+		// если считаем под резерв
+		if($(id+' .size_card .btn_var_std[name="reserve"]').hasClass('checked')){
+			// определяем введённый тираж
+			var tirage = Number($(this).parent().parent().find('.val_tirage').val());
+			// определяем общее количество введенного в поле товара: сумму запаса и тиража
+			var general_tirage_this_size = save_val + tirage;
+			// определяем максимальный тираж по данному размеру сувенира
+			max_tirage_size = max_tirage - tirage;
+			// проверяем на привышения тиража по заданному размеру, 
+			// если надо правим на максимально возможную цифру
+			if(general_tirage_this_size > max_tirage){$(this).val(max_tirage_size);}
+		}
+		// определяем адрес общего поля запаса
 		var id = '#'+$('.variant_name.checked').attr('data-cont_id')+' .dop_tirage_var';	
 	}
 
-
-
-
+	/*
+		С этого момента мы считаем, что в полях размерной сетки введены валидные данные, 
+		которые не привышают доступное количество на складе
+	*/
+	
+	// подсчитываем сумму всех полей редактируемого типа (тираж или запас)
 	var summ = 0;
 	$('#'+$('.variant_name.checked').attr('data-cont_id')+' .'+$(this).attr('class')).each(function(index, el) {
 		summ += Number($(this).val());
 	});
-
+	// выводим сумму в input общего тиража
 	$(id).val(summ);
 
-
+	// отправляем запрос на изменение данных в базе по отредактированному размеру
 	$.post('', {
 		global_change: 'AJAX',
 		change_name: 'size_in_var',
@@ -356,6 +671,20 @@ $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
 });
 
 
+// переключение сервисных кнопок под резерв и под заказ
+$(document).on('click','#edit_variants_content .variant_content_block:visible .size_card .sevrice_button_size_table span',function() {
+	$('#edit_variants_content .variant_content_block:visible .size_card .sevrice_button_size_table span').removeClass('checked');
+	$(this).addClass('checked');
+	if($(this).attr('name')=="order"){
+		$('#edit_variants_content .variant_content_block:visible .size_card input').removeAttr('readonly').removeClass('input_disabled');
+	}else{
+		$('#edit_variants_content .variant_content_block:visible .size_card tr').each(function(index, el) {
+			if(Number($(this).find('.ostatok_free').html())==0){
+				$(this).find('input').attr('readonly','readonly').addClass('input_disabled').val(0);
+			}	
+		});
+	}
+});
 
 
 // изменеие информации по изготовлению в р/д в текущем варианте
@@ -424,36 +753,5 @@ $(document).keydown(function(e) {
 	}
 });
 
-// ИЗМЕНЕНИЕ ТИРАЖА ИЗ ОБЩЕГО input
-$(document).on('keyup','#edit_variants_content .tirage_var',function(){
-	var max_tirage = 0;
-	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
-	$(id_variant+' .ostatok_free').each(function(index, el) {
-		max_tirage += Number($(this).html());
-	});
-	var zapas = Number($(id_variant+' .dop_tirage_var').val());
-	max_tirage = max_tirage-zapas;
-
-	console.log(max_tirage);
-	if(Number($(this).val())>max_tirage)$(this).val(max_tirage);return;
-
-});
-
-
-// ИЗМЕНЕНИЕ запаса ИЗ ОБЩЕГО input
-$(document).on('keyup','#edit_variants_content .dop_tirage_var',function(){
-	var max_tirage = 0;
-	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
-	$(id_variant+' .ostatok_free').each(function(index, el) {
-		max_tirage += Number($(this).html());
-	});
-	
-	var tirage = Number($(id_variant+' .tirage_var').val());
-	max_zapas = max_tirage-tirage;
-
-	console.log(max_zapas);
-	if(Number($(this).val())>max_zapas)$(this).val(max_zapas);return;
-	
-});
 
 
