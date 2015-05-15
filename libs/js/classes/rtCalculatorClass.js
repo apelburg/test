@@ -579,6 +579,7 @@ var rtCalculator = {
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ /*alert(response);*/
 		   td.getElementsByTagName('img')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_'+status+'.png';
+		   td.setAttribute("svetofor",status);
 		}
 		
 		rtCalculator.hide_svetofor();

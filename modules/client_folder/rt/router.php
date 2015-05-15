@@ -7,6 +7,8 @@
 	// ** БЕЗОПАСНОСТЬ **
 	include ROOT.'/libs/php/classes/rt_class.php';
 	
+	$theme = 'Откуда берется тема?';
+	$query_num = 10147;
 	
 	////////////////////////  AJAX  //////////////////////// 
 	if(isset($_GET['save_rt_changes'])){
@@ -24,7 +26,15 @@
 		 exit;
 	}
 	if(isset($_GET['make_com_offer'])){
-		 RT::make_com_offer(json_decode($_GET['make_com_offer']));
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/com_pred_class.php");
+
+		 print_r(json_decode($_GET['make_com_offer']));
+		 
+		 //echo Com_pred::save_to_tbl($id_arr,$query_num,(int)$_GET['conrtol_num']);
+
+		 /* старый вариант создания коммерческого предложени
+		 echo make_com_offer($id_arr,(int)$_GET['stock'],$_GET['order_num']/ *string* /,$_GET['client_manager_id']/ *string* /,(int)$_GET['conrtol_num']);
+		 */
 		 exit;
 	}
 	if(isset($_GET['set_masterBtn_status'])){
@@ -63,7 +73,6 @@
 	 // end кураторы /////////
 	$main_cont_face_data = get_main_client_cont_face($client_id);
 	///////////////////////////////////////////  end  информация о клиенте   ////////////////////////////////////////////////
-	$theme = 'Откуда берется тема?';
 	
 	
 	

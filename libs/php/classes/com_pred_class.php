@@ -1,12 +1,12 @@
 <?php 
 
  class Com_pred{
-        static function save_to_tbl($id_arr,$conrtol_num){
+        static function save_to_tbl($id_arr,$query_num,$conrtol_num){
 	       global $mysqli;
 		   // !!! $conrtol_num
 		   // выбираем из базы строки выбранные для создания КП
-		   $query="SELECT*FROM `".CALCULATE_TBL."` WHERE id IN('".implode("','",$id_arr)."') ORDER BY id DESC";//echo $query;
-		   
+		   $query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE id IN('".implode("','",$id_arr)."') ORDER BY id DESC";//echo $query;
+		   echo $query;
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if($result->num_rows>0){
 		         // получаем необходимые данные для помещения в таблицу
@@ -545,11 +545,18 @@
 		   
 		   return $kp_content;
 	   }
-	   function create_list($client_id,$certain_kp = FALSE){
-	       
+	   function create_list($query_num,$client_id,$certain_kp = FALSE){
+	   
+	        // общая выборка данных из базы данных производится на основании номера заказа для КП нового типа
+			// и на основании client_id для КП старого типа
+			// КП старого типа выводятся общим списком( все КП для даного клиента) отдельно от КП нового типа
+			// выборка конкретного КП производится на id основании конкретного КП для КП нового типа
+			// и на основании имени файла для старого КП
+
 		    $rows = '';
 			if(!$certain_kp){// если не указан конкретный КП создаем полный список
-				$rows .= self::create_list_new_version($client_id);
+				$rows .= self::create_list_new_version($query_num);
+				$rows .= "<tr><td class='flank_cell'>&nbsp;</td><td colspan='8'>КП старого типа</td><td class='flank_cell'>&nbsp;</td></tr>";
 				$rows .= self::create_list_old_version($client_id);
             }
 			else{
@@ -558,7 +565,7 @@
 			}
 			return (!empty($rows))?$rows:"<tr><td colspan='4'>для данного клиента пока небыло создано коммерческих предложений</td></tr>";
 		}
-		function create_list_new_version($client_id,$certain_kp_id = FALSE){
+		function create_list_new_version($query_num,$certain_kp_id = FALSE){
 		   global $mysqli;
 		   global $user_id;
 		   // шаблон ряда таблицы списка КП
@@ -567,9 +574,12 @@
 		   $rows_template = fread($fd,filesize($tpl_name));
 		   fclose($fd);
 		   
+		   echo $query_num;
+		   
 		   $rows = '';
 		   
-		   $query="SELECT*FROM `".COM_PRED_LIST."` WHERE `client_id` = '".$client_id."'";
+		   
+		   $query="SELECT*FROM `".COM_PRED_LIST."` WHERE `query_num` = '".$query_num."'";
 		   if($certain_kp_id)$query.= " AND id = '".$certain_kp_id."'";
 		   $query.= " ORDER BY id DESC";
 		   $result = $mysqli->query($query)or die($mysqli->error);

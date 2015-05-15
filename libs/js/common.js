@@ -243,7 +243,8 @@
 		var action = e.target.getAttribute('action');
 		
 		var control_num = getControlNum();
-		var id_nums_str = getIdsOfCheckedRows();
+
+		var id_nums_str = (getIdsOfCheckedRows()).join(';');
 		if(!id_nums_str) return;
 		
 		if(action == 'delete'){ 
@@ -349,7 +350,7 @@
 			status = true;
 		}
 		else if(data[0]==data[1]) var idsSting = getIdsOfAllRows(target_id);
-		else var idsSting = getIdsOfCheckedRows(target_id);
+		else var idsSting = (getIdsOfCheckedRows(target_id)).join(';');
 
 
 		
@@ -386,7 +387,8 @@
 		    class_name2 = 'reset_button on';
 		}
 		else if(data[0]==data[1]) var idsSting = getIdsOfAllRows(target_id);
-		else var idsSting = getIdsOfCheckedRows();
+		else var idsSting = (getIdsOfCheckedRows()).join(';');
+
 
 
 		var url = '?page=clients&set_status_master_btn='+Number(status)+'&id='+idsSting+'&control_num='+getControlNum();
@@ -420,7 +422,7 @@
 		   }
 		}
 		//console.log(idsArr.join(';'));
-		return idsArr.join(';');
+		return idsArr;
 		
 	}
 	

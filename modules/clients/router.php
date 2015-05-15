@@ -30,7 +30,7 @@
 	     insert_copied_row((int)$_GET['id'],(int)$_GET['control_num']);
 		 exit;
      }
-	 
+	 /*  УДАЛИТЬ ПОСЛЕ ЗАПУСКА
 	  if(isset($_GET['ajax_make_com_offer']))
 	 {
          include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/com_pred_class.php");
@@ -40,10 +40,10 @@
 
 		 /* старый вариант создания коммерческого предложени
 		 echo make_com_offer($id_arr,(int)$_GET['stock'],$_GET['order_num']/ *string* /,$_GET['client_manager_id']/ *string* /,(int)$_GET['conrtol_num']);
-		 */
+		  * /
 		 exit;
      }
-	 
+	 */
 	  if(isset($_GET['ajax_set_samples_list']))
 	 {
 

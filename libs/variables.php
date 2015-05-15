@@ -9,6 +9,7 @@
 	
 	$client_id = !empty($_GET['client_id'])? (int)$_GET['client_id'] : FALSE ;
 	$num_page = !empty($_GET['num_page'])? (int)$_GET['num_page'] : 1 ;
+	$query_num = !empty($_GET['query_num'])? $_GET['query_num'] : FALSE ;
 	$quick_bar_tbl =  $quick_button = $view_button = '';
 
 ?>

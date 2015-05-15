@@ -78,8 +78,8 @@
 		 }
 	     return array($multi_dim_arr,$rows);
 	 }
-	 
-	 $rows = fetch_rows_from_rt(10147);
+	
+	 $rows = fetch_rows_from_rt($query_num);
 	 
 	 
 
@@ -250,18 +250,20 @@
 					 @$total['out_summ'] += $out_summ;
 				 }
 				 $img_design_path = HOST.'/skins/images/img_design/';
-				 $svetofor_src = ($dop_row['row_status']=='')? $img_design_path.'rt_svetofor_green.png':$img_design_path.'rt_svetofor_'.$dop_row['row_status'].'.png';
+				 $svetofor_stat = ($dop_row['row_status']=='')?'green':$dop_row['row_status'];
+				 $svetofor_src = $img_design_path.'rt_svetofor_'.$svetofor_stat.'.png';
 				 $svetofor = '<img src="'.$svetofor_src.'">';
+				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer"';
 				 $currency = 'р';
 		     }
 			 else{
-			     $svetofor = $currency = $print_btn = $dop_uslugi_btn = '';
+			     $svetofor = $svetofor_td_attrs = $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
 				 $delta_format = $margin_format = '';
 			 }
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($key>1 && $counter==0)?'pos_edge':'').'">';
+		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'"':'').' row_id="'.$dop_key.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="30">'.$glob_counter.'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top master_btn noselect" width="80">   
 											<div class="" id="">
@@ -272,7 +274,7 @@
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
 			 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
-			               <td width="50" svetofor="1" class="svetofor pointer">'.$svetofor.'</td>
+			               <td width="50" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
 			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
 						   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">'.$currency.'</td>

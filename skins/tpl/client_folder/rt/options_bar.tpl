@@ -3,7 +3,7 @@
 <div id="info_string_on_query">
 		<ul>
 			<li id="back_to_string_of_claim"></li>
-			<li id="claim_number">Запрос №2585631</li>
+			<li id="claim_number">Запрос №<?php  echo $query_num; ?></li>
 			<li id="claim_date"><span>от 12.11.15 19:38</span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
 			<li id="art_name_topic"><span>Тема:</span> <?php echo $theme; ?></li>
@@ -16,7 +16,7 @@
 			<li>Каталожные</li>
             <li>Не принятые</li>
             <li>2 п</li>
-            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&client_id=2">Коммерческие предложения</a></li>
+            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=<?php  echo $query_num; ?>&client_id=1894">Коммерческие предложения</a></li>
 		</ul>
 	</div>
  </div>    

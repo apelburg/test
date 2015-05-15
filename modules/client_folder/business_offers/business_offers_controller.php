@@ -1,5 +1,5 @@
 <?php
-    echo "Коммерческие предложения должны отображаться для этого запроса или для килента?<br>Какой Интерфейс этой страницы";
+   
     $quick_button = '<div class="quick_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 	$view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 	
@@ -122,7 +122,9 @@
 	
 	
 	// Собираем ряды для таблицы коммерческих предложений
-	if(empty($dont_show_rows)) $rows = Com_pred::create_list($client_id);
+	// выборка данных из базы данных производится на основании номера заказа для КП нового типа 
+	// и на основании client_id для КП старого типа
+	if(empty($dont_show_rows)) $rows = Com_pred::create_list($query_num,$client_id);
 	// Подключаем шаблон таблицы списка коммерческих предложений
 	include ('skins/tpl/clients/client_folder/business_offers/list_table.tpl');
 	if(!empty($detailed_view))	echo $detailed_view;
