@@ -106,8 +106,9 @@
 	 //
 	 //echo '<pre>'; print_r($rows[0]); echo '</pre>';
 	 
-	 $service_row[0] = array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0);
+	 $service_row[0] = array('quantity'=>'','price_in'=>'','price_out'=>'','row_status'=>'','glob_status'=>'');
 	 $glob_counter = 0;
+	 $mst_btn_summ = 0;
 	 foreach($rows[0] as $key => $row){
 	     $glob_counter++;
          // Проходим по первому уровню и определям некоторые моменты отображения таблицы, которые будут применены при проходе по второму
@@ -117,6 +118,11 @@
 		 // то мы должны переместить его вверх вывода а остальные вариатны вывести ниже
 		 // при этом мы указываем $all_draft = FALSE; что не все ряды являются draft
 		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>';
+		 
+		 // считаем сколько мастер кнопок нажаты
+		 $mst_btn_summ += $row['master_btn'];
+		 
+		 
 		 $all_draft = FALSE;
 		 if(isset($row['dop_data']) && count($row['dop_data'])>1){
 		     $all_draft = TRUE;
@@ -148,89 +154,112 @@
 		 // здесь мы определяем значение для атрибута rowspan тегов td которые будут выводится единой ячейкой для всей товарной позиции
 		 $row_span = count($row['dop_data']);
 		 $counter=0;
+		
 		  
 		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>---';
 		 // Проходим в цикле по второму уровню массива($row['dop_data']) на основе которого стороится основной шаблон таблицы
 	     foreach($row['dop_data'] as $dop_key => $dop_row){
-		     // определяем какие расчеты будут учитываться в конечных суммах а какие нет и их отображение в таблице
-		     // json_decode($row['details']);
-			 $expel = array ("main"=>0,"print"=>0,"dop"=>0);
-			 if(@$dop_row['expel']!=''){
-			    $obj = @json_decode($dop_row['expel']);
-				foreach($obj as $expel_key => $expel_val) $expel[$expel_key] = $expel_val;
-			 }
-			 //echo '<br>'; print_r($expel);
-			 
-		     // работаем с информацией о дополнительных услугах определяя что будет выводиться и где
-			 // 1. определяем данные описывающие варианты нанесения логотипа, они хранятся в $dop_row['dop_uslugi']['print']
-			 if(isset($dop_row['dop_uslugi']['print'])){ // если $dop_row['dop_uslugi']['print'] есть выводим данные о нанесениях 
-			     $summ_in = $summ_out = array();
-			     foreach($dop_row['dop_uslugi']['print'] as $extra_data){
-				     $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
-					 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
+		    // если $dop_key==0 это значит что это вспомогательный ряд (отображается пустым без функционала)
+			// если ряд $dop_key!=0 не вспомогательный работаем с ним в обычном порядке
+		    if($dop_key!=0){
+				 // определяем какие расчеты будут учитываться в конечных суммах а какие нет и их отображение в таблице
+				 // json_decode($row['details']);
+				 $expel = array ("main"=>0,"print"=>0,"dop"=>0);
+				 if(@$dop_row['expel']!=''){
+					$obj = @json_decode($dop_row['expel']);
+					foreach($obj as $expel_key => $expel_val) $expel[$expel_key] = $expel_val;
 				 }
-				 $print_btn = count($dop_row['dop_uslugi']['print']); 
-				 $print_in_summ = array_sum($summ_in);
-			     $print_out_summ = array_sum($summ_out);
-			     if($test_data) $print_open_data = print_r($dop_row['dop_uslugi']['print'],TRUE);
-			 }
-			 else{// если данных по печати нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да то
-			      // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление нанесения
-			     $print_btn = ($all_draft && $counter==0)? '' : '+';
-				 $print_in_summ = 0;
-			     $print_out_summ = 0;
-				 if($test_data) $print_open_data =($all_draft && $counter==0)? 0:'0';
-			 }
-			 // 2. определяем данные описывающие варианты дополнительных услуг, они хранятся в $dop_row['dop_uslugi']['extra']
-			 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
-			     $summ_in = $summ_out = array();
-				 foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
-				     $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
-					 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
+				 //echo '<br>'; print_r($expel);
+				 
+				 // работаем с информацией о дополнительных услугах определяя что будет выводиться и где
+				 // 1. определяем данные описывающие варианты нанесения логотипа, они хранятся в $dop_row['dop_uslugi']['print']
+				 if(isset($dop_row['dop_uslugi']['print'])){ // если $dop_row['dop_uslugi']['print'] есть выводим данные о нанесениях 
+					 $summ_in = $summ_out = array();
+					 foreach($dop_row['dop_uslugi']['print'] as $extra_data){
+						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
+						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
+					 }
+					 $print_btn = count($dop_row['dop_uslugi']['print']); 
+					 $print_in_summ = array_sum($summ_in);
+					 $print_out_summ = array_sum($summ_out);
+					 if($test_data) $print_open_data = print_r($dop_row['dop_uslugi']['print'],TRUE);
 				 }
-				 $dop_uslugi_in_summ = array_sum($summ_in);
-			     $dop_uslugi_out_summ = array_sum($summ_out);
-				 $dop_uslugi_btn = count($dop_row['dop_uslugi']['extra']);
-                 if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);
-			 }
-			 else{// если данных по дополнительным услугам нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да 
-			      // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление дополнительных услуг
-			     $dop_uslugi_in_summ = 0;
-				 $dop_uslugi_out_summ = 0;
-				 $dop_uslugi_btn = ($all_draft && $counter==0)? '' : '+';
-			     if($test_data) $extra_open_data =($all_draft && $counter==0)? 0:'0';
-			 }
-			 
-			 // подсчет сумм ряду
-			 // 1. подсчитываем входящую сумму
-			 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
-			 $in_summ = $price_in_summ;
-			 if(!(!!$expel["print"]))$in_summ += $print_in_summ;
-			 if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
-			 // 2. подсчитываем исходящую сумму 
-			 $price_out_summ =  $dop_row['quantity']*$dop_row['price_out'];
-			 $out_summ =  $price_out_summ;
-			 if(!(!!$expel["print"]))$out_summ += $print_out_summ;
-			 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
-			 
-			 $delta = $out_summ-$in_summ; 
-			 $margin = $out_summ-$in_summ;
-			 
-			 // если ряд не исключен из расчетов добавляем значения в итоговый ряд
-			 if(!(!!$expel["main"])){
-				 @$total['price_in_summ'] += $price_in_summ;
-				 @$total['price_out_summ'] += $price_out_summ;
-				 if(!(!!$expel["print"])) @$total['print_in_summ'] += $print_in_summ;
-				 if(!(!!$expel["print"])) @$total['print_out_summ'] += $print_out_summ;
-				 if(!(!!$expel["dop"])) @$total['dop_uslugi_in_summ'] += $dop_uslugi_in_summ;
-				 if(!(!!$expel["dop"])) @$total['dop_uslugi_out_summ'] += $dop_uslugi_out_summ;
-				 @$total['in_summ'] += $in_summ;
-				 @$total['out_summ'] += $out_summ;
-			 }
-			 $img_design_path = HOST.'/skins/images/img_design/';
-			 $svetofor_src = ($dop_row['row_status']=='')? $img_design_path.'rt_svetofor_green.png':$img_design_path.'rt_svetofor_'.$dop_row['row_status'].'.png';
-			 $svetofor = ($dop_key!=0)? '<img src="'.$svetofor_src.'">':'';
+				 else{// если данных по печати нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да то
+					  // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление нанесения
+					 $print_btn = ($all_draft && $counter==0)? '' : '+';
+					 $print_in_summ = 0;
+					 $print_out_summ = 0;
+					 if($test_data) $print_open_data =($all_draft && $counter==0)? 0:'0';
+				 }
+				 // 2. определяем данные описывающие варианты дополнительных услуг, они хранятся в $dop_row['dop_uslugi']['extra']
+				 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
+					 $summ_in = $summ_out = array();
+					 foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
+						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
+						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
+					 }
+					 $dop_uslugi_in_summ = array_sum($summ_in);
+					 $dop_uslugi_out_summ = array_sum($summ_out);
+					 $dop_uslugi_btn = count($dop_row['dop_uslugi']['extra']);
+					 if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);
+				 }
+				 else{// если данных по дополнительным услугам нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да 
+					  // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление дополнительных услуг
+					 $dop_uslugi_in_summ = 0;
+					 $dop_uslugi_out_summ = 0;
+					 $dop_uslugi_btn = ($all_draft && $counter==0)? '' : '+';
+					 if($test_data) $extra_open_data =($all_draft && $counter==0)? 0:'0';
+				 }
+				 
+				 // подсчет сумм ряду
+				 // 1. подсчитываем входящую сумму
+				 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
+				 $in_summ = $price_in_summ;
+				 if(!(!!$expel["print"]))$in_summ += $print_in_summ;
+				 if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
+				 // 2. подсчитываем исходящую сумму 
+				 $price_out_summ =  $dop_row['quantity']*$dop_row['price_out'];
+				 $out_summ =  $price_out_summ;
+				 if(!(!!$expel["print"]))$out_summ += $print_out_summ;
+				 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
+				 
+				 $delta = $out_summ-$in_summ; 
+				 $margin = $out_summ-$in_summ;
+				 
+				 $price_in_summ_format = number_format($price_in_summ,'2','.','');
+				 $price_out_summ_format = number_format($price_out_summ,'2','.','');
+				 $print_in_summ_format = number_format($print_in_summ,'2','.','');
+				 $print_out_summ_format = number_format($print_out_summ,'2','.','');
+				 $dop_uslugi_in_summ_format = number_format($dop_uslugi_in_summ,'2','.','');
+				 $dop_uslugi_out_summ_format = number_format($dop_uslugi_out_summ,'2','.','');
+				 $in_summ_format = number_format($in_summ,'2','.','');
+				 $out_summ_format = number_format($out_summ,'2','.','');
+				 $delta_format = number_format($delta,'2','.','');
+				 $margin_format = number_format($margin,'2','.','');
 		
+				 
+				 // если ряд не исключен из расчетов добавляем значения в итоговый ряд
+				 if(!(!!$expel["main"])){
+					 @$total['price_in_summ'] += $price_in_summ;
+					 @$total['price_out_summ'] += $price_out_summ;
+					 if(!(!!$expel["print"])) @$total['print_in_summ'] += $print_in_summ;
+					 if(!(!!$expel["print"])) @$total['print_out_summ'] += $print_out_summ;
+					 if(!(!!$expel["dop"])) @$total['dop_uslugi_in_summ'] += $dop_uslugi_in_summ;
+					 if(!(!!$expel["dop"])) @$total['dop_uslugi_out_summ'] += $dop_uslugi_out_summ;
+					 @$total['in_summ'] += $in_summ;
+					 @$total['out_summ'] += $out_summ;
+				 }
+				 $img_design_path = HOST.'/skins/images/img_design/';
+				 $svetofor_src = ($dop_row['row_status']=='')? $img_design_path.'rt_svetofor_green.png':$img_design_path.'rt_svetofor_'.$dop_row['row_status'].'.png';
+				 $svetofor = '<img src="'.$svetofor_src.'">';
+				 $currency = 'р';
+		     }
+			 else{
+			     $svetofor = $currency = $print_btn = $dop_uslugi_btn = '';
+				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
+				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
+				 $delta_format = $margin_format = '';
+			 }
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr row_id="'.$dop_key.'"  class="'.(($key>1 && $counter==0)?'pos_edge':'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="30">'.$glob_counter.'</td>':'';
@@ -246,25 +275,25 @@
 			               <td width="50" svetofor="1" class="svetofor pointer">'.$svetofor.'</td>
 			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
-						   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">р</td>
-						   <td width="90" type="price_in_summ" connected_vals="art_price" c_stat="0" class="in right hidden">'.number_format($price_in_summ,'2','.','').'</td>
-						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left hidden">р</td>
+						   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">'.$currency.'</td>
+						   <td width="90" type="price_in_summ" connected_vals="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
+						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left hidden">'.$currency.'</td>
 						   <td width="90" type="price_out" editable="true" connected_vals="art_price" c_stat="1" class="out right">'.$dop_row['price_out'].'</td>
-						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >р</td>
-						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.number_format($price_out_summ,'2','.','').'</td>
-						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left r_border hidden">р</td>
+						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >'.$currency.'</td>
+						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
+						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left r_border hidden">'.$currency.'</td>
 						   <td width="20">'.$print_btn.'</td>';
                  if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
-			 $cur_row .=  '<td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden">'.$print_in_summ.'р</td> 
-			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.number_format($print_out_summ,'2','.','').'р</td>
+			 $cur_row .=  '<td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden">'.$print_in_summ_format.$currency.'</td> 
+			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
 			               <td width="20">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
-			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden">'.$dop_uslugi_in_summ.'р</td>';
-			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border'.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.number_format($dop_uslugi_out_summ,'2','.','').'р</td>
-						   <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="in right hidden">'.number_format($in_summ,'2','.','').'</td>
-						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'" >'.number_format($out_summ,'2','.','').'</td>
-						   <td width="100" type="delta" class="right">'.number_format($delta,'2','.','').'</td>
-						   <td width="100" type="margin" class="right">'.number_format($margin,'2','.','').'</td>
+			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden">'.$dop_uslugi_in_summ.$currency.'</td>';
+			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border'.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>
+						   <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="in right hidden">'.$in_summ_format.'</td>
+						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'" >'.$out_summ_format.'</td>
+						   <td width="100" type="delta" class="right">'.$delta_format.'</td>
+						   <td width="100" type="margin" class="right">'.$margin_format.'</td>
 						   <td stretch_column>&nbsp;</td>';
 			 $cur_row .=  '<td>'.$dop_row['glob_status'].'</td>';  
 			 $cur_row .= '</tr>';
@@ -280,7 +309,7 @@
 			       <td width="80">
 					  <div class="master_button noselect">
 						<a href="#" onclick="openCloseMenu(event,\'rtMenu\'); return false;">&nbsp;</a>
-						<div id="reset_master_button" class="reset_button" onclick="resetMasterBtn(this,\'rt_tbl_body\');">&nbsp;</div>
+						<div id="reset_master_button" class="reset_button'.((count($rows[0])==$mst_btn_summ)?' on':'').'" onclick="resetMasterBtn(this,\'rt_tbl_body\');">&nbsp;</div>
 					  </div>
 				  </td>
 	              <td class="hidden"></td>
