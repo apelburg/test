@@ -68,6 +68,20 @@ class Articul{
 		return $arr;
 	}
 
+	public get_dop_uslugi($id_dop_data){
+		global $mysqli;
+		$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".(int)$id_dop_data."'";
+		// echo $query;
+		$arr = array();
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$this->info = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+		return $arr;
+	}
 
 	public function get_dop_params($art_id){
 		// выгружает данные запроса в массив
@@ -107,6 +121,8 @@ class Articul{
 		}
 		return $html;
 	}
+
+
 	public function generate_variants_menu($variants,$draft_enable){		
 		$html = ''; // контент функции
 		$checked = 'checked'; // имя класса для выбранного элемента

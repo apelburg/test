@@ -174,7 +174,7 @@ $(document).ready(function() {
 								</div>
 								</form> -->
 								
-								<div id="technical_assignment">Техническое задание</div>
+								<!-- <div id="technical_assignment">Техническое задание</div> -->
 								
 							</div>
 						</div>

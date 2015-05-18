@@ -23,9 +23,9 @@
 		}
 
 		if(isset($_POST['change_name']) && $_POST['change_name']=='size_in_var_all'){
-			echo "<pre>";
-			print_r($_POST);
-			echo "</pre>";
+			// echo "<pre>";
+			// print_r($_POST);
+			// echo "</pre>";
 
 			$tir = $_POST['val']; // array / тиражи
 			$key2 = $_POST['key']; // array / id _ row size
@@ -53,7 +53,7 @@
 
 			// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
 			//echo $r .'   -   ';
-			echo json_encode($arr_json);
+			//echo json_encode($arr_json);
 			$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
 			// // echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);

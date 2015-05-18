@@ -5,7 +5,9 @@
 
 #info_string_on_query ul{ padding: 0; list-style: none; margin: 0}
 #info_string_on_query ul li{ display: inline-block;padding: 5px 10px;}
-#back_to_string_of_claim{ width: 32px; height: 100%; cursor: pointer; background: url('../../skins/images/img_design/back_art.png') no-repeat;}
+#back_to_string_of_claim{ width: 32px; height: 100%; 
+  cursor: pointer; background: url('../../skins/images/img_design/back_art.png') no-repeat;}
+
 #info_string_on_query ul li:nth-of-type(1){width: 32px;padding: 5px 0;  height: 6px;}
 #info_string_on_query span{color:#a3a3a3;}
 
@@ -81,12 +83,31 @@
 .variants_dop_info .dop_tirage_var{width: 15px;padding: 0px 5px; text-align: right;}
 
 
+.variant_status_sv{
+    float: right;
+  width: 5px;
+  height: 24px;
+  position: absolute;
+  margin-left: 20px;
+  margin-top: -5px;
+}
+.variant_status_sv.green{
+  background: rgb(87, 211, 87);
+}
+
+.variant_status_sv.grey{
+  background: rgb(208, 208, 208);
+}
+
+.variant_status_sv.red{
+  background: rgb(255, 98, 98);
+}
 
 
 .size_card{ width: 30%; min-width: 300px}
 
-.variant_info table tr#variant_calc_itogo td{ background-color:#CBDFA7;}
-.variant_info table tr#variant_calc_itogo td:nth-of-type(1){ font-weight: bold}
+.variant_info table tr.variant_calc_itogo td{ background-color:#CBDFA7;}
+.variant_info table tr.variant_calc_itogo td:nth-of-type(1){ font-weight: bold}
 
 .variant_info table tr td{ padding: 5px}
 .variant_info table tr th{ padding: 2px 5px}
@@ -131,7 +152,35 @@
 .variant_info .row .cell table tr td{  text-align: right; }
 .variant_info .row .cell table tr td:nth-of-type(2){  text-align: left; }
 .variant_info .row .cell table tr th:nth-of-type(2){min-width: 50px;text-align: left;}
-.variant_info .row .cell table tr th:nth-of-type(1){font-weight: bold; text-align: left; font-size: 12px; color:#000;padding-left: 15px}
+.variant_info .row .cell table tr th:nth-of-type(1){
+  font-weight: bold; text-align: left; font-size: 12px; color:#000;padding-left: 15px}
+.variant_info .row .cell table.calkulate_table tr th:nth-of-type(1){
+  padding-left: 24px
+}
+
+.variant_info .row .cell table.calkulate_table tr th.type_row_calc_tbl,
+.variant_info .row .cell table.calkulate_table tr td.type_row_calc_tbl{
+    padding: 0;
+  height: 21px;
+}
+
+.wq_03{
+  background: url('../../skins/images/img_design/wq_03.png') no-repeat; 
+  width: 25px;
+  float: left;
+  height: 21px;
+  background-position: 4px 2px;
+  }
+.add_usl:hover{ background-color:#BCBFC5; }
+.add_usl{  height: 21px;
+  float: left;
+  padding-right: 15px;
+  line-height: 22px;
+  padding-left: 25px;
+  background: url('../../skins/images/img_design/wq_03.png') no-repeat; 
+  background-position: 4px 2px;
+  cursor: pointer;
+}
 .variant_info .row .cell table tr td:nth-of-type(1){text-align: left; padding-left: 15px}
 /* image block */
 #articulusImagesBigImg .showImagegallery, #galleryWindowInArtPages .showImagegallery {

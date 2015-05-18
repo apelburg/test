@@ -47,34 +47,35 @@
 										<th class="edit_cell">ред.</th>
 										<th class="del_cell">del</th>
 									</tr>
-									<tr>
+									<tr class="tirage_and_price_for_one">
 										<td>1 шт.</td>
-										<td contenteditable="true"><?php echo $value['price_in']; ?></td>
-										<td rowspan="2">
-											<?php 
-											echo round((($value['price_out']-$value['price_in'])*100/$value['price_in']),2).'%';
-											?>
+										<td contenteditable="true"  class="row_tirage_in_one"><span><?php echo $value['price_in']; ?></span> р.</td>
+										<td rowspan="2"  class="percent_nacenki">
+											<span><?php 
+											echo round((($value['price_out']-$value['price_in'])*100/$value['price_in']),2);
+											?></span>%
+
 										</td>
-										<td><?php echo $value['price_out']; ?></td>
-										<td>12,00</td>
+										<td  class="row_price_out_one"><span><?php echo $value['price_out']; ?></span> р.</td>
+										<td class="row_pribl_out_one"><span><?php echo ($value['price_out']-$value['price_in']); ?></span> р.</td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
 										<td rowspan="2"></td>
 									</tr>
-									<tr>
+									<tr  class="tirage_and_price_for_all">
 										<td>тираж</td>
-										<td><?php echo $sum_of_tirage_in;   ?></td>
-										<td><?php echo $sum_of_tirage_out;  ?></td>
-										<td><?php echo $sum_prib_of_tirage; ?></td>
+										<td class="row_tirage_in_gen"><span><?php echo $sum_of_tirage_in;   ?></span> р.</td>
+										<td class="row_price_out_gen"><span><?php echo $sum_of_tirage_out;  ?></span> р.</td>
+										<td class="row_pribl_out_gen"><span><?php echo $sum_prib_of_tirage; ?></span> р.</td>
 									</tr>
 									<tr>
 										<th colspan="7"><span class="add_row">+</span>печать</th>
 									</tr>
-									<tr>
+									<tr >
 										<td>Термотрансфер, 1цв</td>
 										<td> 133,00р</td>
-										<td rowspan="2">20%</td>
+										<td rowspan="2" class="percent_nacenki"><span>20</span>%</td>
 										<td>195,00р</td>
 										<td>12,00</td>
 										<td rowspan="2">
@@ -86,22 +87,22 @@
 									</tr>
 									<tr>
 										<td>тираж</td>
-										<td> 39 900,00р</td>
-										<td>85 600,00р</td>
-										<td>25 452,00</td>
-									</tr>
+										<td class="row_tirage_in_gen"><span>39900</span> р</td>
+										<td class="row_price_out_gen"><span>85600</span> р</td>
+										<td class="row_pribl_out_gen"><span>45225</span> р</td>
+									</tr> 
 									<tr>
-										<th colspan="7"> + добавить ещё услуги</th>
+										<th colspan="7"  class="type_row_calc_tbl"><div class="add_usl">Добавить ещё услуги</div></th>
 									</tr>
 									<tr>
 										<td colspan="7" class="table_spacer"> </td>
 									</tr>
-									<tr id="variant_calc_itogo">
+									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
-										<td> 57 254,00р</td>
-										<td>%</td>
-										<td>78 864,15р</td>
-										<td>35 365,45р</td>
+										<td><span></span> р.</td>
+										<td><span></span> %</td>
+										<td><span></span> р.</td>
+										<td><span></span> р.</td>
 										<td></td>
 										<td></td>
 									</tr>

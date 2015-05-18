@@ -240,10 +240,13 @@ $(document).on('click', '#variants_name .variant_name', function(){
 	var id = $(this).attr('data-cont_id');
 	$('.variant_content_block').css({'display':'none'});
 	$('#'+id).css({'display':'block'});
-
+	// смена функциональной кнопки / выбора основного варианта /
 	test_chenge_archive_list();
+	// расчет таблицы активного поля
+	calkulate_table_calc();
 });
 
+// смена функциональной кнопки выбора основного варианта
 function test_chenge_archive_list(){
 	if($('#all_variants_menu .variant_name.checked').hasClass('show_archive')){
 		$('#choose_end_variant').html('Извлечь расчёт из архива').attr('id','extract_from_archive');
@@ -374,6 +377,94 @@ function get_info_for_ost(){
 	var arr = [max, tir_out, ostatok, prigon_out, ind];
 	return arr;
 }
+
+
+
+
+/**************************************************************/
+// РАСЧЕТ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
+$(window).load(function() {
+	calkulate_table_calc();
+});
+
+// ПЕРЕРАСЧЕТ ТАБЛИЦЫ calkulate_table (для товаров из каталога)
+
+function calkulate_table_calc(){
+	console.log('start calkulate_table_calc()');
+	// обсчёт стоимости тиража
+
+	// получаем id активного блока
+	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	
+
+	// подсчёт входящей стоимости за тираж
+	var tir = Number($(id_active_variant+' .tirage_var').val());
+	var zap = Number($(id_active_variant+' .dop_tirage_var').val());
+	var price_for_one = Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .row_tirage_in_one span').html());
+	var price_in = price_for_one*(zap+tir);
+	$("#variant_content_block_3 table.calkulate_table tr.tirage_and_price_for_all td.row_tirage_in_gen span").html(Math.ceil((price_in)*100)/100)
+
+	// подсчёт исходящей стоимости за тираж
+	price_for_one = Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .row_price_out_one span').html());
+	var price_out = price_for_one*(zap+tir);
+	$("#variant_content_block_3 table.calkulate_table tr.tirage_and_price_for_all td.row_price_out_gen span").html(Math.ceil((price_out)*100)/100)
+
+	// подсчёт прибыли за тираж
+	price_for_one = Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .row_pribl_out_one span').html());
+	var profit = price_for_one*(zap+tir);
+	$("#variant_content_block_3 table.calkulate_table tr.tirage_and_price_for_all td.row_pribl_out_gen span").html(Math.ceil((profit)*100)/100)
+
+
+	calkulate_row_itogo();
+}
+// РАСЧЕТ ИТОГО
+function calkulate_row_itogo(){
+	// получаем id активного блока
+	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	
+	// ОБХОДИМ ВСЕ СТОЛБЦЫ, ПЕРЕСЧИТЫВАЕМ ИТОГО
+	var price_in = 0;
+	var percent = 0; 
+	var per = 0;// для временного хранения
+	var price_out = 0;
+	var profit = 0;
+
+
+	// цена входящая за тираж или услугу помноженную на тираж
+	$(id_active_variant+' .calkulate_table .row_tirage_in_gen span').each(function(index, el) {
+		price_in += Number($(this).html());
+	});
+	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(2) span').html(Math.ceil((price_in)*100)/100);
+
+	// проценты
+	var i = 0;
+	$(id_active_variant+' .calkulate_table .percent_nacenki span').each(function(index, el) {
+		per = Number($(this).html());
+		if(per!=0){
+			percent += per;
+			i++;
+		}
+	});
+	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(3) span').html(Math.ceil((percent/i)*100)/100)
+	console.log((percent/i));
+
+
+	// ИТОГО исходящая цена
+	$(id_active_variant+' .calkulate_table .row_price_out_gen span').each(function(index, el) {
+		price_out += Number($(this).html());
+	});
+	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(4) span').html(Math.ceil((price_out)*100)/100);
+	console.log(price_out);
+
+	// ИТОГО профит
+	$(id_active_variant+' .calkulate_table .row_pribl_out_gen span').each(function(index, el) {
+		profit += Number($(this).html());
+	});
+	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(5) span').html(Math.ceil((profit)*100)/100);
+	console.log(profit);
+
+} 
+
 
 // обсчет и трансляция общего тиража и запаса в размерную таблицу
 function chenge_the_general_input(){
@@ -585,6 +676,8 @@ function chenge_the_general_input(){
 	}
 	// сохраняем размерную таблицу
 	save_all_table_size();
+	// пересчёт таблицы с ценами
+	calkulate_table_calc();
 }
 
 // перенос содержимого общего тиража и запаса в первое поле размерной сетки, остальное трется
@@ -668,6 +761,9 @@ $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
 	}, function(data, textStatus, xhr) {
 		console.log(data);
 	});
+
+	// пересчёт таблицы цен
+	calkulate_table_calc();
 });
 
 

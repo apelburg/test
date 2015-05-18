@@ -75,6 +75,7 @@
 		$print_z = ($value['print_z']=='1')?'checked':'';
 		$print_z_no = ($value['print_z']=='0')?'checked':'';
 
+		get_dop_uslugi($value['id']);
 		// стандартное время изготовления
 		// $std_pr = ($value['standart']=='10' && $type_tovar=='cat')?1:0;
 		$std_time_print = ($value['standart']=='10' && $type_tovar=='cat')?'checked':'';
