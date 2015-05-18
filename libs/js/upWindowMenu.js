@@ -1249,13 +1249,20 @@
 
 		
 		show_processing_timer();
-		
+		var tbl = document.getElementById('rt_tbl_body');
+		var client_id = tbl.getAttribute('client_id');
+		var query_num = tbl.getAttribute('query_num');
 	    // формируем url для AJAX запроса
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_com_offer={"ids":'+JSON.stringify(idsObj)+',"order_num":"'+1111+'"}');
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_com_offer={"ids":'+JSON.stringify(idsObj)+',"client_id":"'+client_id+'","query_num":"'+query_num+'"}');
 		// AJAX запрос
 		make_ajax_request(url,callback);
 		//alert(last_val);
-		function callback(response){  console.log(response);/**/ close_processing_timer(); closeAllMenuWindows();}	  
+		function callback(response){ 
+		   
+		    //if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
+		    console.log(response);/**/ 
+			close_processing_timer(); closeAllMenuWindows();
+		}	  
 	}
 	
 	function makeComOfferOld(e){

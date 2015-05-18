@@ -26,11 +26,10 @@
 		 exit;
 	}
 	if(isset($_GET['make_com_offer'])){
-		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/com_pred_class.php");
-
-		 print_r(json_decode($_GET['make_com_offer']));
+		 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/com_pred_class.php");
 		 
-		 //echo Com_pred::save_to_tbl($id_arr,$query_num,(int)$_GET['conrtol_num']);
+		 //echo 
+		 Com_pred::save_to_tbl($_GET['make_com_offer']);
 
 		 /* старый вариант создания коммерческого предложени
 		 echo make_com_offer($id_arr,(int)$_GET['stock'],$_GET['order_num']/ *string* /,$_GET['client_manager_id']/ *string* /,(int)$_GET['conrtol_num']);

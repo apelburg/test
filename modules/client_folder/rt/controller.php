@@ -380,7 +380,7 @@
 	   $rt.= '</tr>
 	          </table>
 			  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
-	          <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body"  border="0">'.implode('',$tbl_rows).'</table>
+	          <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0">'.implode('',$tbl_rows).'</table>
 			  </div>';
 			  
 /*	 $rt = '<table class="rt_tbl_head" scrolled="head" style="width: 100%;">

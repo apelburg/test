@@ -64,10 +64,7 @@
 	define("CLIENT_ORDERS_TABLE_PART_TBL","orders_table_part"); // табличная часть заказов
 	define("CALCULATE_TBL","os__orders_calculate_table"); // расчетная таблица
 	define("CALCULATE_TBL_PROTOCOL","os__orders_calculate_insert_delete_protocol"); // протокол добавления, удаления строк из РТ 
-	define("COM_PRED_LIST","os__com_pred_list"); // КП
-	define("COM_PRED_LIST_OLD","os__com_pred_list_old"); // КП
-	define("COM_PRED_ROWS","os__com_pred_rows"); // ряды КП
-	define("LAST_COM_PRED_NUM","os__last_com_pred_num"); // последний номер КП
+	
 	define("INVOICES_TBL","os__invoices_for_pay"); // таблица счетов
 	define("INVOICES_TBL2","os__invoices_for_pay2"); // таблица счетов
 	
@@ -83,8 +80,15 @@
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
 	define("RT_ART_SIZE","os__rt_art_sizes"); // 
 	
+	define("KP_LIST","os__kp_list"); // КП
+	define("KP_ROWS","os__kp_main_rows"); // ряды позиций КП
+	define("KP_DOP_ROWS","os__kp_dop_data"); // ряды расчетов КП
+	define("KP_USLUGI_ROWS","os__kp_dop_uslugi"); // ряды даннх об услугах КП
+	
+	define("COM_PRED_LIST_OLD","os__com_pred_list_old"); // КП
+	define("LAST_COM_PRED_NUM","os__last_com_pred_num"); // последний номер КП
 
-
+     
 	
 	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] : false ;
 	

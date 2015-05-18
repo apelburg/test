@@ -1,9 +1,16 @@
 <?php 
 
  class Com_pred{
-        static function save_to_tbl($id_arr,$query_num,$conrtol_num){
+        static function save_to_tbl($json){
 	       global $mysqli;
-		   // !!! $conrtol_num
+		   
+		   $data->obj = json_decode($json);
+           //print_r($data);
+		   
+ 	       // !!! $conrtol_num
+		   
+		   // $data->ids - это двухмерный массив первый уровеннь которого содержит строк из таблицы 
+		   // второй уровень содержит дочерних строк из таблицы        проход
 		   // выбираем из базы строки выбранные для создания КП
 		   $query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE id IN('".implode("','",$id_arr)."') ORDER BY id DESC";//echo $query;
 		   echo $query;
@@ -49,7 +56,7 @@
 				}/**/
 				return 1;
 		   }
-		   else return '0: в таблице CALCULATE_TBL не найдены строки соответсвующие переданным id';
+		   else return '0: в таблице CALCULATE_TBL не найдены строки соответсвующие переданным id'; 
 
 	   }
 	   /*function get_last_kp_num(){
