@@ -59,19 +59,31 @@
 			$result = $mysqli->query($query) or die($mysqli->error);
 			exit;
 		}
-
-		if(isset($_POST['change_name']) && $_POST['change_name']=='change_draft'){
-			$query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
-			$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '0' WHERE  `id` ='".$_POST['id']."';";
-			$result = $mysqli->multi_query($query) or die($mysqli->error);
+		if(isset($_POST['change_name']) && $_POST['change_name']=='change_status_row'){
+			$color = $_POST['color'];
+			$id_in = $_POST['id_in'];
+			$query  = "UPDATE `".RT_DOP_DATA."` SET `row_status` = '".$color."' WHERE  `id` IN (".$id_in.");";
+			echo $query;
+			// echo '<pre>';
+			// print_r($_POST);
+			// echo '</pre>';
+			$result = $mysqli->query($query) or die($mysqli->error);
 			echo '{"response":"1","text":"test"}';
 			exit;
 		}
+		// if(isset($_POST['change_name']) && $_POST['change_name']=='change_draft'){
+		// 	$query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
+		// 	$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '0' WHERE  `id` ='".$_POST['id']."';";
+		// 	$result = $mysqli->multi_query($query) or die($mysqli->error);
+		// 	echo '{"response":"1","text":"test"}';
+		// 	exit;
+		// }
 
 		if(isset($_POST['change_name']) && $_POST['change_name']=='change_archiv'){
+			
 			$query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
 			// $query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
-			$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '1', `archiv` = '0' WHERE  `id` ='".$_POST['id']."';";
+			$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '1', `row_status` = 'green' WHERE  `id` ='".$_POST['id']."';";
 			$result = $mysqli->multi_query($query) or die($mysqli->error);
 			// $result = $mysqli->query($query) or die($mysqli->error);
 			echo '{"response":"1","text":"test"}';
@@ -150,7 +162,7 @@
 	// $art_id =  (isset($_GET['art_id']))?$_GET['art_id']:0;
 	// $art_id = 32285;
 
-	$id = (isset($_GET['id']))?$_GET['id']:1;
+	$id = (isset($_GET['id']))?$_GET['id']:'none';
 
 
 	

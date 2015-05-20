@@ -49,48 +49,29 @@
 									</tr>
 									<tr class="tirage_and_price_for_one">
 										<td>1 шт.</td>
-										<td contenteditable="true"  class="row_tirage_in_one"><span><?php echo $value['price_in']; ?></span> р.</td>
+										<td class="row_tirage_in_one price_in"><span contenteditable="true" class="edit_span" ><?php echo $value['price_in']; ?></span> р.</td>
 										<td rowspan="2"  class="percent_nacenki">
-											<span><?php 
+											<span contenteditable="true" class="edit_span"><?php 
 											echo round((($value['price_out']-$value['price_in'])*100/$value['price_in']),2);
 											?></span>%
 
 										</td>
-										<td  class="row_price_out_one"><span><?php echo $value['price_out']; ?></span> р.</td>
-										<td class="row_pribl_out_one"><span><?php echo ($value['price_out']-$value['price_in']); ?></span> р.</td>
+										<td  class="row_price_out_one price_out"><span class="edit_span" contenteditable="true"><?php echo $value['price_out']; ?></span> р.</td>
+										<td class="row_pribl_out_one pribl"><span><?php echo ($value['price_out']-$value['price_in']); ?></span> р.</td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
 										<td rowspan="2"></td>
 									</tr>
-									<tr  class="tirage_and_price_for_all">
+									<tr  class="tirage_and_price_for_all for_all">
 										<td>тираж</td>
-										<td class="row_tirage_in_gen"><span><?php echo $sum_of_tirage_in;   ?></span> р.</td>
-										<td class="row_price_out_gen"><span><?php echo $sum_of_tirage_out;  ?></span> р.</td>
-										<td class="row_pribl_out_gen"><span><?php echo $sum_prib_of_tirage; ?></span> р.</td>
+										<td class="row_tirage_in_gen price_in"><span><?php echo $sum_of_tirage_in;   ?></span> р.</td>
+										<td class="row_price_out_gen price_out"><span><?php echo $sum_of_tirage_out;  ?></span> р.</td>
+										<td class="row_pribl_out_gen pribl" ><span><?php echo $sum_prib_of_tirage; ?></span> р.</td>
 									</tr>
-									<tr>
-										<th colspan="7"><span class="add_row">+</span>печать</th>
-									</tr>
-									<tr >
-										<td>Термотрансфер, 1цв</td>
-										<td> 133,00р</td>
-										<td rowspan="2" class="percent_nacenki"><span>20</span>%</td>
-										<td>195,00р</td>
-										<td>12,00</td>
-										<td rowspan="2">
-											<span class="edit_row_variants"></span>
-										</td>
-										<td rowspan="2">
-											<span class="del_row_variants"></span>
-										</td>
-									</tr>
-									<tr>
-										<td>тираж</td>
-										<td class="row_tirage_in_gen"><span>39900</span> р</td>
-										<td class="row_price_out_gen"><span>85600</span> р</td>
-										<td class="row_pribl_out_gen"><span>45225</span> р</td>
-									</tr> 
+									<?php 
+										echo $dop_uslugi;
+									?>
 									<tr>
 										<th colspan="7"  class="type_row_calc_tbl"><div class="add_usl">Добавить ещё услуги</div></th>
 									</tr>
@@ -109,8 +90,7 @@
 								</table>
 							</div>
 							<div class="cell size_card">
-								<?php echo $get_size_table; ?>
-								
+								<?php echo $get_size_table; ?>								
 							</div>
 						</div>
 					</div>

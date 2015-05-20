@@ -192,12 +192,61 @@ $(document).ready(function() {
 								<td>
 									<ul id="all_variants_menu">
 										<!-- вставка кнопок вариантов -->
-										<?php echo $ARTICUL->generate_variants_menu($variants,$draft_enable); ?>
+										<?php echo $ARTICUL->generate_variants_menu($variants,$dop_enable); ?>
 									</ul>
 								</td>
 								<td>
 									<ul>
-										<li id="choose_end_variant">Выбрать основной</li>
+										<li id="choose_end_variant"><span class="chenged_text">Редактор вариантов</span>
+											<div id="menu_for_variants_status">
+												<div class="menu_for_variants_status_menu_name">Применить для текущего</div>
+												<div>
+													<ul>
+														<li  data-anyone="one" class="green">
+															<span class="traffic_lights_green">
+																<span></span>
+															</span>
+															Назначить green
+														</li>
+														<li  data-anyone="one" class="grey">
+															<span class="traffic_lights_grey">
+																<span></span>
+															</span>
+															Назначить grey
+														</li>
+														<li  data-anyone="one" class="red">
+															<span class="traffic_lights_red">
+																<span></span>
+															</span>
+															Назначить red
+														</li>
+													</ul>
+												</div>
+												<div  class="menu_for_variants_status_menu_name">Применить для остальных</div>
+												<div>
+													<ul>
+														<li data-anyone="any" class="green">
+															<span class="traffic_lights_green">
+																<span></span>
+															</span>
+															Назначить green
+														</li>
+														<li data-anyone="any" class="grey">
+															<span class="traffic_lights_grey">
+																<span></span>
+															</span>
+															Назначить grey
+														</li>
+														<li data-anyone="any" class="red">
+															<span class="traffic_lights_red">
+																<span></span>
+															</span>
+															Назначить red
+														</li>
+													</ul>
+												</div>
+											</div>
+										</li>
 										<li id="show_archive">
 											<?php
 												if(isset($_GET['show_archive'])){

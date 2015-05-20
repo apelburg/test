@@ -78,6 +78,7 @@
 	define("RT_MAIN_ROWS","os__rt_main_rows"); //
 	define("RT_DOP_DATA","os__rt_dop_data"); //
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
+	define("RT_USLUGI_LIST","os__rt_uslugi"); // Список всех услуг с ценами, в дальнейшем понадобится функционал для их редактирования 
 	define("RT_ART_SIZE","os__rt_art_sizes"); // 
 	
 	define("KP_LIST","os__kp_list"); // КП

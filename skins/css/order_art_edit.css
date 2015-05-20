@@ -68,11 +68,11 @@
 #variants_name table tr td{ padding: 0; margin:0; height: 20px}
 #variants_name table tr td:nth-of-type(1){ /*padding-left: 30px*/ width: 25px}
 #variants_name ul { padding: 0; margin: 0; /*padding-left: 5px*/}
-#variants_name ul li{ display: inline-block;padding: 5px 26px;}
+#variants_name ul li{ display: inline-block;padding: 5px 26px;background-color: #BAD28E;}
 #variants_name ul li#new_variant{  cursor: default;padding: 5px 10px; background: url('../../skins/images/img_design/plus_variant.png') no-repeat;}
 /*#new_variant{ margin-left: -26px}*/
 /*#variants_name #all_variants_menu li:nth-of-type(2){ margin-left: -3px}*/
-#variants_name ul li:hover,#variants_name ul li#new_variant:hover{  background-color: #B7CF8D; color: #000; cursor: default;}
+#variants_name ul li:hover,#variants_name ul li#new_variant:hover{  background-color:#ACC283; color: #000; cursor: default;}
 #variants_name .checked,#variants_name .checked:hover{   background-color: #5A5C61;color: #fff}
 #variants_name ul li.osnovnoy{background-image: url('../images/img_design/draft_grey.png'); background-repeat: no-repeat;background-position: 88px 3px;}
 #variants_name ul li.checked.osnovnoy{background-image: url('../images/img_design/draft_white.png'); background-repeat: no-repeat;}
@@ -84,15 +84,93 @@
 
 
 .variant_status_sv{
-    float: right;
+  float: right;
   width: 5px;
   height: 24px;
   position: absolute;
-  margin-left: 20px;
+  margin-left: 12px;
   margin-top: -5px;
+  /* margin-top: 4px; */
+}
+#menu_for_variants_status{
+   display: none; 
+  position: absolute;
+  background: rgb(255, 253, 253);
+  /* padding: 5px; */
+  border: 1px solid #f4f4f4;
+  margin-left: -42px;
+  width: 148px;
+  float: left;
+  padding-right: 30px;
+  margin-top: 4px;
+}
+#menu_for_variants_status .menu_for_variants_status_menu_name{
+  padding-left: 2%;
+  width: 117%;
+  padding-top: 3px;
+  font-size: 12px;
+  font-weight: bold;
+
+}
+#menu_for_variants_status ul li {
+    padding: 8px 0px 8px 33px;
+  width: 100%;
+  /*background: red;*/
+  background: none;
+}
+#menu_for_variants_status ul li:hover{
+  background: rgb(224, 224, 224);
+}
+
+#menu_for_variants_status span.traffic_lights_green,#menu_for_variants_status span.traffic_lights_grey,#menu_for_variants_status span.traffic_lights_red{
+  width: 20px;
+  height: 20px;
+  float: left;
+    position: absolute;
+  margin-left: -28px;
+  margin-top: -4px;
+}
+#menu_for_variants_status span.traffic_lights_green span,#menu_for_variants_status span.traffic_lights_grey span, #menu_for_variants_status span.traffic_lights_red span{
+    width: 14px;
+    height: 14px;
+    margin: 2px 0 0 2px;
+    float: left;
+    border-radius: 15px;
+}
+
+/*
+////////////////////
+*/
+#menu_for_variants_status span.traffic_lights_green{
+  border: 2px solid green;
+}
+#menu_for_variants_status span.traffic_lights_green span{
+    border: 1px solid green;
+}
+
+#menu_for_variants_status span.traffic_lights_grey{
+    border: 2px solid grey;
+}
+#menu_for_variants_status span.traffic_lights_grey span{
+      border: 1px solid grey;
+}
+
+#menu_for_variants_status span.traffic_lights_red{
+    border: 2px solid red;
+}
+#menu_for_variants_status span.traffic_lights_red span{
+      border: 1px solid red;
+}
+/*
+/////////////////////////*/
+
+
+
+#choose_end_variant:hover #menu_for_variants_status{
+  display: block;
 }
 .variant_status_sv.green{
-  background: rgb(87, 211, 87);
+  background: rgb(86, 190, 86);
 }
 
 .variant_status_sv.grey{
@@ -163,6 +241,15 @@
     padding: 0;
   height: 21px;
 }
+.calkulate_table span{
+  padding: 3px 2px 3px 5px;
+  outline: none;
+  border: 1px solid #fff;
+}
+.calkulate_table .edit_span{
+  border: 1px solid #EAE6E6;
+}
+.calkulate_table .variant_calc_itogo span{border: 0px}
 
 .wq_03{
   background: url('../../skins/images/img_design/wq_03.png') no-repeat; 

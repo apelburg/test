@@ -228,59 +228,85 @@ $(document).on('click','#btn_date_var',function(){
 });
 
 
-$(document).ready(function() {
-	chenge_draft_name();		
-});
+//
+$(document).on('click','#menu_for_variants_status li',function() {
+	var id_in = new Array();
+	var id_in_row = '';
+	var anyone = $(this).attr('data-anyone');
+	var row_status = $(this).attr('class');
+	// console.log(anyone);
+	// console.log(row_status);
+	var i = 0;
 
-$(document).on('click', '#variants_name .variant_name', function(){
-	// отработка показа / скрытия вариантов расчёта
-	// при клике по кнопкам вариантов
-	$('.variant_name').removeClass('checked');
-	$(this).addClass('checked');	
-	var id = $(this).attr('data-cont_id');
-	$('.variant_content_block').css({'display':'none'});
-	$('#'+id).css({'display':'block'});
-	// смена функциональной кнопки / выбора основного варианта /
-	test_chenge_archive_list();
-	// расчет таблицы активного поля
-	calkulate_table_calc();
-});
-
-// смена функциональной кнопки выбора основного варианта
-function test_chenge_archive_list(){
-	if($('#all_variants_menu .variant_name.checked').hasClass('show_archive')){
-		$('#choose_end_variant').html('Извлечь расчёт из архива').attr('id','extract_from_archive');
+	if(anyone=="one"){
+		id_in[i] = $('#all_variants_menu .variant_name.checked').attr('data-id');
+		$('#all_variants_menu .variant_name.checked span').attr('class','variant_status_sv').addClass(row_status);
 	}else{
-		$('#extract_from_archive').html('Выбрать основной').attr('id','choose_end_variant');
+		$('#all_variants_menu .variant_name').each(function(index, el) {
+			console.log($(this).hasClass('checked'));
+			if($(this).hasClass('checked') || $(this).hasClass('show_archive')){
+				return true;
+			}else{
+				id_in[i] = $(this).attr('data-id');i++;
+				$(this).find('span').attr('class','variant_status_sv').addClass(row_status);
+			}
+		});
 	}
-}
+	//var color = row_status; 
+	id_in_row = id_in.join(', '); // id_in
 
-$(document).on('click','#extract_from_archive',function(){
-	// отправляем запрос на смену статуса (на "не архив")
-	
-	// получение данных для отправки на сервер
-	var id = $('#variants_name .variant_name.checked ').attr('data-id');
-	var row_id = $('#claim_number').attr('data-order');	
 
-	// отправка данных на сервер
-	$.post('', 
-		{
-			global_change: 'AJAX',
-			change_name: 'change_archiv',
-			id:id,
-			row_id:row_id
-		}, function(data, textStatus, xhr) {
-		if(data['response']!='1'){
-			alert('что-то пошло не так.');
-		}else{
-			// меняем html получив положительный ответ
-			var id_div = $('#all_variants_menu .variant_name.checked').removeClass('show_archive').attr('data-cont_id');
-			$('#'+id_div).removeClass('archiv_opacity');
-			test_chenge_archive_list();			
-		}
-	},'json');
+	$.post('', {
+		global_change: 'AJAX',
+		change_name: 'change_status_row',
+		id_in:id_in_row,
+		color:row_status
+
+	}, function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+		console.log(data);
+	});
+
+	// if(row_status=="green"){
+
+	// 	if(anyone=="one"){
+	// 		id_in[0] = $('#all_variants_menu .variant_name.checked').attr('data-id');
+	// 		$('#all_variants_menu .variant_name.checked span').attr('class','variant_status_sv').addClass(row_status);
+	// 	}else{
+	// 		$('#all_variants_menu .variant_name').each(function(index, el) {
+	// 			if($(this).hasClass('checked')){return true;}
+	// 			id_in[index] = $(this).attr('data-id');
+	// 		});
+	// 	}
+	// }else if(row_status=="grey"){
+
+	// 	if(anyone=="one"){
+	// 		id_in[0] = $('#all_variants_menu .variant_name.checked').attr('data-id');
+	// 		$('#all_variants_menu .variant_name.checked span').attr('class','variant_status_sv').addClass(row_status);
+	// 	}else{
+	// 		$('#all_variants_menu .variant_name').each(function(index, el) {
+	// 			if($(this).hasClass('checked')){return true;}
+	// 			id_in[index] = $(this).attr('data-id');
+	// 		});
+	// 	}
+	// }else{
+		// if(anyone=="one"){
+		// 	id_in[0] = $('#all_variants_menu .variant_name.checked').attr('data-id');
+		// 	$('#all_variants_menu .variant_name.checked span').attr('class','variant_status_sv').addClass(row_status);
+		// }else{
+		// 	$('#all_variants_menu .variant_name').each(function(index, el) {
+		// 		if($(this).hasClass('checked')){return true;}
+		// 		id_in[index] = $(this).attr('data-id');
+		// 	});
+
+		// }
+	// }
+
+
+
+
 });
-
+/*
 $(document).on('click','#choose_end_variant',function(){
 	var id = $('#variants_name .variant_name.checked ').attr('data-id');
 	var row_id = $('#claim_number').attr('data-order');	
@@ -312,6 +338,144 @@ $(document).on('click','#choose_end_variant',function(){
 	},'json');
 	
 });
+*/
+
+$(document).on('click', '#variants_name .variant_name', function(){
+	// отработка показа / скрытия вариантов расчёта
+	// при клике по кнопкам вариантов
+	$('.variant_name').removeClass('checked');
+	$(this).addClass('checked');	
+	var id = $(this).attr('data-cont_id');
+	$('.variant_content_block').css({'display':'none'});
+	$('#'+id).css({'display':'block'});
+	// смена функциональной кнопки / выбора основного варианта /
+	test_chenge_archive_list();
+	// расчет таблицы активного поля
+	calkulate_table_calc();
+});
+
+// смена функциональной кнопки выбора основного варианта
+function test_chenge_archive_list(){
+	if($('#all_variants_menu .variant_name.checked').hasClass('show_archive')){
+		$('#choose_end_variant').attr('id','extract_from_archive').find('.chenged_text').html('Извлечь расчёт из архива')
+	}else{
+		$('#extract_from_archive').attr('id','choose_end_variant').find('.chenged_text').html('Редактор вариантов');
+	}
+}
+
+$(document).on('click','#extract_from_archive',function(){
+	// отправляем запрос на смену статуса (на "не архив")
+	
+	// получение данных для отправки на сервер
+	var id = $('#variants_name .variant_name.checked ').attr('data-id');
+	var row_id = $('#claim_number').attr('data-order');	
+
+	// отправка данных на сервер
+	$.post('', 
+		{
+			global_change: 'AJAX',
+			change_name: 'change_archiv',
+			id:id,
+			row_id:row_id
+		}, function(data, textStatus, xhr) {
+		if(data['response']!='1'){
+			alert('что-то пошло не так.');
+		}else{
+			// меняем html получив положительный ответ
+			var id_div = $('#all_variants_menu .variant_name.checked').removeClass('show_archive').attr('data-cont_id');
+			$('#'+id_div).removeClass('archiv_opacity');
+			$('#all_variants_menu .variant_name.checked span').attr('class','variant_status_sv').addClass('green');
+			test_chenge_archive_list();			
+		}
+	},'json');
+});
+
+
+
+// изменение входящей цены за единицу товара
+$(document).on('keyup','.row_tirage_in_one.price_in .edit_span',function(){
+	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+
+	//цена входящая
+	var price_in = Number($(this).html());
+	//цена исходящая
+	var price_out = Number($(id_variant+' .tirage_and_price_for_one .row_price_out_one.price_out span').html());
+	//%
+	var percent;
+	percent = Math.ceil(((price_out-price_in)*100/price_in)*100)/100;
+	// если продаем в убыток, делаем наценку 0 и входящую стоимость приравниваем к исходящей
+	if(percent<0){
+		price_in = price_out;
+		$(this).html(price_in.toFixed(2));
+		$(id_variant+' .tirage_and_price_for_one .percent_nacenki span').html(0);
+	}else{
+		$(id_variant+' .tirage_and_price_for_one .percent_nacenki span').html(percent);
+	}
+
+	// меняем исходящую цену за тираж
+	var tirage = Number($(id_variant+' .tirage_var').val());
+	var zapas = Number($(id_variant+' .dop_tirage_var').val());
+	var pr = (zapas+tirage)*price_in;
+	$(id_variant+' .row_tirage_in_gen.price_in span').html(pr.toFixed(2));
+
+	calkulate_row_itogo2();
+});
+// изменение исходящей цены за единицу товара
+$(document).on('keyup','.row_price_out_one.price_out .edit_span',function(){
+	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+
+	//цена исходящая
+	var price_out = Number($(this).html());
+	//цена входящая
+	var price_in = Number($(id_variant+' .tirage_and_price_for_one .price_in span').html());
+	//%
+	var percent;
+
+	percent = Math.ceil(((price_out-price_in)*100/price_in)*100)/100;
+	// если продаем в убыток, делаем наценку 0 и входящую стоимость приравниваем к исходящей
+	if(percent<0){
+		price_out = price_in;
+		$(this).html(price_out.toFixed(2));
+		$(id_variant+' .tirage_and_price_for_one .percent_nacenki span').html(0);
+	}else{
+		$(id_variant+' .tirage_and_price_for_one .percent_nacenki span').html(percent);
+	}
+
+	// меняем исходящую цену за тираж
+	var tirage = Number($(id_variant+' .tirage_var').val());
+	var zapas = Number($(id_variant+' .dop_tirage_var').val());
+	var pr = (zapas+tirage)*price_out;
+	$(id_variant+' .row_price_out_gen.price_out span').html(pr.toFixed(2));
+
+	calkulate_row_itogo2();
+});
+// изменение процента наценки за единицу товара 
+$(document).on('keyup','.tirage_and_price_for_one .percent_nacenki span.edit_span',function(){
+	//console.log($(this).html());
+	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+
+	//round(((price_out-price_in)*100/$value['price_in']),2);
+	//цена исходящая
+	var price_out = Number($(id_variant+' .tirage_and_price_for_one .price_out span').html());
+	//цена входящая
+	var price_in = Number($(id_variant+' .tirage_and_price_for_one .price_in span').html());
+	var percent = Number($(this).html());
+	// минимальный процент наценки
+	var min_percent = 0;
+	if(percent<min_percent){$(this).html(min_percent);percent = min_percent;}
+	var price_out = (price_in+percent*price_in/100);
+	$(id_variant+' .tirage_and_price_for_one .price_out span').html(price_out.toFixed(2))
+
+
+	// меняем исходящую цену за тираж
+	var tirage = Number($(id_variant+' .tirage_var').val());
+	var zapas = Number($(id_variant+' .dop_tirage_var').val());
+	var pr = (zapas+tirage)*price_out;
+	$(id_variant+' .row_price_out_gen.price_out span').html(pr.toFixed(2));
+	calkulate_row_itogo2();
+});
+
+
 
 // ИЗМЕНЕНИЕ тиража ИЗ ОБЩЕГО input варианта
 $(document).on('keyup','#edit_variants_content .tirage_var',function(){
@@ -390,33 +554,108 @@ $(window).load(function() {
 // ПЕРЕРАСЧЕТ ТАБЛИЦЫ calkulate_table (для товаров из каталога)
 
 function calkulate_table_calc(){
-	console.log('start calkulate_table_calc()');
+	// console.log('start calkulate_table_calc()');
 	// обсчёт стоимости тиража
 
 	// получаем id активного блока
 	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
 	
-
 	// подсчёт входящей стоимости за тираж
 	var tir = Number($(id_active_variant+' .tirage_var').val());
 	var zap = Number($(id_active_variant+' .dop_tirage_var').val());
 	var price_for_one = Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .row_tirage_in_one span').html());
 	var price_in = price_for_one*(zap+tir);
-	$("#variant_content_block_3 table.calkulate_table tr.tirage_and_price_for_all td.row_tirage_in_gen span").html(Math.ceil((price_in)*100)/100)
+	// console.log(price_in);
+	$(id_active_variant+" table.calkulate_table tr.tirage_and_price_for_all td.row_tirage_in_gen span").html(Math.ceil((price_in)*100)/100)
 
 	// подсчёт исходящей стоимости за тираж
 	price_for_one = Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .row_price_out_one span').html());
 	var price_out = price_for_one*(zap+tir);
-	$("#variant_content_block_3 table.calkulate_table tr.tirage_and_price_for_all td.row_price_out_gen span").html(Math.ceil((price_out)*100)/100)
+	$(id_active_variant+" table.calkulate_table tr.tirage_and_price_for_all td.row_price_out_gen span").html(Math.ceil((price_out)*100)/100)
 
 	// подсчёт прибыли за тираж
 	price_for_one = Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .row_pribl_out_one span').html());
 	var profit = price_for_one*(zap+tir);
-	$("#variant_content_block_3 table.calkulate_table tr.tirage_and_price_for_all td.row_pribl_out_gen span").html(Math.ceil((profit)*100)/100)
+	$(id_active_variant+" table.calkulate_table tr.tirage_and_price_for_all td.row_pribl_out_gen span").html(Math.ceil((profit)*100)/100)
 
-
-	calkulate_row_itogo();
+	// console.log('calkulate_row_itogo();');
+	calkulate_row_itogo2();
 }
+
+// РАСЧЕТ ИТОГО v 2.0
+function calkulate_row_itogo2(){
+	// получаем id активного блока
+	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	// получаем тираж
+	var tirage = Number($(id_active_variant+' .tirage_var').val());
+	// получаем запас
+	var zapas = Number($(id_active_variant+' .dop_tirage_var').val());
+	// общий тираж
+	var general_tirage = tirage + zapas;
+
+
+	// объявляем переменные
+	var price_in = 0;
+	var per = 0;// для временного хранения
+	var price_out = 0;
+	var pribl = 0;
+
+	
+	// ОБСЧИТЫВАЕМ ДАННЫЕ В СТРОКАХ for_one
+	var i = 1;// для обсчета процентов
+	per += Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .percent_nacenki span').html());
+	
+	$(id_active_variant+' .calkulate_table .for_one').each(function(index, el) {
+		console.log('строка for_one');
+		// входящая стоимость за тираж
+		price_in += Number($(this).find('.price_in span').html()) * general_tirage;
+		// %
+		if($(this).find('.percent_nacenki span').length && Number($(this).find('.percent_nacenki span').html())!=0){
+			per += Number($(this).find('.percent_nacenki span').html());
+			i++;
+			console.log(per);
+		}
+
+		// исходящая стоимость за тираж
+		price_out += Number($(this).find('.price_out span').html()) * general_tirage;
+		// прибль за тираж
+		pribl += Number($(this).find('.pribl span').html()) * general_tirage;
+		
+	});
+
+	// console.log(price_out);
+	// ОБСЧИТЫВАЕМ ДАННЫЕ В СТРОКАХ for_all
+	$(id_active_variant+' .for_all').each(function(index, el) {
+		// console.log('строка for_all');
+		// входящая стоимость за тираж
+		price_in += Number($(this).find('.price_in span').html());
+		// %
+		if($(this).find('.percent_nacenki span').length && Number($(this).find('.percent_nacenki span').html())!=0){
+			per += Number($(this).find('.percent_nacenki span').html());
+			i++;
+			console.log(per);
+		}	
+
+		// исходящая стоимость за тираж
+		price_out += Number($(this).find('.price_out span').html());
+		// прибль за тираж
+		pribl += Number($(this).find('.pribl span').html());
+		
+	});
+	// console.log(pribl +' ' +general_tirage);
+	// заполняем ИТОГО
+	// цена входящая за тираж или услугу
+	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(2) span').html(Math.ceil((price_in)*100)/100);
+	//%
+	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(3) span').html(Math.ceil((per/i)*100)/100);
+	// исходящая цена
+	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(4) span').html(Math.ceil((price_out)*100)/100);
+	// прибль
+	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(5) span').html(Math.ceil((pribl)*100)/100);
+	// console.log(profit);
+
+}
+
 // РАСЧЕТ ИТОГО
 function calkulate_row_itogo(){
 	// получаем id активного блока
@@ -424,7 +663,7 @@ function calkulate_row_itogo(){
 	
 	// ОБХОДИМ ВСЕ СТОЛБЦЫ, ПЕРЕСЧИТЫВАЕМ ИТОГО
 	var price_in = 0;
-	var percent = 0; 
+	var percent = 0;
 	var per = 0;// для временного хранения
 	var price_out = 0;
 	var profit = 0;
@@ -447,6 +686,8 @@ function calkulate_row_itogo(){
 	});
 	$(id_active_variant+' .variant_calc_itogo td:nth-of-type(3) span').html(Math.ceil((percent/i)*100)/100)
 	console.log((percent/i));
+
+
 
 
 	// ИТОГО исходящая цена
