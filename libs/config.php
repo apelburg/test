@@ -82,9 +82,9 @@
 	define("RT_ART_SIZE","os__rt_art_sizes"); // 
 	
 	define("KP_LIST","os__kp_list"); // КП
-	define("KP_ROWS","os__kp_main_rows"); // ряды позиций КП
-	define("KP_DOP_ROWS","os__kp_dop_data"); // ряды расчетов КП
-	define("KP_USLUGI_ROWS","os__kp_dop_uslugi"); // ряды даннх об услугах КП
+	define("KP_MAIN_ROWS","os__kp_main_rows"); // ряды позиций КП
+	define("KP_DOP_DATA","os__kp_dop_data"); // ряды расчетов КП
+	define("KP_DOP_USLUGI","os__kp_dop_uslugi"); // ряды даннх об услугах КП
 	
 	define("COM_PRED_LIST_OLD","os__com_pred_list_old"); // КП
 	define("LAST_COM_PRED_NUM","os__last_com_pred_num"); // последний номер КП

@@ -74,8 +74,8 @@
 			$img_src = $path;	
 		}
 		else{
-		    $no_image_name =!empty($no_image_name)? $no_image_name :'no_image';
-			$img_src= substr($path,0,strrpos($path,'/') + 1).$no_image_name.'.'.$mime;
+		    $no_image_name =!empty($no_image_name)? $no_image_name :'no_image.jpg';
+			$img_src= substr($path,0,strrpos($path,'/') + 1).$no_image_name;
 		} 
 		return $img_src;
 	}
