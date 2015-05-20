@@ -157,7 +157,7 @@
 		
 		  
 		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>---';
-		 // Проходим в цикле по второму уровню массива($row['dop_data']) на основе которого стороится основной шаблон таблицы
+		 // Проходим в цикле по второму уровню массива($row['dop_data']) на основе которого строится основной шаблон таблицы
 	     foreach($row['dop_data'] as $dop_key => $dop_row){
 		    // если $dop_key==0 это значит что это вспомогательный ряд (отображается пустым без функционала)
 			// если ряд $dop_key!=0 не вспомогательный работаем с ним в обычном порядке
@@ -203,11 +203,10 @@
 					 $dop_uslugi_btn = count($dop_row['dop_uslugi']['extra']);
 					 if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);
 				 }
-				 else{// если данных по дополнительным услугам нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да 
-					  // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление дополнительных услуг
+				 else{// если данных по дополнительным услугам  нет выводим кнопку добавление дополнительных услуг
 					 $dop_uslugi_in_summ = 0;
 					 $dop_uslugi_out_summ = 0;
-					 $dop_uslugi_btn = ($all_draft && $counter==0)? '' : '+';
+					 $dop_uslugi_btn = '+';
 					 if($test_data) $extra_open_data =($all_draft && $counter==0)? 0:'0';
 				 }
 				 
@@ -351,7 +350,7 @@
 			      <td width="80"></td>
 	              <td class="hidden"></td>
 				  <td class="hidden"></td>
-				  <td class="hidden">44</td>
+				  <td class="hidden"></td>
 				  <td class="right">Счет №45384? оплата 70%?</td>
 				  <td></td>
 				  <td class="r_border"></td>  

@@ -84,31 +84,33 @@
 	
 	
 	/////////////////////////////////////// Временно /////////////////////////////////////// 
+	$create_list = TRUE;
 	if(isset($_GET['save_in_pdf'])){
 	     $kp_id=(int)$_GET['save_in_pdf'];
 	     Com_pred::save_in_pdf($kp_id,$client_id,$user_id);
 	}
 	if(isset($_GET['show_kp'])){
+	     // показать детали КП
 		 $kp_id = (int)$_GET['show_kp'];
-		 $rows = Com_pred::create_list($client_id,array('type'=>'new','kp'=>$kp_id));
+		 $rows = Com_pred::create_list($query_num,$client_id,array('type'=>'new','kp'=>$kp_id));
 		 $detailed_view = Com_pred::open_in_tbl($_GET['show_kp']); 
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
 		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'">сохранить на диск</a>';
-		 $dont_show_rows = TRUE;
+		 $create_list = FALSE;
 	}
 	if(isset($_GET['show_old_kp'])){
 		 $rows = Com_pred::create_list($client_id,array('type'=>'old','kp'=>$_GET['show_old_kp']));
-		 $dont_show_rows = TRUE;
-		 $detailed_view = Com_pred::open_old_kp($_GET['show_old_kp']);
+		 $create_list = FALSE;
+		 $in_blank_view = Com_pred::open_old_kp($_GET['show_old_kp']);
 		 
 	}
 	if(isset($_GET['show_kp_in_blank'])){
 	     $kp_id = (int)$_GET['show_kp_in_blank'];
-		 $rows = Com_pred::create_list($client_id,array('type'=>'new','kp'=>$kp_id));
-		 $dont_show_rows = TRUE;
-		 $detailed_view = Com_pred::open_in_blank($kp_id,$client_id,$user_id,true);
+		 $rows = Com_pred::create_list($query_num,$client_id,array('type'=>'new','kp'=>$kp_id));
+		 $create_list = FALSE;
+		 $in_blank_view = Com_pred::open_in_blank($kp_id,$client_id,$user_id,true);
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
-		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'">сохранить на диск</a>';
+		 $in_blank_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'">сохранить на диск</a>';
 	}
 	/////////////////////////////////////// end Временно /////////////////////////////////////// 
 	
@@ -122,12 +124,13 @@
 	
 	
 	// Собираем ряды для таблицы коммерческих предложений
-	// выборка данных из базы данных производится на основании номера заказа для КП нового типа 
+	// выборка данных из базы данных производится на основании номера зпароса для КП нового типа 
 	// и на основании client_id для КП старого типа
-	if(empty($dont_show_rows)) $rows = Com_pred::create_list($query_num,$client_id);
+	if($create_list) $rows = Com_pred::create_list($query_num,$client_id);
 	// Подключаем шаблон таблицы списка коммерческих предложений
-	include ('skins/tpl/clients/client_folder/business_offers/list_table.tpl');
-	if(!empty($detailed_view))	echo $detailed_view;
+	include ('skins/tpl/client_folder/business_offers/list_table.tpl');
+	if(isset($detailed_view)) include ('skins/tpl/client_folder/business_offers/detailed_view.tpl');
+	if(isset($in_blank_view)) include ('skins/tpl/client_folder/business_offers/in_blank_view.tpl');
 	
 ?>
 
