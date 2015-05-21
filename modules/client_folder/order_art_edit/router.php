@@ -21,39 +21,49 @@
 	// $forum = ob_get_contents();
 	// ob_get_clean();
 
-	// варианты
+	// варианты просчётов
 	ob_start();		
-		// echo '<pre>';
-		// print_r($variants);
-		// echo '</pre>';
-	$draft_enable = 0;
+	$dop_enable = array('','','');
 	foreach ($variants as $k => $v) {
-		if($v['draft']=='0'){$draft_enable = 1;}
+		if($v['draft']=='0' && $v['row_status']!='red'/*исключение на возможную ошибку в базе*/){$dop_enable[0] = 1;}			
+		if($v['row_status']=="green"){$dop_enable[1] = 1;}		
+		if($v['row_status']=="grey"){$dop_enable[2] = 1;}	
 	}	
-
-	$display_this_block = ' style="display:block"';
-	$di = 0;
+	$draft_enable = $dop_enable[0];
+	$isset_green = $dop_enable[1];
+	// $isset_grey = $dop_enable[2];
+	// echo '<pre>';
+	// print_r($variants);
+	// echo '</pre>';
+	$ch = 0;
 	foreach ($variants as $key => $value) {
-		if(!isset($_GET['show_archive']) && $value['archiv']=='1'){ continue;}
+		// по умолчанию блоки скрыты
+		$display_this_block = ' style="display:none"';
+		// если это зона записи red, а архив нам не нужно показывать переходим к следующей интерации цикла
+		if(!isset($_GET['show_archive']) && $value['row_status']=='red'){ continue;}
 
-		if((int)$value['archiv']){$show_archive_class = " archiv_opacity";}else{$show_archive_class ='';}
+		// если это зона записи red, добавляем класс запрещающий редактирование данного блока
+		if($value['row_status']=='red'){$show_archive_class = " archiv_opacity";}else{$show_archive_class ='';}
 
-
-		$var = $value['draft'].$value['archiv'];
+		///////// ПЕРЕДЕЛАТЬ В СВЕТОФОР  ////////////////////
+		$var = $value['row_status'];
 		switch ($var) {
-			case '00':// не история - главный вариант расчёта
-				if($di>0){$display_this_block = ' style="display:none"';}else{
-					$display_this_block = ' style="display:block"';$di++;}
+			case 'green':// не история - рабочий вариант расчёта
+					// может входить в КП
+			//echo $value['draft'].'- <br>';
+				if($draft_enable && $value['draft']=='0' && $ch < 1){$display_this_block=' style="display:block"';$ch++;}else{
+					if(!$draft_enable && $ch <1){$display_this_block=' style="display:block"';$ch++;}
+				}
+				
 			break;
 			
-			case '10':// не история - обычный вариант расчёта
-				if($draft_enable || $di>0){$display_this_block=' style="display:none"';
-				}else{//$display_this_block = ' style="display:block"';
-					$di++;}
-			break;
-						
-			default: // архив, остальное не важно				
-					$display_this_block = ' style="display:none"';
+			case 'grey':// не история - вариант расчёта не учитывается в РТ
+					// вариант расчёта не входит в КП	
+				if (!$isset_green && !$draft_enable && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
+			break;						
+			
+			default: // вариант расчёта red (архив), остальное не важно
+				if (!$isset_green && !$draft_enable && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
 			break;
 		}
 		
@@ -75,6 +85,7 @@
 		$print_z = ($value['print_z']=='1')?'checked':'';
 		$print_z_no = ($value['print_z']=='0')?'checked':'';
 
+		$dop_uslugi = $ARTICUL->get_dop_uslugi_html($value['id'],($sum_tir+$sum_dop));
 		// стандартное время изготовления
 		// $std_pr = ($value['standart']=='10' && $type_tovar=='cat')?1:0;
 		$std_time_print = ($value['standart']=='10' && $type_tovar=='cat')?'checked':'';

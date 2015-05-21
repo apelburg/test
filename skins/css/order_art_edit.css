@@ -5,7 +5,9 @@
 
 #info_string_on_query ul{ padding: 0; list-style: none; margin: 0}
 #info_string_on_query ul li{ display: inline-block;padding: 5px 10px;}
-#back_to_string_of_claim{ width: 32px; height: 100%; cursor: pointer; background: url('../../skins/images/img_design/back_art.png') no-repeat;}
+#back_to_string_of_claim{ width: 32px; height: 100%; 
+  cursor: pointer; background: url('../../skins/images/img_design/back_art.png') no-repeat;}
+
 #info_string_on_query ul li:nth-of-type(1){width: 32px;padding: 5px 0;  height: 6px;}
 #info_string_on_query span{color:#a3a3a3;}
 
@@ -66,11 +68,11 @@
 #variants_name table tr td{ padding: 0; margin:0; height: 20px}
 #variants_name table tr td:nth-of-type(1){ /*padding-left: 30px*/ width: 25px}
 #variants_name ul { padding: 0; margin: 0; /*padding-left: 5px*/}
-#variants_name ul li{ display: inline-block;padding: 5px 26px;}
+#variants_name ul li{ display: inline-block;padding: 5px 26px;background-color: #BAD28E;}
 #variants_name ul li#new_variant{  cursor: default;padding: 5px 10px; background: url('../../skins/images/img_design/plus_variant.png') no-repeat;}
 /*#new_variant{ margin-left: -26px}*/
 /*#variants_name #all_variants_menu li:nth-of-type(2){ margin-left: -3px}*/
-#variants_name ul li:hover,#variants_name ul li#new_variant:hover{  background-color: #B7CF8D; color: #000; cursor: default;}
+#variants_name ul li:hover,#variants_name ul li#new_variant:hover{  background-color:#ACC283; color: #000; cursor: default;}
 #variants_name .checked,#variants_name .checked:hover{   background-color: #5A5C61;color: #fff}
 #variants_name ul li.osnovnoy{background-image: url('../images/img_design/draft_grey.png'); background-repeat: no-repeat;background-position: 88px 3px;}
 #variants_name ul li.checked.osnovnoy{background-image: url('../images/img_design/draft_white.png'); background-repeat: no-repeat;}
@@ -81,12 +83,109 @@
 .variants_dop_info .dop_tirage_var{width: 15px;padding: 0px 5px; text-align: right;}
 
 
+.variant_status_sv{
+  float: right;
+  width: 5px;
+  height: 24px;
+  position: absolute;
+  margin-left: 12px;
+  margin-top: -5px;
+  /* margin-top: 4px; */
+}
+#menu_for_variants_status{
+   display: none; 
+  position: absolute;
+  background: rgb(255, 253, 253);
+  /* padding: 5px; */
+  border: 1px solid #f4f4f4;
+  margin-left: -42px;
+  width: 148px;
+  float: left;
+  padding-right: 30px;
+  margin-top: 4px;
+}
+#menu_for_variants_status .menu_for_variants_status_menu_name{
+  padding-left: 2%;
+  width: 117%;
+  padding-top: 3px;
+  font-size: 12px;
+  font-weight: bold;
+
+}
+#menu_for_variants_status ul li {
+    padding: 8px 0px 8px 33px;
+  width: 100%;
+  /*background: red;*/
+  background: none;
+}
+#menu_for_variants_status ul li:hover{
+  background: rgb(224, 224, 224);
+}
+
+#menu_for_variants_status span.traffic_lights_green,#menu_for_variants_status span.traffic_lights_grey,#menu_for_variants_status span.traffic_lights_red{
+  width: 20px;
+  height: 20px;
+  float: left;
+    position: absolute;
+  margin-left: -28px;
+  margin-top: -4px;
+}
+#menu_for_variants_status span.traffic_lights_green span,#menu_for_variants_status span.traffic_lights_grey span, #menu_for_variants_status span.traffic_lights_red span{
+    width: 14px;
+    height: 14px;
+    margin: 2px 0 0 2px;
+    float: left;
+    border-radius: 15px;
+}
+
+/*
+////////////////////
+*/
+#menu_for_variants_status span.traffic_lights_green{
+  border: 2px solid green;
+}
+#menu_for_variants_status span.traffic_lights_green span{
+    border: 1px solid green;
+}
+
+#menu_for_variants_status span.traffic_lights_grey{
+    border: 2px solid grey;
+}
+#menu_for_variants_status span.traffic_lights_grey span{
+      border: 1px solid grey;
+}
+
+#menu_for_variants_status span.traffic_lights_red{
+    border: 2px solid red;
+}
+#menu_for_variants_status span.traffic_lights_red span{
+      border: 1px solid red;
+}
+/*
+/////////////////////////*/
+
+
+
+#choose_end_variant:hover #menu_for_variants_status{
+  display: block;
+}
+.variant_status_sv.green{
+  background: rgb(86, 190, 86);
+}
+
+.variant_status_sv.grey{
+  background: rgb(208, 208, 208);
+}
+
+.variant_status_sv.red{
+  background: rgb(255, 98, 98);
+}
 
 
 .size_card{ width: 30%; min-width: 300px}
 
-.variant_info table tr#variant_calc_itogo td{ background-color:#CBDFA7;}
-.variant_info table tr#variant_calc_itogo td:nth-of-type(1){ font-weight: bold}
+.variant_info table tr.variant_calc_itogo td{ background-color:#CBDFA7;}
+.variant_info table tr.variant_calc_itogo td:nth-of-type(1){ font-weight: bold}
 
 .variant_info table tr td{ padding: 5px}
 .variant_info table tr th{ padding: 2px 5px}
@@ -131,7 +230,44 @@
 .variant_info .row .cell table tr td{  text-align: right; }
 .variant_info .row .cell table tr td:nth-of-type(2){  text-align: left; }
 .variant_info .row .cell table tr th:nth-of-type(2){min-width: 50px;text-align: left;}
-.variant_info .row .cell table tr th:nth-of-type(1){font-weight: bold; text-align: left; font-size: 12px; color:#000;padding-left: 15px}
+.variant_info .row .cell table tr th:nth-of-type(1){
+  font-weight: bold; text-align: left; font-size: 12px; color:#000;padding-left: 15px}
+.variant_info .row .cell table.calkulate_table tr th:nth-of-type(1){
+  padding-left: 24px
+}
+
+.variant_info .row .cell table.calkulate_table tr th.type_row_calc_tbl,
+.variant_info .row .cell table.calkulate_table tr td.type_row_calc_tbl{
+    padding: 0;
+  height: 21px;
+}
+.calkulate_table span{
+  padding: 3px 2px 3px 5px;
+  outline: none;
+  border: 1px solid #fff;
+}
+.calkulate_table .edit_span{
+  border: 1px solid #EAE6E6;
+}
+.calkulate_table .variant_calc_itogo span{border: 0px}
+
+.wq_03{
+  background: url('../../skins/images/img_design/wq_03.png') no-repeat; 
+  width: 25px;
+  float: left;
+  height: 21px;
+  background-position: 4px 2px;
+  }
+.add_usl:hover{ background-color:#BCBFC5; }
+.add_usl{  height: 21px;
+  float: left;
+  padding-right: 15px;
+  line-height: 22px;
+  padding-left: 25px;
+  background: url('../../skins/images/img_design/wq_03.png') no-repeat; 
+  background-position: 4px 2px;
+  cursor: pointer;
+}
 .variant_info .row .cell table tr td:nth-of-type(1){text-align: left; padding-left: 15px}
 /* image block */
 #articulusImagesBigImg .showImagegallery, #galleryWindowInArtPages .showImagegallery {
