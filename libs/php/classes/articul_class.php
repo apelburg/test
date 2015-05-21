@@ -68,6 +68,92 @@ class Articul{
 		return $arr;
 	}
 
+	public function get_dop_uslugi($id_dop_data){
+		global $mysqli;
+		//$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".(int)$id_dop_data."'";
+		$query = "SELECT  `".RT_DOP_USLUGI."`. * ,  `rt_uslugi_gen`.`name` AS  `group_name` ,  `".RT_USLUGI_LIST."`.`name` AS  `name` ,  `rt_uslugi_gen`.`type` AS  `group_type` ,  `".RT_USLUGI_LIST."`.`type` AS  `type` 
+			FROM  `".RT_DOP_USLUGI."` 
+			INNER JOIN  `".RT_USLUGI_LIST."` ON  `".RT_USLUGI_LIST."`.`id` =  `".RT_DOP_USLUGI."`.`uslugi_id` 
+			INNER JOIN  `".RT_USLUGI_LIST."` AS  `rt_uslugi_gen` ON  `".RT_USLUGI_LIST."`.`parent_id` =  `rt_uslugi_gen`.`id` 
+			WHERE  `".RT_DOP_USLUGI."`.`dop_row_id` =  '".$id_dop_data."'";
+		/*
+			// запрос без переменных
+			SELECT  `os__rt_dop_uslugi`. * ,  `rt_uslugi_gen`.`name` AS  `group_name` ,  `os__rt_uslugi`.`name` AS  `name` ,  `rt_uslugi_gen`.`type` AS  `group_type` ,  `os__rt_uslugi`.`type` AS  `type` 
+			FROM  `os__rt_dop_uslugi` 
+			INNER JOIN  `os__rt_uslugi` ON  `os__rt_uslugi`.`id` =  `os__rt_dop_uslugi`.`uslugi_id` 
+			INNER JOIN  `os__rt_uslugi` AS  `rt_uslugi_gen` ON  `os__rt_uslugi`.`parent_id` =  `rt_uslugi_gen`.`id` 
+			WHERE  `os__rt_dop_uslugi`.`dop_row_id` =  '1'
+		*/
+
+
+		$arr = array();
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$this->info = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+		return $arr;
+	}
+
+	public function get_dop_uslugi_html($id){
+		$arr = $this->get_dop_uslugi($id);
+		// ob_start();	
+		// echo "<pre>";
+		// print_r($arr);
+		// echo "</pre>";
+		// $html = ob_get_contents();
+		// ob_get_clean();
+		// return $html;
+		$html = '';
+		$general_name = '';
+		$percent_nacenki = 0;
+
+		foreach ($arr as $k => $val) {
+
+			$percent_nacenki = round((($val['price_out']-$val['price_in'])*100/$val['price_in']),2);
+
+			if( $general_name != trim($val['group_name']) ){
+				
+				$general_name = trim($val['group_name']);
+					$html .='
+							<tr>
+								<th colspan="7">'.$general_name.'</th>
+							</tr>
+					';
+			}			
+
+			$html .='<tr class="'.$val['for_how'].'">';
+			$html .='<td>'.$val['name'].'</td>';
+			$html .='<td class="price_in"><span>'.$val['price_in'].'</span> р.</td>';
+			$html .='<td class="percent_nacenki"><span>'.$percent_nacenki.'</span>%</td>';
+			$html .='<td  class="price_out"><span>'.$val['price_out'].'</span> р.</td>';
+			$html .='<td  class="pribl"><span>'.($val['price_out'] - $val['price_in']).'</span> р.</td>';
+			$html .='<td><span class="edit_row_variants"></span></td>';
+			$html .='<td><span class="del_row_variants"></span></td>';
+			$html .='</tr>';	
+		}
+		return $html;
+
+
+
+		/*
+			
+									<tr>
+										<th colspan="7"><span class="add_row">+</span>печать</th>
+									</tr>
+									<tr >
+										<td>Термотрансфер, 1цв</td>
+										<td> 133,00р</td>
+										<td rowspan="2" class="percent_nacenki"><span>20</span>%</td>
+										<td>195,00р</td>
+										<td>12,00</td>
+										<td rowspan="2"><span class="edit_row_variants"></span></td>
+										<td rowspan="2"><span class="del_row_variants"></span></td>
+									</tr>
+		*/
+	}
 
 	public function get_dop_params($art_id){
 		// выгружает данные запроса в массив
@@ -103,45 +189,68 @@ class Articul{
 			// для одного черновика схема отработает соответственно
 				$checked = ($i==0)?'checked':'';				
 			}
-			$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$draft.' '.$checked.'">Вариант '.($i+1).'</li>';
+			$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$draft.' '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants['row_status'].'"></span></li>';
 		}
 		return $html;
 	}
-	public function generate_variants_menu($variants,$draft_enable){		
+
+
+	public function generate_variants_menu($variants,$dop_enable){		
 		$html = ''; // контент функции
-		$checked = 'checked'; // имя класса для выбранного элемента
+		
 		$ch = 0; // счетчик количества выбранных элементов, может не больше одного
 		
+		// проверяем наличие выбранных основных
+		// $dop_enable[]  определяется в router.php
+		$draft_enable = $dop_enable[0];
+		// проверяем наличие green расчётов
+		$isset_green = $dop_enable[1];
+		// проверяем наличие grey расчётов
+		$isset_grey = $dop_enable[2];
+		
+		// если все находятся в архиве выводим первый из них
+		if(!$isset_green && !$draft_enable){$first_red = 1;}else{$first_red = 0;}
+
 		for ($i=0; $i < count($variants); $i++) { 
+			$checked = ''; // имя класса для выбранного элемента
+
+			if(!isset($_GET['show_archive']) && $variants[$i]['row_status']=='red'){ continue;}
+
 			// если есть $draft_enable=1, т.е. мы знаем, что в списке есть основной
 			// вариант, то грузим только его, остальное является историей
-			$var = $variants[$i]['draft'].$variants[$i]['archiv'];
+			$var = $variants[$i]['row_status'];
+			
+			// echo '| $draft_enable = '.$draft_enable;
+			// echo '| $variants[$i]["draft"] = '.$variants[$i]['draft'];
+			// echo '| $ch = '.$ch;
+			// echo '| row_status = '.$var.'<br>';
 			switch ($var) {
-				case '00':// не история - главный вариант расчёта
-					// в случае существования такогого он имеет первое приимущество на
-					// то, чтобы быть выделенным, т.к. с ним вероятнее всего будет производиться
-					// основная работа
-					if($ch>0){$checked='';}else{$checked = 'checked';$ch++;}
-					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'</li>';
+				case 'green':// не история - рабочий вариант расчёта
+					// может входить в КП
+					//if($draft_enable && $value['draft']=='0'       && $ch < 1) {$display_this_block=' style="display:block"';$ch++;}
+					
+					if($draft_enable && $variants[$i]['draft']=='0' && $ch < 1){$checked='checked';$ch++;}else{
+						if(!$draft_enable && $ch < 1){$checked ='checked';$ch++;}
+					}
+					//if(!$draft_enable && $ch <1){$display_this_block=' style="display:block"';$ch++;}
+					
+					
+					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
+
 				break;
 				
-				case '10':// не история - обычный вариант расчёта
-					// тут у нас обычный вариант расчета, ни чем не примечательный
-					
-					// если $draft_enableпередан, значит обычный вариант расчёта не сможет 
-					// быть выделен при старте, эту роль на себя возьмёт заранее известный 
-					// главный вариант - обнуляем имя класса, чтобы оно не попало в вывод 
-					// если если класс был использован ранее, тоже обнуляем имя класса
-					if($draft_enable || $ch>0){$checked='';}else{$ch++;}
-					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'</li>';
-				break;
-							
-				default: // архив, остальное не важно
-					// это архивные записи, видны только в случае существования $_GET['show_archive']
-					// не могут быть выделенными по умолчанию, кроме этих вкладок всегда найдутся
-					// или главный вариант или хотябы один обычный вариант расчёта (который пока один и является главным)
+				case 'grey':// не история - вариант расчёта не учитывается в РТ
+					// вариант расчёта не входит в КП	
+				  //if (!$isset_green && !$draft_enable && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
+					if (!$isset_green && !$draft_enable && $ch== 0){$checked='checked';$ch++;}
+					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
+				break;			
+				
+				default: // вариант расчёта red (архив), остальное не важно
 					if(isset($_GET['show_archive'])){
-						$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name show_archive">Вариант '.($i+1).'</li>';
+					  //if (!$isset_green && !$draft_enable && $ch== 0){$display_this_block=' style="display:block"';$ch++;}						
+						if (!$isset_green && !$draft_enable && $ch== 0){$checked='checked';$ch++;}
+						$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name show_archive">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
 					}
 				break;
 			}
