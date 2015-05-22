@@ -21,7 +21,7 @@
 	//
 	//
 
-
+    echo RT::calcualte_query_summ($query_num);
 	function fetch_rows_from_rt($query_num){
 	     global $mysqli;
 		 
