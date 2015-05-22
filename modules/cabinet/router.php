@@ -5,7 +5,8 @@
 	// если нет $ACCESS['название раздела']['access'] или она равна FALSE прерываем работу скирпта 
 	if(!@$ACCESS['cabinet']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
-	
+	include './libs/php/classes/cabinet_class.php';
+	$CABINET = new Cabinet();
     /////////////////////////////////// AJAX //////////////////////////////////////
 	
 	 
@@ -146,9 +147,9 @@
 
 
 	ob_start();
-	echo "<pre>";
-	print_r($menu_central_arr);
-	echo "</pre>";
+	// echo "<pre>";
+	// print_r($menu_central_arr);
+	// echo "</pre>";
 	foreach ($menu_central_arr as $key2 => $value2) {
 		// $menu_central .= "$key2 -";
 		$menu_central .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'><a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.'">'.$menu_name_arr[$key2].'</a><li>';
