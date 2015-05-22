@@ -258,6 +258,7 @@
 				 $expel_class = ($expel['dop']=='1')?' red_cell':'';
 		     }
 			 else{
+			     $expel = array ("main"=>0,"print"=>0,"dop"=>0);
 			     $svetofor = $svetofor_td_attrs = $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
