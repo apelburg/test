@@ -165,15 +165,10 @@
 		innerDiv.className = "link2";
 		var a = document.createElement('a');
 		a.href = '#';
-		a.onclick ='';
+		a.onclick = makeOrder;
 		a.appendChild(document.createTextNode('Окончательный заказ'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
-		
-		var span = document.createElement('span');
-		span.className = "notWork";
-		span.appendChild(document.createTextNode('x'));
-		a.appendChild(span);
 		
 		
 		var innerDiv = document.createElement('div');
@@ -1190,6 +1185,93 @@
 		
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}
+	
+	function makeOrder(e){
+
+		e = e || window.event;
+		var element = e.target;
+        
+		// обходим РТ чтобы 
+		// 1. определить какие Мастер Кнопки были нажаты 
+		// 2. если Мастер Кнопка нажата проверяем светофор - должна быть нажата только одна зеленая кнопка (если больше или ни одна прерываемся)
+		
+		var tbl = document.getElementById('rt_tbl_body');
+		var trsArr = tbl.getElementsByTagName('tr');
+		var nothing = true;
+		var pos_id = false;
+		var idsObj = {};
+		// обходим ряды таблицы
+		for( var i= 0 ; i < trsArr.length; i++){
+			var flag ;
+			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
+			if(trsArr[i].getAttribute('pos_id')){
+				pos_id = trsArr[i].getAttribute('pos_id');
+				
+				// работаем с рядом - ищем мастер кнопку 
+				var inputs = trsArr[i].getElementsByTagName('input');
+				for( var j= 0 ; j < inputs.length; j++){
+					if(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn' && inputs[j].checked == true){
+						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
+								 idsObj[pos_id] = {}; 
+				    }
+					else pos_id = false;
+				}
+			}
+			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие до нового ряда позици на нажатие зеленой кнопки
+			// светофора (позиции для отправки в КП)
+			if(pos_id!==false){
+				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
+				// работаем с рядом - ищем светофор 
+				var tdsArr = trsArr[i].getElementsByTagName('td');   
+				for( var j= 0 ; j < tdsArr.length; j++){
+					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
+						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
+						nothing = false;
+					}
+				}
+			}
+		}
+		
+		// проверяем сколько зеленых кнопок светофора были нажатч и  в итоге были учтены
+		var more_then_one = false;
+		var less_then_one = false;
+		for(var index in idsObj){
+			var counter = 0;
+			for(var index2 in idsObj[index]){
+				counter++;
+			}
+			if(counter>1) more_then_one = true;
+			if(counter==0) less_then_one = true;
+		}
+		
+		//var conrtol_num = getControlNum();
+        //console.log(JSON.stringify(idsObj));
+        
+		if(nothing || more_then_one || less_then_one){
+			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной позиции');
+			if(more_then_one) alert('не возможно создать заказ,\rдля позиции(ий) выбрано более одного варианта расчета');
+			if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
+			return;
+		}
+		
+	    show_processing_timer();
+		var tbl = document.getElementById('rt_tbl_body');
+		var client_id = tbl.getAttribute('client_id');
+		var query_num = tbl.getAttribute('query_num');
+	    // формируем url для AJAX запроса
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_order={"ids":'+JSON.stringify(idsObj)+',"client_id":"'+client_id+'","query_num":"'+query_num+'"}');
+		// AJAX запрос
+		make_ajax_request(url,callback);
+		//alert(last_val);
+		function callback(response){ 
+		   
+		    /*if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;*/
+		    console.log(response); 
+			close_processing_timer(); closeAllMenuWindows();
+		}	  
+
+	}
+	
 	function makeComOffer(e){
 		
 		e = e || window.event;
@@ -1226,8 +1308,7 @@
 			if(pos_id!==false){
 				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
 				// работаем с рядом - ищем светофор 
-				var tdsArr = trsArr[i].getElementsByTagName('td');
-				   
+				var tdsArr = trsArr[i].getElementsByTagName('td');   
 				for( var j= 0 ; j < tdsArr.length; j++){
 					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
 						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;

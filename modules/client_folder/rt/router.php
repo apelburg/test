@@ -36,6 +36,11 @@
 		 */
 		 exit;
 	}
+	if(isset($_GET['make_order'])){
+		 
+		 RT::make_order($_GET['make_order']);
+		 exit;
+	}
 	if(isset($_GET['set_masterBtn_status'])){
 		 RT::set_masterBtn_status(json_decode($_GET['set_masterBtn_status']));
 		 exit;

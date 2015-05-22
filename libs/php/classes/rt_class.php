@@ -31,10 +31,10 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
-		static function make_com_offer($data_obj){
-		    echo $data_obj->ids.' '.$data_obj->order_num;
-		}
-		
+		static function make_order($json){
+		    $data_obj = json_decode($json);
+            print_r($data_obj);
+		}  
     }
 
 ?>
