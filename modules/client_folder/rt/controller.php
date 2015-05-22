@@ -254,12 +254,14 @@
 				 $svetofor = '<img src="'.$svetofor_src.'">';
 				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer"';
 				 $currency = 'р';
+				 
+				 $expel_class = ($expel['dop']=='1')?' red_cell':'';
 		     }
 			 else{
 			     $svetofor = $svetofor_td_attrs = $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
-				 $delta_format = $margin_format = '';
+				 $delta_format = $margin_format = $expel_class = '';
 			 }
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'"':'').' row_id="'.$dop_key.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').'">';
@@ -286,13 +288,13 @@
 						   <td width="20">'.$print_btn.'</td>';
                  if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
 			 $cur_row .=  '<td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden">'.$print_in_summ_format.$currency.'</td> 
-			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.(($expel['print']=='1')?' red_cell':'').'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
+			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.$expel_class.'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
 			               <td width="20">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
-			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden">'.$dop_uslugi_in_summ.$currency.'</td>';
-			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border'.(($expel['dop']=='1')?' red_cell':'').'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>
+			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden">'.$dop_uslugi_in_summ_format.$currency.'</td>';
+			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border'.$expel_class.'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>
 						   <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="in right hidden">'.$in_summ_format.'</td>
-						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.(($expel['main']=='1')?' red_cell':'').'" expel="'.$expel['main'].'" >'.$out_summ_format.'</td>
+						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.$expel_class.'" expel="'.$expel['main'].'" >'.$out_summ_format.'</td>
 						   <td width="100" type="delta" class="right">'.$delta_format.'</td>
 						   <td width="100" type="margin" class="right">'.$margin_format.'</td>
 						   <td stretch_column>&nbsp;</td>';
