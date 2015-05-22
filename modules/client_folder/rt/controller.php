@@ -22,7 +22,7 @@
 	//
 
 
-	function fetch_rows_from_rt($order_num){
+	function fetch_rows_from_rt($query_num){
 	     global $mysqli;
 		 
 		 $rows = array();
@@ -39,7 +39,7 @@
 				  `".RT_DOP_DATA."`   dop_data_tbl   ON  main_tbl.id = dop_data_tbl.row_id
 				  LEFT JOIN 
 				  `".RT_DOP_USLUGI."` dop_uslugi_tbl ON  dop_data_tbl.id = dop_uslugi_tbl.dop_row_id
-		          WHERE main_tbl.order_num ='".$order_num."' ORDER BY main_tbl.id";
+		          WHERE main_tbl.query_num ='".$query_num."' ORDER BY main_tbl.id";
 				  
 		 $result = $mysqli->query($query) or die($mysqli->error);
 		 $multi_dim_arr = array();
@@ -477,6 +477,6 @@
 				  `".RT_DOP_DATA."`   dop_data_tbl   ON  main_tbl.id = dop_data_tbl.row_id
 				  LEFT JOIN 
 				  `".RT_PRINT_DATA."` print_data_tbl ON  dop_data_tbl.id = print_data_tbl.dop_row_id
-		          WHERE main_tbl.order_num ='".$order_num."' ORDER BY main_tbl.id";
+		          WHERE main_tbl.query_num ='".$query_num."' ORDER BY main_tbl.id";
 		 */
 ?>

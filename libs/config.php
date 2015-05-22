@@ -75,6 +75,7 @@
 	define("PLANNER","os__planner"); // 
 	
 	// новая РТ
+	define("RT_LIST","os__rt_list"); //
 	define("RT_MAIN_ROWS","os__rt_main_rows"); //
 	define("RT_DOP_DATA","os__rt_dop_data"); //
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
