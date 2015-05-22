@@ -4,19 +4,31 @@
 	if(isset($_POST['global_change'])){
 		if(isset($_POST['change_name']) && $_POST['change_name']=='size_in_var'){
 
-			$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$_POST['id']."'";
+			$query = "SELECT `tirage_json`,`print_z` FROM ".RT_DOP_DATA." WHERE `id` = '".$_POST['id']."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$json = '';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$json = $row['tirage_json'];
+					$print_z = $row['print_z'];
 				}
 			}
 			$arr_json = json_decode($json,true);
 
 			$arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
 
-			$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$_POST['id']."'";	
+			/*
+				ОБСУДИТЬ С АНДРЕЕМ РАСПРЕДЕЛЕНИЕ ТИРАЖА 
+				ВВЕДЁННОГО В ОБЩЕЕ поле
+			*/
+			// $quantity = 0;
+			// foreach ($arr_json as $key => $value) {
+			// 	$quantity += $arr_json[$key]['tir'];
+			// 	if($print_z){$quantity += $arr_json[$key]['dop'];}
+			// }
+
+
+			$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."', `quantity` = '".$quantity."' WHERE  `id` ='".$_POST['id']."'";	
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			exit;
@@ -186,6 +198,9 @@
 			// id строки артикула в базе
 			$art_id = $row['art_id']; 
 			
+			// type тип продукции
+			$type_poduct = $row['type']; 
+
 			// дата создания строки
 			$order_num_date = $row['date_create']; 
 			
@@ -211,6 +226,7 @@
 		}
 	}
 
+if($type_poduct!='cat'){exit('Товар не относится к категории католожной продукции.');}else{
 
 	$ARTICUL = new Articul($art_id);
 	// основная информация по артикулу
@@ -242,4 +258,5 @@
 	if($color_variants = $ARTICUL->get_art_color_variants($art)){
 		$color_variants_block = $ARTICUL->color_variants_to_html2($color_variants);	
 	}else{ $color_variants_block = '';}
+}
 ?>
