@@ -88,8 +88,6 @@
 	define("RT_ART_SIZE","os__rt_art_sizes"); // 
 
 
-	
-	
 	define("OUR_USLUGI_LIST","os__our_uslugi"); // Список всех услуг с ценами, в дальнейшем понадобится функционал для их редактирования 
 
 	
