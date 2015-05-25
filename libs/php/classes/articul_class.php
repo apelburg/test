@@ -71,10 +71,10 @@ class Articul{
 	public function get_dop_uslugi($id_dop_data){
 		global $mysqli;
 		//$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".(int)$id_dop_data."'";
-		$query = "SELECT  `".RT_DOP_USLUGI."`. * ,  `rt_uslugi_gen`.`name` AS  `group_name` ,  `".RT_USLUGI_LIST."`.`name` AS  `name` ,  `rt_uslugi_gen`.`type` AS  `group_type` ,  `".RT_USLUGI_LIST."`.`type` AS  `type` 
+		$query = "SELECT  `".RT_DOP_USLUGI."`. * ,  `rt_uslugi_gen`.`name` AS  `group_name` ,  `".OUR_USLUGI_LIST."`.`name` AS  `name` ,  `rt_uslugi_gen`.`type` AS  `group_type` ,  `".OUR_USLUGI_LIST."`.`type` AS  `type` 
 			FROM  `".RT_DOP_USLUGI."` 
-			INNER JOIN  `".RT_USLUGI_LIST."` ON  `".RT_USLUGI_LIST."`.`id` =  `".RT_DOP_USLUGI."`.`uslugi_id` 
-			INNER JOIN  `".RT_USLUGI_LIST."` AS  `rt_uslugi_gen` ON  `".RT_USLUGI_LIST."`.`parent_id` =  `rt_uslugi_gen`.`id` 
+			INNER JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` =  `".RT_DOP_USLUGI."`.`uslugi_id` 
+			INNER JOIN  `".OUR_USLUGI_LIST."` AS  `rt_uslugi_gen` ON  `".OUR_USLUGI_LIST."`.`parent_id` =  `rt_uslugi_gen`.`id` 
 			WHERE  `".RT_DOP_USLUGI."`.`dop_row_id` =  '".$id_dop_data."'";
 		/*
 			// запрос без переменных

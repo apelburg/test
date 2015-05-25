@@ -180,7 +180,7 @@
 	
 	// чеерез get параметр id мы получаем id 1 из строк запроса
 	// получаем основные хар-ки артикула из таблицы артикулов входящих в запрос
-	$query = "SELECT DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`, `order_num`, `name`,`id`, `art_id`, `type` FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."'";
+	$query = "SELECT DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`, `query_num`, `name`,`id`, `art_id`, `type` FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."'";
 	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
 	// $this->info = 0;
@@ -190,7 +190,7 @@
 			$order_num_id = $row['id']; 
 			
 			// номер запроса
-			$order_num = $row['order_num']; 
+			$order_num = $row['query_num']; 
 			
 			// название артикула, возможно отредактированное менеджером
 			$art_name = $row['name']; 

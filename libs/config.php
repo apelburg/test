@@ -74,13 +74,20 @@
 	define("GENERATED_SPECIFICATIONS_TBL","os__generated_specifications"); // таблица созданных договоров
 	define("PLANNER","os__planner"); // 
 	
+	// заказы в кабинете
+	define("CAB_ORDER_ROWS", "os__cab_order_rows");  // таблица заказов
+	define("CAB_ORDER_MAIN","os__cab_order_main_rows"); // таблица запрошенных позиций (артикулов)
+	define("CAB_ORDER_DOP_DATA","os__cab_orders_dop_data"); // таблица вариантов просчёта
+
+
 	// новая РТ
-	define("RT_LIST","os__rt_list"); //
+	define("RT_LIST", "`os__rt_list`"); // таблица запросов	
 	define("RT_MAIN_ROWS","os__rt_main_rows"); //
 	define("RT_DOP_DATA","os__rt_dop_data"); //
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
-	
-	
+	define("RT_ART_SIZE","os__rt_art_sizes"); // 
+
+
 	define("OUR_USLUGI_LIST","os__our_uslugi"); // Список всех услуг с ценами, в дальнейшем понадобится функционал для их редактирования 
 
 	
@@ -92,7 +99,7 @@
 	define("COM_PRED_LIST_OLD","os__com_pred_list_old"); // КП
 	define("LAST_COM_PRED_NUM","os__last_com_pred_num"); // последний номер КП
 
-     
+    
 	
 	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] : false ;
 	

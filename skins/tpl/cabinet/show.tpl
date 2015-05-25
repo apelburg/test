@@ -5,13 +5,13 @@ $(document).on('click','#cabinet_general_content .show_hide',function() {
 	$(this).parent().hide();
 	$(this).parent().prev().find('td:nth-of-type(1)').addClass('show');
 });
-/*
+
 // Развернуть строку запроса
 $(document).on('click','#cabinet_general_content .cabinett_row_show',function() {
 	$(this).removeClass('show');
 	$(this).parent().next().show('fast');
 });
-*/
+
 
 
 
