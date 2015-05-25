@@ -66,10 +66,23 @@
 			return $arr_new;
 		}
 
-		 // выбираем данные о доп услугах
-		public function get_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
+		// выбираем данные о доп услугах для запроса
+		public function get_query_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			global $mysqli;
-			$query = "SELECT * FROM `os__rt_dop_uslugi` WHERE `dop_row_id` = '".$dop_row_id."'";
+			$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$arr = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+			return $arr;
+		}
+		// выбираем данные о доп услугах для заказа
+		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
+			global $mysqli;
+			$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$arr = array();
 			if($result->num_rows > 0){
@@ -80,7 +93,7 @@
 			return $arr;
 		}
 
-		public function show_number_query($key){
+		static function show_order_num($key){
 		$i = 6 - count($key);
 		$str = '';
 		for ($t=0; $t < $i ; $t++) { 

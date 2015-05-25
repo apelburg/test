@@ -127,7 +127,7 @@ function get_gen_price_out($variable){
 		foreach ($main_rows as $key1 => $val1) {
 			//ОБСЧЁТ ВАРИАНТОВ
 			// получаем массив стоимости нанесения и доп услуг для данного варианта 
-			$dop_usl = $CABINET -> get_dop_uslugi($val1['id_dop_data']);
+			$dop_usl = $CABINET -> get_query_dop_uslugi($val1['id_dop_data']);
 			// выборка только массива стоимости печати
 			$dop_usl_print = $CABINET->get_dop_uslugi_print_type($dop_usl);
 			// выборка только массива стоимости доп услуг
@@ -144,7 +144,7 @@ function get_gen_price_out($variable){
 			$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
 
 			$html .= '<tr>
-			<td>'.$val1['id_dop_data'].'|  '.$val1['art'].'</td>
+			<td><!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
 			<td>'.$val1['name'].'</td>
 			<td>'.$val1['quantity'].'</td>
 			<td></td>
@@ -160,7 +160,7 @@ function get_gen_price_out($variable){
 		################
 		# END ВАРИАНТЫ #
 		################
-	
+		$html .= '<br><br>'.$query;
 
 		////////////////
 		$html .= '</td>';

@@ -168,8 +168,105 @@
 			 return  number_format($summ,'2','.','');
 		}
 		static function make_order($json){
-		    $data_obj = json_decode($json);
-            print_r($data_obj);
+			// СОЗДАНИЕ ЗАКАЗА
+			global $mysqli;
+
+		    $data_obj = json_decode($json,true);
+		    $user_id = $_SESSION['access']['user_id'];
+		    $query_num = $data_obj['query_num'];
+		    $client_id = $data_obj['client_id'];
+		    // СОЗДАЁМ СТРОКУ ЗАКАЗА
+		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id` )
+				SELECT `manager_id`, `client_id`
+				FROM `".RT_LIST."` 
+				WHERE  `query_num` = '".$query_num."';
+				";
+			$result = $mysqli->query($query) or die($mysqli->error);
+        	$order_id = $mysqli->insert_id; // id нового заказа... он же номер
+
+			// перебираем отправленные данные по позициям
+			foreach ($data_obj['ids'] as $key => $value) {
+				// ЗАВОДИМ ПОЗИЦИИ К НОВОМУ ЗАКАЗУ
+				$query = "INSERT INTO `".CAB_ORDER_MAIN."`  (`master_btn`, `order_num`,`type`,`art`,`art_id`,`name` )
+					SELECT `master_btn`,`query_num`,`type`,`art`,`art_id`,`name`
+					FROM `".RT_MAIN_ROWS."` 
+					WHERE  `query_num` = '".$query_num."' 
+					AND `id` = '".$key."';
+				";
+
+				$result = $mysqli->query($query) or die($mysqli->error);
+        		$main_row_id = $mysqli->insert_id; // id нового заказа... он же новый номер
+        		// echo $query;
+
+        		// выбираем id строки расчёта
+				$key_dop_data_arr = array_keys($value);
+				$key_dop_data = $key_dop_data_arr[0]; // id строки расчёта
+
+				// КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
+				$query = "INSERT INTO `" . CAB_ORDER_DOP_DATA . "`  (
+					`row_id`,`expel`,`quantity`,`price_in`,`price_out`,`discount`,`tirage_json`,
+					`print_z`,`standart`,`shipping_time`,`shipping_date`
+					)
+					SELECT `row_id`,`expel`,`quantity`,`price_in`,`price_out`,`discount`,`tirage_json`,
+					`print_z`,`standart`,`shipping_time`,`shipping_date`
+					FROM `".RT_DOP_DATA."` 
+					WHERE  `id` = '".$key_dop_data."'
+				";
+				$result = $mysqli->query($query) or die($mysqli->error);
+        		$dop_data_row_id = $mysqli->insert_id; // id нового расчёта... он же номер
+
+
+				
+				// правим row_id на полученный из созданной строки позиции
+				$query = "UPDATE  `".CAB_ORDER_DOP_DATA."` 
+						SET  `row_id` =  '".$main_row_id."' 
+						WHERE  `id` ='".$dop_data_row_id."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				
+				// правим order_num на полученный id при создании заказа
+				$query = "UPDATE  `".CAB_ORDER_MAIN."` 
+						SET  `order_num` =  '".$order_id."' 
+						WHERE  `id` ='".$main_row_id."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+
+				// КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ
+				// думаю в данном случае копировать не стоит,
+				// лучше сначала выбрать , преобразовать в PHP и вставить
+				// в противном случае при одновременном обращении нескольких менеджеров к данному скрипту
+				// данные о доп услугах для заказа могут быть потеряны
+				/*
+				 данный вопрос решается в любом случае двумя запросами:
+				 Вар. 1) копируем данные, замораживаем таблицу доп услуг и апдейтим родительский id
+				 Вар. 2) выгружаем данные о доп услугах в PHP, и записывае в новую таблицу
+				*/
+				$query = "SELECT * FROM `".RT_DOP_USLUGI."` 
+					WHERE  `id` = '".$key_dop_data."'
+				";
+				$arr_dop_uslugi = array();
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$arr_dop_uslugi[] = $row;
+					}
+				}
+				
+				$query1 = '';
+				foreach ($arr_dop_uslugi as $k12 => $v12) {
+					$query1 .= "INSERT INTO `".CAB_DOP_USLUGI."` SET
+						`dop_row_id` =  '".$dop_data_row_id."', 
+						`uslugi_id` = '".$v12['uslugi_id']."',
+						`glob_type` = '".$v12['glob_type']."',
+						`type` = '".$v12['type']."',
+						`quantity` = '".$v12['quantity']."',
+						`price_in` = '".$v12['price_in']."',
+						`price_out` = '".$v12['price_out']."',
+						`for_how` = '".$v12['for_how']."';";
+				}	
+				if($query1!=''){// в случае наличия доп услуг
+					$result = $mysqli->multi_query($query1) or die($mysqli->error);	
+				}
+			}
+			return 1;
 		}  
     }
 
