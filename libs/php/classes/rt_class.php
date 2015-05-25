@@ -58,7 +58,7 @@
 				       $arr[$row['dop_data_id']]['uslugi'][] = $uslugi;
 				 }
 			 }
-			//echo '<pre>'; print_r($arr); echo '</pre>';//
+			 //echo '<pre>'; print_r($arr); echo '</pre>';
 			 $summ = 0;
 			 foreach($arr as $data){
 			     if($data['expel']!='') $obj = json_decode($data['expel']);
