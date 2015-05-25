@@ -34,6 +34,8 @@
 		
 		static function add_data_from_basket($client,$manager_login){
 			global $mysqli;
+			echo $client;
+			exit;
 			//global $print_mode_names;
 			$user_id = $_SESSION['access']['user_id'];
 			
@@ -50,8 +52,11 @@
 			foreach($manager_login_arr as $manager_login){
 				$query = "SELECT*FROM `".MANAGERS_TBL."` WHERE `nickname` = '".$manager_login."'";
 				$result = $mysqli->query($query) or die($mysqli->error);
-				$manager_data = $result->fetch_assoc();
-				$manager_id_arr[] = $manager_data['id'];
+				if($result->num_rows>0){
+				    $manager_data = $result->fetch_assoc();
+				    $manager_id_arr[] = $manager_data['id'];
+				}
+				else $manager_id_arr[] = 0;
 			}
 			//print_r($manager_id_arr);
 			
