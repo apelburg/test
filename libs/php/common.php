@@ -1,4 +1,105 @@
 <?php
+   
+    if(isset($_GET['add_data_to_rt_from_basket'])){
+		 
+		 //echo $_GET['client_data'].' - '.$_GET['manager_login'];
+		 add_data_to_rt_from_basket($_GET['client_data'],$_GET['manager_login']);
+		 exit;
+	}
+	
+	function add_data_to_rt_from_basket($client,$manager_login){
+        global $mysqli;
+		//global $print_mode_names;
+		$user_id = $_SESSION['access']['user_id'];
+		
+		
+		// узнаем id клиента
+		$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `company` = '".$client."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$client_data = $result->fetch_assoc();
+		$client_id = $client_data['id'];
+		//echo $client_id;
+		
+		// узнаем id менеджера
+		$manager_login_arr = explode('&',$manager_login);
+		foreach($manager_login_arr as $manager_login){
+			$query = "SELECT*FROM `".MANAGERS_TBL."` WHERE `nickname` = '".$manager_login."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+            $manager_data = $result->fetch_assoc();
+		    $manager_id_arr[] = $manager_data['id'];
+		}
+		//print_r($manager_id_arr);
+		
+		//
+	    $date = date('Y-m-d H:i:s');
+		
+		// содержимое корзины
+		$basket_arr = $_SESSION['basket'];
+		print_r($basket_arr);
+		
+		
+		
+		// определяем номер запроса
+        $query = "SELECT MAX(query_num) max FROM `".RT_LIST."`"; 								
+	    $result = $mysqli->query($query) or die($mysqli->error);
+		$query_num_data = $result->fetch_assoc();
+		$query_num = ($query_num_data['max']==0)? 10000:$query_num_data['max'];
+		echo $query_num;
+		
+		// вносим строку с данными заказа в RT_LIST
+        $query = "INSERT INTO `".RT_LIST."` SET 
+		                                    `create_time` = NOW(),
+											`client_id` = '$client_id',
+											`manager_id` = '$manager_id_arr[0]',
+											`query_num` = '".($query_num+1)."'"; 
+											
+	    $result = $mysqli->query($query) or die($mysqli->error);
+		
+	    
+	    foreach($basket_arr as $data){
+			// выбираем из базы каталога данные об артикуле
+			$query = "SELECT*FROM `".BASE_TBL."` WHERE id = '".$data['article']."'"; 								
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$art_data = $result->fetch_assoc();
+		
+		
+		    // вносим основные данные о позиции в RT_MAIN_ROWS
+			$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 
+											`query_num` = '$query_num',
+											`type` = 'cat',
+											`art` = '".$art_data['art']."',
+											`name` = '".$art_data['name']."'"; 
+											
+	        $result = $mysqli->query($query) or die($mysqli->error);
+			$row_id = $mysqli->insert_id;
+			
+			// вносим основные данные о количестве RT_DOP_DATA
+			$query = "INSERT INTO `".RT_DOP_DATA."` SET 
+			                                `row_id` = '$row_id',
+											`quantity` = '".$data['quantity']."',
+											`price_out` = '".$data['price']."'"; 
+											
+	        $result = $mysqli->query($query) or die($mysqli->error);
+			$dop_row_id = $mysqli->insert_id;
+			
+			if(isset($data['param1'])){ //если есть данные о нанесении
+				// вносим основные данные о количестве RT_DOP_USLUGI
+				// в корзине - $data['param2'](цена всего тиража) $data['param3'](цена штуки)
+				$query = "INSERT INTO `".RT_DOP_USLUGI."` SET 
+												`dop_row_id` = '$dop_row_id',
+												`glob_type` = 'print',
+												`type` = '".$data['param1']."',
+												`quantity` = '".$data['param3']/$data['param2']."',
+												`price_out` = '".$data['param2']."'"; 
+												
+				$result = $mysqli->query($query) or die($mysqli->error);
+			}
+
+	    }
+		
+		
+	}
+
     function getHelp($topic){
 	    $filename = ROOT.'/libs/help/'.$topic.'.txt';
 	    $fd = fopen($filename,"rb");

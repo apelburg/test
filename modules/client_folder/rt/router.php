@@ -8,7 +8,8 @@
 	include ROOT.'/libs/php/classes/rt_class.php';
 	
 	$theme = 'Откуда берется тема?';
-	$query_num = 10147;
+
+	$query_num = (!empty($_GET['query_num']))? $_GET['query_num']:10147;
 	
 	////////////////////////  AJAX  //////////////////////// 
 	if(isset($_GET['save_rt_changes'])){
