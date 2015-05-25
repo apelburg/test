@@ -1,4 +1,6 @@
 <?php
+
+
 // ** БЕЗОПАСНОСТЬ **
 // проверяем выдан ли доступ на вход на эту страницу
 if(!@array_key_exists($section, $ACCESS['cabinet']['section']) ){
@@ -6,6 +8,13 @@ if(!@array_key_exists($section, $ACCESS['cabinet']['section']) ){
 	return;
 };
 // ** БЕЗОПАСНОСТЬ **
+
+
+include ('./libs/php/classes/rt_class.php');
+
+// $RT = new RT;
+
+
 
 // подсчет стоимости запроса
 function get_gen_price_out($variable){
@@ -71,7 +80,7 @@ function get_gen_price_out($variable){
 					<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
 					<td>'.$value['create_time'].'</td>
 					<td>'.$value['company'].'</td>
-					<td></td>
+					<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
 					<td></td>
 					<td></td>
 				</tr>
