@@ -8,7 +8,8 @@ $(document).on('click','#cabinet_general_content .show_hide',function() {
 
 // Развернуть строку запроса
 $(document).on('click','#cabinet_general_content .cabinett_row_show',function() {
-	$(this).removeClass('show');
+	$('.query_detail').css('display','none');
+	//$(this).removeClass('show');
 	$(this).parent().next().show('fast');
 });
 

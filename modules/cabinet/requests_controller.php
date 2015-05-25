@@ -23,23 +23,7 @@ function get_gen_price_out($variable){
 
 // простой запрос
 	$array_request = array();
-	// $query = "
-	// SELECT 
-	// 	`os__rt_dop_data`.`id` AS `id_dop_data`,
-	// 	`os__rt_dop_data`.`quantity`,	
-	// 	`os__rt_dop_data`.`price_out`,	
-	// 	DATE_FORMAT(`os__rt_main_rows`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
-	// 	`os__client_list`.`company`,
-	// 	`os__rt_main_rows`.*,
-	// 	`os__rt_request_rows`.`id` AS `request_id` 
-	// 	FROM `os__rt_main_rows` 
-	// 	INNER JOIN `os__rt_dop_data` ON `os__rt_dop_data`.`row_id` = `os__rt_main_rows`.`id`
-	// 	LEFT JOIN `os__client_list` ON `os__client_list`.`id` = `os__rt_main_rows`.`client_id`
-	// 	LEFT JOIN `os__rt_request_rows` ON `os__rt_request_rows`.`id` = `os__rt_main_rows`.`order_num`
-	// 	WHERE `os__rt_dop_data`.`row_status` NOT LIKE 'red'
-	// 	ORDER BY `os__rt_main_rows`.`id` ASC
-                
-	// ";
+
 	
 	$query = "SELECT 
 		`os__rt_list`.*, 
@@ -88,8 +72,95 @@ function get_gen_price_out($variable){
 		$html .= '<tr class="query_detail">';
 		$html .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
 		$html .= '<td colspan="6" class="each_art">';
+		
 
+		$query = "
+		SELECT 
+			`os__rt_dop_data`.`id` AS `id_dop_data`,
+			`os__rt_dop_data`.`quantity`,	
+			`os__rt_dop_data`.`price_out`,	
+			DATE_FORMAT(`os__rt_main_rows`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
+			`os__rt_main_rows`.*,
+			`os__rt_list`.`id` AS `request_id` 
+			FROM `os__rt_main_rows` 
+			INNER JOIN `os__rt_dop_data` ON `os__rt_dop_data`.`row_id` = `os__rt_main_rows`.`id`
+			LEFT JOIN `os__rt_list` ON `os__rt_list`.`id` = `os__rt_main_rows`.`query_num`
+			WHERE `os__rt_dop_data`.`row_status` NOT LIKE 'red' AND `os__rt_main_rows`.`query_num` = '".$value['query_num']."'
+			ORDER BY `os__rt_main_rows`.`id` ASC
+	                
+		";
+		// $html .= $query;
+		$main_rows = array();
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$main_rows_id = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$main_rows[] = $row;
+			}
+		}
+		// echo '<pre>';
+		// print_r($main_rows);
+		// echo '</pre>';
 
+		if(!isset($value2)){continue;}
+		
+		##################
+		# START ВАРИАНТЫ #
+		##################
+		// ВЫВОД ВАРИАНТОВ
+		$html .= '<table class="cab_position_div">';
+		
+		// шапка таблицы вариантов запроса
+		$html .= '<tr>
+				<th>артикул</th>
+				<th>номенклатура</th>
+				<th>тираж</th>
+				<th>цены:</th>
+				<th>товар</th>
+				<th>печать</th>
+				<th>доп. услуги</th>
+			<th>в общем</th>
+			<th></th>
+			<th></th>
+				</tr>';
+
+		foreach ($main_rows as $key1 => $val1) {
+			//ОБСЧЁТ ВАРИАНТОВ
+			// получаем массив стоимости нанесения и доп услуг для данного варианта 
+			$dop_usl = $CABINET -> get_dop_uslugi($val1['id_dop_data']);
+			// выборка только массива стоимости печати
+			$dop_usl_print = $CABINET->get_dop_uslugi_print_type($dop_usl);
+			// выборка только массива стоимости доп услуг
+			$dop_usl_no_print = $CABINET -> get_dop_uslugi_no_print_type($dop_usl);
+
+			// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
+			// стоимость печати варианта
+			$calc_summ_dop_uslug = $CABINET -> calc_summ_dop_uslug($dop_usl_print,$val1['quantity']);
+			// стоимость доп услуг варианта
+			$calc_summ_dop_uslug2 = $CABINET -> calc_summ_dop_uslug($dop_usl_no_print,$val1['quantity']);
+			// стоимость товара для варианта
+			$price_out = $val1['price_out'] * $val1['quantity'];
+			// стоимость варианта на выходе
+			$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
+
+			$html .= '<tr>
+			<td>'.$val1['id_dop_data'].'|  '.$val1['art'].'</td>
+			<td>'.$val1['name'].'</td>
+			<td>'.$val1['quantity'].'</td>
+			<td></td>
+			<td>'.$price_out.'</td>
+			<td>'.$calc_summ_dop_uslug.'</td>
+			<td>'.$calc_summ_dop_uslug2.'</td>
+			<td>'.$in_out.'</td>
+			<td><!--$val1[\'status_man\']--></td>
+			<td><!--$val1[\'status_snab\']--></td>
+					</tr>';
+		}
+		$html .= '</table>';
+		################
+		# END ВАРИАНТЫ #
+		################
+	
 
 		////////////////
 		$html .= '</td>';
