@@ -48,6 +48,7 @@
 	background-position: 5px -2px;
 	background-repeat: no-repeat;
 	background-color: #f1f1f1;
+	width: 30px
 }
 #cabinet_general_content .cabinett_row_show.show:hover{
 	background-color: #e2e2e2; 
