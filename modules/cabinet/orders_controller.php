@@ -22,6 +22,7 @@ include ('./libs/php/classes/rt_class.php');
 		FROM `".CAB_ORDER_ROWS."`
 		INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
 		INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
+	$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` NOT LIKE '%В оформлении%'";
 	$result = $mysqli->query($query) or die($mysqli->error);
 	$main_rows_id = array();
 	
@@ -44,7 +45,7 @@ include ('./libs/php/classes/rt_class.php');
 		$html .= '
 				<tr>
 					<td class="cabinett_row_show show"><span></span></td>
-					<td><a href="./?page=client_folder&order_num='.$value['id'].'">'.Cabinet::show_order_num($value['id']).'</a></td>
+					<td><a href="./?page=client_folder&order_id='.$value['id'].'">'.Cabinet::show_order_num($value['order_num']).'</a></td>
 					<td>'.$value['create_time'].'</td>
 					<td>'.$value['company'].'</td>
 					<td><!--RT::calcualte_query_summ($value[\'order_num\'])--></td>
@@ -108,8 +109,8 @@ include ('./libs/php/classes/rt_class.php');
 				</tr>';
 
 		foreach ($main_rows as $key1 => $val1) {
-			//ОБСЧЁТ ВАРИАНТОВ
-			// получаем массив стоимости нанесения и доп услуг для данного варианта 
+			//ОБСЧЁТ ВАРИАНТА ЗАКАЗА
+			// получаем массив стоимости нанесения и доп услуг для данного варианта ЗАКАЗА
 			$dop_usl = $CABINET -> get_order_dop_uslugi($val1['id_dop_data']);
 			// выборка только массива стоимости печати
 			$dop_usl_print = $CABINET->get_dop_uslugi_print_type($dop_usl);

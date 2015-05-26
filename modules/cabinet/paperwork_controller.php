@@ -23,7 +23,8 @@ include ('./libs/php/classes/rt_class.php');
 		FROM `".CAB_ORDER_ROWS."`
 		INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
 		INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-	echo $query;
+	$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'В оформлении'";
+	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
 	$main_rows_id = array();
 	
@@ -46,7 +47,7 @@ include ('./libs/php/classes/rt_class.php');
 		$html .= '
 				<tr>
 					<td class="cabinett_row_show show"><span></span></td>
-					<td><a href="./?page=client_folder&order_num='.$value['id'].'">'.Cabinet::show_order_num($value['id']).'</a></td>
+					<td><a href="./?page=client_folder&order_id='.$value['id'].'">'.Cabinet::show_order_num($value['order_num']).'</a></td>
 					<td>'.$value['create_time'].'</td>
 					<td>'.$value['company'].'</td>
 					<td><!--RT::calcualte_query_summ($value[\'order_num\'])--></td>

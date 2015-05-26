@@ -94,7 +94,8 @@
 		}
 
 		static function show_order_num($key){
-		$i = 6 - count($key);
+		$i = 6 - strlen($key);
+		// echo $i.'    */';
 		$str = '';
 		for ($t=0; $t < $i ; $t++) { 
 			$str .='0';		}

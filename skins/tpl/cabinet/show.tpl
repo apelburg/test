@@ -1,6 +1,8 @@
 <!-- begin skins/tpl/cabinet/show.tpl -->  
 <link href="./skins/css/cabinet.css" rel="stylesheet" type="text/css">
 <script type="text/javascript">
+/*
+// Cвернуть строку запроса
 $(document).on('click','#cabinet_general_content .show_hide',function() {
 	$(this).parent().hide();
 	$(this).parent().prev().find('td:nth-of-type(1)').addClass('show');
@@ -13,7 +15,7 @@ $(document).on('click','#cabinet_general_content .cabinett_row_show',function() 
 	$(this).parent().next().show('fast');
 });
 
-
+*/
 
 
 </script>
