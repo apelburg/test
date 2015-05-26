@@ -68,13 +68,22 @@
 		}
 		
 		$get_size_table = $ARTICUL->get_size_table($art_dop_params,$value);
-
+		/* 
+		старый вариант
+		тут подсчитывается тираж и запас варианта расчета каталожной продукции 
+		исходя из размерной сетки,
+		позднее мы договорились, что при изменении тиража из РТ таблицы размеров обнуляются
+		так что тираж берем из quantity и zapas
 		$rr = json_decode($value['tirage_json'], true);
 		$sum_tir = $sum_dop = 0;
 		foreach ($rr as $k => $v) {
 			$sum_tir += (isset($v['tir']))?(int)$v['tir']:0;
 			$sum_dop += (isset($v['dop']))?(int)$v['dop']:0;
 		}
+		*/
+		// тираж
+		$sum_tir = $value['quantity'];
+		$sum_dop = $value['zapas'];
 		// сумма за тираж для нас
 		$sum_of_tirage_in = round($value['price_in']*($sum_tir+$sum_dop),2);
 		// сумма за тираж для клиента
