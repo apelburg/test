@@ -409,9 +409,9 @@ var rtCalculator = {
 			    var type = tds_arr[j].getAttribute('type');
 				var connected_vals = tds_arr[j].getAttribute('connected_vals');
 				
-				if(type=='quantity')rtCalculator.tbl_model[row_id][type];
-				else if(connected_vals=='print') (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'р'; 
-				else (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
+				if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type];
+				else if(connected_vals=='print' || connected_vals=='uslugi') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'р'; 
+				else tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
 			    /*if(tds_arr[j].getAttribute('type') == 'in_summ') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id]['in_summ'];*/
 			}
 		}
