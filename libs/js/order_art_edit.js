@@ -418,8 +418,31 @@ $(document).on('keyup','.row_tirage_in_one.price_in .edit_span',function(){
 	var pr = (zapas+tirage)*price_in;
 	$(id_variant+' .row_tirage_in_gen.price_in span').html(pr.toFixed(2));
 
+
+	// пересчёт таблицы с ценами и услугами
 	calkulate_row_itogo2();
+	// сохраняем входящую и исходящую цены за ед. товара
+	save_price_in_out_for_one_price();
 });
+
+function save_price_in_out_for_one_price(){
+	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+	var dop_data_id = $('#variants_name .variant_name.checked ').attr('data-id');
+	console.log(id_variant+' .calkulate_table .tirage_and_price_for_one .row_tirage_in_one.price_in span');
+	console.log($(id_variant+' .calkulate_table .tirage_and_price_for_one .row_tirage_in_one.price_in span').length);
+	var price_in = $(id_variant+' .calkulate_table .row_tirage_in_one.price_in .edit_span').html();
+	var price_out = $(id_variant+' .calkulate_table .row_price_out_one.price_out .edit_span').html();
+	$.post('', {
+		global_change: 'AJAX',
+		change_name: 'save_price_in_out_for_one_price',
+		price_in:price_in,
+		price_out:price_out,
+		dop_data: dop_data_id
+	}, function(data, textStatus, xhr) {
+		console.log(data);
+	},'json');
+
+}
 // изменение исходящей цены за единицу товара
 $(document).on('keyup','.row_price_out_one.price_out .edit_span',function(){
 	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
@@ -448,6 +471,8 @@ $(document).on('keyup','.row_price_out_one.price_out .edit_span',function(){
 	$(id_variant+' .row_price_out_gen.price_out span').html(pr.toFixed(2));
 
 	calkulate_row_itogo2();
+	// сохраняем входящую и исходящую цены за ед. товара
+	save_price_in_out_for_one_price();
 });
 // изменение процента наценки за единицу товара 
 $(document).on('keyup','.tirage_and_price_for_one .percent_nacenki span.edit_span',function(){
@@ -921,6 +946,8 @@ function chenge_the_general_input(){
 	calkulate_table_calc();
 }
 
+
+
 // перенос содержимого общего тиража и запаса в первое поле размерной сетки, остальное трется
 function export_gen_input_in_size_tbl(){
 	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
@@ -992,16 +1019,17 @@ $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
 	$(id).val(summ);
 
 	// отправляем запрос на изменение данных в базе по отредактированному размеру
-	$.post('', {
-		global_change: 'AJAX',
-		change_name: 'size_in_var',
-		val:$(this).val(),
-		key:$(this).attr('data-id_size'),
-		dop:$(this).attr('data-dop'),
-		id: $(this).attr('data-var_id')
-	}, function(data, textStatus, xhr) {
-		console.log(data);
-	});
+	save_all_table_size();
+	// $.post('', {
+	// 	global_change: 'AJAX',
+	// 	change_name: 'size_in_var',
+	// 	val:$(this).val(),
+	// 	key:$(this).attr('data-id_size'),
+	// 	dop:$(this).attr('data-dop'),
+	// 	id: $(this).attr('data-var_id')
+	// }, function(data, textStatus, xhr) {
+	// 	console.log(data);
+	// });
 
 	// пересчёт таблицы цен
 	calkulate_table_calc();
