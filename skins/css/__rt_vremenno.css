@@ -191,7 +191,8 @@ height:200px;
 .rt_tbl_body .r_border{
  border-right:#e3e5e5 solid 1px;
 }
-
+.rt_tbl_body .calc_btn{   text-align:center;}
+.rt_tbl_body .calc_btn > *{  border:#92b73e solid 1px; color:#000; padding:1px 4px 1px 4px; font-size:11px;cursor:pointer;}
 .rt_tbl_body .quantity_dim{ font-size:11px;}
 
 .rt_tbl_body .right, .rt_tbl_head .right{ text-align:right;}
