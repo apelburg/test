@@ -45,7 +45,7 @@ include ('./libs/php/classes/rt_class.php');
 		$html .= '
 				<tr>
 					<td class="cabinett_row_show show"><span></span></td>
-					<td><a href="./?page=client_folder&order_id='.$value['id'].'">'.Cabinet::show_order_num($value['order_num']).'</a></td>
+					<td><a href="./?page=client_folder&section=order_tbl&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.Cabinet::show_order_num($value['order_num']).'</a></td>
 					<td>'.$value['create_time'].'</td>
 					<td>'.$value['company'].'</td>
 					<td><!--RT::calcualte_query_summ($value[\'order_num\'])--></td>
@@ -62,7 +62,9 @@ include ('./libs/php/classes/rt_class.php');
 		SELECT 
 			`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
 			`".CAB_ORDER_DOP_DATA."`.`quantity`,	
-			`".CAB_ORDER_DOP_DATA."`.`price_out`,	
+			`".CAB_ORDER_DOP_DATA."`.`price_out`,		
+			`".CAB_ORDER_DOP_DATA."`.`print_z`,	
+			`".CAB_ORDER_DOP_DATA."`.`zapas`,	
 			DATE_FORMAT(`".CAB_ORDER_MAIN."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 			`".CAB_ORDER_MAIN."`.*,
 			`".CAB_ORDER_ROWS."`.`id` AS `request_id` 

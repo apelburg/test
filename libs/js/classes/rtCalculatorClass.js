@@ -407,7 +407,11 @@ var rtCalculator = {
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 			    var type = tds_arr[j].getAttribute('type');
-			    tds_arr[j].innerHTML = (type=='quantity')? rtCalculator.tbl_model[row_id][type]:(rtCalculator.tbl_model[row_id][type]).toFixed(2); 
+				var connected_vals = tds_arr[j].getAttribute('connected_vals');
+				
+				if(type=='quantity')rtCalculator.tbl_model[row_id][type];
+				else if(connected_vals=='print') (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'р'; 
+				else (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
 			    /*if(tds_arr[j].getAttribute('type') == 'in_summ') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id]['in_summ'];*/
 			}
 		}
@@ -477,22 +481,27 @@ var rtCalculator = {
 			rtCalculator.tbl_model[row_id]['delta'] = rtCalculator.tbl_model[row_id]['margin'] = rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'];
 
 		}
-		alert(cell.getAttribute('connected_vals'));
+		
 		// изменяем значение status в JS модели таблицы - rtCalculator.tbl_model
 		if(type =='out_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] = status;
 		else if(type =='print_out_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] = status;
 		else if(type =='dop_uslugi_out_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop'] = status;
 		
-		// меняем значение status в HTML и меняем значение аттрибута class текущей ячейки
+		// меняем значение status в HTML
 		cell.setAttribute('expel',Number(status));
-	    cell.className = (status)? cell.className+' red_cell': cell.className.slice(0,cell.className.indexOf("red_cell")-1);
-		// меняем значение аттрибута class в соседней ячейке таблицы содержашей обозначение валюты если type =='out_summ'
-		if(type =='out_summ'){
-			 for(var n = cell.nextSibling;n !=null ;n = n.nextSibling){ 
-			      if(n.nodeName == 'TD'){ 
-				       n.className = (status)? n.className+' red_cell': n.className.slice(0,n.className.indexOf("red_cell")-1);
-				       break;
-				  }
+		
+		// меняем значение аттрибута class во всех связанных ячейках
+		var connected_vals = cell.getAttribute('connected_vals');
+		var tdsArr = cell.parentNode.getElementsByTagName('td');
+		for(var i = 0 ;i < tdsArr.length ;i++){
+			 if(tdsArr[i].getAttribute('connected_vals') && tdsArr[i].getAttribute('connected_vals') == connected_vals){
+			     if(status){  tdsArr[i].className =  tdsArr[i].className+' red_cell'; }
+				 else{
+					  var classArr = tdsArr[i].className.split(' ');
+					  var newClassArr = [];
+				      for(var index in classArr){ if(classArr[index] != "red_cell") newClassArr.push(classArr[index]); }
+					  tdsArr[i].className =  newClassArr.join(' ');
+				 }
 			 }
 		}
 		

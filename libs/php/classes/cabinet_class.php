@@ -69,7 +69,9 @@
 		// выбираем данные о доп услугах для запроса
 		public function get_query_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			global $mysqli;
-			$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
+			$query = "SELECT `".RT_DOP_USLUGI."`.*,`os__our_uslugi`.`name` FROM `".RT_DOP_USLUGI."` 
+			LEFT JOIN  `os__our_uslugi` ON  `os__our_uslugi`.`id` = `".RT_DOP_USLUGI."`.`uslugi_id` 
+			WHERE `".RT_DOP_USLUGI."`.`dop_row_id` = '".$dop_row_id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$arr = array();
 			if($result->num_rows > 0){
@@ -82,7 +84,12 @@
 		// выбираем данные о доп услугах для заказа
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			global $mysqli;
-			$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
+
+			$query = "SELECT `".CAB_DOP_USLUGI."`.*,`os__our_uslugi`.`name` FROM `".CAB_DOP_USLUGI."` 
+			LEFT JOIN  `os__our_uslugi` ON  `os__our_uslugi`.`id` = `".CAB_DOP_USLUGI."`.`uslugi_id` 
+			WHERE `".CAB_DOP_USLUGI."`.`dop_row_id` = '".$dop_row_id."'";
+
+			//$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$arr = array();
 			if($result->num_rows > 0){
@@ -90,6 +97,7 @@
 					$arr[] = $row;
 				}
 			}
+			echo $query;
 			return $arr;
 		}
 

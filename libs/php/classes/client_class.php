@@ -87,6 +87,10 @@ class Client {
 
 	get_relate_managers($client_id)
 	(id клиента)
+	// получаем кураторов клиента 
+	
+	get_ralate_manager_names($client_id)
+	(id клиента)
 	// получаем кураторов клиента через запятую
 
 	get_reiting($id,$rate)
@@ -360,6 +364,15 @@ class Client {
 			}
 		}
 		return $manager_names;
+	}
+
+	static function get_ralate_manager_names($client_id){
+		$men_names = array();
+		$men_arr = self::get_relate_managers($client_id);
+		foreach ($men_arr as $key => $value) {
+			$men_names[] = $value['name'].' '.$value['last_name'];
+		}
+		return implode(',', $men_names);
 	}
 	static function get_manager_name($manager_id){
 		global $mysqli;
