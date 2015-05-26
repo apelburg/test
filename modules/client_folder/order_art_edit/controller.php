@@ -216,7 +216,7 @@
 	// чеерез get параметр id мы получаем id 1 из строк запроса
 	// получаем основные хар-ки артикула из таблицы артикулов входящих в запрос
 	$query = "SELECT DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`, `query_num`, `name`,`id`, `art_id`, `type` FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."'";
-	// echo $query;
+	echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
 	// $this->info = 0;
 	if($result->num_rows > 0){
