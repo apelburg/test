@@ -287,12 +287,12 @@
 				 }
 				 if($row['row_type'] == 'ext'){
 				     $extra_panel = '<div class="pos_plank ext">
-									   <a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['name'].'</a>
+									   <a href="?page=client_folder&section=order_art_edit&id='.$key.'">'.$row['name'].'</a>
 									 </div>';
 				 }
 				 if($row['row_type'] == 'pol'){
 				     $extra_panel = '<div class="pos_plank pol">
-									   <a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['name'].'</a>
+									   <a href="?page=client_folder&section=order_art_edit&id='.$key.'">'.$row['name'].'</a>
 									 </div>';
 				 }
 			 
