@@ -181,6 +181,14 @@
 		    $user_id = $_SESSION['access']['user_id'];
 		    $query_num = $data_obj['query_num'];
 		    $client_id = $data_obj['client_id'];
+
+		    // определяем номер заказа
+			$query = "SELECT MAX(order_num) max FROM `".CAB_ORDER_ROWS."`"; 								
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$order_num_data = $result->fetch_assoc();
+			$order_num = ($order_num_data['max']==0)? 00000:$order_num_data['max']+1;
+			//echo $query_num;
+
 		    // СОЗДАЁМ СТРОКУ ЗАКАЗА
 		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id` )
 				SELECT `manager_id`, `client_id`
@@ -189,6 +197,13 @@
 				";
 			$result = $mysqli->query($query) or die($mysqli->error);
         	$order_id = $mysqli->insert_id; // id нового заказа... он же номер
+        	// пишем номер заказа в созданную строку
+        	$query = "UPDATE  `".CAB_ORDER_ROWS."` 
+						SET  `order_num` =  '".$order_num."' 
+						WHERE  `id` ='".$order_id."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+
+
 
 			// перебираем отправленные данные по позициям
 			foreach ($data_obj['ids'] as $key => $value) {
@@ -229,9 +244,9 @@
 						WHERE  `id` ='".$dop_data_row_id."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				
-				// правим order_num на полученный id при создании заказа
+				// правим order_num на новый номер заказа
 				$query = "UPDATE  `".CAB_ORDER_MAIN."` 
-						SET  `order_num` =  '".$order_id."' 
+						SET  `order_num` =  '".$order_id ."' 
 						WHERE  `id` ='".$main_row_id."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 

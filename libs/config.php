@@ -27,7 +27,6 @@
 	// define('FILTERS_PRESET_TBL','new__filters_preset');
 	
 
-
     define("CLIENTS_TBL","os__client_list"); // таблица клиентов
     define("CLIENT_PERSON_REQ_TBL","os__clients_persons_for_requisites"); // список должностей для лиц емеющих право подписи
 	define("CLIENT_REQUISITES_TBL","os__clients_requisites"); // таблица реквизитов клиентов
