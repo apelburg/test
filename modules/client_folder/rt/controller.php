@@ -251,9 +251,10 @@
 				 $img_design_path = HOST.'/skins/images/img_design/';
 				 $svetofor_stat = ($dop_row['row_status']=='')?'green':$dop_row['row_status'];
 				 $svetofor_src = $img_design_path.'rt_svetofor_'.$svetofor_stat.'.png';
-				 $svetofor = '<img src="'.$svetofor_src.'">';
-				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer"';
+				 $svetofor = '<img src="'.$svetofor_src.'" >';
+				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer center"';
 				 $currency = 'р';
+				 $quantity_dim = 'шт';
 				 
 				 $expel_class_main = ($expel['main']=='1')?' red_cell':'';
 				 $expel_class_print = ($expel['print']=='1')?' red_cell':'';
@@ -264,22 +265,36 @@
 			     $svetofor = $svetofor_td_attrs = $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
-				 $delta_format = $margin_format = $expel_class = '';
+				 $delta_format = $margin_format = $expel_class =  $quantity_dim = '';
 			 }
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'"':'').' row_id="'.$dop_key.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').'">';
-			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top" width="30">'.$glob_counter.'</td>':'';
-			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top master_btn noselect" width="80">   
-											<div class="" id="">
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top glob_counter" width="30">'.$glob_counter.'</td>':'';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top master_btn noselect" width="35">   
+											<div class="masterBtnContainer" id="">
 											   <input type="checkbox" id="masterBtn'.$key.'" rowIdNum="'.$key.'" name="masterBtn"   onclick="return onClickMasterBtn(this,\'rt_tbl_body\','.$key.');" '.(($row['master_btn'] == 1)? 'checked':'').'/><label for="masterBtn'.$key.'"></label>
 											</div>
 			                              </td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
-			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="270" class="top">
+			                                 <div class="pos_plank">
+											   <a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].'</a>
+											   <div class="pos_link_plank">
+											      
+											      <div class="catalog">
+													  <a id="" href="/?page=description&id='.get_base_art_id($row['art']).'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
+												  </div>
+												  <div class="supplier">
+													   '.identify_supplier_by_prefix($row['art']).'
+												  </div>
+											   </div>
+											 </div>'.$row['name'].'
+										  </td>':'';
 			 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
-			               <td width="50" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
-			               <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
+			               <td width="40" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
+			               <td width="60" type="quantity" class="right"  editable="true">'.$dop_row['quantity'].'</td>
+						   <td width="20" class="r_border left quantity_dim">'.$quantity_dim.'</td>
 						   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
 						   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">'.$currency.'</td>
 						   <td width="90" type="price_in_summ" connected_vals="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
@@ -312,21 +327,24 @@
 	 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;" border="0">
 	          <tr class="cap">
 			      <td width="30"></td>
-			       <td width="80">
-					  <div class="master_button noselect">
-						<a href="#" onclick="openCloseMenu(event,\'rtMenu\'); return false;">&nbsp;</a>
-						<div id="reset_master_button" class="reset_button'.((count($rows[0])==$mst_btn_summ)?' on':'').'" onclick="resetMasterBtn(this,\'rt_tbl_body\');">&nbsp;</div>
+			       <td width="35" class="top">
+				      <div class="master_button_container">
+						  <div class="master_button noselect">
+							<a href="#" onclick="openCloseMenu(event,\'rtMenu\'); return false;">&nbsp;</a>
+							<div id="reset_master_button" class="reset_button'.((count($rows[0])==$mst_btn_summ)?' on':'').'" onclick="resetMasterBtn(this,\'rt_tbl_body\');">&nbsp;</div>
+						  </div>
 					  </div>
 				  </td>
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
-				  <td width="300" class="right">
+				  <td width="270" class="right">
 				      &nbsp;<a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
 					  прибыль ???? р подробно?
 				  </td>
 				  <td class="hidden">draft</td>
-				  <td width="50"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
-				  <td width="50" class="r_border">тираж</td>
+				  <td width="40"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
+				  <td width="60" class="right">тираж</td>
+				  <td width="20" class="r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="1" class="right pointer">$ товара<br><span class="small">входящая штука</span></td>
 				  <td width="15" connected_vals="art_price" c_stat="1"</td>
 				  <td width="90" connected_vals="art_price" c_stat="0" class="right hidden pointer">$ товара<br><span class="small">входящая тираж</span></td>
@@ -352,13 +370,14 @@
 	    $rt.= '</tr>
 	           <tr row_id="total_row" class="grey bottom_border">
 			      <td width="30" height="18"></td>
-			      <td width="80"></td>
+			      <td width="35"></td>
 	              <td class="hidden"></td>
 				  <td class="hidden"></td>
 				  <td class="hidden"></td>
 				  <td class="right">Счет №45384? оплата 70%?</td>
 				  <td></td>
-				  <td class="r_border"></td>  
+				  <td></td>
+				  <td width="20" class="r_border"></td>
 				  <td connected_vals="art_price" c_stat="1"></td>
 				  <td width="15" connected_vals="art_price" c_stat="1"></td>
 				  <td type="price_in_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_in_summ'],'2','.','').'</td>

@@ -41,7 +41,7 @@
 		var target = e.target || e.srcElement;
 		
 		target = target.parentNode;
-		
+
 		target.addEventListener('click',setMenuWindow,false);
 		function setMenuWindow(e){
 			e.stopPropagation();
@@ -60,9 +60,9 @@
 			openCloseMenu.lastWindow = null;
 			openCloseMenu.lastElement.style.backgroundColor = '#FFFFFF'
 		}
-
-		target.style.position = 'relative';
-	
+        //return;
+		//target.style.position = 'relative';
+	    
 		// building menu
 		var div = document.createElement('div');
 		div.className = "contextWindow";

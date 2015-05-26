@@ -63,6 +63,17 @@
 		return mysql_real_escape_string($data);
 	}
 	
+	function identify_supplier_by_prefix($article){// 
+	   global $suppliers_data_by_prefix;					   
+	   $prefix = substr($article,0,2);
+	   
+	   if(isset($suppliers_data_by_prefix[$prefix])){
+	      $article_orig_name = substr($article,2);
+	      return '<a target="_blank" class="rt_supplier_link" href="'.$suppliers_data_by_prefix[$prefix]['link'].$article_orig_name.'">'.$suppliers_data_by_prefix[$prefix]['name'].'</a>';
+		  
+	   }
+	   else return '';
+	}
 	/*   Чтение директрорий  */
 	function read_Dir($path){
 	     $dir = opendir($path);
