@@ -34,8 +34,7 @@
 		
 		static function add_data_from_basket($client,$manager_login){
 			global $mysqli;
-			echo $client;
-			exit;
+
 			//global $print_mode_names;
 			$user_id = $_SESSION['access']['user_id'];
 			
@@ -94,9 +93,11 @@
 			
 			
 				// вносим основные данные о позиции в RT_MAIN_ROWS
+				// ПРИМЕЧАНИЕ id артикула на сегодняшний день из корзины  поступает в виде $data['article']
 				$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 
 												`query_num` = '$query_num',
 												`type` = 'cat',
+												`art_id` = '".$data['article']."',
 												`art` = '".$art_data['art']."',
 												`name` = '".$art_data['name']."'"; 
 												
