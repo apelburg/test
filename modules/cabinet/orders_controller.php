@@ -24,9 +24,10 @@ include ('./libs/php/classes/rt_class.php');
 		INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
 	$result = $mysqli->query($query) or die($mysqli->error);
 	$main_rows_id = array();
+	
 	if($result->num_rows > 0){
 		while($row = $result->fetch_assoc()){
-			$zapros[] = $row;
+			$main_rows_id[] = $row;
 		}
 	}
 
@@ -36,13 +37,14 @@ include ('./libs/php/classes/rt_class.php');
 
 	// собираем html строк-запросов
 	$html = '';
-	foreach ($zapros as $key => $value) {
+	if(count($main_rows_id)==0){return 1;}
+	foreach ($main_rows_id as $key => $value) {
 		// print_r($value);
 
 		$html .= '
 				<tr>
 					<td class="cabinett_row_show show"><span></span></td>
-					<td><a href="./?page=client_folder&query_num='.$value['id'].'">'.Cabinet::show_order_num($value['id']).'</a></td>
+					<td><a href="./?page=client_folder&order_num='.$value['id'].'">'.Cabinet::show_order_num($value['id']).'</a></td>
 					<td>'.$value['create_time'].'</td>
 					<td>'.$value['company'].'</td>
 					<td><!--RT::calcualte_query_summ($value[\'order_num\'])--></td>
