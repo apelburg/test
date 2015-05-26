@@ -66,6 +66,16 @@ var rtCalculator = {
 		this.set_interactive_cells();
 	}
 	,
+	evoke_calculator:function(e){// корректировка значений вводимых пользователем
+	    e = e || window.event;
+		var cell = e.target || e.srcElement;
+		
+		if(cell.parentNode.getAttribute('calc_btn') == 'print') alert('калькулятор нанесения логотипа');
+		if(cell.parentNode.getAttribute('calc_btn') == 'extra') alert('калькулятор доп. услуг');
+	    
+		
+	}
+	,
     collect_data:function(){
 	    // метод считывающий данные таблицы РТ и сохраняющий их в свойство this.tbl_model 
 	    this.tbl_model={};
@@ -188,6 +198,11 @@ var rtCalculator = {
 							if(tds_arr[j].getAttribute('svetofor')){
 								//console.log(j+' svetofor');
 								if(tds_arr[j].getElementsByTagName('img')[0]) $(tds_arr[j].getElementsByTagName('img')[0]).mouseenter(this.show_svetofor);
+								
+							}
+							if(tds_arr[j].getAttribute('calc_btn')){
+								//console.log(j+' svetofor');
+								if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = this.evoke_calculator;
 								
 							}
 						}
@@ -462,7 +477,7 @@ var rtCalculator = {
 			rtCalculator.tbl_model[row_id]['delta'] = rtCalculator.tbl_model[row_id]['margin'] = rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'];
 
 		}
-		
+		alert(cell.getAttribute('connected_vals'));
 		// изменяем значение status в JS модели таблицы - rtCalculator.tbl_model
 		if(type =='out_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] = status;
 		else if(type =='print_out_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] = status;
@@ -471,6 +486,15 @@ var rtCalculator = {
 		// меняем значение status в HTML и меняем значение аттрибута class текущей ячейки
 		cell.setAttribute('expel',Number(status));
 	    cell.className = (status)? cell.className+' red_cell': cell.className.slice(0,cell.className.indexOf("red_cell")-1);
+		// меняем значение аттрибута class в соседней ячейке таблицы содержашей обозначение валюты если type =='out_summ'
+		if(type =='out_summ'){
+			 for(var n = cell.nextSibling;n !=null ;n = n.nextSibling){ 
+			      if(n.nodeName == 'TD'){ 
+				       n.className = (status)? n.className+' red_cell': n.className.slice(0,n.className.indexOf("red_cell")-1);
+				       break;
+				  }
+			 }
+		}
 		
 		// перебираем ячейки ряда с итоговыми суммами и суммируем значения соответсвующих ячеек в rtCalculator.tbl_model
 		var total_row =  rtCalculator.tbl_model['total_row'];

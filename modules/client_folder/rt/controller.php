@@ -179,14 +179,14 @@
 						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
 						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 					 }
-					 $print_btn = count($dop_row['dop_uslugi']['print']); 
+					 $print_btn = '<span>'.count($dop_row['dop_uslugi']['print']).'</span>'; 
 					 $print_in_summ = array_sum($summ_in);
 					 $print_out_summ = array_sum($summ_out);
 					 if($test_data) $print_open_data = print_r($dop_row['dop_uslugi']['print'],TRUE);
 				 }
 				 else{// если данных по печати нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да то
 					  // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление нанесения
-					 $print_btn = ($all_draft && $counter==0)? '' : '+';
+					 $print_btn = '<span>+</span>';
 					 $print_in_summ = 0;
 					 $print_out_summ = 0;
 					 if($test_data) $print_open_data =($all_draft && $counter==0)? 0:'0';
@@ -198,15 +198,15 @@
 						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
 						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 					 }
+					 $dop_uslugi_btn =  '<span>'.count($dop_row['dop_uslugi']['extra']).'</span>';
 					 $dop_uslugi_in_summ = array_sum($summ_in);
 					 $dop_uslugi_out_summ = array_sum($summ_out);
-					 $dop_uslugi_btn = count($dop_row['dop_uslugi']['extra']);
 					 if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);
 				 }
 				 else{// если данных по дополнительным услугам  нет выводим кнопку добавление дополнительных услуг
 					 $dop_uslugi_in_summ = 0;
 					 $dop_uslugi_out_summ = 0;
-					 $dop_uslugi_btn = '+';
+					 $dop_uslugi_btn = '<span>+</span>';
 					 if($test_data) $extra_open_data =($all_draft && $counter==0)? 0:'0';
 				 }
 				 
@@ -274,7 +274,7 @@
 			 //echo $row['row_type'].' = ';
 				 if($row['row_type'] == 'cat'){ 
 				     $extra_panel = '<div class="pos_plank cat">
-									   <a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].'</a>
+									   <a href="?page=client_folder&section=order_art_edit&id='.$key.'">'.$row['art'].'</a>
 									   <div class="pos_link_plank">
 										  <div class="catalog">
 											  <a id="" href="/?page=description&id='.get_base_art_id($row['art']).'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
@@ -324,17 +324,17 @@
 						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >'.$currency.'</td>
 						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
 						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left r_border hidden">'.$currency.'</td>
-						   <td width="20">'.$print_btn.'</td>';
+						   <td width="25" class="calc_btn" calc_btn="print">'.$print_btn.'</td>';
                  if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
 			 $cur_row .=  '<td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden">'.$print_in_summ_format.$currency.'</td> 
 			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.$expel_class_print.'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
-			               <td width="20">'.$dop_uslugi_btn.'</td>';
+			               <td width="25" class="calc_btn" calc_btn="extra">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden">'.$dop_uslugi_in_summ_format.$currency.'</td>';
 			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border '.$expel_class_dop.'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>
 						   <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="in right hidden '.$expel_class_main.'">'.$in_summ_format.'</td>
 						   <td width="15" connected_vals="total_summ" c_stat="0" class="currency hidden r_border '.$expel_class_main.'">'.$currency.'</td>
-						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.$expel_class_main.'" expel="'.$expel['main'].'" >'.$out_summ_format.'</td>
+						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$out_summ_format.'</td>
 						   <td width="15" connected_vals="total_summ" c_stat="1" class="currency r_border left '.$expel_class_main.'">'.$currency.'</td>
 						   <td width="55" class="grey r_border center">'.$srock_sdachi.'</td>
 						   <td width="80" type="delta" class="right">'.$delta_format.'</td>
@@ -381,11 +381,11 @@
 				  <td width="15" connected_vals="art_price" c_stat="1" class="grey w_border r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="0" class="grey w_border right pointer hidden">$ товара<br><span class="small">исходящая тираж</span></td>
 				  <td width="15" connected_vals="art_price" c_stat="0" class="grey w_border r_border hidden"></td>
-				  <td width="20"></td>';
+				  <td width="25"></td>';
 	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
 	       $rt.= '<td width="80" connected_vals="print" c_stat="0" class="pointer hidden">$ печать<br><span class="small">входящая тираж</span></td> 	  
 			      <td width="80" connected_vals="print" c_stat="1" class="pointer">$ печать<br><span class="small">исходящая тираж</span></td>
-			      <td width="20"></td>';
+			      <td width="25"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
            $rt.= '<td width="80"  connected_vals="uslugi" c_stat="0" class="pointer r_border hidden">$ доп. услуги<br><span class="small">входящая тираж</span></td> 
 			      <td width="80"  connected_vals="uslugi" c_stat="1" class="out pointer r_border">$ доп. услуги<br><span class="small">исходящая тираж</span></td>
