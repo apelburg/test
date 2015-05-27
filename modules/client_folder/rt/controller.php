@@ -29,7 +29,7 @@
 		 
 		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn ,
 		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.draft AS draft, dop_data_tbl.expel AS expel,
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel,
 						  
 						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out
@@ -53,7 +53,6 @@
 			 //$multi_dim_arr[$row['main_id']]['uslugi_id'][] = $row['uslugi_id'];
 			 if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
 			     $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']] = array(
-																	'draft' => $row['draft'],
 																	'expel' => $row['expel'],
 																	'row_status' => $row['row_status'],
 																	'glob_status' => $row['glob_status'],
@@ -92,7 +91,7 @@
 	 // вид таблицы
 	 // элементы первого уровня выводятся один раз на весь блок элементов $row['dop_data']
 	 // элементы третьего уровня $dop_row['dop_uslugi'] выводятся в виде ссылки внутри существующего ряда, если $dop_row['dop_uslugi'] существует
-	 // draft - ЕАЛИЗАЦИЯ ФУНКЦИОНАЛА "ДРАФТ" оказалась не востребованной поле draft можно удалить из таблицы в базе данных
+	 // draft - РЕАЛИЗАЦИЯ ФУНКЦИОНАЛА "ДРАФТ" оказалась не востребованной поле draft можно удалить из таблицы в базе данных
 	 // если что реализация сохранена, закомментирована внизу скрипта 
 	 
 	 //echo '<pre>'; print_r($rows[0]); echo '</pre>';
@@ -152,12 +151,11 @@
 					 $print_out_summ = array_sum($summ_out);
 					 if($test_data) $print_open_data = print_r($dop_row['dop_uslugi']['print'],TRUE);
 				 }
-				 else{// если данных по печати нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да то
-					  // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление нанесения
+				 else{// если данных по печати нет то проверяем выводим кнопку добавление нанесения
 					 $print_btn = '<span>+</span>';
 					 $print_in_summ = 0;
 					 $print_out_summ = 0;
-					 if($test_data) $print_open_data =($all_draft && $counter==0)? 0:'0';
+					 if($test_data) $print_open_data =($counter==0)? 0:'0';
 				 }
 				 // 2. определяем данные описывающие варианты дополнительных услуг, они хранятся в $dop_row['dop_uslugi']['extra']
 				 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
@@ -175,7 +173,7 @@
 					 $dop_uslugi_in_summ = 0;
 					 $dop_uslugi_out_summ = 0;
 					 $dop_uslugi_btn = '<span>+</span>';
-					 if($test_data) $extra_open_data =($all_draft && $counter==0)? 0:'0';
+					 if($test_data) $extra_open_data =($counter==0)? 0:'0';
 				 }
 				 
 				 // подсчет сумм ряду
@@ -219,7 +217,7 @@
 				 $img_design_path = HOST.'/skins/images/img_design/';
 				 $svetofor_stat = ($dop_row['row_status']=='')?'green':$dop_row['row_status'];
 				 $svetofor_src = $img_design_path.'rt_svetofor_'.$svetofor_stat.'.png';
-				 $svetofor = '<img src="'.$svetofor_src.'" >';
+				 $svetofor = '<img src="'.$svetofor_src.'" />';
 				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer center"';
 				 $currency = 'р';
 				 $quantity_dim = 'шт';
@@ -266,7 +264,7 @@
 			 
 			 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'"':'').' row_id="'.$dop_key.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').'">';
+		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'"':'').' row_id="'.$dop_key.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top glob_counter" width="30">'.$glob_counter.'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top master_btn noselect" width="35">   
 											<div class="masterBtnContainer" id="">
@@ -278,7 +276,7 @@
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="270" class="top">'.$extra_panel.'</td>':'';
 										  
 										  //extra_panel
-			 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
+			 $cur_row .=  '<td class="hidden"></td>
 			               <td width="40" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
 			               <td width="60" type="quantity" class="right"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="20" class="r_border left quantity_dim">'.$quantity_dim.'</td>
@@ -310,7 +308,7 @@
 						   <td width="80" type="margin" class="right">'.$margin_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
 						   <td stretch_column>&nbsp;</td>';
-			 $cur_row .=  '<td>'.$dop_row['glob_status'].'</td>';  
+			 $cur_row .=  '<td ><div class="overflow">'.$dop_row['glob_status'].'<div></td>';  
 			 $cur_row .= '</tr>';
 			 
 			 // загружаем сформированный ряд в итоговый массив
@@ -337,7 +335,7 @@
 					  прибыль ???? р подробно?
 				  </td>
 				  <td class="hidden">draft</td>
-				  <td width="40"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
+				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
 				  <td width="60" class="right">тираж</td>
 				  <td width="20" class="r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br><span class="small">входящая штука</span></td>
