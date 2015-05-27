@@ -29,15 +29,12 @@ $order_tbl = $html = '';
 				<th>артикул</th>
 				<th>номенклатура</th>
 				<th>тираж</th>
-				<th>товар</th>
-				<th>печать</th>
+				<th>цена за товар</th>
 				<th>доп. услуги</th>
-				<th>в общем</th>
+				<th>цена позиции</th>
 				<th>ТТН</th>
 				<th>статус мен</th>
 				<th>статус снаб</th>
-				<th>статус диз</th>
-				<th>статус про-во</th>
 				</tr>';
 //
 //if(count($main_rows_id)==0){$order_tbl = 'в данном заказе число позиций равно нулю';die;}
@@ -99,7 +96,7 @@ $order_tbl = $html = '';
 		
 		// шапка таблицы вариантов запроса
 
-
+		$order_itog_price = 0; // стоимость заказа
 		foreach ($main_rows as $key1 => $val1) {
 
 			//ОБСЧЁТ ВАРИАНТОВ
@@ -119,46 +116,26 @@ $order_tbl = $html = '';
 			$price_out = $val1['price_out'] * $val1['quantity'];
 			// стоимость варианта на выходе
 			$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
-		// $html .= '<tr>
-		// 		<th>артикул</th>
-		// 		<th>номенклатура</th>
-		// 		<th>тираж</th>
-		// 		<th>цены:</th>
-		// 		<th>товар</th>
-		// 		<th>печать</th>
-		// 		<th>доп. услуги</th>
-		// 		<th>в общем</th>
-		// 		<th>ТТН</th>
-		// 		<th>статус мен</th>
-		// 		<th>статус снаб</th>
-		// 		<th>статус диз</th>
-		// 		<th>статус про-во</th>
-		// 		</tr>';
-			// if($dop_usl_print){
-			// 	echo '<pre>';
-			// 	print_r($dop_usl_print);
-			// 	echo '</pre>';
-			// }
+		
 
 			$html .= '<tr>
 			<td> '.$val1['art'].'<!--артикул --></td>
 			<td>'.$val1['name'].'<!--номенклатура --></td>
 			<td>'.($val1['quantity']+$val1['zapas']).'<!--тираж + запас --></td>
 			<td>'.$price_out.'<!-- стоимость товара --></td>
-			<td>'.get_tbl_dop_uslugi($dop_usl_print,$calc_summ_dop_uslug).'<!-- стоимость печати --></td>
-			<td>'.get_tbl_dop_uslugi($dop_usl_no_print,$calc_summ_dop_uslug2).'<!-- стоимость доп услуг --></td>
-			<td>'.$in_out.'<!-- общая стоимоть --></td>
+			<td>'.get_tbl_dop_uslugi($dop_usl,($calc_summ_dop_uslug2+$calc_summ_dop_uslug)).'<!-- стоимость доп услуг --></td>
+			<td><span class="itogo_n_no_bold">р.</span><span class="itogo_n_no_bold">'.$in_out.'</span><!-- цена позиции --></td>
 			<td><!-- TTH --></td>
 			<td>'.$val1['status_men'].'<!-- статус мен --></td>
 			<td>'.$val1['status_snab'].'<!--статус снаб --></td>
-			<td><!-- статус диз --></td>
-			<td><!--статус  про-во --></td>
 			</tr>';
+			$order_itog_price +=$in_out;
 		}
 		
 		
 
-function get_tbl_dop_uslugi_design($dop_usl, $all_price){
+function get_tbl_dop_uslugi($dop_usl, $all_price){
+	global $global_performer_type;
 	$html = '';
 	if(count($dop_usl)){
 		$html .= '<table class="dop_usl_tbl">';
@@ -172,105 +149,79 @@ function get_tbl_dop_uslugi_design($dop_usl, $all_price){
 		<td>тираж</td>
 		<td>цена вход.</td>
 		<td>цена исх.</td>
-		<td>применить к тиражу/шт.</td>
-		<td>% готовности</td>
+		<td>for_how<!--применить к тиражу/шт.--></td>
+		<td>готовность</td>
+		<td>плёнки</td>
+		<td>дата начала работ</td>
+		<td>дата сдачи</td>
+		<td>тип исп.</td>
+		<td>id исп.</td>
+		<td>статуc вып.</td>
 		<td>услуга</td>
 		<td>общая цена</td>
 		';
 		$html .= '</tr>';
 		foreach ($dop_usl as $key => $value) {
 			$html .= '<tr>';
-				foreach ($value as $k => $v) {
-					$html .= '<td>';
-						$html .=$v;		
-					$html .= '</td>';		
-				}			
-				if($key<1){
-					$html .= '<td rowspan="'.count($dop_usl).'">';
-					$html .= $all_price;
-					$html .= '</td>';
-				}
+
+			foreach ($value as $k => $v) {
+				$html .= '<td>';
+				switch ($k) {
+					case 'performer_status': // статус исполнителя
+						$html .='<span>'.$v.'</span>';
+						break;	
+					case 'performer_id': // тип исполнителя услуг
+						$html .='<span>'.((int)$v==0)?'не указан':$v.'</span>';
+						break;	
+					case 'performer_type': // тип исполнителя услуг
+						$html .='<span>'.$global_performer_type[$v].'</span>';
+						break;	
+					case 'date_ready': // дата начала работ
+						$html .='<span>'.($v=='000-00-00')?'неизвестно':$v.'</span>';
+						break;	
+					case 'date_send_out': // дата сдачи
+						$html .='<span>'.($v=='000-00-00')?'неизвестно':$v.'</span>';
+						break;	
+					case 'quantity': // тираж
+						$html .='<span>'.$v.'</span> шт.';
+						break;	
+					case 'price_in': // цена входящая
+						$html .='<span>'.$v.'</span> р.';
+						break;	
+					case 'price_out': // цена выход
+						$html .='<span>'.$v.'</span> р.';
+						break;	
+					case 'status_readiness': // процент готовности
+						$html .='<span>'.$v.'</span> %';
+						break;						
+					case 'plenki': // плёнки
+						$html .='<span>'.((int)$v==0)?'нужно делать':'есть'.'</span>';
+						break;								
+					default:
+						$html .= $v;
+						break;
+				}	
+				$html .= '</td>';		
+			}			
+			if($key<1){
+				$html .= '<td rowspan="'.count($dop_usl).'">';
+				$html .= $all_price;
+				$html .= '</td>';
+			}
 			$html .= '</tr>';
 		}
 		$html .= '</table>';
 	}
 	return $html;
 }
-function get_tbl_dop_uslugi_delivery($dop_usl, $all_price){
-	$html = '';
-	if(count($dop_usl)){
-		$html .= '<table class="dop_usl_tbl">';
-		$html .= '<tr>';
-		$html .= '
-		<td>id</td>
-		<td>dop_row_id</td>
-		<td>id услуги</td>
-		<td>глоб. тип</td>
-		<td>тип</td>
-		<td>тираж</td>
-		<td>цена вход.</td>
-		<td>цена исх.</td>
-		<td>применить к тиражу/шт.</td>
-		<td>% готовности</td>
-		<td>услуга</td>
-		<td>общая цена</td>
-		';
-		$html .= '</tr>';
-		foreach ($dop_usl as $key => $value) {
-			$html .= '<tr>';
-				foreach ($value as $k => $v) {
-					$html .= '<td>';
-						$html .=$v;		
-					$html .= '</td>';		
-				}			
-				if($key<1){
-					$html .= '<td rowspan="'.count($dop_usl).'">';
-					$html .= $all_price;
-					$html .= '</td>';
-				}
-			$html .= '</tr>';
-		}
-		$html .= '</table>';
-	}
-	return $html;
-}
-function get_tbl_dop_uslugi_print($dop_usl, $all_price){
-	$html = '';
-	if(count($dop_usl)){
-		$html .= '<table class="dop_usl_tbl">';
-		$html .= '<tr>';
-		$html .= '
-		<td>id</td>
-		<td>dop_row_id</td>
-		<td>id услуги</td>
-		<td>глоб. тип</td>
-		<td>тип</td>
-		<td>тираж</td>
-		<td>цена вход.</td>
-		<td>цена исх.</td>
-		<td>применить к тиражу/шт.</td>
-		<td>% готовности</td>
-		<td>услуга</td>
-		<td>общая цена</td>
-		';
-		$html .= '</tr>';
-		foreach ($dop_usl as $key => $value) {
-			$html .= '<tr>';
-				foreach ($value as $k => $v) {
-					$html .= '<td>';
-						$html .=$v;		
-					$html .= '</td>';		
-				}			
-				if($key<1){
-					$html .= '<td rowspan="'.count($dop_usl).'">';
-					$html .= $all_price;
-					$html .= '</td>';
-				}
-			$html .= '</tr>';
-		}
-		$html .= '</table>';
-	}
-	return $html;
-}
+
+$html .= '
+<tr>
+	<td colspan="5"><span class="itogo">ИТОГО: </span></td>
+	<td><span class="itogo_n">р.</span><span  class="itogo_n">'.$order_itog_price.'</span><!-- цена заказа --></td>
+	<td><span class="itogo"></span><!-- TTH --></td>
+	<td><span class="itogo"></span></td>
+	<td><span class="itogo"></span></td>
+</tr>';
 
 $order_tbl = $html;

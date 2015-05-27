@@ -177,6 +177,12 @@
                 }
         }
 	}
+	$global_performer_type = array(
+		'supplier' => 'Поставщик',
+		'delivery' => 'Доставка',
+		'pr_vo' => 'Пр-во',
+		'0' => 'Не указан' 
+		);
 	// статусы пользователей
 	$STATUS_LIST = array(
 		'1'=> array(), // админ
