@@ -195,17 +195,22 @@
 				FROM `".RT_LIST."` 
 				WHERE  `query_num` = '".$query_num."';
 				";
+			// выполняем запрос
 			$result = $mysqli->query($query) or die($mysqli->error);
-        	$order_id = $mysqli->insert_id; // id нового заказа... он же номер
+			// получаем id нового заказа... он же номер
+        	$order_id = $mysqli->insert_id; 
         	// пишем номер заказа в созданную строку
         	$query = "UPDATE  `".CAB_ORDER_ROWS."` 
 						SET  `order_num` =  '".$order_num."' 
 						WHERE  `id` ='".$order_id."';";
+			// выполняем запрос
 			$result = $mysqli->query($query) or die($mysqli->error);
 
 
 
-			// перебираем отправленные данные по позициям
+			// перебираем принятые данные по позициям
+
+			$query1 = '';//запрос копирования услуг
 			foreach ($data_obj['ids'] as $key => $value) {
 				// ЗАВОДИМ ПОЗИЦИИ К НОВОМУ ЗАКАЗУ
 				$query = "INSERT INTO `".CAB_ORDER_MAIN."`  (`master_btn`, `order_num`,`type`,`art`,`art_id`,`name` )
@@ -214,9 +219,10 @@
 					WHERE  `query_num` = '".$query_num."' 
 					AND `id` = '".$key."';
 				";
-
+				// выполняем запрос
 				$result = $mysqli->query($query) or die($mysqli->error);
-        		$main_row_id = $mysqli->insert_id; // id нового заказа... он же новый номер
+				// id новой позиции
+        		$main_row_id = $mysqli->insert_id; 
         		// echo $query;
 
         		// выбираем id строки расчёта
@@ -260,18 +266,23 @@
 				 Вар. 1) копируем данные, замораживаем таблицу доп услуг и апдейтим родительский id
 				 Вар. 2) выгружаем данные о доп услугах в PHP, и записывае в новую таблицу
 				*/
+
+				
 				$query = "SELECT * FROM `".RT_DOP_USLUGI."` 
-					WHERE  `id` = '".$key_dop_data."'
+					WHERE  `dop_row_id` = '".$key_dop_data."'
 				";
 				$arr_dop_uslugi = array();
 				$result = $mysqli->query($query) or die($mysqli->error);
+
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 						$arr_dop_uslugi[] = $row;
 					}
 				}
+				// echo '<pre>';
+				// print_r($arr_dop_uslugi);
+				// echo '</pre>';
 				
-				$query1 = '';
 				foreach ($arr_dop_uslugi as $k12 => $v12) {
 					$query1 .= "INSERT INTO `".CAB_DOP_USLUGI."` SET
 						`dop_row_id` =  '".$dop_data_row_id."', 
@@ -283,10 +294,12 @@
 						`price_out` = '".$v12['price_out']."',
 						`for_how` = '".$v12['for_how']."';";
 				}	
-				if($query1!=''){// в случае наличия доп услуг
+				
+			}
+
+			if($query1!=''){// в случае наличия доп услуг
 					$result = $mysqli->multi_query($query1) or die($mysqli->error);	
 				}
-			}
 			return 1;
 		}  
     }

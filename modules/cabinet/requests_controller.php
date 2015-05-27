@@ -78,7 +78,9 @@ function get_gen_price_out($variable){
 		SELECT 
 			`".RT_DOP_DATA."`.`id` AS `id_dop_data`,
 			`".RT_DOP_DATA."`.`quantity`,	
-			`".RT_DOP_DATA."`.`price_out`,	
+			`".RT_DOP_DATA."`.`price_out`,		
+			`".RT_DOP_DATA."`.`print_z`,	
+			`".RT_DOP_DATA."`.`zapas`,	
 			DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 			`".RT_MAIN_ROWS."`.*,
 			`".RT_LIST."`.`id` AS `request_id` 
@@ -144,7 +146,7 @@ function get_gen_price_out($variable){
 			$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
 
 			$html .= '<tr>
-			<td><!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
+			<td>'.$val1['id_dop_data'].'<!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
 			<td>'.$val1['name'].'</td>
 			<td>'.$val1['quantity'].'</td>
 			<td></td>

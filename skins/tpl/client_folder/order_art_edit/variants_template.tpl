@@ -52,7 +52,8 @@
 										<td class="row_tirage_in_one price_in"><span contenteditable="true" class="edit_span" ><?php echo $value['price_in']; ?></span> р.</td>
 										<td rowspan="2"  class="percent_nacenki">
 											<span contenteditable="true" class="edit_span"><?php 
-											echo round((($value['price_out']-$value['price_in'])*100/$value['price_in']),2);
+											$per = ($value['price_in']!= 0)?$value['price_in']:0.09;
+											echo round((($value['price_out']-$value['price_in'])*100/$per),2);
 											?></span>%
 
 										</td>

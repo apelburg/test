@@ -15,6 +15,10 @@
 		include 'rt/router.php';
 		break;
 
+		case 'order_tbl':
+		include 'order_tbl/router.php';
+		break;
+
 		case 'order_art_edit':
 		include 'order_art_edit/router.php';
 		break;

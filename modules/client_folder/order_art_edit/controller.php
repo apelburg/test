@@ -44,15 +44,6 @@
 			$dop = $_POST['dop']; // array / запас
 			$id = $_POST['id']; // array / id 
 
-			$tirage = 0;
-			foreach ($tir as $key => $value) {
-				$tirage += $value;
-			}
-			$zapas = 0;
-			foreach ($dop as $key => $value) {
-				$zapas += $value;
-			}
-
 			//print_r($_POST['id']);exit;
 
 			$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$id[0]."'";
@@ -77,11 +68,7 @@
 			// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
 			//echo $r .'   -   ';
 			//echo json_encode($arr_json);
-			$query = "UPDATE `".RT_DOP_DATA."` SET 
-			`quantity` = '".$tirage."',
-			`zapas` = '".$zapas."',
-			`tirage_json` = '".json_encode($arr_json)."' 
-			WHERE  `id` ='".$id[0]."'";	
+			$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
 			// // echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			exit;
@@ -139,26 +126,6 @@
 
 			$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."' , `standart` = '' WHERE  `id` ='".$_POST['id']."'";	
 			// echo $query;
-			$result = $mysqli->query($query) or die($mysqli->error);
-			exit;
-		}
-
-		if(isset($_POST['change_name']) && $_POST['change_name']=='save_new_tir_and_zapas'){
-			$query = "UPDATE `".RT_DOP_DATA."` 
-					SET `quantity` = '".(int)$_POST['tir']."',
-					`zapas` = '".(int)$_POST['zap']."',
-					WHERE  `id` ='".$_POST['dop_data']."'";	
-			// echo $query;
-			$result = $mysqli->query($query) or die($mysqli->error);
-			exit;
-		}
-
-		if(isset($_POST['change_name']) && $_POST['change_name']=='save_price_in_out_for_one_price'){
-			$query = "UPDATE `".RT_DOP_DATA."` SET 
-					`price_in` =  '".trim($_POST['price_in'])."',
-					`price_out` =  '".trim($_POST['price_out'])."' 
-					 WHERE  `id` ='".$_POST['dop_data']."';";	
-			// echo $query.'      */*/    ';
 			$result = $mysqli->query($query) or die($mysqli->error);
 			exit;
 		}
