@@ -92,18 +92,9 @@
 	 // вид таблицы
 	 // элементы первого уровня выводятся один раз на весь блок элементов $row['dop_data']
 	 // элементы третьего уровня $dop_row['dop_uslugi'] выводятся в виде ссылки внутри существующего ряда, если $dop_row['dop_uslugi'] существует
-	 // РЯДЫ ДЛЯ РАСЧЕТА ВАРИАНТОВ!!! $dop_row['draft'] - для реализации функционала при котором позиция может иметь несколько расчетов, 
-	 // при этом может быть что ни один из низ не выбран как окончательный, или один выбран а остальные остаются вариантами, введено понятие
-	 // draft - (черновик,проект,эскиз) для маркирования таких рядов в базе данных - объявляется следующее правило - если позиция имеет один  
-	 // расчетный ряд то он не может быть draft (он окончательный и участвует в дальнейших расчетах), если несколько они могут все быть draft,
-	 // (и в дальшейших расчетах не участвуют) если один из низ не draft значит он окончательный (он окончательный и участвует в дальнейших
-	 // расчетах), если позиция имеет несколько расчетных рядов, то не draft из них может быть только один
-	 // ПРИМ. если этот вариант останется рабочим удалить из таблицы поле final
-	 //
-	 // был еще вариант обратный маркировать окончательные финальные ряды - пока от него ушли
-	 // ФИНАЛЬНЫЙ РЯД!!! $dop_row['final'] - для реализации функционала при котором позиция может иметь несколько расчетов, при этом может быть
-	 // что ни один из низ не является финальным, или один может быть установлен как финальный и тогда он участвует в дальнейшем расчете заказа
-	 //
+	 // draft - ЕАЛИЗАЦИЯ ФУНКЦИОНАЛА "ДРАФТ" оказалась не востребованной поле draft можно удалить из таблицы в базе данных
+	 // если что реализация сохранена, закомментирована внизу скрипта 
+	 
 	 //echo '<pre>'; print_r($rows[0]); echo '</pre>';
 	 
 	 $service_row[0] = array('quantity'=>'','price_in'=>'','price_out'=>'','row_status'=>'','glob_status'=>'');
@@ -114,39 +105,16 @@
          // Проходим по первому уровню и определям некоторые моменты отображения таблицы, которые будут применены при проходе по второму
 		 // уровню массива, ряды таблицы будут создаваться там
 		 
-		 // если товарная позиция имеет больше одного варианта расчета и один из этих вариатов расчета не является draft
-		 // то мы должны переместить его вверх вывода а остальные вариатны вывести ниже
-		 // при этом мы указываем $all_draft = FALSE; что не все ряды являются draft
-		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>';
 		 
 		 // считаем сколько мастер кнопок нажаты
 		 $mst_btn_summ += $row['master_btn'];
 		 
 		 
-		 $all_draft = FALSE;
+		 // если товарная позиция имеет больше одного варианта расчета вставляем пустой ряд вверх
+		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>';
 		 if(isset($row['dop_data']) && count($row['dop_data'])>1){
-		     $all_draft = TRUE;
-			 foreach($row['dop_data'] as $dop_key => $dop_row){
-				 if($dop_row['draft']!=1){
-				      $all_draft = FALSE;
-					  $row_to_lift_up[$dop_key] = $dop_row;
-					  unset($row['dop_data'][$dop_key]);
-				  }
-			 }
-			 // использование в данном случае не возможно потому что этот метод приводит к переиндексации ключей а ключи у нас содержат id ряда 
-			 if(isset($row_to_lift_up)){
-			      $row['dop_data']= $row_to_lift_up + $row['dop_data']; 
-				  unset($row_to_lift_up);
-			 }
+			  $row['dop_data']= $service_row + $row['dop_data']; 
 		 }
-		 else{
-		     // !!! НАДО КАК_ТО ЭТО ОТРАБОТАТЬ
-		 }
-		 
-		 // здесь определяем выводить ли дополнительный вспомогательный пустой ряд сверху
-		 // когда все остальные являются draft то выводим  т.е. (если не все draft то невыводим)
-		 // использование в данном случае не возможно потомучто этот метод приводит к переиндексации ключей а ключи у нас содержат id ряда 
-		 if($all_draft) $row['dop_data']= $service_row + $row['dop_data']; 
 		 
 		 //array_unshift($row['dop_data'],array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0));
 		 
@@ -445,98 +413,66 @@
 	          <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0">'.implode('',$tbl_rows).'</table>
 			  </div>';
 			  
-/*	 $rt = '<table class="rt_tbl_head" scrolled="head" style="width: 100%;">
-	          <tr class="cap">
-	              <td class="hidden"></td>
-				  <td class="hidden">тип</td>
-				  <td width="300">&nbsp;<a href="#" onclick="print_r(rt_calculator.tbl_model);">_</a>наименование</td>
-				  <td class="hidden">draft</td>
-				  <td width="50">статус</td>
-				  <td width="50">кол-во</td>
-				  <td width="70">вход</td>
-				  <td width="70">вход</td>
-				  <td width="70">выход</td>
-				  <td width="70">выход</td>
-				  <td width="20"></td>';
-	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
-	       $rt.= '<td width="70" class="test_data_cap hidden">нанес вход</td> 	  
-			      <td width="70">нанесение выход</td>
-			      <td width="20"></td>';
-    if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
-           $rt.= '<td class="test_data_cap hidden">доп.усл вход</td> 
-			      <td width="70">доп.усл выход</td>
-				  <td>сумма вход</td>
-				  <td>сумма выход</td>
-				  <td>дельта</td>
-				  <td>маржинальность</td>
-                  <td width="70">статус</td>';              
-	    $rt.= '</tr>
-	           <tr row_id="total_row">
-	              <td class="hidden"></td>
-				  <td class="hidden"></td>
-				  <td></td>
-				  <td class="hidden"></td>
-				  <td></td>
-				  <td></td>
-				  <td></td>
-				  <td type="price_in_summ">'.number_format($total['price_in_summ'],'2','.','').'</td>
-				  <td></td>
-				  <td type="price_out_summ">'.number_format($total['price_out_summ'],'2','.','').'</td>
-				  <td></td>';
-	if($test_data)	$rt.= '<td class="test_data_cap"></td>';
-	       $rt.= '<td  type="print_in_summ" class="test_data_cap hidden">'.number_format($total['print_in_summ'],'2','.','').'</td> 		  
-			      <td type="print_out_summ">'.number_format($total['print_out_summ'],'2','.','').'</td>
-			      <td></td>';
-    if($test_data)	$rt.= '<td class="test_data_cap"></td>';
-           $rt.= '<td type="dop_uslugi_in_summ" class="test_data_cap hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'</td> 
-			      <td type="dop_uslugi_out_summ">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'</td>
-			      <td type="in_summ">'.number_format($total['in_summ'],'2','.','').'</td>
-				  <td type="out_summ">'.number_format($total['out_summ'],'2','.','').'</td>
-				  <td type="delta">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
-				  <td type="margin">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
-                  <td></td>';              
-	   $rt.= '</tr>
-	          </table>
-			  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
-	          <table class="rt_tbl_body" id="rt_tbl" scrolled="body">'.implode('',$tbl_rows).'</table>
-			  </div>';*/
+			  
+			  
+			  
+			  
+			  
+			  
+	/*	
+	     РЕАЛИЗАЦИЯ ФУНКЦИОНАЛА "ДРАФТ" оказалась не востребованной
+		 
+		 ПРИМ. поле draft можно удалить из таблицы в базе данных
+	
+		 // РЯДЫ ДЛЯ РАСЧЕТА ВАРИАНТОВ!!! $dop_row['draft'] - для реализации функционала при котором позиция может иметь несколько расчетов, 
+		 // при этом может быть что ни один из низ не выбран как окончательный, или один выбран а остальные остаются вариантами, введено понятие
+		 // draft - (черновик,проект,эскиз) для маркирования таких рядов в базе данных - объявляется следующее правило - если позиция имеет один  
+		 // расчетный ряд то он не может быть draft (он окончательный и участвует в дальнейших расчетах), если несколько они могут все быть draft,
+		 // (и в дальшейших расчетах не участвуют) если один из низ не draft значит он окончательный (он окончательный и участвует в дальнейших
+		 // расчетах), если позиция имеет несколько расчетных рядов, то не draft из них может быть только один
+		 // ПРИМ. если этот вариант останется рабочим удалить из таблицы поле final
+		 //
+		 // был еще вариант обратный маркировать окончательные финальные ряды - пока от него ушли
+		 // ФИНАЛЬНЫЙ РЯД!!! $dop_row['final'] - для реализации функционала при котором позиция может иметь несколько расчетов, при этом может быть
+		 // что ни один из низ не является финальным, или один может быть установлен как финальный и тогда он участвует в дальнейшем расчете заказа
+		 
 	 
 	
 	
-		/* 
-		 ВАРИАНТ С ФИНАЛЬНЫМ РЯДОМ
-		 
-		// если товарная позиция имеет больше одного варианта расчета и один из этих вариатов расчета обозначен как финальный
+		  
+		 // если товарная позиция имеет больше одного варианта расчета и один из этих вариатов расчета не является draft
 		 // то мы должны переместить его вверх вывода а остальные вариатны вывести ниже
-		 $final_row = FALSE;
-		 foreach($row['dop_data'] as $dop_key => $dop_row){
-		     if($dop_row['final']==1){
-			      $final_row = $dop_row;
-				  unset($row['dop_data'][$dop_key]);
-		      }
+		 // при этом мы указываем $all_draft = FALSE; что не все ряды являются draft
+		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>';
+		 
+		 $all_draft = FALSE;
+		 if(isset($row['dop_data']) && count($row['dop_data'])>1){
+		     $all_draft = TRUE;
+			 foreach($row['dop_data'] as $dop_key => $dop_row){
+				 if($dop_row['draft']!=1){
+				      $all_draft = FALSE;
+					  $row_to_lift_up[$dop_key] = $dop_row;
+					  unset($row['dop_data'][$dop_key]);
+				  }
+			 }
+			 // использование в данном случае не возможно потому что этот метод приводит к переиндексации ключей а ключи у нас содержат id ряда 
+			 if(isset($row_to_lift_up)){
+			      $row['dop_data']= $row_to_lift_up + $row['dop_data']; 
+				  unset($row_to_lift_up);
+			 }
 		 }
-		 if($final_row) array_unshift($row['dop_data'],$final_row);
-		 // если товарная позиция имеет больше одного варианта расчета и ни один из этих вариатов расчета не обозначен как финальный 
-		 // добавляем пустой ряд в начало строки
-		 if(!$final_row && count($row['dop_data'])>1) array_unshift($row['dop_data'],array('quantity'=>0,'price_in'=>0,'price_out'=>0,'print_data'=>0));
-		 $row_span = count($row['dop_data']);
-		 $counter=0;
+		 else{
+		     // !!! НАДО КАК_ТО ЭТО ОТРАБОТАТЬ
+		 }
 		 
-		 
-		  ВАРИАНТ С RT_PRINT_DATA
-		 
-		  $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,
-		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.final AS final,  dop_data_tbl.draft AS draft,
-						  
-						  print_data_tbl.id AS print_id , print_data_tbl.dop_row_id AS print_t_dop_row_id ,print_data_tbl.type AS print_t_type ,
-		                  print_data_tbl.quantity AS print_t_quantity ,print_data_tbl.price AS print_t_price 
-		          FROM 
-		          `".RT_MAIN_ROWS."`  main_tbl 
-				  LEFT JOIN 
-				  `".RT_DOP_DATA."`   dop_data_tbl   ON  main_tbl.id = dop_data_tbl.row_id
-				  LEFT JOIN 
-				  `".RT_PRINT_DATA."` print_data_tbl ON  dop_data_tbl.id = print_data_tbl.dop_row_id
-		          WHERE main_tbl.query_num ='".$query_num."' ORDER BY main_tbl.id";
-		 */
+		 // здесь определяем выводить ли дополнительный вспомогательный пустой ряд сверху
+		 // когда все остальные являются draft то выводим  т.е. (если не все draft то невыводим)
+		 // использование в данном случае не возможно потомучто этот метод приводит к переиндексации ключей а ключи у нас содержат id ряда 
+		 if($all_draft) $row['dop_data']= $service_row + $row['dop_data']; 
+			  */
+			  
+			  
+			  
+			  
+
 ?>
