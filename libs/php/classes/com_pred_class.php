@@ -62,7 +62,6 @@
 						    $query4=  "INSERT INTO `".KP_DOP_DATA."` 
 									   SET 
 									   `row_id` = '".$row_id."',
-									   `draft` = '".$row3['draft']."',
 									   `quantity` = '".$row3['quantity']."',
 									   `price_in` = '".$row3['price_in']."',
 									   `price_out` = '".$row3['price_out']."',
@@ -95,7 +94,7 @@
 		   }
 	       return '1';
 	   }
-	   /*function get_last_kp_num(){
+	   /*static function get_last_kp_num(){
 	       global $mysqli;
 	       $query="SELECT kp_num FROM `".COM_PRED_LIST."` GROUP BY kp_num ORDER BY id DESC";
 		   $result = $mysqli->query($query)or die($mysqli->error);
@@ -104,7 +103,7 @@
 		   }
 		   return (!empty($kp_num['kp_num']))? ++$kp_num['kp_num']: 100000;
 	   }*/
-	   function delete($kp_id){
+	   static function delete($kp_id){
 	       global $mysqli;
 		   $arr=array();
 		   // !!! $conrtol_num
@@ -117,7 +116,7 @@
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if(!$result) return;
 	   }
-	   function delete_old_version($file,$client_id,$id){
+	   static function delete_old_version($file,$client_id,$id){
 		
 		  function delete_file_comment($file_name){
 		      global $client_id;
@@ -150,14 +149,14 @@
 		  delete_file_comment($file);
 
 	   }
-	   function change_comment($id,$comment){
+	   static function change_comment($id,$comment){
 	       global $mysqli;
 		   
 		   $query="UPDATE `".COM_PRED_LIST."` SET comment ='".$comment."'  WHERE id = '".(int)$id."'";
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if(!$result) return;
 	   }
-	   function change_comment_old_version($file_name,$file_comment){
+	   static function change_comment_old_version($file_name,$file_comment){
 			global $client_id;
 			
 			//echo $file_name.$file_comment;
@@ -195,7 +194,7 @@
 			$write_result = fwrite($fd,$file_content); //\r\n
 			fclose($fd);
 	   }
-	   function fetch_kp_rows($kp_id){
+	   static function fetch_kp_rows($kp_id){
 	       global $mysqli;
 		
 		   // !!! $conrtol_num
@@ -205,7 +204,7 @@
 		 
 		   $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,
 		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.draft AS draft,dop_data_tbl.expel AS expel,
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,
 						  
 						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out
@@ -231,7 +230,6 @@
 			   //$multi_dim_arr[$row['main_id']]['uslugi_id'][] = $row['uslugi_id'];
 			   if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
 			       $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']] = array(
-																	'draft' => $row['draft'],
 																	'expel' => $row['expel'],
 																	'quantity' => $row['dop_t_quantity'],
 																	'price_in' => $row['dop_t_price_in'],
@@ -250,7 +248,7 @@
 		 }
 	     return $multi_dim_arr;
 	   }
-	   function open_old_kp($show_old_kp){
+	   static function open_old_kp($show_old_kp){
 	        $prefix = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/';
             $file_name = $prefix.'data/com_offers/'.$show_old_kp;
 			
@@ -261,7 +259,7 @@
 			
 			return $fcontent;
 	   }
-	   function prepare_send_mail($kp_id,$client_id,$user_id){
+	   static function prepare_send_mail($kp_id,$client_id,$user_id){
 	        // проверяем есть папка данного клента, если её нет то создаем её
 	        $document_root = $_SERVER['DOCUMENT_ROOT'];
 			$dirname = '/os/data/com_offers/'.strval(intval($_GET['client_id']));
@@ -288,7 +286,7 @@
 			return $dirname.$filename;
             exit;
 	   }
-	   function clear_client_kp_folder($kp_id,$attached_files){
+	   static function clear_client_kp_folder($kp_id,$attached_files){
 	        $dirname = $_SERVER['DOCUMENT_ROOT'].'/os/data/com_offers/'.strval(intval($_GET['client_id'])).'/'.strval(intval($kp_id));
 	        if($files_arr = read_Dir($dirname)){
 			    foreach($files_arr as $file){
@@ -302,7 +300,7 @@
 				}
 			} 
 	   }
-	   function save_mail_send_time($kp_id){
+	   static function save_mail_send_time($kp_id){
 	        global $mysqli;
 			 
 			$query="UPDATE `".COM_PRED_LIST."` SET 	`send_time` = NOW() WHERE `id` = '".$kp_id."'";
@@ -310,7 +308,7 @@
 				//$row=$result->fetch_assoc();
 
 	   }
-	   function save_in_pdf_on_server($kp_id,$client_id,$user_id,$filename){
+	   static function save_in_pdf_on_server($kp_id,$client_id,$user_id,$filename){
 	   
             $html = self::open_in_blank($kp_id,$client_id,$user_id);
 			
@@ -319,7 +317,7 @@
 			$mpdf->WriteHTML($html,2);
 			$mpdf->Output($filename,'F');
 	   }
-	   function save_in_pdf($kp_id,$client_id,$user_id,$filename = '1.pdf'){
+	   static function save_in_pdf($kp_id,$client_id,$user_id,$filename = '1.pdf'){
 	   
             $html = self::open_in_blank($kp_id,$client_id,$user_id);
 		
@@ -333,42 +331,23 @@
 			//$mpdf->Output();
             exit;
 	   }
-	   function open_in_tbl($kp_id){
+	   static function open_in_tbl($kp_id){
 	       $arr=self::fetch_kp_rows($kp_id);
-           //echo '<pre>';print_r($arr);echo '</pre>';	
-		   //!!! разобраться с отображением marker_summ_print hide_article_marker
+           //echo '<pre>';print_r($arr);echo '</pre>';
+		   //exit;	
 
 		 $glob_counter = 0;
 	     $mst_btn_summ = 0;
+		 $service_row[0] = array('quantity'=>'','price_in'=>'','price_out'=>'','row_status'=>'','glob_status'=>'');
 	     foreach($arr as $key => $row){
 			 $glob_counter++;
 			 // Проходим по первому уровню и определям некоторые моменты отображения таблицы, которые будут применены при проходе по второму
 			 // уровню массива, ряды таблицы будут создаваться там
 			 
-			 // если товарная позиция имеет больше одного варианта расчета и один из этих вариатов расчета не является draft
-			 // то мы должны переместить его вверх вывода а остальные вариатны вывести ниже
-			 // при этом мы указываем $all_draft = FALSE; что не все ряды являются draft
+			 // если товарная позиция имеет больше одного варианта расчета вставляем пустой ряд вверх
 			 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>';
-			 
-			 
-			 $all_draft = FALSE;
 			 if(isset($row['dop_data']) && count($row['dop_data'])>1){
-				 $all_draft = TRUE;
-				 foreach($row['dop_data'] as $dop_key => $dop_row){
-					 if($dop_row['draft']!=1){
-						  $all_draft = FALSE;
-						  //$row_to_lift_up[$dop_key] = $dop_row;
-						  unset($row['dop_data'][$dop_key]);
-					  }
-				 }
-				 // использование в данном случае не возможно потому что этот метод приводит к переиндексации ключей а ключи у нас содержат id ряда 
-				/* if(isset($row_to_lift_up)){
-					  $row['dop_data']= $row_to_lift_up + $row['dop_data']; 
-					  unset($row_to_lift_up);
-				 }*/
-			 }
-			 else{
-				 // !!! НАДО КАК_ТО ЭТО ОТРАБОТАТЬ
+			      $row['dop_data']= $service_row + $row['dop_data']; 
 			 }
 			 
 			 
@@ -380,89 +359,87 @@
 			 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>---';
 			 // Проходим в цикле по второму уровню массива($row['dop_data']) на основе которого строится основной шаблон таблицы
 			 foreach($row['dop_data'] as $dop_key => $dop_row){
-			
-					 // определяем какие расчеты будут учитываться в конечных суммах а какие нет и их отображение в таблице
-					 // json_decode($row['details']);
-					 $expel = array ("main"=>0,"print"=>0,"dop"=>0);
-					 if(@$dop_row['expel']!=''){
-						$obj = @json_decode($dop_row['expel']);
-						foreach($obj as $expel_key => $expel_val) $expel[$expel_key] = $expel_val;
+				 // определяем какие расчеты будут учитываться в конечных суммах а какие нет и их отображение в таблице
+				 // json_decode($row['details']);
+				 $expel = array ("main"=>0,"print"=>0,"dop"=>0);
+				 if(@$dop_row['expel']!=''){
+					$obj = @json_decode($dop_row['expel']);
+					foreach($obj as $expel_key => $expel_val) $expel[$expel_key] = $expel_val;
+				 }
+				 //echo '<br>'; print_r($expel);
+				 
+				 // работаем с информацией о дополнительных услугах определяя что будет выводиться и где
+				 // 1. определяем данные описывающие варианты нанесения логотипа, они хранятся в $dop_row['dop_uslugi']['print']
+				 if(isset($dop_row['dop_uslugi']['print'])){ // если $dop_row['dop_uslugi']['print'] есть выводим данные о нанесениях 
+					 $summ_in = $summ_out = array();
+					 foreach($dop_row['dop_uslugi']['print'] as $extra_data){
+						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
+						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 					 }
-					 //echo '<br>'; print_r($expel);
-					 
-					 // работаем с информацией о дополнительных услугах определяя что будет выводиться и где
-					 // 1. определяем данные описывающие варианты нанесения логотипа, они хранятся в $dop_row['dop_uslugi']['print']
-					 if(isset($dop_row['dop_uslugi']['print'])){ // если $dop_row['dop_uslugi']['print'] есть выводим данные о нанесениях 
-						 $summ_in = $summ_out = array();
-						 foreach($dop_row['dop_uslugi']['print'] as $extra_data){
-							 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
-							 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
-						 }
-						 $print_btn = count($dop_row['dop_uslugi']['print']); 
-						 $print_in_summ = array_sum($summ_in);
-						 $print_out_summ = array_sum($summ_out);
+					 $print_btn = count($dop_row['dop_uslugi']['print']); 
+					 $print_in_summ = array_sum($summ_in);
+					 $print_out_summ = array_sum($summ_out);
+				 }
+				 else{// если данных по печати нет то проверяем - выводим кнопку добавление нанесения
+					 $print_btn = '+';
+					 $print_in_summ = 0;
+					 $print_out_summ = 0;
+				 }
+				 // 2. определяем данные описывающие варианты дополнительных услуг, они хранятся в $dop_row['dop_uslugi']['extra']
+				 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
+					 $summ_in = $summ_out = array();
+					 foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
+						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
+						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 					 }
-					 else{// если данных по печати нет то проверяем - не являются ли все ряды draft а данный ряд первым, если да то
-						  // выводим пустое значение для пустого верхнего ряда, если нет выводим кнопку добавление нанесения
-						 $print_btn = ($all_draft && $counter==0)? '' : '+';
-						 $print_in_summ = 0;
-						 $print_out_summ = 0;
-					 }
-					 // 2. определяем данные описывающие варианты дополнительных услуг, они хранятся в $dop_row['dop_uslugi']['extra']
-					 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
-						 $summ_in = $summ_out = array();
-						 foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
-							 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
-							 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
-						 }
-						 $dop_uslugi_in_summ = array_sum($summ_in);
-						 $dop_uslugi_out_summ = array_sum($summ_out);
-					 }
-					 else{
-						 $dop_uslugi_in_summ = 0;
-						 $dop_uslugi_out_summ = 0;
-					 }
-					 
-					 // подсчет сумм ряду
-					 // 1. подсчитываем входящую сумму
-					 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
-					 $in_summ = $price_in_summ;
-					 if(!(!!$expel["print"]))$in_summ += $print_in_summ;
-					 if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
-					 // 2. подсчитываем исходящую сумму 
-					 $price_out_summ =  $dop_row['quantity']*$dop_row['price_out'];
-					 $out_summ =  $price_out_summ;
-					 if(!(!!$expel["print"]))$out_summ += $print_out_summ;
-					 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
-					 
-					 $delta = $out_summ-$in_summ; 
-					 $margin = $out_summ-$in_summ;
-					 
-					 $price_in_summ_format = number_format($price_in_summ,'2','.','');
-					 $price_out_summ_format = number_format($price_out_summ,'2','.','');
-					 $print_in_summ_format = number_format($print_in_summ,'2','.','');
-					 $print_out_summ_format = number_format($print_out_summ,'2','.','');
-					 $dop_uslugi_in_summ_format = number_format($dop_uslugi_in_summ,'2','.','');
-					 $dop_uslugi_out_summ_format = number_format($dop_uslugi_out_summ,'2','.','');
-					 $in_summ_format = number_format($in_summ,'2','.','');
-					 $out_summ_format = number_format($out_summ,'2','.','');
-					 $delta_format = number_format($delta,'2','.','');
-					 $margin_format = number_format($margin,'2','.','');
-			
-					 
-					 // если ряд не исключен из расчетов добавляем значения в итоговый ряд
-					 if(!(!!$expel["main"])){
-						 @$total['price_in_summ'] += $price_in_summ;
-						 @$total['price_out_summ'] += $price_out_summ;
-						 if(!(!!$expel["print"])) @$total['print_in_summ'] += $print_in_summ;
-						 if(!(!!$expel["print"])) @$total['print_out_summ'] += $print_out_summ;
-						 if(!(!!$expel["dop"])) @$total['dop_uslugi_in_summ'] += $dop_uslugi_in_summ;
-						 if(!(!!$expel["dop"])) @$total['dop_uslugi_out_summ'] += $dop_uslugi_out_summ;
-						 @$total['in_summ'] += $in_summ;
-						 @$total['out_summ'] += $out_summ;
-					 }
-					 $img_design_path = HOST.'/skins/images/img_design/';
-					 $currency = 'р';
+					 $dop_uslugi_in_summ = array_sum($summ_in);
+					 $dop_uslugi_out_summ = array_sum($summ_out);
+				 }
+				 else{
+					 $dop_uslugi_in_summ = 0;
+					 $dop_uslugi_out_summ = 0;
+				 }
+				
+				 // подсчет сумм ряду
+				 // 1. подсчитываем входящую сумму
+				 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
+				 $in_summ = $price_in_summ;
+				 if(!(!!$expel["print"]))$in_summ += $print_in_summ;
+				 if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
+				 // 2. подсчитываем исходящую сумму 
+				 $price_out_summ =  $dop_row['quantity']*$dop_row['price_out'];
+				 $out_summ =  $price_out_summ;
+				 if(!(!!$expel["print"]))$out_summ += $print_out_summ;
+				 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
+				 
+				 $delta = $out_summ-$in_summ; 
+				 $margin = $out_summ-$in_summ;
+				 
+				 $price_in_summ_format = number_format($price_in_summ,'2','.','');
+				 $price_out_summ_format = number_format($price_out_summ,'2','.','');
+				 $print_in_summ_format = number_format($print_in_summ,'2','.','');
+				 $print_out_summ_format = number_format($print_out_summ,'2','.','');
+				 $dop_uslugi_in_summ_format = number_format($dop_uslugi_in_summ,'2','.','');
+				 $dop_uslugi_out_summ_format = number_format($dop_uslugi_out_summ,'2','.','');
+				 $in_summ_format = number_format($in_summ,'2','.','');
+				 $out_summ_format = number_format($out_summ,'2','.','');
+				 $delta_format = number_format($delta,'2','.','');
+				 $margin_format = number_format($margin,'2','.','');
+		
+				 
+				 // если ряд не исключен из расчетов добавляем значения в итоговый ряд
+				 if(!(!!$expel["main"])){
+					 @$total['price_in_summ'] += $price_in_summ;
+					 @$total['price_out_summ'] += $price_out_summ;
+					 if(!(!!$expel["print"])) @$total['print_in_summ'] += $print_in_summ;
+					 if(!(!!$expel["print"])) @$total['print_out_summ'] += $print_out_summ;
+					 if(!(!!$expel["dop"])) @$total['dop_uslugi_in_summ'] += $dop_uslugi_in_summ;
+					 if(!(!!$expel["dop"])) @$total['dop_uslugi_out_summ'] += $dop_uslugi_out_summ;
+					 @$total['in_summ'] += $in_summ;
+					 @$total['out_summ'] += $out_summ;
+				 }
+				 $img_design_path = HOST.'/skins/images/img_design/';
+				 $currency = 'р';
 				
 				
 				 $cur_row  =  '';
@@ -472,7 +449,7 @@
 				 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 				 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 				 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="300" class="top"><a href="?page=client_folder&section=order_art_edit&id='.$dop_key.'">'.$row['art'].''.$row['name'].'</a></td>':'';
-				 $cur_row .=  '<td class="hidden">'.@$dop_row['draft'].'</td>
+				 $cur_row .=  '<td class="hidden"></td>
 							   <td width="50" type="quantity" class="r_border"  editable="true">'.$dop_row['quantity'].'</td>
 							   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
 							   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">'.$currency.'</td>
@@ -558,44 +535,11 @@
 				  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
 				  <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" border="1">'.implode('',$tbl_rows).'</table>
 				  </div>';
-			   
-			   
-			   
-			   
-			   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
-		   
 
 		   return $rt;	
-		   
 		   	
 	   }
-	    function open_in_blank($kp_id,$client_id,$user_id,$save_on_disk = false){
+	    static function open_in_blank($kp_id,$client_id,$user_id,$save_on_disk = false){
 	        global $mysqli;
 			$stock = false;
 			$com_offer_descriptions = array();
@@ -682,13 +626,13 @@
 				
 				// 2. уровень расчетов
 				// на этом уровне идет постороение рядов HTML таблицы 
-				foreach($pos_level['dop_data'] as $r_key => $r_level){
+				foreach($pos_level['dop_data'] as $r_key => $r_level){ //$r_ - сокращение обозначающее - уровень Расчёта позиции
 					
 					// количество
 					$quantity = $r_level['quantity'];
 					// стоимость
 					$r_level['discount'] = 1;
-					$price = ($r_level['discount'] == 0)? $r_level['price_out'] : $r_level['price_out'] + $r_level['price_out']/100*$r_level['discount'];
+					$price = ($r_level['discount'] == 0)? $r_level['price_out'] : $r_level['price_out']*$r_level['discount'];
 					$summ = $quantity*$price;
 				
 				    // 3. уровень нанесения логотипа
@@ -770,7 +714,7 @@
 		   return $kp_content;
 			
 	   }		
-	   function open_in_blank_old($kp_id,$client_id,$user_id,$save_on_disk = false){
+	   static function open_in_blank_old($kp_id,$client_id,$user_id,$save_on_disk = false){
 	        global $mysqli;
 			$stock = false;
 			$com_offer_descriptions = array();
@@ -1044,7 +988,7 @@
 		   
 		   return $kp_content;
 	   }
-	   function create_list($query_num,$client_id,$certain_kp = FALSE){
+	   static function create_list($query_num,$client_id,$certain_kp = FALSE){
 	        
 	        // общая выборка данных из базы данных производится на основании номера заказа для КП нового типа
 			// и на основании client_id для КП старого типа
@@ -1064,7 +1008,7 @@
 			}
 			return (!empty($rows))?$rows:"<tr><td class='flank_cell'>&nbsp;</td><td colspan='8'>для данного клиента пока небыло создано коммерческих предложений</td><td class='flank_cell'>&nbsp;</td></tr>";
 		}
-		function create_list_new_version($query_num,$certain_kp_id = FALSE){
+		static function create_list_new_version($query_num,$certain_kp_id = FALSE){
 		   global $mysqli;
 		   global $user_id;
 		   // шаблон ряда таблицы списка КП
@@ -1103,7 +1047,7 @@
 	        }
 			return $rows;
 		}
-		function create_list_old_version($client_id,$certain_kp_filename = FALSE){
+		static function create_list_old_version($client_id,$certain_kp_filename = FALSE){
 		   
             $rows = '';
 		    $prefix = '../admin/order_manager/';
