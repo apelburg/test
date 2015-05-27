@@ -97,7 +97,7 @@
 					$arr[] = $row;
 				}
 			}
-			echo $query;
+			//echo $query;
 			return $arr;
 		}
 

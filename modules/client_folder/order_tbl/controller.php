@@ -2,29 +2,24 @@
 
 $array_request = array();
 
+		
+	$query = "SELECT 
+		* , 
+		DATE_FORMAT(`create_time`,'%d.%m.%Y %H:%i')  AS `create_time`
+		FROM `".CAB_ORDER_ROWS."`
+		WHERE `order_num` = '".(int)$order_num."' AND `id` = '".$order_id."'";
 	
-	// $query = "SELECT 
-	// 	`".CAB_ORDER_ROWS."`.*, 
-	// 	DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i')  AS `create_time`,
-	// 	`".CLIENTS_TBL."`.`company`,
-	// 	`".MANAGERS_TBL."`.`name`,
-	// 	`".MANAGERS_TBL."`.`last_name`,
-	// 	`".MANAGERS_TBL."`.`email` 
-	// 	FROM `".CAB_ORDER_ROWS."`
-	// 	INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
-	// 	INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-	// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'В оформлении'";
 	// echo $query;
-	// $result = $mysqli->query($query) or die($mysqli->error);
-	// $main_rows_id = array();
-	// $order_create_time='неизвестно';
+	$result = $mysqli->query($query) or die($mysqli->error);
+	$main_rows_id = array();
+	$order_create_time='неизвестно';
 
-	// if($result->num_rows > 0){
-	// 	while($row = $result->fetch_assoc()){
-	// 		$main_rows_id[] = $row;
-	// 		$order_create_time = $row['create_time'];
-	// 	}
-	// }
+	if($result->num_rows > 0){
+		while($row = $result->fetch_assoc()){
+			$main_rows_id[] = $row;
+			$order_create_time = $row['create_time'];
+		}
+	}
 
 $CABINET = new Cabinet();
 // переменная вывода
@@ -163,7 +158,83 @@ $order_tbl = $html = '';
 		
 		
 
-function get_tbl_dop_uslugi($dop_usl, $all_price){
+function get_tbl_dop_uslugi_design($dop_usl, $all_price){
+	$html = '';
+	if(count($dop_usl)){
+		$html .= '<table class="dop_usl_tbl">';
+		$html .= '<tr>';
+		$html .= '
+		<td>id</td>
+		<td>dop_row_id</td>
+		<td>id услуги</td>
+		<td>глоб. тип</td>
+		<td>тип</td>
+		<td>тираж</td>
+		<td>цена вход.</td>
+		<td>цена исх.</td>
+		<td>применить к тиражу/шт.</td>
+		<td>% готовности</td>
+		<td>услуга</td>
+		<td>общая цена</td>
+		';
+		$html .= '</tr>';
+		foreach ($dop_usl as $key => $value) {
+			$html .= '<tr>';
+				foreach ($value as $k => $v) {
+					$html .= '<td>';
+						$html .=$v;		
+					$html .= '</td>';		
+				}			
+				if($key<1){
+					$html .= '<td rowspan="'.count($dop_usl).'">';
+					$html .= $all_price;
+					$html .= '</td>';
+				}
+			$html .= '</tr>';
+		}
+		$html .= '</table>';
+	}
+	return $html;
+}
+function get_tbl_dop_uslugi_delivery($dop_usl, $all_price){
+	$html = '';
+	if(count($dop_usl)){
+		$html .= '<table class="dop_usl_tbl">';
+		$html .= '<tr>';
+		$html .= '
+		<td>id</td>
+		<td>dop_row_id</td>
+		<td>id услуги</td>
+		<td>глоб. тип</td>
+		<td>тип</td>
+		<td>тираж</td>
+		<td>цена вход.</td>
+		<td>цена исх.</td>
+		<td>применить к тиражу/шт.</td>
+		<td>% готовности</td>
+		<td>услуга</td>
+		<td>общая цена</td>
+		';
+		$html .= '</tr>';
+		foreach ($dop_usl as $key => $value) {
+			$html .= '<tr>';
+				foreach ($value as $k => $v) {
+					$html .= '<td>';
+						$html .=$v;		
+					$html .= '</td>';		
+				}			
+				if($key<1){
+					$html .= '<td rowspan="'.count($dop_usl).'">';
+					$html .= $all_price;
+					$html .= '</td>';
+				}
+			$html .= '</tr>';
+		}
+		$html .= '</table>';
+	}
+	return $html;
+}
+function get_tbl_dop_uslugi_print($dop_usl, $all_price){
 	$html = '';
 	if(count($dop_usl)){
 		$html .= '<table class="dop_usl_tbl">';
