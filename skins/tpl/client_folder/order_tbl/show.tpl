@@ -13,6 +13,23 @@
 	.cabinet_general_content_row tr td select{width: 150px}
 	.cabinet_general_content_row tr td span{padding-right: 3px}
 </style>
+
+<script type="text/javascript">
+	$(document).on('change','.dop_usl_tbl select',function(){
+		// записываем id строки услуги
+		var row_id = $(this).parent().parent().parent().attr('data-id');
+		var value = $(this).val();
+		
+		$.post('', {
+			AJAX:'change_status_uslugi',
+			row_id:row_id,
+			value:value
+		}, function(data, textStatus, xhr) {
+			console.log(data);
+		});
+	})
+
+</script>
 <div class="scrolled_tbl_container">
 	<table class="cabinet_general_content_row">
 		
@@ -20,7 +37,9 @@
 		// $query = "";
 
 		echo $order_tbl; 
+		//echo get_uslugi(0);
 
+		
 		?>		
 	</table> 
 </div>

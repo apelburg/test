@@ -1,4 +1,17 @@
 <?php
+////////////////////////////////////// AJAX ////////////////////////////
+if(isset($_POST['AJAX'])){
+	if($_POST['AJAX'] == 'change_status_uslugi'){
+		print_r($_POST);
+		$query = "UPDATE  `os__cab_dop_uslugi` SET  `performer_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+		echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}
+}
+////////////////////////////////////// AJAX ////////////////////////////
+
+
 
 $array_request = array();
 
@@ -174,28 +187,11 @@ function get_tbl_dop_uslugi($dop_usl, $all_price){
 			$html .= ' data-type="'.$value['type'].'"';
 			$html .= ' data-for_how="'.$value['for_how'].'"';
 			$html .= '>';
-			switch ($value['type']) {
-				case 'delivery':
-					$int = 7;
-					break;
-
-				case 'design':
-					$int = 9;
-					break;
-
-
-				case 'shelk':
-					$int = 4;
-					break;
-				
-				default:
-					$int = 0;
-					break;
-			}
+			$int = $value['uslugi_id'];
 			foreach ($value as $k => $v) {
 				switch ($k) {
 					case 'performer_status': // статус исполнителя
-						$html .='<td><span>'.select_status($int,$v).'</span></td>';
+						$html .='<td><span>'.get_status_uslugi($int,$v).'</span></td>';
 						break;	
 					case 'performer_id': // тип исполнителя услуг
 						$st = ((int)$v==0)?'не указан1':$v;
@@ -296,5 +292,64 @@ function select_global_status($real_val){
 	return $html;
 }
 
+
+// получаем выпадающий список статусов для услуги
+function get_status_uslugi($id,$real_val){
+	// получаем id по которым будем выбирать статусы для услуги
+	$id_s = implode(",",get_id_parent($id,array()));
+	global $mysqli;
+
+	$html = '';
+	$html .= '<select><option value=""></option>';
+	$query = "SELECT * FROM `os__our_uslugi_status_list` WHERE `parent_id` IN (".$id_s.")";
+	//echo $query.'<br>';
+	$result = $mysqli->query($query) or die($mysqli->error);
+	if($result->num_rows > 0){
+	
+		while($row = $result->fetch_assoc()){
+			$is_checked = ($real_val==$row['name'])?'selected="selected"':'';
+			$html.= '<option value="'.$row['name'].'" '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
+		}
+	
+	}$html.= '</select>';
+	return $html;
+}
+
+// получаем список услуг
+function get_uslugi($id){
+	global $mysqli;
+	$html = '';
+	$html .= '<ul>';
+	$query = "SELECT * FROM `os__our_uslugi` WHERE `parent_id` = '".$id."'";
+	$result = $mysqli->query($query) or die($mysqli->error);
+	if($result->num_rows > 0){
+	
+		while($row = $result->fetch_assoc()){
+			$html.= '<li>'.$row['id'].' '.$row['parent_id'].' '.$row['name'].' '.get_uslugi($row['id']).'</li>';
+		}
+	
+	}$html.= '</ul>';
+	return $html;
+}
+
+// получаем id родительских услуг 
+function get_id_parent($id,$arr){
+	global $mysqli;
+	$arr[] = $id;
+	$id = implode(",",$arr);
+	$arr2 = array();
+	$query = "SELECT `id`,`parent_id` FROM `os__our_uslugi` WHERE `id` IN (".$id.")";
+$result = $mysqli->query($query) or die($mysqli->error);
+	if($result->num_rows > 0){	
+		while($row = $result->fetch_assoc()){
+			$arr2[] = $row['parent_id'];
+			if($row['parent_id']!='0'){
+				$arr2 = array_merge($arr2, get_id_parent($row['parent_id'],$arr2));
+			}
+
+		}	
+	}
+	return  array_unique(array_merge ($arr, $arr2));
+}
 
 
