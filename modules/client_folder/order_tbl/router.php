@@ -7,8 +7,7 @@
 	// ** БЕЗОПАСНОСТЬ **
 	include ROOT.'/libs/php/classes/rt_class.php';
 	include ROOT.'/libs/php/classes/client_class.php';
-	include ROOT.'/libs/php/classes/cabinet_class.php';
-	
+	include ROOT.'/libs/php/classes/cabinet_class.php';	
 
 
 	$theme = 'Откуда берется тема?';

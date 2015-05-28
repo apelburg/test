@@ -10,11 +10,18 @@
 	.itogo{font-weight: bold; font-size: 16px; float: right;}
 	.itogo_n{font-weight: bold; font-size: 14px; float: right;}
 	.itogo_n_no_bold{float: right;}
+	.cabinet_general_content_row tr td select{width: 150px}
+	.cabinet_general_content_row tr td span{padding-right: 3px}
 </style>
 <div class="scrolled_tbl_container">
 	<table class="cabinet_general_content_row">
 		
-		<?php echo $order_tbl; ?>		
+		<?php
+		// $query = "";
+
+		echo $order_tbl; 
+
+		?>		
 	</table> 
 </div>
 <!-- end skins/tpl/client_folder/rt/show.tpl -->

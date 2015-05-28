@@ -35,6 +35,7 @@ $order_tbl = $html = '';
 				<th>ТТН</th>
 				<th>статус мен</th>
 				<th>статус снаб</th>
+				<th>статус заказа</th>
 				</tr>';
 //
 //if(count($main_rows_id)==0){$order_tbl = 'в данном заказе число позиций равно нулю';die;}
@@ -47,6 +48,7 @@ $order_tbl = $html = '';
 		// $html .= '<td colspan="6" class="each_art">';
 		
 
+		// запрос из os__cab_orders_dop_data по id заказа
 		$query = "
 		SELECT 
 			`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
@@ -56,7 +58,8 @@ $order_tbl = $html = '';
 			`".CAB_ORDER_DOP_DATA."`.`zapas`,	
 			DATE_FORMAT(`".CAB_ORDER_MAIN."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 			`".CAB_ORDER_MAIN."`.*,
-			`".CAB_ORDER_ROWS."`.`id` AS `request_id` 
+			`".CAB_ORDER_ROWS."`.`id` AS `request_id`, 
+			`".CAB_ORDER_ROWS."`.`global_status`
 			FROM `".CAB_ORDER_MAIN."` 
 			INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`
 			LEFT JOIN `".CAB_ORDER_ROWS."` ON `".CAB_ORDER_ROWS."`.`id` = `".CAB_ORDER_MAIN."`.`order_num`
@@ -74,7 +77,8 @@ $order_tbl = $html = '';
 			}
 		}
 
-
+		// получаем массив доп услуг по позиции (скопированному утверждённому варианту) 
+		// по id os__cab_orders_dop_data 
 		function get_dop_uslugi_print($id){
 			$query = "SELECT * FROM  `os__cab_dop_uslugi` WHERE `dop_row_id` = '".$id."'";
 			$arr = array();
@@ -87,11 +91,6 @@ $order_tbl = $html = '';
 			return $arr;
 		}
 
-		
-		##################
-		# START ВАРИАНТЫ #
-		##################
-		// ВЫВОД ВАРИАНТОВ
 
 		
 		// шапка таблицы вариантов запроса
@@ -121,13 +120,14 @@ $order_tbl = $html = '';
 			$html .= '<tr>
 			<td> '.$val1['art'].'<!--артикул --></td>
 			<td>'.$val1['name'].'<!--номенклатура --></td>
-			<td>'.($val1['quantity']+$val1['zapas']).'<!--тираж + запас --></td>
-			<td>'.$price_out.'<!-- стоимость товара --></td>
+			<td><span>'.($val1['quantity']+$val1['zapas']).'</span>шт.<!--тираж + запас --></td>
+			<td><span>'.$price_out.'</span>р.<!-- стоимость товара --></td>
 			<td>'.get_tbl_dop_uslugi($dop_usl,($calc_summ_dop_uslug2+$calc_summ_dop_uslug)).'<!-- стоимость доп услуг --></td>
 			<td><span class="itogo_n_no_bold">р.</span><span class="itogo_n_no_bold">'.$in_out.'</span><!-- цена позиции --></td>
-			<td><!-- TTH --></td>
-			<td>'.$val1['status_men'].'<!-- статус мен --></td>
-			<td>'.$val1['status_snab'].'<!--статус снаб --></td>
+			<td contenteditable="true"></td>
+			<td>'.select_status(5,$val1['status_men']).'<!-- статус мен --></td>
+			<td>'.select_status(8,$val1['status_snab']).'<!--статус снаб --></td>
+			<td>'.select_global_status($val1['global_status']).'<!--глобальный статус заказа--></td>
 			</tr>';
 			$order_itog_price +=$in_out;
 		}
@@ -136,72 +136,117 @@ $order_tbl = $html = '';
 
 function get_tbl_dop_uslugi($dop_usl, $all_price){
 	global $global_performer_type;
+
 	$html = '';
 	if(count($dop_usl)){
 		$html .= '<table class="dop_usl_tbl">';
 		$html .= '<tr>';
+		// <!--
+		// <td>id</td>
+		// <td>dop_row_id</td>
+		// <td>id услуги</td>
+		// <td>глоб. тип</td>
+		// <td>тип</td>-->
+		// <td>for_how<!--применить к тиражу/шт.--></td>
 		$html .= '
-		<td>id</td>
-		<td>dop_row_id</td>
-		<td>id услуги</td>
-		<td>глоб. тип</td>
-		<td>тип</td>
+
+		
 		<td>тираж</td>
 		<td>цена вход.</td>
 		<td>цена исх.</td>
-		<td>for_how<!--применить к тиражу/шт.--></td>
 		<td>готовность</td>
 		<td>плёнки</td>
 		<td>дата начала работ</td>
 		<td>дата сдачи</td>
 		<td>тип исп.</td>
-		<td>id исп.</td>
+		<td>сп.</td>
 		<td>статуc вып.</td>
 		<td>услуга</td>
 		<td>общая цена</td>
 		';
 		$html .= '</tr>';
 		foreach ($dop_usl as $key => $value) {
-			$html .= '<tr>';
+			$html .= '<tr';
+			$html .= ' data-id="'.$value['id'].'"';
+			$html .= ' data-dop_row_id="'.$value['dop_row_id'].'"';
+			$html .= ' data-uslugi_id="'.$value['uslugi_id'].'"';
+			$html .= ' data-glob_type="'.$value['glob_type'].'"';
+			$html .= ' data-type="'.$value['type'].'"';
+			$html .= ' data-for_how="'.$value['for_how'].'"';
+			$html .= '>';
+			switch ($value['type']) {
+				case 'delivery':
+					$int = 7;
+					break;
 
+				case 'design':
+					$int = 9;
+					break;
+
+
+				case 'shelk':
+					$int = 4;
+					break;
+				
+				default:
+					$int = 0;
+					break;
+			}
 			foreach ($value as $k => $v) {
-				$html .= '<td>';
 				switch ($k) {
 					case 'performer_status': // статус исполнителя
-						$html .='<span>'.$v.'</span>';
+						$html .='<td><span>'.select_status($int,$v).'</span></td>';
 						break;	
 					case 'performer_id': // тип исполнителя услуг
-						$html .='<span>'.((int)$v==0)?'не указан':$v.'</span>';
+						$st = ((int)$v==0)?'не указан1':$v;
+						$html .='<td><span>'.$st.'</span></td>';
 						break;	
 					case 'performer_type': // тип исполнителя услуг
-						$html .='<span>'.$global_performer_type[$v].'</span>';
+						$html .='<td><span>'.$global_performer_type[$v].'</span></td>';
 						break;	
 					case 'date_ready': // дата начала работ
-						$html .='<span>'.($v=='000-00-00')?'неизвестно':$v.'</span>';
+						$st = ($v=='000-00-00')?'неизвестно':$v;
+						$html .='<td><span>'.$st.'</span></td>';
 						break;	
 					case 'date_send_out': // дата сдачи
-						$html .='<span>'.($v=='000-00-00')?'неизвестно':$v.'</span>';
+						$st = ($v=='000-00-00')?'неизвестно':$v;
+						$html .='<td><span>'.$st.'</span></td>';
 						break;	
 					case 'quantity': // тираж
-						$html .='<span>'.$v.'</span> шт.';
+						$html .='<td><span>'.$v.'</span> шт.</td>';
 						break;	
 					case 'price_in': // цена входящая
-						$html .='<span>'.$v.'</span> р.';
+						$html .='<td><span>'.$v.'</span> р.</td>';
 						break;	
 					case 'price_out': // цена выход
-						$html .='<span>'.$v.'</span> р.';
+						$html .='<td><span>'.$v.'</span> р.</td>';
 						break;	
 					case 'status_readiness': // процент готовности
-						$html .='<span>'.$v.'</span> %';
+						$html .='<td><span  contenteditable="true">'.$v.'</span> %</td>';
 						break;						
 					case 'plenki': // плёнки
-						$html .='<span>'.((int)$v==0)?'нужно делать':'есть'.'</span>';
+						$st = ((int)$v==0)?'нужно делать':'есть';
+						$html .='<td><span>'.$st.'</span></td>';
+						break;	
+					//СКРЫВАЕМ НЕНУЖНЫЕ						
+					case 'id': 
+						break;						
+					case 'dop_row_id': 
+						break;						
+					case 'uslugi_id': 
+						break;						
+					case 'glob_type': 
 						break;								
-					default:
-						$html .= $v;
+					case 'for_how': 
+						break;				
+					case 'type': 
 						break;
-				}	
-				$html .= '</td>';		
+
+					// ОСТАЛЬНОЕ ПОКАЗЫВАЕМ								
+					default:
+						$html .= '<td>'.$v.'</td>';
+						break;
+				}		
 			}			
 			if($key<1){
 				$html .= '<td rowspan="'.count($dop_usl).'">';
@@ -225,3 +270,31 @@ $html .= '
 </tr>';
 
 $order_tbl = $html;
+
+function select_status($rights_int/*права для определения списка статуса*/,$real_val){
+
+	global $STATUS_LIST;
+	$status_arr = $STATUS_LIST[$rights_int];
+	$html = '<select><option value="">...</option>';
+	foreach ($status_arr as $key => $value) {
+		$is_checked = ($real_val==$value)?'selected="selected"':'';
+		$html .= ' <option '.$is_checked.'>'.$value.'</option>';
+	}	
+	$html .= '</select>';
+	return $html;
+}
+function select_global_status($real_val){
+
+	global $GLOBAL_STATUS_ORDER;
+	$status_arr = $GLOBAL_STATUS_ORDER;
+	$html = '<select><option value="">...</option>';
+	foreach ($status_arr as $key => $value) {
+		$is_checked = ($real_val==$value)?'selected="selected"':'';
+		$html .= ' <option '.$is_checked.'>'.$value.'</option>';
+	}	
+	$html .= '</select>';
+	return $html;
+}
+
+
+
