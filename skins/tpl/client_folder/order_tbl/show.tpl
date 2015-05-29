@@ -15,6 +15,7 @@
 </style>
 
 <script type="text/javascript">
+	// сохраняем статус услуги
 	$(document).on('change','.dop_usl_tbl select',function(){
 		// записываем id строки услуги
 		var row_id = $(this).parent().parent().parent().attr('data-id');
@@ -27,17 +28,51 @@
 		}, function(data, textStatus, xhr) {
 			console.log(data);
 		});
-	})
+	});
+	// схраняем статус заказа
+	$(document).on('change','#status_oreder_chenge select',function(){
+		// записываем id строки услуги
+		var row_id = $(this).parent().attr('data-request_id');
+		var value = $(this).val();
+		
+		$.post('', {
+			AJAX:'change_status_order',
+			row_id:row_id,
+			value:value
+		}, function(data, textStatus, xhr) {
+			console.log(data);
+		});
+	});
+
+	//сохраняем статусы снабов и менеджеров
+	//
+
+	$(document).on('change','#info_for_order_list .status_men select ,#info_for_order_list .status_snab select',function(){
+		// записываем id строки позиции
+		var row_id = $(this).parent().parent().attr('data-id_order_main_rows');
+		var value = $(this).val();
+		// в данном случае класс имеет название колонки в базе
+		// поэтому менять название колонки или класса не рекомендуется
+		var column = $(this).parent().attr('class');
+		
+		$.post('', {
+			AJAX:'change_status_snab_and_men',
+			row_id:row_id,
+			value:value,
+			column:column
+		}, function(data, textStatus, xhr) {
+			console.log(data);
+		});
+	});
+
 
 </script>
 <div class="scrolled_tbl_container">
-	<table class="cabinet_general_content_row">
+	<table class="cabinet_general_content_row" id="info_for_order_list">
 		
 		<?php
-		// $query = "";
 
 		echo $order_tbl; 
-		//echo get_uslugi(0);
 
 		
 		?>		

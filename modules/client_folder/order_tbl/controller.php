@@ -8,6 +8,20 @@ if(isset($_POST['AJAX'])){
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
 	}
+	if($_POST['AJAX'] == 'change_status_order'){
+		print_r($_POST);
+		$query = "UPDATE  `os__cab_orders_list` SET  `global_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+		echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}
+	if($_POST['AJAX'] == 'change_status_snab_and_men'){
+		print_r($_POST);
+		$query = "UPDATE  `os__cab_order_main_rows`  SET  `".$_POST['column']."` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+		echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}
 }
 ////////////////////////////////////// AJAX ////////////////////////////
 
@@ -80,7 +94,7 @@ $order_tbl = $html = '';
 			ORDER BY `".CAB_ORDER_MAIN."`.`id` ASC
 	                
 		";
-		// $html .= $query;
+		$html .= $query;
 		$main_rows = array();
 		$result = $mysqli->query($query) or die($mysqli->error);
 		// $main_rows_id = array();
@@ -106,11 +120,14 @@ $order_tbl = $html = '';
 
 
 		
-		// шапка таблицы вариантов запроса
-
+		
+		$count_rows = count($main_rows); // кол-во позиций
 		$order_itog_price = 0; // стоимость заказа
-		foreach ($main_rows as $key1 => $val1) {
+		$i=0;
 
+		foreach ($main_rows as $key1 => $val1) {
+			// получаем id строки заказа
+			$request_id = $val1['request_id'];
 			//ОБСЧЁТ ВАРИАНТОВ
 			// получаем массив стоимости нанесения и доп услуг для данного варианта 
 			$dop_usl = $CABINET -> get_order_dop_uslugi($val1['id_dop_data']);
@@ -119,7 +136,7 @@ $order_tbl = $html = '';
 			// выборка только массива стоимости доп услуг
 			$dop_usl_no_print = $CABINET -> get_dop_uslugi_no_print_type($dop_usl);
 
-			// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
+			// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ 
 			// стоимость печати варианта
 			$calc_summ_dop_uslug = $CABINET -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 			// стоимость доп услуг варианта
@@ -129,8 +146,8 @@ $order_tbl = $html = '';
 			// стоимость варианта на выходе
 			$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
 		
-
-			$html .= '<tr>
+			$rowspan = ($i<1)?'<td id="status_oreder_chenge"  data-request_id='.$request_id.' rowspan="'.$count_rows.'">'.select_global_status($val1['global_status']).'<!--глобальный статус заказа--></td>':'';
+			$html .= '<tr data-id_order_main_rows="'.$val1['id'].'">
 			<td> '.$val1['art'].'<!--артикул --></td>
 			<td>'.$val1['name'].'<!--номенклатура --></td>
 			<td><span>'.($val1['quantity']+$val1['zapas']).'</span>шт.<!--тираж + запас --></td>
@@ -138,11 +155,12 @@ $order_tbl = $html = '';
 			<td>'.get_tbl_dop_uslugi($dop_usl,($calc_summ_dop_uslug2+$calc_summ_dop_uslug)).'<!-- стоимость доп услуг --></td>
 			<td><span class="itogo_n_no_bold">р.</span><span class="itogo_n_no_bold">'.$in_out.'</span><!-- цена позиции --></td>
 			<td contenteditable="true"></td>
-			<td>'.select_status(5,$val1['status_men']).'<!-- статус мен --></td>
-			<td>'.select_status(8,$val1['status_snab']).'<!--статус снаб --></td>
-			<td>'.select_global_status($val1['global_status']).'<!--глобальный статус заказа--></td>
+			<td class="status_men">'.select_status(5,$val1['status_men']).'<!-- статус мен --></td>
+			<td  class="status_snab">'.select_status(8,$val1['status_snab']).'<!--статус снаб --></td>
+			'.$rowspan.'
 			</tr>';
 			$order_itog_price +=$in_out;
+			$i++;
 		}
 		
 		
@@ -315,8 +333,11 @@ function get_status_uslugi($id,$real_val){
 	return $html;
 }
 
+//echo get_uslugi(0);  //ВЫГРУЗИТ ВЕСЬ СПИСОК ДОСТУПНЫХ УСЛУГ
+
 // получаем список услуг
 function get_uslugi($id){
+	
 	global $mysqli;
 	$html = '';
 	$html .= '<ul>';

@@ -103,7 +103,7 @@
 	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] : false ;
 	
 	$suppliers_data_by_prefix = array( 15 => array('name'=>'интерпрезент','link'=>'http://www.happygifts.ru/catalog_new/search/?q='),
-	                                   26 => array('name'=>'оазис','link'=>'http://www.oasiscatalog.com/search?q='),
+	                                   26 => array('name'=>'оазис','link'=>'http://krug-office.ru/artinfo.php?art='),
 							           37 => array('name'=>'проект','link'=>'http://www.gifts.ru/search?text='),
 									   59 => array('name'=>'макрос','link'=>'http://cabinet.makroseuro.ru/catalogue/search/?keyword='),
 									  'e_'=> array('name'=>'ебазар','link'=>'http://ebazaar.ru/search/index.php?q=')
@@ -191,7 +191,7 @@
 		3 => 'аннулирован',
 		4 => 'Готов к отгрузке'
 		);
-	// статусы пользователей
+	// статусы пользователей по позициям
 	$STATUS_LIST = array(
 		'0'=> array(), 
 		'1'=> array(), // админ
@@ -247,7 +247,6 @@
 			5 => 'Пленки отправлены',
 			6 => 'в работе',
 			7 => 'Клише заказано 00,00,00',
-			8 => 'задача принята ожидает',
 			9 => 'ожидает соглосования',
 			10 => 'задача не принята',
 			11 => 'очередь № __',
