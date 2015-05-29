@@ -94,7 +94,7 @@ $order_tbl = $html = '';
 			ORDER BY `".CAB_ORDER_MAIN."`.`id` ASC
 	                
 		";
-		$html .= $query;
+		// $html .= $query;
 		$main_rows = array();
 		$result = $mysqli->query($query) or die($mysqli->error);
 		// $main_rows_id = array();
