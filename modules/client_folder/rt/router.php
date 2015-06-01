@@ -51,7 +51,7 @@
 		 exit;
 	}
 	if(isset($_GET['insert_copied_rows'])){
-		 echo RT::insert_copied_rows($_GET['control_num']);
+		 echo RT::insert_copied_rows($query_num,$_GET['control_num']);
 		 exit;
 	}
 	

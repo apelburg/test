@@ -729,6 +729,7 @@ var rtCalculator = {
 		var cell = e.target || e.srcElement;
 		
 		var control_num = 1;
+		show_processing_timer();
 		//  
 		// 1. Обращаемся к серверу, получаем данные из буфера(SESSIONS)
 		// 2. Вставляем данные из буфера в базу данных на стороне сервера
@@ -741,7 +742,7 @@ var rtCalculator = {
 		    console.log(response);  /* */ 
 			var data = JSON.parse(response);
 			if(!data[0]) return;
-			alert(data[1]);
+			close_processing_timer(); closeAllMenuWindows(); location.reload();
 		}
 	}
 	,

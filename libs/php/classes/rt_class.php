@@ -39,7 +39,7 @@
 			//echo '<pre>'; print_r($_SESSION); echo '</pre>';
 			return 1;
 		}
-		static function insert_copied_rows($control_num){
+		static function insert_copied_rows($query_num,$control_num){
 		    global $mysqli;   //print_r($data); 
 
             if(empty($_SESSION['rt']['buffer']['copied_rows'])) return "[0]";
@@ -48,10 +48,60 @@
 			
 			// копируем выбранные ряды в таблицы
 			foreach ($data as $key => $dop_data) {
-			    echo $key;
-				foreach ($dop_data as $dop_key => $dop_value){
-				    echo  $dop_key;
+			    //echo $key;
+				// выбираем данные из таблицы RT_MAIN_ROWS
+				$query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$key."'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+				    // сохраняем полученный вывод в массив и производим корректировку данных:
+					// меняем номер запроса на текущий и присваиваем id пустое значение 
+				    $copied_data = $result->fetch_assoc();
+					$copied_data['query_num']=$query_num;
+				    $copied_data['id']='';
+				    $query="INSERT INTO `".RT_MAIN_ROWS."` VALUES ('".implode("','",$copied_data)."')"; 
+				    //echo $query;
+				    $mysqli->query($query)or die($mysqli->error);
+				    $row_id = $mysqli->insert_id;
+					
+				    foreach ($dop_data as $dop_key => $dop_value){
+					    //echo  $dop_key;
+						// выбираем данные из таблицы RT_DOP_DATA
+						$query="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_key."'";
+				        $result = $mysqli->query($query)or die($mysqli->error);
+						if($result->num_rows>0){
+						    // сохраняем полученный вывод в массив и производим корректировку данных:
+					        // меняем row_id обозначивающий внешний ключ на id вставленного в RT_MAIN_ROWS ряда и присваиваем id пустое значение 
+				            $copied_data = $result->fetch_assoc();
+							$dop_row_id = $copied_data['id'];
+							$copied_data['id']='';
+							$copied_data['row_id']= $row_id;
+							$query="INSERT INTO `".RT_DOP_DATA."` VALUES ('".implode("','",$copied_data)."')"; 
+							//echo $query;
+							$mysqli->query($query)or die($mysqli->error);
+							$new_dop_row_id = $mysqli->insert_id;
+							
+							// выбираем данные из таблицы RT_DOP_USLUGI
+							$query="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
+							$result = $mysqli->query($query)or die($mysqli->error);
+							if($result->num_rows>0){
+							    while($copied_data = $result->fetch_assoc()){
+									// сохраняем полученный вывод в массив и производим корректировку данных:
+									// меняем dop_row_id обозначивающий внешний ключ на id вставленного в RT_DOP_DATA ряда и
+									$copied_data['id']='';
+									$copied_data['dop_row_id']= $new_dop_row_id;
+									$query="INSERT INTO `".RT_DOP_USLUGI."` VALUES ('".implode("','",$copied_data)."')"; 
+									//echo $query;
+									$mysqli->query($query)or die($mysqli->error);
+								}
+								
+							}
+							
+						}
+					}
 				}
+				
+				
+				
 			}
 			//$query="UPDATE `".RT_MAIN_ROWS."` SET  `master_btn` = '".$data_obj->status."'  WHERE `id` IN('".str_replace(";","','",$data_obj->ids)."')";
 			//echo $query;
