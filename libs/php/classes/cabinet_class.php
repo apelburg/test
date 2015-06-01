@@ -39,8 +39,30 @@
 			}
 			return $arr_new;
 		}
+		public function select_global_status($real_val){
 
-		
+			global $GLOBAL_STATUS_ORDER;
+			$status_arr = $GLOBAL_STATUS_ORDER;
+			//$html = '<select><option value="">...</option>';
+			$html = '<select>';
+			foreach ($status_arr as $key => $value) {
+				$is_checked = ($real_val==$value)?'selected="selected"':'';
+				$html .= ' <option '.$is_checked.'>'.$value.'</option>';
+			}	
+			$html .= '</select>';
+			return $html;
+		}
+		public function select_status($rights_int/*права для определения списка статуса*/,$real_val){
+			global $STATUS_LIST;
+			$status_arr = $STATUS_LIST[$rights_int];
+			$html = '<select><option value="">...</option>';
+			foreach ($status_arr as $key => $value) {
+				$is_checked = ($real_val==$value)?'selected="selected"':'';
+				$html .= ' <option '.$is_checked.'>'.$value.'</option>';
+			}	
+			$html .= '</select>';
+			return $html;
+		}
 		public function get_gen_status($variable,$type){
 			$start_status = $variable[0]['status_'.$type];
 
@@ -85,7 +107,8 @@
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			global $mysqli;
 
-			$query = "SELECT `".CAB_DOP_USLUGI."`.*,`os__our_uslugi`.`name` FROM `".CAB_DOP_USLUGI."` 
+			$query = "SELECT `".CAB_DOP_USLUGI."`.*,`os__our_uslugi`.`name` 
+			FROM `".CAB_DOP_USLUGI."` 
 			LEFT JOIN  `os__our_uslugi` ON  `os__our_uslugi`.`id` = `".CAB_DOP_USLUGI."`.`uslugi_id` 
 			WHERE `".CAB_DOP_USLUGI."`.`dop_row_id` = '".$dop_row_id."'";
 

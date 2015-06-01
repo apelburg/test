@@ -1,5 +1,6 @@
 <?php
-
+	
+	// $_SESSION['access']['access'] = 2;
     // ** БЕЗОПАСНОСТЬ **
 	// проверяем выдан ли доступ на вход на эту страницу
 	// если нет $ACCESS['название раздела']['access'] или она равна FALSE прерываем работу скирпта 
@@ -8,7 +9,58 @@
 	include './libs/php/classes/cabinet_class.php';
 	$CABINET = new Cabinet();
     /////////////////////////////////// AJAX //////////////////////////////////////
-	
+	if(isset($_POST['AJAX'])){
+		// ИЗМЕНЕНИЯ РАЗРЕШЁННЫЕ ДЛЯ БУЧА
+		if($_POST['AJAX'] == 'change_payment_date'){
+			// print_r($_POST);
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `payment_date` =  '".$_POST['date']."' WHERE  `id` ='".$_POST['row_id']."';";
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+		if($_POST['AJAX'] == 'change_payment_status'){
+			// print_r($_POST);
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `payment_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+		if($_POST['AJAX'] == 'number_payment_list'){
+			// print_r($_POST);
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `number_pyament_list` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+		if($_POST['AJAX'] == 'select_global_status'){
+			// print_r($_POST);
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+		if($_POST['AJAX'] == 'buch_status_select'){
+			// print_r($_POST);
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `buch_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+		if($_POST['AJAX'] == 'change_ttn_number'){
+			// print_r($_POST);
+			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  `ttn_number` =  '".$_POST['value']."', ttn_get = NOW() WHERE  `id` ='".$_POST['row_id']."';";
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+		if($_POST['AJAX'] == 'change_delivery_tir'){
+			// print_r($_POST);
+			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  `delivery_tir` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			exit;
+		}
+	}
 	 
 	/////////////////////////////////// AJAX //////////////////////////////////////
 	$menu_name_arr = array(
@@ -38,7 +90,8 @@
 		'order_of_documents' => 'Заказ документов',
 		'arrange_delivery' => 'Оформить доставку',
 		'delivery' => 'Доставка',
-		'pclosing_documents' => 'Закрывающие документы'
+		'pclosing_documents' => 'Закрывающие документы',
+		'otgrugen' => 'Отгруженные'
 													
 		); 
 
@@ -56,13 +109,16 @@
 	}
 	
 	// определяем controller для подраздела
-	$section = isset($_GET["section"])?$_GET["section"]:'default';
+	$section = (isset($_GET["section"]))?$_GET["section"]:'default';
 
 	// инициируем центральное меню
 	$menu_central = "";
 	$menu_central_arr = (array_key_exists($section, $ACCESS['cabinet']['section']))?$ACCESS['cabinet']['section'][$section]['subsection']:array();
 
+	//$access = (isset($_GET['user_access']) && $_GET['user_access']!="")?''.$_GET['user_access'].'/':'1/';
+	$access = $_SESSION['access']['access'].'/';
 
+	
 	ob_start();
 	// echo "<pre>";
 	// print_r($menu_central_arr);
@@ -72,37 +128,38 @@
 		$menu_central .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'><a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.'">'.$menu_name_arr[$key2].'</a><li>';
 	}
 	// подгружаем контроллер подраздела
+
 	switch ($section) {
 		case 'important':
-			include 'important_controller.php';
+			include $access.'important_controller.php';
 			break;
 
 		case 'requests':
-			include 'requests_controller.php';
+			include $access.'requests_controller.php';
 			break;
 
 		case 'paperwork':
-			include 'paperwork_controller.php';
+			include $access.'paperwork_controller.php';
 			break;
 
 		case 'orders':
-			include 'orders_controller.php';
+			include $access.'orders_controller.php';
 			break;
 
 		case 'for_shipping':
-			include 'for_shipping_controller.php';
+			include $access.'for_shipping_controller.php';
 			break;
 
 		case 'closed':
-			include 'closed_controller.php';
+			include $access.'closed_controller.php';
 			break;
 
 		case 'simples':
-			include 'simples_controller.php';
+			include $access.'simples_controller.php';
 			break;
 		
 		default:
-			include 'default_controller.php';
+			include $access.'default_controller.php';
 			break;
 	}
 		

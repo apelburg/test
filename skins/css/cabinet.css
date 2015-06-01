@@ -8,11 +8,11 @@
 #cabinet_general_content table tr td,#cabinet_general_content table tr th{
 	text-align: left; padding: 5px
 }
+#cabinet_general_content table tr th.invoice_num,#cabinet_general_content table tr td.invoice_num{text-align: center;}
+
 
 .cabinet_general_content_row tr td{ font-size: 12px; border-bottom: 1px solid #e2e2e2; }
-.cabinet_general_content_row tr th:nth-of-type(5){width: 120px;}
-.cabinet_general_content_row tr th:nth-of-type(6){width: 80px;}
-.cabinet_general_content_row tr th:nth-of-type(7){width: 80px;}
+
 #cabinet_general_content table tr th{ background-color: #f1f1f1;font-size: 12px; height: 15px;  border-bottom: 1px solid #8b8a89;}
 #cabinet_general_content table tr td table th{border-bottom: 1px solid #e2e2e2;height: 12px; background-color: #fff}
 #cabinet_general_content .cab_position_div{
@@ -23,6 +23,7 @@
 	padding-top: 0;
 	padding-left: 0;
 }
+
 #cabinet_general_content .cab_position_div tr td{ border:none; padding: 2px}
 #cabinet_general_content .cab_position_div tr:hover{ background-color: #f1f1f1; cursor: default;}
 #cabinet_general_content .cab_position_div tr th:nth-of-type(1){ padding-left: 5px;width: 85px;}
@@ -33,9 +34,18 @@
 #cabinet_general_content .cab_position_div tr th:nth-of-type(5){width: 60px;}
 #cabinet_general_content .cab_position_div tr th:nth-of-type(6){width: 60px;}
 #cabinet_general_content .cab_position_div tr th:nth-of-type(7){width: 60px;}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(8){width: 120px;}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(9){width: 80px;}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(10){width: 80px; padding-right: 0}
+
+#cabinet_general_content .cab_position_div tr td.change_ttn_number,
+#cabinet_general_content .cab_position_div tr th.change_ttn_number{
+	width: 120px; text-align: center;
+}
+
+.cabinet_general_content_row tr th:nth-last-child(3){width: 100px; padding: 0}
+.cabinet_general_content_row tr th:nth-last-child(2){width: 120px;padding: 0}
+.cabinet_general_content_row tr th:nth-last-child(1){width: 120px;padding: 0}
+#cabinet_general_content .cab_position_div tr th:nth-last-child(3){width: 100px;padding: 2px}
+#cabinet_general_content .cab_position_div tr th:nth-last-child(2){width: 120px;padding: 2px}
+#cabinet_general_content .cab_position_div tr th:nth-last-child(1){width: 126px;padding: 2px}
 #cabinet_general_content .cab_position_div tr th{ font-size: 10px;  background-color: #FAFAFA; font-weight: normal;text-align: left;  color: #727272}
 #cabinet_general_content .cab_position_div tr td{ font-size: 10px; text-align: left;}
 
@@ -81,8 +91,10 @@
 	background-position-x: 10px;
 	background-repeat: no-repeat;
 	color: grey;
-	top: -26px;
-	padding-top: 25px;
+	/*top: -26px;
+	padding-top: 25px;*/
+	top: -33px;
+  	padding-top: 32px;
 }
 .cabinett_row_hide:hover{
 	background-color: #e2e2e2;
@@ -91,3 +103,7 @@
  	z-index: 2;
 }
 .show_hide{background-color: #f1f1f1; position: relative;}
+.payment_status_span{ padding: 5px}
+.payment_date{width: 67px}
+.buch_status_select select ,.select_global_status select{width: 100%}
+.change_delivery_tir{ padding: 2px 5px 1px 5px; float: left; min-width: 20px; text-align: right;}

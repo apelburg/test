@@ -45,8 +45,6 @@
 	});
 
 	//сохраняем статусы снабов и менеджеров
-	//
-
 	$(document).on('change','#info_for_order_list .status_men select ,#info_for_order_list .status_snab select',function(){
 		// записываем id строки позиции
 		var row_id = $(this).parent().parent().attr('data-id_order_main_rows');
@@ -71,10 +69,8 @@
 	<table class="cabinet_general_content_row" id="info_for_order_list">
 		
 		<?php
-
-		echo $order_tbl; 
-
-		
+		//echo get_uslugi(0);  //ВЫГРУЗИТ ВЕСЬ СПИСОК ДОСТУПНЫХ УСЛУГ
+			echo $order_tbl;		
 		?>		
 	</table> 
 </div>
