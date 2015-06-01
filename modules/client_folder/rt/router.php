@@ -46,6 +46,14 @@
 		 RT::set_masterBtn_status(json_decode($_GET['set_masterBtn_status']));
 		 exit;
 	}
+	if(isset($_GET['save_copied_rows_to_buffer'])){
+		 echo RT::save_copied_rows_to_buffer($_GET['save_copied_rows_to_buffer'],$_GET['control_num']);
+		 exit;
+	}
+	if(isset($_GET['insert_copied_rows'])){
+		 echo RT::insert_copied_rows($query_num,$_GET['control_num']);
+		 exit;
+	}
 	
 	/////////////////////  END  AJAX  ////////////////////// 
 	
