@@ -139,7 +139,6 @@
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
-	
 		
 		var innerDiv = document.createElement('div');
 		innerDiv.className = "fence";
@@ -179,11 +178,40 @@
 		a.appendChild(document.createTextNode('Спецификацию'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
-	
-	    var span = document.createElement('span');
-		span.className = "notWork";
-		span.appendChild(document.createTextNode('x'));
-		a.appendChild(span);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "fence";
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('action','delete');
+		a.href = '#';
+		a.onclick = rtRowsManager;
+		a.appendChild(document.createTextNode('Удалить выделенные строки'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('action','delete');
+		a.href = '#';
+		a.onclick = rtCalculator.copy_rows;
+		a.appendChild(document.createTextNode('Копировать выделенные строки'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('action','delete');
+		a.href = '#';
+		a.onclick = rtCalculator.insert_copied_rows;
+		a.appendChild(document.createTextNode('Вставить скопированные строки'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
 	  
 		
 		target.appendChild(div);
@@ -1276,58 +1304,12 @@
 		
 		e = e || window.event;
 		var element = e.target;
-        
-		// обходим РТ чтобы 
-		// 1. определить какие Мастер Кнопки были нажаты 
-		// 2. если Мастер Кнопка нажата проверяем светофор есть ли зеленые (для отправки в КП)
 		
-		var tbl = document.getElementById('rt_tbl_body');
-		var trsArr = tbl.getElementsByTagName('tr');
-		var nothing = true;
-		var pos_id = false;
-		var idsObj = {};
-		// обходим ряды таблицы
-		for( var i= 0 ; i < trsArr.length; i++){
-			var flag ;
-			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
-			if(trsArr[i].getAttribute('pos_id')){
-				pos_id = trsArr[i].getAttribute('pos_id');
-				
-				// работаем с рядом - ищем мастер кнопку 
-				var inputs = trsArr[i].getElementsByTagName('input');
-				for( var j= 0 ; j < inputs.length; j++){
-					if(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn' && inputs[j].checked == true){
-						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
-								 idsObj[pos_id] = {}; 
-				    }
-					else pos_id = false;
-				}
-			}
-			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие до нового ряда позици на нажатие зеленой кнопки
-			// светофора (позиции для отправки в КП)
-			if(pos_id!==false){
-				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
-				// работаем с рядом - ищем светофор 
-				var tdsArr = trsArr[i].getElementsByTagName('td');   
-				for( var j= 0 ; j < tdsArr.length; j++){
-					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
-						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
-						nothing = false;
-					}
-				}
-				
-			}
-		}
-		
-		
-		//var conrtol_num = getControlNum();
-        //console.log(JSON.stringify(idsObj));
-
-		if(nothing){
+		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)
+        if(!(idsObj = rtCalculator.get_active_rows())){
 			alert('не возможно создать КП, вы не выбрали ни одной позиции');
 			return;
-		}
-
+		} 
 		
 		show_processing_timer();
 		var tbl = document.getElementById('rt_tbl_body');

@@ -24,6 +24,42 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
+		static function save_copied_rows_to_buffer($data,$control_num){
+		    global $mysqli;   
+			// проверка control_num
+	        //echo 2;
+			/*$query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = '".$val."'  WHERE `id` = '".$id."'";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);*/
+			 RT::save_to_buffer($data,'copied_rows');
+		}
+		static function save_to_buffer($data,$type){
+		    if(!isset($_SESSION['rt']['buffer'])) $_SESSION['rt']['buffer'] = array();
+			$_SESSION['rt']['buffer'][$type] = $data;
+			//echo '<pre>'; print_r($_SESSION); echo '</pre>';
+			return 1;
+		}
+		static function insert_copied_rows($control_num){
+		    global $mysqli;   //print_r($data); 
+
+            if(empty($_SESSION['rt']['buffer']['copied_rows'])) return "[0]";
+			
+			if(($data = json_decode($_SESSION['rt']['buffer']['copied_rows']))==NULL) return "[0]";
+			
+			// копируем выбранные ряды в таблицы
+			foreach ($data as $key => $dop_data) {
+			    echo $key;
+				foreach ($dop_data as $dop_key => $dop_value){
+				    echo  $dop_key;
+				}
+			}
+			//$query="UPDATE `".RT_MAIN_ROWS."` SET  `master_btn` = '".$data_obj->status."'  WHERE `id` IN('".str_replace(";","','",$data_obj->ids)."')";
+			//echo $query;
+			//$result = $mysqli->query($query)or die($mysqli->error);
+			
+			return "[1,".$_SESSION['rt']['buffer']['copied_rows']."]";
+			
+		}
 		static function set_masterBtn_status($data_obj){
 		    global $mysqli;   //print_r($data); 
 

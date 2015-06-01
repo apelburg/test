@@ -20,7 +20,7 @@ class Manager {
 			}
 	    }
 	    else{
-	        // обработка пустой выборки
+	        return false;
 	    }
 	}	
 }
