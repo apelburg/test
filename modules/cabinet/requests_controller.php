@@ -50,13 +50,9 @@ function get_gen_price_out($variable){
 	// print_r($zapros);
 	// echo '</pre>';
 
-	// собираем html строк-запросов
+	// собираем html строк-запросов 
 	$html = '';
 	foreach ($zapros as $key => $value) {
-		// $company_name = $value[0]['company']; // название компании
-		// $id_dop_data = $value[0]['id_dop_data']; // id варианта расчёта
-		// $client_id = $value[0]['client_id']; // id клиента
-		// $gen_create_date = $value[0]['gen_create_date']; // дата заведения запроса
 
 		$html .= '
 				<tr>
@@ -106,10 +102,6 @@ function get_gen_price_out($variable){
 
 		if(!isset($value2)){continue;}
 		
-		##################
-		# START ВАРИАНТЫ #
-		##################
-		// ВЫВОД ВАРИАНТОВ
 		$html .= '<table class="cab_position_div">';
 		
 		// шапка таблицы вариантов запроса
@@ -159,12 +151,6 @@ function get_gen_price_out($variable){
 					</tr>';
 		}
 		$html .= '</table>';
-		################
-		# END ВАРИАНТЫ #
-		################
-		// $html .= '<br><br>'.$query;
-
-		////////////////
 		$html .= '</td>';
 		$html .= '</tr>';
 	}
