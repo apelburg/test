@@ -50,7 +50,15 @@
 										'section'=> array( // 1
 										    'rt'=> array('access'=>true),
 											'business_offers'=> array('access'=>true),
-											'order_art_edit'=> array('access'=>true)
+											'order_art_edit'=> array('access'=>true),
+											'order_tbl'=> array(
+												'access'=>true,
+												'change_status_glob'=> array('access'=>true),
+												'ttn_see'=> array('access'=>true),
+												'change_status_uslug'=> array('access'=>true),
+												'change_status_men'=> array('access'=>true),
+												'change_status_snab'=> array('access'=>true)
+												)
 											)	
 										),					   
 				       'cabinet'=> array(
@@ -173,15 +181,85 @@
 											)
 										)
 				       );
-							  						 
-	// МЕНЕДЖЕР					  
+	// Снабжение
+	$ACCESS_SHABLON[8] = array(
+						'client_folder'=> array(
+										'access'=> true,
+										'show___foo___'=> false,
+										'section'=> array( // 1
+										    'rt'=> array('access'=>true),
+											'business_offers'=> array('access'=>true),
+											'order_art_edit'=> array('access'=>true),
+											'order_tbl'=> array(
+												'access'=>true,
+												'ttn_see'=> array('access'=>false),												
+												'change_status_glob'=> array('access'=>false),
+												'change_status_uslug'=> array('access'=>false),
+												'change_status_men'=> array('access'=>false),
+												'change_status_snab'=> array('access'=>true)
+												)
+											)	
+										),	
+				       'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( // 1
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true)
+													)
+												)
+											)
+										)
+				       );
+		// Снабжение
 	$ACCESS_SHABLON[4] = array(
+				       'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( // 1
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true)
+													)
+												)
+											)
+										)
+				       );
+	// МЕНЕДЖЕР					  
+	$ACCESS_SHABLON[5] = array(
+						'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( // 1
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'in_work' => array('access'=>true),
+													'paused' => array('access'=>true),
+													'all' => array('access'=>true)
+													)
+												),
+											'for_shipping'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'ready_for_shipment' => array('access'=>true),
+													'otgrugen' => array('access'=>true)
+													)
+												),
+											'closed'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												),
+											)
+										),
 				       'clients'=> array(
-										'access'=> false,
+										'access'=> true,
 										'full_clients_delete'=> false
 										),
 					   'suppliers'=> array(
-										'access'=> false,
+										'access'=> true,
 										'full_suppliers_delete'=> false
 										),
 				       );

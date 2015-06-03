@@ -1,6 +1,14 @@
 <?php
 	
-	// $_SESSION['access']['access'] = 2;
+	// $_SESSION['access']['access'] = 1;// админ
+	$_SESSION['access']['access'] = 2;// буч
+	// $_SESSION['access']['access'] = 4;// про-во
+	// $_SESSION['access']['access'] = 5;// мен
+	// $_SESSION['access']['access'] = 6;// водитель
+	// $_SESSION['access']['access'] = 7;// склад
+	// $_SESSION['access']['access'] = 8;// снаб
+	// $_SESSION['access']['access'] = 9;// диз
+	// $_SESSION['access']['access'];
     // ** БЕЗОПАСНОСТЬ **
 	// проверяем выдан ли доступ на вход на эту страницу
 	// если нет $ACCESS['название раздела']['access'] или она равна FALSE прерываем работу скирпта 
@@ -60,6 +68,14 @@
 			$result = $mysqli->query($query) or die($mysqli->error);
 			exit;
 		}
+		if($_POST['AJAX'] == 'change_status_snab'){
+		// print_r($_POST);
+			$query = "UPDATE `".CAB_ORDER_MAIN."` SET  `status_snab` =  '".$_POST['value']."' WHERE  `".CAB_ORDER_MAIN."`.`id` =".$_POST['row_id'].";";
+		// $query = "UPDATE  SET `status_snab` = ' ' WHERE `id` = ".$_POST['row_id'].";";
+		echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}	
 	}
 	 
 	/////////////////////////////////// AJAX //////////////////////////////////////

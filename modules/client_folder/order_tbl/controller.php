@@ -54,6 +54,7 @@ $array_request = array();
 
 $CABINET = new Cabinet();
 // переменная вывода
+// print_r($order_tbl_access);
 $order_tbl = $html = '';
 
 		$html .= '<tr>
@@ -63,7 +64,7 @@ $order_tbl = $html = '';
 				<th>цена за товар</th>
 				<th>доп. услуги</th>
 				<th>цена позиции</th>
-				<th>ТТН</th>
+				'.(($order_tbl_access['ttn_see']['access'])?'<th>ТТН</th>':'').'
 				<th>статус снаб</th>
 				<th>статус мен</th>
 				<th>статус заказа</th>
@@ -150,7 +151,18 @@ $order_tbl = $html = '';
 			// стоимость варианта на выходе
 			$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
 		
-			$rowspan = ($i<1)?'<td id="status_oreder_chenge"  data-request_id='.$request_id.' rowspan="'.$count_rows.'">'.select_global_status($val1['global_status']).'<!--глобальный статус заказа--></td>':'';
+			// если это первая строка
+			if($i<1){
+				$rowspan  = '<td id="status_oreder_chenge"  data-request_id='.$request_id.' rowspan="'.$count_rows.'">';
+				//<!-- проверяем права на редактирование статуса заказа
+				$rowspan .=($order_tbl_access['change_status_glob']['access'])?select_global_status($val1['global_status']):$val1['global_status'];
+				//-->
+				$rowspan .='</td>';
+			}else{
+				$rowspan = '';
+
+			}
+			
 			$html .= '<tr data-id_order_main_rows="'.$val1['id'].'">
 			<td> '.$val1['art'].'<!--артикул --></td>
 			<td>'.$val1['name'].'<!--номенклатура --></td>
@@ -158,9 +170,17 @@ $order_tbl = $html = '';
 			<td><span>'.$price_out.'</span>р.<!-- стоимость товара --></td>
 			<td>'.get_tbl_dop_uslugi($dop_usl,($calc_summ_dop_uslug2+$calc_summ_dop_uslug)).'<!-- стоимость доп услуг --></td>
 			<td><span class="itogo_n_no_bold">р.</span><span class="itogo_n_no_bold">'.$in_out.'</span><!-- цена позиции --></td>
-			<td contenteditable="true"></td>
-			<td  class="status_snab">'.select_status(8,$val1['status_snab']).'<!--статус снаб --></td>
-			<td class="status_men">'.select_status(5,$val1['status_men']).'<!-- статус мен --></td>
+			'.(($order_tbl_access['ttn_see']['access'])?'<td contenteditable="true"></td>':'').'
+			<td  class="status_snab">';
+			//<!-- проверяем право изменять статус заказа
+			$html .= ($order_tbl_access['change_status_snab'])?select_status(8,$val1['status_snab']):$val1['status_snab'];
+			// -->
+			$html .='<!--статус снаб --></td>
+			<td class="status_men">';
+			//<!-- проверяем право изменять статус менеджера
+			$html .= ($order_tbl_access['change_status_men']['access'])?select_status(5,$val1['status_men']):$val1['status_men'];
+			//-->
+			$html .='<!-- статус мен --></td>
 			'.$rowspan.'
 			</tr>';
 			$order_itog_price +=$in_out;
@@ -170,6 +190,7 @@ $order_tbl = $html = '';
 		
 
 function get_tbl_dop_uslugi($dop_usl, $all_price){
+	global $order_tbl_access;
 	global $global_performer_type;
 
 	$html = '';
@@ -213,7 +234,12 @@ function get_tbl_dop_uslugi($dop_usl, $all_price){
 			foreach ($value as $k => $v) {
 				switch ($k) {
 					case 'performer_status': // статус исполнителя
-						$html .='<td><span>'.get_status_uslugi($int,$v).'</span></td>';
+						if($order_tbl_access['change_status_men']['access']){
+							$html .='<td><span>'.get_status_uslugi($int,$v).'</span></td>';
+						}else{
+							$html .='<td><span>'.$v.'</span></td>';
+						}
+						
 						break;	
 					case 'performer_id': // тип исполнителя услуг
 						$st = ((int)$v==0)?'не указан1':$v;

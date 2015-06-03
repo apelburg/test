@@ -3,8 +3,12 @@
     // ** БЕЗОПАСНОСТЬ **
 	// проверяем выдан ли доступ на вход на эту страницу
 	// если нет $ACCESS['suppliers']['access'] или она равна FALSE прерываем работу скирпта 
-	// if(!@$ACCESS['client_folder']['section']['rt']['access']) exit($ACCESS_NOTICE);
+	if(!@$ACCESS['client_folder']['section']['order_tbl']['access']) exit($ACCESS_NOTICE);	
 	// ** БЕЗОПАСНОСТЬ **
+
+	$order_tbl_access = $ACCESS['client_folder']['section']['order_tbl'];
+
+
 	include ROOT.'/libs/php/classes/rt_class.php';
 	include ROOT.'/libs/php/classes/client_class.php';
 	include ROOT.'/libs/php/classes/cabinet_class.php';	
