@@ -21,8 +21,12 @@ if(window.addEventListener) window.addEventListener('load',tableDataManager.inst
 	else if(window.attachEvent) window.attachEvent('onload',tableDataManager.install);
 	else window.onload = tableDataManager.install;
 */
+
+$(window).on('beforeunload', function() {
+    if(rtCalculator.changes_in_process) return 'У Вас есть не сохраненные данные, Вы можете их потерять';							  
+});
 	
-window.unload = function(){// пока с этим не ясно
+window.onunload = function(){// пока с этим не ясно
    alert(1);
 }
 print_r.count = 0;
@@ -53,6 +57,7 @@ var rtCalculator = {
     tbl_model:false,
 	tbl_total_row:false,
 	previos_data:{},
+	complite_count:0,
 	primary_val:false
 	,
 	init_tbl:function(head_tbl_id,body_tbl_id){// метод запускаемый при наступлении события window.onload()
@@ -186,8 +191,20 @@ var rtCalculator = {
 						if(tds_arr[j].getAttribute){
 							if(tds_arr[j].getAttribute('editable')){
 								//tds_arr[j].onkeyup = this.make_calculations;
-								tds_arr[j].onkeyup = this.check;
-								tds_arr[j].onfocus = function(){ rtCalculator.primary_val = this.innerHTML; /*this.className+= ' active';*/}
+								tds_arr[j].onfocus = function(e){ 
+								   e = e || window.event;
+								   // устанавливаем текущюю ячейку и сохраняем изначальное значение
+		                           rtCalculator.cur_cell = e.target || e.srcElement;
+								   rtCalculator.primary_val = rtCalculator.cur_cell.innerHTML;
+                                   // устанавливаем текущюю ячейку
+								   rtCalculator.changes_in_process = true;
+								}
+								tds_arr[j].onkeyup = function(){
+								   rtCalculator.check();
+								   // запускаем таймер по истечению которого вызываем функцию rtCalculator.complite_input
+								   // отправляющую данные на сервер
+								   if(!rtCalculator.complite_timer) rtCalculator.complite_timer = setTimeout(rtCalculator.complite_input,2000);
+								}
 								tds_arr[j].onblur = this.complite_input;
 								tds_arr[j].setAttribute("contenteditable",true);
 								tds_arr[j].style.outline="none";
@@ -212,31 +229,42 @@ var rtCalculator = {
 		}
 	}
 	,
-	complite_input:function(e){
-		// метод срабатывает при событие onblur в ячейках ввода данных для расчета
-		// тем самым он срабатывает когда ввод данных завершен
-		// используем этот момент для отправки измененных данных в базу данных на сервер для синхронизации изменений 
+	complite_input:function(){
+		// метод срабатывает либо при событие onblur в ячейках ввода данных для расчета ( тем самым он срабатывает когда ввод данных завершен
+		// используем этот момент для отправки измененных данных в базу данных на сервер для синхронизации изменений ) 
+		// либо при срабатывании таймера запускающегося при onkeyup в ячейке что позволяет отправлять данные из ячейки с некоторыим интервалом
 		
-		e = e || window.event;
-		var cell = e.target || e.srcElement;
-		
+		if(rtCalculator.complite_timer){
+			 clearTimeout(rtCalculator.complite_timer);
+			 rtCalculator.complite_timer = null;
+		}
+		 console.log('№'+(++rtCalculator.complite_count));
+		 console.log(1);
 		// получаем значение ячейки
-		var last_val = cell.innerHTML;
+		var last_val = rtCalculator.cur_cell.innerHTML;
 		
 		// сравниваем текущее значение с первоначальным, если они равны значит окончательные изменения не были произведены
 		// в таком случае ничего не меняем в базе - прерываем дальнейшее выполнение
-		if(rtCalculator.primary_val == last_val) return;
-		
+		if(rtCalculator.primary_val == last_val){
+			rtCalculator.changes_in_process = false;
+			return;
+		}
+		console.log(rtCalculator.primary_val+' '+last_val);
+
 		// формируем url для AJAX запроса
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+cell.parentNode.getAttribute('row_id')+'","prop":"'+cell.getAttribute('type')+'","val":"'+last_val+'"}');
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+rtCalculator.cur_cell.parentNode.getAttribute('row_id')+'","prop":"'+rtCalculator.cur_cell.getAttribute('type')+'","val":"'+last_val+'"}');
 		rtCalculator.send_ajax(url,callback);
 		//alert(last_val);
-		function callback(){ /*cell.className = cell.className.slice(0,cell.className.indexOf("active")-1);*/}
+		function callback(){ 
+		    rtCalculator.changes_in_process = false;
+		    /*cell.className = cell.className.slice(0,cell.className.indexOf("active")-1);*/
+			console.log(2);
+		}
 	}
 	,
-	check:function(e){// корректировка значений вводимых пользователем
-	    e = e || window.event;
-		var cell = e.target || e.srcElement;
+	check:function(){// корректировка значений вводимых пользователем
+
+		var cell = rtCalculator.cur_cell;
 		
 		//alert(floatLengthToFixed (cell.innerHTML));
 		if(cell.getAttribute('type') == 'quantity')  var result = correctToInt(cell.innerHTML);
@@ -715,12 +743,13 @@ var rtCalculator = {
 			return;
 		} 
 		var control_num = 1;
+		show_processing_timer();
 		//alert(idsObj);
 		
 		// Сохраняем полученные данные в cессию(SESSION) чтобы потом при выполнении действия (вставить скопированное) получить данные из SESSION
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_copied_rows_to_buffer='+JSON.stringify(idsObj)+'&control_num='+control_num);
 		rtCalculator.send_ajax(url,callback);
-		function callback(response){  /* console.log(response); */ }
+		function callback(response){  /* console.log(response); */ close_processing_timer(); closeAllMenuWindows(); }
 	}
 	,
 	insert_copied_rows:function(e){ 
