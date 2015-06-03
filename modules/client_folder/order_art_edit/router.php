@@ -23,47 +23,45 @@
 
 	// варианты просчётов
 	ob_start();		
-	$dop_enable = array('','','');
+	$dop_enable = array(0,0);
 	foreach ($variants as $k => $v) {
-		if($v['draft']=='0' && $v['row_status']!='red'/*исключение на возможную ошибку в базе*/){$dop_enable[0] = 1;}			
-		if($v['row_status']=="green"){$dop_enable[1] = 1;}		
-		if($v['row_status']=="grey"){$dop_enable[2] = 1;}	
+		//if($v['draft']=='0' && $v['row_status']!='red'/*исключение на возможную ошибку в базе*/){$dop_enable[0] = 1;}			
+		if($v['row_status']=="green"){$dop_enable[0] = 1;}		
+		if($v['row_status']=="grey"){$dop_enable[1] = 1;}	
 	}	
-	$draft_enable = $dop_enable[0];
-	$isset_green = $dop_enable[1];
-	// $isset_grey = $dop_enable[2];
+	$isset_green = $dop_enable[0];
+	$isset_grey = $dop_enable[1];
 	// echo '<pre>';
 	// print_r($variants);
 	// echo '</pre>';
+	
+	// print_r($dop_enable);
+
 	$ch = 0;
 	foreach ($variants as $key => $value) {
 		// по умолчанию блоки скрыты
 		$display_this_block = ' style="display:none"';
 		// если это зона записи red, а архив нам не нужно показывать переходим к следующей интерации цикла
-		if(!isset($_GET['show_archive']) && $value['row_status']=='red'){ continue;}
+		if((!isset($_GET['show_archive']) && ($isset_green || $isset_grey)) && $value['row_status']=='red'){ continue;}
 
 		// если это зона записи red, добавляем класс запрещающий редактирование данного блока
 		if($value['row_status']=='red'){$show_archive_class = " archiv_opacity";}else{$show_archive_class ='';}
 
-		///////// ПЕРЕДЕЛАТЬ В СВЕТОФОР  ////////////////////
+		///////// ВАРИАНТЫ СВЕТОФОР  ///////
 		$var = $value['row_status'];
 		switch ($var) {
 			case 'green':// не история - рабочий вариант расчёта
-					// может входить в КП
-			//echo $value['draft'].'- <br>';
-				if($draft_enable && $value['draft']=='0' && $ch < 1){$display_this_block=' style="display:block"';$ch++;}else{
-					if(!$draft_enable && $ch <1){$display_this_block=' style="display:block"';$ch++;}
-				}
-				
+				// может входить в КП
+				if($ch < 1){$display_this_block=' style="display:block"';$ch++;}				
 			break;
 			
 			case 'grey':// не история - вариант расчёта не учитывается в РТ
-					// вариант расчёта не входит в КП	
-				if (!$isset_green && !$draft_enable && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
+				// серый вариант расчёта не входит в КП	
+				if (!$isset_green && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
 			break;						
 			
 			default: // вариант расчёта red (архив), остальное не важно
-				if (!$isset_green && !$draft_enable && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
+				if (!$isset_green && !$isset_grey && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
 			break;
 		}
 		

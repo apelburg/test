@@ -1,7 +1,7 @@
 <?php
 	
-	// $_SESSION['access']['access'] = 1;// админ
-	$_SESSION['access']['access'] = 2;// буч
+	$_SESSION['access']['access'] = 1;// админ
+	// $_SESSION['access']['access'] = 2;// буч
 	// $_SESSION['access']['access'] = 4;// про-во
 	// $_SESSION['access']['access'] = 5;// мен
 	// $_SESSION['access']['access'] = 6;// водитель
