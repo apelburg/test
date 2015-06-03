@@ -1,6 +1,9 @@
 <?php
 ////////////////////////////////////// AJAX ////////////////////////////
 if(isset($_POST['AJAX'])){
+	
+
+
 	if($_POST['AJAX'] == 'change_status_uslugi'){
 		print_r($_POST);
 		$query = "UPDATE  `os__cab_dop_uslugi` SET  `performer_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
@@ -16,12 +19,13 @@ if(isset($_POST['AJAX'])){
 		exit;
 	}
 	if($_POST['AJAX'] == 'change_status_snab_and_men'){
-		print_r($_POST);
+		// print_r($_POST);
 		$query = "UPDATE  `os__cab_order_main_rows`  SET  `".$_POST['column']."` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
 		echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
-	}
+	}	
+	
 }
 ////////////////////////////////////// AJAX ////////////////////////////
 
@@ -60,8 +64,8 @@ $order_tbl = $html = '';
 				<th>доп. услуги</th>
 				<th>цена позиции</th>
 				<th>ТТН</th>
-				<th>статус мен</th>
 				<th>статус снаб</th>
+				<th>статус мен</th>
 				<th>статус заказа</th>
 				</tr>';
 //
@@ -155,8 +159,8 @@ $order_tbl = $html = '';
 			<td>'.get_tbl_dop_uslugi($dop_usl,($calc_summ_dop_uslug2+$calc_summ_dop_uslug)).'<!-- стоимость доп услуг --></td>
 			<td><span class="itogo_n_no_bold">р.</span><span class="itogo_n_no_bold">'.$in_out.'</span><!-- цена позиции --></td>
 			<td contenteditable="true"></td>
-			<td class="status_men">'.select_status(5,$val1['status_men']).'<!-- статус мен --></td>
 			<td  class="status_snab">'.select_status(8,$val1['status_snab']).'<!--статус снаб --></td>
+			<td class="status_men">'.select_status(5,$val1['status_men']).'<!-- статус мен --></td>
 			'.$rowspan.'
 			</tr>';
 			$order_itog_price +=$in_out;

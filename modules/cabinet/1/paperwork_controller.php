@@ -6,6 +6,7 @@ if(!@array_key_exists($section, $ACCESS['cabinet']['section']) ){
 	return;
 };
 // ** БЕЗОПАСНОСТЬ **
+
 include ('./libs/php/classes/rt_class.php');
 
 // простой запрос
@@ -22,7 +23,8 @@ include ('./libs/php/classes/rt_class.php');
 		FROM `".CAB_ORDER_ROWS."`
 		INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
 		INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-	$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` NOT LIKE '%В оформлении%'";
+	$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'В оформлении'";
+	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
 	$main_rows_id = array();
 	
@@ -39,13 +41,14 @@ include ('./libs/php/classes/rt_class.php');
 	// собираем html строк-запросов
 	$html = '';
 	if(count($main_rows_id)==0){return 1;}
+	
 	foreach ($main_rows_id as $key => $value) {
 		// print_r($value);
-
+		$order_num_1 = Cabinet::show_order_num($value['order_num']);
 		$html .= '
 				<tr>
 					<td class="cabinett_row_show show"><span></span></td>
-					<td><a href="./?page=client_folder&section=order_tbl&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.Cabinet::show_order_num($value['order_num']).'</a></td>
+					<td><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.$order_num_1.'</a></td>
 					<td>'.$value['create_time'].'</td>
 					<td>'.$value['company'].'</td>
 					<td><!--RT::calcualte_query_summ($value[\'order_num\'])--></td>
@@ -62,7 +65,7 @@ include ('./libs/php/classes/rt_class.php');
 		SELECT 
 			`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
 			`".CAB_ORDER_DOP_DATA."`.`quantity`,	
-			`".CAB_ORDER_DOP_DATA."`.`price_out`,		
+			`".CAB_ORDER_DOP_DATA."`.`price_out`,	
 			`".CAB_ORDER_DOP_DATA."`.`print_z`,	
 			`".CAB_ORDER_DOP_DATA."`.`zapas`,	
 			DATE_FORMAT(`".CAB_ORDER_MAIN."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
@@ -111,8 +114,8 @@ include ('./libs/php/classes/rt_class.php');
 				</tr>';
 
 		foreach ($main_rows as $key1 => $val1) {
-			//ОБСЧЁТ ВАРИАНТА ЗАКАЗА
-			// получаем массив стоимости нанесения и доп услуг для данного варианта ЗАКАЗА
+			//ОБСЧЁТ ВАРИАНТОВ
+			// получаем массив стоимости нанесения и доп услуг для данного варианта 
 			$dop_usl = $CABINET -> get_order_dop_uslugi($val1['id_dop_data']);
 			// выборка только массива стоимости печати
 			$dop_usl_print = $CABINET->get_dop_uslugi_print_type($dop_usl);
@@ -121,18 +124,18 @@ include ('./libs/php/classes/rt_class.php');
 
 			// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
 			// стоимость печати варианта
-			$calc_summ_dop_uslug = $CABINET -> calc_summ_dop_uslug($dop_usl_print,$val1['quantity']);
+			$calc_summ_dop_uslug = $CABINET -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 			// стоимость доп услуг варианта
-			$calc_summ_dop_uslug2 = $CABINET -> calc_summ_dop_uslug($dop_usl_no_print,$val1['quantity']);
+			$calc_summ_dop_uslug2 = $CABINET -> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 			// стоимость товара для варианта
 			$price_out = $val1['price_out'] * $val1['quantity'];
 			// стоимость варианта на выходе
 			$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
 
 			$html .= '<tr>
-			<td><!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
+			<td> '.$val1['id_dop_data'].'<!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
 			<td>'.$val1['name'].'</td>
-			<td>'.$val1['quantity'].'</td>
+			<td>'.($val1['quantity']+$val1['zapas']).'</td>
 			<td></td>
 			<td>'.$price_out.'</td>
 			<td>'.$calc_summ_dop_uslug.'</td>
@@ -152,5 +155,18 @@ include ('./libs/php/classes/rt_class.php');
 		$html .= '</td>';
 		$html .= '</tr>';
 	}
+	echo '
+	<table class="cabinet_general_content_row">
+					<tr>
+						<th id="show_allArt"></th>
+						<th>Номер</th>
+						<th>Дата/время</th>
+						<th>Компания</th>
+						<!-- <th>Клиент</th> -->
+						<th>Сумма</th>
+						<th>Статус мен.</th>
+						<th>Статус снаб.</th>
+					</tr>';
 	echo $html;
+	echo '</table>';
 

@@ -134,6 +134,46 @@
 										),
 				       );
 							  
+	$ACCESS_SHABLON[2] = array(
+				       'clients'=> array(
+										'access'=> true,
+										'full_clients_delete'=> true,
+										'show___foo___'=> false
+										),					   				   
+				       'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( // 1
+											'paperwork'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'all' => array('access'=>true)
+													)
+												), 
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'in_work' => array('access'=>true),
+													'paused' => array('access'=>true),
+													'all' => array('access'=>true)
+													)
+												),
+											'for_shipping'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'ready_for_shipment' => array('access'=>true),
+													'otgrugen' => array('access'=>true)
+													)
+												),
+											'closed'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												),
+											)
+										)
+				       );
+							  						 
 	// МЕНЕДЖЕР					  
 	$ACCESS_SHABLON[4] = array(
 				       'clients'=> array(
