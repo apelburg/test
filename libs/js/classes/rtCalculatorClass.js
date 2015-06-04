@@ -75,9 +75,17 @@ var rtCalculator = {
 	    e = e || window.event;
 		var cell = e.target || e.srcElement;
 		
-		if(cell.parentNode.getAttribute('calc_btn') == 'print') alert('калькулятор нанесения логотипа');
-		if(cell.parentNode.getAttribute('calc_btn') == 'extra') alert('калькулятор доп. услуг');
-	    
+		//if(cell.parentNode.getAttribute('calc_btn') == 'print') alert('калькулятор нанесения логотипа');
+		//if(cell.parentNode.getAttribute('calc_btn') == 'extra') alert('калькулятор доп. услуг');
+		
+		var data = 'default';
+		
+	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+cell.parentNode.parentNode.getAttribute('art_id')+'","type":"'+cell.parentNode.getAttribute('calc_btn')+'","data":"'+data+'"}');
+		rtCalculator.send_ajax(url,callback);
+		//alert(last_val);
+		function callback(response){ 
+			console.log(response);
+		}
 		
 	}
 	,

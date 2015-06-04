@@ -54,6 +54,14 @@
 		 echo RT::insert_copied_rows($query_num,$_GET['control_num']);
 		 exit;
 	}
+	if(isset($_GET['grab_calculator_data'])){
+		print_r(json_decode($_GET['grab_calculator_data']));
+		
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/com_pred_class.php");
+		
+		
+		exit;
+	}
 	
 	/////////////////////  END  AJAX  ////////////////////// 
 	
