@@ -200,58 +200,35 @@ class Articul{
 		
 		$ch = 0; // счетчик количества выбранных элементов, может не больше одного
 		
-		// проверяем наличие выбранных основных
-		// $dop_enable[]  определяется в router.php
-		$draft_enable = $dop_enable[0];
 		// проверяем наличие green расчётов
-		$isset_green = $dop_enable[1];
+		$isset_green = $dop_enable[0];
 		// проверяем наличие grey расчётов
-		$isset_grey = $dop_enable[2];
+		$isset_grey = $dop_enable[1];
 		
-		// если все находятся в архиве выводим первый из них
-		if(!$isset_green && !$draft_enable){$first_red = 1;}else{$first_red = 0;}
-
 		for ($i=0; $i < count($variants); $i++) { 
 			$checked = ''; // имя класса для выбранного элемента
 
-			if(!isset($_GET['show_archive']) && $variants[$i]['row_status']=='red'){ continue;}
-
-			// если есть $draft_enable=1, т.е. мы знаем, что в списке есть основной
-			// вариант, то грузим только его, остальное является историей
 			$var = $variants[$i]['row_status'];
-			
-			// echo '| $draft_enable = '.$draft_enable;
-			// echo '| $variants[$i]["draft"] = '.$variants[$i]['draft'];
-			// echo '| $ch = '.$ch;
-			// echo '| row_status = '.$var.'<br>';
+
+			// если это зона записи red, а архив нам не нужно показывать переходим к следующей интерации цикла
+			if((!isset($_GET['show_archive']) && ($isset_green || $isset_grey)) && $var=='red'){ continue;}
+
 			switch ($var) {
 				case 'green':// не история - рабочий вариант расчёта
 					// может входить в КП
-					//if($draft_enable && $value['draft']=='0'       && $ch < 1) {$display_this_block=' style="display:block"';$ch++;}
-					
-					if($draft_enable && $variants[$i]['draft']=='0' && $ch < 1){$checked='checked';$ch++;}else{
-						if(!$draft_enable && $ch < 1){$checked ='checked';$ch++;}
-					}
-					//if(!$draft_enable && $ch <1){$display_this_block=' style="display:block"';$ch++;}
-					
-					
+					if($ch < 1){$checked='checked';$ch++;}					
 					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
-
 				break;
 				
 				case 'grey':// не история - вариант расчёта не учитывается в РТ
 					// вариант расчёта не входит в КП	
-				  //if (!$isset_green && !$draft_enable && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
-					if (!$isset_green && !$draft_enable && $ch== 0){$checked='checked';$ch++;}
+				  	if (!$isset_green && $ch == 0){$checked='checked';$ch++;}
 					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
 				break;			
 				
 				default: // вариант расчёта red (архив), остальное не важно
-					if(isset($_GET['show_archive'])){
-					  //if (!$isset_green && !$draft_enable && $ch== 0){$display_this_block=' style="display:block"';$ch++;}						
-						if (!$isset_green && !$draft_enable && $ch== 0){$checked='checked';$ch++;}
-						$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name show_archive">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
-					}
+					if (!$isset_green && !$isset_grey && $ch== 0){$checked='checked';$ch++;}
+					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name show_archive">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
 				break;
 			}
 		}

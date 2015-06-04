@@ -94,13 +94,13 @@
 		// }
 
 		if(isset($_POST['change_name']) && $_POST['change_name']=='change_archiv'){
-			
-			$query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
-			// $query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
-			$query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '1', `row_status` = 'green' WHERE  `id` ='".$_POST['id']."';";
-			$result = $mysqli->multi_query($query) or die($mysqli->error);
-			// $result = $mysqli->query($query) or die($mysqli->error);
-			echo '{"response":"1","text":"test"}';
+			echo 'не используется... или переделать';
+			// $query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
+			// // $query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
+			// $query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '1', `row_status` = 'green' WHERE  `id` ='".$_POST['id']."';";
+			// $result = $mysqli->multi_query($query) or die($mysqli->error);
+			// // $result = $mysqli->query($query) or die($mysqli->error);
+			// echo '{"response":"1","text":"test"}';
 			exit;
 		}
 
@@ -143,7 +143,7 @@
 
 		if(isset($_POST['change_name']) && $_POST['change_name']=='new_variant'){
 			// собираем запрос, копируем строку в БД
-			$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, draft,row_status,final_delete,quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, draft,row_status,final_delete,quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id']."')";
+			$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, row_status,quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, row_status,quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id']."')";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			// запоминаем новый id
 			$insert_id = $mysqli->insert_id;

@@ -86,7 +86,7 @@ $(document).on('click','#cabinet_general_content .cabinett_row_show',function() 
 */
 
 
-//БУХГАЛТЕРИЯ
+//БУХГАЛТЕРИЯ START
 $(document).on('keyup','.invoice_num:focus',function(){
 	// записываем id строки позиции
 	var row_id = $(this).parent().attr('data-id');
@@ -168,7 +168,24 @@ $(document).on('keyup','.change_delivery_tir:focus',function(){
 		console.log(data);
 	});
 })
+//БУХГАЛТЕРИЯ END
 
+//СНАБ START
+	// схраняем статус снаб
+	$(document).on('change','.status_snab select',function(){
+		// записываем id строки услуги
+		var row_id = $(this).parent().parent().attr('data-id');
+		var value = $(this).val();
+		
+		$.post('', {
+			AJAX:'change_status_snab',
+			row_id:row_id,
+			value:value
+		}, function(data, textStatus, xhr) {
+			console.log(data);
+		});
+	});
+//СНАБ END
 
 </script>
 <div class="table" id="cabinet">

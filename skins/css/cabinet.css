@@ -39,7 +39,7 @@
 #cabinet_general_content .cab_position_div tr th.change_ttn_number{
 	width: 120px; text-align: center;
 }
-
+.number_order{width: 82px;}
 .cabinet_general_content_row tr th:nth-last-child(3){width: 100px; padding: 0}
 .cabinet_general_content_row tr th:nth-last-child(2){width: 120px;padding: 0}
 .cabinet_general_content_row tr th:nth-last-child(1){width: 120px;padding: 0}
@@ -47,7 +47,7 @@
 #cabinet_general_content .cab_position_div tr th:nth-last-child(2){width: 120px;padding: 2px}
 #cabinet_general_content .cab_position_div tr th:nth-last-child(1){width: 126px;padding: 2px}
 #cabinet_general_content .cab_position_div tr th{ font-size: 10px;  background-color: #FAFAFA; font-weight: normal;text-align: left;  color: #727272}
-#cabinet_general_content .cab_position_div tr td{ font-size: 10px; text-align: left;}
+#cabinet_general_content .cab_position_div tr td{ font-size: 13px; text-align: left;}
 
 #cabinet_general_content .cabinett_row_show{
 	background-color: #f1f1f1;

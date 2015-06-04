@@ -69,7 +69,7 @@
 	<table class="cabinet_general_content_row" id="info_for_order_list">
 		
 		<?php
-		//echo get_uslugi(0);  //ВЫГРУЗИТ ВЕСЬ СПИСОК ДОСТУПНЫХ УСЛУГ
+		echo get_uslugi(0);  //ВЫГРУЗИТ ВЕСЬ СПИСОК ДОСТУПНЫХ УСЛУГ
 			echo $order_tbl;		
 		?>		
 	</table> 
