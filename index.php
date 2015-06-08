@@ -52,6 +52,10 @@
 	   case 'client_folder':
 	   include 'modules/client_folder/router.php';
 	   break;
+
+	   case 'option':
+	   include 'modules/option/router.php';
+	   break;
 	   /*
 	   case 'orders':
 	   include 'modules/orders/router.php';
