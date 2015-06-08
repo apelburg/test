@@ -235,7 +235,7 @@
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
 				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $nacenka = $srock_sdachi = '';
 			 }
-			 
+			 $art_id = get_base_art_id($row['art']);
 			 
 			 //echo $row['row_type'].' = ';
 				 if($row['row_type'] == 'cat'){ 
@@ -243,7 +243,7 @@
 									   <a href="?page=client_folder&section=order_art_edit&id='.$key.'">'.$row['art'].'</a>
 									   <div class="pos_link_plank">
 										  <div class="catalog">
-											  <a id="" href="/?page=description&id='.get_base_art_id($row['art']).'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
+											  <a id="" href="/?page=description&id='.$art_id.'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
 										  </div>
 										  <div class="supplier">
 											   '.identify_supplier_by_prefix($row['art']).'
@@ -264,7 +264,7 @@
 			 
 			 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'"':'').' row_id="'.$dop_key.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
+		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'"':'').' row_id="'.$dop_key.'" art_id="'.$art_id.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top glob_counter" width="30">'.$glob_counter.'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="top master_btn noselect" width="35">   
 											<div class="masterBtnContainer" id="">
