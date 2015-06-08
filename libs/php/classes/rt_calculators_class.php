@@ -43,8 +43,8 @@
 		    // получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
             $out_put = self::get_print_types_related_data($out_put);
 			
-			print_r($out_put);
-			//echo json_encode($out_put);
+			//print_r($out_put);
+			echo json_encode($out_put);
 			//return print_r($out_put,true);
 			return $out_put;
 		
@@ -59,8 +59,9 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);/**/
 			if($result->num_rows>0){
+			    $places[0]['name'] = 'Стандартно';	
 			    while($row = $result->fetch_assoc()){
-					$places[0] = $row['print'];	
+					$places[0]['data'][] = $row['print'];	
 					$print_types[$row['print']] = array();
 				}
 			}
@@ -72,24 +73,31 @@
 		    global $mysqli;  
 			 
 			// получаем данные о местах нанесений соответсвующих данному артикулу
-			$query="SELECT*FROM `".BASE__ART_PRINT_PLACES_REL_TBL."` WHERE `art_id` = '".$art_id."'";
+			$query="SELECT tbl1.`place_id` place_id, tbl2.`name` name  FROM `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl1 
+			        INNER JOIN  `".BASE__PRINT_PLACES_TYPES_TBL."` tbl2 
+					ON tbl1.`place_id`  = tbl2.`id`
+                    WHERE tbl1.`art_id` = '".$art_id."'";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);/**/
 			if($result->num_rows>0){
 			    while($row = $result->fetch_assoc()){
-				
 				    // получаем данные о типах нанесений соответсвующих данному месту
-					$query_2="SELECT*FROM `".BASE__PRINT_PLACES_PRINT_TYPES_REL_TBL."` WHERE `place_id` = '".$row['place_id']."'";
+					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__PRINT_PLACES_PRINT_TYPES_REL_TBL."` tbl1
+					          INNER JOIN  `".OUR_USLUGI_LIST."` tbl2 
+					          ON tbl1.`print_id`  = tbl2.`id` 
+							  WHERE tbl1.`place_id` = '".$row['place_id']."'";
+					
 					$result_2 = $mysqli->query($query_2)or die($mysqli->error);/**/
 					if($result_2->num_rows>0){
 					    $print_types = array();
 						while($row_2 = $result_2->fetch_assoc()){
 						    if(!isset($out_put['print_types'][$row_2['print_id']])) $out_put['print_types'][$row_2['print_id']] = array();	
 							
-						    $print_types[] = $row_2['print_id'];
+						    $print_types[$row_2['print_id']] = $row_2['name'];
 						}
 						// добавляем результат в итоговый массив ключем устанавливаем id места нанесения
-						$out_put['places'][$row['place_id']] = $print_types;		
+						$out_put['places'][$row['place_id']]['name'] = $row['name'];
+						$out_put['places'][$row['place_id']]['data'] = $print_types;		
 					}			
 				}
 			}
