@@ -77,7 +77,18 @@ var rtCalculator = {
 		
 		//if(cell.parentNode.getAttribute('calc_btn') == 'print') alert('калькулятор нанесения логотипа');
 		//if(cell.parentNode.getAttribute('calc_btn') == 'extra') alert('калькулятор доп. услуг');
+
+		// количество по ячейке
+		var tdsArr = cell.parentNode.parentNode.getElementsByTagName('TD');
+		//alert(tdsArr);
+		for(var i =0;i < tdsArr.length;i++){
+			if(tdsArr[i].getAttribute('type') && tdsArr[i].getAttribute('type')=='quantity'){
+				var quantity = tdsArr[i].innerHTML;
+			} 
+		}
+		if(typeof quantity === 'undefined') alert('Не удается получить данные о количестве товара!!!');
 		
+		//alert(quantity);
 		var data = 'default';
 		
 	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+cell.parentNode.parentNode.getAttribute('art_id')+'","type":"'+cell.parentNode.getAttribute('calc_btn')+'","data":"'+data+'"}');
@@ -131,6 +142,7 @@ var rtCalculator = {
 		}
 		currPlace_id = 1;
 		box.appendChild(printPlaceSelect);
+		
 		// вызваем метод строящий  select для типов нанеснения
 		// передаем ему id первого места нанесения из printPlaceSelect
 		var data = rtCalculator.build_print_types_select(currPlace_id);
@@ -141,28 +153,43 @@ var rtCalculator = {
 		box.appendChild(br.cloneNode(true));
 		box.appendChild(printTypesSelect);
 		
+		alert(currPrint_id);
+		// если мы имеем конкретное типа нанесения (тоесть оно не равно 0) тогда строим калькулятор дальше
+		// вызываем метод строящий блок В калькулятора и вставляем его в тело калькулятора
+		if(currPrint_id != 0){	
+		    var block_B = rtCalculator.buildBlockB(currPrint_id,currPlace_id);
+		    box.appendChild(block_B);
+		}
+		// help button
+		//box.appendChild(help.btn('kp.sendLetter.window'));
+		document.body.appendChild(box);
+	}
+	,
+	buildBlockB:function(currPrint_id,currPlace_id){
+		
+		var blockB = document.createElement('DIV');
+		blockB.id = 'rtCalculatorBlockB';
+		var br = document.createElement('BR');
 		// выбираем данные выбранного нанесения и выводим их в калькулятор
 		var currRrintParams = rtCalculator.getCurrPrintParams(currPrint_id,currPlace_id);
 		
-		box.appendChild(br.cloneNode(true));
-		box.appendChild(br.cloneNode(true));
-		box.appendChild(br.cloneNode(true));
-		box.appendChild(br.cloneNode(true));
-		box.appendChild(currRrintParams);
+		blockB.appendChild(br.cloneNode(true));
+		blockB.appendChild(br.cloneNode(true));
+		blockB.appendChild(br.cloneNode(true));
+		blockB.appendChild(br.cloneNode(true));
+		blockB.appendChild(currRrintParams);
 	
 		// дисплей итоговых подсчетов
 		var itogDisplay = document.createElement('DIV');
 		
 		itogDisplay.innerHTML = 'ИТОГО';
-		box.appendChild(br.cloneNode(true));
-		box.appendChild(br.cloneNode(true));
-		box.appendChild(br.cloneNode(true));
-		box.appendChild(br.cloneNode(true));
-		box.appendChild(itogDisplay);
+		blockB.appendChild(br.cloneNode(true));
+		blockB.appendChild(br.cloneNode(true));
+		blockB.appendChild(br.cloneNode(true));
+		blockB.appendChild(br.cloneNode(true));
+		blockB.appendChild(itogDisplay);
 		
-		// help button
-		//box.appendChild(help.btn('kp.sendLetter.window'));
-		document.body.appendChild(box);
+		return blockB;
 	}
 	,
     build_print_types_select:function(place_id){
@@ -173,15 +200,35 @@ var rtCalculator = {
 		//console.log(rtCalculator.data_obj.places[place_id].data.length);
 		//if(rtCalculator.data_obj.places[place_id].data.length==1)
 		var printTypesSelect = document.createElement('SELECT');
-		for(var id in rtCalculator.data_obj.places[place_id].data){
-			if(!print_id) var print_id = id;
+		printTypesSelect.onchange = function(){
+			var print_id = this.options[this.selectedIndex].value;
+			var block_B = rtCalculator.buildBlockB(print_id,place_id);
+			if(document.getElementById("rtCalculatorBlockB"))document.getElementById("rtCalculatorBlockB").parentNode.removeChild(document.getElementById("rtCalculatorBlockB"));
+			this.parentNode.appendChild(block_B);
 			
+		}
+		//alert(rtCalculator.data_obj.places[place_id].data.length);
+		var counter = 0;
+		for(var id in rtCalculator.data_obj.places[place_id].data){
+			counter++;
 			var option = document.createElement('OPTION');
             option.setAttribute("value",id);
             option.appendChild(document.createTextNode(rtCalculator.data_obj.places[place_id].data[id]));
             printTypesSelect.appendChild(option);
 			//console.log(i + data_obj.places[i].name);
 		}
+		// если типов нанесения было больше чем одно вставляем в начало Selectа option ' -- выберите вариант -- '
+		// и устанавливаем значение описывающиее id типа нанесения в 0
+		// id типа нанесения передается в вызывающий метод для дальнейшего построения калькулятора 
+		if(counter>1){
+			var option = document.createElement('OPTION');
+            option.setAttribute("value",0);
+            option.appendChild(document.createTextNode(' -- выберите вариант -- '));
+			printTypesSelect.insertBefore(option, printTypesSelect.firstChild); 
+            var print_id = 0;
+		}
+	    else var print_id = id;
+		
 		return [print_id,printTypesSelect];
 	}
 	,
@@ -197,70 +244,80 @@ var rtCalculator = {
 		var CurrPrintTypeData = rtCalculator.data_obj.print_types[print_id];
 		console.log(CurrPrintTypeData);
 		
-		// select для возможных площадей нанесения
-		// [sizes] => Array
-        //                ( [1] => Array   - ключ id места нанесения 
-        //                        ([0] => Array ([print_id] => 13[size] => до 630 см2 (А4)[percentage] => 1.00)
-		//						   [1] => Array ([print_id] => 13[size] => до 1260 см2 (А3)[percentage] => 1.50))
-		//				  )
-	    var printSizesSelect = document.createElement('SELECT');
-		for(var id in CurrPrintTypeData['sizes'][place_id]){
-			
-			var option = document.createElement('OPTION');
-            option.setAttribute("value",id);
-            option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][place_id][id]['size']));
-            printSizesSelect.appendChild(option);
-		}
 		
 		// select для возможных цветов
         //                  [цвет] => Array   
         //                        ([белый] => Array([percentage] => 1.00 )
 		//						   [серебро] => Array([percentage] => 1.20 ))
 
-
-	    var colorsSelect = document.createElement('SELECT');
-		for(var color in CurrPrintTypeData['цвет']){
-			
-			var option = document.createElement('OPTION');
-            option.setAttribute("value",CurrPrintTypeData['цвет'][color]['percentage']);
-            option.appendChild(document.createTextNode(color));
-            colorsSelect.appendChild(option);
-		}
-		// строим таблицу с ценами price_tbl
-		var tbl = CurrPrintTypeData['price_tbl'][0];
-		var tbl_html = document.createElement('TABLE');
-		for(var row in tbl){
-			var tr = document.createElement('TR');
-			var td = document.createElement('TD');
-			
-			// создаем 1-ую колонку каждого ряда
-			// если это первый ряд (указывающий на количество) первую колонку оставляем пустой
-			// иначе вносим комбинацию данных значение параметра и его тип например (1 цвет)
-			td.innerHTML = (row == 0)? '':tbl[row]['param_val']+' '+tbl[row]['param_type'];
-			tr.appendChild(td);
-			
-			for(var counter = 1 ;tbl[row][counter] != undefined ; counter++){
-				var td = document.createElement('TD');  
+        if(CurrPrintTypeData['цвет']){
+			var colorsSelect = document.createElement('SELECT');
+			for(var color in CurrPrintTypeData['цвет']){
 				
-				// если это первый ряд (указывающий на количество) преобразуем значения до Integer и добавляем тип параметра ( например 100 шт.)
-				// иначе ввносим в ячейку оригинальное Float значение обозначающее стоимость 
-				if(row == 0) var val = parseInt(tbl[row][counter])+' '+tbl[row]['param_type'];
-				else var val = tbl[row][counter];
-
-				
-				td.innerHTML = val;
-				tr.appendChild(td);
+				var option = document.createElement('OPTION');
+				option.setAttribute("value",CurrPrintTypeData['цвет'][color]['percentage']);
+				option.appendChild(document.createTextNode(color));
+				colorsSelect.appendChild(option);
 			}
-			tbl_html.appendChild(tr);
+			printParamsBox.appendChild(colorsSelect);
+		}
+		
+		
+		if(CurrPrintTypeData['price_tbl']){
+			// строим таблицу с ценами price_tbl
+			var tbl = CurrPrintTypeData['price_tbl'][0];
+			var tbl_html = document.createElement('TABLE');
+			//alert(tbl.length);
+			for(var row in tbl){
+				var tr = document.createElement('TR');
+				var td = document.createElement('TD');
+				
+				// создаем 1-ую колонку каждого ряда
+				// если это первый ряд (указывающий на количество) первую колонку оставляем пустой
+				// иначе вносим комбинацию данных значение параметра и его тип например (1 цвет)
+				td.innerHTML = (row == 0)? '':tbl[row]['param_val']+' '+tbl[row]['param_type'];
+				tr.appendChild(td);
+				
+				for(var counter = 1 ;tbl[row][counter] != undefined ; counter++){
+					var td = document.createElement('TD');  
+					
+					// если это первый ряд (указывающий на количество) преобразуем значения до Integer и добавляем тип параметра ( например 100 шт.)
+					// иначе ввносим в ячейку оригинальное Float значение обозначающее стоимость 
+					if(row == 0) var val = parseInt(tbl[row][counter])+' '+tbl[row]['param_type'];
+					else var val = tbl[row][counter];
+	
+					
+					td.innerHTML = val;
+					tr.appendChild(td);
+				}
+				tbl_html.appendChild(tr);
+			}
+			printParamsBox.appendChild(tbl_html);
+		}
+		// select для возможных площадей нанесения
+		// [sizes] => Array
+        //                ( [1] => Array   - ключ id места нанесения 
+        //                        ([0] => Array ([print_id] => 13[size] => до 630 см2 (А4)[percentage] => 1.00)
+		//						   [1] => Array ([print_id] => 13[size] => до 1260 см2 (А3)[percentage] => 1.50))
+		//				  )
+		if(CurrPrintTypeData['sizes']){
+			var printSizesSelect = document.createElement('SELECT');
+			for(var id in CurrPrintTypeData['sizes'][place_id]){
+				
+				var option = document.createElement('OPTION');
+				option.setAttribute("value",id);
+				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][place_id][id]['size']));
+				printSizesSelect.appendChild(option);
+			}
+			printParamsBox.appendChild(br.cloneNode(true));
+			printParamsBox.appendChild(br.cloneNode(true));
+			printParamsBox.appendChild(br.cloneNode(true));
+			printParamsBox.appendChild(br.cloneNode(true));
+			printParamsBox.appendChild(printSizesSelect);
 		}
 
-		printParamsBox.appendChild(tbl_html);
-		printParamsBox.appendChild(colorsSelect);
-		printParamsBox.appendChild(br.cloneNode(true));
-		printParamsBox.appendChild(br.cloneNode(true));
-		printParamsBox.appendChild(br.cloneNode(true));
-		printParamsBox.appendChild(br.cloneNode(true));
-		printParamsBox.appendChild(printSizesSelect);
+		
+	
 		
 		return printParamsBox;
 	}
