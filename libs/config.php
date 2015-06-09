@@ -93,7 +93,12 @@
 	define("RT_MAIN_ROWS","os__rt_main_rows"); //
 	define("RT_DOP_DATA","os__rt_dop_data"); //
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
-	define("RT_ART_SIZE","os__rt_art_sizes"); // 
+	define("RT_ART_SIZE","os__rt_art_sizes"); //
+
+	// новые таблицы для РТ
+	define("RT_VARIANTS_POL_LIST", "os__rt_variants_list_pol_listovaja"); // таблица вариантов расчёта для листовой продукции
+	define("RT_DOP_USLUGI_POL_LIST", "os__rt_dop_uslugi_pol_listovaja"); // услуги для листовой продукции
+
 
 
 	define("OUR_USLUGI_LIST","os__our_uslugi"); // Список всех услуг с ценами, в дальнейшем понадобится функционал для их редактирования 

@@ -39,12 +39,13 @@
 	//***************   ШАБЛОНЫ  ДОСТУПОВ  ***************\\
 	// АДМИНИСТРАТОР			  
     $ACCESS_SHABLON[1] = array(
-				       'clients'=> array(
+    					'option'=> array('access'=> true),
+				        'clients'=> array(
 										'access'=> true,
 										'full_clients_delete'=> true,
 										'show___foo___'=> false
 										),
-					   'client_folder'=> array(
+					    'client_folder'=> array(
 										'access'=> true,
 										'show___foo___'=> false,
 										'section'=> array( // 1
@@ -61,7 +62,7 @@
 												)
 											)	
 										),					   
-				       'cabinet'=> array(
+				        'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
 											'important'=> array(

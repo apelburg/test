@@ -33,6 +33,8 @@
 #characteristics_and_delivery{ width: 100%}
 #characteristics_and_delivery strong{ margin-left: 5px; text-decoration: underline;}
 #characteristics_and_delivery .cell.b_r{border-right: 1px solid #adacab}
+#characteristics_and_delivery .cell.left_bord{ padding-left: 15px; vertical-align: top}
+#characteristics_and_delivery .cell.left_bord table tr td{padding: 5px}
 #characteristics_art{ margin-top: 10px}
 #characteristics_art .table .row .cell{ padding: 5px}
 #characteristics_art .table .row .cell:nth-of-type(1){color: #7E7F83;}
@@ -168,6 +170,7 @@
 
 #choose_end_variant:hover #menu_for_variants_status{
   display: block;
+  float: right;
 }
 .variant_status_sv.green{
   background: rgb(86, 190, 86);
@@ -383,3 +386,52 @@
   cursor: pointer;
   border: 3px solid #fff;
 }
+
+/********* ШАБЛОН  ПОЛИГРАФИЯ ******************/
+
+#number_position_and_type .status_art_right_class{ float: right;}
+
+#number_position_and_type .status_art_right_class div{color: #5a5c61; font-size: 10px;}
+#number_position_and_type .status_art_right_class div span{color: #000; cursor: default; font-size: 12px; padding:5px 10px; margin-left: 0px; }
+#number_position_and_type ul li.status_art_right_class{padding-left: 0; padding-right: 0}
+
+#number_position_and_type .status_art_right_class div span:hover{ background: #B1B3B6;}
+#number_position_and_type .status_art_right_class.green div span{ background: #92b73e;}
+#number_position_and_type .status_art_right_class.green div span:hover {background: #86AB33;}
+
+#number_position_and_type .status_art_right_class.grey_border div span{ border-left: 1px solid grey; border-right: 1px solid grey;}
+/*#number_position_and_type ul li.status_art_right_class:nth-of-type(2){ background-color: none;}*/
+
+span.snab_comment {
+  color: #9BD0FC;
+}
+#variant_of_snab{ }
+#variant_of_snab table{ border-collapse: collapse; width: 100%; display: none}
+#variant_of_snab table.show_table{display: table}
+#variant_of_snab table.show_table tr td:nth-last-child(1) input{ width: 98%; padding: 0 1%;outline:none;}
+#variant_of_snab .show_table tr td:nth-of-type(1) span{ padding:2px 5px; border:1px solid grey;}
+#variant_of_snab table tr th{ background-color: #e8e8e8; font-weight: normal; font-size: 10px; color: grey; padding: 5px}
+#variant_of_snab table tr td{  font-size: 10px;  padding: 5px; }
+
+
+
+#variant_of_snab table tr th:nth-of-type(2),
+#variant_of_snab table tr td:nth-of-type(2){text-align: left;}
+#variant_of_snab table tr th:nth-of-type(3),
+#variant_of_snab table tr td:nth-of-type(3){text-align: right;}
+#variant_of_snab table tr th:nth-of-type(4),
+#variant_of_snab table tr td:nth-of-type(4){text-align: center;}
+#variant_of_snab table tr th:nth-of-type(5),
+#variant_of_snab table tr td:nth-of-type(5){text-align: center;}
+#variant_of_snab table tr th:nth-of-type(6),
+#variant_of_snab table tr td:nth-of-type(6){text-align: right;}
+#variant_of_snab table tr th:nth-of-type(7),
+#variant_of_snab table tr td:nth-of-type(7){text-align: right;}
+#variant_of_snab table tr th:nth-of-type(8),
+#variant_of_snab table tr td:nth-of-type(8){text-align: center;}
+#variant_of_snab table tr th:nth-last-child(1),
+#variant_of_snab table tr td:nth-last-child(1){text-align: left;}
+#variant_of_snab table tr td:nth-last-child(1){text-align: left;color: #9BD0FC;}
+
+#variant_of_snab table tr:hover{ background-color: #f4f4f4}
+#variant_of_snab table tr .checked_row{background-color: #DAD9D9;}

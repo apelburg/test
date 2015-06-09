@@ -1,7 +1,10 @@
 <?php
 class Articul{
+	function __construct(){
+	}
 
-	public function __construct($art_id){
+
+	public function get_all_info($art_id){
 		$this->color = $this->get_color($art_id);		
 		$this->material = $this->get_material($art_id);
 		$this->get_print_mode = $this->get_print_mode($art_id);
