@@ -65,16 +65,42 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 
 
 
-// тестовая отправка запроса на получение формы
+//отправка запроса на получение формы
 $(document).keydown(function(e) {	
 	if(e.keyCode == 192){//ESC	
 		$.post('', {
 			AJAX:'get_form'
 		}, function(data, textStatus, xhr) {
-			alert(data);
+			show_dialog(data);
+			//alert(data);
 		});
 	}
 });
+
+// создание диалогового окна с формой заведения вариантов расчёта для снаба
+function show_dialog(html){
+	var buttons = new Array();
+	buttons.push({
+	    text: 'OK',
+	    click: function() {
+	    	$('this').dialog('close'); 
+	    }
+	});
+
+	if($('#dialog_gen_window_form').length==0){
+		$('body').append('<div id="dialog_gen_window_form"></div>');
+	}
+	$('#dialog_gen_window_form').html(html);
+	$('#dialog_gen_window_form').dialog({
+          width: '1000',
+          height: 'auto',
+          modal: true,
+          title : 'Заполните форму',
+          autoOpen : true,
+          buttons: buttons          
+        });
+
+}
 
 </script>
 

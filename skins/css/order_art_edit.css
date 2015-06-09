@@ -435,3 +435,19 @@ span.snab_comment {
 
 #variant_of_snab table tr:hover{ background-color: #f4f4f4}
 #variant_of_snab table tr .checked_row{background-color: #DAD9D9;}
+
+#dialog_gen_window_form{display: none}
+.delete_user_val{  padding: 0px 6px;
+  font-size: 12px;
+  color: red;
+  border: 1px solid rgb(216, 216, 216);
+  cursor: pointer;}
+  .one_row_for_this_type{padding: 15px 0 0 0; }
+.buttons_form{ padding-top: 10px}
+.btn_add_var,.btn_add_val{padding:0 5px 2px 5px;
+  border: 1px solid #f4f4f4;
+  margin-right: 15px; cursor: pointer;
+  margin-top: 15px;}
+.btn_add_var:hover,.btn_add_val:hover{
+   background-color: #f4f4f4;
+}
