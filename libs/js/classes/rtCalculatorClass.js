@@ -71,15 +71,24 @@ var rtCalculator = {
 		this.set_interactive_cells();
 	}
 	,
-	evoke_calculator:function(e){// корректировка значений вводимых пользователем
+	start_calculator:function(e){
 	    e = e || window.event;
 		var cell = e.target || e.srcElement;
 		
 		//if(cell.parentNode.getAttribute('calc_btn') == 'print') alert('калькулятор нанесения логотипа');
 		//if(cell.parentNode.getAttribute('calc_btn') == 'extra') alert('калькулятор доп. услуг');
-
+		
+        // родительский тэг tr
+		var trTag = cell.parentNode.parentNode;
+		
+		// id - артикула
+		var art_id = trTag.getAttribute('art_id');
+		
+		// id - ряда в таблице os__rt_dop_data
+		var dop_data_row_id = trTag.getAttribute('row_id');
+		
 		// количество по ячейке
-		var tdsArr = cell.parentNode.parentNode.getElementsByTagName('TD');
+		var tdsArr = trTag.getElementsByTagName('TD');
 		//alert(tdsArr);
 		for(var i =0;i < tdsArr.length;i++){
 			if(tdsArr[i].getAttribute('type') && tdsArr[i].getAttribute('type')=='quantity'){
@@ -88,31 +97,94 @@ var rtCalculator = {
 		}
 		if(typeof quantity === 'undefined') alert('Не удается получить данные о количестве товара!!!');
 		
+		// ДВА ЭТАПА
+		// 1. отправляем запрос проверяющий есть ли расчеты дополнительных услуг для этого расчета
+		//    если есть получаем в ответ массив с данными если нет получаем пустой массив
+		// 2. если полученный массив имел данные выводим предварительное окно с указанием имеющихся
+		//    расчетов дополнительных услуг, если массив был пустой вызываем метод запускающий калькулятор
+		
+		// этап 1
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('fetch_dop_uslugi_for_row='+dop_data_row_id);
+		rtCalculator.send_ajax(url,callback);
+		function callback(response){ 
+			//console.log(response);
+			// этап 1
+			var data_arr = JSON.parse(response);
+			
+			if(data_arr.length == 0){
+				
+				// запускаем калькулятор
+				rtCalculator.evoke_calculator(art_id,cell);
+			}
+			else{
+				// запускаем панель
+				rtCalculator.launch_dop_uslugi_panel(data_arr);
+			}
+		}
+		/**/
 		//alert(quantity);
+		
+		
+	}
+	,
+	launch_dop_uslugi_panel:function(data_arr){
+		
+		var box = document.createElement('DIV');
+		box.id = "calculatorDopUslugiBox";
+		//box.style.width = '300px';
+		box.style.display = "none";
+		
+		var tbl = document.createElement('TABLE');
+		var tr = document.createElement('TR');
+		
+		for(var i = 0; i < data_arr.length; i++){
+			var tr =  tr.cloneNode(false);
+			var td = document.createElement('TD');
+			//var tr = document.createElement('TR');
+			//data_arr[i]
+			//td.innerHTML = i+' '+data_arr[i].id;
+			var print_details = '';
+			if(data_arr[i].print_details) var print_details = JSON.parse(data_arr[i].print_details);
+			
+			//console.log(print_details);
+			td.innerHTML = i+' '+data_arr[i].id+' '+print_details.print_type;
+			//console.log(data_arr[i]);
+			tr.appendChild(td);
+			tbl.appendChild(tr);
+		}
+		
+		box.appendChild(tbl);
+		document.body.appendChild(box);
+		// открываем панель
+		$("#calculatorDopUslugiBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Печать для этой позиции",modal:true,width: 600,close: function() {this.remove();$("#calculatorDopUslugiBox").remove();}});
+		$("#calculatorDopUslugiBox").dialog("open");
+	}
+	,
+	evoke_calculator:function(art_id,cell){
 		var data = 'default';
 		
-	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+cell.parentNode.parentNode.getAttribute('art_id')+'","type":"'+cell.parentNode.getAttribute('calc_btn')+'","data":"'+data+'"}');
+	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+art_id+'","type":"'+cell.parentNode.getAttribute('calc_btn')+'","data":"'+data+'"}');
 		rtCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response){ 
 			console.log(response);
 			
 			// строим калькулятор
-			rtCalculator.build_print_calculator(quantity,response);
+			rtCalculator.build_print_calculator(dop_data_row_id,quantity,response);
 		    
 			// открываем окно с калькулятором
 			$("#calculatorBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет с нанесением логотипа",modal:true,width: 600,close: function() {this.remove();$("#calculatorBox").remove();}});
-			$("#calculatorBox").dialog("open");/**/
+			$("#calculatorBox").dialog("open");
 		}
-		
 	}
 	,
-    build_print_calculator:function(quantity,data){
+    build_print_calculator:function(dop_data_row_id,quantity,data){
 		
 		// собираем данные для итогового расчета
 		// сохраняем количество
 		rtCalculator.dataForProcessing = {};
 		rtCalculator.dataForProcessing['quantity']= quantity;
+		rtCalculator.dataForProcessing['dop_data_row_id']= dop_data_row_id;
 		
 		// строим интерфейс калькулятора
 		rtCalculator.data_obj = JSON.parse(data);
@@ -137,7 +209,7 @@ var rtCalculator = {
 		// select выбора мест нанесений
 		var printPlaceSelect = document.createElement('SELECT');
 		printPlaceSelect.onchange = function(){
-			var place_id = this.options[this.selectedIndex].value;
+			var place_id = parseInt(this.options[this.selectedIndex].value);
 			//alert(place_id);
 			var block_A = rtCalculator.buildBlockA(place_id);
 			if(document.getElementById("rtCalculatorBlockA"))document.getElementById("rtCalculatorBlockA").parentNode.removeChild(document.getElementById("rtCalculatorBlockA"));
@@ -160,7 +232,6 @@ var rtCalculator = {
 		
 		// создаем блок block_A который будет содеражать в себе select выбора типа нанесения
 		// и блок block_B содержащий в себе все остальные элементы интерфейса
-		
 	    var block_A = rtCalculator.buildBlockA(currPlace_id);
 		
 		// help button
@@ -182,7 +253,7 @@ var rtCalculator = {
 		// передаем ему id первого места нанесения из printPlaceSelect
 		// он возвращает select и id типа нанесения первого в списке select
 		var data = rtCalculator.build_print_types_select(currPlace_id);
-		var currPrint_id = data[0];
+		var currPrint_id = parseInt(data[0]);
 		var printTypesSelect = data[1];
 		
 		block_A.appendChild(br.cloneNode(true));
@@ -201,6 +272,8 @@ var rtCalculator = {
 	}
 	,
 	buildBlockB:function(currPrint_id,currPlace_id){
+		rtCalculator.dataForProcessing['place_id']= currPlace_id;
+		rtCalculator.dataForProcessing['print_id']= currPrint_id;
 		
 		var blockB = document.createElement('DIV');
 		blockB.id = 'rtCalculatorBlockB';
@@ -221,6 +294,18 @@ var rtCalculator = {
 		blockB.appendChild(br.cloneNode(true));
 		blockB.appendChild(itogDisplay);
 		
+		// кнопка сохранения данных в таблицу на сервер
+		var saveBtn = document.createElement('DIV');
+		saveBtn.id = 'calculatorsaveResultBtn';
+		saveBtn.style.border = '#CCC solid 1px';
+		saveBtn.style.margin = '20px 1px 1px 50px';
+		saveBtn.style.padding = '10px 20px';
+		saveBtn.style.width = '200px';
+		saveBtn.style.cursor = 'pointer';
+		saveBtn.innerHTML = 'Сохранить расчет';
+		saveBtn.onclick =  rtCalculator.saveCalculatorResult;
+		blockB.appendChild(saveBtn);
+		
 		return blockB;
 	}
 	,
@@ -228,9 +313,10 @@ var rtCalculator = {
 		console.log(rtCalculator.dataForProcessing);
 		
 		// определяем цену по dataForProcessing['priceTbl']
-		// обращаемся к ряду таблицы цен, по значению параметра dataForProcessing['tblХindex']
-		// и выбираем нужную ячейку по значению параметра dataForProcessing['tblYindex']
-		var price = rtCalculator.dataForProcessing['priceTbl'][rtCalculator.dataForProcessing['tblХindex']][rtCalculator.dataForProcessing['tblYindex']];
+		// обращаемся к ряду таблицы цен, по значению параметра dataForProcessing['priceTblXindex']
+		// и выбираем нужную ячейку по значению параметра dataForProcessing['priceTblYindex']
+		var price = rtCalculator.dataForProcessing['priceTbl'][rtCalculator.dataForProcessing['priceTblXindex']][rtCalculator.dataForProcessing['priceTblYindex']];
+		
 		console.log(price);
 		
 		// коэффициэнты
@@ -243,12 +329,47 @@ var rtCalculator = {
 			}
 		}
 		  console.log(total_coefficient);
-		var price = price*total_coefficient;
-		  console.log(price);
-		var total_price = price*rtCalculator.dataForProcessing['quantity'];
-		var total_str  = 'ИТОГО - цена за штуку: '+price+', за Тираж:'+total_price+'';
+		rtCalculator.dataForProcessing['price'] = price*total_coefficient;
+		  console.log(price+' итог калькулятора');
+		var total_price = rtCalculator.dataForProcessing['price']*rtCalculator.dataForProcessing['quantity'];
+		var total_str  = 'ИТОГО - цена за штуку: '+(rtCalculator.dataForProcessing['price']).toFixed(2)+',   за Тираж: '+(total_price).toFixed(2)+'';
 		
 		document.getElementById("rtCalculatorItogDisplay").innerHTML = total_str;
+	}
+	,
+	saveCalculatorResult:function(){
+		// в этом методе две задачи 
+		// 1. отправить данные на сервер
+		// 2. закрыть калькулятор
+		
+		// формируем объект с необходимой информацией
+		var data = {};
+		data['quantity'] = rtCalculator.dataForProcessing['quantity'];
+		data['price'] = rtCalculator.dataForProcessing['price'];
+		data['dop_data_row_id'] = rtCalculator.dataForProcessing['dop_data_row_id'];
+		data['print_details']= {};
+		data['print_details']['place_id'] = rtCalculator.dataForProcessing['place_id'];
+		data['print_details']['print_id'] = rtCalculator.dataForProcessing['print_id'];
+		data['print_details']['place_type'] = rtCalculator.data_obj.places[data['print_details']['place_id']].name;
+		data['print_details']['print_type'] = rtCalculator.data_obj.places[data['print_details']['place_id']].data[data['print_details']['print_id']];
+		data['print_details']['dop_params'] = rtCalculator.dataForProcessing['dop_params'];
+		data['print_details']['priceTblXindex'] = rtCalculator.dataForProcessing['priceTblXindex'];
+		data['print_details']['priceTblYindex'] = rtCalculator.dataForProcessing['priceTblYindex'];
+		//console.log(data);
+
+		// формируем url для AJAX запроса
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_calculator_result=1&details='+JSON.stringify(data));
+		rtCalculator.send_ajax(url,callback);
+		//alert(url);//
+		$("#calculatorsaveResultBtn").remove();
+		
+		
+		function callback(response){ 
+		    
+			//console.log(response);
+			location.reload();
+		}
+		
 	}
 	,
     build_print_types_select:function(place_id){
@@ -294,6 +415,33 @@ var rtCalculator = {
 		return [print_id,printTypesSelect];
 	}
 	,
+	onchangeColorsSelect:function(colorsDiv){
+		// здесь нам надо пройти по всем селектам в colorsDiv и собрать данные о выбранных полях
+		// чтобы сохранить их в dataForProcessing а затем запустить rtCalculator.makeProcessing();
+		
+		// затираем данные по цветам которые были до этого
+		if(rtCalculator.dataForProcessing['coefficients']['colors']) rtCalculator.dataForProcessing['coefficients']['colors'] = [];
+		if(rtCalculator.dataForProcessing['dop_params']['colors']) rtCalculator.dataForProcessing['dop_params']['colors'] = [];
+		//alert(colorsDiv);
+		var selectsArr = colorsDiv.getElementsByTagName("SELECT");
+		//alert(selectsArr.length);
+		for( var i = 0; i < selectsArr.length; i++){
+			var value = selectsArr[i].options[selectsArr[i].selectedIndex].value;
+			var item_id = selectsArr[i].options[selectsArr[i].selectedIndex].getAttribute('item_id');
+			// если value != 0(0 равно вспомогательное значение "Выбрать"), значит выбор в селекте сделан 
+			// добавляем его в dataForProcessing
+			if(value != 0){
+				rtCalculator.dataForProcessing['coefficients']['colors'].push(value);
+				rtCalculator.dataForProcessing['dop_params']['colors'].push(item_id);
+			}
+			// если value == 0(0 равно вспомогательное значение "Выбрать"), значит выбор в селекте не сделан
+			// удаляем этот селект
+			if(value == 0) selectsArr[i].parentNode.removeChild(selectsArr[i]);
+		}
+		rtCalculator.dataForProcessing['priceTblXindex'] =  rtCalculator.dataForProcessing['coefficients']['colors'].length;
+		rtCalculator.makeProcessing();
+	}
+	,
     getCurrPrintParams:function(print_id,place_id){
 		console.log(print_id);
 		console.log(rtCalculator.data_obj.print_types[print_id]);
@@ -307,7 +455,7 @@ var rtCalculator = {
 		console.log(CurrPrintTypeData);
 		
 		
-		// select для возможных цветов, в принипе это даже селект должен быть не для цветов а для любого параметра 
+		// select для возможных цветов, в принипе этот селект даже должен быть не для цветов а для любого параметра 
 		// который определяется по вертикали в таблице прайса 
         //                  [цвет] => Array   
         //                        ([белый] => Array([percentage] => 1.00 )
@@ -318,26 +466,36 @@ var rtCalculator = {
             colorsDiv.id = 'rtCalculatorColorsDiv';
 			
 			var colorsSelect = document.createElement('SELECT');
-			//colorsSelect.onchange = function(){ alert(1); /*alert(this.options[this.selectedIndex].value);*/ }
+			// метод onchangeColorsSelect пикрепляется к Селекту здесь и пикрепляется к добавляемым селектам ниже в специальном цикле 
+			colorsSelect.onchange = function(){ rtCalculator.onchangeColorsSelect(colorsDiv); }
 			for(var color in CurrPrintTypeData['цвет']){
 				
 				var option = document.createElement('OPTION');
 				option.setAttribute("value",CurrPrintTypeData['цвет'][color]['percentage']);
+				option.setAttribute("item_id",CurrPrintTypeData['цвет'][color]['item_id']);
 				option.appendChild(document.createTextNode(color));
 				colorsSelect.appendChild(option);
 			}
+			
+			// добавляем поле Выбрать в начало селекта
+			var option = document.createElement('OPTION');
+            option.setAttribute("value",0);
+            option.appendChild(document.createTextNode(' -- выбрать -- '));
+			colorsSelect.insertBefore(option, colorsSelect.firstChild); 
+			
+			
 			var addColorLink = document.createElement('A');
 			addColorLink.href = '#';
 			addColorLink.innerHTML = 'добавить цвет';
 			addColorLink.onclick =  function(){
 				//alert(1);
 				colorsDiv.appendChild(colorsSelect.cloneNode(true));
-				// навешиваем обработчики событий потому что если навешать обработчик событий 
-				// сначала на исходный select а потом его клонировать обработчик событий почемуто пропадает
 				var selectsArr = colorsDiv.getElementsByTagName("SELECT");
 				for(var i in selectsArr){
-					selectsArr[i].onchange = function(){ alert(this.options[this.selectedIndex].value); }
+					selectsArr[i].onchange = function(){ rtCalculator.onchangeColorsSelect(colorsDiv); }
 				}
+				
+				
 			}
 			
 			
@@ -350,6 +508,10 @@ var rtCalculator = {
 			rtCalculator.dataForProcessing['coefficients']={};
 			rtCalculator.dataForProcessing['coefficients']['colors'] = [];
 			rtCalculator.dataForProcessing['coefficients']['colors'].push(1.00);
+			rtCalculator.dataForProcessing['priceTblXindex'] =  1;
+			rtCalculator.dataForProcessing['dop_params']={}
+			rtCalculator.dataForProcessing['dop_params']['colors'] = [];
+			rtCalculator.dataForProcessing['dop_params']['colors'].push(0);
 		}
 		
 		
@@ -389,7 +551,7 @@ var rtCalculator = {
 					// исходя из этого получаем индекс соответсвующей колонки таблицы цен
 					if(row == 0){
 						// если значение ячейки меньше значение параметра quantity, значит мы еще не вышли из диапазона, значение сохраняем
-						if(parseInt(tbl[row][counter]) < rtCalculator.dataForProcessing['quantity']) var tblYindex = counter;
+						if(parseInt(tbl[row][counter]) < rtCalculator.dataForProcessing['quantity']) var priceTblYindex = counter;
 						console.log(parseInt(tbl[row][counter])+' '+rtCalculator.dataForProcessing['quantity']);
 					}
 					
@@ -411,11 +573,11 @@ var rtCalculator = {
 			// собираем данные для расчета
 			// для определения текущей цены
 			// этап 2 - 
-			// устанавливаем dataForProcessing['tblХindex'] = 1;
-			// устанавливаем dataForProcessing['tblYindex'] = ранее полученный tblYindex;
-			if(typeof tblYindex === 'undefined') alert('количество тиража ниже допустимого');
-		    rtCalculator.dataForProcessing['tblХindex'] = 1;
-			rtCalculator.dataForProcessing['tblYindex'] = tblYindex;
+			// устанавливаем dataForProcessing['priceTblYindex'] = 1;
+			// устанавливаем dataForProcessing['priceTblYindex'] = ранее полученный priceTblYindex;
+			if(typeof priceTblYindex === 'undefined') alert('количество тиража ниже допустимого');
+		    rtCalculator.dataForProcessing['priceTblYindex'] = 1;
+			rtCalculator.dataForProcessing['priceTblYindex'] = priceTblYindex;
 			//console.log(rtCalculator.dataForProcessing['price']);
 			
 		}
@@ -429,22 +591,29 @@ var rtCalculator = {
 			var printSizesSelect = document.createElement('SELECT');
 			printSizesSelect.onchange = function(){
 				rtCalculator.dataForProcessing['coefficients']['sizes'][0] = this.options[this.selectedIndex].value;
+				rtCalculator.dataForProcessing['dop_params']['sizes'][0] = this.options[this.selectedIndex].getAttribute('item_id');
+				
 			    //alert(rtCalculator.dataForProcessing['coefficients']['sizes'][0]);
 				rtCalculator.makeProcessing();
 			}
 			for(var id in CurrPrintTypeData['sizes'][place_id]){
 				if(typeof firstSizeVal === 'undefined') var firstSizeVal = CurrPrintTypeData['sizes'][place_id][id]['percentage'];
+				if(typeof firstSizeItemId === 'undefined') var firstSizeItemId = CurrPrintTypeData['sizes'][place_id][id]['item_id'];
 				
 				var option = document.createElement('OPTION');
 				option.setAttribute("value",CurrPrintTypeData['sizes'][place_id][id]['percentage']);
+				option.setAttribute("item_id",CurrPrintTypeData['sizes'][place_id][id]['item_id']);
 				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][place_id][id]['size']));
 				printSizesSelect.appendChild(option);
 			}
 			// собираем данные для расчета
 			// площади нанесения
 			if(typeof rtCalculator.dataForProcessing['coefficients'] === 'undefined') rtCalculator.dataForProcessing['coefficients']={};
+			if(typeof rtCalculator.dataForProcessing['dop_params'] === 'undefined') rtCalculator.dataForProcessing['dop_params']={};
 		    rtCalculator.dataForProcessing['coefficients']['sizes'] = [];
 			rtCalculator.dataForProcessing['coefficients']['sizes'][0]= parseFloat(firstSizeVal);
+			rtCalculator.dataForProcessing['dop_params']['sizes'] = [];
+			rtCalculator.dataForProcessing['dop_params']['sizes'][0]= firstSizeItemId;
 			
 			printParamsBox.appendChild(br.cloneNode(true));
 			printParamsBox.appendChild(br.cloneNode(true));
@@ -594,7 +763,7 @@ var rtCalculator = {
 							}
 							if(tds_arr[j].getAttribute('calc_btn')){
 								//console.log(j+' svetofor');
-								if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = this.evoke_calculator;
+								if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = this.start_calculator;
 								
 							}
 						}
@@ -1168,6 +1337,7 @@ var rtCalculator = {
 			   if(request.status == 200){ // проверяем состояние ответа (код состояния HTTP) если все впорядке продолжаем 
 				   ///////////////////////////////////////////
 				   // обрабатываем ответ сервера
+
 					
 					var request_response = request.responseText;
 				    //alert(request_response);
