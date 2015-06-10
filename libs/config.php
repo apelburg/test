@@ -98,7 +98,7 @@
 	// новые таблицы для РТ
 	define("RT_VARIANTS_POL_LIST", "os__rt_variants_list_pol_listovaja"); // таблица вариантов расчёта для листовой продукции
 	define("RT_DOP_USLUGI_POL_LIST", "os__rt_dop_uslugi_pol_listovaja"); // услуги для листовой продукции
-
+	define("FORM_ROWS_LISTS_", "form_rows_for_lists"); //строки для списков
 
 
 	define("OUR_USLUGI_LIST","os__our_uslugi"); // Список всех услуг с ценами, в дальнейшем понадобится функционал для их редактирования 
@@ -273,3 +273,13 @@
 			) // диз
 	);
 
+
+# ОПИСАНИЕ ТИПОВ ТОВАРОВ
+//cat  - каталог
+//pol - полиграфия листовая
+//pol_many - полиграфия многолистовая
+// calendar - икалендарь
+//packing - упаковка картон
+//packing_other - упаковка другая
+//ext - сувениры под заказ
+//ext_cl - сувениры клиента

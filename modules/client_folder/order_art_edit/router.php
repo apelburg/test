@@ -41,7 +41,7 @@
 			$art_id = $row['art_id']; 
 			
 			// type тип продукции
-			$type_poduct = $row['type']; 
+			$type_product = $row['type']; 
 
 			// дата создания строки
 			$order_num_date = $row['date_create']; 
@@ -57,32 +57,32 @@
 
 	
 	// если тип продукции не определен
-	if(!isset($type_poduct)){echo 'Тип продукции не определён.';exit;}
+	if(!isset($type_product)){echo 'Тип продукции не определён.';exit;}
 
-	switch ($type_poduct) {
+	switch ($type_product) {
 		case 'cat'://каталог
-			include 'controller_'.$type_poduct.'.php';
+			include 'controller_'.$type_product.'.php';
 			break;
-		case 'pol':// полиграфия
-			include 'controller_'.$type_poduct.'_list.php';// временно list вставлен сюда
+		case 'pol':// полиграфия полиграфия листовая
+			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
 			break;
-		case 'pol_list':// полиграфия
-			include 'controller_'.$type_poduct.'.php';// временно list вставлен сюда
+		case 'pol_many':// полиграфия многолистовая
+			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
 			break;
-		case 'pol_many':// полиграфия
-			include 'controller_'.$type_poduct.'.php';// временно list вставлен сюда
+		case 'calendar':// календарь
+			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
 			break;
-		case 'calendar':// полиграфия
-			include 'controller_'.$type_poduct.'.php';// временно list вставлен сюда
+		case 'packing':// упаковка картон
+			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
 			break;
-		case 'packing':// полиграфия
-			include 'controller_'.$type_poduct.'.php';// временно list вставлен сюда
+		case 'packing_other':// упаковка другая
+			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
 			break;
 		case 'ext'://сувениры под заказ
-			include 'controller_'.$type_poduct.'.php';
+			include 'controller_'.$type_product.'.php';
 			break;
 		case 'ext_cl'://сувениры клиента
-			include 'controller_'.$type_poduct.'.php';
+			include 'controller_'.$type_product.'.php';
 			break;
 		
 		default:
@@ -105,7 +105,7 @@
 	// шаблон поиска
 	include'./skins/tpl/common/quick_bar.tpl';
 	// шаблон страницы
-	include 'skins/tpl/client_folder/order_art_edit/show_'.$type_poduct.'.tpl';
+	include 'skins/tpl/client_folder/order_art_edit/show_'.$type_product.'.tpl';
 
 	
 
