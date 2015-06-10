@@ -54,6 +54,15 @@
 		 echo RT::insert_copied_rows($query_num,$_GET['control_num']);
 		 exit;
 	}
+	
+	if(isset($_GET['fetch_dop_uslugi_for_row'])){
+		//print_r(json_decode($_GET['grab_calculator_data']));
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+		
+		$out_put = rtCalculators::fetch_dop_uslugi_for_row($_GET['fetch_dop_uslugi_for_row']);
+		
+		exit;
+	}
 	if(isset($_GET['grab_calculator_data'])){
 		//print_r(json_decode($_GET['grab_calculator_data']));
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
@@ -62,6 +71,14 @@
 		//print_r($out_put);
 		exit;
 	}
+	if(isset($_GET['save_calculator_result'])){
+		//print_r(json_decode($_GET['details']));
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+		
+		rtCalculators::save_calculatoins_result(json_decode($_GET['details']));
+		exit;
+	}
+	
 	
 	/////////////////////  END  AJAX  ////////////////////// 
 	

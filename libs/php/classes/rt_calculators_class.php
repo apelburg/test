@@ -11,6 +11,25 @@
             if($data->type=='print') self::grab_data_for_print($data);
 	
 		}
+		static function fetch_dop_uslugi_for_row($dop_data_row_id){
+		    global $mysqli; 
+			
+			$out_put = array();
+			  
+            // получаем данные о расчетах дополнительных услуг для данного ряда расчета
+			$query="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `glob_type` = 'print' AND `dop_row_id` = '".$dop_data_row_id."'";
+			//echo $query;
+			
+			$result = $mysqli->query($query)or die($mysqli->error);/**/
+			if($result->num_rows>0){
+			    while($row = $result->fetch_assoc()){
+					$out_put[] = $row;	
+				}
+			}
+            //print_r($out_put);
+			echo json_encode($out_put);
+			
+		}
 		static function grab_data_for_print($data){
 		    // global $mysqli;   
 			// print_r($data);
@@ -121,7 +140,7 @@
 				if($result->num_rows>0){
 				    
 				    while($row = $result->fetch_assoc()){
-					    $out_put['print_types'][$print_id][$row['param_type']][$row['value']] = array('percentage'=>$row['percentage']);   
+					    $out_put['print_types'][$print_id][$row['param_type']][$row['value']] = array('percentage'=>$row['percentage'],'item_id'=>$row['id']);   
 				    }
 				}
 				
@@ -146,6 +165,7 @@
 				if($result->num_rows>0){
 				    while($row = $result->fetch_assoc()){
 					    $place_id = $row['place_id'];
+						$row['item_id'] = $row['id'];
 					    unset($row['id'],$row['place_id']);
 						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения и id места нанесения
 					    $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row;   
@@ -157,8 +177,26 @@
 			
 			return $out_put;
 		}
-		
-		
+		function save_calculatoins_result($details_obj){
+		    global $mysqli;  
+			
+			//print_r($details_obj);
+			
+			// если нет dop_uslugi_id или он равен ноль, добавляем новый расчет доп услуг для ряда 
+			if(!isset($details_obj->dop_uslugi_id) || $details_obj->dop_uslugi_id ==0){
+			    $query="INSERT INTO `".RT_DOP_USLUGI."` SET
+				                       `dop_row_id` ='".$details_obj->dop_data_row_id."',
+									   `glob_type` ='print',
+									   `quantity` ='".$details_obj->quantity."',
+									   `price_in` = 0,
+									   `price_out` ='".$details_obj->price."',
+									   `print_details` ='".json_encode($details_obj->print_details)."'"; 
+				 //echo $query;
+				 $mysqli->query($query)or die($mysqli->error);
+				 $new_dop_row_id = $mysqli->insert_id; /**/
+				 //echo 1;
+			}
+		}
     }
 
 ?>
