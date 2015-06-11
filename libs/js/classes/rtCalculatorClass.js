@@ -109,16 +109,16 @@ var rtCalculator = {
 		function callback(response){ 
 			//console.log(response);
 			// этап 1
-			var data_arr = JSON.parse(response);
+			var response_data_arr = JSON.parse(response);
 			
-			if(data_arr.length == 0){
+			if(response_data_arr.length == 0){
 				
 				// запускаем калькулятор
-				rtCalculator.evoke_calculator(art_id,cell);
+				rtCalculator.evoke_calculator({"art_id":art_id,"dop_data_row_id":dop_data_row_id,"quantity":quantity,"cell":cell});
 			}
 			else{
 				// запускаем панель
-				rtCalculator.launch_dop_uslugi_panel(data_arr);
+				rtCalculator.launch_dop_uslugi_panel(response_data_arr,{"art_id":art_id,"dop_data_row_id":dop_data_row_id,"quantity":quantity,"cell":cell});
 			}
 		}
 		/**/
@@ -127,7 +127,7 @@ var rtCalculator = {
 		
 	}
 	,
-	launch_dop_uslugi_panel:function(data_arr){
+	launch_dop_uslugi_panel:function(response_data_arr,data_obj_for_new_query){
 		
 		var box = document.createElement('DIV');
 		box.id = "calculatorDopUslugiBox";
@@ -135,42 +135,120 @@ var rtCalculator = {
 		box.style.display = "none";
 		
 		var tbl = document.createElement('TABLE');
+		tbl.style.borderCollapse = 'Collapse';
 		var tr = document.createElement('TR');
 		
-		for(var i = 0; i < data_arr.length; i++){
+		for(var i = 0; i < response_data_arr.length; i++){
 			var tr =  tr.cloneNode(false);
 			var td = document.createElement('TD');
-			//var tr = document.createElement('TR');
-			//data_arr[i]
-			//td.innerHTML = i+' '+data_arr[i].id;
-			var print_details = '';
-			if(data_arr[i].print_details) var print_details = JSON.parse(data_arr[i].print_details);
+			td.style.border = '#CCC solid 1px';
+			td.style.padding = '2px 4px';
 			
-			//console.log(print_details);
-			td.innerHTML = i+' '+data_arr[i].id+' '+print_details.print_type;
+			var print_details = '';
+			if(response_data_arr[i].print_details) var print_details = JSON.parse(response_data_arr[i].print_details);
+			
+			console.log(response_data_arr);
+			td.innerHTML = i+1;
 			//console.log(data_arr[i]);
 			tr.appendChild(td);
+			
+			// тип нанесения
+			var td =  td.cloneNode(false);
+			td.innerHTML = print_details.print_type;
+			tr.appendChild(td);
+			
+			// место нанесения
+			var td =  td.cloneNode(false);
+			td.innerHTML = print_details.place_type;
+			tr.appendChild(td);
+			
+			// сумма
+			var td =  td.cloneNode(false);
+			td.innerHTML = response_data_arr[i].price_out*response_data_arr[i].quantity+' р.';
+			tr.appendChild(td);
+			
+			var td =  td.cloneNode(false);
+			td.innerHTML = 'Удалить нанесение';
+			td.style.textDecoration = 'underline';
+			td.style.cursor = 'pointer';
+			td.setAttribute('usluga_id',response_data_arr[i].id);
+			td.onclick = function(){ 
+			
+				// отправляем запрос на текущего нанесения
+				var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_prints_for_row='+data_obj_for_new_query.dop_data_row_id+'&usluga_id='+this.getAttribute('usluga_id'));
+				rtCalculator.send_ajax(url,callback);
+			
+				function callback(response){ 
+				    console.log(response);
+					$("#calculatorDopUslugiBox").remove();
+					location.reload();
+				}
+			};
+			
+			tr.appendChild(td);
+			
 			tbl.appendChild(tr);
 		}
-		
 		box.appendChild(tbl);
+		
+	    // кнопка добавления нового нанесения
+		var addNewPrintBtn = document.createElement('DIV');
+		addNewPrintBtn.id = 'calculatorAddNewPrintBtn';
+		addNewPrintBtn.style.border = '#CCC solid 1px';
+		addNewPrintBtn.style.margin = '20px 1px 1px 50px';
+		addNewPrintBtn.style.padding = '10px 20px';
+		addNewPrintBtn.style.width = '200px';
+		addNewPrintBtn.style.cursor = 'pointer';
+		addNewPrintBtn.innerHTML = 'Добавить еще место';
+		addNewPrintBtn.onclick =  function(){ 
+		    $("#calculatorDopUslugiBox").remove();
+		    rtCalculator.evoke_calculator(data_obj_for_new_query);
+	    };
+		box.appendChild(addNewPrintBtn);
+		
+		// кнопка удаления всех нанесений
+		var deleteAllPrinstBtn = document.createElement('DIV');
+		deleteAllPrinstBtn.id = 'calculatorDeleteAllPrinstBtn';
+		deleteAllPrinstBtn.style.border = '#CCC solid 1px';
+		deleteAllPrinstBtn.style.margin = '20px 1px 1px 50px';
+		deleteAllPrinstBtn.style.padding = '10px 20px';
+		deleteAllPrinstBtn.style.width = '200px';
+		deleteAllPrinstBtn.style.cursor = 'pointer';
+		deleteAllPrinstBtn.innerHTML = 'Удалить все места печати';
+		deleteAllPrinstBtn.onclick =  function(){ 
+		    $("#calculatorDeleteAllPrinstBtn").remove();
+			
+			// отправляем запрос на удаление всех нанесений для текущего расчета
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_prints_for_row='+data_obj_for_new_query.dop_data_row_id+'&all=true');
+		    rtCalculator.send_ajax(url,callback);
+		
+			function callback(response){ 
+				$("#calculatorDopUslugiBox").remove();
+				location.reload();
+			}
+	    };
+		box.appendChild(deleteAllPrinstBtn);
+		
+		
+		
 		document.body.appendChild(box);
 		// открываем панель
 		$("#calculatorDopUslugiBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Печать для этой позиции",modal:true,width: 600,close: function() {this.remove();$("#calculatorDopUslugiBox").remove();}});
 		$("#calculatorDopUslugiBox").dialog("open");
 	}
 	,
-	evoke_calculator:function(art_id,cell){
+	evoke_calculator:function(data_obj){
+
 		var data = 'default';
 		
-	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+art_id+'","type":"'+cell.parentNode.getAttribute('calc_btn')+'","data":"'+data+'"}');
+	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+data_obj.art_id+'","type":"'+data_obj.cell.parentNode.getAttribute('calc_btn')+'","data":"'+data+'"}');
 		rtCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response){ 
 			console.log(response);
 			
 			// строим калькулятор
-			rtCalculator.build_print_calculator(dop_data_row_id,quantity,response);
+			rtCalculator.build_print_calculator(data_obj.dop_data_row_id,data_obj.quantity,response);
 		    
 			// открываем окно с калькулятором
 			$("#calculatorBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет с нанесением логотипа",modal:true,width: 600,close: function() {this.remove();$("#calculatorBox").remove();}});
@@ -366,7 +444,7 @@ var rtCalculator = {
 		
 		function callback(response){ 
 		    
-			//console.log(response);
+			console.log(response);
 			location.reload();
 		}
 		
