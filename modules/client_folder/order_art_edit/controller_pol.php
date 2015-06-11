@@ -10,6 +10,13 @@
 			$FORM->get_product_form($type_product);			
 			exit;
 		}
+
+		if($_POST['AJAX'] == 'general_form_for_create_product'){
+			echo '<pre>';
+			print_r($_POST);
+			echo '</pre>';
+			exit;
+		}
 	}
 	/*******************************  END AJAX  *********************************/
 

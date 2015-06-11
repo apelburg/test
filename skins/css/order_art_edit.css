@@ -451,3 +451,8 @@ span.snab_comment {
 .btn_add_var:hover,.btn_add_val:hover{
    background-color: #f4f4f4;
 }
+.pad{  padding-left: 30px;
+/*  background: #f3f3f3;
+  border: 1px solid grey;*/
+  display: none;
+}

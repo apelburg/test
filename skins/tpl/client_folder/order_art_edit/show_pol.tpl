@@ -3,6 +3,7 @@
 <link href="libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript" src="libs/js/jquery_ui/jquery.datetimepicker.js"></script>
+<script type="text/javascript" src="libs/js/forms__js.js"></script>
 <!-- 
 <script type="text/javascript" src="libs/js/order_art_edit.js"></script>
 <script type="text/javascript" src="../libs/js/jquery.uploadify.min.js"></script>
@@ -10,44 +11,8 @@
 <script type="text/javascript" src="../libs/js/jsArticulus.js"></script> -->
 
 <script type="text/javascript">
-    // uploudify 
-$(document).ready(function() {    
 
-    $("#uploadify").uploadify({
-        method        : 'post',
-        buttonText    : 'Добавить изображение...',
-        formData      : {
-            'timestamp' : '1430900188',
-            'token'     : '5706ee40da63f684301236821796cd66',
-            'article'   : '375190.80',
-            'art_id'    : '32286',
-            'add_image_ok'      : '1'
-        },
-        height        : 30,
-        swf           : '../libs/php/uploadify.swf',
-        uploader      : '',
-        cancelImg     : 'skins/images/img_design/cancel.png',
-        width         : 120,
-        //auto          : false
-        auto          : true,
-        'onUploadSuccess' : function(file, data, response) {
-            var img = jQuery.parseJSON(data);
-            var dele = '<div class="catalog_delete_img_link"><a href="#" title="удалить изображение из базы" data-del="'+HOST+'/admin/order_manager/?page=common&delete_img_from_base_by_id='+img.big_img_name+'|'+img.small_img_name+'"  onclick="if(confirm(\' изображение будет удалено из базы!\')){$.get( $(this).attr(\'data-del\'),function( data ) {});remover_image(this); return false; } else{ return false;}">&#215</a></div>';
-            
-            $('#articulusImagesPrevBigImg .carousel-wrapper .carousel-items').append('<div  class="carousel-block"><img class="articulusImagesMiniImg imagePr" alt="" height="60px" src="'+HOST+'/img/'+img.small_img_name+'" data-src_IMG_link="'+HOST+'/img/'+img.big_img_name+'">'+dele+'</div>')
-            $("#status_r2")
-                .addClass("success")
-                .html('Файл ' + file.name + ' успешно загружен.')
-                .fadeIn('fast')
-                .delay(3000)
-                .fadeOut('slow');
-            //$("#upload_more_images").hide();
-                
-            },
-                
-        'width'    : 200
-    });
-});
+
 
 $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) {
 	$('.variant_name').removeClass('checked');
@@ -83,7 +48,10 @@ function show_dialog(html){
 	buttons.push({
 	    text: 'OK',
 	    click: function() {
-	    	$('this').dialog('close'); 
+	    	$.post('', $('#general_form_for_create_product form').serialize(), function(data, textStatus, xhr) {
+				alert(data);
+			});
+			//general_form_for_create_product();	    	
 	    }
 	});
 
