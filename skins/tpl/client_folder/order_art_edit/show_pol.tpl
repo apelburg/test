@@ -83,8 +83,8 @@ function show_dialog(html){
 		    	$('#general_form_for_create_product .pad:hidden').remove();
 		    	$.post('', $('#general_form_for_create_product form').serialize(), function(data, textStatus, xhr) {
 					// alert(data);
-
-					$('#general_form_for_create_product').append(data);
+					$('#dialog_gen_window_form').html(data)
+					//$('#general_form_for_create_product').append(data);
 				});
 			}else{
 				alert('Исправьте ошибки заполнения');

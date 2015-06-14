@@ -187,48 +187,82 @@
 					
 				}
 			}
-			// $return = $this->greate_table_variants($array_for_table,$product_options);
-			$return =$this->greate_array_variants($array_for_table,$product_options);
+
+
+			$return = $this->greate_table_variants($array_for_table,$product_options);
+			// $return .= $this->greate_array_variants($array_for_table);
 			return $return;
+
+
 			// echo '<pre>';
 			// print_r($array_for_table);
 			// echo '</pre>';
 
 		}
 
-		private function greate_array_variants($arr,$product_options){
-			
-			// $product_options содержит названия полей
-
-			// начальный массив вариаций 
-			$n_arr = array(0=>'');
-
-			foreach ($arr as $key => $value) {
-				$n_arr2 = array();
-				$n_arr23 =array();
-				foreach ($n_arr as $key2 => $value2) {
-					
-					foreach ($value as $key3 => $value3) {
-						# code...
-					}
-				}	
-			}
-
-
+		// возвращает переработанный массив вариантов
+		private function greate_array_variants($arr){
 			// подсчёт количества вариаций // можно удалить
 			$count = 1;
 			foreach ($arr as $key => $value) {
 				$count = $count*count($value);
 			}
-		
+			
+			// если вариантов более одного
+			// if($count>1){
+				// создаем массив вариантов заполненный первыми вариантам
+				
+				foreach ($arr as $key2 => $value2) {
+					$f=0;
+					foreach ($value2 as $key3 => $value3) {
+						for ($k=0; $k < $count/count($value2); $k++) { 
+							$variants[$f][$key2] = $value3;
+						$f++;		
+						}	
+					}
+				}
+			// }		
+			// echo '<pre>';
+			// print_r($variants);
+			// echo '</pre>';
 
-			echo '<pre>';
-			print_r($n_arr);
-			echo '</pre>';
-			return $count;
+			// return $count;
+
+			return $variants;
 		}
 
 		private function greate_table_variants($arr,$product_options){
+			// поучаем массив вариантов
+			$array = $this->greate_array_variants($arr);
+
+			// перерабатываем его в таблицу
+			$html = '';
+
+			$html .= '<table class="answer_table">';
+			$html .= '<tr>';
+			$html .= '<th>№ варианта</th>';
+			$html .= '<th>Описание</th>';
+			$html .= '<th>удалить</th>';
+			$html .= '</tr>';
+			foreach ($array as $key => $variant) {
+				$html .= "<tr>";
+				$html .= '<td>'.($key+1).'<div class="json_hidden" style="display:none">'.json_encode($variant).'</div></td>';
+				$html .= '<td>';
+				foreach ($variant as $key1 => $value1) {
+					$html .= ''.$product_options[$key1]['name'].': '.$value1.'<br>';
+				}
+				$html .= '</td>';
+				$html .= '<td><span class="delete_user_val">X</span></td>';
+						
+				$html .= '</tr>';
+			}
+			
+			$html .= '</table>';
+			return $html;
+
+		}
+
+		private function greate_table_variants_OLD_DELETE($arr,$product_options){
 			// $product_options содержит названия полей
 
 			// начальный массив вариаций 

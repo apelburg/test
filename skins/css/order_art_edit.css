@@ -444,6 +444,7 @@ span.snab_comment {
   cursor: pointer;}
   .one_row_for_this_type{  padding: 5px;
   margin-top: 5px;}
+
 .buttons_form{ padding-top: 10px;padding-bottom: 15px;}
 .btn_add_var,.btn_add_val{padding:0 5px 2px 5px;
   border: 1px solid #f4f4f4;
@@ -456,4 +457,12 @@ span.snab_comment {
 /*  background: #f3f3f3;
   border: 1px solid grey;*/
   display: none;
+}
+.answer_table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px
+}
+.answer_table tr td{
+  border:1px solid grey;
 }
