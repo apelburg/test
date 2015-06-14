@@ -48,9 +48,47 @@ function show_dialog(html){
 	buttons.push({
 	    text: 'OK',
 	    click: function() {
-	    	$.post('', $('#general_form_for_create_product form').serialize(), function(data, textStatus, xhr) {
-				alert(data);
-			});
+	    	var moderate = 0;
+	    	$('#general_form_for_create_product .one_row_for_this_type').each(function(index, el) {
+	    		
+	    		if($(this).attr('data-moderate')=='1'){
+	    			moderate = 0;
+	    			var moder = false;
+	    			// проверка  nput[type="checkbox"],input[type="radio"
+	    			$(this).find('input[type="checkbox"],input[type="radio"]').each(function(index, el) {		    				
+		    			if($(this).prop('checked')){		    					
+		    				moder = true;		
+		    			}
+	    			});
+	    			// проверка input[type="text"]
+	    			$(this).find('input[type="text"]').each(function(index, el) {		    				
+		    			if($(this).val()!=''){
+		    				moder = true;
+		    			}
+	    			});
+
+	    			if(moder){
+	    				$(this).css({'border':'none'});	    				
+	    			}else{
+	    				$(this).css({'border':'1px solid red'});
+	    				moderate = 1;
+	    			}
+	    			
+	    		
+	    		}	
+
+	    	});
+	    	console.log(moderate);
+	    	if(moderate==0){
+		    	$('#general_form_for_create_product .pad:hidden').remove();
+		    	$.post('', $('#general_form_for_create_product form').serialize(), function(data, textStatus, xhr) {
+					// alert(data);
+
+					$('#general_form_for_create_product').append(data);
+				});
+			}else{
+				alert('Исправьте ошибки заполнения');
+			}
 			//general_form_for_create_product();	    	
 	    }
 	});

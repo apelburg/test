@@ -442,8 +442,9 @@ span.snab_comment {
   color: red;
   border: 1px solid rgb(216, 216, 216);
   cursor: pointer;}
-  .one_row_for_this_type{padding: 15px 0 0 0; }
-.buttons_form{ padding-top: 10px}
+  .one_row_for_this_type{  padding: 5px;
+  margin-top: 5px;}
+.buttons_form{ padding-top: 10px;padding-bottom: 15px;}
 .btn_add_var,.btn_add_val{padding:0 5px 2px 5px;
   border: 1px solid #f4f4f4;
   margin-right: 15px; cursor: pointer;
