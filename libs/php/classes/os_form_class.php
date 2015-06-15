@@ -19,18 +19,17 @@
      	// наличие кнопки добавления своего варианта // копирует самый нижний imput
      	private $form_type = array(
      		'pol' => array( // поисание формы для полиграфической продукции
-     			'quantity'=>array(
-     				'name'=>'Тираж',
-     				'moderate'=>true,
-     				'note'=>'укажите тираж изделий',
-     				'btn_add_var'=>false,
-     				'btn_add_val'=>true
-
-     				),
      			'name_product'=>array(
      				'name'=>'Наименование',
      				'moderate'=>true,
      				'note'=>'укажите название изделия',
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>true
+     				),
+     			'quantity'=>array(
+     				'name'=>'Тираж',
+     				'moderate'=>true,
+     				'note'=>'укажите тираж изделий',
      				'btn_add_var'=>false,
      				'btn_add_val'=>true
      				),
@@ -57,7 +56,7 @@
      				),
      			'type_print' =>array(
      				'name'=>'Вид печати',
-     				'moderate'=>true,
+     				'moderate'=>false,
      				'note'=>'укажите вид печати и кол-во цветов (4+0 и т.д.) + "другое" , выбрать Pantone если есть дополнительная печать пятым цветом',
      				'btn_add_var'=>true,
      				'btn_add_val'=>false
@@ -151,6 +150,14 @@
 			}			
 		}
 
+		// заведение вариантов в базу
+		public function create_variants_in_base($post){
+			echo '<pre>';
+			print_r($post);
+			echo '</pre>';
+
+			return 1;
+		}
 
 		// обработка данных из формы
 		public function restructuring_of_the_entry_form($array_in,$type_product,$child = 0){
@@ -189,30 +196,81 @@
 			}
 
 
+
 			$return = $this->greate_table_variants($array_for_table,$product_options);
-			// $return .= $this->greate_array_variants($array_for_table);
+			
+
 			return $return;
 
+		}
 
+		
+		private function greate_table_variants($arr,$product_options){
 			// echo '<pre>';
-			// print_r($array_for_table);
+			// print_r($arr);
 			// echo '</pre>';
+			// return 1;
+
+			// поучаем массив вариантов
+			$array = $this->greate_array_variants($arr);
+
+			
+			// массив для сохранения предыдущего варианта при выводе строк вариантов
+			// нужен для выделения различий между каждым следующим вариантом
+			$prev_variant = array();
+
+			// перерабатываем его в таблицу
+			$html = '';
+			$html .= '<form>';
+			$html .= '<input type="hidden" name="AJAX" value="save_no_cat_variant">';
+			$html .= "<input type='hidden' name='json_general' value='".json_encode($arr)."'>";
+			// $html .= '<div id="json_general" style="display:none">'.json_encode($arr).'</div>';
+			$html .= '<table class="answer_table">';
+			$html .= '<tr>';
+			$html .= '<th>№ варианта</th>';
+			$html .= '<th>Описание</th>';
+			$html .= '<th>удалить</th>';
+			$html .= '</tr>';
+
+			foreach ($array as $key => $variant) {
+
+				$html .= "<tr>";
+				$html .= '<td>'.($key+1);
+				// $html .= '<div class="json_hidden" style="display:none">'.json_encode($variant).'</div>';
+				$html .= "<input type='hidden' name='json_variants[]' value='".json_encode($variant)."'>";
+				$html .= '</td>';
+				$html .= '<td>';
+				foreach ($variant as $key1 => $value1) {
+					$bold = (isset($prev_variant[$key1]) && $prev_variant[$key1]!=$value1)?'bold':'normaol';
+					$html .= '<span style="font-weight:'.$bold.'">'.$product_options[$key1]['name'].'</span>: '.$value1.'<br>';
+				}
+				$html .= '</td>';
+				$html .= '<td><span class="delete_user_val">X</span></td>';
+						
+				$html .= '</tr>';
+
+				$prev_variant = $variant;
+			}
+			
+			$html .= '</table>';
+			$html .= '</form>';
+			return $html;
 
 		}
 
 		// возвращает переработанный массив вариантов
 		private function greate_array_variants($arr){
-			// подсчёт количества вариаций // можно удалить
+			// подсчёт количества вариаций 
 			$count = 1;
 			foreach ($arr as $key => $value) {
 				$count = $count*count($value);
-			}
-			
-			// если вариантов более одного
-			// if($count>1){
-				// создаем массив вариантов заполненный первыми вариантам
+			}		
+
+			// создаем массив вариантов 
+			$n = 0;
+			foreach ($arr as $key2 => $value2) {
 				
-				foreach ($arr as $key2 => $value2) {
+				if ($n==0) {
 					$f=0;
 					foreach ($value2 as $key3 => $value3) {
 						for ($k=0; $k < $count/count($value2); $k++) { 
@@ -220,92 +278,25 @@
 						$f++;		
 						}	
 					}
+					$n++;	
+				}else{
+					$f=0;
+					for ($k=0; $k < $count/count($value2); $k++) { 
+						foreach ($value2 as $key3 => $value3) {						
+							$variants[$f][$key2] = $value3;
+						$f++;		
+						}	//$f++;
+					}
+					$n++;
 				}
-			// }		
-			// echo '<pre>';
-			// print_r($variants);
-			// echo '</pre>';
 
-			// return $count;
+				
+
+			}
+			
 
 			return $variants;
 		}
-
-		private function greate_table_variants($arr,$product_options){
-			// поучаем массив вариантов
-			$array = $this->greate_array_variants($arr);
-
-			// перерабатываем его в таблицу
-			$html = '';
-
-			$html .= '<table class="answer_table">';
-			$html .= '<tr>';
-			$html .= '<th>№ варианта</th>';
-			$html .= '<th>Описание</th>';
-			$html .= '<th>удалить</th>';
-			$html .= '</tr>';
-			foreach ($array as $key => $variant) {
-				$html .= "<tr>";
-				$html .= '<td>'.($key+1).'<div class="json_hidden" style="display:none">'.json_encode($variant).'</div></td>';
-				$html .= '<td>';
-				foreach ($variant as $key1 => $value1) {
-					$html .= ''.$product_options[$key1]['name'].': '.$value1.'<br>';
-				}
-				$html .= '</td>';
-				$html .= '<td><span class="delete_user_val">X</span></td>';
-						
-				$html .= '</tr>';
-			}
-			
-			$html .= '</table>';
-			return $html;
-
-		}
-
-		private function greate_table_variants_OLD_DELETE($arr,$product_options){
-			// $product_options содержит названия полей
-
-			// начальный массив вариаций 
-			$n_arr = array(0=>'');
-
-			
-			// заполним массив вариаций
-			foreach ($arr as $key => $value) {
-				// кириллическое название данных пришедших из формы
-				$name = '<strong>'.$product_options[$key]['name'].': </strong>';
-				
-				// вспомагательные массивы для выдачи юзеру
-				$new_arr1 = array();
-				$n_arr2 = array();
-
-				foreach ($n_arr as $k1 => $v1) {
-					foreach ($value as $k => $v) {
-						$new_arr1[$k] = $v1.' '.$name.' '.$v;
-					}
-					$n_arr2 = array_merge($n_arr2,$new_arr1);
-				}
-				// обновляем массив
-				$n_arr = $n_arr2;
-			}
-
-
-			// подсчёт количества вариаций // можно удалить
-			$count = 1;
-			foreach ($arr as $key => $value) {
-				$count = $count*count($value);
-			}
-
-			// echo '<pre>';
-			// print_r($arr);
-			// echo '</pre>';
-
-
-			echo '<pre>';
-			print_r($n_arr);
-			echo '</pre>';
-			return $count;
-		}
-
 		// всомагательная функция обработки результатов выбора 
 		private function gg($arr,$n=0,$product_options){
 			$html = array();

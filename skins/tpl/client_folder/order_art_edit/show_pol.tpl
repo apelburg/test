@@ -83,13 +83,48 @@ function show_dialog(html){
 		    	$('#general_form_for_create_product .pad:hidden').remove();
 		    	$.post('', $('#general_form_for_create_product form').serialize(), function(data, textStatus, xhr) {
 					// alert(data);
-					$('#dialog_gen_window_form').html(data)
-					//$('#general_form_for_create_product').append(data);
+					// $('#dialog_gen_window_form').html(data)
+					show_dialog_var(data);
+					$('#general_form_for_create_product').remove();
 				});
 			}else{
 				alert('Исправьте ошибки заполнения');
 			}
 			//general_form_for_create_product();	    	
+	    }
+	});
+
+	if($('#dialog_gen_window_form').length==0){
+		$('body').append('<div id="dialog_gen_window_form"></div>');
+	}
+	$('#dialog_gen_window_form').html(html);
+	$('#dialog_gen_window_form').dialog({
+          width: '1000',
+          height: 'auto',
+          modal: true,
+          title : 'Заполните форму',
+          autoOpen : true,
+          buttons: buttons          
+        });
+
+}
+
+
+// создание диалогового окна с выбором заведённых вариантов
+function show_dialog_var(html){
+	var buttons = new Array();
+	buttons.push({
+	    text: 'OK',
+	    click: function() {
+	    	var serialize = $('#dialog_gen_window_form form').serialize();
+	    	
+	    	$('#general_form_for_create_product .pad:hidden').remove();
+		    $.post('', serialize, function(data, textStatus, xhr) {
+				// alert(data);
+				// $('#dialog_gen_window_form').html(data)
+				$('#dialog_gen_window_form').append(data);
+			});
+				    	
 	    }
 	});
 
