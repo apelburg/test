@@ -248,6 +248,19 @@
 				 $mysqli->query($query)or die($mysqli->error);
 				 //echo 1;
 			}
+			else if(isset($details_obj->dop_uslugi_id) && $details_obj->dop_uslugi_id !=0){
+			   $query="UPDATE `".RT_DOP_USLUGI."` SET
+				                       `dop_row_id` ='".$details_obj->dop_data_row_id."',
+									   `glob_type` ='print',
+									   `quantity` ='".$details_obj->quantity."',
+									   `price_in` = 0,
+									   `price_out` ='".$details_obj->price."',
+									   `print_details` ='".$print_details."'
+									   WHERE `print_details` ='".$details_obj->dop_uslugi_id."'"; 
+				 //echo $query;
+				 $mysqli->query($query)or die($mysqli->error);
+			
+			}
 		}
 		function delete_prints_for_row($dop_row_id,$usluga_id,$all){
 		    global $mysqli;  
