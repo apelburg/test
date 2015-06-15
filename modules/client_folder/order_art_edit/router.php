@@ -7,8 +7,14 @@
 	// класс работы с формами
 	include './libs/php/classes/os_form_class.php';
 
+
+
+	// класс работы с позициями каталога
 	include './libs/php/classes/articul_class.php';
+	// класс работы с позициями не каталога
+	include './libs/php/classes/position_no_ctalog_class.php';
 	
+	// класс работы с менеджерами
 	include './libs/php/classes/manager_class.php';
     // ** БЕЗОПАСНОСТЬ **
 	// проверяем выдан ли доступ на вход на эту страницу
@@ -22,7 +28,7 @@
 	
 	// чеерез get параметр id мы получаем id 1 из строк запроса
 	// получаем основные хар-ки артикула из таблицы артикулов входящих в запрос
-	$query = "SELECT DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`, `query_num`, `name`,`id`, `art_id`, `type` FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."'";
+	$query = "SELECT DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`, `query_num`, `name`,`id`,`dop_info_no_cat`, `art_id`, `type` FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."'";
 	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
 	// $this->info = 0;
@@ -52,6 +58,9 @@
 			// сувениры под заказ /ext, 
 			// нанесение на чужом сувенире /не определено
 			$type_tovar = $row['type']; 
+
+			// json no_cat
+			$dop_info_no_cat = json_decode($row['dop_info_no_cat']);
 		}
 	}
 
