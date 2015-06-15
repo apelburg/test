@@ -12,9 +12,18 @@
 		}
 
 		if($_POST['AJAX'] == 'general_form_for_create_product'){
-			echo '<pre>';
-			print_r($_POST);
-			echo '</pre>';
+			unset($_POST['AJAX']); // уничтожаем переменную, дабы она не попала в массив обработки
+			$type_product = $_POST['type_product'];
+			// echo '<pre>';
+			// print_r($_POST);
+			// echo '<pre>';
+			echo '<div style="border-top:1px solid red">'.$FORM->restructuring_of_the_entry_form($_POST,$type_product).'</div>';
+			exit;
+		}
+		if($_POST['AJAX'] == 'save_no_cat_variant'){
+			unset($_POST['AJAX']); // уничтожаем переменную, дабы она не попала в массив обработки
+			// $id_position = 
+			$FORM->create_variants_in_base($_POST);
 			exit;
 		}
 	}
