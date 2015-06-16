@@ -229,20 +229,21 @@
 			
 			print_r($details_obj);
 			 
-
+           
             // если PHP 5.4 то достаточно этого
                /* $print_details = json_encode($details_obj->print_details,JSON_UNESCAPED_UNICODE);*/
 			// но пришлось использовать это
 			$print_details = self::json_fix_cyr(json_encode($details_obj->print_details)); 
 
 			// если нет dop_uslugi_id или он равен ноль, добавляем новый расчет доп услуг для ряда 
+			// иначе перезаписываем данные в строке где `id` = $details_obj->dop_uslugi_id
 			if(!isset($details_obj->dop_uslugi_id) || $details_obj->dop_uslugi_id ==0){
 			    $query="INSERT INTO `".RT_DOP_USLUGI."` SET
 				                       `dop_row_id` ='".$details_obj->dop_data_row_id."',
 									   `glob_type` ='print',
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = 0,
-									   `price_out` ='".$details_obj->price."',
+									   `price_out` ='".$details_obj->price_out."',
 									   `print_details` ='".$print_details."'"; 
 				 //echo $query;
 				 $mysqli->query($query)or die($mysqli->error);
@@ -254,9 +255,9 @@
 									   `glob_type` ='print',
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = 0,
-									   `price_out` ='".$details_obj->price."',
+									   `price_out` ='".$details_obj->price_out."',
 									   `print_details` ='".$print_details."'
-									   WHERE `print_details` ='".$details_obj->dop_uslugi_id."'"; 
+									    WHERE `id` ='".$details_obj->dop_uslugi_id."'"; 
 				 //echo $query;
 				 $mysqli->query($query)or die($mysqli->error);
 			
