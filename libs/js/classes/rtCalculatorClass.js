@@ -113,15 +113,16 @@ var rtCalculator = {
 				//console.log(response);
 				// этап 1
 				var data_AboutPrintsArr = JSON.parse(response);
+				rtCalculator.dataObj_toEvokeCalculator = {"art_id":art_id,"dop_data_row_id":dop_data_row_id,"quantity":quantity,"cell":cell};
 				
 				if(data_AboutPrintsArr.length == 0){
 					
 					// запускаем калькулятор
-					rtCalculator.evoke_calculator({"art_id":art_id,"dop_data_row_id":dop_data_row_id,"quantity":quantity,"cell":cell});
+					rtCalculator.evoke_calculator();
 				}
 				else{
 					// запускаем панель
-					rtCalculator.launch_dop_uslugi_panel(data_AboutPrintsArr,{"art_id":art_id,"dop_data_row_id":dop_data_row_id,"quantity":quantity,"cell":cell});
+					rtCalculator.launch_dop_uslugi_panel(data_AboutPrintsArr);
 				}
 			}
 			/**/
@@ -134,7 +135,7 @@ var rtCalculator = {
 		
 	}
 	,
-	launch_dop_uslugi_panel:function(data_AboutPrintsArr,dataObj_toEvokeCalculator){
+	launch_dop_uslugi_panel:function(data_AboutPrintsArr){
 		console.log('>>> data_AboutPrintsArr start');
 		console.log(data_AboutPrintsArr);
 		console.log('<<< data_AboutPrintsArr end');
@@ -181,9 +182,9 @@ var rtCalculator = {
 				$("#calculatorDopUslugiBox").remove();
 				// добавляем в передаваемые данные данные индекс массива rtCalculator.currentCalculationData содержащего
 				// данные конкретного(этого)нанесения
-				dataObj_toEvokeCalculator.currentCalculationData_id = this.getAttribute('index');
+				rtCalculator.dataObj_toEvokeCalculator.currentCalculationData_id = this.getAttribute('index');
 				// запускаем
-				rtCalculator.evoke_calculator(dataObj_toEvokeCalculator);
+				rtCalculator.evoke_calculator(rtCalculator.dataObj_toEvokeCalculator);
 			}
 			
 			// место нанесения
@@ -205,7 +206,7 @@ var rtCalculator = {
 			td.onclick = function(){ 
 			
 				// отправляем запрос на удаление для текущего нанесения
-				var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_prints_for_row='+dataObj_toEvokeCalculator.dop_data_row_id+'&usluga_id='+this.getAttribute('usluga_id'));
+				var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_prints_for_row='+rtCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&usluga_id='+this.getAttribute('usluga_id'));
 				rtCalculator.send_ajax(url,callback);
 			
 				function callback(response){ 
@@ -232,7 +233,7 @@ var rtCalculator = {
 		addNewPrintBtn.innerHTML = 'Добавить еще место';
 		addNewPrintBtn.onclick =  function(){ 
 		    $("#calculatorDopUslugiBox").remove();
-		    rtCalculator.evoke_calculator(dataObj_toEvokeCalculator);
+		    rtCalculator.evoke_calculator(rtCalculator.dataObj_toEvokeCalculator);
 	    };
 		box.appendChild(addNewPrintBtn);
 		
@@ -249,7 +250,7 @@ var rtCalculator = {
 		    $("#calculatorDeleteAllPrinstBtn").remove();
 			
 			// отправляем запрос на удаление всех нанесений для текущего расчета
-			var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_prints_for_row='+dataObj_toEvokeCalculator.dop_data_row_id+'&all=true');
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_prints_for_row='+rtCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&all=true');
 		    rtCalculator.send_ajax(url,callback);
 		
 			function callback(response){ 
@@ -267,18 +268,18 @@ var rtCalculator = {
 		$("#calculatorDopUslugiBox").dialog("open");
 	}
 	,
-	evoke_calculator:function(dataObj_toEvokeCalculator){
+	evoke_calculator:function(){
 		
 		
 		// отправляем запрос чтобы получить описание параметров возможного калькулятора для данного ариткула
-	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+dataObj_toEvokeCalculator.art_id+'","type":"'+dataObj_toEvokeCalculator.cell.parentNode.getAttribute('calc_btn')+'"}');
+	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+rtCalculator.dataObj_toEvokeCalculator.art_id+'","type":"'+rtCalculator.dataObj_toEvokeCalculator.cell.parentNode.getAttribute('calc_btn')+'"}');
 		rtCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){ 
 			//console.log(response_calculatorParamsData);
 
 			// строим калькулятор
-			rtCalculator.build_print_calculator(dataObj_toEvokeCalculator,response_calculatorParamsData);
+			rtCalculator.build_print_calculator(response_calculatorParamsData);
 		    
 			// открываем окно с калькулятором
 			$("#calculatorBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет с нанесением логотипа",modal:true,width: 600,close: function() {this.remove();$("#calculatorBox").remove();}});
@@ -286,29 +287,30 @@ var rtCalculator = {
 		}
 	}
 	,
-    build_print_calculator:function(dataObj_toEvokeCalculator,calculatorParamsData){
+    build_print_calculator:function(calculatorParamsData){
 
 		
 		// если калькулятор был вызван для существующего нанесения пересохраняем данные для конкретного нанесения 
 		// иначе готовим структуру для сохранения данных при создании калькулятора 
-	    if(dataObj_toEvokeCalculator.currentCalculationData_id){
-			rtCalculator.currentCalculationData =  rtCalculator.currentCalculationData[dataObj_toEvokeCalculator.currentCalculationData_id];
-			rtCalculator.currentCalculationData.dop_data_row_id = dataObj_toEvokeCalculator.dop_data_row_id;
+	    if(rtCalculator.dataObj_toEvokeCalculator.currentCalculationData_id){
+			rtCalculator.currentCalculationData =  rtCalculator.currentCalculationData[rtCalculator.dataObj_toEvokeCalculator.currentCalculationData_id];
+			rtCalculator.currentCalculationData.dop_data_row_id = rtCalculator.dataObj_toEvokeCalculator.dop_data_row_id;
 		}
 		else{
 		    rtCalculator.currentCalculationData =  {};	
-			rtCalculator.currentCalculationData.quantity = dataObj_toEvokeCalculator.quantity;
-		    rtCalculator.currentCalculationData.dop_data_row_id = dataObj_toEvokeCalculator.dop_data_row_id;
+			rtCalculator.currentCalculationData.quantity = rtCalculator.dataObj_toEvokeCalculator.quantity;
+		    rtCalculator.currentCalculationData.dop_data_row_id = rtCalculator.dataObj_toEvokeCalculator.dop_data_row_id;
 			rtCalculator.currentCalculationData.print_details = {};
 			rtCalculator.currentCalculationData.print_details.dop_params = {};
 		}
 		
-		console.log('>>> build_print_calculator');
-		console.log(rtCalculator.currentCalculationData);
-		console.log('<<< build_print_calculator');
+		console.log('>>> build_print_calculator',rtCalculator.currentCalculationData,'<<< build_print_calculator');
      
 		// строим интерфейс калькулятора
 		rtCalculator.calculatorParamsObj = JSON.parse(calculatorParamsData);
+		
+		console.log('>>> calculatorParamsObj',rtCalculator.calculatorParamsObj,'<<< calculatorParamsObj');
+		
 		// структура элемента data.places
 		// [places] => Array([0] => ключ соответсвует id места нанесения (если id = 0 - "Стандартное" место )неограниченное количество элементов
 		//					Array (
@@ -341,7 +343,7 @@ var rtCalculator = {
             printPlaceSelect.appendChild(option);
 			
 			if(rtCalculator.currentCalculationData.print_details.place_id==id) option.setAttribute("selected",true);
-			//console.log(i + dataObj_toEvokeCalculator.places[i].name);
+			//console.log(i + rtCalculator.dataObj_toEvokeCalculator.places[i].name);
 		}
 		//currPlace_id = 1;
 		printPlaceSelect.onchange = function(){
@@ -365,7 +367,10 @@ var rtCalculator = {
 		box.appendChild(block_A);
 		document.body.appendChild(box);
 		
-		//rtCalculator.makeProcessing();
+		// если калькулятор был вызван для существующего расчета нанесениния
+		// вызываем метод производящий расчет итоговой цены
+		// ТАКЖЕ НАДО ДЕЛАТЬ ВЫЗОВ ЕСЛИ КАЛЬКУЛЯТОР ПРОСТРОИЛСЯ БЕЗ УЧАСТИЯ ПОЛЬЗОВАТЕЛЯ!!! КАК?
+		if(rtCalculator.dataObj_toEvokeCalculator.currentCalculationData_id) rtCalculator.makeProcessing();
 		
 		// help button
 		// box.appendChild(help.btn('kp.sendLetter.window'));
@@ -388,7 +393,7 @@ var rtCalculator = {
 		block_A.appendChild(br.cloneNode(true));
 		block_A.appendChild(printTypesSelect);
 		
-		//alert(rtCalculator.currentCalculationData.print_details.print_id);
+		alert(rtCalculator.currentCalculationData.print_details.print_id);
 		// если мы имеем конкретное типа нанесения (тоесть оно не равно 0) тогда строим калькулятор дальше
 		// вызываем метод строящий блок В калькулятора и вставляем его в тело калькулятора
 		if(rtCalculator.currentCalculationData.print_details.print_id != 0){	
@@ -436,15 +441,22 @@ var rtCalculator = {
 	}
 	,
 	makeProcessing:function(){
-		console.log(rtCalculator.dataForProcessing);
 		
 		// определяем цену по dataForProcessing['priceTbl']
-		// обращаемся к ряду таблицы цен, по значению параметра dataForProcessing['priceTblYindex']
-		// и выбираем нужную ячейку по значению параметра dataForProcessing['priceTblXindex']
-		var price = rtCalculator.currentCalculationData.print_details.price_Tbl[rtCalculator.currentCalculationData.print_details.priceTblYindex][rtCalculator.currentCalculationData.print_details.priceTblXindex];
+		// обращаемся к ряду таблицы цен, 
+		// по значению параметра rtCalculator.currentCalculationData.print_details.priceOut_tblYindex
+		// и выбираем нужную ячейку 
+		// по значению параметра rtCalculator.currentCalculationData.print_details.priceOut_tblXindex
 		console.log('>>><<<');
-		console.log(rtCalculator.currentCalculationData.print_details.priceTblYindex+' '+rtCalculator.currentCalculationData.print_details.priceTblXindex+' '+price);
-	    //alert(rtCalculator.currentCalculationData.print_details.priceTblYindex+' '+rtCalculator.currentCalculationData.print_details.priceTblXindex+' '+price);
+		console.log( rtCalculator.currentCalculationData);
+		
+		var price_out = rtCalculator.currentCalculationData.print_details.priceOut_tbl[rtCalculator.currentCalculationData.print_details.priceOut_tblYindex][rtCalculator.currentCalculationData.print_details.priceOut_tblXindex];
+		var price_in = rtCalculator.currentCalculationData.print_details.priceIn_tbl[rtCalculator.currentCalculationData.print_details.priceIn_tblYindex][rtCalculator.currentCalculationData.print_details.priceIn_tblXindex];
+		
+		
+		console.log('>>><<<');
+		console.log(rtCalculator.currentCalculationData.print_details.priceOut_tblYindex+' '+rtCalculator.currentCalculationData.print_details.priceOut_tblXindex+' '+price_out);
+	    
 		// коэффициэнты
 		// перебираем rtCalculator.currentCalculationData.print_details.
 		var total_coefficient = 1;
@@ -455,10 +467,15 @@ var rtCalculator = {
 			}
 		}
 		  console.log(total_coefficient);
-		rtCalculator.currentCalculationData.price_out = price*total_coefficient;
-		  console.log(price+' итог калькулятора');
-		var total_price = rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity;
-		var total_str  = 'ИТОГО - цена за штуку: '+(rtCalculator.currentCalculationData.price_out).toFixed(2)+',   за Тираж: '+(total_price).toFixed(2)+'';
+		rtCalculator.currentCalculationData.price_out = price_out*total_coefficient;
+		rtCalculator.currentCalculationData.price_in  = price_in*total_coefficient;
+		  console.log(price_out+' итог калькулятора');
+		  
+		var total_price_out = rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity;
+		var total_price_in = rtCalculator.currentCalculationData.price_in*rtCalculator.currentCalculationData.quantity;
+		
+		var total_str  = 'ИТОГО - цена за штуку: '+(rtCalculator.currentCalculationData.price_out).toFixed(2)+',   за Тираж: '+(total_price_out).toFixed(2)+'';
+		    total_str += '<br>ВХОД - цена за штуку: '+(rtCalculator.currentCalculationData.price_in).toFixed(2)+',   за Тираж: '+(total_price_in).toFixed(2)+'';
 		
 		document.getElementById("rtCalculatorItogDisplay").innerHTML = total_str;
 	}
@@ -476,7 +493,10 @@ var rtCalculator = {
 		delete rtCalculator.currentCalculationData.id;
 		delete rtCalculator.currentCalculationData.dop_row_id;
 		delete rtCalculator.currentCalculationData.type;
-		delete rtCalculator.currentCalculationData.print_details.price_Tbl;
+		delete rtCalculator.currentCalculationData.print_details.priceOut_tbl;
+		delete rtCalculator.currentCalculationData.print_details.priceIn_tbl;
+		
+		delete rtCalculator.dataObj_toEvokeCalculator;
 		
 		console.log('>>> saveCalculatorResult');
 		console.log(rtCalculator.currentCalculationData);
@@ -493,31 +513,19 @@ var rtCalculator = {
 		function callback(response){ 
 		    
 			console.log(response);
-			//location.reload();
+			location.reload();
 		}
 		
 	}
 	,
     build_print_types_select:function(){
-		// place_id = 1;
+		
 		// строит и возвращает select для типов нанеснения
-		//console.log(place_id);
-		//console.log(rtCalculator.data_obj.places[place_id].data);
-		//console.log(rtCalculator.data_obj.places[place_id].data.length);
-		//if(rtCalculator.data_obj.places[place_id].data.length==1)
+		
 		var printTypesSelect = document.createElement('SELECT');
-		printTypesSelect.onchange = function(){
-			rtCalculator.currentCalculationData.print_details.print_id = this.options[this.selectedIndex].value;
-			var block_B = rtCalculator.buildBlockB();
-			if(document.getElementById("rtCalculatorBlockB"))document.getElementById("rtCalculatorBlockB").parentNode.removeChild(document.getElementById("rtCalculatorBlockB"));
-			this.parentNode.appendChild(block_B);
-			// метод осуществляющий итоговый расчет 
-		    // и помещающий итоговые данные в сторку ИТОГО
-		    rtCalculator.makeProcessing();
-			
-		}
-		//alert(rtCalculator.currentCalculationData.print_details.print_id);
+		
 		var counter = 0;
+		// проходим по массиву содержащему id и названия типов нанесения соответствующих данному месту нанесения
 		for(var id in rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].data){
 			// если это заново запускаемый калькулятор сохраняем id первого  нанесения 
 			if(typeof rtCalculator.currentCalculationData.print_details.print_id === 'undefined') rtCalculator.currentCalculationData.print_details.print_id = id;
@@ -540,9 +548,28 @@ var rtCalculator = {
             option.appendChild(document.createTextNode(' -- выберите вариант -- '));
 			printTypesSelect.insertBefore(option, printTypesSelect.firstChild); 
             
-			if(typeof rtCalculator.currentCalculationData.print_details.print_id === 'undefined') rtCalculator.currentCalculationData.print_details.print_id = 0;
+			// если это не был вызов калькулятора для конкретного существующего расчета 
+			// ставим выбранным  option ' -- выберите вариант -- '
+			// и устанавливаем print_id = 0
+			if(typeof rtCalculator.dataObj_toEvokeCalculator.currentCalculationData_id === 'undefined'){
+				option.setAttribute("selected",true);
+				rtCalculator.currentCalculationData.print_details.print_id = 0;
+			}
 		}
-	    else rtCalculator.currentCalculationData.print_details.print_id==id;
+
+		
+		// обработчик события onchange
+		printTypesSelect.onchange = function(){
+			rtCalculator.currentCalculationData.print_details.print_id = this.options[this.selectedIndex].value;
+			var block_B = rtCalculator.buildBlockB();
+			if(document.getElementById("rtCalculatorBlockB"))document.getElementById("rtCalculatorBlockB").parentNode.removeChild(document.getElementById("rtCalculatorBlockB"));
+			this.parentNode.appendChild(block_B);
+			// метод осуществляющий итоговый расчет 
+		    // и помещающий итоговые данные в сторку ИТОГО
+		    rtCalculator.makeProcessing();
+			
+		}
+		//alert(rtCalculator.currentCalculationData.print_details.print_id);
 		
 		return printTypesSelect;
 	}
@@ -569,8 +596,9 @@ var rtCalculator = {
 			if(value == 0) selectsArr[i].parentNode.removeChild(selectsArr[i]);
 		}
 		
-		rtCalculator.currentCalculationData.print_details.priceTblYindex =  rtCalculator.currentCalculationData.print_details.dop_params.colors.length;
-		// alert(rtCalculator.currentCalculationData.print_details.priceTblYindex);
+		rtCalculator.currentCalculationData.print_details.priceOut_tblYindex =  rtCalculator.currentCalculationData.print_details.dop_params.colors.length;
+		rtCalculator.currentCalculationData.print_details.priceIn_tblYindex =  rtCalculator.currentCalculationData.print_details.dop_params.colors.length;
+		// alert(rtCalculator.currentCalculationData.print_details.priceOut_tblYindex);
 		rtCalculator.makeProcessing();
 	}
 	,
@@ -643,7 +671,8 @@ var rtCalculator = {
 			}
 			else{
 				colorsDiv.appendChild(colorsSelect);
-			    rtCalculator.currentCalculationData.print_details.priceTblYindex =  1;
+			    rtCalculator.currentCalculationData.print_details.priceOut_tblYindex =  1;
+				rtCalculator.currentCalculationData.print_details.priceIn_tblYindex =  1;
 				rtCalculator.currentCalculationData.print_details.dop_params.colors = [];
 				rtCalculator.currentCalculationData.print_details.dop_params.colors.push({'id':0,'coeff':1});
 			}
@@ -652,75 +681,14 @@ var rtCalculator = {
 			printParamsBox.appendChild(addColorLink);
 			
 		}
+		// работаем с таблицами цен 
 		
-		
-		if(CurrPrintTypeData['price_tbl']){
-			// строим таблицу с ценами price_tbl
-			var tbl = CurrPrintTypeData['price_tbl'][0];
-			var tbl_html = document.createElement('TABLE');
-			//alert(tbl.length);
-			for(var row in tbl){
-				var tr = document.createElement('TR');
-				var td = document.createElement('TD');
-				
-				// создаем 1-ую колонку каждого ряда
-				// если это первый ряд (указывающий на количество) первую колонку оставляем пустой
-				// иначе вносим комбинацию данных значение параметра и его тип например (1 цвет)
-				td.innerHTML = (row == 0)? '':tbl[row]['param_val']+' '+tbl[row]['param_type'];
-				tr.appendChild(td);
-				
-				
-				// перебераем ячейки таблицы озаглавленные 1,2,3,4 и т.д.
-				for(var counter = 1 ;tbl[row][counter] != undefined ; counter++){
-					var td = document.createElement('TD');  
-					
-					// если это первый ряд (указывающий на количество) преобразуем значения до Integer и добавляем тип параметра ( например 100 шт.)
-					// иначе ввносим в ячейку оригинальное Float значение обозначающее стоимость 
-					if(row == 0) var val = parseInt(tbl[row][counter])+' '+tbl[row]['param_type'];
-					else var val = tbl[row][counter];
-	
-					
-					td.innerHTML = val;
-					tr.appendChild(td);
-					
-					
-			        // собираем данные для расчета
-			        // для определения текущей цены
-					// этап 1 - определяем в какой диапазон входит количество товара, 
-					// исходя из этого получаем индекс соответсвующей колонки таблицы цен
-					if(row == 0){
-						// если значение ячейки меньше или равно значения параметра quantity, значит мы еще не вышли из диапазона, значение сохраняем
-						if(parseInt(tbl[row][counter]) <= rtCalculator.currentCalculationData.quantity) var priceTblXindex = counter;
-						console.log(parseInt(tbl[row][counter])+' '+rtCalculator.currentCalculationData.quantity);
-					}
-					
-					
-				}
-				
-				tbl_html.appendChild(tr);
-				
-				// собираем данные для расчета
-			    // сохраняем таблицу цен
-				if(typeof rtCalculator.currentCalculationData.print_details.price_Tbl === 'undefined') rtCalculator.currentCalculationData.print_details.price_Tbl = [];
-				rtCalculator.currentCalculationData.print_details.price_Tbl[parseInt(tbl[row]['param_val'])]=tbl[row];
-				
-				
-			}
-			// добавляем html таблицы в html контейнер
-			printParamsBox.appendChild(tbl_html);
-			
-			// собираем данные для расчета
-			// для определения текущей цены
-			// этап 2 - 
-			// устанавливаем dataForProcessing['priceTblXindex'] = 1;
-			// устанавливаем dataForProcessing['priceTblXindex'] = ранее полученный priceTblXindex;
-			if(typeof priceTblXindex === 'undefined') alert('количество тиража ниже допустимого');
-			if(typeof rtCalculator.currentCalculationData.print_details.priceTblXindex=== 'undefined'){ 
-			    rtCalculator.currentCalculationData.print_details.priceTblXindex = priceTblXindex;
-			}
-			//console.log(rtCalculator.dataForProcessing['price']);
-			
-		}
+		// входящяя цена 
+		if(CurrPrintTypeData['priceIn_tbl']) var tbl = rtCalculator.build_priceTbl(CurrPrintTypeData['priceIn_tbl'],'in');
+		printParamsBox.appendChild(tbl);
+		// исходящяя цена 
+		if(CurrPrintTypeData['priceOut_tbl']) var tbl = rtCalculator.build_priceTbl(CurrPrintTypeData['priceOut_tbl'],'out');
+		printParamsBox.appendChild(tbl);
 		
 		// select для возможных площадей нанесения
 		// [sizes] => Array
@@ -774,6 +742,91 @@ var rtCalculator = {
 		}
 		
 		return printParamsBox;
+	} 
+	,
+	build_priceTbl:function(tbl,type){
+	 
+			// строим таблицу с ценами
+			var tbl = tbl[0];
+			var tbl_html = document.createElement('TABLE');
+			//alert(tbl.length);
+			for(var row in tbl){
+				var tr = document.createElement('TR');
+				var td = document.createElement('TD');
+				
+				// создаем 1-ую колонку каждого ряда
+				// если это первый ряд (указывающий на количество) первую колонку оставляем пустой
+				// иначе вносим комбинацию данных значение параметра и его тип например (1 цвет)
+				td.innerHTML = (row == 0)? '':tbl[row]['param_val']+' '+tbl[row]['param_type'];
+				tr.appendChild(td);
+				
+				
+				// перебераем ячейки таблицы озаглавленные 1,2,3,4 и т.д.
+				for(var counter = 1 ;tbl[row][counter] != undefined ; counter++){
+					var td = document.createElement('TD');  
+					
+					// если это первый ряд (указывающий на количество) преобразуем значения до Integer и добавляем тип параметра ( например 100 шт.)
+					// иначе ввносим в ячейку оригинальное Float значение обозначающее стоимость 
+					if(row == 0) var val = parseInt(tbl[row][counter])+' '+tbl[row]['param_type'];
+					else var val = tbl[row][counter];
+	
+					
+					td.innerHTML = val;
+					tr.appendChild(td);
+					
+					
+			        // собираем данные для расчета
+			        // для определения текущей цены
+					// этап 1 - определяем в какой диапазон входит количество товара, 
+					// исходя из этого получаем индекс соответсвующей колонки таблицы цен
+					if(row == 0){
+						// если значение ячейки меньше или равно значения параметра quantity, значит мы еще не вышли из диапазона, значение сохраняем
+						if(type=='out' && parseInt(tbl[row][counter]) <= rtCalculator.currentCalculationData.quantity) var priceOut_tblXindex = counter;
+						if(type=='in' && parseInt(tbl[row][counter]) <= rtCalculator.currentCalculationData.quantity) var priceIn_tblXindex = counter;
+						
+						//console.log(parseInt(tbl[row][counter])+' '+rtCalculator.currentCalculationData.quantity);
+					}
+					
+					
+				}
+				
+				tbl_html.appendChild(tr);
+				
+				// собираем данные для расчета
+			    // сохраняем таблицу цен
+				if(type=='out'){
+					if(typeof rtCalculator.currentCalculationData.print_details.priceOut_tbl === 'undefined') rtCalculator.currentCalculationData.print_details.priceOut_tbl = [];
+					rtCalculator.currentCalculationData.print_details.priceOut_tbl[parseInt(tbl[row]['param_val'])]=tbl[row];
+				}
+				else if(type=='in'){
+					if(typeof rtCalculator.currentCalculationData.print_details.priceIn_tbl === 'undefined') rtCalculator.currentCalculationData.print_details.priceIn_tbl = [];
+					rtCalculator.currentCalculationData.print_details.priceIn_tbl[parseInt(tbl[row]['param_val'])]=tbl[row];
+				}
+				
+				
+				
+			}
+			
+			// собираем данные для расчета
+			// для определения текущей цены
+			// этап 2
+			if(type=='out'){
+				if(typeof priceOut_tblXindex === 'undefined') alert('количество тиража ниже чем указано в исходящем прайсе');
+			    if(typeof rtCalculator.currentCalculationData.print_details.priceOut_tblXindex=== 'undefined'){ 
+					rtCalculator.currentCalculationData.print_details.priceOut_tblXindex = priceOut_tblXindex;
+				}
+			}
+			else if(type=='in'){
+				if(typeof priceIn_tblXindex === 'undefined') alert('количество тиража ниже чем указано во входящем прайсе');
+			    if(typeof rtCalculator.currentCalculationData.print_details.priceIn_tblXindex=== 'undefined'){ 
+					rtCalculator.currentCalculationData.print_details.priceIn_tblXindex = priceIn_tblXindex;
+				}
+			}
+			
+			//console.log(rtCalculator.dataForProcessing['price']);
+			
+			return tbl_html;
+			
 	}
 	,
     collect_data:function(){
