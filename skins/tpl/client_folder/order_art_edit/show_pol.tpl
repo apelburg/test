@@ -30,122 +30,9 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 
 
 
-//отправка запроса на получение формы
-$(document).keydown(function(e) {	
-	if(e.keyCode == 192){//ESC	
-		$.post('', {
-			AJAX:'get_form'
-		}, function(data, textStatus, xhr) {
-			show_dialog(data);
-			//alert(data);
-		});
-	}
-});
 
-// создание диалогового окна с формой заведения вариантов расчёта для снаба
-function show_dialog(html){
-	var buttons = new Array();
-	buttons.push({
-	    text: 'OK',
-	    click: function() {
-	    	var moderate = 0;
-	    	$('#general_form_for_create_product .one_row_for_this_type').each(function(index, el) {
-	    		
-	    		if($(this).attr('data-moderate')=='1'){
-	    			moderate = 0;
-	    			var moder = false;
-	    			// проверка  nput[type="checkbox"],input[type="radio"
-	    			$(this).find('input[type="checkbox"],input[type="radio"]').each(function(index, el) {		    				
-		    			if($(this).prop('checked')){		    					
-		    				moder = true;		
-		    			}
-	    			});
-	    			// проверка input[type="text"]
-	    			$(this).find('input[type="text"]').each(function(index, el) {		    				
-		    			if($(this).val()!=''){
-		    				moder = true;
-		    			}
-	    			});
-
-	    			if(moder){
-	    				$(this).css({'border':'none'});	    				
-	    			}else{
-	    				$(this).css({'border':'1px solid red'});
-	    				moderate = 1;
-	    			}
-	    			
-	    		
-	    		}	
-
-	    	});
-	    	console.log(moderate);
-	    	if(moderate==0){
-		    	$('#general_form_for_create_product .pad:hidden').remove();
-		    	$.post('', $('#general_form_for_create_product form').serialize(), function(data, textStatus, xhr) {
-					// alert(data);
-					// $('#dialog_gen_window_form').html(data)
-					show_dialog_var(data);
-					$('#general_form_for_create_product').remove();
-				});
-			}else{
-				alert('Исправьте ошибки заполнения');
-			}
-			//general_form_for_create_product();	    	
-	    }
-	});
-
-	if($('#dialog_gen_window_form').length==0){
-		$('body').append('<div id="dialog_gen_window_form"></div>');
-	}
-	$('#dialog_gen_window_form').html(html);
-	$('#dialog_gen_window_form').dialog({
-          width: '1000',
-          height: 'auto',
-          modal: true,
-          title : 'Заполните форму',
-          autoOpen : true,
-          buttons: buttons          
-        });
-
-}
-
-
-// создание диалогового окна с выбором заведённых вариантов
-function show_dialog_var(html){
-	var buttons = new Array();
-	buttons.push({
-	    text: 'OK',
-	    click: function() {
-	    	var serialize = $('#dialog_gen_window_form form').serialize();
-	    	
-	    	$('#general_form_for_create_product .pad:hidden').remove();
-		    $.post('', serialize, function(data, textStatus, xhr) {
-				// alert(data);
-				// $('#dialog_gen_window_form').html(data)
-				$('#dialog_gen_window_form').append(data);
-			});
-				    	
-	    }
-	});
-
-	if($('#dialog_gen_window_form').length==0){
-		$('body').append('<div id="dialog_gen_window_form"></div>');
-	}
-	$('#dialog_gen_window_form').html(html);
-	$('#dialog_gen_window_form').dialog({
-          width: '1000',
-          height: 'auto',
-          modal: true,
-          title : 'Заполните форму',
-          autoOpen : true,
-          buttons: buttons          
-        });
-
-}
 
 </script>
-
-
 <div id="order_art_edit">
 	<div id="info_string_on_query">
 		<ul>
@@ -180,65 +67,9 @@ function show_dialog_var(html){
 								<div class="table" id="characteristics_art">
 									<div class="row">
 										<div class="cell">
-											<div class="table">
-												<div class="row">
-													<div class="cell">Номенклатура</div>
-													<div class="cell">Листовка</div>
-												</div>
-												<div class="row">
-													<div class="cell">Название</div>
-													<div class="cell">№1</div>
-												</div>
-												<div class="row">
-													<div class="cell">Формат</div>
-													<div class="cell">
-														не менее 200*70мм, не более 210*75 мм
-														<span class="snab_comment">
-															<span class="slaches">/</span>
-															считали 200*70мм
-														</span>
-													</div>
-												</div>
-												<div class="row">
-													<div class="cell">Материал</div>
-													<div class="cell">
-														матовый двухсторонний мелованый картон плотность не менее 285г/кв.м.б не более 300
-														<span class="snab_comment">
-															<span class="slaches">/</span>картон мелованный 280 г/кв.м.
-														</span>
-													</div>
-												</div>
-												<div class="row">
-													<div class="cell">Вид печати</div>
-													<div class="cell">
-															Офсет, 4+4
-													</div>
-												</div>
-												<div class="row">
-													<div class="cell">Изменение листа 1</div>
-													<div class="cell">
-															вырубка
-													</div>
-												</div>
-												<div class="row">
-													<div class="cell">Ламинат</div>
-													<div class="cell">
-														глянцевый 1+0/ нет /1+1
-													</div>
-												</div>
-												<div class="row">
-													<div class="cell">Дополнительно</div>
-													<div class="cell">
-														Печать с переменными данными (имя, подпись, текст поздравления)
-													</div>
-												</div>
-												<div class="row">
-													<div class="cell">Тираж</div>
-													<div class="cell">
-														300шт, 500шт
-													</div>
-												</div>
-											</div>
+											<?php 
+												echo $POSITION_NO_CAT->dop_info_no_cat_Html($dop_info_no_cat,$FORM,$type_product);
+											?>
 										</div>
 										
 									</div>

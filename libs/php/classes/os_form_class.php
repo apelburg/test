@@ -1,7 +1,21 @@
 <?php 
-     class Forms{
+/*
+в конце названий методов указан формат в котором выдаётся информация по окончании работы метода
+Html, Array, String, Int
+Если метод работает с базой сначала указывается обравиатура Database 
+и уже потом Тип возвращаемых данных
 
-     	private $user_id;
+
+
+
+
+
+PS было бы неплохо взять взять это за правило 
+
+*/
+    class Forms{
+
+    	private $user_id;
 		
 		// сюда будем сохранять id html элементов формы, чтобы иметь понятие какие id мы использовать уже не можем
      	// id в основной своей массе используются для label
@@ -11,13 +25,59 @@
      	// которую добаил менеджер для личного пользования
      	private $span_del = '<span class="delete_user_val">X</span>';
 
+     	# ОПИСАНИЕ ТИПОВ ТОВАРОВ 
+			//cat  - каталог
+			//pol - полиграфия листовая
+			//pol_many - полиграфия многолистовая
+			// calendar - икалендарь
+			//packing - упаковка картон
+			//packing_other - упаковка другая
+			//ext - сувениры под заказ
+			//ext_cl - сувениры клиента
+
+     	# true/false разрешаем или запрещаем работу класса с ними
+		private $arr_type_product = array(
+			'cat' => array(
+				'name' => 'Продукция с сайта',
+				'access' => false
+				),
+			'pol' => array(
+				'name' => 'Полиграфия / листовая',
+				'access' => true
+				),
+			'pol_many' => array(
+				'name' => 'Полиграфия / многолистовая',
+				'access' => true
+				),
+			'calendar' => array(
+				'name' => 'Полиграфия / календари',
+				'access' => true
+				),
+			'packing' => array(
+				'name' => 'Упаковка картонная',
+				'access' => true
+				),
+			'packing_other' => array(
+				'name' => 'Упаковка разная',
+				'access' => true
+				),
+			'ext' => array(
+				'name' => 'Сувениры под заказ',
+				'access' => true
+				),
+			'ext_cl' => array(
+				'name' => 'Сувениры клиента',
+				'access' => true
+				),
+			);
+
      	// перечисление разрешённых разделов полей 
      	// а так же некоторая необходимая для их обработки информация
      	// имя на кириллице
      	// доп описание по заполняемой форме
      	// наличие кнопки клонирования раздела формы
      	// наличие кнопки добавления своего варианта // копирует самый нижний imput
-     	private $form_type = array(
+     	public $form_type = array(
      		'pol' => array( // поисание формы для полиграфической продукции
      			'name_product'=>array(
      				'name'=>'Наименование',
@@ -25,6 +85,13 @@
      				'note'=>'укажите название изделия',
      				'btn_add_var'=>false,
      				'btn_add_val'=>true
+     				),
+     			'product_dop_text'=>array(
+     				'name'=>'Доп. наименование',
+     				'moderate'=>false,
+     				'note'=>'текст который будет виден в РТ сразу же за Намименованием. К примеру: Открытка № 1, где "№ 1" - это доп. наименование',
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false
      				),
      			'quantity'=>array(
      				'name'=>'Тираж',
@@ -117,41 +184,76 @@
 		function __construct(){
 		}
 
-		// возвращает html формы для заведения запроса на расчёт в отделе снабжения
-		public function get_product_form($type_product){
-			global $_SESSION;
-			$this->usser_id = $_SESSION['access']['user_id'];
+		// возвращает форму выбора заведения новой позиции в запрос
+		// осущевствляется выбор типа товара
+		# на вход подается номер запроса
+		public function to_chose_the_type_product_form_Html(){
+			# ОПИСАНИЕ ТИПОВ ТОВАРОВ
+			//cat  - каталог
+			//pol - полиграфия листовая
+			//pol_many - полиграфия многолистовая
+			// calendar - икалендарь
+			//packing - упаковка картон
+			//packing_other - упаковка другая
+			//ext - сувениры под заказ
+			//ext_cl - сувениры клиента
+			$array_product_type = $this->arr_type_product;
 
-			switch ($type_product) {
-				case 'ext'://сувениры под заказ / не каталог
-					return array('Формы для заведения данного товара не существует');
-					break;
-				case 'ext_cl'://материал(сувениры) заказчика
-					return array('Формы для заведения данного товара не существует');
-					break;
-				case 'cat'://каталожная продукция / каталог
-					return array('Формы для заведения данного товара не существует');
-					break;
-				case 'pol':// полиграфия листовая					
-					// получим форму для полиграфии
-					$form = self::get_form($this->form_type[$type_product] , $type_product);
-					return $form;
-					break;
-				case 'pol_many':// полиграфия многолистовая
-					return array('Формы для заведения данного товара не существует');
-					break;
-				case 'calendar':// календари
-					return array('Формы для заведения данного товара не существует');
-					break;
-				
-				default:
-					# code...
-					break;
-			}			
+			$html = '';
+
+			$html .= '<form>';
+			$i=0;
+			foreach ($array_product_type as $key => $value) {
+				if($value['access']){
+					$html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'"><label for="type_product_'.$i.'">'.$value['name'].'</label><br>';
+					$i++;
+				}				
+			}
+			$html .= '<input type="hidden" name="AJAX" value="get_form_Html">';
+			$html .= '</form>';
+			return $html;
 		}
 
-		// заведение вариантов в базу
-		public function create_variants_in_base($post){
+
+		// возвращает html формы для заведения запроса на расчёт в отделе снабжения
+		public function get_product_form_Html($type_product){
+			global $_SESSION;
+			$this->usser_id = $_SESSION['access']['user_id'];
+			// если поля для запрошенного типа продукции описаны в классе
+			if(isset($this->form_type[$type_product]) && count($this->form_type[$type_product])!=0){
+				// получаем форму
+				$form = self::get_form_Html($this->form_type[$type_product] , $type_product);
+				return $form;
+			}else{
+				// впротивном случае выводи ошибку
+				$error = "Такого типа продукции не предусмотрено. Обратитесь к администрации";
+				return $error;
+			}
+				
+		}
+
+		// заносит новые варианты в базу, на вход принимает массив POST
+		public function insert_new_options_in_the_Database($post,$query_num=0, $id=0){			
+			// проверяем на наличии вариантов, если все впорядке идём дальше
+			if(!isset($post['json_variants']) || count($post['json_variants'])==0){return 'Не было создано ни одного варианта.';}
+
+
+			// если нам известен $query_num, то работа ведётся из РТ
+
+
+
+			// если нам известен $id, то работа ведётся из позиции
+
+
+
+			
+			global $mysqli;
+
+
+
+
+
+
 			echo '<pre>';
 			print_r($post);
 			echo '</pre>';
@@ -167,7 +269,7 @@
 			$product_options = $this->form_type[$type_product];
 
 			//массив второстепенных описаний
-			$arr = $this->get_cirilic_names_keys();
+			$arr = $this->get_cirilic_names_keys_Database();
 			foreach ($arr as $key => $value) {
 				$all_name[$value['parent_name']] = array('name'=>$value['name_cirilic']); 
 			}		
@@ -190,29 +292,65 @@
 				
 				foreach ($value as $k => $v) {// перебор по вариантам
 
-					$array_for_table[$key][]= implode('; ',$this->gg($v,1,$product_options));
+					$array_for_table[$key][]= implode('; ',$this->gg_Array($v,1,$product_options));
 					
 				}
 			}
 
 
 
-			$return = $this->greate_table_variants($array_for_table,$product_options);
+			$return = $this->greate_table_variants_Html($array_for_table,$product_options);
 			
 
 			return $return;
 
 		}
 
-		
-		private function greate_table_variants($arr,$product_options){
+		// выдаёт форму по типу продукции
+		public function get_form_Html($arr,$type_product){
+			global $mysqli;
+			$html = '';
+			$html .= '<div id="general_form_for_create_product"><form>';
+			$html .= '<input type="hidden" name="AJAX" value="general_form_for_create_product">';
+			$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
+			// перебираем массив разрешенных для данного типа товара полей
+			// echo '<pre>';
+			// print_r($arr);
+			// echo '</pre>';
+			foreach ($arr as $key => $value) {
+				$html .= '<div class="one_row_for_this_type '.$key.'" data-type="'.$key.'" data-moderate="'.$value['moderate'].'">';
+				
+				$moderate = ($value['moderate'])?'<span style="color:red; font-size:14px">*</span>':'';
+				// определяем имя поля
+				$html .= '<strong>'.$value['name'].' '.$moderate.'</strong><br>';
+
+				// доп описание по полю
+				$html .= ($value['note']!='')?'<div style="font-size:10px">'.$value['note'].'</div>':'';
+				
+				//для каждого поля запрашиваем форму
+				$html .= $this->generate_form_Html($this->get_form_Html_listing_Database_Array($type_product,$key),'',$type_product);
+								
+				// добавляем кнопки				
+				$html .= '</div>';	
+				$html .= '<div class="buttons_form">';
+				$html .= ($value['btn_add_var'])?'<span class="btn_add_var">+ вариант</span>':'';
+				$html .= ($value['btn_add_val'])?'<span class="btn_add_val">+ значение</span>':'';
+				$html .= '</div>';
+			}	
+
+			$html .= '</form></div>';
+			echo $html;
+		}
+
+		// возвращает таблицу всех возможных вариантов из множества, которое натыкал юзер
+		private function greate_table_variants_Html($arr,$product_options){
 			// echo '<pre>';
 			// print_r($arr);
 			// echo '</pre>';
 			// return 1;
 
 			// поучаем массив вариантов
-			$array = $this->greate_array_variants($arr);
+			$array = $this->greate_array_variants_Array($arr);
 
 			
 			// массив для сохранения предыдущего варианта при выводе строк вариантов
@@ -259,7 +397,7 @@
 		}
 
 		// возвращает переработанный массив вариантов
-		private function greate_array_variants($arr){
+		private function greate_array_variants_Array($arr){
 			// подсчёт количества вариаций 
 			$count = 1;
 			foreach ($arr as $key => $value) {
@@ -297,8 +435,9 @@
 
 			return $variants;
 		}
+
 		// всомагательная функция обработки результатов выбора 
-		private function gg($arr,$n=0,$product_options){
+		private function gg_Array($arr,$n=0,$product_options){
 			$html = array();
 			$i=0;$k=0;
 			foreach ($arr as $key1 => $val1) {// снимаем значения
@@ -314,7 +453,7 @@
 					# если строка, то у предыдущего поля были дети и $val1 - массив
 					# кирилическое название детей хрнаится в базе
 					if(isset($product_options[$key1]['name']) && $product_options[$key1]['name']!=''){
-						$html[$i] .= $product_options[$key1]['name'].': '.implode(', ',$this->gg($val1,0,$product_options));
+						$html[$i] .= $product_options[$key1]['name'].': '.implode(', ',$this->gg_Array($val1,0,$product_options));
 					}else{
 						//определяем нужен ли тут знак припинания и какой
 						$zn ='';
@@ -338,8 +477,8 @@
 							//$zn = (($n>0)?': ':'');
 						}
 						
-						$html[$i] .= $zn.implode(', ',$this->gg($val1,(($n>0)?0:(-1)),$product_options));	
-						//$html[$i] .= $zn.implode(', ',$this->gg($val1,0,$product_options));	
+						$html[$i] .= $zn.implode(', ',$this->gg_Array($val1,(($n>0)?0:(-1)),$product_options));	
+						//$html[$i] .= $zn.implode(', ',$this->gg_Array($val1,0,$product_options));	
 						
 						$k++;
 						
@@ -347,11 +486,12 @@
 				}
 				
 			}
+			// сначала метод работал с Html, потом стал работать с Array, название переменной осталось
 			return $html;
 		}
 		
-
-		private function get_cirilic_names_keys(){
+		// получает массив описаний всех полей (кроме списков)
+		private function get_cirilic_names_keys_Database(){
 			$query = "SELECT `parent_name`,`name_cirilic` FROM `form_rows_for_lists` WHERE type NOT LIKE('select') AND type NOT LIKE('checkbox');";
 			global $mysqli;			
 			$arr = array();
@@ -365,53 +505,20 @@
 		}
 		
 
-
-
-		// выдаёт форму по типу продукции
-		public function get_form($arr,$type_product){
-			global $mysqli;
-			$html = '';
-			$html .= '<div id="general_form_for_create_product"><form>';
-			$html .= '<input type="hidden" name="AJAX" value="general_form_for_create_product">';
-			$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
-			// перебираем массив разрешенных для данного типа товара полей
-			foreach ($arr as $key => $value) {
-				$html .= '<div class="one_row_for_this_type '.$key.'" data-type="'.$key.'" data-moderate="'.$value['moderate'].'">';
-				
-				$moderate = ($value['moderate'])?'<span style="color:red; font-size:14px">*</span>':'';
-				// определяем имя поля
-				$html .= '<strong>'.$value['name'].' '.$moderate.'</strong><br>';
-
-				// доп описание по полю
-				$html .= ($value['note']!='')?'<div style="font-size:10px">'.$value['note'].'</div>':'';
-				
-				//для каждого поля запрашиваем форму
-				$html .= $this->generate_html_form($this->get_form_listing_arr($type_product,$key),'',$type_product);
-								
-				// добавляем кнопки				
-				$html .= '</div>';	
-				$html .= '<div class="buttons_form">';
-				$html .= ($value['btn_add_var'])?'<span class="btn_add_var">+ вариант</span>':'';
-				$html .= ($value['btn_add_val'])?'<span class="btn_add_val">+ значение</span>':'';
-				$html .= '</div>';
-			}	
-
-			$html .= '</form></div>';
-			echo $html;
-		}
-
 		// генератор id
-		private function generate_id($name){
+		private function generate_id_Strintg($name){
 			//$id = $val['parent_name'].'_'.($id_i++);
 			$this->id_closed[$name][] = true;
 
 			$id = $name.'_'.count($this->id_closed[$name]);
 			return $id;
-
 		}
 
 		// генерит html
-		private function generate_html_form($arr,$parent='',$type_product){	
+		private function generate_form_Html($arr,$parent='',$type_product){	
+			// echo '<pre>';
+			// print_r($arr);
+			// echo '</pre>';
 			$html = '';
 			$select = 0;
 
@@ -435,10 +542,11 @@
 					$p_name = $parent.'['.$val['parent_name'].']'.'[]';
 				}
 				
-				$id = $this->generate_id($val['parent_name']);
+				$id = $this->generate_id_Strintg($val['parent_name']);
 
 
 				$html .= ($val['note']!='')?'<span style="font-size:10px">'.$val['note'].'</span><br>':'';
+				// $html .= $val['type'];
 				switch ($val['type']) {
 					case 'textarea':// если тип поля textarea
 						if($select > 0){$html .= '</select><br>';$select =0;}
@@ -512,8 +620,8 @@
 				}
 					
 				if($val['child']!=''){
-					$arr_child = $this->get_child_listing_arr($val['child']);
-					$html .= '<div class="pad">'.$this->generate_html_form($arr_child,$p_name,$type_product).'</div>';
+					$arr_child = $this->get_child_listing_Database_Array($val['child']);
+					$html .= '<div class="pad">'.$this->generate_form_Html($arr_child,$p_name,$type_product).'</div>';
 				}
 
 									
@@ -523,8 +631,8 @@
 		}
 
 
-		// запрашивает из базы список вариантов для полей формы
-		private function get_form_listing_arr($type_product,$input_name){
+		// запрашивает из базы список вариантов для полей формы по отдельности
+		private function get_form_Html_listing_Database_Array($type_product,$input_name){
 			global $mysqli;			
 			$query = "SELECT * FROM `form_rows_for_lists` WHERE `type_product` = '".$type_product."' AND `parent_name` = '".$input_name."'";
 			$arr = array();
@@ -538,7 +646,7 @@
 		}
 
 		// запрашивает из базы список CHILD для полей формы
-		private function get_child_listing_arr($child){
+		private function get_child_listing_Database_Array($child){
 			global $mysqli;			
 			$query = "SELECT * FROM `form_rows_for_lists` WHERE `id` IN (".$child.")";
 			$arr = array();
