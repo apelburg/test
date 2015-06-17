@@ -5,8 +5,16 @@
 
 #info_string_on_query ul{ padding: 0; list-style: none; margin: 0}
 #info_string_on_query ul li{ display: inline-block;padding: 5px 10px;}
-#back_to_string_of_claim{ width: 32px; height: 100%; 
-  cursor: pointer; background: url('../../skins/images/img_design/back_art.png') no-repeat;}
+#back_to_string_of_claim a{width: 32px;
+  height: 24px;
+  cursor: pointer;
+  background: url('../../skins/images/img_design/back_art.png') no-repeat;
+  /* float: left; */
+  position: absolute;
+  z-index: 3;
+  /* top: 61px; */
+  margin-top: -5px;
+  background-position-x: 3px;}
 
 #info_string_on_query ul li:nth-of-type(1){width: 32px;padding: 5px 0;  height: 6px;}
 #info_string_on_query span{color:#a3a3a3;}
@@ -65,20 +73,20 @@
   /* min-height: 100%; */
   position: absolute;
   opacity: 0.01;}
-#variants_name{ background-color:#cbdfa7; color: #5a5c61 }
-#variants_name table{border-collapse: collapse; width: 100%; margin: 10px 0 0 0;}
-#variants_name table tr td{ padding: 0; margin:0; height: 20px}
-#variants_name table tr td:nth-of-type(1){ /*padding-left: 30px*/ width: 25px}
-#variants_name ul { padding: 0; margin: 0; /*padding-left: 5px*/}
-#variants_name ul li{ display: inline-block;padding: 5px 26px;background-color: #BAD28E;}
-#variants_name ul li#new_variant{  cursor: default;padding: 5px 10px; background: url('../../skins/images/img_design/plus_variant.png') no-repeat;}
+#variants_name,#variants_name2{ background-color:#cbdfa7; color: #5a5c61 }
+#variants_name table,#variants_name2 table{border-collapse: collapse; width: 100%; margin: 10px 0 0 0;}
+#variants_name table tr td,#variants_name2 table tr td{ padding: 0; margin:0; height: 20px}
+#variants_name table tr td:nth-of-type(1),#variants_name2 table tr td:nth-of-type(1){ /*padding-left: 30px*/ width: 25px}
+#variants_name ul,#variants_name2 ul { padding: 0; margin: 0; /*padding-left: 5px*/}
+#variants_name ul li,#variants_name2 ul li{ display: inline-block;padding: 5px 26px;background-color: #BAD28E;}
+#variants_name ul li#new_variant,#variants_name2 ul li#new_variant2{  cursor: default;padding: 5px 10px; background: url('../../skins/images/img_design/plus_variant.png') no-repeat;}
 /*#new_variant{ margin-left: -26px}*/
 /*#variants_name #all_variants_menu li:nth-of-type(2){ margin-left: -3px}*/
-#variants_name ul li:hover,#variants_name ul li#new_variant:hover{  background-color:#ACC283; color: #000; cursor: default;}
-#variants_name .checked,#variants_name .checked:hover{   background-color: #5A5C61;color: #fff}
-#variants_name ul li.osnovnoy{background-image: url('../images/img_design/draft_grey.png'); background-repeat: no-repeat;background-position: 88px 3px;}
-#variants_name ul li.checked.osnovnoy{background-image: url('../images/img_design/draft_white.png'); background-repeat: no-repeat;}
-#variants_name ul li.show_archive{opacity: 0.5}
+#variants_name ul li:hover,#variants_name ul li#new_variant:hover, #variants_name2 ul li:hover,#variants_name2 ul li#new_variant2:hover{  background-color:#ACC283; color: #000; cursor: default;}
+#variants_name .checked,#variants_name .checked:hover,#variants_name2 .checked,#variants_name2 .checked:hover{   background-color: #5A5C61;color: #fff}
+#variants_name ul li.osnovnoy,#variants_name2 ul li.osnovnoy{background-image: url('../images/img_design/draft_grey.png'); background-repeat: no-repeat;background-position: 88px 3px;}
+#variants_name ul li.checked.osnovnoy,#variants_name2 ul li.checked.osnovnoy{background-image: url('../images/img_design/draft_white.png'); background-repeat: no-repeat;}
+#variants_name ul li.show_archive,#variants_name2 ul li.show_archive{opacity: 0.5}
 .variants_dop_info{ padding: 15px 5px 10px 5px}
 .variants_dop_info table{ width: 100%}
 .variants_dop_info .tirage_var{width: 60px; padding: 0px 5px; text-align: right;}

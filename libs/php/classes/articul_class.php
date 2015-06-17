@@ -370,6 +370,8 @@ class Articul{
 		}
 		return array('main_img_src' => $main_img_src,'previews_block' => $previews_block);
 	}
+
+	
 	//функция вывода вариантов цветов, при нали, при кол-ве цветов более 6 - выводим стрелки прокрутки
 	public function color_variants_to_html2($color_variants){
 		//print_r($color_variants);//		

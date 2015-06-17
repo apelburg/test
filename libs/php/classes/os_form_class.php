@@ -42,7 +42,7 @@ PS было бы неплохо взять взять это за правило
 			//ext_cl - сувениры клиента
 
      	# true/false разрешаем или запрещаем работу класса с ними
-		private $arr_type_product = array(
+		public $arr_type_product = array(
 			'cat' => array(
 				'name' => 'Продукция с сайта',
 				'readonly' => true,
@@ -333,6 +333,8 @@ PS было бы неплохо взять взять это за правило
 			$quantity = $arr['quantity'];
 			unset($arr['quantity']);$json_for_variant = json_encode($arr);
 
+
+			// status_snab - присваиватся(по умолчанию) первый статус - on_calculation (на расчёт)
 			$query ="INSERT INTO `".RT_DOP_DATA."` SET
 				`row_id` = '".$new_position_id."',
 				`quantity` = '".$quantity."',
