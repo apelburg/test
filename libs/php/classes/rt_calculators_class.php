@@ -72,7 +72,7 @@
 		    global $mysqli;  
 			$places = array();
 			$print_types = array();
-			
+			//UPDATE `new__base__print_mode` SET `print_id`=13 WHERE `print` = 'шелкография'
 			// получаем данные о типах нанесений соответсвующих данному артикулу на прямую
 			$query="SELECT*FROM `".BASE_PRINT_MODE_TBL."` WHERE `art_id` = '".$art_id."'";
 			//echo $query;
@@ -80,9 +80,12 @@
 			if($result->num_rows>0){
 			    $places[0]['name'] = 'Стандартно';	
 			    while($row = $result->fetch_assoc()){
-					$places[0]['data'][] = $row['print'];	
-					$print_types[$row['print']] = array();
-				}
+					$places[0]['data'][$row['print_id']] = $row['print'];	
+					$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00","size"=> "Стандартно"); 
+					//$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00","print_id"=> '"'.$print_id.'"',"size"=> "Стандартно");   
+					//$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00", "print_id"=>$print_id,"size"=> "Стандартно");   
+				}/**/
+				
 			}
 			else $places[0] = false;	
 			
@@ -146,14 +149,15 @@
 				
 				
 				// выбираем таблицу с расценками 
-				$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."'";
+				$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' ORDER by id, param_val";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){
 				    while($row = $result->fetch_assoc()){
 					    $count = $row['count'];
 					    unset($row['id'],$row['print_type_id'],$row['count']);
-					    $out_put['print_types'][$print_id]['price_tbl'][$count][] = $row;   
+					    if($row['price_type']=='out') $out_put['print_types'][$print_id]['priceOut_tbl'][$count][] = $row; 
+						else if($row['price_type']=='in')  $out_put['print_types'][$print_id]['priceIn_tbl'][$count][] = $row;  
 				    }
 				}
 				
@@ -171,6 +175,7 @@
 					    $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row;   
 				    }
 				}
+				
 				
 				// НУЖНА ЕЩЕ ИНФОРМАЦИЯ О СТОИМОСТИ ПОДГОТОВИТЕЛЬНЫХ РАБОТ
 			}
@@ -229,20 +234,21 @@
 			
 			print_r($details_obj);
 			 
-
+           
             // если PHP 5.4 то достаточно этого
                /* $print_details = json_encode($details_obj->print_details,JSON_UNESCAPED_UNICODE);*/
 			// но пришлось использовать это
 			$print_details = self::json_fix_cyr(json_encode($details_obj->print_details)); 
 
 			// если нет dop_uslugi_id или он равен ноль, добавляем новый расчет доп услуг для ряда 
+			// иначе перезаписываем данные в строке где `id` = $details_obj->dop_uslugi_id
 			if(!isset($details_obj->dop_uslugi_id) || $details_obj->dop_uslugi_id ==0){
 			    $query="INSERT INTO `".RT_DOP_USLUGI."` SET
 				                       `dop_row_id` ='".$details_obj->dop_data_row_id."',
 									   `glob_type` ='print',
 									   `quantity` ='".$details_obj->quantity."',
-									   `price_in` = 0,
-									   `price_out` ='".$details_obj->price."',
+									   `price_in` = '".$details_obj->price_in."',
+									   `price_out` ='".$details_obj->price_out."',
 									   `print_details` ='".$print_details."'"; 
 				 //echo $query;
 				 $mysqli->query($query)or die($mysqli->error);
@@ -253,10 +259,10 @@
 				                       `dop_row_id` ='".$details_obj->dop_data_row_id."',
 									   `glob_type` ='print',
 									   `quantity` ='".$details_obj->quantity."',
-									   `price_in` = 0,
-									   `price_out` ='".$details_obj->price."',
+									   `price_in` = '".$details_obj->price_in."',
+									   `price_out` ='".$details_obj->price_out."',
 									   `print_details` ='".$print_details."'
-									   WHERE `print_details` ='".$details_obj->dop_uslugi_id."'"; 
+									    WHERE `id` ='".$details_obj->dop_uslugi_id."'"; 
 				 //echo $query;
 				 $mysqli->query($query)or die($mysqli->error);
 			
