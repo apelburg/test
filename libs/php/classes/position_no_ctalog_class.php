@@ -20,9 +20,10 @@ class Position_no_catalog{
 	public function dop_info_no_cat_Html($arr,$FORM,$type_product){
 
 		$html = '';
+
 		// если у нас есть описание заявленного типа товара
 		if(isset($FORM->form_type[$type_product])){
-			$names = $FORM->form_type[$type_product];
+			$names = $FORM->form_type[$type_product]; // массив описания хранится в классе форм
 			$html .= '<div class="table">';
 			foreach ($arr as $key => $value) {
 				$html .= '

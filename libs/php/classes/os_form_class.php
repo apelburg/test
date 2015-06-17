@@ -14,8 +14,14 @@ PS было бы неплохо взять взять это за правило
 
 */
     class Forms{
-
+    	private $GET;
+		private $POST;
+		private $SESSION;
+		// id пользователя
     	private $user_id;
+
+    	// тип продукта с которым работает форма
+    	private $type_product;
 		
 		// сюда будем сохранять id html элементов формы, чтобы иметь понятие какие id мы использовать уже не можем
      	// id в основной своей массе используются для label
@@ -39,34 +45,42 @@ PS было бы неплохо взять взять это за правило
 		private $arr_type_product = array(
 			'cat' => array(
 				'name' => 'Продукция с сайта',
+				'readonly' => true,
 				'access' => false
 				),
 			'pol' => array(
 				'name' => 'Полиграфия / листовая',
+				'readonly' => false,
 				'access' => true
 				),
 			'pol_many' => array(
 				'name' => 'Полиграфия / многолистовая',
+				'readonly' => true,
 				'access' => true
 				),
 			'calendar' => array(
 				'name' => 'Полиграфия / календари',
+				'readonly' => true,
 				'access' => true
 				),
 			'packing' => array(
 				'name' => 'Упаковка картонная',
+				'readonly' => true,
 				'access' => true
 				),
 			'packing_other' => array(
 				'name' => 'Упаковка разная',
+				'readonly' => true,
 				'access' => true
 				),
 			'ext' => array(
 				'name' => 'Сувениры под заказ',
+				'readonly' => true,
 				'access' => true
 				),
 			'ext_cl' => array(
 				'name' => 'Сувениры клиента',
+				'readonly' => true,
 				'access' => true
 				),
 			);
@@ -84,104 +98,123 @@ PS было бы неплохо взять взять это за правило
      				'moderate'=>true,
      				'note'=>'укажите название изделия',
      				'btn_add_var'=>false,
-     				'btn_add_val'=>true
+     				'btn_add_val'=>true,
+     				'cancel_selection' =>false // кнопка отмены всех выбранных
      				),
      			'product_dop_text'=>array(
      				'name'=>'Доп. наименование',
      				'moderate'=>false,
      				'note'=>'текст который будет виден в РТ сразу же за Намименованием. К примеру: Открытка № 1, где "№ 1" - это доп. наименование',
      				'btn_add_var'=>false,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
      				),
      			'quantity'=>array(
      				'name'=>'Тираж',
      				'moderate'=>true,
      				'note'=>'укажите тираж изделий',
      				'btn_add_var'=>false,
-     				'btn_add_val'=>true
+     				'btn_add_val'=>true,
+     				'cancel_selection' =>false
      				),
      			'format'=>array(
      				'name'=>'Формат',
      				'moderate'=>true,
      				'note'=>'укажите формат (мм)',
      				'btn_add_var'=>false,
-     				'btn_add_val'=>true
+     				'btn_add_val'=>true,
+     				'cancel_selection' =>false
      				),
      			'material' =>array(
      				'name'=>'Материал',
      				'moderate'=>true,
      				'note'=>'укажите материал (картон не мелованный, дизайнерский, бумага мелованная и т.д.), название материала (Splendorgel-Сплендоргель)',
      				'btn_add_var'=>false,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
      				),
      			'plotnost' =>array(
      				'name'=>'Плотность материала',
      				'note'=>'плотность (130гр, 170гр,300гр и т.д.)',
      				'moderate'=>true,
      				'btn_add_var'=>false,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
      				),
      			'type_print' =>array(
      				'name'=>'Вид печати',
      				'moderate'=>false,
      				'note'=>'укажите вид печати и кол-во цветов (4+0 и т.д.) + "другое" , выбрать Pantone если есть дополнительная печать пятым цветом',
      				'btn_add_var'=>true,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
      				),
      			'change_list' => array(
      				'name'=>'Изменение листа',
      				'note'=>'укажите при необходимости дальнейшего изменения формы листа, при вырубке указать наличие штампа',
      				'moderate'=>false,
      				'btn_add_var'=>true,
-     				'btn_add_val'=>true
+     				'btn_add_val'=>true,
+     				'cancel_selection' => true
      				),
      			'laminat' => array(
      				'name'=>'Ламинат',
      				'note'=>'укажите при необходимости вид обработки поверхности листа',
      				'moderate'=>false,
      				'btn_add_var'=>true,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>true
      				),
      			'lak' => array(
      				'name'=>'Лак',
      				'note'=>'укажите при необходимости вид обработки поверхности листа',
      				'moderate'=>false,
      				'btn_add_var'=>true,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>true
      				),
      			'date_print' => array(
      				'name'=>'Дата сдачи',
      				'note'=>'если необходима конкретная дата поставки',
      				'moderate'=>false,
      				'btn_add_var'=>true,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
      				),
      			'how_mach' => array(
      				'name'=>'Бюджет',
      				'note'=>'',
      				'moderate'=>false,
      				'btn_add_var'=>false,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
      				),
      			'dop_info' => array(
      				'name'=>'Пояснения',
      				'note'=>'укажите дополнительную информацию, если таковая имеется',
      				'moderate'=>false,
      				'btn_add_var'=>false,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
      				),     			
      			'images' => array(
      				'name'=>'Путь',
      				'note'=>'если есть картинка или фото',
      				'moderate'=>false,
      				'btn_add_var'=>false,
-     				'btn_add_val'=>false
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
      				)
     			)
      		);
 
 
-		function __construct(){
+		function __construct($get,$post,$session){
+			$this->GET = $get;
+			$this->POST = $post;
+			$this->SESSION = $session;	
+
+			$this->usser_id = $session['access']['user_id'];
 		}
 
 		// возвращает форму выбора заведения новой позиции в запрос
@@ -205,7 +238,10 @@ PS было бы неплохо взять взять это за правило
 			$i=0;
 			foreach ($array_product_type as $key => $value) {
 				if($value['access']){
-					$html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'"><label for="type_product_'.$i.'">'.$value['name'].'</label><br>';
+
+					$readonly = ($value['readonly'])?'disabled':'';
+					$readonly_style = ($value['readonly'])?'style="color:grey"':'';
+					$html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'" '.$readonly.'><label '.$readonly_style.' for="type_product_'.$i.'">'.$value['name'].'</label><br>';
 					$i++;
 				}				
 			}
@@ -217,12 +253,13 @@ PS было бы неплохо взять взять это за правило
 
 		// возвращает html формы для заведения запроса на расчёт в отделе снабжения
 		public function get_product_form_Html($type_product){
-			global $_SESSION;
-			$this->usser_id = $_SESSION['access']['user_id'];
+			
 			// если поля для запрошенного типа продукции описаны в классе
 			if(isset($this->form_type[$type_product]) && count($this->form_type[$type_product])!=0){
 				// получаем форму
-				$form = self::get_form_Html($this->form_type[$type_product] , $type_product);
+				$this->type_product = $type_product;
+
+				$form = self::get_form_Html($this->form_type[$this->type_product] , $type_product);
 				return $form;
 			}else{
 				// впротивном случае выводи ошибку
@@ -233,32 +270,99 @@ PS было бы неплохо взять взять это за правило
 		}
 
 		// заносит новые варианты в базу, на вход принимает массив POST
-		public function insert_new_options_in_the_Database($post,$query_num=0, $id=0){			
-			// проверяем на наличии вариантов, если все впорядке идём дальше
-			if(!isset($post['json_variants']) || count($post['json_variants'])==0){return 'Не было создано ни одного варианта.';}
+		public function insert_new_options_in_the_Database(){
+			// $id_i = (isset($this->POST['id']))?$this->POST['id']:(isset($this->GET['id'])?$this->GET['id']:0);
+			$id_i = (isset($this->GET['id'])?$this->GET['id']:0);
 
+			// $query_num_i = (isset($this->POST['query_num']))?$_POST['query_num']:(isset($_GET['query_num'])?$_GET['query_num']:0);
+			$query_num_i =isset($this->GET['query_num'])?$this->GET['query_num']:0;
 
-			// если нам известен $query_num, то работа ведётся из РТ
+			//type_product
+			$type_product = isset($this->POST['type_product'])?$this->POST['type_product']:0;
 
+			// проверяем наличие вариантов, если все впорядке идём дальше
 
-
-			// если нам известен $id, то работа ведётся из позиции
-
-
-
+			if(!isset($this->POST['json_variants']) || count($this->POST['json_variants'])==0){return 'Не было создано ни одного варианта.';}
 			
-			global $mysqli;
 
+			// echo '<pre>';
+			// print_r($this->POST['json_general']);
+			// echo '</pre>';
+			
 
+			if($query_num_i!=0){
+				// если нам известен $query_num, то работа ведётся из РТ
+				
+				#/ получаем наименование и доп название позиции из Json
+				$arr = json_decode($this->POST['json_general'],true);
 
+				
+				#/ заводим новую строку позиции и получаем её id
+				$new_position_id = $this->insert_new_main_row_Database($query_num_i,$arr,$type_product);
+				
+				#/ для каждой строки варианта заводим новую строку варианта с ценой равной нулю
+				
+				#/ Json
+				foreach ($this->POST['json_variants'] as $key => $json_for_variant) {
+					// $str = json_decode(,true);
+					$this->insert_new_dop_data_row_Database($new_position_id,$json_for_variant);
+				}
 
+				// echo ;
+				echo 'OK';
 
+				return;
 
-			echo '<pre>';
-			print_r($post);
-			echo '</pre>';
+			}else if($id_i){
 
-			return 1;
+			// В ВЕРСИИ 1.0 ДЕИСТВИЯ С РЕДАКТИРОВАНИЕМ ВАРИАНТОВ ВНУТРИ ПОЗИЦИИ НЕ ПРЕДУСМОТРЕНЫ
+			return;
+
+				// если нам известен $id, то работа ведётся из позиции
+				#/ 1 выбираем json позиции и считываем его в массив1
+				#/ 2 считываем в массив2 новый json
+				#/ 3 свиреряем
+				#/ ? для каждой строки варианта заводим новую строку варианта с ценой равной нулю
+			}			
+			return 'неожиданный конец программы #0001';			
+		}
+
+		private function insert_new_dop_data_row_Database($new_position_id,$json_for_variant){
+			global $mysqli;	
+			$arr = json_decode($json_for_variant,true);
+			$quantity = $arr['quantity'];
+			unset($arr['quantity']);$json_for_variant = json_encode($arr);
+
+			$query ="INSERT INTO `".RT_DOP_DATA."` SET
+				`row_id` = '".$new_position_id."',
+				`quantity` = '".$quantity."',
+				`price_in` = '0',
+				`price_out` = '0',
+				`create_date` = CURRENT_DATE(),
+				no_cat_json = '".$json_for_variant."'";		 
+		    
+		    $result = $mysqli->query($query) or die($mysqli->error);
+			
+			return $mysqli->insert_id;
+		}
+
+		private function insert_new_main_row_Database($query_num_i, $arr, $type_product){	
+			
+			// echo '<pre>';
+			// print_r($arr);
+			// echo '</pre>';
+			global $mysqli;	
+
+			$query ="INSERT INTO `".RT_MAIN_ROWS."` SET
+				`query_num` = '".$query_num_i."',
+				`name` = '".$arr['name_product'][0]." ".$arr['product_dop_text'][0]."',
+				`date_create` = CURRENT_DATE(),
+				`type` = '".$type_product."',
+			    `dop_info_no_cat` = '".addslashes($this->POST['json_general'])."'";				 
+		    
+		    $result = $mysqli->query($query) or die($mysqli->error);
+			
+			return $mysqli->insert_id;	
 		}
 
 		// обработка данных из формы
@@ -299,7 +403,7 @@ PS было бы неплохо взять взять это за правило
 
 
 
-			$return = $this->greate_table_variants_Html($array_for_table,$product_options);
+			$return = $this->greate_table_variants_Html($array_for_table,$product_options,$type_product);
 			
 
 			return $return;
@@ -335,6 +439,7 @@ PS было бы неплохо взять взять это за правило
 				$html .= '<div class="buttons_form">';
 				$html .= ($value['btn_add_var'])?'<span class="btn_add_var">+ вариант</span>':'';
 				$html .= ($value['btn_add_val'])?'<span class="btn_add_val">+ значение</span>':'';
+				$html .= ($value['cancel_selection'])?'<span class="cancel_selection">отменить</span>':'';
 				$html .= '</div>';
 			}	
 
@@ -343,7 +448,7 @@ PS было бы неплохо взять взять это за правило
 		}
 
 		// возвращает таблицу всех возможных вариантов из множества, которое натыкал юзер
-		private function greate_table_variants_Html($arr,$product_options){
+		private function greate_table_variants_Html($arr,$product_options,$type_product){
 			// echo '<pre>';
 			// print_r($arr);
 			// echo '</pre>';
@@ -362,6 +467,7 @@ PS было бы неплохо взять взять это за правило
 			$html .= '<form>';
 			$html .= '<input type="hidden" name="AJAX" value="save_no_cat_variant">';
 			$html .= "<input type='hidden' name='json_general' value='".json_encode($arr)."'>";
+			$html .= "<input type='hidden' name='type_product' value='".$type_product."'>";
 			// $html .= '<div id="json_general" style="display:none">'.json_encode($arr).'</div>';
 			$html .= '<table class="answer_table">';
 			$html .= '<tr>';

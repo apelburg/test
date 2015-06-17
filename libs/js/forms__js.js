@@ -57,7 +57,14 @@ $(document).on('click', '.btn_add_var', function(event) {
 	});
 	$(this).parent().before(obj);
 });
+$(document).on('click', '.cancel_selection', function(event) {
+	var obj = $(this).parent().prev();
+	obj.find('.pad').css({'display':'none'});
+	obj.find('input').each(function(index, el) {
+		$(this).prop('checked', false);
+	});
 
+});
 $(document).on('click', '.btn_add_val', function(event) {
 	var obj = $(this).parent().prev();
 	var obj_input = obj.find('input').first();
@@ -80,8 +87,8 @@ $(document).on('keyup', '.change_form_inputs', function(event) {
 
 
 //отправка запроса на получение формы
-$(document).keydown(function(e) {	
-	if(e.keyCode == 192){//ESC	
+$(document).on('click','#create_new_position',function(e) {	
+	// if(e.keyCode == 192){//ESC	
 		$.post('', {
 			AJAX:'to_chose_the_type_product_form'
 		}, function(data, textStatus, xhr) {
@@ -89,7 +96,7 @@ $(document).keydown(function(e) {
 			
 			//alert(data);
 		});
-	}
+	// }
 });
 
 // создание диалогового окна с выбором типа продукции
@@ -107,8 +114,7 @@ function show_dialog_chosen_type_product(html){
 				// $('#dialog_gen_window_form').append(data);
 				// $('#general_form_for_create_product').remove();
 				show_dialog(data);
-			});
-				    	
+			});				    	
 	    }
 	});
 
@@ -207,9 +213,13 @@ function show_dialog_var(html){
 	    	
 	    	$('#general_form_for_create_product .pad:hidden').remove();
 		    $.post('', serialize, function(data, textStatus, xhr) {
-				// alert(data);
-				// $('#dialog_gen_window_form').html(data)
-				$('#dialog_gen_window_form').append(data);
+				
+				//$('#dialog_gen_window_form').append(data);
+				if(data=="OK"){
+					location.reload();
+				}else{
+					alert(data);
+				}
 			});
 				    	
 	    }

@@ -446,11 +446,11 @@ span.snab_comment {
   margin-top: 5px;}
 
 .buttons_form{ padding-top: 10px;padding-bottom: 15px;}
-.btn_add_var,.btn_add_val{padding:0 5px 2px 5px;
+.btn_add_var,.btn_add_val,.cancel_selection{padding:0 5px 2px 5px;
   border: 1px solid #f4f4f4;
   margin-right: 15px; cursor: pointer;
   margin-top: 15px;}
-.btn_add_var:hover,.btn_add_val:hover{
+.btn_add_var:hover,.btn_add_val:hover,.cancel_selection:hover{
    background-color: #f4f4f4;
 }
 .pad{  padding-left: 30px;

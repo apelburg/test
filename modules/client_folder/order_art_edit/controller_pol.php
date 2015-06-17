@@ -1,6 +1,9 @@
 <?php	
 	// инициализация класса формы
-	$FORM = new Forms;
+	$post = isset($_POST)?$_POST:array();
+	$get = isset($_GET)?$_GET:array();
+	$FORM = new Forms($get,$post,$_SESSION);
+	
 	// инициализация класса работы с некаталожными позициями
 	$POSITION_NO_CAT = new Position_no_catalog();
 
@@ -21,6 +24,7 @@
 			if(isset($type_product)){
 				$t_p = $type_product;
 			}
+
 			// запрос формы html
 			$FORM->get_product_form_Html($t_p);
 			exit;
@@ -37,10 +41,9 @@
 		}
 		if($_POST['AJAX'] == 'save_no_cat_variant'){
 			unset($_POST['AJAX']); // уничтожаем переменную, дабы она не попала в массив обработки
-			$id_i = (isset($_POST['id']))?$_POST['id']:(isset($_GET['id'])?$_GET['id']:0);
-			$query_num_i = (isset($_POST['query_num']))?$_POST['query_num']:(isset($_GET['query_num'])?$_GET['query_num']:0);
+			
 
-			$FORM->insert_new_options_in_the_Database($_POST,$query_num_i,$id_i);
+			$FORM->insert_new_options_in_the_Database();
 			exit;
 		}
 	}
