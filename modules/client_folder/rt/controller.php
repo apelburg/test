@@ -94,7 +94,7 @@
 	 // draft - РЕАЛИЗАЦИЯ ФУНКЦИОНАЛА "ДРАФТ" оказалась не востребованной поле draft можно удалить из таблицы в базе данных
 	 // если что реализация сохранена, закомментирована внизу скрипта 
 	 
-	 //echo '<pre>'; print_r($rows[0]); echo '</pre>';
+	 // echo '<pre>'; print_r($rows[0]); echo '</pre>';
 	 
 	 $service_row[0] = array('quantity'=>'','price_in'=>'','price_out'=>'','row_status'=>'','glob_status'=>'');
 	 $glob_counter = 0;
@@ -137,7 +137,7 @@
 					foreach($obj as $expel_key => $expel_val) $expel[$expel_key] = $expel_val;
 				 }
 				 //echo '<br>'; print_r($expel);
-				 
+				
 				 // работаем с информацией о дополнительных услугах определяя что будет выводиться и где
 				 // 1. определяем данные описывающие варианты нанесения логотипа, они хранятся в $dop_row['dop_uslugi']['print']
 				 if(isset($dop_row['dop_uslugi']['print'])){ // если $dop_row['dop_uslugi']['print'] есть выводим данные о нанесениях 
@@ -147,15 +147,15 @@
 						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 					 }
 					 $print_btn = '<span>'.count($dop_row['dop_uslugi']['print']).'</span>'; 
+					 $print_exists_flag = 'yes';
 					 $print_in_summ = array_sum($summ_in);
 					 $print_out_summ = array_sum($summ_out);
-					 if($test_data) $print_open_data = print_r($dop_row['dop_uslugi']['print'],TRUE);
 				 }
 				 else{// если данных по печати нет то проверяем выводим кнопку добавление нанесения
 					 $print_btn = '<span>+</span>';
+					 $print_exists_flag = 'no';
 					 $print_in_summ = 0;
 					 $print_out_summ = 0;
-					 if($test_data) $print_open_data =($counter==0)? 0:'0';
 				 }
 				 // 2. определяем данные описывающие варианты дополнительных услуг, они хранятся в $dop_row['dop_uslugi']['extra']
 				 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
@@ -233,7 +233,7 @@
 			     $svetofor = $svetofor_td_attrs = $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
-				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $nacenka = $srock_sdachi = '';
+				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $nacenka = $srock_sdachi = $print_exists_flag ='';
 			 }
 			 $art_id = get_base_art_id($row['art']);
 			 
@@ -290,9 +290,9 @@
 						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >'.$currency.'</td>
 						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
 						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left r_border hidden">'.$currency.'</td>
-						   <td width="25" class="calc_btn" calc_btn="print">'.$print_btn.'</td>';
-                 if($test_data)	 $cur_row .=  '<td class="test_data">'.$print_open_data.'</td>';
-			 $cur_row .=  '<td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden '.$expel_class_print.'">'.$print_in_summ_format.$currency.'</td> 
+						   <td width="25" class="calc_btn" calc_btn="print">'.$print_btn.'</td>
+                           <td type="print_exists_flag" class="hidden">'.$print_exists_flag.'</td>
+			               <td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden '.$expel_class_print.'">'.$print_in_summ_format.$currency.'</td> 
 			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.$expel_class_print.'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
 			               <td width="25" class="calc_btn" calc_btn="extra">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
@@ -347,9 +347,9 @@
 				  <td width="15" connected_vals="art_price" c_stat="1" class="grey w_border r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="0" class="grey w_border right pointer hidden">$ товара<br><span class="small">исходящая тираж</span></td>
 				  <td width="15" connected_vals="art_price" c_stat="0" class="grey w_border r_border hidden"></td>
-				  <td width="25"></td>';
-	if($test_data)	 $rt.= '<td class="test_data_cap">нанес подробн</td>';
-	       $rt.= '<td width="80" connected_vals="print" c_stat="0" class="pointer hidden">$ печать<br><span class="small">входящая тираж</span></td> 	  
+				  <td width="25"></td>
+	              <td class="hidden">нанес подробн</td>
+	              <td width="80" connected_vals="print" c_stat="0" class="pointer hidden">$ печать<br><span class="small">входящая тираж</span></td> 	  
 			      <td width="80" connected_vals="print" c_stat="1" class="pointer">$ печать<br><span class="small">исходящая тираж</span></td>
 			      <td width="25"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
@@ -386,9 +386,9 @@
 				  <td width="15" connected_vals="art_price" c_stat="1" class="r_border"></td>
 				  <td type="price_out_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_out_summ'],'2','.','').'</td>
 				  <td width="15" connected_vals="art_price" c_stat="0" class="r_border hidden">р</td>
-				  <td></td>';
-	if($test_data)	$rt.= '<td class="test_data_cap"></td>';
-	       $rt.= '<td type="print_in_summ" connected_vals="print" c_stat="0" class="hidden">'.number_format(@$total['print_in_summ'],'2','.','').'р</td> 		  
+				  <td></td>
+	              <td class="hidden">нанес подробн</td>
+	              <td type="print_in_summ" connected_vals="print" c_stat="0" class="hidden">'.number_format(@$total['print_in_summ'],'2','.','').'р</td> 		  
 			      <td type="print_out_summ" connected_vals="print" c_stat="1">'.number_format(@$total['print_out_summ'],'2','.','').'р</td>
 			      <td></td>';
     if($test_data)	$rt.= '<td class="test_data_cap"></td>';

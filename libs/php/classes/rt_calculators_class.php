@@ -80,7 +80,7 @@
 			if($result->num_rows>0){
 			    $places[0]['name'] = 'Стандартно';	
 			    while($row = $result->fetch_assoc()){
-					$places[0]['data'][$row['print_id']] = $row['print'];	
+					$places[0]['print'][$row['print_id']] = $row['print'];	
 					$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00","size"=> "Стандартно"); 
 					//$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00","print_id"=> '"'.$print_id.'"',"size"=> "Стандартно");   
 					//$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00", "print_id"=>$print_id,"size"=> "Стандартно");   
@@ -119,7 +119,7 @@
 						}
 						// добавляем результат в итоговый массив ключем устанавливаем id места нанесения
 						$out_put['places'][$row['place_id']]['name'] = $row['name'];
-						$out_put['places'][$row['place_id']]['data'] = $print_types;		
+						$out_put['places'][$row['place_id']]['print'] = $print_types;		
 					}			
 				}
 			}
@@ -286,6 +286,99 @@
 				 $mysqli->query($query)or die($mysqli->error);
 			}
 		}
+		function change_quantity_and_calculators($quantity,$dop_data_id){
+		    global $mysqli;  
+			$itog_sums = array("summ_in"=>0,"summ_out"=>0);
+			// если надо удалить все расчеты нанесения
+		    $query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
+			                    `".RT_DOP_DATA."` dop_data
+								  ON dop_data.`id` =  uslugi.`dop_row_id`
+			                      WHERE dop_data.`id` = '".$dop_data_id."'";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows>0){
+				while($row = $result->fetch_assoc()){
+					$print_details_obj = json_decode($row['print_details']);
+					//print_r($print_details_obj->dop_params);
+					//echo "\r\n";
+					$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj->print_id,$print_details_obj->priceIn_tblYindex,$print_details_obj->priceOut_tblXindex);
+					//print_r($new_price_arr);
+					//echo "\r\n";
+					$new_data = self::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
+					
+					// перезаписываем новые значения прайсов и X индекса обратно в базу данных
+					$query2="UPDATE `".RT_DOP_USLUGI."` 
+					              SET 
+								  quantity = '".$quantity."',
+								  price_in = '".$new_data["new_price_arr"]["price_in"]."',
+								  price_out = '".$new_data["new_price_arr"]["price_out"]."'
+			                      WHERE id = '".$row['uslugi_row_id']."'";
+					$mysqli->query($query2)or die($mysqli->error);
+					
+					$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
+					$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
+					//print_r($new_summs);
+					//echo "\r\n";
+				}
+				
+				// если дошли до этого места значит все нормально
+				// отправляем новые данные обратно клиенту
+				// print_r($itog_sums);
+				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).'}';
+			}
+		}
+		function change_quantity_and_calculators_price_query($quantity,$print_id,$priceIn_tblYindex,$priceOut_tblXindex){
+		    global $mysqli;  
+			
+			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' ORDER by id, param_val";
+				//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);/**/
+				if($result->num_rows>0){
+				   $priceIn_tblXindex = 0;
+				    while($row = $result->fetch_assoc()){
+					    
+						if($row['param_val']==0){
+						    // здесь мы определяем в какой диапазон входит новое количество
+							// !!!! и если оно за пределами указанных в прайсе тиражей надо вернуть отсюда предупреждение
+							
+							for($i=1;isset($row[$i]);$i++){
+								if($row[$i] > $quantity) break;
+								if($row['price_type']=='in') $newIn_Xindex = $i;
+								if($row['price_type']=='out') $newOut_Xindex = $i;
+							}
+						}
+						// определяем новые входящие и исходящие цены
+						if($row['price_type']=='in' && $row['param_val']==$priceIn_tblYindex) $new_priceIn = $row[$newIn_Xindex];
+						if($row['price_type']=='out' && $row['param_val']==$priceIn_tblYindex) $new_priceOut = $row[$newOut_Xindex];   
+				    }
+					// echo "\r\n In".$newIn_Xindex.' '.$new_priceIn; echo "\r\n Out".$newOut_Xindex.' '.$new_priceOut;
+					return array("price_in"=> $new_priceIn,"price_out"=> $new_priceOut);
+				}
+		}
+		function make_calculations($quantity,$new_price_arr,$print_dop_params){
+			
+			$all_coeffs = 1;
+			$new_summs = array();
+			 
+			foreach($print_dop_params as $set){
+				foreach($set as $data){
+				    //echo "coeff ".$data->coeff."\r\n";
+					$all_coeffs *= (float)$data->coeff;
+				}
+			} 
+			//echo "all_coeffs ".$all_coeffs."\r\n";
+			$new_price_arr["price_in"] = (float)$new_price_arr["price_in"]*$all_coeffs;
+			$new_price_arr["price_out"] = (float)$new_price_arr["price_out"]*$all_coeffs;
+			
+			$new_summs["summ_in"] = $quantity*$new_price_arr["price_in"];
+			$new_summs["summ_out"] = $quantity*$new_price_arr["price_out"];
+			
+			//echo "all_coeffs ".$all_coeffs." ".$new_summs["summ_in"]." \r";
+			//echo "all_coeffs ".$all_coeffs." ".$new_summs["summ_out"]."\r\n";
+			
+			return array("new_summs"=>$new_summs,"new_price_arr"=>$new_price_arr);
+		}
+		
     }
 
 ?>
