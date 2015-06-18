@@ -39,6 +39,7 @@
 	//***************   ШАБЛОНЫ  ДОСТУПОВ  ***************\\
 	// АДМИНИСТРАТОР			  
     $ACCESS_SHABLON[1] = array(
+	                    'admin'=> array('access'=> true),
     					'option'=> array('access'=> true),
 				        'clients'=> array(
 										'access'=> true,

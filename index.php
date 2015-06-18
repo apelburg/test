@@ -56,11 +56,12 @@
 	   case 'option':
 	   include 'modules/option/router.php';
 	   break;
-	   /*
-	   case 'orders':
-	   include 'modules/orders/router.php';
+	   
+	   case 'admin':
+	   include 'modules/admin/router.php';
 	   break;
 	   
+	   /*
 	   case 'in_work':
 	   include 'modules/in_work/router.php';
 	   break;
