@@ -1,5 +1,4 @@
 <?php
-	
 	/*******************************   AJAX   ***********************************/
 	if(isset($_POST['global_change'])){
 		if(isset($_POST['change_name']) && $_POST['change_name']=='size_in_var'){
@@ -58,18 +57,22 @@
 			//echo $json;
 			//$r = $json;
 			$arr_json = json_decode($json,true);
-
+			$sum_tir = 0;
+			$sum_zap = 0;
 			foreach ($key2 as $key => $value) {
 				//echo $value;
 				$arr_json[$value]['dop'] = $dop[$key];
 				$arr_json[$value]['tir'] = $tir[$key];
+
+				$sum_zap += $dop[$key];
+				$sum_tir += $tir[$key];
 			}
 
 			// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
 			//echo $r .'   -   ';
 			//echo json_encode($arr_json);
-			$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
-			// // echo $query;
+			$query = "UPDATE `".RT_DOP_DATA."` SET `quantity` = '".$sum_tir."',`zapas` = '".$sum_zap."',`tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
+			// // echo $query;			
 			$result = $mysqli->query($query) or die($mysqli->error);
 			exit;
 		}
@@ -93,14 +96,12 @@
 		// 	exit;
 		// }
 
+		// извлекает текущую запись из архива
 		if(isset($_POST['change_name']) && $_POST['change_name']=='change_archiv'){
-			echo 'не используется... или переделать';
-			// $query  = "UPDATE `".RT_DOP_DATA."` SET `draft` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
-			// // $query  = "UPDATE `".RT_DOP_DATA."` SET `archiv` = '1' WHERE  `row_id` ='".$_POST['row_id']."' AND `id` NOT LIKE  '".$_POST['id']."';";
-			// $query .= "UPDATE `".RT_DOP_DATA."` SET `draft` = '1', `row_status` = 'green' WHERE  `id` ='".$_POST['id']."';";
-			// $result = $mysqli->multi_query($query) or die($mysqli->error);
-			// // $result = $mysqli->query($query) or die($mysqli->error);
-			// echo '{"response":"1","text":"test"}';
+			$query = "UPDATE `".RT_DOP_DATA."` SET `row_status` = 'green' WHERE  `id` ='".$_POST['id']."';";
+			$result = $mysqli->multi_query($query) or die($mysqli->error);
+			// $result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"1","text":"test"}';
 			exit;
 		}
 
@@ -168,7 +169,6 @@
 	}
 	/*******************************  END AJAX  *********************************/
 
-
 	// получаем все варианты просчёта по данному артикулу
 	//$query = "SELECT `".RT_DOP_DATA."`.*,`".RT_ART_SIZE."`.`tirage_json`,`".RT_ART_SIZE."`.`id` AS `id_2` FROM `".RT_DOP_DATA."` INNER JOIN `".RT_ART_SIZE."` ON `".RT_ART_SIZE."`.`variant_id` = `".RT_DOP_DATA."`.`id` WHERE `".RT_DOP_DATA."`.`row_id` = '".$id."'";
 	$query = "SELECT `".RT_DOP_DATA."`.*, DATE_FORMAT(shipping_date,'%d.%m.%Y') AS `shipping_date` FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$id."'";
@@ -182,7 +182,7 @@
 		}
 	}
 
-	if(!isset($type_poduct)){echo "Тип товара не определён,<br>или строка с id=".$_GET['id']." в таблице `".RT_DOP_DATA."` не существует ";exit;}
+	if(!isset($type_product)){echo "Тип товара не определён,<br>или строка с id=".$_GET['id']." в таблице `".RT_DOP_DATA."` не существует ";exit;}
 
 
 	
@@ -214,7 +214,7 @@
 
 	// // echo $art_colors;
 	// echo '<pre>';
-	// print_r($variants);
+	// print_r($images_data);
 	// echo '</pre>';
 
 	// вычисление вариантов данного артикула с другими цветами

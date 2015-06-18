@@ -37,7 +37,7 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 <div id="order_art_edit">
 	<div id="info_string_on_query">
 		<ul>
-			<li id="back_to_string_of_claim"></li>
+			<li id="back_to_string_of_claim"><a href="?page=client_folder&query_num=<?php echo  $order_num; ?>"></a></li>
 			<li id="claim_number" data-order="<?php echo  $order_num_id; ?>">Запрос № <?php echo  $order_num; ?></li>
 			<li id="claim_date"><span>от <?php echo $order_num_date; ?></span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
@@ -49,7 +49,7 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 			<li title="порядковый номер позиции в заказе">Позиция № 1 (Это нужно????)</li>
 			<li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span><?php echo $FORM->arr_type_product[$type_product]['name']; ?></li>
 			<li><span>доп инфо: </span>Тендер</li>
-			<li><span>снабженец: </span>Ольга Подгурская</li>
+			<li><span>снабженец: </span><?php echo Manager::get_snab_name_for_query_String($snab_id); ?></li>
 			<li><span>статус позиции: </span>Расчитано</li>
 			<?php
 				echo $POSITION_NO_CAT->get_top_funcional_byttun_for_user_Html();
@@ -130,6 +130,8 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 				</div>
 				<!--варианты расчётов от снабжения по позиции -->
 				<div id="edit_variants_content">
+
+					
 					<?php
 
 					echo $POSITION_NO_CAT->get_all_on_calculation_Html();

@@ -16,6 +16,7 @@
 	
 	// класс работы с менеджерами
 	include './libs/php/classes/manager_class.php';
+
     // ** БЕЗОПАСНОСТЬ **
 	// проверяем выдан ли доступ на вход на эту страницу
 	// если нет $ACCESS['suppliers']['access'] или она равна FALSE прерываем работу скирпта 
@@ -60,38 +61,62 @@
 			$type_tovar = $row['type']; 
 
 			// json no_cat
-			$dop_info_no_cat = json_decode($row['dop_info_no_cat']);
+			$dop_info_no_cat = ($row['dop_info_no_cat']!='')?json_decode($row['dop_info_no_cat']):'{}';
+		}
+	}
+
+	$query = "SELECT * FROM `".RT_LIST."` WHERE `query_num` = '".$order_num."';";
+	$result = $mysqli->query($query) or die($mysqli->error);
+	// $this->info = 0;
+	$snab_id = 0;
+	if($result->num_rows > 0){
+		while($row = $result->fetch_assoc()){
+			$snab_id = $row['snab_id'];
 		}
 	}
 
 	
+
+	
+
+
+
+
 	// если тип продукции не определен
 	if(!isset($type_product)){echo 'Тип продукции не определён.';exit;}
 
 	switch ($type_product) {
 		case 'cat'://каталог
-			include 'controller_'.$type_product.'.php';
+			include 'controller_cat.php';
+			$tpl_style = 'cat';
 			break;
 		case 'pol':// полиграфия полиграфия листовая
-			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
+			include 'controller_no_cat.php';
+			$tpl_style = 'no_cat';
 			break;
 		case 'pol_many':// полиграфия многолистовая
-			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
+			include 'controller_no_cat.php';
+			$tpl_style = 'no_cat';
 			break;
 		case 'calendar':// календарь
-			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
+			include 'controller_no_cat.php';
+			$tpl_style = 'no_cat';
 			break;
 		case 'packing':// упаковка картон
-			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
+			include 'controller_no_cat.php';
+			$tpl_style = 'no_cat';
 			break;
 		case 'packing_other':// упаковка другая
-			include 'controller_'.$type_product.'.php';// временно list вставлен сюда
+			include 'controller_no_cat.php';
+			$tpl_style = 'no_cat';
 			break;
 		case 'ext'://сувениры под заказ
-			include 'controller_'.$type_product.'.php';
+			include 'controller_no_cat.php';
+			$tpl_style = 'no_cat';
 			break;
 		case 'ext_cl'://сувениры клиента
-			include 'controller_'.$type_product.'.php';
+			include 'controller_no_cat.php';
+			$tpl_style = 'no_cat';
 			break;
 		
 		default:
@@ -114,7 +139,7 @@
 	// шаблон поиска
 	include'./skins/tpl/common/quick_bar.tpl';
 	// шаблон страницы
-	include 'skins/tpl/client_folder/order_art_edit/show_'.$type_product.'.tpl';
+	include 'skins/tpl/client_folder/order_art_edit/show_'.$tpl_style.'.tpl';
 
 	
 
