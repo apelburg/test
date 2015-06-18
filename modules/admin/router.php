@@ -6,6 +6,8 @@
 	if(!@$ACCESS['admin']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 
+    ob_start();	
+	
     switch ($section) {
 		case 'price_manager':
 		include 'price_manager/controller.php';
@@ -16,6 +18,9 @@
 		break;
 	}
 	
+	$content = ob_get_contents();
+	ob_get_clean();
+
 	include ROOT.'/skins/tpl/admin/show.tpl';
    
 ?>

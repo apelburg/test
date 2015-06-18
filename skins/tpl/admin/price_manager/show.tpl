@@ -1,7 +1,13 @@
-<!-- begin skins/tpl/admin/show.tpl -->  
-<div style="padding:30px 30px;text-align:left;">АДМИНКА</div>'
-<div style="padding:30px 30px;text-align:left;">
-    <a href="?page=admin&section=price_manager">Управление прайсами</a>
-</div>
-<!-- end skins/tpl/admin/show.tpl -->
+<!-- begin skins/tpl/admin/price_manager/show.tpl --> 
+<table class="mainWinTbl" border="1">
+  <tr>
+    <td width="150" >
+       <?php echo implode('',$menu_arr); ?>
+    </td>
+    <td>
+       <?php echo $razdel_content; ?>
+    </td>
+  </tr>
+</table> 
+<!-- end skins/tpl/admin/price_manager/show.tpl -->
  
