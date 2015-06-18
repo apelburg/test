@@ -99,9 +99,13 @@
 		rtCalculators::delete_prints_for_row($_GET['delete_prints_for_row'],$usluga_id,$all);
 		exit;
 	}
-
-	
-
+    if(isset($_GET['change_quantity_and_calculators'])){
+		// echo $_GET['quantity'];
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+		
+		rtCalculators::change_quantity_and_calculators($_GET['quantity'],$_GET['id']);
+		exit;
+	}
 
 	if(isset($_POST['AJAX'])){
 		
@@ -142,7 +146,7 @@
 			exit;
 		}
 
-	
+	}
 	/////////////////////  END  AJAX  ////////////////////// 
 	
 	// client_details
