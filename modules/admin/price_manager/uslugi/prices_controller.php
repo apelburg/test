@@ -42,6 +42,7 @@
 	$tr_tr  = $tr2.$tr1;
 	$tbl_types = array();
 	// выбираем данные из таблицы содержащей прайсы
+	
 	$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$usluga_id."' ORDER by price_type, id, param_val";
 	//echo $query;
 	$result = $mysqli->query($query)or die($mysqli->error);
@@ -97,6 +98,7 @@
 	    echo 'no prices';
 		return;
 	}
+
 	//echo '<pre>'; print_r($tbl_types);echo '</pre>';
 	//echo '<pre>'; print_r($tbl_row);echo '</pre>';
 	foreach($tbl_types as $type => $data){

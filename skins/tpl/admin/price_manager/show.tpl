@@ -102,7 +102,6 @@ function deleteColFromTable(cell){
 	   }
    }
 }
-deleteColFromTable
 
 </script>
 <table class="mainWinTbl" border="1">
