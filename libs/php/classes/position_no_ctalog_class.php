@@ -231,7 +231,7 @@ class Position_no_catalog{
 
 		// проценты наценки по варианту
 		$per = ($arr['price_in']!= 0)?$arr['price_in']:0.09;
-		$percent = $this->get_percent($arr['price_in'],$arr['price_out']);
+		$percent = $this->get_percent_Int($arr['price_in'],$arr['price_out']);
 
 
 		// формируем html c расширенной информацией по варианту
@@ -268,10 +268,10 @@ class Position_no_catalog{
 										<td class="row_pribl_out_gen pribl"><span>'.round(($arr['price_out']-$arr['price_in']),2).'</span> р.</td>
 									</tr>
 									
+									
+									'.$this->uslugi_template_Html($uslugi).'
 							
-					
-							
-														<tr>
+									<tr>
 										<th colspan="7" class="type_row_calc_tbl"><div class="add_usl">Добавить ещё услуги</div></th>
 									</tr>
 									<tr>
@@ -295,7 +295,52 @@ class Position_no_catalog{
 		return $html;
 	}
 
-	private function get_percent($price_in,$price_out){
+	// вывод услуг
+	private function uslugi_template_Html($arr){
+
+		$html ='';
+		if(!count($arr)){return $html;}
+		// сохраняем id услуг
+		$id_s = array();
+		foreach ($arr as $key => $value) {
+			$id_s[] = $value['uslugi_id'];
+		}
+		$id_s = implode(', ', $id_s);
+
+		// делаем запрос по услугам  
+		global $mysqli;
+		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
+inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.")";
+		// $query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id_s.")";
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$name_uslugi = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$name_uslugi[$row['id']]['name'] = $row['name'];
+				$name_uslugi[$row['id']]['parent_name'] = $row['parent_name'];
+			}
+		}
+
+
+
+		foreach ($arr as $key => $value) {
+			$html .= '<tr>
+						<th colspan="7">'.$name_uslugi[$value['uslugi_id']]['parent_name'].'</th>
+					</tr>';
+			$html .= '<tr class="tirage_and_price_for_all for_all">
+										<td>'.$name_uslugi[$value['uslugi_id']]['name'].'</td>
+										<td class="row_tirage_in_gen price_in"><span contenteditable="true" class="edit_span">'.$value['price_in'].'</span> р.</td>
+										<td class="row_tirage_in_gen price_in"><span contenteditable="true" class="edit_span">'.$this->get_percent_Int($value['price_in'],$value['price_out']).'</span> %.</td>
+										<td class="row_price_out_gen price_out"><span contenteditable="true" class="edit_span">'.$value['price_out'].'</span> р.</td>
+										<td class="row_pribl_out_gen pribl"><span>'.($value['price_out']-$value['price_in']).'</span> р.</td>
+									</tr>';
+		}
+		return $html;
+	}
+
+	// подсчёт процентов наценки
+	private function get_percent_Int($price_in,$price_out){
 		$per = ($price_in!= 0)?$price_in:0.09;
 		$percent = round((($price_out-$price_in)*100/$per),2);
 		return $percent;
@@ -413,17 +458,20 @@ class Position_no_catalog{
 	static function get_uslugi_list_Database_Html($id=0){	
 		global $mysqli;
 		$html = '';
-		$html .= '<ul>';
+		
 		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
-		
+			$html .= '<ul>';
 			while($row = $result->fetch_assoc()){
 				if($row['id']!=6)// исключаем нанесение apelburg
-				$html.= '<li data-id="'.$row['id'].'">'.$row['name'].' '.self::get_uslugi_list_Database_Html($row['id']).'</li>';
+				// запрос на детей
+				$child = self::get_uslugi_list_Database_Html($row['id']);
+				// присваиваем конечным услугам класс may_bee_checked
+				$html.= '<li data-id="'.$row['id'].'" '.(($child=='')?'class="may_bee_checked"':'').'>'.$row['name'].' '.$child.'</li>';
 			}
-		
-		}$html.= '</ul>';
+			$html.= '</ul>';
+		}
 		return $html;
 	}
 
@@ -442,7 +490,7 @@ class Position_no_catalog{
 		if(empty($usluga)){return 'такой услуги не существует';}
 
 		
-		$query ="INSERT INTO `".T_DOP_USLUGI."` SET
+		$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
 		             `dop_row_id` = '".$dop_row_id."',
 		             `uslugi_id` = '".$id_uslugi."',
 					 `glob_type` = 'extra',

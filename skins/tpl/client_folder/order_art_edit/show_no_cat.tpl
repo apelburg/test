@@ -28,7 +28,7 @@ $(document).on('click', '#variant_of_snab table.show_table tr td', function(even
 	// скрываем все блоки с расширенной информацие о варианте
 	$('.variant_info').css({'display':'none'});
 	// получаем id строки варианта
-	var id_row = $(this).parent().attr('data-id');
+	var id_row = $(this).parent().addClass('checked').attr('data-id');
 	// выделяем выбранный вариант
 	$(this).parent().parent().find('td').css({'background':'none'});
 	$(this).parent().find('td').css({'background':'#c7c8ca'});
@@ -48,6 +48,24 @@ $(document).on('click', '.add_usl', function(event) {
 	
 });
 
+//отработка выбора услуги в диалоговом окне
+$(document).on('click', '#dialog_gen_window_form form .may_bee_checked', function(event) {
+	// выделяем выбранную услугу
+	$('#dialog_gen_window_form form .may_bee_checked').css({'background':'none'});
+	$(this).css({'background':'grey'});
+
+
+	var id = $(this).attr('data-id');
+	var dop_row_id = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked').attr('data-id');
+	// получим тираж
+	var quantity = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked td:nth-of-type(3) span').html();
+	console.log(quantity);
+	$('#dialog_gen_window_form form input[name="quantity"]').val(quantity);
+	$('#dialog_gen_window_form form input[name="id_uslugi"]').val(id);
+	$('#dialog_gen_window_form form input[name="dop_row_id"]').val(dop_row_id);
+});
+
+
 function show_dialog_and_send_POST_window(html,title){
 	var buttons = new Array();
 	buttons.push({
@@ -61,6 +79,7 @@ function show_dialog_and_send_POST_window(html,title){
 					title = data['title'];
 					show_dialog_and_send_POST_window(data['html']);
 				}else{
+					$(this).remove();
 					alert(data['response']);
 				}
 			},'json');				    	

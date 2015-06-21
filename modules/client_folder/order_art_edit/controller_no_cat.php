@@ -11,14 +11,29 @@
 	## GET
 	if(isset($_GET['AJAX']) && $_GET['AJAX']=="get_uslugi_list_Database_Html"){
 		echo Position_no_catalog::get_uslugi_list_Database_Html();
+
 		exit;
 	}
 
 	## POST
 	if(isset($_POST['AJAX'])){	
+		// добаление данных, прикрепление новой услуги к расчёту
+		if($_POST['AJAX']=='add_new_usluga'){
+			Position_no_catalog::add_uslug_Database($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
 
+			exit;
+		}
+
+		// получение формы выбора услуги
 		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
-			echo Position_no_catalog::get_uslugi_list_Database_Html();
+			$html = '<form>';
+			$html .= Position_no_catalog::get_uslugi_list_Database_Html();
+			$html .= '<input type="hidden" name="id_uslugi" value="">';
+			$html .= '<input type="hidden" name="dop_row_id" value="">';
+			$html .= '<input type="hidden" name="quantity" value="">';
+			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
+			$html .= '</form>';
+			echo $html;
 			exit;
 		}	
 
@@ -40,6 +55,8 @@
 			$FORM->get_product_form_Html($t_p);
 			exit;
 		}
+
+
 
 		if($_POST['AJAX'] == 'general_form_for_create_product'){
 			unset($_POST['AJAX']); // уничтожаем переменную, дабы она не попала в массив обработки
