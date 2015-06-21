@@ -8,7 +8,19 @@
 	$POSITION_NO_CAT = new Position_no_catalog($get,$post,$_SESSION);
 
 	/*******************************   AJAX   ***********************************/
-	if(isset($_POST['AJAX'])){		
+	## GET
+	if(isset($_GET['AJAX']) && $_GET['AJAX']=="get_uslugi_list_Database_Html"){
+		echo Position_no_catalog::get_uslugi_list_Database_Html();
+		exit;
+	}
+
+	## POST
+	if(isset($_POST['AJAX'])){	
+
+		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
+			echo Position_no_catalog::get_uslugi_list_Database_Html();
+			exit;
+		}	
 
 		if($_POST['AJAX']=='to_chose_the_type_product_form'){
 			// форма выбора типа продукта

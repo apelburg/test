@@ -61,7 +61,7 @@
 			$type_tovar = $row['type']; 
 
 			// json no_cat
-			$dop_info_no_cat = ($row['dop_info_no_cat']!='')?json_decode($row['dop_info_no_cat']):'{}';
+			$dop_info_no_cat = ($row['dop_info_no_cat']!='')?json_decode($row['dop_info_no_cat']):array();
 		}
 	}
 

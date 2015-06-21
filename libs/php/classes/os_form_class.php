@@ -341,7 +341,7 @@ PS было бы неплохо взять взять это за правило
 				`price_in` = '0',
 				`price_out` = '0',
 				`create_date` = CURRENT_DATE(),
-				no_cat_json = '".$json_for_variant."'";		 
+				no_cat_json = '".addslashes($json_for_variant)."'";		 
 		    
 		    $result = $mysqli->query($query) or die($mysqli->error);
 			

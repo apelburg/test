@@ -18,11 +18,17 @@ class Position_no_catalog{
 	private $GET;
 	private $SESSION;
 
+	// тип продукта
+	private $type_product;
+
 	// id юзера
 	private $user_id;
 
 	// id позиции
 	private $id_position;
+
+	// класс форм
+	private $FORM;
 
 	// кнопки для различных групп пользователей
 	private $buttons_top_command = array(
@@ -114,7 +120,10 @@ class Position_no_catalog{
 
 	// выводит все варианты по группам, 
 	// по сути является главной функцией вывода основного контента
-	public function get_all_on_calculation_Html(){
+	public function get_all_on_calculation_Html($type_product){
+		//сохраняем тип продукта
+		$this->type_product = $type_product;
+
 		$variants_array = $this->get_all_variants_Database_Array();
 		$variants_array_GROUP_status_snab = $this->get_all_variants_Group_Database_Array();
 		
@@ -124,20 +133,54 @@ class Position_no_catalog{
 
 		### перебираем все статусы снабжения
 		foreach ($variants_array_GROUP_status_snab as $key => $value) {
-			// групируем по статусу в разные вкладки
+
+			# групируем по статусу в разные вкладки
+
+			// получаем имя вкладки
 			if(isset($this->status_snab[$value['status_snab']])){
+
 				$name_group = ($value['status_snab']=='calculation_of_snab')?$this->status_snab[$value['status_snab']]['name'].' от '.$value['snab_end_work']:$this->status_snab[$value['status_snab']]['name'];
+			
 			}else{
 				// на всякий случай на время тестирования выведем
 				// вдруг найдутся варианты с неизвестными в классе статусами
 				$name_group = "НЕОПОЗНАННЫЕ";
+			}	
+
+
+			// считаем количество вариантов во вкладке
+			$number_variants = 0;
+			foreach ($variants_array as $key2 => $value2) {
+				if ($value['status_snab']==$value2['status_snab']) {
+					$number_variants++;
+				}
 			}
 
-			$variants_group_menu_Html .= '<li data-cont_id="variant_content_table_'.$key.'" class="variant_name '.(($key==0)?'checked':'').'">'.$name_group.'</li>';
+			// добавляем вкладку в список
+			$variants_group_menu_Html .= '<li data-cont_id="variant_content_table_'.$key.'" class="variant_name '.(($key==0)?'checked':'').'">'.$name_group.' ('.$number_variants.')</li>';
 			
-			if($value['status_snab']=='on_calculation'){
-				$html .= "<table id='variant_content_table_".$key."' ".(($key==0)?"class='show_table'":"").">";
-				$html .= "<tr>
+			// шаблон для вкладки "на расчет"
+			$html .= '<div id="variant_content_table_'.$key.'" class="variant_content_table" '.(($key==0)?'style="display:block"':'style="display:none"').'>';
+			
+			// подгружаем таблицу со списком вариантов
+			$html .= $this->get_variants_list_Html($variants_array,$value['status_snab']);	
+			$html .= "</div>";		
+			
+			
+		}
+
+		$variants_group_menu_Html .= '</ul></div>';
+		//echo $variants_group_menu_Html;
+		return $variants_group_menu_Html.$html;
+		
+	}
+
+	// возвращает таблицу со списком вариантов
+	private function get_variants_list_Html($variants_array,$status_snab){
+		$html = '';
+		$extended_info = '';// расширенная информация по каждому варианту
+		$html .= "<table class='show_table'>";
+			$html .= "<tr>
 									<th></th>
 									<th>варианты</th>
 									<th>тираж</th>
@@ -149,53 +192,127 @@ class Position_no_catalog{
 									<th>комментарий снабжения</th>
 								</tr>";
 
-				### выбираем все строки по каждуму статусу снабжения
-				$n = 1;
-				foreach ($variants_array as $key2 => $value2) {
-					if ($value['status_snab']==$value2['status_snab']) {
-						$html .= "<tr>
-								<td><span>X</span></td>
-								<td>".$n."</td>
-								<td><span>".$value2['quantity']."</span>шт</td>
-								<td><span>".$value2['price_in']."</span>р</td>
-								<td><span></span>%</td>
-								<td><span>".$value2['price_out']."</span>р</td>
-								<td>Антан</td>
-								<td>5</td>";
-					
-					$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
-							":"<td>".$value2['snab_comment']."</td>";
-					$html .= "</tr>";
-					$n++;		
-					}
+			### выбираем все строки по каждуму статусу снабжения
+			$n = 1;
+			foreach ($variants_array as $key2 => $value2) {
+				if ($status_snab==$value2['status_snab']) {
+					$html .= "<tr data-id='".$value2['id']."'>
+							<td><span>X</span></td>
+							<td>".$n."</td>
+							<td><span>".$value2['quantity']."</span>шт</td>
+							<td><span>".$value2['price_in']."</span>р</td>
+							<td><span></span>%</td>
+							<td><span>".$value2['price_out']."</span>р</td>
+							<td>Антан</td>
+							<td>5</td>";
+				
+				$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
+						":"<td>".$value2['snab_comment']."</td>";
+				$html .= "</tr>";
+				$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id']);
+				$n++;		
 				}
-				$html .= "</table>";	
-				// $html .= "</div>";		
-			}else{
-				$html .= '<div id="variant_content_table_'.$key.'" class="variant_name" '.(($key==0)?'style="display:block"':'').'>';
-				$html .= '<div id="variants_name2">
-						<table>
-							<tr>
-								<td>
-									<ul id="all_variants_menu">
-										<!-- вставка кнопок вариантов -->
-										<li data-cont_id="variant_content_block_0" data-id="5" class="variant_name checked">Вариант 1<span class="variant_status_sv green"></span></li>		
-									</ul>
-								</td>
-								
-							</tr>
-						</table>
-						
-					</div>';
-				// $html .= '</div>';
 			}
-			$html .= '</div>';
 			
+			$html .= "</table>";
+			$html = $html.$extended_info;// прикрепляем расшириную инфу
+			
+		return $html;			
+	}
+
+	// возвращает расшириную информацию по варианту
+	private function get_extended_info_for_variant_Html($arr,$id){
+		$uslugi = $this->get_uslugi_Database_Array($id);
+		$html = '';
+		$this->FORM = new Forms($this->GET,$this->POST,$this->SESSION);
+
+
+		$dop_info_no_cat = ($arr['no_cat_json']!='')?json_decode($arr['no_cat_json']):array();
+
+		// проценты наценки по варианту
+		$per = ($arr['price_in']!= 0)?$arr['price_in']:0.09;
+		$percent = $this->get_percent($arr['price_in'],$arr['price_out']);
+
+
+		// формируем html c расширенной информацией по варианту
+		$html .= '<div id="variant_info_'.$id.'" class="variant_info" style="display:none">';
+		$html .= '<table><tr><td  style="vertical-align: baseline;">';
+		$html .= '<table class="calkulate_table">
+									<tbody><tr>
+										<th>Стоимость товара</th>
+										<th>$ вход.</th>
+										<th>%</th>
+										<th>$ исход.</th>
+										<th>прибыль</th>
+										<th class="edit_cell">ред.</th>
+										<th class="del_cell">del</th>
+									</tr>
+									<tr class="tirage_and_price_for_one">
+										<td>1 шт.</td>
+										<td class="row_tirage_in_one price_in"><span>'.round(($arr['price_in']/$arr['quantity']),2).'</span> р.</td>
+										<td rowspan="2" class="percent_nacenki">
+											<span contenteditable="true" class="edit_span">'.$percent.'</span>%
+
+										</td>
+										<td class="row_price_out_one price_out"><span>'.round(($arr['price_out']/$arr['quantity']),2).'</span> р.</td>
+										<td class="row_pribl_out_one pribl"><span>'.round((($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])),2).'</span> р.</td>
+										<td rowspan="2">
+											<!-- <span class="edit_row_variants"></span> -->
+										</td>
+										<td rowspan="2"></td>
+									</tr>
+									<tr class="tirage_and_price_for_all for_all">
+										<td>тираж</td>
+										<td class="row_tirage_in_gen price_in"><span  contenteditable="true" class="edit_span">'.$arr['price_in'].'</span> р.</td>
+										<td class="row_price_out_gen price_out"><span  contenteditable="true" class="edit_span">'.$arr['price_out'].'</span> р.</td>
+										<td class="row_pribl_out_gen pribl"><span>'.round(($arr['price_out']-$arr['price_in']),2).'</span> р.</td>
+									</tr>
+									
+							
+					
+							
+														<tr>
+										<th colspan="7" class="type_row_calc_tbl"><div class="add_usl">Добавить ещё услуги</div></th>
+									</tr>
+									<tr>
+										<td colspan="7" class="table_spacer"> </td>
+									</tr>
+									<tr class="variant_calc_itogo">
+										<td>ИТОГО:</td>
+										<td><span>??</span> р.</td>
+										<td><span>??</span> %</td>
+										<td><span>??</span> р.</td>
+										<td><span>??</span> р.</td>
+										<td></td>
+										<td></td>
+									</tr>
+								</tbody></table>
+							';
+		$html .= '</td><td style="vertical-align: baseline;width: 386px;">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->FORM/*экземпляр класса форм*/,$this->type_product).'</td></tr></table>';
+		$html .= '</div>';
+
+
+		return $html;
+	}
+
+	private function get_percent($price_in,$price_out){
+		$per = ($price_in!= 0)?$price_in:0.09;
+		$percent = round((($price_out-$price_in)*100/$per),2);
+		return $percent;
+	}
+
+	// получаем услуги по варианту расчета
+	private function get_uslugi_Database_Array($id){
+		global $mysqli;
+		$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$arr = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
 		}
-		$variants_group_menu_Html .= '</ul></div>';
-		//echo $variants_group_menu_Html;
-		return $variants_group_menu_Html.$html;
-		
+		return $arr;
 	}
 
 	// получаем все варианты
@@ -227,10 +344,42 @@ class Position_no_catalog{
 
 	}
 
+	// выводит общую информацию по ВАРИАНТУ из json
+	public function variant_no_cat_json_Html($arr,$FORM/*экземпляр класса форм*/,$type_product){
+		$html = '';
+
+		// если у нас есть описание заявленного типа товара
+		if(isset($FORM->form_type[$type_product])){
+			$names = $FORM->form_type[$type_product]; // массив описания хранится в классе форм
+			$html .= '<div class="table">';
+			foreach ($arr as $key => $value) {
+				$html .= '
+					<div class="row">
+						<div class="cell">'.$names[$key]['name'].'</div>
+						<div class="cell">';
+				$html .= $value;
+				$html .='</div>
+					</div>
+				';
+			}
+			$html .= '</div>';
+			// echo '<pre>';
+			// print_r($arr);
+			// echo '</pre>';
+			return $html;
+		}else{// в случае исключения выводим массив, дабы было видно куда копать
+			echo '<pre>';
+			print_r($arr);
+			echo '</pre>';
+		}
+
+	}
+
+
+
 	// выводит общую информацию по позиции из json, 
 	// json был создан через класс форм заведения позициий
 	public function dop_info_no_cat_Html($arr,$FORM/*экземпляр класса форм*/,$type_product){
-
 		$html = '';
 
 		// если у нас есть описание заявленного типа товара
@@ -258,6 +407,51 @@ class Position_no_catalog{
 			echo '</pre>';
 		}
 
+	}
+
+
+	static function get_uslugi_list_Database_Html($id=0){	
+		global $mysqli;
+		$html = '';
+		$html .= '<ul>';
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+		
+			while($row = $result->fetch_assoc()){
+				if($row['id']!=6)// исключаем нанесение apelburg
+				$html.= '<li data-id="'.$row['id'].'">'.$row['name'].' '.self::get_uslugi_list_Database_Html($row['id']).'</li>';
+			}
+		
+		}$html.= '</ul>';
+		return $html;
+	}
+
+	// добавить доп услугу для варианта
+	static function add_uslug_Database($id_uslugi,$dop_row_id,$quantity){
+		global $mysqli;
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` = '".$id_uslugi."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$usluga = array();
+		if($result->num_rows > 0){		
+			while($row = $result->fetch_assoc()){
+				$usluga = $row;
+			}		
+		}
+
+		if(empty($usluga)){return 'такой услуги не существует';}
+
+		
+		$query ="INSERT INTO `".T_DOP_USLUGI."` SET
+		             `dop_row_id` = '".$dop_row_id."',
+		             `uslugi_id` = '".$id_uslugi."',
+					 `glob_type` = 'extra',
+					 `price_in` = '".$usluga['price_in']."',
+					 `price_out` = '".$usluga['price_out']."',
+					 `for_how` = '".$usluga['for_how']."',
+					 `quantity` = '".$quantity."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);	
+		return 1;
 	}
 
 

@@ -19,16 +19,68 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 	$('.variant_name').removeClass('checked');
 	$(this).addClass('checked');
 	var table_id = $(this).attr('data-cont_id');
-	$('#variant_of_snab table').removeClass('show_table');
-	$('#'+table_id).addClass('show_table');
+	$('#variant_of_snab .variant_content_table').css({'display':'none'});
+	$('#'+table_id).css({'display':'block'});
 });
 
 
-// $(document).on('click', '#variant_of_snab table tr td', function(event) {
-// 	$('#variant_of_snab').find('.checked_row').removeClass('checked_row');
-// 	$(this).parent().find('td').addClass('checked_row');
-// });
+$(document).on('click', '#variant_of_snab table.show_table tr td', function(event) {
+	// скрываем все блоки с расширенной информацие о варианте
+	$('.variant_info').css({'display':'none'});
+	// получаем id строки варианта
+	var id_row = $(this).parent().attr('data-id');
+	// выделяем выбранный вариант
+	$(this).parent().parent().find('td').css({'background':'none'});
+	$(this).parent().find('td').css({'background':'#c7c8ca'});
 
+	// показываем расширенную информацию по выбранному варианту
+	$('#variant_info_'+id_row).css({'display':'block'});
+});
+
+
+$(document).on('click', '.add_usl', function(event) {
+	$.post('', 
+		{
+			AJAX:"get_uslugi_list_Database_Html"
+		}, function(data, textStatus, xhr) {
+		show_dialog_and_send_POST_window(data,'Выберите услугу');
+	});
+	
+});
+
+function show_dialog_and_send_POST_window(html,title){
+	var buttons = new Array();
+	buttons.push({
+	    text: 'OK',
+	    click: function() {
+	    	var serialize = $('#dialog_gen_window_form form').serialize();
+	    	
+	    	$('#general_form_for_create_product .pad:hidden').remove();
+		    $.post('', serialize, function(data, textStatus, xhr) {
+				if(data['response']=='show_new_window'){
+					title = data['title'];
+					show_dialog_and_send_POST_window(data['html']);
+				}else{
+					alert(data['response']);
+				}
+			},'json');				    	
+	    }
+	});
+
+	if($('#dialog_gen_window_form').length==0){
+		$('body').append('<div id="dialog_gen_window_form"></div>');
+	}
+	$('#dialog_gen_window_form').html(html);
+	$('#dialog_gen_window_form').dialog({
+          width: '1000',
+          height: 'auto',
+          modal: true,
+          title : title,
+          autoOpen : true,
+          buttons: buttons          
+        });
+
+}
 
 
 
@@ -134,7 +186,7 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 					
 					<?php
 
-					echo $POSITION_NO_CAT->get_all_on_calculation_Html();
+					echo $POSITION_NO_CAT->get_all_on_calculation_Html($type_product);
 
 					?>
 					
