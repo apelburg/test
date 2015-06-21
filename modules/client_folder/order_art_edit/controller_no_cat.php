@@ -20,7 +20,7 @@
 		// добаление данных, прикрепление новой услуги к расчёту
 		if($_POST['AJAX']=='add_new_usluga'){
 			Position_no_catalog::add_uslug_Database($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
-
+			echo '{"response":"close_window"}';
 			exit;
 		}
 
@@ -40,6 +40,7 @@
 		if($_POST['AJAX']=='to_chose_the_type_product_form'){
 			// форма выбора типа продукта
 			echo $FORM->to_chose_the_type_product_form_Html();
+			
 			exit;
 		}
 

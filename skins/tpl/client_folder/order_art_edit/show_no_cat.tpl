@@ -79,8 +79,8 @@ function show_dialog_and_send_POST_window(html,title){
 					title = data['title'];
 					show_dialog_and_send_POST_window(data['html']);
 				}else{
-					$(this).remove();
-					alert(data['response']);
+					$('#dialog_gen_window_form').dialog( "destroy" );
+					console.log(data['response']);
 				}
 			},'json');				    	
 	    }
