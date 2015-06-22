@@ -185,9 +185,9 @@ class Position_no_catalog{
 									<th>варианты</th>
 									<th>тираж</th>
 									<th>$ входящая</th>
-									<th>%</th>
 									<th>$ МИН исходящая</th>
 									<th>подрядчик</th>
+									<th>макет к</th>
 									<th>срок р/д</th>
 									<th>комментарий снабжения</th>
 								</tr>";
@@ -201,12 +201,13 @@ class Position_no_catalog{
 							<td>".$n."</td>
 							<td><span>".$value2['quantity']."</span>шт</td>
 							<td><span>".$value2['price_in']."</span>р</td>
-							<td><span></span>%</td>
 							<td><span>".$value2['price_out']."</span>р</td>
-							<td>Антан</td>
-							<td>5</td>";
+							<td class='change_supplier'>Антан</td>
+							<td class='chenge_maket_date'></td>
+							<td class='change_srok'>5</td>";
 				
-				$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
+				//$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
+				$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><div contenteditable='true' class='edit_snab_comment'> ".$value2['snab_comment']."</div></td>
 						":"<td>".$value2['snab_comment']."</td>";
 				$html .= "</tr>";
 				$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id']);
@@ -220,9 +221,18 @@ class Position_no_catalog{
 		return $html;			
 	}
 
+	
+
+
 	// возвращает расшириную информацию по варианту
 	private function get_extended_info_for_variant_Html($arr,$id){
+		// получаем услуги для данного варианта
 		$uslugi = $this->get_uslugi_Database_Array($id);
+
+		// расчёт стоимостей услуг
+		$uslugi_arr = $this->calclate_summ_uslug_arr($uslugi);
+		
+
 		$html = '';
 		$this->FORM = new Forms($this->GET,$this->POST,$this->SESSION);
 
@@ -279,16 +289,16 @@ class Position_no_catalog{
 									</tr>
 									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
-										<td><span>??</span> р.</td>
-										<td><span>??</span> %</td>
-										<td><span>??</span> р.</td>
-										<td><span>??</span> р.</td>
+										<td><span>'.($uslugi_arr['summ_price_in']+$arr['price_in']).'</span> р.</td>
+										<td><span>'.round((($percent+$uslugi_arr['summ_percent'])/$uslugi_arr['count_usl']),2).'</span> %</td>
+										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']).'</span> р.</td>
+										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']-$uslugi_arr['summ_price_in']-$arr['price_in']).'</span> р.</td>
 										<td></td>
 										<td></td>
 									</tr>
 								</tbody></table>
 							';
-		$html .= '</td><td style="vertical-align: baseline;width: 386px;">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->FORM/*экземпляр класса форм*/,$this->type_product).'</td></tr></table>';
+		$html .= '</td><td style="display:none">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->FORM/*экземпляр класса форм*/,$this->type_product).'</td></tr></table>';
 		$html .= '</div>';
 
 
@@ -309,10 +319,10 @@ class Position_no_catalog{
 
 		// делаем запрос по услугам  
 		global $mysqli;
-		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
+		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
 inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.")";
 		// $query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id_s.")";
-		// echo $query;
+		
 		$result = $mysqli->query($query) or die($mysqli->error);				
 		$name_uslugi = array();
 		if($result->num_rows > 0){
@@ -321,22 +331,47 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				$name_uslugi[$row['id']]['parent_name'] = $row['parent_name'];
 			}
 		}
-
-
+		// echo '<pre>';
+		// print_r($arr);
+		// echo '</pre>';
 
 		foreach ($arr as $key => $value) {
+			$price_in = (($value['for_how']=="for_all")?$value['price_in']:($value['price_in']*$value['quantity']));
+			$price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value['quantity'];
+			$pribl = ($value['for_how']=="for_all")?($value['price_out']-$value['price_in']):($value['price_out']*$value['quantity']-$value['price_in']*$value['quantity']);
+
 			$html .= '<tr>
 						<th colspan="7">'.$name_uslugi[$value['uslugi_id']]['parent_name'].'</th>
 					</tr>';
 			$html .= '<tr class="tirage_and_price_for_all for_all">
 										<td>'.$name_uslugi[$value['uslugi_id']]['name'].'</td>
-										<td class="row_tirage_in_gen price_in"><span contenteditable="true" class="edit_span">'.$value['price_in'].'</span> р.</td>
+										<td class="row_tirage_in_gen price_in"><span contenteditable="true" class="edit_span">'.$price_in.'</span> р.</td>
 										<td class="row_tirage_in_gen price_in"><span contenteditable="true" class="edit_span">'.$this->get_percent_Int($value['price_in'],$value['price_out']).'</span> %.</td>
-										<td class="row_price_out_gen price_out"><span contenteditable="true" class="edit_span">'.$value['price_out'].'</span> р.</td>
-										<td class="row_pribl_out_gen pribl"><span>'.($value['price_out']-$value['price_in']).'</span> р.</td>
+										<td class="row_price_out_gen price_out"><span contenteditable="true" class="edit_span">'.$price_out.'</span> р.</td>
+										<td class="row_pribl_out_gen pribl"><span>'.$pribl.'</span> р.</td>
 									</tr>';
 		}
 		return $html;
+	}
+
+	// подсчёт стоимотсти услуг для варианта
+	private function calclate_summ_uslug_arr($uslugi){
+		$uslugi_arr['summ_price_in'] = 0;
+		$uslugi_arr['summ_price_out'] = 0;
+		$uslugi_arr['summ_pribl'] = 0;
+		$uslugi_arr['summ_percent'] = 0;
+		$uslugi_arr['count_usl'] = 0.09;
+
+		foreach ($uslugi as $key => $value) {
+			if(trim($value['for_how'])!=''){
+				$uslugi_arr['summ_price_in'] += ($value['for_how']=="for_all")?$value['price_in']:$value['price_in']*$value['quantity'];
+				$uslugi_arr['summ_price_out'] += ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value['quantity'];
+				$uslugi_arr['summ_pribl'] += ($value['for_how']=="for_all")?($value['price_out']-$value['price_in']):($value['price_out']*$value['quantity']-$value['price_in']*$value['quantity']);
+				$uslugi_arr['summ_percent'] += $this->get_percent_Int($value['price_in'],$value['price_out']);
+				$uslugi_arr['count_usl']++;
+			}
+		}
+		return $uslugi_arr;
 	}
 
 	// подсчёт процентов наценки
@@ -396,7 +431,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		// если у нас есть описание заявленного типа товара
 		if(isset($FORM->form_type[$type_product])){
 			$names = $FORM->form_type[$type_product]; // массив описания хранится в классе форм
-			$html .= '<div class="table">';
+			$html .= '<div class="table inform_for_variant">';
 			foreach ($arr as $key => $value) {
 				$html .= '
 					<div class="row">

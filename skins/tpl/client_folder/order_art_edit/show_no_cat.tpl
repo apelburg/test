@@ -23,18 +23,36 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 	$('#'+table_id).css({'display':'block'});
 });
 
+// клик по первому варианту при загрузке страницы
+$(document).ready(function() {
+	var obj = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id') + ' .show_table tr:nth-of-type(2) td:nth-of-type(2)');
 
+	obj.click();
+	$('#inform_for_variant_number').html(obj.html());
+});
+
+// клик по варианту расчёта
 $(document).on('click', '#variant_of_snab table.show_table tr td', function(event) {
 	// скрываем все блоки с расширенной информацие о варианте
 	$('.variant_info').css({'display':'none'});
-	// получаем id строки варианта
-	var id_row = $(this).parent().addClass('checked').attr('data-id');
+	
+
+
 	// выделяем выбранный вариант
+	$(this).parent().parent().find('.checked').removeClass('checked');
 	$(this).parent().parent().find('td').css({'background':'none'});
 	$(this).parent().find('td').css({'background':'#c7c8ca'});
 
+	// получаем id строки варианта
+	var id_row = $(this).parent().addClass('checked').attr('data-id');
+
 	// показываем расширенную информацию по выбранному варианту
 	$('#variant_info_'+id_row).css({'display':'block'});
+
+	// трасляция подробной информации в правом верхнем углу экрана
+	$('#inform_for_variant').html($('#variant_info_'+id_row+ ' .table.inform_for_variant').parent().html());
+
+	$('#inform_for_variant_number').html($(this).parent().find('td').eq(1).html());
 });
 
 
@@ -135,7 +153,7 @@ function show_dialog_and_send_POST_window(html,title){
 					<div class="table" id="characteristics_and_delivery">
 						<div class="row">
 							<div class="cell  b_r" >
-								<strong>Характеристики изделия:</strong>
+								<strong>Запрос, полная информация:</strong>
 								<div class="table" id="characteristics_art">
 									<div class="row">
 										<div class="cell">
@@ -147,54 +165,10 @@ function show_dialog_and_send_POST_window(html,title){
 									</div>
 								</div>								
 							</div>
-							<div class="cell left_bord">								
-											<table>
-												<tr><td colspan="2"><strong>Даты сдачи:</strong></td></tr>
-												<tr>
-													<td><span style="color: grey;">Расчёт:</span></td>
-													<td>
-														<span id="btn_date_std" class="btn_var_std">стандартно</span>
-														<input type="text" name="date" id="datepicker1">
-														<input type="text" name="time" id="timepicker1">
-													</td>
-												</tr>
-												<tr>
-													<td><span style="color: grey;">Отгрузка:</span></td>
-													<td>
-														<span id="btn_date_std" class="btn_var_std">стандартно</span>
-														<input type="text" name="date" id="datepicker1">
-														<input type="text" name="time" id="timepicker1">
-													</td>
-												</tr>
-												<tr>
-													<td><span style="color: grey;">Макет:</span></td>
-													<td>
-														<span id="btn_date_std" class="btn_var_std">стандартно</span>
-														<input type="text" name="date" id="datepicker1">
-														<input type="text" name="time" id="timepicker1">
-													</td>
-												</tr>											
-												<tr>
-													<td>Бюджет:</td>
-													<td>
-														стоимость для клиента не выше 140 рублей, короткая строка, ограничить кол-во символов
-													</td>
-												</tr>
-												<tr>
-													<td colspan="2">
-														<span class="snab_comment">
-															<span class="slaches">/</span>
-															140р для заказчика не реальный бюджет АКСар
-														</span>
-													</td>
-												</tr>
-											</table>
-
-										
-								
-								
-								
-								
+							<div class="cell left_bord">			
+								<div id="inform_for_variant_head">Вариант № <span id="inform_for_variant_number">1</span>, характеристика изделия:</div>
+								<div id="inform_for_variant"></div>
+											
 							</div>
 						</div>
 					</div>

@@ -189,17 +189,17 @@ PS было бы неплохо взять взять это за правило
      				'btn_add_val'=>false,
      				'cancel_selection' =>false
      				),
-     			'images' => array(
-     				'name'=>'Путь к макету',
-     				'note'=>'если есть картинка или фото',
+     			'how_mach' => array(
+     				'name'=>'Бюджет',
+     				'note'=>'',
      				'moderate'=>false,
      				'btn_add_var'=>false,
      				'btn_add_val'=>false,
      				'cancel_selection' =>false
      				),
-     			'how_mach' => array(
-     				'name'=>'Бюджет',
-     				'note'=>'',
+     			'images' => array(
+     				'name'=>'Путь к макету',
+     				'note'=>'если есть картинка или фото',
      				'moderate'=>false,
      				'btn_add_var'=>false,
      				'btn_add_val'=>false,
