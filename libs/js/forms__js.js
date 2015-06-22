@@ -1,4 +1,40 @@
 // radio button
+
+function create_datepicker_for_variant_cont(){
+	$('#date_1').datetimepicker({
+		minDate:new Date(),
+		// disabledDates:['07.05.2015'],
+		timepicker:false,
+	 	dayOfWeekStart: 1,
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		closeOnDateSelect:true,
+	 	format:'d.m.Y',
+	 	
+	});
+
+	$('#date_2').datetimepicker({
+		minDate:new Date(),
+		// disabledDates:['07.05.2015'],
+		timepicker:false,
+	 	dayOfWeekStart: 1,
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		closeOnDateSelect:true,
+	 	format:'d.m.Y',
+	 	
+	});
+}
+
+
+
+
 $(document).on('change', '.one_row_for_this_type input[type="radio"]', function(event) {
 	$(this).parent().find('div.pad').hide('fast');
 	$(this).parent().find('div.pad').find('input').prop('checked','false');
@@ -30,6 +66,7 @@ $(document).on('click', '.answer_table .delete_user_val', function(event) {
 	$(this).parent().parent().remove();
 });
 
+// кнопка добавления вариантов
 $(document).on('click', '.btn_add_var', function(event) {
 	var obj = $(this).parent().prev().clone();
 	var get_class_clone_obj = obj.attr('data-type');
@@ -57,6 +94,8 @@ $(document).on('click', '.btn_add_var', function(event) {
 	});
 	$(this).parent().before(obj);
 });
+
+// кнопка снятия выделения со всего списка
 $(document).on('click', '.cancel_selection', function(event) {
 	var obj = $(this).parent().prev();
 	obj.find('.pad').css({'display':'none'});
@@ -65,6 +104,8 @@ $(document).on('click', '.cancel_selection', function(event) {
 	});
 
 });
+
+// кнопка добавить своё значение
 $(document).on('click', '.btn_add_val', function(event) {
 	var obj = $(this).parent().prev();
 	var obj_input = obj.find('input').first();
@@ -80,6 +121,7 @@ $(document).on('click', '.btn_add_val', function(event) {
 	$('#eded_input').focus().removeAttr('id');
 });
 
+// сохранение значения input в value списка
 $(document).on('keyup', '.change_form_inputs', function(event) {
 	$(this).prev().val($(this).val()); 
 	/* Act on the event */
@@ -92,7 +134,9 @@ $(document).on('click','#create_new_position',function(e) {
 		$.post('', {
 			AJAX:'to_chose_the_type_product_form'
 		}, function(data, textStatus, xhr) {
+			// вызов окна выбора типа продукции
 			show_dialog_chosen_type_product(data);
+			
 			
 			//alert(data);
 		});
@@ -109,11 +153,10 @@ function show_dialog_chosen_type_product(html){
 	    	
 	    	$('#general_form_for_create_product .pad:hidden').remove();
 		    $.post('', serialize, function(data, textStatus, xhr) {
-				// alert(data);
-				// $('#dialog_gen_window_form').html(data)
-				// $('#dialog_gen_window_form').append(data);
-				// $('#general_form_for_create_product').remove();
+				// вызов формы заведения не каталожного товара и генерации вариантов
 				show_dialog(data);
+				// объявляем работу датапикера для полей даты
+				create_datepicker_for_variant_cont();
 			});				    	
 	    }
 	});
