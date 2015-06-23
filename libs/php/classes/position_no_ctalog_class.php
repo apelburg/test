@@ -196,12 +196,21 @@ class Position_no_catalog{
 			$n = 1;
 			foreach ($variants_array as $key2 => $value2) {
 				if ($status_snab==$value2['status_snab']) {
+					// получаем услуги для данного варианта
+					$uslugi = $this->get_uslugi_Database_Array($value2['id']);
+					// расчёт стоимостей услуг
+					$uslugi_arr = $this->calclate_summ_uslug_arr($uslugi);
+					// получаем всю инфу по варианту
+					$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id'],$uslugi,$uslugi_arr);
+
+
+
 					$html .= "<tr data-id='".$value2['id']."'>
 							<td><span>X</span></td>
 							<td>".$n."</td>
 							<td><span>".$value2['quantity']."</span>шт</td>
-							<td><span>".$value2['price_in']."</span>р</td>
-							<td><span>".$value2['price_out']."</span>р</td>
+							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span>р</td>
+							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span>р</td>
 							<td class='change_supplier'>Антан</td>
 							<td class='chenge_maket_date'></td>
 							<td class='change_srok'>5</td>";
@@ -210,7 +219,7 @@ class Position_no_catalog{
 				$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><div contenteditable='true' class='edit_snab_comment'> ".$value2['snab_comment']."</div></td>
 						":"<td>".$value2['snab_comment']."</td>";
 				$html .= "</tr>";
-				$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id']);
+				
 				$n++;		
 				}
 			}
@@ -224,13 +233,11 @@ class Position_no_catalog{
 	
 
 
-	// возвращает расшириную информацию по варианту
-	private function get_extended_info_for_variant_Html($arr,$id){
-		// получаем услуги для данного варианта
-		$uslugi = $this->get_uslugi_Database_Array($id);
+	// возвращает расшириную информацию по варианту в Html
+	private function get_extended_info_for_variant_Html($arr,$id,$uslugi,$uslugi_arr){
+		
 
-		// расчёт стоимостей услуг
-		$uslugi_arr = $this->calclate_summ_uslug_arr($uslugi);
+		
 		
 
 		$html = '';
@@ -271,7 +278,7 @@ class Position_no_catalog{
 										</td>
 										<td rowspan="2"></td>
 									</tr>
-									<tr class="tirage_and_price_for_all for_all">
+									<tr class="tirage_and_price_for_all for_all calculate">
 										<td>тираж</td>
 										<td class="row_tirage_in_gen price_in"><span  contenteditable="true" class="edit_span">'.$arr['price_in'].'</span> р.</td>
 										<td class="row_price_out_gen price_out"><span  contenteditable="true" class="edit_span">'.$arr['price_out'].'</span> р.</td>
@@ -290,7 +297,7 @@ class Position_no_catalog{
 									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
 										<td><span>'.($uslugi_arr['summ_price_in']+$arr['price_in']).'</span> р.</td>
-										<td><span>'.round((($percent+$uslugi_arr['summ_percent'])/$uslugi_arr['count_usl']),2).'</span> %</td>
+										<td><span>'.round((($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])),2).'</span> %</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']).'</span> р.</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']-$uslugi_arr['summ_price_in']-$arr['price_in']).'</span> р.</td>
 										<td></td>
@@ -307,9 +314,10 @@ class Position_no_catalog{
 
 	// вывод услуг
 	private function uslugi_template_Html($arr){
-
 		$html ='';
+		// если массив услуг пуст возвращаем пустое значение 
 		if(!count($arr)){return $html;}
+		
 		// сохраняем id услуг
 		$id_s = array();
 		foreach ($arr as $key => $value) {
@@ -320,37 +328,55 @@ class Position_no_catalog{
 		// делаем запрос по услугам  
 		global $mysqli;
 		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
-inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.")";
+inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.") ORDER BY  `os__our_uslugi_par`.`name` ASC ";
 		// $query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id_s.")";
-		
+		//echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);				
 		$name_uslugi = array();
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				$name_uslugi[$row['id']]['name'] = $row['name'];
-				$name_uslugi[$row['id']]['parent_name'] = $row['parent_name'];
+				foreach ($arr as $key => $value) {
+						$name_uslugi[$row['id']] = $row;
+				}
 			}
 		}
+		// echo '<pre>';
+		// print_r($name_uslugi);
+		// echo '</pre>';
+
 		// echo '<pre>';
 		// print_r($arr);
 		// echo '</pre>';
 
-		foreach ($arr as $key => $value) {
-			$price_in = (($value['for_how']=="for_all")?$value['price_in']:($value['price_in']*$value['quantity']));
-			$price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value['quantity'];
-			$pribl = ($value['for_how']=="for_all")?($value['price_out']-$value['price_in']):($value['price_out']*$value['quantity']-$value['price_in']*$value['quantity']);
+		$uslname = '';
+		foreach ($name_uslugi as $key => $value) {
+			if($uslname!=$value['parent_name']){
+				$html .= '<tr>
+		 				<th colspan="7">'.$value['parent_name'].'</th>
+ 				</tr>';
+ 				$uslname = $value['parent_name'];
+			}
+			foreach ($arr as $key2 => $value2) {
+				if($value2['uslugi_id']==$key){
 
-			$html .= '<tr>
-						<th colspan="7">'.$name_uslugi[$value['uslugi_id']]['parent_name'].'</th>
-					</tr>';
-			$html .= '<tr class="tirage_and_price_for_all for_all">
-										<td>'.$name_uslugi[$value['uslugi_id']]['name'].'</td>
-										<td class="row_tirage_in_gen price_in"><span contenteditable="true" class="edit_span">'.$price_in.'</span> р.</td>
-										<td class="row_tirage_in_gen price_in"><span contenteditable="true" class="edit_span">'.$this->get_percent_Int($value['price_in'],$value['price_out']).'</span> %.</td>
-										<td class="row_price_out_gen price_out"><span contenteditable="true" class="edit_span">'.$price_out.'</span> р.</td>
+					$price_in = (($value2['for_how']=="for_all")?$value2['price_in']:($value2['price_in']*$value2['quantity']));
+					$price_out = ($value2['for_how']=="for_all")?$value2['price_out']:$value2['price_out']*$value2['quantity'];
+					$pribl = ($value2['for_how']=="for_all")?($value2['price_out']-$value2['price_in']):($value2['price_out']*$value2['quantity']-$value2['price_in']*$value2['quantity']);
+					$dop_inf = ($value2['for_how']=="for_one")?'(за тираж '.$value2['quantity'].' шт.)':'';
+
+					$html .= '<tr class="calculate">
+										<td>'.$value['name'].' '.$dop_inf.'</td>
+										<td class="row_tirage_in_gen price_in"><span>'.$price_in.'</span> р.</td>
+										<td class="row_tirage_in_gen price_in"><span>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %.</td>
+										<td class="row_price_out_gen price_out"><span>'.$price_out.'</span> р.</td>
 										<td class="row_pribl_out_gen pribl"><span>'.$pribl.'</span> р.</td>
 									</tr>';
+
+				}
+			}
+
 		}
+
 		return $html;
 	}
 
@@ -360,7 +386,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		$uslugi_arr['summ_price_out'] = 0;
 		$uslugi_arr['summ_pribl'] = 0;
 		$uslugi_arr['summ_percent'] = 0;
-		$uslugi_arr['count_usl'] = 0.09;
+		$uslugi_arr['count_usl'] = 0;
 
 		foreach ($uslugi as $key => $value) {
 			if(trim($value['for_how'])!=''){
@@ -499,11 +525,12 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		if($result->num_rows > 0){
 			$html .= '<ul>';
 			while($row = $result->fetch_assoc()){
-				if($row['id']!=6)// исключаем нанесение apelburg
+				if($row['id']!=6){// исключаем нанесение apelburg
 				// запрос на детей
 				$child = self::get_uslugi_list_Database_Html($row['id']);
 				// присваиваем конечным услугам класс may_bee_checked
 				$html.= '<li data-id="'.$row['id'].'" '.(($child=='')?'class="may_bee_checked"':'').'>'.$row['name'].' '.$child.'</li>';
+				}
 			}
 			$html.= '</ul>';
 		}
