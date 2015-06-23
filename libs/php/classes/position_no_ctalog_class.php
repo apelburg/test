@@ -186,6 +186,7 @@ class Position_no_catalog{
 									<th>тираж</th>
 									<th>$ входящая</th>
 									<th>$ МИН исходящая</th>
+									<th>$ исходящая</th>
 									<th>подрядчик</th>
 									<th>макет к</th>
 									<th>срок р/д</th>
@@ -208,9 +209,10 @@ class Position_no_catalog{
 					$html .= "<tr data-id='".$value2['id']."'>
 							<td><span>X</span></td>
 							<td>".$n."</td>
-							<td><span>".$value2['quantity']."</span>шт</td>
-							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span>р</td>
-							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span>р</td>
+							<td><span>".$value2['quantity']."</span> шт</td>
+							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span> р</td>
+							<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span> р</td>
+							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span> р</td>
 							<td class='change_supplier'>Антан</td>
 							<td class='chenge_maket_date'></td>
 							<td class='change_srok'>5</td>";
@@ -235,10 +237,12 @@ class Position_no_catalog{
 
 	// возвращает расшириную информацию по варианту в Html
 	private function get_extended_info_for_variant_Html($arr,$id,$uslugi,$uslugi_arr){
-		
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
 
-		
-		
 
 		$html = '';
 		$this->FORM = new Forms($this->GET,$this->POST,$this->SESSION);
@@ -259,45 +263,50 @@ class Position_no_catalog{
 										<th>Стоимость товара</th>
 										<th>$ вход.</th>
 										<th>%</th>
+										<th>$ МИН исход.</th>
 										<th>$ исход.</th>
 										<th>прибыль</th>
 										<th class="edit_cell">ред.</th>
 										<th class="del_cell">del</th>
 									</tr>
-									<tr class="tirage_and_price_for_one">
+									<tr class="tirage_and_price_for_one" data-dop_data_id="'.$arr['id'].'">
 										<td>1 шт.</td>
-										<td class="row_tirage_in_one price_in"><span>'.round(($arr['price_in']/$arr['quantity']),2).'</span> р.</td>
+										<td class="row_tirage_in_one price_in"><span '.$edit_admin.$edit_snab.'>'.round(($arr['price_in']/$arr['quantity']),2).'</span> р.</td>
 										<td rowspan="2" class="percent_nacenki">
 											<span contenteditable="true" class="edit_span">'.$percent.'</span>%
 
 										</td>
-										<td class="row_price_out_one price_out"><span>'.round(($arr['price_out']/$arr['quantity']),2).'</span> р.</td>
+										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$edit_admin.$edit_snab.'>'.round(($arr['price_out_snab']/$arr['quantity']),2).'</span> р.</td>
+										<td class="row_price_out_one price_out_men"><span '.$edit_admin.$edit_men.'>'.round(($arr['price_out']/$arr['quantity']),2).'</span> р.</td>
 										<td class="row_pribl_out_one pribl"><span>'.round((($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])),2).'</span> р.</td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
 										<td rowspan="2"></td>
 									</tr>
-									<tr class="tirage_and_price_for_all for_all calculate">
+									<tr class="tirage_and_price_for_all for_all calculate" data-dop_data_id="'.$arr['id'].'">
 										<td>тираж</td>
-										<td class="row_tirage_in_gen price_in"><span  contenteditable="true" class="edit_span">'.$arr['price_in'].'</span> р.</td>
-										<td class="row_price_out_gen price_out"><span  contenteditable="true" class="edit_span">'.$arr['price_out'].'</span> р.</td>
+										<td class="row_tirage_in_gen price_in"><span '.$edit_admin.$edit_snab.'>'.$arr['price_in'].'</span> р.</td>
+										<td class="row_price_out_gen price_out_snab"><span  '.$edit_admin.$edit_snab.' style="color:red">'.$arr['price_out_snab'].'</span> р.</td>
+										<td class="row_price_out_gen price_out_men"><span  '.$edit_admin.$edit_men.'>'.$arr['price_out'].'</span> р.</td>
 										<td class="row_pribl_out_gen pribl"><span>'.round(($arr['price_out']-$arr['price_in']),2).'</span> р.</td>
+										
 									</tr>
 									
 									
 									'.$this->uslugi_template_Html($uslugi).'
 							
 									<tr>
-										<th colspan="7" class="type_row_calc_tbl"><div class="add_usl">Добавить ещё услуги</div></th>
+										<th colspan="8" class="type_row_calc_tbl"><div class="add_usl">Добавить ещё услуги</div></th>
 									</tr>
 									<tr>
-										<td colspan="7" class="table_spacer"> </td>
+										<td colspan="8" class="table_spacer"> </td>
 									</tr>
 									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
 										<td><span>'.($uslugi_arr['summ_price_in']+$arr['price_in']).'</span> р.</td>
 										<td><span>'.round((($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])),2).'</span> %</td>
+										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out_snab']).'</span> р.</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']).'</span> р.</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']-$uslugi_arr['summ_price_in']-$arr['price_in']).'</span> р.</td>
 										<td></td>
@@ -312,8 +321,14 @@ class Position_no_catalog{
 		return $html;
 	}
 
-	// вывод услуг
+	// ВЫВОДИТ СПИСОК УСЛУГ ПРИКРЕПЛЁННЫХ ДЛЯ ВАРИАНТА
 	private function uslugi_template_Html($arr){
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
+
 		$html ='';
 		// если массив услуг пуст возвращаем пустое значение 
 		if(!count($arr)){return $html;}
@@ -327,7 +342,7 @@ class Position_no_catalog{
 
 		// делаем запрос по услугам  
 		global $mysqli;
-		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
+		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`price_out`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
 inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.") ORDER BY  `os__our_uslugi_par`.`name` ASC ";
 		// $query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id_s.")";
 		//echo $query;
@@ -340,19 +355,12 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				}
 			}
 		}
-		// echo '<pre>';
-		// print_r($name_uslugi);
-		// echo '</pre>';
-
-		// echo '<pre>';
-		// print_r($arr);
-		// echo '</pre>';
 
 		$uslname = '';
 		foreach ($name_uslugi as $key => $value) {
 			if($uslname!=$value['parent_name']){
 				$html .= '<tr>
-		 				<th colspan="7">'.$value['parent_name'].'</th>
+		 				<th colspan="8">'.$value['parent_name'].'</th>
  				</tr>';
  				$uslname = $value['parent_name'];
 			}
@@ -360,16 +368,25 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				if($value2['uslugi_id']==$key){
 
 					$price_in = (($value2['for_how']=="for_all")?$value2['price_in']:($value2['price_in']*$value2['quantity']));
-					$price_out = ($value2['for_how']=="for_all")?$value2['price_out']:$value2['price_out']*$value2['quantity'];
+					$price_out_men = ($value2['for_how']=="for_all")?$value2['price_out']:$value2['price_out']*$value2['quantity'];
+					
 					$pribl = ($value2['for_how']=="for_all")?($value2['price_out']-$value2['price_in']):($value2['price_out']*$value2['quantity']-$value2['price_in']*$value2['quantity']);
 					$dop_inf = ($value2['for_how']=="for_one")?'(за тираж '.$value2['quantity'].' шт.)':'';
+					
+					$price_out_snab = ($value2['for_how']=="for_all")?$value2['price_out_snab']:$value2['price_out_snab']*$value2['quantity'];
 
-					$html .= '<tr class="calculate">
+
+					$real_price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value2['quantity'];
+
+					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'">
 										<td>'.$value['name'].' '.$dop_inf.'</td>
-										<td class="row_tirage_in_gen price_in"><span>'.$price_in.'</span> р.</td>
-										<td class="row_tirage_in_gen price_in"><span>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %.</td>
-										<td class="row_price_out_gen price_out"><span>'.$price_out.'</span> р.</td>
-										<td class="row_pribl_out_gen pribl"><span>'.$pribl.'</span> р.</td>
+										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$price_in.'</span> р.</td>
+										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$edit_admin.$edit_snab.$edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
+										<td class="row_price_out_gen uslugi_class price_out_snab" style="color:red" data-real_min_price_for_one="'.$value['price_out'].'" data-real_min_price_for_all="'.$real_price_out.'"><span '.$edit_admin.$edit_snab.'>'.$price_out_snab.'</span> р.</td>
+										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$edit_admin.$edit_men.'>'.$price_out_men.'</span> р.</td>
+										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$pribl.'</span> р.</td>
+										<td class="usl_edit"><!-- <span class="edit_row_variants"></span> --></td>
+										<td class="usl_del"><span class="del_row_variants"></span></td>
 									</tr>';
 
 				}
@@ -558,6 +575,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					 `glob_type` = 'extra',
 					 `price_in` = '".$usluga['price_in']."',
 					 `price_out` = '".$usluga['price_out']."',
+					 `price_out_snab` = '".$usluga['price_out']."',
 					 `for_how` = '".$usluga['for_how']."',
 					 `quantity` = '".$quantity."'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);	
