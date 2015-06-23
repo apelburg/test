@@ -35,7 +35,7 @@
 }
 
 .sevrice_button_size_table{ padding-top: 15px}
-#order_art_edit_content_table{padding: 10px 0}
+#order_art_edit_content_table{padding: 10px 0 150px 0}
 #order_art_edit_content_table .cell.b_r{border-right: 1px solid #adacab}
 #edit_option_content{padding: 0 10px}
 #characteristics_and_delivery{ width: 100%}
@@ -498,4 +498,4 @@ span.snab_comment {
 .variant_info .table_extended_info td{padding: 0}
 
 #inform_for_variant_head{ font-weight: bold; text-decoration: underline;}
-.edit_snab_comment{ min-height: 15px; border:1px solid grey; font-size: 12px; color: black; padding: 3px}
+.edit_snab_comment{ min-height: 15px; border:1px solid grey; background: #fff; font-size: 12px; color: black; padding: 3px}
