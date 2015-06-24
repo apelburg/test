@@ -453,6 +453,8 @@ span.snab_comment {
 #variant_of_snab table.show_table tr td:nth-of-type(7){text-align: right;}
 #variant_of_snab table.show_table tr th:nth-of-type(8),
 #variant_of_snab table.show_table tr td:nth-of-type(8){text-align: center;}
+#variant_of_snab table.show_table tr th:nth-of-type(9),
+#variant_of_snab table.show_table tr td:nth-of-type(9){text-align: center;}
 #variant_of_snab table.show_table tr th:nth-last-child(1),
 #variant_of_snab table.show_table tr td:nth-last-child(1){text-align: left;}
 #variant_of_snab table.show_table tr td:nth-last-child(1){text-align: left;color: #9BD0FC;}

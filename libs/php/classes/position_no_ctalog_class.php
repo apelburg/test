@@ -1,4 +1,6 @@
 <?php
+
+
 /*
 Класс работы с некаталожной продукцией
 
@@ -284,7 +286,7 @@ class Position_no_catalog{
 										</td>
 										<td rowspan="2"></td>
 									</tr>
-									<tr class="tirage_and_price_for_all for_all calculate" data-dop_data_id="'.$arr['id'].'">
+									<tr class="tirage_and_price_for_all for_all" data-dop_data_id="'.$arr['id'].'">
 										<td>тираж</td>
 										<td class="row_tirage_in_gen price_in"><span '.$edit_admin.$edit_snab.'>'.$arr['price_in'].'</span> р.</td>
 										<td class="row_price_out_gen price_out_snab"><span  '.$edit_admin.$edit_snab.' style="color:red">'.$arr['price_out_snab'].'</span> р.</td>
