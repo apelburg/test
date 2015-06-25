@@ -556,6 +556,15 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		return $html;
 	}
 
+	//удаление услуги
+	static function del_uslug_Database($uslugi_id){
+		global $mysqli;
+		$query = "DELETE FROM  `apelburg_base`.`".OUR_USLUGI_LIST."` WHERE  `id` = '".$uslugi_id."';
+";
+		echo $query; echo  '   ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+	}
+
 	// добавить доп услугу для варианта
 	static function add_uslug_Database($id_uslugi,$dop_row_id,$quantity){
 		global $mysqli;

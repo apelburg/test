@@ -448,20 +448,66 @@ function edit_price_out_all_snab(obj){
 /*--5--END--*/
 
 
+/*--6--START--*/
+// редактирование исходящей цены за ед из тиража MEN
+$(document).on('keyup', '.row_price_out_one.price_out_men span', function(event) {
+	edit_price_out_one_men($(this));
+	recalculate_table_price_Itogo();
+});
+function edit_price_out_one_men(obj){
+	// получим тираж
+	var quantity = Number($('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked td:nth-of-type(3) span').html());
+	var price_out_one_men = Number(obj.html());
+	var price_out_one_snab = Number(obj.parent().prev().find('span').html());
+
+	// если стоимость меньше установленной снабом
+	if(price_out_one_snab>price_out_one_men){
+		price_out_one_men = price_out_one_snab;
+		obj.html(price_out_one_snab);
+	}
+	var price_out_all_men = round_s(price_out_one_men*quantity);	
+	obj.parent().parent().parent().find('.row_price_out_gen.price_out_men span').html(price_out_all_men);
+	
+	// подсчёт процентов
+	calc_percent();
+	// посчёт прибыли
+	calc_pribl_tir();
+
+}
+/*--6--END--*/
+
+
+
+/*--7--START--*/
 // редактирование исходящей цены за тираж MEN
-$(document).on('keyup', '.row_price_out_gen.price_out_snab', function(event) {
-	/* Act on the event */
+$(document).on('keyup', '.row_price_out_gen.price_out_men span', function(event) {
+	// получим тираж
+	var quantity = Number($('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked td:nth-of-type(3) span').html());
+	var price_out_all_men = Number($(this).html());
+	var price_out_all_snab = Number($(this).parent().prev().find('span').html());
+	console.log(price_out_all_snab);
+	// если стоимость меньше установленной снабом
+	if(price_out_all_snab>price_out_all_men){
+		price_out_all_men = price_out_all_snab;
+		$(this).html(price_out_all_snab);
+	}
+
+	var price_out_one_men = round_s(price_out_all_men/quantity);
+	console.log(price_out_one_men);
+	
+	$(this).parent().parent().parent().find('.row_price_out_one.price_out_men span').html(price_out_one_men);
+	
+	console.log('65464654');
+	// подсчёт процентов
+	calc_percent();
+	// посчёт прибыли
+	calc_pribl_tir();
+	// подсчёт ИТОГО
+	recalculate_table_price_Itogo();
 });
 
+/*--7--END--*/
 
-
-
-
-// Удаление услуги
-$(document).on('click', '.del_row_variants', function(event) {
-	/* Act on the event */
-	console.log('клик на удаление услуги');
-});
 
 function percent_calc(price_out,price_in){
 	return Math.ceil(((price_out-price_in)*100/price_in)*100)/100;
@@ -496,3 +542,29 @@ function calc_pribl_tir(){
 	console.log(price_in_for_all);
 	console.log(price_out_for_all_men-price_in_for_all);
 }
+
+// Удаление услуги
+$(document).on('click', '.del_row_variants', function(event) {
+	/* Act on the event */
+	console.log('клик на удаление услуги');
+	console.log($(this).parent().parent().prev().find('th').length);
+	console.log($(this).parent().parent().next().find('th').length);
+	//если это последняя услуга в своём разделе, удаляем имя раздела
+	if($(this).parent().parent().next().find('th').length){
+		if($(this).parent().parent().prev().find('th').length){
+			$(this).parent().parent().prev().remove();
+		}
+	}
+
+	var dop_uslugi_id = $(this).parent().parent().attr('data-dop_uslugi_id');
+	$(this).parent().parent().remove();
+
+	$.post('', 
+		{
+			AJAX: 'delete_usl_of_variant',
+			uslugi_id: dop_uslugi_id
+		}, function(data, textStatus, xhr) {
+		console.log(data);
+	});
+	
+});

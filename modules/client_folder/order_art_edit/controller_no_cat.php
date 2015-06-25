@@ -24,6 +24,12 @@
 			exit;
 		}
 
+		if($_POST['AJAX']=='delete_usl_of_variant'){
+			Position_no_catalog::del_uslug_Database($_POST['uslugi_id']);
+			echo '{"response":"OK"}';
+			exit;
+		}
+
 		// получение формы выбора услуги
 		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
 			$html = '<form>';
