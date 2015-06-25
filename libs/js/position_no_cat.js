@@ -105,21 +105,22 @@ function show_dialog_and_send_POST_window(html,title){
 
 
 					if(data['name'] == 'add_uslugu'){ // если нужно добавить услугу
+						
 						// ADD USLUGA start *** старт ***
 						var added=1; // флаг, который сигнализирует, что HTML добавлен
 						var add_html = Base64.decode(data['html']); // html новой услуги
 						var parent_id_new_usl = Number(data['parent_id']); // parent_id овой услуги
-						console.log(parent_id_new_usl);
+						
 						// поищем по всем группам уже существующих услуг
 						// если найдется подходящая - добаляем html
-						$('#variant_info_' +$('#' + $('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .show_table tr.checked').attr('data-id')+' .calkulate_table .group_usl_name').each(function(index, el) {
-							console.log($(this).attr('data-usl_id')+ ' *  '+parent_id_new_usl);
+						$('.calkulate_table:visible .group_usl_name').each(function(index, el) {
 							
-							if(Number($(this).attr('data-usl_id'))==parent_id_new_usl){
-								$(this).after(add_html);
+							if(Number($(el).attr('data-usl_id'))==parent_id_new_usl){
+								$(el).after(add_html);
 								added=0;
 							}
-						});
+						}); 
+
 						// если услуга не найдена добаляем в конец
 						if(added){
 							$('#variant_info_' +$('#' + $('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .show_table tr.checked').attr('data-id')+' .calkulate_table .variant_calc_itogo').prev().prev().before(add_html);
@@ -353,6 +354,8 @@ $(document).on('keyup', '.percent_nacenki span', function(event) {
 	если работает менеджер, то меняя процент наценки 
 	он меняет тольк исх. цену менеджера 
 	*/
+
+
 	// цена исходящая за ед снаб и мен
 	var price_out_for_one_snab = 0;
 	var price_out_for_one_men = 0;
@@ -602,6 +605,63 @@ $(document).on('click', '.del_row_variants', function(event) {
 	});
 	
 });
+
+
+// ДОП УСЛУГИ
+// %
+$(document).on('keyup', '.row_tirage_in_gen.uslugi_class.percent_usl span', function(event) {
+	// получаем реальные значения цены данной услуги, цены взяты из прайса
+	// если эти значения равны, то услуга применяется к тиражу, если нет то к единице товара
+	var min_price_real_for_one = Number($(this).parent().next().attr('data-real_min_price_for_one'));
+	var min_price_real_for_all = Number($(this).parent().next().attr('data-real_min_price_for_all'));
+	
+	// цена от снаба (устанавливает снаб или админ)
+	var min_price_snab = Number($(this).parent().next().find('span').html());
+	
+	// ввёденное значение процентов
+	var enter_percent = Number($(this).html());
+
+	// входящая цена
+	var price_in = Number($(this).parent().prev().find('span').html());
+
+	// если % меньше 0, то  % = 0
+	if(enter_percent<0){
+		enter_percent =0;
+		$(this).html(enter_percent);
+	}
+
+	// если рабтает не мен, то замена исх. цены за услугу идёт и в поле менеджера и в поле снаба
+	if($(this).parent().next().find('span').attr('contenteditable')=="true"){
+		price_out_snab = price_out_men = round_s((100+enter_percent)*price_in/100);
+		if(price_out_snab<min_price_real_for_all){
+			enter_percent = percent_calc(min_price_real_for_all,price_in);
+			$(this).html(enter_percent);
+			price_out_snab = price_out_men = min_price_real_for_all;
+		}
+		$(this).parent().next().find('span').html(price_out_snab).parent().next().find('span').html(price_out_men);
+
+
+	}else{ // работает мен
+
+	}
+	
+
+
+});
+
+// цена снаб
+$(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_snab span', function(event) {
+	event.preventDefault();
+	/* Act on the event */
+});
+
+// цена мен
+$(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_men span', function(event) {
+	event.preventDefault();
+	/* Act on the event */
+});
+
+
 
 //#################################################################
 //##  РАБОТА ТАБЛИЦЫ РАСЧЕТОВ В НЕКАТАЛОЖНОЙ ПРОДУКИИ ##   END   ##
