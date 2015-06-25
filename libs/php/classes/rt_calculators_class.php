@@ -104,7 +104,7 @@
 			if($result->num_rows>0){
 			    while($row = $result->fetch_assoc()){
 				    // получаем данные о типах нанесений соответсвующих данному месту
-					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__PRINT_PLACES_PRINT_TYPES_REL_TBL."` tbl1
+					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__PRINT_TYPES_SIZES_PLACES_REL_TBL."` tbl1
 					          INNER JOIN  `".OUR_USLUGI_LIST."` tbl2 
 					          ON tbl1.`print_id`  = tbl2.`id` 
 							  WHERE tbl1.`place_id` = '".$row['place_id']."'";
@@ -136,8 +136,8 @@
 			// 
 			foreach($out_put['print_types'] as $print_id => $val){
 			
-			    // выбираем дополнительные параметры соответствующие данному нанесению (такие как например цвета)
-				$query="SELECT*FROM `".BASE__DOP_PARAMS_FOR_PRINT_TYPES_TBL."` WHERE `print_type_id` = '".$print_id."'";
+			    // выбираем дополнительные параметры  определяющие вертикальную позицию в прайсе (такие как например цвета)
+				$query="SELECT*FROM `".BASE__CALCULATORS_Y_PRICE_PARAMS."` WHERE `print_type_id` = '".$print_id."'";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){
@@ -156,6 +156,30 @@
 				    while($row = $result->fetch_assoc()){
 					    $count = $row['count'];
 					    unset($row['id'],$row['print_type_id'],$row['count']);
+						
+						if(!isset($end[$row['price_type']]))$end[$row['price_type']] = false;
+						
+						if($row['param_val']==0){
+						      $end_counter = 0;
+							  foreach($row as $key => $val){
+								  if($key!='param_val' && $key!='param_type'){
+									  //echo $val;
+									  if($val==0 && !$end[$row['price_type']]) $end[$row['price_type']] = $end_counter;
+								  } 
+								  $end_counter++;
+							  }
+						}
+						
+						if($end[$row['price_type']]){
+							 $counter = 0;
+							 foreach($row as $key => $val){
+								  if($counter>=$end[$row['price_type']]){
+									  unset($row[$key]);
+								  } 
+								  $counter++;
+							  }
+						  }	
+						
 					    if($row['price_type']=='out') $out_put['print_types'][$print_id]['priceOut_tbl'][$count][] = $row; 
 						else if($row['price_type']=='in')  $out_put['print_types'][$print_id]['priceIn_tbl'][$count][] = $row;  
 				    }
@@ -177,13 +201,40 @@
 				}
 				
 				
+				// выбираем данные по коэффициэнтам влияющим на цену товара
+				$query="SELECT*FROM `".BASE__CALCULATORS_COEFFS."` WHERE `print_id` = '".$print_id."'";
+				//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);/**/
+				if($result->num_rows>0){
+				   $data = $coeff_data= array();
+				    while($row = $result->fetch_assoc()){
+					    $coeff_data[$row['target']][$row['type']][] = array('item_id'=>$row['id'],'title'=>$row['title'],'coeff'=>$row['percentage']);
+						$data[$row['target']][$row['type']] =  array('optional'=>$row['optional'],'multi'=>$row['multi'],'data'=>$coeff_data[$row['target']][$row['type']]);
+						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения
+					    $out_put['print_types'][$row['print_id']]['coeffs'][$row['target']] = $data[$row['target']];   
+				    }
+				}
+				
+				// выбираем данные по надбавкам влияющим на цену товара
+				$query="SELECT*FROM `".BASE__CALCULATORS_ADDITIONS."` WHERE `print_id` = '".$print_id."'";
+				//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);/**/
+				if($result->num_rows>0){
+				    $data = $additions_data= array();
+				    while($row = $result->fetch_assoc()){
+					    $additions_data[$row['target']][$row['type']][] = array('item_id'=>$row['id'],'title'=>$row['title'],'value'=>$row['value']);
+						$data[$row['target']][$row['type']] =  array('optional'=>$row['optional'],'multi'=>$row['multi'],'data'=>$additions_data[$row['target']][$row['type']]);
+						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения
+					    $out_put['print_types'][$row['print_id']]['additions'][$row['target']] = $data[$row['target']];   
+				    }
+				}
 				// НУЖНА ЕЩЕ ИНФОРМАЦИЯ О СТОИМОСТИ ПОДГОТОВИТЕЛЬНЫХ РАБОТ
 			}
 			
 			return $out_put;
 		}
 		
-		function json_fix_cyr($json_str) { 
+		static function json_fix_cyr($json_str) { 
 			$cyr_chars = array ( 
 			'\u0430' => 'а', '\u0410' => 'А', 
 			'\u0431' => 'б', '\u0411' => 'Б', 
@@ -229,7 +280,7 @@
 			} 
 			return $json_str; 
          } 
-		function save_calculatoins_result($details_obj){
+		static function save_calculatoins_result($details_obj){
 		    global $mysqli;  
 			
 			print_r($details_obj);
@@ -268,7 +319,7 @@
 			
 			}
 		}
-		function delete_prints_for_row($dop_row_id,$usluga_id,$all){
+		static function delete_prints_for_row($dop_row_id,$usluga_id,$all){
 		    global $mysqli;  
 			
 			// если надо удалить все расчеты нанесения
@@ -286,7 +337,7 @@
 				 $mysqli->query($query)or die($mysqli->error);
 			}
 		}
-		function change_quantity_and_calculators($quantity,$dop_data_id){
+		static function change_quantity_and_calculators($quantity,$dop_data_id){
 		    global $mysqli;  
 			$itog_sums = array("summ_in"=>0,"summ_out"=>0);
 			// если надо удалить все расчеты нанесения
@@ -327,7 +378,7 @@
 				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).'}';
 			}
 		}
-		function change_quantity_and_calculators_price_query($quantity,$print_id,$priceIn_tblYindex,$priceOut_tblXindex){
+		static function change_quantity_and_calculators_price_query($quantity,$print_id,$priceIn_tblYindex,$priceOut_tblXindex){
 		    global $mysqli;  
 			
 			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' ORDER by id, param_val";
@@ -355,7 +406,7 @@
 					return array("price_in"=> $new_priceIn,"price_out"=> $new_priceOut);
 				}
 		}
-		function make_calculations($quantity,$new_price_arr,$print_dop_params){
+		static function make_calculations($quantity,$new_price_arr,$print_dop_params){
 			
 			$all_coeffs = 1;
 			$new_summs = array();
