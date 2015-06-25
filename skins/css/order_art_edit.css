@@ -35,7 +35,7 @@
 }
 
 .sevrice_button_size_table{ padding-top: 15px}
-#order_art_edit_content_table{padding: 10px 0}
+#order_art_edit_content_table{padding: 10px 0 150px 0}
 #order_art_edit_content_table .cell.b_r{border-right: 1px solid #adacab}
 #edit_option_content{padding: 0 10px}
 #characteristics_and_delivery{ width: 100%}
@@ -43,9 +43,13 @@
 #characteristics_and_delivery .cell.b_r{border-right: 1px solid #adacab}
 #characteristics_and_delivery .cell.left_bord{ padding-left: 15px; vertical-align: top}
 #characteristics_and_delivery .cell.left_bord table tr td{padding: 5px}
-#characteristics_art{ margin-top: 10px}
-#characteristics_art .table .row .cell{ padding: 5px}
-#characteristics_art .table .row .cell:nth-of-type(1){color: #7E7F83;}
+
+#characteristics_art,#inform_for_variant{ margin-top: 10px}
+#characteristics_art .table .row .cell,#inform_for_variant .table .row .cell{ padding: 5px}
+#characteristics_art .table .row .cell:nth-of-type(1),
+#inform_for_variant .table .row .cell:nth-of-type(1){color: #7E7F83;}
+
+
 #technical_assignment{float: left; background-color: #cbcbcb; color: #5F5F5F; margin-top: 10px; margin-left: 15px; padding: 10px 15px}
 #timepicker1,#edit_variants_content .timepicker2{width: 33px;}
 #datepicker1,#edit_variants_content .datepicker2{width: 70px}
@@ -205,7 +209,8 @@
 #variants_name ul #show_archive{float: right; padding: 0}
 #variants_name ul #show_archive a{  padding: 5px 15px;float: right; color: #5a5c61; cursor: default;}
 #variants_name ul li#choose_end_variant,#variants_name ul li#extract_from_archive{background-image: url('../images/img_design/choose_end_variant.png'); background-repeat: no-repeat; padding-left: 45px; float: right; background-position: 12px 0;}
-.variant_info .row .cell table tr td .edit_row_variants{ 
+
+.variant_info table tr td .edit_row_variants{ 
 	background: url('../images/img_design/edit_row_variants.png') no-repeat; 
 	float: right; 
 	margin:auto;
@@ -214,18 +219,28 @@
   background-position: 0px 2px;
   border: 1px solid #fff;
 }
-.variant_info .row .cell table tr td .del_row_variants{ 
-	background: url('../images/img_design/del_row_variants.png') no-repeat; 
-	float: right; 
-	margin:auto;
-	  width: 30px;
+.variant_info table tr td .del_row_variants{ 
+  background: url('../images/img_design/del_row_variants.png') no-repeat; 
+  float: right; 
+  margin:auto;
+    width: 30px;
   height: 30px;
   background-position: 5px 5px;
   border: 1px solid #fff;
 }
-.variant_info .row .cell table tr td .edit_row_variants:hover,.variant_info .row .cell table tr td .del_row_variants:hover{border-color: #E8E8E8;}
+.calkulate_table  span.del_row_variants{ 
+  background: url('../images/img_design/del_row_variants.png') no-repeat; 
+  float: right; 
+  margin:auto;
+    width: 30px;
+  height: 30px;
+  background-position: 5px 5px;
+  border: 1px solid #fff;
+  padding: 0
+}
+.variant_info table tr td .edit_row_variants:hover,.variant_info table tr td .del_row_variants:hover{border-color: #E8E8E8;}
 
-.variant_info .row .cell table tr td input[type="text"]{background-color: #c7c8ca; border: none; text-align: right; width: 70px }
+.variant_info table tr td input[type="text"]{background-color: #c7c8ca; border: none; text-align: right; width: 70px }
 
 .variant_info .size_card table tr td:nth-of-type(3){ color: #5a5c61; font-size: 10px;}
 .variant_info .size_card table tr td:nth-of-type(2){ color: #5a5c61; font-size: 10px;}
@@ -234,21 +249,21 @@
 
 .variant_info{width: 100%}
 .variant_info .cell{ vertical-align: baseline; padding: 5px 10px 5px 0}
-.variant_info .row .cell table{width:100%; border:none;border-collapse: collapse}
-.variant_info .row .cell table tr th{ background-color: #c7c8ca;  font-weight: normal; text-align: right;color: #5a5c61;
+.variant_info table{width:100%; border:none;border-collapse: collapse}
+.variant_info table tr th{ background-color: #c7c8ca;  font-weight: normal; text-align: right;color: #5a5c61;
   font-size: 10px; }
-.variant_info .row .cell table tr th.del_cell,.variant_info .row .cell table tr th.edit_cell{width: 32px; text-align: center;}
-.variant_info .row .cell table tr td{  text-align: right; }
-.variant_info .row .cell table tr td:nth-of-type(2){  text-align: left; }
-.variant_info .row .cell table tr th:nth-of-type(2){min-width: 50px;text-align: left;}
-.variant_info .row .cell table tr th:nth-of-type(1){
+.variant_info table tr th.del_cell,.variant_info table tr th.edit_cell{width: 32px; text-align: center;}
+.variant_info table tr td{  text-align: right; }
+.variant_info table tr td:nth-of-type(2){  text-align: left; }
+.variant_info table tr th:nth-of-type(2){min-width: 50px;text-align: left;}
+.variant_info table tr th:nth-of-type(1){
   font-weight: bold; text-align: left; font-size: 12px; color:#000;padding-left: 15px}
-.variant_info .row .cell table.calkulate_table tr th:nth-of-type(1){
+.variant_info table.calkulate_table tr th:nth-of-type(1){
   padding-left: 24px
 }
 
-.variant_info .row .cell table.calkulate_table tr th.type_row_calc_tbl,
-.variant_info .row .cell table.calkulate_table tr td.type_row_calc_tbl{
+.variant_info table.calkulate_table tr th.type_row_calc_tbl,
+.variant_info table.calkulate_table tr td.type_row_calc_tbl{
     padding: 0;
   height: 21px;
 }
@@ -259,6 +274,7 @@
 }
 .calkulate_table .edit_span{
   border: 1px solid #EAE6E6;
+  background-color: #fff;
 }
 .calkulate_table .variant_calc_itogo span{border: 0px}
 
@@ -414,35 +430,37 @@ span.snab_comment {
   color: #9BD0FC;
 }
 #variant_of_snab{ }
-#variant_of_snab table{ border-collapse: collapse; width: 100%; display: none}
+#variant_of_snab table.show_table{ border-collapse: collapse; width: 100%}
 #variant_of_snab table.show_table{display: table}
 #variant_of_snab table.show_table tr td:nth-last-child(1) input{ width: 98%; padding: 0 1%;outline:none;}
 #variant_of_snab .show_table tr td:nth-of-type(1) span{ padding:2px 5px; border:1px solid grey;}
-#variant_of_snab table tr th{ background-color: #e8e8e8; font-weight: normal; font-size: 10px; color: grey; padding: 5px}
-#variant_of_snab table tr td{  font-size: 10px;  padding: 5px; }
+#variant_of_snab table.show_table.show_table tr th{ background-color: #e8e8e8; font-weight: normal; font-size: 10px; color: grey; padding: 5px}
+#variant_of_snab table.show_table tr td{  font-size: 10px;  padding: 5px; }
 
 
 
-#variant_of_snab table tr th:nth-of-type(2),
-#variant_of_snab table tr td:nth-of-type(2){text-align: left;}
-#variant_of_snab table tr th:nth-of-type(3),
-#variant_of_snab table tr td:nth-of-type(3){text-align: right;}
-#variant_of_snab table tr th:nth-of-type(4),
-#variant_of_snab table tr td:nth-of-type(4){text-align: center;}
-#variant_of_snab table tr th:nth-of-type(5),
-#variant_of_snab table tr td:nth-of-type(5){text-align: center;}
-#variant_of_snab table tr th:nth-of-type(6),
-#variant_of_snab table tr td:nth-of-type(6){text-align: right;}
-#variant_of_snab table tr th:nth-of-type(7),
-#variant_of_snab table tr td:nth-of-type(7){text-align: right;}
-#variant_of_snab table tr th:nth-of-type(8),
-#variant_of_snab table tr td:nth-of-type(8){text-align: center;}
-#variant_of_snab table tr th:nth-last-child(1),
-#variant_of_snab table tr td:nth-last-child(1){text-align: left;}
-#variant_of_snab table tr td:nth-last-child(1){text-align: left;color: #9BD0FC;}
+#variant_of_snab table.show_table tr th:nth-of-type(2),
+#variant_of_snab table.show_table tr td:nth-of-type(2){text-align: left;}
+#variant_of_snab table.show_table tr th:nth-of-type(3),
+#variant_of_snab table.show_table tr td:nth-of-type(3){text-align: right;}
+#variant_of_snab table.show_table tr th:nth-of-type(4),
+#variant_of_snab table.show_table tr td:nth-of-type(4){text-align: center;}
+#variant_of_snab table.show_table tr th:nth-of-type(5),
+#variant_of_snab table.show_table tr td:nth-of-type(5){text-align: center;}
+#variant_of_snab table.show_table tr th:nth-of-type(6),
+#variant_of_snab table.show_table tr td:nth-of-type(6){text-align: right;}
+#variant_of_snab table.show_table tr th:nth-of-type(7),
+#variant_of_snab table.show_table tr td:nth-of-type(7){text-align: right;}
+#variant_of_snab table.show_table tr th:nth-of-type(8),
+#variant_of_snab table.show_table tr td:nth-of-type(8){text-align: center;}
+#variant_of_snab table.show_table tr th:nth-of-type(9),
+#variant_of_snab table.show_table tr td:nth-of-type(9){text-align: center;}
+#variant_of_snab table.show_table tr th:nth-last-child(1),
+#variant_of_snab table.show_table tr td:nth-last-child(1){text-align: left;}
+#variant_of_snab table.show_table tr td:nth-last-child(1){text-align: left;color: #9BD0FC;}
 
-#variant_of_snab table tr:hover{ background-color: #f4f4f4}
-#variant_of_snab table tr .checked_row{background-color: #DAD9D9;}
+#variant_of_snab table.show_table tr:hover{ background-color: #f4f4f4}
+#variant_of_snab table.show_table tr .checked_row{background-color: #DAD9D9;}
 
 #dialog_gen_window_form{display: none}
 .delete_user_val{  padding: 0px 6px;
@@ -474,3 +492,35 @@ span.snab_comment {
 .answer_table tr td{
   border:1px solid grey;
 }
+
+.variants_show_head_block{
+  border: 2px solid #CBDFA7;
+  border-radius: 5px;
+  margin-top: 15px;
+  padding: 0 10px;
+}
+
+.variants_show_head_block ul{padding: 0; margin: 0}
+.variants_show_head_block ul li {display: inline-block;  padding: 5px 7px;}
+.variants_show_head_block ul li:hover {background-color: #CBDFA7; cursor:default;}
+.variants_show_head_block ul li.checked{background-color: #BAD28E;}
+
+.dop_info_for_snab_calculate{ padding: 15px}
+.variant_info .table_extended_info th{   background-color: #cbdfa7;
+  color: #5a5c61; }
+.variant_info .table_extended_info td{padding: 0}
+
+#inform_for_variant_head{ font-weight: bold; text-decoration: underline;}
+.edit_snab_comment{ min-height: 15px; border:1px solid grey; background: #fff; font-size: 12px; color: black; padding: 3px}
+
+#variant_of_snab table.show_table tr:nth-child(even){ background-color: #F5FAFF;}
+
+#variant_of_snab table.calkulate_table tr td:nth-last-child(1){ width: 35px}
+#variant_of_snab table.calkulate_table tr td:nth-last-child(2){ width: 35px}
+#variant_of_snab table.calkulate_table tr td:nth-last-child(3){ width: 80px}
+#variant_of_snab table.calkulate_table tr td:nth-last-child(4){ width: 80px}
+#variant_of_snab table.calkulate_table tr td:nth-last-child(5){ width: 150px}
+#variant_of_snab table.calkulate_table tr td:nth-of-type(1){ width: 450px}
+
+#variant_of_snab table.calkulate_table tr.calculate.calculate_usl td:nth-child(even){ background-color: #F5FAFF;}
+#variant_of_snab table.calkulate_table tr.calculate.calculate_usl td.usl_del{ background: none;}

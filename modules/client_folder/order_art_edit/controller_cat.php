@@ -300,7 +300,7 @@
 		// $std_pr = ($value['standart']=='10' && $type_tovar=='cat')?1:0;
 		$std_time_print = ($value['standart']=='10' && $type_tovar=='cat')?'checked':'';
 
-
+		
 		include 'skins/tpl/client_folder/order_art_edit/variants_template.tpl';
 
 	}

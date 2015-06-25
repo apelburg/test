@@ -173,17 +173,33 @@ PS было бы неплохо взять взять это за правило
      				'btn_add_val'=>false,
      				'cancel_selection' =>true
      				),
+     			'date_calc_snab' => array(
+     				'name'=>'Желаемый срок готовности рассчета',
+     				'note'=>'стандартно, или до дата.',
+     				'moderate'=>true,
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
      			'date_print' => array(
-     				'name'=>'Дата сдачи',
-     				'note'=>'если необходима конкретная дата поставки',
-     				'moderate'=>false,
-     				'btn_add_var'=>true,
+     				'name'=>'Срок сдачи заказа клиенту',
+     				'note'=>'укажите дату если необходима конкретная дата отгрузки',
+     				'moderate'=>true,
+     				'btn_add_var'=>false,
      				'btn_add_val'=>false,
      				'cancel_selection' =>false
      				),
      			'how_mach' => array(
      				'name'=>'Бюджет',
      				'note'=>'',
+     				'moderate'=>false,
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'images' => array(
+     				'name'=>'Путь к макету',
+     				'note'=>'если есть картинка или фото',
      				'moderate'=>false,
      				'btn_add_var'=>false,
      				'btn_add_val'=>false,
@@ -196,16 +212,9 @@ PS было бы неплохо взять взять это за правило
      				'btn_add_var'=>false,
      				'btn_add_val'=>false,
      				'cancel_selection' =>false
-     				),     			
-     			'images' => array(
-     				'name'=>'Путь',
-     				'note'=>'если есть картинка или фото',
-     				'moderate'=>false,
-     				'btn_add_var'=>false,
-     				'btn_add_val'=>false,
-     				'cancel_selection' =>false
      				)
-    			)
+    			)    			
+     			
      		);
 
 
@@ -329,9 +338,13 @@ PS было бы неплохо взять взять это за правило
 
 		private function insert_new_dop_data_row_Database($new_position_id,$json_for_variant){
 			global $mysqli;	
+			// получаем информацию о тираже варианта
 			$arr = json_decode($json_for_variant,true);
 			$quantity = $arr['quantity'];
-			unset($arr['quantity']);$json_for_variant = json_encode($arr);
+
+			// исключаем информацию о тираже из json варианта
+			// unset($arr['quantity']);
+			//$json_for_variant = json_encode($arr);
 
 
 			// status_snab - присваиватся(по умолчанию) первый статус - on_calculation (на расчёт)
@@ -341,7 +354,7 @@ PS было бы неплохо взять взять это за правило
 				`price_in` = '0',
 				`price_out` = '0',
 				`create_date` = CURRENT_DATE(),
-				no_cat_json = '".$json_for_variant."'";		 
+				no_cat_json = '".addslashes($json_for_variant)."'";		 
 		    
 		    $result = $mysqli->query($query) or die($mysqli->error);
 			
@@ -449,12 +462,12 @@ PS было бы неплохо взять взять это за правило
 			echo $html;
 		}
 
+		// чистим дубли в ма
+
 		// возвращает таблицу всех возможных вариантов из множества, которое натыкал юзер
 		private function greate_table_variants_Html($arr,$product_options,$type_product){
-			// echo '<pre>';
-			// print_r($arr);
-			// echo '</pre>';
-			// return 1;
+			
+			$arr = $this->delete_identical_variants_Array($arr);
 
 			// поучаем массив вариантов
 			$array = $this->greate_array_variants_Array($arr);
@@ -511,9 +524,13 @@ PS было бы неплохо взять взять это за правило
 			foreach ($arr as $key => $value) {
 				$count = $count*count($value);
 			}		
-
+			
 			// создаем массив вариантов 
 			$n = 0;
+
+			// объявляем новый массив
+			$variants = array();
+
 			foreach ($arr as $key2 => $value2) {
 				
 				if ($n==0) {
@@ -533,17 +550,34 @@ PS было бы неплохо взять взять это за правило
 						$f++;		
 						}	//$f++;
 					}
-					$n++;
+					$n=0;
 				}
-
-				
-
 			}
-			
-
 			return $variants;
 		}
 
+
+		//вычищаем дубли вариантов появившиеся из-за неверного заполнения формы
+		private function delete_identical_variants_Array($arr){
+			$new_arr = array();
+			foreach ($arr as $key => $value) {
+				$new_arr[$key][0] = $value[0];
+				foreach ($value as $key2 => $value2) {
+					$identical = 0;
+					foreach ($new_arr[$key] as $key3 => $value3) {
+						if($value3==$value2){// если такой уже есть 
+							$identical = 1;
+						}
+					}
+					if($identical==0){// если это не повтор
+						$new_arr[$key][] = $value2;
+					}
+
+				}
+			}
+			return $new_arr;
+		}
+		
 		// всомагательная функция обработки результатов выбора 
 		private function gg_Array($arr,$n=0,$product_options){
 			$html = array();

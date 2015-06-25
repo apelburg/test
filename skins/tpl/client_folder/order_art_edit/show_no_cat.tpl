@@ -11,29 +11,8 @@
 
 <script type="text/javascript" src="../libs/js/jsArticulus.js"></script> -->
 
-<script type="text/javascript">
+<script type="text/javascript" src="./libs/js/position_no_cat.js"></script>
 
-
-
-$(document).on('click', '#all_variants_menu_pol .variant_name', function(event) {
-	$('.variant_name').removeClass('checked');
-	$(this).addClass('checked');
-	var table_id = $(this).attr('data-cont_id');
-	$('#variant_of_snab table').removeClass('show_table');
-	$('#'+table_id).addClass('show_table');
-});
-
-
-// $(document).on('click', '#variant_of_snab table tr td', function(event) {
-// 	$('#variant_of_snab').find('.checked_row').removeClass('checked_row');
-// 	$(this).parent().find('td').addClass('checked_row');
-// });
-
-
-
-
-
-</script>
 <div id="order_art_edit">
 	<div id="info_string_on_query">
 		<ul>
@@ -64,7 +43,7 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 					<div class="table" id="characteristics_and_delivery">
 						<div class="row">
 							<div class="cell  b_r" >
-								<strong>Характеристики изделия:</strong>
+								<strong>Запрос, полная информация:</strong>
 								<div class="table" id="characteristics_art">
 									<div class="row">
 										<div class="cell">
@@ -76,54 +55,10 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 									</div>
 								</div>								
 							</div>
-							<div class="cell left_bord">								
-											<table>
-												<tr><td colspan="2"><strong>Даты сдачи:</strong></td></tr>
-												<tr>
-													<td><span style="color: grey;">Расчёт:</span></td>
-													<td>
-														<span id="btn_date_std" class="btn_var_std">стандартно</span>
-														<input type="text" name="date" id="datepicker1">
-														<input type="text" name="time" id="timepicker1">
-													</td>
-												</tr>
-												<tr>
-													<td><span style="color: grey;">Отгрузка:</span></td>
-													<td>
-														<span id="btn_date_std" class="btn_var_std">стандартно</span>
-														<input type="text" name="date" id="datepicker1">
-														<input type="text" name="time" id="timepicker1">
-													</td>
-												</tr>
-												<tr>
-													<td><span style="color: grey;">Макет:</span></td>
-													<td>
-														<span id="btn_date_std" class="btn_var_std">стандартно</span>
-														<input type="text" name="date" id="datepicker1">
-														<input type="text" name="time" id="timepicker1">
-													</td>
-												</tr>											
-												<tr>
-													<td>Бюджет:</td>
-													<td>
-														стоимость для клиента не выше 140 рублей, короткая строка, ограничить кол-во символов
-													</td>
-												</tr>
-												<tr>
-													<td colspan="2">
-														<span class="snab_comment">
-															<span class="slaches">/</span>
-															140р для заказчика не реальный бюджет АКСар
-														</span>
-													</td>
-												</tr>
-											</table>
-
-										
-								
-								
-								
-								
+							<div class="cell left_bord">			
+								<div id="inform_for_variant_head">Вариант № <span id="inform_for_variant_number">1</span>, характеристика изделия:</div>
+								<div id="inform_for_variant"></div>
+											
 							</div>
 						</div>
 					</div>
@@ -134,7 +69,7 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 					
 					<?php
 
-					echo $POSITION_NO_CAT->get_all_on_calculation_Html();
+					echo $POSITION_NO_CAT->get_all_on_calculation_Html($type_product);
 
 					?>
 					
