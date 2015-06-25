@@ -19,8 +19,8 @@
 	if(isset($_POST['AJAX'])){	
 		// добаление данных, прикрепление новой услуги к расчёту
 		if($_POST['AJAX']=='add_new_usluga'){
-			Position_no_catalog::add_uslug_Database($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
-			echo '{"response":"close_window"}';
+			$POSITION_NO_CAT->add_uslug_Database_Html($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
+			
 			exit;
 		}
 

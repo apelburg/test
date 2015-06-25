@@ -275,7 +275,7 @@ class Position_no_catalog{
 										<td>1 шт.</td>
 										<td class="row_tirage_in_one price_in"><span '.$edit_admin.$edit_snab.'>'.round(($arr['price_in']/$arr['quantity']),2).'</span> р.</td>
 										<td rowspan="2" class="percent_nacenki">
-											<span contenteditable="true" class="edit_span">'.$percent.'</span>%
+											<span '.$edit_admin.$edit_snab.$edit_men.'>'.$percent.'</span>%
 
 										</td>
 										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$edit_admin.$edit_snab.'>'.round(($arr['price_out_snab']/$arr['quantity']),2).'</span> р.</td>
@@ -319,12 +319,14 @@ class Position_no_catalog{
 		$html .= '</td><td style="display:none">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->FORM/*экземпляр класса форм*/,$this->type_product).'</td></tr></table>';
 		$html .= '</div>';
 
-
+		
 		return $html;
 	}
 
 	// ВЫВОДИТ СПИСОК УСЛУГ ПРИКРЕПЛЁННЫХ ДЛЯ ВАРИАНТА
-	private function uslugi_template_Html($arr){
+	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
+	// названия группы услуги
+	private function uslugi_template_Html($arr, $NO_show_head = 0){
 		// определяем редакторов для полей (html тегов)
 		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
@@ -360,8 +362,11 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 		$uslname = '';
 		foreach ($name_uslugi as $key => $value) {
-			if($uslname!=$value['parent_name']){
-				$html .= '<tr>
+			// $NO_show_head добавлен как необязательная переменная для отключения вывода 
+			// названия группы услуги
+
+			if($uslname!=$value['parent_name'] && !$NO_show_head){
+				$html .= '<tr  class="group_usl_name" data-usl_id="'.$value['parent_id'].'">
 		 				<th colspan="8">'.$value['parent_name'].'</th>
  				</tr>';
  				$uslname = $value['parent_name'];
@@ -380,7 +385,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 					$real_price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value2['quantity'];
 
-					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'">
+					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'" data-our_uslugi_parent_id="'.trim($value['parent_id']).'">
 										<td>'.$value['name'].' '.$dop_inf.'</td>
 										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$price_in.'</span> р.</td>
 										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$edit_admin.$edit_snab.$edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
@@ -430,6 +435,20 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	private function get_uslugi_Database_Array($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$arr = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+		return $arr;
+	}
+
+	// получаем услугу по id   МОЖЕТ НЕ ПОНАДОБИТЬСЯ !!!!!!!!!!!!!!!!!!
+	private function get_uslugi_of_id_Database_Array($id){
+		global $mysqli;
+		$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE id = '".$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);				
 		$arr = array();
 		if($result->num_rows > 0){
@@ -559,14 +578,21 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	//удаление услуги
 	static function del_uslug_Database($uslugi_id){
 		global $mysqli;
-		$query = "DELETE FROM  `apelburg_base`.`".OUR_USLUGI_LIST."` WHERE  `id` = '".$uslugi_id."';
+		$query = "DELETE FROM  `".RT_DOP_USLUGI."` WHERE  `id` = '".$uslugi_id."';
 ";
 		echo $query; echo  '   ';
 		$result = $mysqli->query($query) or die($mysqli->error);
 	}
 
 	// добавить доп услугу для варианта
-	static function add_uslug_Database($id_uslugi,$dop_row_id,$quantity){
+	public function add_uslug_Database_Html($id_uslugi,$dop_row_id,$quantity){
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
+
+
 		global $mysqli;
 		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` = '".$id_uslugi."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -579,7 +605,14 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 		if(empty($usluga)){return 'такой услуги не существует';}
 
-		
+
+
+
+		// получаем флаг если этой услуги ещё нет и придётся формировать имя группы услуг
+		$flag = $this->check_parent_exists_Database_Int($dop_row_id,$usluga['parent_id']);
+
+
+		// вставляем новую услугу в базу
 		$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
 		             `dop_row_id` = '".$dop_row_id."',
 		             `uslugi_id` = '".$id_uslugi."',
@@ -589,8 +622,46 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					 `price_out_snab` = '".$usluga['price_out']."',
 					 `for_how` = '".$usluga['for_how']."',
 					 `quantity` = '".$quantity."'";
-		$result = $mysqli->multi_query($query) or die($mysqli->error);	
-		return 1;
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+
+		// формируем массив для генерации HTML выдачи для ajax
+		// ajax примет html и добавить на страницу
+		$NEW_usl[0]['id'] = $mysqli->insert_id;
+		$NEW_usl[0]['dop_row_id'] = $dop_row_id;
+		$NEW_usl[0]['uslugi_id'] = $id_uslugi;
+		$NEW_usl[0]['glob_type'] = 'extra';
+		$NEW_usl[0]['price_in'] = $usluga['price_in'];
+		$NEW_usl[0]['price_out'] = $usluga['price_out'];
+		$NEW_usl[0]['price_out_snab'] = $usluga['price_out'];
+		$NEW_usl[0]['for_how'] = $usluga['for_how'];
+		$NEW_usl[0]['quantity'] = $quantity;
+		
+		// генерим html выдачу для ajax
+		$html = $this->uslugi_template_Html($NEW_usl, $flag);
+
+		echo '{"response":"close_window","name":"add_uslugu","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
+	}
+
+
+	private function check_parent_exists_Database_Int($dop_row_id, $parent_id){
+		global $mysqli;
+		
+		
+		$query = "SELECT `parent_id` FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (SELECT `uslugi_id` FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$dop_row_id."'
+) AND `parent_id` = '".$parent_id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows == 0){
+			$ret = '0';
+		}else{
+			$ret = '1';
+		}
+
+		return $ret;
+
+		
+
+
+		
 	}
 
 

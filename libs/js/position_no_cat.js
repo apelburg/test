@@ -45,6 +45,7 @@ $(document).on('click', '.add_usl', function(event) {
 			AJAX:"get_uslugi_list_Database_Html"
 		}, function(data, textStatus, xhr) {
 		show_dialog_and_send_POST_window(data,'Выберите услугу');
+		
 	});
 	
 });
@@ -61,7 +62,7 @@ $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', functio
 	
 	// получим тираж
 	var quantity = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked td:nth-of-type(3) span').html();
-	console.log(quantity);
+	// console.log(quantity);
 	$('#dialog_gen_window_form form input[name="quantity"]').val(quantity);
 	$('#dialog_gen_window_form form input[name="id_uslugi"]').val(id);
 	$('#dialog_gen_window_form form input[name="dop_row_id"]').val(dop_row_id);
@@ -97,11 +98,37 @@ function show_dialog_and_send_POST_window(html,title){
 	    	$('#general_form_for_create_product .pad:hidden').remove();
 		    $.post('', serialize, function(data, textStatus, xhr) {
 				if(data['response']=='show_new_window'){
-					title = data['title'];
-					show_dialog_and_send_POST_window(data['html']);
+					title = data['title'];// для генерации окна всегда должен передаваться title
+					show_dialog_and_send_POST_window(data['html'],title);
 				}else{
 					$('#dialog_gen_window_form').dialog( "destroy" );
-					console.log(data['response']);
+
+
+					if(data['name'] == 'add_uslugu'){ // если нужно добавить услугу
+						// ADD USLUGA start *** старт ***
+						var added=1; // флаг, который сигнализирует, что HTML добавлен
+						var add_html = Base64.decode(data['html']); // html новой услуги
+						var parent_id_new_usl = Number(data['parent_id']); // parent_id овой услуги
+						console.log(parent_id_new_usl);
+						// поищем по всем группам уже существующих услуг
+						// если найдется подходящая - добаляем html
+						$('#variant_info_' +$('#' + $('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .show_table tr.checked').attr('data-id')+' .calkulate_table .group_usl_name').each(function(index, el) {
+							console.log($(this).attr('data-usl_id')+ ' *  '+parent_id_new_usl);
+							
+							if(Number($(this).attr('data-usl_id'))==parent_id_new_usl){
+								$(this).after(add_html);
+								added=0;
+							}
+						});
+						// если услуга не найдена добаляем в конец
+						if(added){
+							$('#variant_info_' +$('#' + $('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .show_table tr.checked').attr('data-id')+' .calkulate_table .variant_calc_itogo').prev().prev().before(add_html);
+						}
+						// пересчитываем Итого
+						recalculate_table_price_Itogo()
+						// ADD USLUGA end *** конец ***
+						
+					}
 				}
 			},'json');				    	
 	    }
@@ -119,8 +146,15 @@ function show_dialog_and_send_POST_window(html,title){
           autoOpen : true,
           buttons: buttons          
         });
-
 }
+
+
+
+
+
+//###################################################################
+//##  РАБОТА ТАБЛИЦЫ РАСЧЕТОВ В НЕКАТАЛОЖНОЙ ПРОДУКИИ ##   START   ##
+//###################################################################
 
 // КАЛЬКУЛЯЦИЯ
 
@@ -568,3 +602,7 @@ $(document).on('click', '.del_row_variants', function(event) {
 	});
 	
 });
+
+//#################################################################
+//##  РАБОТА ТАБЛИЦЫ РАСЧЕТОВ В НЕКАТАЛОЖНОЙ ПРОДУКИИ ##   END   ##
+//#################################################################

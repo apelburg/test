@@ -11,6 +11,9 @@
 
 <script type="text/javascript" src="../libs/js/jsArticulus.js"></script> -->
 
+<script type="text/javascript" src="./libs/js/classes/Base64Class.js"></script>
+
+
 <script type="text/javascript" src="./libs/js/position_no_cat.js"></script>
 
 <div id="order_art_edit">
