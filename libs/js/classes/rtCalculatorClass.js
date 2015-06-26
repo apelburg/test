@@ -415,8 +415,6 @@ var rtCalculator = {
 		var currRrintParams = rtCalculator.getCurrPrintParams();
 
 		blockB.appendChild(br.cloneNode(true));
-		blockB.appendChild(br.cloneNode(true));
-		blockB.appendChild(br.cloneNode(true));
 		blockB.appendChild(currRrintParams);
 	
 		// дисплей итоговых подсчетов
@@ -540,7 +538,7 @@ var rtCalculator = {
         //                        ([0] => Array ([print_id] => 13[size] => до 630 см2 (А4)[percentage] => 1.00)
 		//						   [1] => Array ([print_id] => 13[size] => до 1260 см2 (А3)[percentage] => 1.50))
 		//				  )
-		
+		printParamsBox.appendChild(document.createElement('HR'));
 		printParamsBox.appendChild(document.createTextNode('коэффициенты'));
 		printParamsBox.appendChild(document.createElement('HR'));
 		if(CurrPrintTypeData['coeffs']){
@@ -558,12 +556,11 @@ var rtCalculator = {
 						          rtCalculator.currentCalculationData.print_details.dop_params.coeffs = {};
 					    if(typeof rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target] === 'undefined')
 								rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target] = {};
-						if(typeof rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target][type] === 'undefined')
+						if(typeof rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target][type] === 'undefined'){
 								rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target][type] = [];
-						
-						console.log(rtCalculator.currentCalculationData.print_details.dop_params.coeffs);
-						for(var index in data.data){
-							rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target][type].push({"value": parseFloat(data.data[index].coeff),"id": data.data[index].item_id});
+								for(var index in data.data){
+									rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target][type].push({"value": parseFloat(data.data[index].coeff),"id": data.data[index].item_id});
+								}
 						}
 						/*;*/
 						
@@ -572,7 +569,7 @@ var rtCalculator = {
 				
 			}
 		}
-		
+		printParamsBox.appendChild(document.createElement('HR'));
 		printParamsBox.appendChild(document.createTextNode('надбавки'));
 		printParamsBox.appendChild(document.createElement('HR'));
 		if(CurrPrintTypeData['additions']){
@@ -595,7 +592,7 @@ var rtCalculator = {
 						
 						console.log(rtCalculator.currentCalculationData.print_details.dop_params.additions);
 						for(var index in data.data){
-							rtCalculator.currentCalculationData.print_details.dop_params.additions[target][type].push({"value": parseFloat(data.data[index].additions),"id": data.data[index].item_id});
+							rtCalculator.currentCalculationData.print_details.dop_params.additions[target][type].push({"value": parseFloat(data.data[index].value),"id": data.data[index].item_id});
 						}
 						/*;*/
 						
@@ -642,9 +639,7 @@ var rtCalculator = {
 				}
 				
 			}
-			
-			printParamsBox.appendChild(br.cloneNode(true));
-			printParamsBox.appendChild(br.cloneNode(true));
+
 			printParamsBox.appendChild(br.cloneNode(true));
 			printParamsBox.appendChild(br.cloneNode(true));
 			printParamsBox.appendChild(printSizesSelect);
@@ -699,6 +694,11 @@ var rtCalculator = {
 			if(data.data[index].value) option.value = data.data[index].value;
 			if(data.data[index].item_id) option.setAttribute("item_id",data.data[index].item_id);
 			if(data.multi==1) option.setAttribute("multi",1);
+			
+			if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type] && rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target] && rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type]){
+			     if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].id==data.data[index].item_id) option.setAttribute("selected",true);
+			}
+			
 			commonSelect.appendChild(option);
 		}
 		
@@ -706,6 +706,11 @@ var rtCalculator = {
 		if(data.multi==1){
 			 var input_field =  document.createElement('INPUT');
 			 input_field.value = 1;
+			 if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type] && rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target] && rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type]){
+			     if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].multi) input_field.value = rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].multi;
+			}
+			 
+			 
 			 input_field.onkeyup = function(){
 				 if(typeof rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].multi !== 'undefined'){
 					rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].multi = this.value;
@@ -827,8 +832,14 @@ var rtCalculator = {
 		var total_price_out = ((((price_out*price_coeff)+price_addition)*rtCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
 		var total_price_in  = ((((price_in*price_coeff)+price_addition)*rtCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
 		
-	    rtCalculator.currentCalculationData.price_out = total_price_out/rtCalculator.currentCalculationData.quantity;
-		rtCalculator.currentCalculationData.price_in  = total_price_in/rtCalculator.currentCalculationData.quantity;
+		total_price_out = Math.round(total_price_out * 100) / 100 ;
+		total_price_in = Math.round(total_price_out * 100) / 100 ;
+		
+	    rtCalculator.currentCalculationData.price_out = Math.round(total_price_out/rtCalculator.currentCalculationData.quantity * 100) / 100;
+		rtCalculator.currentCalculationData.price_in  = Math.round(total_price_in/rtCalculator.currentCalculationData.quantity * 100) / 100;
+		
+		total_price_out = Math.round((rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity) * 100) / 100 ;
+		total_price_in = Math.round((rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity) * 100) / 100 ;
 		
 		var total_str  = '';
 		    total_str += 'ВХОД - цена за штуку: '+(rtCalculator.currentCalculationData.price_in).toFixed(2)+',   за Тираж: '+(total_price_in).toFixed(2)+'<br><br>';
@@ -836,10 +847,10 @@ var rtCalculator = {
 		   
 			
 			total_str += '<br><br>';
-			total_str += 'коэффициэнты прайса: '+price_coeff_list+'<br>';
-			total_str += 'надбавки прайса: '+price_additions_list+'<br>';
-			total_str += 'коэффициэнты суммы: '+summ_coefficient_list+'<br>';
-			total_str += 'надбавки суммы: '+summ_additions_list+'<br>';
+			total_str += '<span style="color:#FF6633;">коэффициэнты прайса:</span> '+price_coeff_list+'<br>';
+			total_str += '<span style="color:#FF6633;">надбавки прайса:</span> '+price_additions_list+'<br>';
+			total_str += '<span style="color:#FF6633;">коэффициэнты суммы:</span> '+summ_coefficient_list+'<br>';
+			total_str += '<span style="color:#FF6633;">надбавки суммы:</span> '+summ_additions_list+'<br>';
 		
 		    document.getElementById("rtCalculatorItogDisplay").innerHTML = total_str;
 	}
@@ -862,11 +873,11 @@ var rtCalculator = {
 		
 		delete rtCalculator.dataObj_toEvokeCalculator;
 		
-		console.log('>>> saveCalculatorResult');
+		console.log('>>> saveCalculatorResult --');
 		console.log(rtCalculator.currentCalculationData);
-        console.log('<<< saveCalculatorResult');
+        console.log('<<< saveCalculatorResult --');
 		
-		
+		//return;
 		// формируем url для AJAX запроса
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_calculator_result=1&details='+JSON.stringify(rtCalculator.currentCalculationData));
 		rtCalculator.send_ajax(url,callback);
@@ -971,6 +982,7 @@ var rtCalculator = {
 			// строим таблицу с ценами
 			var tbl = tbl[0];
 			var tbl_html = document.createElement('TABLE');
+			tbl_html.className = "calculatorPriceTbl";
 			//alert(tbl.length);
 			for(var row in tbl){
 				var tr = document.createElement('TR');
@@ -1372,7 +1384,7 @@ var rtCalculator = {
 						
 						
 						function callback(response){
-							
+							alert(response);
 							var response_obj = JSON.parse(response);
 							//console.log(response_obj);
 							// если ответ был ok значит все нормально изменения сделаны 

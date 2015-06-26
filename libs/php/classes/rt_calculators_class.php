@@ -340,21 +340,25 @@
 		static function change_quantity_and_calculators($quantity,$dop_data_id){
 		    global $mysqli;  
 			$itog_sums = array("summ_in"=>0,"summ_out"=>0);
-			// если надо удалить все расчеты нанесения
+			// делаем запрос чтобы получить данные о всех расчетах нанесений привязанных к данному ряду
 		    $query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
 			                    `".RT_DOP_DATA."` dop_data
 								  ON dop_data.`id` =  uslugi.`dop_row_id`
-			                      WHERE dop_data.`id` = '".$dop_data_id."'";
+			                      WHERE uslugi.glob_type ='print' AND dop_data.`id` = '".$dop_data_id."'";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
 				while($row = $result->fetch_assoc()){
+				    // детали расчета нанесения
 					$print_details_obj = json_decode($row['print_details']);
-					//print_r($print_details_obj->dop_params);
-					//echo "\r\n";
-					$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj->print_id,$print_details_obj->priceIn_tblYindex,$print_details_obj->priceOut_tblXindex);
-					//print_r($new_price_arr);
-					//echo "\r\n";
+					//print_r($print_details_obj->dop_params);echo "\r\n";//
+					
+					// получаем новые исходящюю и входящюю цену исходя из нового таража
+					$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj->print_id,$print_details_obj->priceIn_tblYindex,$print_details_obj->priceOut_tblYindex);
+					//print_r($new_price_arr);echo "\r\n";//
+					
+					
+					// рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
 					$new_data = self::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 					
 					// перезаписываем новые значения прайсов и X индекса обратно в базу данных
@@ -378,7 +382,7 @@
 				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).'}';
 			}
 		}
-		static function change_quantity_and_calculators_price_query($quantity,$print_id,$priceIn_tblYindex,$priceOut_tblXindex){
+		static function change_quantity_and_calculators_price_query($quantity,$print_id,$priceIn_tblYindex,$priceOut_tblYindex){
 		    global $mysqli;  
 			
 			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' ORDER by id, param_val";
@@ -400,7 +404,7 @@
 						}
 						// определяем новые входящие и исходящие цены
 						if($row['price_type']=='in' && $row['param_val']==$priceIn_tblYindex) $new_priceIn = $row[$newIn_Xindex];
-						if($row['price_type']=='out' && $row['param_val']==$priceIn_tblYindex) $new_priceOut = $row[$newOut_Xindex];   
+						if($row['price_type']=='out' && $row['param_val']==$priceOut_tblYindex) $new_priceOut = $row[$newOut_Xindex];   
 				    }
 					// echo "\r\n In".$newIn_Xindex.' '.$new_priceIn; echo "\r\n Out".$newOut_Xindex.' '.$new_priceOut;
 					return array("price_in"=> $new_priceIn,"price_out"=> $new_priceOut);
@@ -408,21 +412,71 @@
 		}
 		static function make_calculations($quantity,$new_price_arr,$print_dop_params){
 			
-			$all_coeffs = 1;
+			$price_coeff = $summ_coeff = 1;
+			$price_addition = $summ_addition = 0;
 			$new_summs = array();
-			 
-			foreach($print_dop_params as $set){
-				foreach($set as $data){
-				    //echo "coeff ".$data->coeff."\r\n";
-					$all_coeffs *= (float)$data->coeff;
+			//print_r($print_dop_params);
+			
+		    // КОЭФФИЦИЕНТЫ НА ПРАЙС
+			// КОЭФФИЦИЕНТЫ НА ИТОГОВУЮ СУММУ
+			// НАДБАВКИ НА ПРАЙС
+			// НАДБАВКИ НА ИТОГОВУЮ СУММУ
+			foreach($print_dop_params as $glob_type => $set){
+				
+				if($glob_type=='colors' || $glob_type=='sizes'){
+					foreach($set as $data){
+						//echo "coeff ".$data->coeff."\r\n";
+						$price_coeff *= (float)$data->coeff;
+					}
+				}
+				if($glob_type=='coeffs'){
+					foreach($set as $target => $data){
+					    foreach($data as $type => $details){
+							for($i = 0;$i < count($details);$i++){ 
+								if($target=='price'){
+								     // echo 'coeffs price';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
+								     $price_coeff *= (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								}
+								if($target=='summ'){
+									 // echo 'coeffs summ';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
+									 $summ_coeff *= (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								}
+							}								
+						}
+					}
+				}
+				if($glob_type=='additions'){
+					foreach($set as $target => $data){
+					    foreach($data as $type => $details){
+							for($i = 0;$i < count($details);$i++){ 
+								if($target=='price'){
+								    // echo 'additions price';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
+								     $price_addition += (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								}
+								if($target=='summ'){
+								     // echo 'additions summ';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
+									 $summ_addition += (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								}
+							}								
+						}
+					}
 				}
 			} 
-			//echo "all_coeffs ".$all_coeffs."\r\n";
-			$new_price_arr["price_in"] = (float)$new_price_arr["price_in"]*$all_coeffs;
-			$new_price_arr["price_out"] = (float)$new_price_arr["price_out"]*$all_coeffs;
 			
-			$new_summs["summ_in"] = $quantity*$new_price_arr["price_in"];
-			$new_summs["summ_out"] = $quantity*$new_price_arr["price_out"];
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+			// CXEMA  - new_summ = ((((price*price_coeff)+price_addition)*quantity)*sum_coeff)+sum_addition
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+			
+			
+			$new_summs["summ_in"] = round((((($new_price_arr['price_in']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
+			$new_summs["summ_out"] = round((((($new_price_arr['price_out']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
+		
+			
+			//echo "all_coeffs ".$all_coeffs."\r\n";
+			$new_price_arr["price_in"] =  round($new_summs["summ_in"]/$quantity,2);
+			$new_price_arr["price_out"] = round($new_summs["summ_out"]/$quantity,2);
+			$new_summs["summ_in"] = round($new_price_arr["price_in"]*$quantity,2);
+			$new_summs["summ_out"] = round($new_price_arr["price_out"]*$quantity,2);
 			
 			//echo "all_coeffs ".$all_coeffs." ".$new_summs["summ_in"]." \r";
 			//echo "all_coeffs ".$all_coeffs." ".$new_summs["summ_out"]."\r\n";

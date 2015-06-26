@@ -181,8 +181,8 @@ function deleteColFromTable(cell){
       <td width="150">
          <a href="?<?php echo addOrReplaceGetOnURL('subsection=price_editor'); ?>" class="<?php echo ((empty($_GET['subsection']) ||$_GET['subsection']=='price_editor')?'commoMenuCurrItem':''); ?> commoMenuItem">Прайсы</a>
       </td>
-      <td width="150">
-         <a href="?<?php echo addOrReplaceGetOnURL('subsection=colors_editor'); ?>" class="<?php echo ((!empty($_GET['subsection']) && $_GET['subsection']=='colors_editor')?'commoMenuCurrItem':''); ?> commoMenuItem">Цвета</a>
+      <td width="250">
+         <a href="?<?php echo addOrReplaceGetOnURL('subsection=paramY_editor'); ?>" class="<?php echo ((!empty($_GET['subsection']) && $_GET['subsection']=='paramY_editor')?'commoMenuCurrItem':''); ?> commoMenuItem">Прайс (вертикальный параметр)</a>
       </td>
       <td width="300">
          <a href="?<?php echo addOrReplaceGetOnURL('subsection=sizes_editor'); ?>" class="<?php echo ((!empty($_GET['subsection']) && $_GET['subsection']=='sizes_editor')?'commoMenuCurrItem':''); ?> commoMenuItem">Места нанесения - Размеры нанесения</a>
@@ -190,7 +190,13 @@ function deleteColFromTable(cell){
        <td width="150">
          <a href="?<?php echo addOrReplaceGetOnURL('subsection=places_editor'); ?>" class="<?php echo ((!empty($_GET['subsection']) && $_GET['subsection']=='places_editor')?'commoMenuCurrItem':''); ?> commoMenuItem">Места нанесения</a>
       </td>
-      <td width="250">
+      <td width="150">
+         <a href="?<?php echo addOrReplaceGetOnURL('subsection=coeffs_editor'); ?>" class="<?php echo ((!empty($_GET['subsection']) && $_GET['subsection']=='coeffs_editor')?'commoMenuCurrItem':''); ?> commoMenuItem">Коэффициенты</a>
+      </td>
+      <td width="150">
+         <a href="?<?php echo addOrReplaceGetOnURL('subsection=additions_editor'); ?>" class="<?php echo ((!empty($_GET['subsection']) && $_GET['subsection']=='additions_editor')?'commoMenuCurrItem':''); ?> commoMenuItem">Надбавки</a>
+      </td>
+      <td width="">
         <!-- <a href="?<?php echo addOrReplaceGetOnURL('subsection=places_prints_editor'); ?>" class="<?php echo ((!empty($_GET['subsection']) && $_GET['subsection']=='places_prints_editor')?'commoMenuCurrItem':''); ?> commoMenuItem">Места нанесения - Типы нанесения</a>-->
       </td>
       <td width="">
@@ -199,7 +205,7 @@ function deleteColFromTable(cell){
 </table> 
 <table class="mainWinTbl" border="1">
   <tr>
-    <td width="150" class="leftMenuTd">
+    <td width="200" class="leftMenuTd">
        <?php echo implode('',$menu_arr); ?>
     </td>
     <td class="subContentTd">
