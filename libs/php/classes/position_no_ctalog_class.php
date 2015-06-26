@@ -242,7 +242,7 @@ class Position_no_catalog{
 
 
 					$html .= "<tr data-id='".$value2['id']."'>
-							<td><span>X</span></td>
+							<td><span class='traffic_lights_".$value2['row_status']."'><span></span></span></td>
 							<td>".$n."</td>
 							<td><span>".$value2['quantity']."</span> шт</td>
 							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span> р</td>

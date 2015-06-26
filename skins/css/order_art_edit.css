@@ -152,6 +152,23 @@
     border-radius: 15px;
 }
 
+#edit_variants_content #variant_of_snab span.traffic_lights_green,#edit_variants_content #variant_of_snab span.traffic_lights_grey,#edit_variants_content #variant_of_snab span.traffic_lights_red{
+  width: 16px;
+  height: 16px;
+  float: left;
+ /*   position: absolute;
+  margin-left: -28px;*/
+  margin-left: 10px;
+  margin-top: -4px;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_green span,#edit_variants_content #variant_of_snab span.traffic_lights_grey span, #edit_variants_content #variant_of_snab span.traffic_lights_red span{
+    width: 8px;
+    height: 8px;
+    margin: 3px 0 0 3px;
+    float: left;
+    border-radius: 15px;
+}
+
 /*
 ////////////////////
 */
@@ -159,21 +176,47 @@
   border: 2px solid green;
 }
 #menu_for_variants_status span.traffic_lights_green span{
-    border: 1px solid green;
+    border: 1px solid #92B73E;
+    background-color: #92B73E;
 }
 
 #menu_for_variants_status span.traffic_lights_grey{
-    border: 2px solid grey;
+    border: 2px solid #E3E5E5;
 }
 #menu_for_variants_status span.traffic_lights_grey span{
-      border: 1px solid grey;
+      border: 1px solid #E3E5E5;
 }
 
 #menu_for_variants_status span.traffic_lights_red{
-    border: 2px solid red;
+    border: 2px solid #F69679;
 }
 #menu_for_variants_status span.traffic_lights_red span{
-      border: 1px solid red;
+      border: 1px solid #F69679;
+}
+
+
+
+
+#edit_variants_content #variant_of_snab span.traffic_lights_green{
+  border: 2px solid #92B73E;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_green span{
+    border: 1px solid #92B73E;
+    background-color: #92B73E;
+}
+
+#edit_variants_content #variant_of_snab span.traffic_lights_grey{
+    border: 2px solid #E3E5E5;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_grey span{
+      border: 1px solid #E3E5E5;
+}
+
+#edit_variants_content #variant_of_snab span.traffic_lights_red{
+    border: 2px solid #F69679;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_red span{
+      border: 1px solid #F69679;
 }
 /*
 /////////////////////////*/
@@ -433,7 +476,7 @@ span.snab_comment {
 #variant_of_snab table.show_table{ border-collapse: collapse; width: 100%}
 #variant_of_snab table.show_table{display: table}
 #variant_of_snab table.show_table tr td:nth-last-child(1) input{ width: 98%; padding: 0 1%;outline:none;}
-#variant_of_snab .show_table tr td:nth-of-type(1) span{ padding:2px 5px; border:1px solid grey;}
+/*#variant_of_snab .show_table tr td:nth-of-type(1) span{ padding:2px 5px; border:1px solid grey;}*/
 #variant_of_snab table.show_table.show_table tr th{ background-color: #e8e8e8; font-weight: normal; font-size: 10px; color: grey; padding: 5px}
 #variant_of_snab table.show_table tr td{  font-size: 10px;  padding: 5px; }
 
@@ -512,8 +555,8 @@ span.snab_comment {
 
 #inform_for_variant_head{ font-weight: bold; text-decoration: underline;}
 .edit_snab_comment,.change_srok{ min-height: 15px; border:1px solid grey; background: #fff; font-size: 12px; color: black; padding: 3px}
-.edit_snab_comment.saved,.save_comment_snab{ background-color: #f1f1f1}
-.change_srok.saved,.change_srok.save_work_days{background-color: #f1f1f1}
+.edit_snab_comment.saved,.save_comment_snab{ background-color: #e7e7e7;}
+.change_srok.saved,.change_srok.save_work_days{background-color: #e7e7e7;}
 #variant_of_snab table.show_table tr:nth-child(even){ background-color: #F5FAFF;}
 
 #variant_of_snab table.calkulate_table tr td:nth-last-child(1){ width: 35px}
