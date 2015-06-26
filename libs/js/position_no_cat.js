@@ -104,6 +104,10 @@ function show_dialog_and_send_POST_window(html,title,height){
 				}else{
 					$('#dialog_gen_window_form').dialog( "destroy" );
 
+					if(data['name'] == 'chose_supplier_end'){
+						$('#chose_supplier_id').removeAttr('id');
+
+					}
 
 					if(data['name'] == 'add_uslugu'){ // если нужно добавить услугу
 						
@@ -920,3 +924,74 @@ $(document).on('click', '#chose_supplier_tbl tr td', function(event) {
 	$('#chose_supplier_id').attr('data-id',str_id);
 
 });
+
+
+// КОММЕНТАРИИ ОТ СНАБЖЕНИЯ
+$(document).on('keyup', '.edit_snab_comment', function(event) {
+	timing_save_comment('save_comment_snab',$(this));	
+});
+
+function timing_save_comment(fancName,obj){
+	//если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
+	if(!obj.hasClass('saved')){
+		
+		
+		window[fancName](obj);
+
+		// обнуляем очередь
+		if(obj.hasClass(fancName)){obj.removeClass(fancName);}
+
+		// пишем запрет на save
+		obj.addClass('saved');
+		// снимаем запрет на через n времени
+		// var time = 2000;
+		
+		// setTimeout(function(){obj.removeClass('saved')}, time);				
+	}else{// стоит запрет, проверяем очередь по сейву данной функции
+		
+		if(obj.hasClass(fancName)){ //стоит в очереди на сохранение
+			// стоит очередь, значит мимо... всё и так сохранится
+		}else{
+			// не стоит в очереди, значит ставим
+			obj.addClass(fancName);
+
+			// вызываем эту же функцию через n времени всех очередей
+			var time = 2000;
+			$('.'+fancName).each(function(index, el) {
+				console.log($(this).html());
+				
+				setTimeout(function(){timing_save_comment(fancName,$('.'+fancName).eq(index));}, time);	
+			});
+			
+		}		
+	}
+}
+
+//сохраняет коменты снаба, на вход подаётся объект поля (не imput)
+function save_comment_snab(obj){
+	$.post('', {
+		AJAX: 'edit_snab_comment',
+		note: obj.html(),
+		id_dop_data: obj.parent().parent().attr('data-id')
+	}, function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+		obj.removeClass('saved');
+		
+	});
+}
+
+
+$(document).on('keyup', '.change_srok', function(event) {
+	timing_save_comment('save_worke_days',$(this))
+});
+function save_worke_days(obj){
+	$.post('', {
+		AJAX: 'edit_work_days',
+		work_days: obj.html(),
+		id_dop_data: obj.parent().parent().attr('data-id')
+	}, function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+		obj.removeClass('saved');
+		
+	});	
+}

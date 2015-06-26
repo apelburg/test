@@ -119,6 +119,33 @@ class Position_no_catalog{
 		return $html;
 	}
 
+	
+
+	public function edit_work_days_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `work_days` = '".$this->POST['work_days']."'
+		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK","name":"edit_work_days"}';
+
+	}
+
+	public function edit_snab_comment_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `snab_comment` = '".$this->POST['note']."'
+		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK","name":"edit_snab_comment_Database"}';
+
+	}
 
 	// выводит все варианты по группам, 
 	// по сути является главной функцией вывода основного контента
@@ -179,6 +206,12 @@ class Position_no_catalog{
 
 	// возвращает таблицу со списком вариантов
 	private function get_variants_list_Html($variants_array,$status_snab){
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
+
 		$html = '';
 		$extended_info = '';// расширенная информация по каждому варианту
 		$html .= "<table class='show_table'>";
@@ -215,9 +248,9 @@ class Position_no_catalog{
 							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span> р</td>
 							<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span> р</td>
 							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span> р</td>
-							<td class='change_supplier' data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
+							<td ".(($edit_snab!='' || $edit_admin!='')?"class='change_supplier'":"")." data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
 							<td class='chenge_maket_date'></td>
-							<td class='change_srok'>5</td>";
+							<td><div ".(($edit_snab!='' || $edit_admin!='')?"class='change_srok'":"")." ".$edit_snab.$edit_admin.">".$value2['work_days']."</div></td>";
 				
 				//$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
 				$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><div contenteditable='true' class='edit_snab_comment'> ".$value2['snab_comment']."</div></td>
@@ -256,7 +289,7 @@ class Position_no_catalog{
 // echo $query.'    ';
 		$result = $mysqli->query($query) or die($mysqli->error);
 		
-		echo '{"response":"OK"}';
+		echo '{"response":"OK","name":"chose_supplier_end"}';
 	}
 
 	// форматируем денежный формат + округляем

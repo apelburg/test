@@ -15,6 +15,18 @@
 
 	## POST
 	if(isset($_POST['AJAX'])){	
+		
+		if($_POST['AJAX'] == 'edit_work_days'){
+			$POSITION_NO_CAT->edit_work_days_Database();
+			exit;
+		}
+
+		// редактируем комменты снаба
+		if ($_POST['AJAX'] == 'edit_snab_comment') {
+			$POSITION_NO_CAT->edit_snab_comment_Database();
+			exit;
+		}
+
 		// добаление данных, прикрепление новой услуги к расчёту
 		if($_POST['AJAX']=='add_new_usluga'){
 			$POSITION_NO_CAT->add_uslug_Database_Html($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
