@@ -7,7 +7,8 @@
 	// класс работы с формами
 	include './libs/php/classes/os_form_class.php';
 
-
+	// класс работы с поставщиками
+	include './libs/php/classes/supplier_class.php';
 
 	// класс работы с позициями каталога
 	include './libs/php/classes/articul_class.php';

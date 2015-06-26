@@ -215,7 +215,7 @@ class Position_no_catalog{
 							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span> р</td>
 							<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span> р</td>
 							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span> р</td>
-							<td class='change_supplier'>Антан</td>
+							<td class='change_supplier' data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
 							<td class='chenge_maket_date'></td>
 							<td class='change_srok'>5</td>";
 				
@@ -234,7 +234,35 @@ class Position_no_catalog{
 		return $html;			
 	}
 
-	
+	// // возвращает список имён поставщиков для каждого варианта
+	// private function get_suppliers_Database_String($id_s){
+	// 	$suppliers_arr = Supplier::get_suppliers_Database($id_s);
+
+	// 	$suppliers_name_arr = array();
+	// 	foreach ($suppliers_arr as $key => $value) {
+	// 		$suppliers_name_arr[] = $value['nickName'];
+	// 	}
+	// 	return implode(', ', $suppliers_name_arr);
+	// }
+
+	// редактируем информацию об поставщиках для некаталожного варианта расчёта
+	public function change_supliers_info_dop_data_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `suppliers_id` = '".$this->POST['suppliers_id']."',
+		             `suppliers_name` = '".$this->POST['suppliers_name']."' 
+		             WHERE `id` =  '".$this->POST['dop_data_id']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK"}';
+	}
+
+	// форматируем денежный формат + округляем
+	private function round_money($num){
+		return number_format(round($num, 2), 2, '.', '');
+	}
 
 
 	// возвращает расшириную информацию по варианту в Html
@@ -260,7 +288,7 @@ class Position_no_catalog{
 		// формируем html c расширенной информацией по варианту
 		$html .= '<div id="variant_info_'.$id.'" class="variant_info" style="display:none">';
 		$html .= '<table><tr><td  style="vertical-align: baseline;">';
-		$html .= '<table class="calkulate_table">
+		$html .= '<table class="calkulate_table" data-save_enabled="">
 									<tbody><tr>
 										<th>Стоимость товара</th>
 										<th>$ вход.</th>
@@ -273,14 +301,14 @@ class Position_no_catalog{
 									</tr>
 									<tr class="tirage_and_price_for_one" data-dop_data_id="'.$arr['id'].'">
 										<td>1 шт.</td>
-										<td class="row_tirage_in_one price_in"><span '.$edit_admin.$edit_snab.'>'.round(($arr['price_in']/$arr['quantity']),2).'</span> р.</td>
+										<td class="row_tirage_in_one price_in"><span '.$edit_admin.$edit_snab.'>'.$this->round_money($arr['price_in']/$arr['quantity']).'</span> р.</td>
 										<td rowspan="2" class="percent_nacenki">
 											<span '.$edit_admin.$edit_snab.$edit_men.'>'.$percent.'</span>%
 
 										</td>
-										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$edit_admin.$edit_snab.'>'.round(($arr['price_out_snab']/$arr['quantity']),2).'</span> р.</td>
-										<td class="row_price_out_one price_out_men"><span '.$edit_admin.$edit_men.'>'.round(($arr['price_out']/$arr['quantity']),2).'</span> р.</td>
-										<td class="row_pribl_out_one pribl"><span>'.round((($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])),2).'</span> р.</td>
+										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$edit_admin.$edit_snab.'>'.$this->round_money(($arr['price_out_snab']/$arr['quantity'])).'</span> р.</td>
+										<td class="row_price_out_one price_out_men"><span '.$edit_admin.$edit_men.'>'.$this->round_money($arr['price_out']/$arr['quantity']).'</span> р.</td>
+										<td class="row_pribl_out_one pribl"><span>'.$this->round_money(($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])).'</span> р.</td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
@@ -289,9 +317,9 @@ class Position_no_catalog{
 									<tr class="tirage_and_price_for_all for_all" data-dop_data_id="'.$arr['id'].'">
 										<td>тираж</td>
 										<td class="row_tirage_in_gen price_in"><span '.$edit_admin.$edit_snab.'>'.$arr['price_in'].'</span> р.</td>
-										<td class="row_price_out_gen price_out_snab"><span  '.$edit_admin.$edit_snab.' style="color:red">'.$arr['price_out_snab'].'</span> р.</td>
-										<td class="row_price_out_gen price_out_men"><span  '.$edit_admin.$edit_men.'>'.$arr['price_out'].'</span> р.</td>
-										<td class="row_pribl_out_gen pribl"><span>'.round(($arr['price_out']-$arr['price_in']),2).'</span> р.</td>
+										<td class="row_price_out_gen price_out_snab tirage" style="color:red"><span  '.$edit_admin.$edit_snab.'>'.$arr['price_out_snab'].'</span> р.</td>
+										<td class="row_price_out_gen price_out_men tirage"><span  '.$edit_admin.$edit_men.'>'.$arr['price_out'].'</span> р.</td>
+										<td class="row_pribl_out_gen pribl"><span>'.$this->round_money($arr['price_out']-$arr['price_in']).'</span> р.</td>
 										
 									</tr>
 									
@@ -307,7 +335,7 @@ class Position_no_catalog{
 									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
 										<td><span>'.($uslugi_arr['summ_price_in']+$arr['price_in']).'</span> р.</td>
-										<td><span>'.round((($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])),2).'</span> %</td>
+										<td><span>'.$this->round_money(($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])).'</span> %</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out_snab']).'</span> р.</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']).'</span> р.</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']-$uslugi_arr['summ_price_in']-$arr['price_in']).'</span> р.</td>
@@ -387,11 +415,11 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'" data-our_uslugi_parent_id="'.trim($value['parent_id']).'">
 										<td>'.$value['name'].' '.$dop_inf.'</td>
-										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$price_in.'</span> р.</td>
+										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$this->round_money($price_in).'</span> р.</td>
 										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$edit_admin.$edit_snab.$edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
-										<td class="row_price_out_gen uslugi_class price_out_snab" style="color:red" data-real_min_price_for_one="'.$value['price_out'].'" data-real_min_price_for_all="'.$real_price_out.'"><span '.$edit_admin.$edit_snab.'>'.$price_out_snab.'</span> р.</td>
-										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$edit_admin.$edit_men.'>'.$price_out_men.'</span> р.</td>
-										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$pribl.'</span> р.</td>
+										<td class="row_price_out_gen uslugi_class price_out_snab" style="color:red" data-real_min_price_for_one="'.$value['price_out'].'" data-real_min_price_for_all="'.$real_price_out.'"><span '.$edit_admin.$edit_snab.'>'.$this->round_money($price_out_snab).'</span> р.</td>
+										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$edit_admin.$edit_men.'>'.$this->round_money($price_out_men).'</span> р.</td>
+										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span> р.</td>
 										<td class="usl_edit"><!-- <span class="edit_row_variants"></span> --></td>
 										<td class="usl_del"><span class="del_row_variants"></span></td>
 									</tr>';
@@ -406,6 +434,12 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 	// подсчёт стоимотсти услуг для варианта
 	private function calclate_summ_uslug_arr($uslugi){
+		// echo '<pre>';
+		// print_r($uslugi);
+		// echo '</pre>';
+
+
+
 		$uslugi_arr['summ_price_in'] = 0;
 		$uslugi_arr['summ_price_out'] = 0;
 		$uslugi_arr['summ_pribl'] = 0;
@@ -414,13 +448,16 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 		foreach ($uslugi as $key => $value) {
 			if(trim($value['for_how'])!=''){
-				$uslugi_arr['summ_price_in'] += ($value['for_how']=="for_all")?$value['price_in']:$value['price_in']*$value['quantity'];
-				$uslugi_arr['summ_price_out'] += ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value['quantity'];
-				$uslugi_arr['summ_pribl'] += ($value['for_how']=="for_all")?($value['price_out']-$value['price_in']):($value['price_out']*$value['quantity']-$value['price_in']*$value['quantity']);
+				//echo '$value[\'for_how\'] = '.$value['for_how'].'  ,  '.(($value['for_how']=="for_one")?$value['price_out']*$value['quantity']:$value['price_out']).'  - '.$uslugi_arr['summ_price_out'].'<br>';
+				
+				$uslugi_arr['summ_price_in'] += ($value['for_how']=="for_one")?$value['price_in']*$value['quantity']:$value['price_in'];
+				$uslugi_arr['summ_price_out'] += ($value['for_how']=="for_one")?$value['price_out']*$value['quantity']:$value['price_out'];
+				$uslugi_arr['summ_pribl'] += ($value['for_how']=="for_one")?($value['price_out']*$value['quantity']-$value['price_in']*$value['quantity']):($value['price_out']-$value['price_in']);
 				$uslugi_arr['summ_percent'] += $this->get_percent_Int($value['price_in'],$value['price_out']);
 				$uslugi_arr['count_usl']++;
 			}
 		}
+		//echo $uslugi_arr['summ_price_out'].'   *   ';
 		return $uslugi_arr;
 	}
 
@@ -642,6 +679,42 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		echo '{"response":"close_window","name":"add_uslugu","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
 	}
 
+	public function change_dop_data_Database(){
+		// $this->POST['parice_in'];
+		// $this->POST['parice_out'];
+		// $this->POST['parice_out_snab'];
+		// $this->POST['dop_data_id'];
+
+		global $mysqli;
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`price_in`='".$this->POST['price_in']."', 
+		`price_out`='".$this->POST['price_out']."',
+		`price_out_snab`='".$this->POST['price_out_snab']."' 
+
+		WHERE `id`='".$this->POST['dop_data_id']."';
+";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+
+	}
+
+	public function save_edit_price_dop_uslugi_Database(){
+		global $mysqli;
+		$query = '';
+		foreach ($this->POST['data'] as $id => $value) {
+			// $id
+			// $value['price_out_snab'];
+			// $value['price_out'];
+
+			$query .= "UPDATE `".RT_DOP_USLUGI."` SET
+			`price_out`='".$value['price_out']."',
+			`price_out_snab`='".$value['price_out_snab']."' 
+			WHERE `id`='".$id."';";
+		}
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+
+	}
 
 	private function check_parent_exists_Database_Int($dop_row_id, $parent_id){
 		global $mysqli;
@@ -656,13 +729,11 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 			$ret = '1';
 		}
 
-		return $ret;
-
-		
-
-
-		
+		return $ret;		
 	}
 
+	public function get_suppliers_Database_Array(){
+		global $mysqli;
 
+	}
 }

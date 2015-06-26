@@ -88,7 +88,8 @@ function round_s(int_r){
 
 
 // показать окно
-function show_dialog_and_send_POST_window(html,title){
+function show_dialog_and_send_POST_window(html,title,height){
+	height_window = height || 'auto';
 	var buttons = new Array();
 	buttons.push({
 	    text: 'OK',
@@ -141,7 +142,7 @@ function show_dialog_and_send_POST_window(html,title){
 	$('#dialog_gen_window_form').html(html);
 	$('#dialog_gen_window_form').dialog({
           width: '1000',
-          height: 'auto',
+          height: height_window,
           modal: true,
           title : title,
           autoOpen : true,
@@ -184,7 +185,7 @@ function recalculate_table_price_Itogo(){
 	// стоимость входящая
 	itogo_price_in += Number($('#variant_info_'+$('#' + $('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .show_table tr.checked').attr('data-id')+' .calkulate_table').find('.row_tirage_in_gen.price_in span').html());
 	// исходящая цена cнаб
-	itogo_price_out_snab += Number($('#variant_info_'+$('#' + $('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .show_table tr.checked').attr('data-id')+' .calkulate_table').find('.row_price_out_gen.price_out_snab span').html());
+	itogo_price_out_snab += Number($('#variant_info_'+$('#' + $('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .show_table tr.checked').attr('data-id')+' .calkulate_table').find('.row_price_out_gen.price_out_snab.tirage span').html());
 	// исходящая цена мен
 	itogo_price_out_men += Number($('#variant_info_'+$('#' + $('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .show_table tr.checked').attr('data-id')+' .calkulate_table').find('.row_price_out_gen.price_out_men span').html());
 	// %  с тиража
@@ -259,7 +260,7 @@ function calculate_price_out_tovars_Edit_start_price_for_one(object){
 	var price_out_for_one_snab = Number(object.parent().parent().find('.row_price_out_one.price_out_snab span').html()); 
 
 	// цена за тираж снаб (мин цена с мин наценкой)
-	var price_out_for_all_snab = Number(object.parent().parent().next().find('.row_price_out_gen.price_out_snab span').html()); 
+	var price_out_for_all_snab = Number(object.parent().parent().next().find('.row_price_out_gen.price_out_snab.tirage span').html()); 
 	
 	// вход. цена за тираж
 	var price_in_for_all = Number(object.parent().parent().next().find('.row_tirage_in_gen.price_in span').html());
@@ -275,7 +276,7 @@ function calculate_price_out_tovars_Edit_start_price_for_one(object){
 		// приравниваем цену с наценкой за ед к введённым данным
 		object.parent().parent().find('.row_price_out_one.price_out_snab span').html(price_for_one)
 		// пересчитываем цену с наценкой за тираж
-		object.parent().parent().next().find('.row_price_out_gen.price_out_snab span').html(round_s(price_for_one*quantity));
+		object.parent().parent().next().find('.row_price_out_gen.price_out_snab.tirage span').html(round_s(price_for_one*quantity));
 
 		//исходящая для менеджера
 		// приравниваем цену с наценкой за ед к введённым данным
@@ -300,6 +301,8 @@ function calculate_price_out_tovars_Edit_start_price_for_one(object){
 		console.log();
 		object.parent().parent().next().find('.row_pribl_out_gen.pribl span').html(round_s(price_out_for_all_snab-price_for_one*quantity));
 	}
+	// сохраняем значения тиража в dop_data
+	time_to_save('save_dop_data',$('.calkulate_table:visible'));
 }
 /*--1--END--*/
 
@@ -324,6 +327,9 @@ function Edit_start_price_for_all(object){
 	object.parent().parent().prev().find('.row_tirage_in_one.price_in span').html(round_s(price_in_for_all/quantity));
 	// пересчитываем отностительно вход. цены за ед
 	calculate_price_out_tovars_Edit_start_price_for_one(object.parent().parent().parent());
+
+	// сохраняем значения тиража в dop_data
+	time_to_save('save_dop_data',$('.calkulate_table:visible'));
 }
 /*--2--END--*/
 
@@ -378,7 +384,7 @@ $(document).on('keyup', '.percent_nacenki span', function(event) {
 
 		// устанавливаем исходящие цены
 		$(this).parent().next().find('span').html(price_out_for_one_snab).parent().next().find('span').html(price_out_for_one_snab);
-		$(this).parent().parent().next().find('.row_price_out_gen.price_out_snab span').html(price_out_for_all_snab).parent().parent().find('.row_price_out_gen.price_out_men span').html(price_out_for_all_snab);
+		$(this).parent().parent().next().find('.row_price_out_gen.price_out_snab.tirage span').html(price_out_for_all_snab).parent().parent().find('.row_price_out_gen.price_out_men span').html(price_out_for_all_snab);
 
 		// подсчитываем прибыль
 		// $(this).parent().next().next().next().find('span').html(round_s(price_out_for_one_snab-price_in_for_one));
@@ -408,8 +414,13 @@ $(document).on('keyup', '.percent_nacenki span', function(event) {
 			calc_percent();
 		}
 	}
-	
-	recalculate_table_price_Itogo()
+	calc_pribl_tir();
+
+	recalculate_table_price_Itogo();
+
+
+	// сохраняем значения тиража в dop_data
+	time_to_save('save_dop_data',$('.calkulate_table:visible'));
 });
 
 
@@ -435,26 +446,27 @@ function edit_price_out_one_snab(obj){
 
 		var price_out_all_snab = Number(obj.parent().parent().next().find('.row_tirage_in_gen.price_in span').html());
 		console.log(price_out_all_snab);
-		obj.parent().parent().next().find('.row_price_out_gen.price_out_snab span').html(price_out_all_snab).parent().next().find('span').html(price_out_all_snab);
-		
-		// расчёт процентов товара
-		calc_percent();
-	}else{
-		
+		obj.parent().parent().next().find('.row_price_out_gen.price_out_snab.tirage span').html(price_out_all_snab).parent().next().find('span').html(price_out_all_snab);
+	
+	}else{		
 		price_out_all_snab = round_s(price_out_one_snab*quantity);
-		obj.parent().parent().next().find('.row_price_out_gen.price_out_snab span').html(price_out_all_snab).parent().next().find('span').html(price_out_all_snab);
+		obj.parent().parent().next().find('.row_price_out_gen.price_out_snab.tirage span').html(price_out_all_snab).parent().next().find('span').html(price_out_all_snab);
 		obj.parent().next().find('span').html(price_out_one_snab);	
 		
-		// расчёт процентов товара	
-		calc_percent();
+		
 	}
+	// расчёт процентов товара	
+	calc_percent();
+	calc_pribl_tir();
+	// сохраняем значения тиража в dop_data
+	time_to_save('save_dop_data',$('.calkulate_table:visible'));
 }
 /*--4--END--*/
 
 
 /*--5--START--*/
-// редактирование мин исходящей цены за тираж
-$(document).on('keyup', '.row_price_out_gen.price_out_snab span', function(event) {
+// редактирование мин исходящей цены за тираж SNAB
+$(document).on('keyup', '.row_price_out_gen.price_out_snab.tirage span', function(event) {
 	edit_price_out_all_snab($(this));
 	recalculate_table_price_Itogo();
 });
@@ -481,6 +493,11 @@ function edit_price_out_all_snab(obj){
 
 
 	calc_pribl_tir();
+
+	calc_percent();
+
+	// сохраняем значения тиража в dop_data
+	time_to_save('save_dop_data',$('.calkulate_table:visible'));
 }
 /*--5--END--*/
 
@@ -503,13 +520,15 @@ function edit_price_out_one_men(obj){
 		obj.html(price_out_one_snab);
 	}
 	var price_out_all_men = round_s(price_out_one_men*quantity);	
-	obj.parent().parent().parent().find('.row_price_out_gen.price_out_men span').html(price_out_all_men);
+	obj.parent().parent().next().find('.row_price_out_gen.price_out_men span').html(price_out_all_men);
 	
 	// подсчёт процентов
 	calc_percent();
 	// посчёт прибыли
 	calc_pribl_tir();
 
+	// сохраняем значения тиража в dop_data
+	time_to_save('save_dop_data',$('.calkulate_table:visible'));
 }
 /*--6--END--*/
 
@@ -517,7 +536,7 @@ function edit_price_out_one_men(obj){
 
 /*--7--START--*/
 // редактирование исходящей цены за тираж MEN
-$(document).on('keyup', '.row_price_out_gen.price_out_men span', function(event) {
+$(document).on('keyup', '.row_price_out_gen.price_out_men.tirage span', function(event) {
 	// получим тираж
 	var quantity = Number($('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked td:nth-of-type(3) span').html());
 	var price_out_all_men = Number($(this).html());
@@ -541,6 +560,9 @@ $(document).on('keyup', '.row_price_out_gen.price_out_men span', function(event)
 	calc_pribl_tir();
 	// подсчёт ИТОГО
 	recalculate_table_price_Itogo();
+
+	// сохраняем значения тиража в dop_data
+	time_to_save('save_dop_data',$('.calkulate_table:visible'));
 });
 
 /*--7--END--*/
@@ -595,6 +617,8 @@ $(document).on('click', '.del_row_variants', function(event) {
 
 	var dop_uslugi_id = $(this).parent().parent().attr('data-dop_uslugi_id');
 	$(this).parent().parent().remove();
+	// подсчёт ИТОГО
+	recalculate_table_price_Itogo();
 
 	$.post('', 
 		{
@@ -632,37 +656,267 @@ $(document).on('keyup', '.row_tirage_in_gen.uslugi_class.percent_usl span', func
 
 	// если рабтает не мен, то замена исх. цены за услугу идёт и в поле менеджера и в поле снаба
 	if($(this).parent().next().find('span').attr('contenteditable')=="true"){
+		
+		// высчитываем исходящую стоимость исходя из введённых процентов
 		price_out_snab = price_out_men = round_s((100+enter_percent)*price_in/100);
+		
+		// если новая цена меньше цены по прайсу за тираж, то пересчитываем процент
+		// и меняем его на минимально возможный (прайсовый)
 		if(price_out_snab<min_price_real_for_all){
 			enter_percent = percent_calc(min_price_real_for_all,price_in);
 			$(this).html(enter_percent);
 			price_out_snab = price_out_men = min_price_real_for_all;
 		}
+		// gпишем исходящие цены снаба и мена
 		$(this).parent().next().find('span').html(price_out_snab).parent().next().find('span').html(price_out_men);
-
+		// считаем прибыль
+		calc_usl_pribl($(this).parent().parent());
 
 	}else{ // работает мен
 
+		// высчитываем исходящую стоимость исходя из введённых процентов
+		price_out_men = round_s((100+enter_percent)*price_in/100);
+		
+		// если новая цена меньше цены цены от снаба, то пересчитываем процент
+		// и меняем его на минимально возможный (от снаба)
+		if(price_out_men<min_price_snab){
+			enter_percent = percent_calc(min_price_snab,price_in);
+			$(this).html(enter_percent);
+			price_out_snab = price_out_men = min_price_snab;
+		}
+		// пишем исходящую цену мена
+		$(this).parent().next().next().find('span').html(price_out_men);
+		// считаем прибыль
+		calc_usl_pribl($(this).parent().parent());
 	}
-	
+
+	// подсчёт ИТОГО
+	recalculate_table_price_Itogo();
+
+
+	// добавляем маркер к строке которое мы отредактировали
+	$(this).parent().parent().addClass('editing');
+	// сохраняем значения тиража в dop_uslugi
+	time_to_save('save_dop_dop_usluga',$('.calkulate_table:visible'));
 
 
 });
+
+//пересчитать прибыль для услуги
+function calc_usl_pribl(obj){// на вход подаётся строка услуги
+	var price_in = Number(obj.find('.row_tirage_in_gen.uslugi_class.price_in span').html());
+	var price_out = Number(obj.find('.row_price_out_gen.uslugi_class.price_out_men span').html());
+	obj.find('.row_pribl_out_gen.uslugi_class.pribl span').html(round_s(price_out-price_in));
+}
+
+//пересчитать % наценки для услуги
+function calc_usl_percent(obj){// на вход подаётся строка услуги
+	var price_in = Number(obj.find('.row_tirage_in_gen.uslugi_class.price_in span').html());
+	var price_out = Number(obj.find('.row_price_out_gen.uslugi_class.price_out_men span').html());
+	obj.find('.row_tirage_in_gen.uslugi_class.percent_usl span').html(percent_calc(price_out,price_in));
+}
+
+
 
 // цена снаб
 $(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_snab span', function(event) {
-	event.preventDefault();
-	/* Act on the event */
+	var price_out_snab = Number($(this).html());
+
+	// получаем реальные значения цены данной услуги, цены взяты из прайса
+	// если эти значения равны, то услуга применяется к тиражу, если нет то к единице товара
+	var min_price_real_for_one = Number($(this).parent().attr('data-real_min_price_for_one'));
+	var min_price_real_for_all = Number($(this).parent().attr('data-real_min_price_for_all'));
+
+	// если указанная цена меньше указанной в прайсе
+	if(price_out_snab<min_price_real_for_all){
+	console.log('65');
+		// меняем то, что навводил снаб на минимальное значение
+		$(this).html(min_price_real_for_all).parent().next().find('span').html(min_price_real_for_all);
+		//price_out_snab = min_price_real_for_all;
+	}else{
+		$(this).html(price_out_snab).parent().next().find('span').html(price_out_snab);
+
+	}
+
+	// считаем прибыль
+	calc_usl_pribl($(this).parent().parent());
+
+	// считаем %
+	calc_usl_percent($(this).parent().parent());
+
+	// подсчёт ИТОГО
+	recalculate_table_price_Itogo();
+
+	// добавляем маркер к строке которое мы отредактировали
+	$(this).parent().parent().addClass('editing');
+	// сохраняем значения тиража в dop_uslugi
+	time_to_save('save_dop_dop_usluga',$('.calkulate_table:visible'));
 });
 
-// цена мен
+// редактирование цена мен
 $(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_men span', function(event) {
-	event.preventDefault();
-	/* Act on the event */
+	var price_out_snab = Number($(this).parent().prev().find('span').html());
+	var price_out_men = Number($(this).html());
+
+	// если мен указал цену меньше, чем указал снаб
+	if(price_out_men<price_out_snab){
+		$(this).html(price_out_snab);
+	}
+
+	// считаем прибыль
+	calc_usl_pribl($(this).parent().parent());
+
+	// считаем %
+	calc_usl_percent($(this).parent().parent());
+
+	// подсчёт ИТОГО
+	recalculate_table_price_Itogo();
+
+	// добавляем маркер к строке которое мы отредактировали
+	$(this).parent().parent().addClass('editing');
+	// сохраняем значения тиража в dop_uslugi
+	time_to_save('save_dop_dop_usluga',$('.calkulate_table:visible'));
 });
 
+// SAVE DATA
+/*
+атрибут data-save_enabled="" в теге table активной таблицы calkulate_table
+сигнализирует о том можно ли приступать скрипту к сохранению
+если нет, то скрипт проверяет теге table активной таблицы calkulate_table наличие атрибута
+с названием data-*имя функции сохранения*, этот атрибут может быть только в ТРЁХ состаяниях:
+1. data-*имя функции сохранения*="true"
+	ФУНКЦИЯ СОХРАНЕНИЯ ПОСТАВЛЕНА В ОЧЕРЕДЬ
+	запрос на сохранение будет автоматически повтарен через 2 сек
+2. data-*имя функции сохранения*=""
+	можно приступать к сохранению, сохранения из этой функции на странице уже были
 
+3. data-*имя функции сохранения* - не существует 
+	можно приступать к сохранению, сохранений из этой функции на странице еще не было
+*/
+
+function time_to_save(fancName,obj){
+
+
+	console.log(obj.attr('data-save_enabled'));
+	//если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
+	if(obj.attr('data-save_enabled')!="false"){
+		// обнуляем очередь
+		if(obj.hasClass(fancName)){obj.removeClass(fancName);}
+		// console.log(obj);
+
+		// console.log('re '+obj.find('.row_tirage_in_gen.price_in span').html());
+
+		window[fancName](obj);
+
+		// пишем запрет на save
+		obj.attr('data-save_enabled','false');
+		// снимаем запрет на через n времени
+		var time = 2000;
+		
+		setTimeout(function(){obj.attr("data-save_enabled","")}, time);				
+	}else{// стоит запрет, проверяем очередь по сейву данной функции
+		
+		if(obj.hasClass(fancName)){ //стоит в очереди на сохранение
+			// стоит очередь, значит мимо... всё и так сохранится
+		}else{
+			// не стоит в очереди, значит ставим
+			obj.addClass(fancName);
+
+			// вызываем эту же функцию через n времени всех очередей
+			var time = 2000;
+			$('.calkulate_table.'+fancName).each(function(index, el) {
+				console.log($(this).find('.row_tirage_in_gen.price_in span').html());
+				
+				setTimeout(function(){time_to_save(fancName,$('.calkulate_table.'+fancName).eq(index));}, time);	
+			});
+			
+		}		
+	}
+}
+
+
+// сохраняет данные в таблицу dop_data
+function save_dop_data(obj){		
+	var price_in = Number(obj.find('.row_tirage_in_gen.price_in span').html());
+	var price_out_snab = Number(obj.find('.row_price_out_gen.price_out_snab.tirage span').html());
+	var price_out = Number(obj.find('.row_price_out_gen.price_out_men.tirage span').html());
+	var dop_data_id = obj.find('.tirage_and_price_for_all.for_all').attr('data-dop_data_id');
+	$.post('', { 
+			AJAX: 'save_new_price_dop_data',
+			price_in: price_in,
+			price_out_snab: price_out_snab,
+			price_out: price_out,
+			dop_data_id:dop_data_id
+		}
+		, function(data, textStatus, xhr) {
+		console.log(data);
+	});
+}
+
+// сохраняет данные в таблицу dop_data
+function save_dop_dop_usluga(obj){	
+	console.log(obj);
+	var data = {};
+	obj.find('.calculate.calculate_usl.editing').each(function(index, el) {
+		var dop_usl_id = $(this).attr('data-dop_uslugi_id');
+		var price_out_snab = $(this).find('.row_price_out_gen.uslugi_class.price_out_snab span').html();
+		var price_out = $(this).find('.row_price_out_gen.uslugi_class.price_out_men span').html();
+
+		console.log(price_out_snab);
+		console.log(price_out);
+		data[$(this).attr('data-dop_uslugi_id')] = {"price_out":price_out,"price_out_snab":price_out_snab};		
+		$(this).removeClass('editing');
+	});
+	console.log(data);
+	$.post('', { 
+			AJAX: 'save_new_price_dop_uslugi',
+			data:data
+		}
+		, function(data, textStatus, xhr) {
+		console.log(data);
+	});
+}
 
 //#################################################################
 //##  РАБОТА ТАБЛИЦЫ РАСЧЕТОВ В НЕКАТАЛОЖНОЙ ПРОДУКИИ ##   END   ##
 //#################################################################
+
+
+// НАЗНАЧЕНИЕ ПОСТАВЩИКА
+$(document).on('click', '.change_supplier', function(event) {
+	$(this).attr('id', 'chose_supplier_id');
+	chose_supplier($(this));
+});
+
+function chose_supplier(obj){
+
+	$.post('', {AJAX:'chose_supplier',already_chosen:$('#chose_supplier_id').attr('data-id')}, function(data, textStatus, xhr) {
+		show_dialog_and_send_POST_window(data,'Выбирите поставщика',$(window).height()/100*90);
+	});
+}
+$(document).on('click', '#chose_supplier_tbl tr td', function(event) {
+	if($(this).hasClass('checked')){
+		$(this).removeClass('checked');
+	}else{
+		$(this).addClass('checked');
+	}
+
+	var arr_id = new Array();
+	var arr_name = new Array();
+	$('#chose_supplier_tbl tr td.checked').each(function(index, el) {
+		arr_id.push($(this).attr('data-id'));
+		arr_name.push($(this).html());
+	});
+
+	var str_id = arr_id.join(',');
+	var str_name = arr_name.join(', ');
+	console.log(str_id);
+
+	$('#chose_supplier_tbl').parent().find('input[name="dop_data_id"]').val($('#chose_supplier_id').parent().attr('data-id'));
+	$('#chose_supplier_tbl').parent().find('input[name="suppliers_id"]').val(str_id);
+	$('#chose_supplier_tbl').parent().find('input[name="suppliers_name"]').val(str_name);
+
+	$('#chose_supplier_id').html(str_name);
+	$('#chose_supplier_id').attr('data-id',str_id);
+
+});

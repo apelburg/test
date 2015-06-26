@@ -450,7 +450,7 @@ span.snab_comment {
 #variant_of_snab table.show_table tr th:nth-of-type(6),
 #variant_of_snab table.show_table tr td:nth-of-type(6){text-align: right;}
 #variant_of_snab table.show_table tr th:nth-of-type(7),
-#variant_of_snab table.show_table tr td:nth-of-type(7){text-align: right;}
+#variant_of_snab table.show_table tr td:nth-of-type(7){text-align: right;width: 350px;}
 #variant_of_snab table.show_table tr th:nth-of-type(8),
 #variant_of_snab table.show_table tr td:nth-of-type(8){text-align: center;}
 #variant_of_snab table.show_table tr th:nth-of-type(9),
@@ -524,3 +524,11 @@ span.snab_comment {
 
 #variant_of_snab table.calkulate_table tr.calculate.calculate_usl td:nth-child(even){ background-color: #F5FAFF;}
 #variant_of_snab table.calkulate_table tr.calculate.calculate_usl td.usl_del{ background: none;}
+.change_supplier:hover{background-color: $f4f4f4; cursor: default; color:#fff;}
+#chose_supplier_tbl tr td{
+  padding: 2px 5px; cursor: default;
+}
+#chose_supplier_tbl tr td:hover{  color: #FFF;
+  background-color: #92b73e; }
+
+#chose_supplier_tbl tr td.checked{  background-color: #007036;color: #FFF;}
