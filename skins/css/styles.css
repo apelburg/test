@@ -1597,3 +1597,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 .table{display:table}
 .row{display:table-row}
 .cell{display:table-cell;vertical-align:middle;}
+
+.calculatorBox{ font-size: 12px;}
+.calculatorPriceTbl{ border-collapse:collapse;}
+.calculatorPriceTbl td{ font-size: 11px;}

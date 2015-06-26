@@ -10,7 +10,7 @@
 	
     switch ($section) {
 		case 'price_manager':
-		include 'price_manager/controller.php';
+		include 'price_manager/router.php';
 		break;
 			
 		default:

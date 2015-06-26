@@ -22,7 +22,7 @@
 	define('BASE_PRINT_MODE_TBL','new__base__print_mode');
 	define('BASE__PRINT_PLACES_TYPES_TBL','new__base__print_place_types');
 	define('BASE__ART_PRINT_PLACES_REL_TBL','new__base__articles_print_places_relation'); // таблица связей , артикул - места нанесения
-	define('BASE__PRINT_PLACES_PRINT_TYPES_REL_TBL','new__base__print_places_print_types_relation'); // таблица связей , места нанесения - типы нанесения
+	//define('BASE__PRINT_PLACES_PRINT_TYPES_REL_TBL','new__base__print_places_print_types_relation'); // таблица связей , места нанесения - типы нанесения
 	define('BASE__PRINT_TYPES_SIZES_PLACES_REL_TBL','new__base__print_types_sizes_places_relation'); // таблица связей , типы нанесения - размеры нанесения - места нанесения
 	define('BASE__DOP_PARAMS_FOR_PRINT_TYPES_TBL','new__base__dop_params_for_print_types'); // таблица содержащая дополнительные параметры для расчета нанесения (такие как цвет нанесения)
 	
@@ -34,6 +34,10 @@
 	
 	//
 	define('BASE__CALCULATORS_PRICE_TABLES_TBL','os__calculators_price_tables');
+	define('BASE__CALCULATORS_Y_PRICE_PARAMS','os__calculators_y_price_params'); 
+	define('BASE__CALCULATORS_COEFFS','os__calculators_coeffs'); 
+	define('BASE__CALCULATORS_ADDITIONS','os__calculators_additions'); 
+	
 	
 
     define("CLIENTS_TBL","os__client_list"); // таблица клиентов

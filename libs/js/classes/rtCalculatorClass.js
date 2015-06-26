@@ -110,6 +110,7 @@ var rtCalculator = {
 			var url = OS_HOST+'?' + addOrReplaceGetOnURL('fetch_dop_uslugi_for_row='+dop_data_row_id);
 			rtCalculator.send_ajax(url,callback);
 			function callback(response){ 
+			    //alert(response);
 				//console.log(response);
 				// этап 1
 				var data_AboutPrintsArr = JSON.parse(response);
@@ -277,7 +278,8 @@ var rtCalculator = {
 		rtCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){ 
-			//console.log(response_calculatorParamsData);
+		    // alert(response_calculatorParamsData);
+			// console.log(response_calculatorParamsData);
 
 			// строим калькулятор
 			rtCalculator.build_print_calculator(response_calculatorParamsData);
@@ -379,6 +381,7 @@ var rtCalculator = {
 	buildBlockA:function(){
 		// метод строит блок block_A и взависимости от ситуации
 		// или ( строит и вставляет в него block_B ) или ( не делает этого )
+		// block_A содержит селект с выбором типа нанесения
 		
 		var block_A = document.createElement('DIV');
 		block_A.id = 'rtCalculatorBlockA';
@@ -412,8 +415,6 @@ var rtCalculator = {
 		var currRrintParams = rtCalculator.getCurrPrintParams();
 
 		blockB.appendChild(br.cloneNode(true));
-		blockB.appendChild(br.cloneNode(true));
-		blockB.appendChild(br.cloneNode(true));
 		blockB.appendChild(currRrintParams);
 	
 		// дисплей итоговых подсчетов
@@ -443,6 +444,285 @@ var rtCalculator = {
 		return blockB;
 	}
 	,
+	getCurrPrintParams:function(){
+		
+        console.log('>>> getCurrPrintParams');
+		console.log(rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id]);
+		console.log('<<< getCurrPrintParams');
+		
+		var br = document.createElement('BR');
+		var printParamsBox = document.createElement('DIV');
+
+		
+		// определяем переменную содержащую массив данных относящихся к текущему типу нанесения
+		var CurrPrintTypeData = rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id];
+		
+		// select для возможных цветов, в принипе этот селект даже должен быть не для цветов а для любого параметра 
+		// который определяется по вертикали в таблице прайса 
+        //                  [цвет] => Array   
+        //                        ([белый] => Array([percentage] => 1.00 )
+		//						   [серебро] => Array([percentage] => 1.20 ))
+
+        if(CurrPrintTypeData['цвет']){
+			var colorsDiv = document.createElement('DIV');
+            colorsDiv.id = 'rtCalculatorColorsDiv';
+			
+			var colorsSelect = document.createElement('SELECT');
+			// метод onchangeColorsSelect пикрепляется к Селекту здесь и пикрепляется к добавляемым селектам ниже в специальном цикле 
+			colorsSelect.onchange = function(){ rtCalculator.onchangeColorsSelect(colorsDiv); }
+			for(var color in CurrPrintTypeData['цвет']){
+				
+				var option = document.createElement('OPTION');
+				option.setAttribute("value",CurrPrintTypeData['цвет'][color]['percentage']);
+				option.setAttribute("item_id",CurrPrintTypeData['цвет'][color]['item_id']);
+				option.appendChild(document.createTextNode(color));
+				colorsSelect.appendChild(option);
+			}
+			
+			// добавляем поле Выбрать в начало селекта
+			var option = document.createElement('OPTION');
+            option.setAttribute("value",0);
+            option.appendChild(document.createTextNode(' -- выбрать -- '));
+			colorsSelect.insertBefore(option, colorsSelect.firstChild); 
+			
+			
+			var addColorLink = document.createElement('A');
+			addColorLink.href = '#';
+			addColorLink.innerHTML = 'добавить цвет';
+			addColorLink.onclick =  function(){
+				//alert(1);
+				var colorsSelectClone = colorsSelect.cloneNode(true);
+				// навешиваем обработчик события селекту, потому что при colorsSelect.cloneNode(true); он слетает
+				colorsSelectClone.onchange = function(){ rtCalculator.onchangeColorsSelect(colorsDiv); }
+				colorsDiv.appendChild(colorsSelectClone);
+			}
+			
+			// добавляем один или несколько селектов в калькулятор в зависимости от того был он вызван 
+			// для уже существующего расчета или для нового расчета 
+			if(typeof rtCalculator.currentCalculationData.print_details.dop_params.colors !== 'undefined'){
+				for(var i = 0;i < rtCalculator.currentCalculationData.print_details.dop_params.colors.length; i++){ 
+				     var colorsSelectClone = colorsSelect.cloneNode(true);
+					 colorsSelectClone.options[parseInt(rtCalculator.currentCalculationData.print_details.dop_params.colors[i].id)].setAttribute("selected",true);
+				     colorsDiv.appendChild(colorsSelectClone);
+				}
+				var selectsArr = colorsDiv.getElementsByTagName("SELECT");
+				// навешиваем обработчики события каждому селекту, потому что при colorsSelect.cloneNode(true); они слетают
+				for(var i in selectsArr){
+					selectsArr[i].onchange = function(){ rtCalculator.onchangeColorsSelect(colorsDiv); }
+				}
+			}
+			else{
+				colorsDiv.appendChild(colorsSelect);
+			    rtCalculator.currentCalculationData.print_details.priceOut_tblYindex =  1;
+				rtCalculator.currentCalculationData.print_details.priceIn_tblYindex =  1;
+				rtCalculator.currentCalculationData.print_details.dop_params.colors = [];
+				rtCalculator.currentCalculationData.print_details.dop_params.colors.push({'id':0,'coeff':1});
+			}
+			
+			printParamsBox.appendChild(colorsDiv);
+			printParamsBox.appendChild(addColorLink);
+			
+		}
+		// работаем с таблицами цен 
+		
+		// входящяя цена 
+		if(CurrPrintTypeData['priceIn_tbl']) var tbl = rtCalculator.build_priceTbl(CurrPrintTypeData['priceIn_tbl'],'in');
+		printParamsBox.appendChild(tbl);
+		// исходящяя цена 
+		if(CurrPrintTypeData['priceOut_tbl']) var tbl = rtCalculator.build_priceTbl(CurrPrintTypeData['priceOut_tbl'],'out');
+		printParamsBox.appendChild(tbl);
+		
+		// select для возможных площадей нанесения
+		// [sizes] => Array
+        //                ( [1] => Array   - ключ id места нанесения 
+        //                        ([0] => Array ([print_id] => 13[size] => до 630 см2 (А4)[percentage] => 1.00)
+		//						   [1] => Array ([print_id] => 13[size] => до 1260 см2 (А3)[percentage] => 1.50))
+		//				  )
+		printParamsBox.appendChild(document.createElement('HR'));
+		printParamsBox.appendChild(document.createTextNode('коэффициенты'));
+		printParamsBox.appendChild(document.createElement('HR'));
+		if(CurrPrintTypeData['coeffs']){
+			for(var target in CurrPrintTypeData['coeffs']){
+				for(var type in CurrPrintTypeData['coeffs'][target]){
+					var data = CurrPrintTypeData['coeffs'][target][type];
+					console.log('..');
+					console.log(type);
+					console.log(data);
+					//printParamsBox.appendChild(document.createTextNode(data.data[0].coeff));
+					//printParamsBox.appendChild(br.cloneNode(true));
+					if(data.optional==1) printParamsBox.appendChild(rtCalculator.makeCommonSelect('coeffs',target,type,data));
+				    else{// если применяется по умолчанию
+					    if(typeof rtCalculator.currentCalculationData.print_details.dop_params.coeffs === 'undefined')
+						          rtCalculator.currentCalculationData.print_details.dop_params.coeffs = {};
+					    if(typeof rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target] === 'undefined')
+								rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target] = {};
+						if(typeof rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target][type] === 'undefined'){
+								rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target][type] = [];
+								for(var index in data.data){
+									rtCalculator.currentCalculationData.print_details.dop_params.coeffs[target][type].push({"value": parseFloat(data.data[index].coeff),"id": data.data[index].item_id});
+								}
+						}
+						/*;*/
+						
+					}
+				}
+				
+			}
+		}
+		printParamsBox.appendChild(document.createElement('HR'));
+		printParamsBox.appendChild(document.createTextNode('надбавки'));
+		printParamsBox.appendChild(document.createElement('HR'));
+		if(CurrPrintTypeData['additions']){
+			for(var target in CurrPrintTypeData['additions']){
+				for(var type in CurrPrintTypeData['additions'][target]){
+					var data = CurrPrintTypeData['additions'][target][type];
+					console.log('..');
+					console.log(data);
+					//printParamsBox.appendChild(document.createTextNode(data.data[0].coeff));
+					//printParamsBox.appendChild(br.cloneNode(true));
+
+					if(data.optional==1) printParamsBox.appendChild(rtCalculator.makeCommonSelect('additions',target,type,data));
+					else{// если применяется по умолчанию
+					    if(typeof rtCalculator.currentCalculationData.print_details.dop_params.additions === 'undefined')
+						          rtCalculator.currentCalculationData.print_details.dop_params.additions = {};
+					    if(typeof rtCalculator.currentCalculationData.print_details.dop_params.additions[target] === 'undefined')
+								rtCalculator.currentCalculationData.print_details.dop_params.additions[target] = {};
+						if(typeof rtCalculator.currentCalculationData.print_details.dop_params.additions[target][type] === 'undefined')
+								rtCalculator.currentCalculationData.print_details.dop_params.additions[target][type] = [];
+						
+						console.log(rtCalculator.currentCalculationData.print_details.dop_params.additions);
+						for(var index in data.data){
+							rtCalculator.currentCalculationData.print_details.dop_params.additions[target][type].push({"value": parseFloat(data.data[index].value),"id": data.data[index].item_id});
+						}
+						/*;*/
+						
+					}
+				}
+				
+			}
+		}
+		
+		if(CurrPrintTypeData['sizes']){
+			// собираем данные для расчета
+			// площади нанесения
+			// if(typeof rtCalculator.dataForProcessing['coefficients'] === 'undefined') rtCalculator.dataForProcessing['coefficients']={};
+			// if(typeof rtCalculator.dataForProcessing['dop_params'] === 'undefined') rtCalculator.dataForProcessing['dop_params']={};
+			// rtCalculator.dataForProcessing['coefficients']['sizes'] = [];
+			// rtCalculator.dataForProcessing['dop_params']['sizes'] = [];
+			
+			var printSizesSelect = document.createElement('SELECT');
+			printSizesSelect.onchange = function(){
+				rtCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':this.options[this.selectedIndex].getAttribute('item_id'),'coeff':this.options[this.selectedIndex].value}
+				
+				rtCalculator.makeProcessing();
+			}
+			for(var id in CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id]){
+				if(typeof rtCalculator.currentCalculationData.print_details.dop_params.sizes === 'undefined'){
+					rtCalculator.currentCalculationData.print_details.dop_params.sizes = [];
+					rtCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['item_id'],'coeff':CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['percentage']};
+				}
+				
+				
+				var option = document.createElement('OPTION');
+
+
+				option.setAttribute("value",CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['percentage']);
+				// id значения (размер нанесения) который будет сохранен в базу данных и по нему будет отстроен калькулятор 
+				// в случае вызова по кокретному нанесению
+				option.setAttribute("item_id",CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['item_id']);
+				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['size']));
+				printSizesSelect.appendChild(option);
+				
+				if(rtCalculator.currentCalculationData.print_details.dop_params.sizes && rtCalculator.currentCalculationData.print_details.dop_params.sizes[0].id == CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['item_id']){
+					option.setAttribute("selected",true);
+					
+				}
+				
+			}
+
+			printParamsBox.appendChild(br.cloneNode(true));
+			printParamsBox.appendChild(br.cloneNode(true));
+			printParamsBox.appendChild(printSizesSelect);
+		}
+		
+		return printParamsBox;
+	} 
+	,
+	makeCommonSelect:function(glob_type,target,type,data){
+			
+		var div = document.createElement('DIV');
+		div.appendChild(document.createTextNode(data.data[0].title));
+		var commonSelect = document.createElement('SELECT');
+		var option = document.createElement('OPTION');
+		option.innerHTML = 'Выбрать';
+		option.setAttribute("item_id",0);
+		commonSelect.appendChild(option);
+		
+		commonSelect.onchange = function(){
+			var item_id = this.options[this.selectedIndex].getAttribute('item_id');
+			if(item_id != 0){
+				if(typeof rtCalculator.currentCalculationData.print_details.dop_params[glob_type] === 'undefined')
+					  rtCalculator.currentCalculationData.print_details.dop_params[glob_type] = {};
+			    if(typeof rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target] === 'undefined')
+					rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target] = {};
+			    if(typeof rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type] === 'undefined')
+					rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type] = [];
+				
+				var obj = {"value": parseFloat(this.options[this.selectedIndex].value),"id": this.options[this.selectedIndex].getAttribute('item_id')};
+                if(this.options[this.selectedIndex].getAttribute('multi')){
+					obj.multi = parseInt(this.parentNode.getElementsByTagName('INPUT')[0].value);
+				}
+				rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type].push(obj);
+				
+				rtCalculator.makeProcessing();
+				
+			}
+			else{
+				if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type]){
+
+					delete rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type];
+					rtCalculator.makeProcessing();
+				}
+			}
+
+		}
+		
+		for(var index in data.data){
+			var option = document.createElement('OPTION');
+			option.innerHTML = 'Применить';
+			if(data.data[index].coeff) option.value = data.data[index].coeff;
+			if(data.data[index].value) option.value = data.data[index].value;
+			if(data.data[index].item_id) option.setAttribute("item_id",data.data[index].item_id);
+			if(data.multi==1) option.setAttribute("multi",1);
+			
+			if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type] && rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target] && rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type]){
+			     if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].id==data.data[index].item_id) option.setAttribute("selected",true);
+			}
+			
+			commonSelect.appendChild(option);
+		}
+		
+		div.appendChild(commonSelect);
+		if(data.multi==1){
+			 var input_field =  document.createElement('INPUT');
+			 input_field.value = 1;
+			 if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type] && rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target] && rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type]){
+			     if(rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].multi) input_field.value = rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].multi;
+			}
+			 
+			 
+			 input_field.onkeyup = function(){
+				 if(typeof rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].multi !== 'undefined'){
+					rtCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type][0].multi = this.value;
+				    rtCalculator.makeProcessing();
+				 }
+			 }
+			 div.appendChild(input_field);
+		}
+		
+		return div;
+	}
+	,
 	makeProcessing:function(){
 		
 		// определяем цену по dataForProcessing['priceTbl']
@@ -450,37 +730,129 @@ var rtCalculator = {
 		// по значению параметра rtCalculator.currentCalculationData.print_details.priceOut_tblYindex
 		// и выбираем нужную ячейку 
 		// по значению параметра rtCalculator.currentCalculationData.print_details.priceOut_tblXindex
-		console.log('>>><<<');
+		console.log('>>> rtCalculator.currentCalculationData <<<');
 		console.log( rtCalculator.currentCalculationData);
+		console.log('>>><<<');
 		
+		// снимаем значение price с таблицы прайса
 		var price_out = rtCalculator.currentCalculationData.print_details.priceOut_tbl[rtCalculator.currentCalculationData.print_details.priceOut_tblYindex][rtCalculator.currentCalculationData.print_details.priceOut_tblXindex];
 		var price_in = rtCalculator.currentCalculationData.print_details.priceIn_tbl[rtCalculator.currentCalculationData.print_details.priceIn_tblYindex][rtCalculator.currentCalculationData.print_details.priceIn_tblXindex];
 		
-		
-		console.log('>>><<<');
-		console.log(rtCalculator.currentCalculationData.print_details.priceOut_tblYindex+' '+rtCalculator.currentCalculationData.print_details.priceOut_tblXindex+' '+price_out);
-	    
-		// коэффициэнты
+		// КОЭФФИЦИЕНТЫ НА ПРАЙС
+		// КОЭФФИЦИЕНТЫ НА ИТОГОВУЮ СУММУ
 		// перебираем rtCalculator.currentCalculationData.print_details.
-		var total_coefficient = 1;
-		for(type in rtCalculator.currentCalculationData.print_details.dop_params){
-			var set = rtCalculator.currentCalculationData.print_details.dop_params[type];
-			for(var i = 0;i < set.length;i++){ 
-			    total_coefficient *= set[i].coeff;
+		// в нем содержатся коэффициенты по Y параметру таблицы прайса и по размеру нанесения
+		var price_coeff = summ_coeff = 1;
+		var price_coeff_list  = summ_coefficient_list = '';
+		for(glob_type in rtCalculator.currentCalculationData.print_details.dop_params){
+			if(glob_type=='colors' || glob_type=='sizes'){
+				var set = rtCalculator.currentCalculationData.print_details.dop_params[glob_type];
+				for(var i = 0;i < set.length;i++){ 
+					price_coeff *= set[i].coeff;
+					price_coeff_list += glob_type +' - '+ set[i].coeff+', ';
+				}
+			}
+			if(glob_type=='coeffs'){
+				var data = rtCalculator.currentCalculationData.print_details.dop_params[glob_type];
+				for(target in data){
+					
+					for(var type in data[target]){
+						var set = data[target][type];
+						for(var i = 0;i < set.length;i++){ 
+							if(target=='price'){
+								price_coeff *= (set[i].multi)?  set[i].value*set[i].multi : set[i].value;
+								price_coeff_list += type + ' - '+((set[i].multi)? set[i].multi + ' раз по ':'')+ set[i].value+', ';
+							}
+							if(target=='summ'){
+								summ_coeff *= (set[i].multi)?  set[i].value*set[i].multi : set[i].value;
+								summ_coefficient_list += type + ' - '+((set[i].multi)? set[i].multi + ' раз по ':'')+ set[i].value+', ';
+							}
+						}								
+					}
+				}
 			}
 		}
-		  console.log(total_coefficient);
-		rtCalculator.currentCalculationData.price_out = price_out*total_coefficient;
-		rtCalculator.currentCalculationData.price_in  = price_in*total_coefficient;
-		  console.log(price_out+' итог калькулятора');
-		  
-		var total_price_out = rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity;
-		var total_price_in = rtCalculator.currentCalculationData.price_in*rtCalculator.currentCalculationData.quantity;
+		//console.log('price coefficient');
+		//console.log(price_coeff);
+		//console.log(price_coeff_list);
+		//console.log('summ coefficient');
+		//console.log(summ_coeff);
+		//console.log(summ_coefficient_list);
 		
-		var total_str  = 'ИТОГО - цена за штуку: '+(rtCalculator.currentCalculationData.price_out).toFixed(2)+',   за Тираж: '+(total_price_out).toFixed(2)+'';
-		    total_str += '<br>ВХОД - цена за штуку: '+(rtCalculator.currentCalculationData.price_in).toFixed(2)+',   за Тираж: '+(total_price_in).toFixed(2)+'';
 		
-		document.getElementById("rtCalculatorItogDisplay").innerHTML = total_str;
+		// перебираем rtCalculator.currentCalculationData.print_details.
+	
+		
+	
+	
+	    // НАДБАВКИ НА ИТОГОВУЮ СУММУ
+		// перебираем rtCalculator.currentCalculationData.print_details.
+		var price_addition = summ_addition = 0;
+		var price_additions_list = summ_additions_list = '';
+		for(glob_type in rtCalculator.currentCalculationData.print_details.dop_params){
+			if(glob_type=='additions'){
+				var data = rtCalculator.currentCalculationData.print_details.dop_params[glob_type];
+				for(target in data){
+					
+					for(var type in data[target]){
+						var set = data[target][type];
+						for(var i = 0;i < set.length;i++){ 
+							if(target=='price'){
+								price_addition += (set[i].multi)?  set[i].value*set[i].multi : set[i].value;
+								price_additions_list += type + ' - '+((set[i].multi)? set[i].multi + ' раз по ':'')+ set[i].value+', ';
+							}
+							if(target=='summ'){
+								summ_addition += (set[i].multi)?  set[i].value*set[i].multi : set[i].value;
+								summ_additions_list += type + ' - '+((set[i].multi)? set[i].multi + ' раз по ':'')+ set[i].value+', ';
+							}
+						}								
+					}
+				}
+			}
+		}
+		//console.log('price additions');
+		//console.log(price_addition);
+		//console.log(price_additions_list);
+		//console.log('summ additions');
+		//console.log(summ_addition);
+		//console.log(summ_additions_list);
+		
+		// console.log('>>><<<');
+		// console.log(rtCalculator.currentCalculationData.print_details.priceOut_tblYindex+' '+rtCalculator.currentCalculationData.print_details.priceOut_tblXindex+' '+price_out);
+
+		
+		
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+		// CXEMA  - total_price = ((((price*price_coeff)+price_addition)*quantity)*sum_coeff)+sum_addition
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+		
+		//rtCalculator.currentCalculationData.price_out = price_out;
+		//rtCalculator.currentCalculationData.price_in  = price_in;
+		
+		var total_price_out = ((((price_out*price_coeff)+price_addition)*rtCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
+		var total_price_in  = ((((price_in*price_coeff)+price_addition)*rtCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
+		
+		total_price_out = Math.round(total_price_out * 100) / 100 ;
+		total_price_in = Math.round(total_price_out * 100) / 100 ;
+		
+	    rtCalculator.currentCalculationData.price_out = Math.round(total_price_out/rtCalculator.currentCalculationData.quantity * 100) / 100;
+		rtCalculator.currentCalculationData.price_in  = Math.round(total_price_in/rtCalculator.currentCalculationData.quantity * 100) / 100;
+		
+		total_price_out = Math.round((rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity) * 100) / 100 ;
+		total_price_in = Math.round((rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity) * 100) / 100 ;
+		
+		var total_str  = '';
+		    total_str += 'ВХОД - цена за штуку: '+(rtCalculator.currentCalculationData.price_in).toFixed(2)+',   за Тираж: '+(total_price_in).toFixed(2)+'<br><br>';
+		    total_str += 'ИТОГО - цена за штуку: '+(rtCalculator.currentCalculationData.price_out).toFixed(2)+',   за Тираж: '+(total_price_out).toFixed(2)+'';
+		   
+			
+			total_str += '<br><br>';
+			total_str += '<span style="color:#FF6633;">коэффициэнты прайса:</span> '+price_coeff_list+'<br>';
+			total_str += '<span style="color:#FF6633;">надбавки прайса:</span> '+price_additions_list+'<br>';
+			total_str += '<span style="color:#FF6633;">коэффициэнты суммы:</span> '+summ_coefficient_list+'<br>';
+			total_str += '<span style="color:#FF6633;">надбавки суммы:</span> '+summ_additions_list+'<br>';
+		
+		    document.getElementById("rtCalculatorItogDisplay").innerHTML = total_str;
 	}
 	,
 	saveCalculatorResult:function(){
@@ -501,11 +873,11 @@ var rtCalculator = {
 		
 		delete rtCalculator.dataObj_toEvokeCalculator;
 		
-		console.log('>>> saveCalculatorResult');
+		console.log('>>> saveCalculatorResult --');
 		console.log(rtCalculator.currentCalculationData);
-        console.log('<<< saveCalculatorResult');
+        console.log('<<< saveCalculatorResult --');
 		
-		
+		//return;
 		// формируем url для AJAX запроса
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_calculator_result=1&details='+JSON.stringify(rtCalculator.currentCalculationData));
 		rtCalculator.send_ajax(url,callback);
@@ -605,153 +977,12 @@ var rtCalculator = {
 		rtCalculator.makeProcessing();
 	}
 	,
-    getCurrPrintParams:function(){
-		
-        console.log('>>> getCurrPrintParams');
-		console.log(rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id]);
-		console.log('<<< getCurrPrintParams');
-		
-		var br = document.createElement('BR');
-		var printParamsBox = document.createElement('DIV');
-
-		
-		// определяем переменную содержащую массив данных относящихся к текущему типу нанесения
-		var CurrPrintTypeData = rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id];
-		
-		// select для возможных цветов, в принипе этот селект даже должен быть не для цветов а для любого параметра 
-		// который определяется по вертикали в таблице прайса 
-        //                  [цвет] => Array   
-        //                        ([белый] => Array([percentage] => 1.00 )
-		//						   [серебро] => Array([percentage] => 1.20 ))
-
-        if(CurrPrintTypeData['цвет']){
-			var colorsDiv = document.createElement('DIV');
-            colorsDiv.id = 'rtCalculatorColorsDiv';
-			
-			var colorsSelect = document.createElement('SELECT');
-			// метод onchangeColorsSelect пикрепляется к Селекту здесь и пикрепляется к добавляемым селектам ниже в специальном цикле 
-			colorsSelect.onchange = function(){ rtCalculator.onchangeColorsSelect(colorsDiv); }
-			for(var color in CurrPrintTypeData['цвет']){
-				
-				var option = document.createElement('OPTION');
-				option.setAttribute("value",CurrPrintTypeData['цвет'][color]['percentage']);
-				option.setAttribute("item_id",CurrPrintTypeData['цвет'][color]['item_id']);
-				option.appendChild(document.createTextNode(color));
-				colorsSelect.appendChild(option);
-			}
-			
-			// добавляем поле Выбрать в начало селекта
-			var option = document.createElement('OPTION');
-            option.setAttribute("value",0);
-            option.appendChild(document.createTextNode(' -- выбрать -- '));
-			colorsSelect.insertBefore(option, colorsSelect.firstChild); 
-			
-			
-			var addColorLink = document.createElement('A');
-			addColorLink.href = '#';
-			addColorLink.innerHTML = 'добавить цвет';
-			addColorLink.onclick =  function(){
-				//alert(1);
-				var colorsSelectClone = colorsSelect.cloneNode(true);
-				// навешиваем обработчик события селекту, потому что при colorsSelect.cloneNode(true); он слетает
-				colorsSelectClone.onchange = function(){ rtCalculator.onchangeColorsSelect(colorsDiv); }
-				colorsDiv.appendChild(colorsSelectClone);
-			}
-			
-			// добавляем один или несколько селектов в калькулятор в зависимости от того был он вызван 
-			// для уже существующего расчета или для нового расчета 
-			if(typeof rtCalculator.currentCalculationData.print_details.dop_params.colors !== 'undefined'){
-				for(var i = 0;i < rtCalculator.currentCalculationData.print_details.dop_params.colors.length; i++){ 
-				     var colorsSelectClone = colorsSelect.cloneNode(true);
-					 colorsSelectClone.options[parseInt(rtCalculator.currentCalculationData.print_details.dop_params.colors[i].id)].setAttribute("selected",true);
-				     colorsDiv.appendChild(colorsSelectClone);
-				}
-				var selectsArr = colorsDiv.getElementsByTagName("SELECT");
-				// навешиваем обработчики события каждому селекту, потому что при colorsSelect.cloneNode(true); они слетают
-				for(var i in selectsArr){
-					selectsArr[i].onchange = function(){ rtCalculator.onchangeColorsSelect(colorsDiv); }
-				}
-			}
-			else{
-				colorsDiv.appendChild(colorsSelect);
-			    rtCalculator.currentCalculationData.print_details.priceOut_tblYindex =  1;
-				rtCalculator.currentCalculationData.print_details.priceIn_tblYindex =  1;
-				rtCalculator.currentCalculationData.print_details.dop_params.colors = [];
-				rtCalculator.currentCalculationData.print_details.dop_params.colors.push({'id':0,'coeff':1});
-			}
-			
-			printParamsBox.appendChild(colorsDiv);
-			printParamsBox.appendChild(addColorLink);
-			
-		}
-		// работаем с таблицами цен 
-		
-		// входящяя цена 
-		if(CurrPrintTypeData['priceIn_tbl']) var tbl = rtCalculator.build_priceTbl(CurrPrintTypeData['priceIn_tbl'],'in');
-		printParamsBox.appendChild(tbl);
-		// исходящяя цена 
-		if(CurrPrintTypeData['priceOut_tbl']) var tbl = rtCalculator.build_priceTbl(CurrPrintTypeData['priceOut_tbl'],'out');
-		printParamsBox.appendChild(tbl);
-		
-		// select для возможных площадей нанесения
-		// [sizes] => Array
-        //                ( [1] => Array   - ключ id места нанесения 
-        //                        ([0] => Array ([print_id] => 13[size] => до 630 см2 (А4)[percentage] => 1.00)
-		//						   [1] => Array ([print_id] => 13[size] => до 1260 см2 (А3)[percentage] => 1.50))
-		//				  )
-		if(CurrPrintTypeData['sizes']){
-			// собираем данные для расчета
-			// площади нанесения
-			// if(typeof rtCalculator.dataForProcessing['coefficients'] === 'undefined') rtCalculator.dataForProcessing['coefficients']={};
-			// if(typeof rtCalculator.dataForProcessing['dop_params'] === 'undefined') rtCalculator.dataForProcessing['dop_params']={};
-			// rtCalculator.dataForProcessing['coefficients']['sizes'] = [];
-			// rtCalculator.dataForProcessing['dop_params']['sizes'] = [];
-			
-			var printSizesSelect = document.createElement('SELECT');
-			printSizesSelect.onchange = function(){
-				rtCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':this.options[this.selectedIndex].getAttribute('item_id'),'coeff':this.options[this.selectedIndex].value}
-				
-				rtCalculator.makeProcessing();
-			}
-			for(var id in CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id]){
-				if(typeof rtCalculator.currentCalculationData.print_details.dop_params.sizes === 'undefined'){
-					rtCalculator.currentCalculationData.print_details.dop_params.sizes = [];
-					rtCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['item_id'],'coeff':CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['percentage']};
-				}
-				
-				
-				var option = document.createElement('OPTION');
-
-
-				option.setAttribute("value",CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['percentage']);
-				// id значения (размер нанесения) который будет сохранен в базу данных и по нему будет отстроен калькулятор 
-				// в случае вызова по кокретному нанесению
-				option.setAttribute("item_id",CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['item_id']);
-				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['size']));
-				printSizesSelect.appendChild(option);
-				
-				if(rtCalculator.currentCalculationData.print_details.dop_params.sizes && rtCalculator.currentCalculationData.print_details.dop_params.sizes[0].id == CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id][id]['item_id']){
-					option.setAttribute("selected",true);
-					
-				}
-				
-			}
-			
-			printParamsBox.appendChild(br.cloneNode(true));
-			printParamsBox.appendChild(br.cloneNode(true));
-			printParamsBox.appendChild(br.cloneNode(true));
-			printParamsBox.appendChild(br.cloneNode(true));
-			printParamsBox.appendChild(printSizesSelect);
-		}
-		
-		return printParamsBox;
-	} 
-	,
 	build_priceTbl:function(tbl,type){
 	 
 			// строим таблицу с ценами
 			var tbl = tbl[0];
 			var tbl_html = document.createElement('TABLE');
+			tbl_html.className = "calculatorPriceTbl";
 			//alert(tbl.length);
 			for(var row in tbl){
 				var tr = document.createElement('TR');
@@ -784,8 +1015,9 @@ var rtCalculator = {
 					// исходя из этого получаем индекс соответсвующей колонки таблицы цен
 					if(row == 0){
 						// если значение ячейки меньше или равно значения параметра quantity, значит мы еще не вышли из диапазона, значение сохраняем
-						if(type=='out' && parseInt(tbl[row][counter]) <= rtCalculator.currentCalculationData.quantity) var priceOut_tblXindex = counter;
-						if(type=='in' && parseInt(tbl[row][counter]) <= rtCalculator.currentCalculationData.quantity) var priceIn_tblXindex = counter;
+						
+						if(type=='out' && (parseInt(tbl[row][counter]) <= rtCalculator.currentCalculationData.quantity)) var priceOut_tblXindex = counter;
+						if(type=='in' && (parseInt(tbl[row][counter]) <= rtCalculator.currentCalculationData.quantity)) var priceIn_tblXindex = counter;
 						
 						//console.log(parseInt(tbl[row][counter])+' '+rtCalculator.currentCalculationData.quantity);
 					}
@@ -1152,7 +1384,7 @@ var rtCalculator = {
 						
 						
 						function callback(response){
-							
+							alert(response);
 							var response_obj = JSON.parse(response);
 							//console.log(response_obj);
 							// если ответ был ok значит все нормально изменения сделаны 

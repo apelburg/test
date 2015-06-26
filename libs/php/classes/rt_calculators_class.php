@@ -104,7 +104,7 @@
 			if($result->num_rows>0){
 			    while($row = $result->fetch_assoc()){
 				    // получаем данные о типах нанесений соответсвующих данному месту
-					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__PRINT_PLACES_PRINT_TYPES_REL_TBL."` tbl1
+					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__PRINT_TYPES_SIZES_PLACES_REL_TBL."` tbl1
 					          INNER JOIN  `".OUR_USLUGI_LIST."` tbl2 
 					          ON tbl1.`print_id`  = tbl2.`id` 
 							  WHERE tbl1.`place_id` = '".$row['place_id']."'";
@@ -136,8 +136,8 @@
 			// 
 			foreach($out_put['print_types'] as $print_id => $val){
 			
-			    // выбираем дополнительные параметры соответствующие данному нанесению (такие как например цвета)
-				$query="SELECT*FROM `".BASE__DOP_PARAMS_FOR_PRINT_TYPES_TBL."` WHERE `print_type_id` = '".$print_id."'";
+			    // выбираем дополнительные параметры  определяющие вертикальную позицию в прайсе (такие как например цвета)
+				$query="SELECT*FROM `".BASE__CALCULATORS_Y_PRICE_PARAMS."` WHERE `print_type_id` = '".$print_id."'";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){
@@ -156,6 +156,30 @@
 				    while($row = $result->fetch_assoc()){
 					    $count = $row['count'];
 					    unset($row['id'],$row['print_type_id'],$row['count']);
+						
+						if(!isset($end[$row['price_type']]))$end[$row['price_type']] = false;
+						
+						if($row['param_val']==0){
+						      $end_counter = 0;
+							  foreach($row as $key => $val){
+								  if($key!='param_val' && $key!='param_type'){
+									  //echo $val;
+									  if($val==0 && !$end[$row['price_type']]) $end[$row['price_type']] = $end_counter;
+								  } 
+								  $end_counter++;
+							  }
+						}
+						
+						if($end[$row['price_type']]){
+							 $counter = 0;
+							 foreach($row as $key => $val){
+								  if($counter>=$end[$row['price_type']]){
+									  unset($row[$key]);
+								  } 
+								  $counter++;
+							  }
+						  }	
+						
 					    if($row['price_type']=='out') $out_put['print_types'][$print_id]['priceOut_tbl'][$count][] = $row; 
 						else if($row['price_type']=='in')  $out_put['print_types'][$print_id]['priceIn_tbl'][$count][] = $row;  
 				    }
@@ -177,13 +201,40 @@
 				}
 				
 				
+				// выбираем данные по коэффициэнтам влияющим на цену товара
+				$query="SELECT*FROM `".BASE__CALCULATORS_COEFFS."` WHERE `print_id` = '".$print_id."'";
+				//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);/**/
+				if($result->num_rows>0){
+				   $data = $coeff_data= array();
+				    while($row = $result->fetch_assoc()){
+					    $coeff_data[$row['target']][$row['type']][] = array('item_id'=>$row['id'],'title'=>$row['title'],'coeff'=>$row['percentage']);
+						$data[$row['target']][$row['type']] =  array('optional'=>$row['optional'],'multi'=>$row['multi'],'data'=>$coeff_data[$row['target']][$row['type']]);
+						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения
+					    $out_put['print_types'][$row['print_id']]['coeffs'][$row['target']] = $data[$row['target']];   
+				    }
+				}
+				
+				// выбираем данные по надбавкам влияющим на цену товара
+				$query="SELECT*FROM `".BASE__CALCULATORS_ADDITIONS."` WHERE `print_id` = '".$print_id."'";
+				//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);/**/
+				if($result->num_rows>0){
+				    $data = $additions_data= array();
+				    while($row = $result->fetch_assoc()){
+					    $additions_data[$row['target']][$row['type']][] = array('item_id'=>$row['id'],'title'=>$row['title'],'value'=>$row['value']);
+						$data[$row['target']][$row['type']] =  array('optional'=>$row['optional'],'multi'=>$row['multi'],'data'=>$additions_data[$row['target']][$row['type']]);
+						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения
+					    $out_put['print_types'][$row['print_id']]['additions'][$row['target']] = $data[$row['target']];   
+				    }
+				}
 				// НУЖНА ЕЩЕ ИНФОРМАЦИЯ О СТОИМОСТИ ПОДГОТОВИТЕЛЬНЫХ РАБОТ
 			}
 			
 			return $out_put;
 		}
 		
-		function json_fix_cyr($json_str) { 
+		static function json_fix_cyr($json_str) { 
 			$cyr_chars = array ( 
 			'\u0430' => 'а', '\u0410' => 'А', 
 			'\u0431' => 'б', '\u0411' => 'Б', 
@@ -229,7 +280,7 @@
 			} 
 			return $json_str; 
          } 
-		function save_calculatoins_result($details_obj){
+		static function save_calculatoins_result($details_obj){
 		    global $mysqli;  
 			
 			print_r($details_obj);
@@ -268,7 +319,7 @@
 			
 			}
 		}
-		function delete_prints_for_row($dop_row_id,$usluga_id,$all){
+		static function delete_prints_for_row($dop_row_id,$usluga_id,$all){
 		    global $mysqli;  
 			
 			// если надо удалить все расчеты нанесения
@@ -286,24 +337,28 @@
 				 $mysqli->query($query)or die($mysqli->error);
 			}
 		}
-		function change_quantity_and_calculators($quantity,$dop_data_id){
+		static function change_quantity_and_calculators($quantity,$dop_data_id){
 		    global $mysqli;  
 			$itog_sums = array("summ_in"=>0,"summ_out"=>0);
-			// если надо удалить все расчеты нанесения
+			// делаем запрос чтобы получить данные о всех расчетах нанесений привязанных к данному ряду
 		    $query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
 			                    `".RT_DOP_DATA."` dop_data
 								  ON dop_data.`id` =  uslugi.`dop_row_id`
-			                      WHERE dop_data.`id` = '".$dop_data_id."'";
+			                      WHERE uslugi.glob_type ='print' AND dop_data.`id` = '".$dop_data_id."'";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
 				while($row = $result->fetch_assoc()){
+				    // детали расчета нанесения
 					$print_details_obj = json_decode($row['print_details']);
-					//print_r($print_details_obj->dop_params);
-					//echo "\r\n";
-					$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj->print_id,$print_details_obj->priceIn_tblYindex,$print_details_obj->priceOut_tblXindex);
-					//print_r($new_price_arr);
-					//echo "\r\n";
+					//print_r($print_details_obj->dop_params);echo "\r\n";//
+					
+					// получаем новые исходящюю и входящюю цену исходя из нового таража
+					$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj->print_id,$print_details_obj->priceIn_tblYindex,$print_details_obj->priceOut_tblYindex);
+					//print_r($new_price_arr);echo "\r\n";//
+					
+					
+					// рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
 					$new_data = self::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 					
 					// перезаписываем новые значения прайсов и X индекса обратно в базу данных
@@ -327,7 +382,7 @@
 				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).'}';
 			}
 		}
-		function change_quantity_and_calculators_price_query($quantity,$print_id,$priceIn_tblYindex,$priceOut_tblXindex){
+		static function change_quantity_and_calculators_price_query($quantity,$print_id,$priceIn_tblYindex,$priceOut_tblYindex){
 		    global $mysqli;  
 			
 			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' ORDER by id, param_val";
@@ -349,29 +404,79 @@
 						}
 						// определяем новые входящие и исходящие цены
 						if($row['price_type']=='in' && $row['param_val']==$priceIn_tblYindex) $new_priceIn = $row[$newIn_Xindex];
-						if($row['price_type']=='out' && $row['param_val']==$priceIn_tblYindex) $new_priceOut = $row[$newOut_Xindex];   
+						if($row['price_type']=='out' && $row['param_val']==$priceOut_tblYindex) $new_priceOut = $row[$newOut_Xindex];   
 				    }
 					// echo "\r\n In".$newIn_Xindex.' '.$new_priceIn; echo "\r\n Out".$newOut_Xindex.' '.$new_priceOut;
 					return array("price_in"=> $new_priceIn,"price_out"=> $new_priceOut);
 				}
 		}
-		function make_calculations($quantity,$new_price_arr,$print_dop_params){
+		static function make_calculations($quantity,$new_price_arr,$print_dop_params){
 			
-			$all_coeffs = 1;
+			$price_coeff = $summ_coeff = 1;
+			$price_addition = $summ_addition = 0;
 			$new_summs = array();
-			 
-			foreach($print_dop_params as $set){
-				foreach($set as $data){
-				    //echo "coeff ".$data->coeff."\r\n";
-					$all_coeffs *= (float)$data->coeff;
+			//print_r($print_dop_params);
+			
+		    // КОЭФФИЦИЕНТЫ НА ПРАЙС
+			// КОЭФФИЦИЕНТЫ НА ИТОГОВУЮ СУММУ
+			// НАДБАВКИ НА ПРАЙС
+			// НАДБАВКИ НА ИТОГОВУЮ СУММУ
+			foreach($print_dop_params as $glob_type => $set){
+				
+				if($glob_type=='colors' || $glob_type=='sizes'){
+					foreach($set as $data){
+						//echo "coeff ".$data->coeff."\r\n";
+						$price_coeff *= (float)$data->coeff;
+					}
+				}
+				if($glob_type=='coeffs'){
+					foreach($set as $target => $data){
+					    foreach($data as $type => $details){
+							for($i = 0;$i < count($details);$i++){ 
+								if($target=='price'){
+								     // echo 'coeffs price';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
+								     $price_coeff *= (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								}
+								if($target=='summ'){
+									 // echo 'coeffs summ';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
+									 $summ_coeff *= (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								}
+							}								
+						}
+					}
+				}
+				if($glob_type=='additions'){
+					foreach($set as $target => $data){
+					    foreach($data as $type => $details){
+							for($i = 0;$i < count($details);$i++){ 
+								if($target=='price'){
+								    // echo 'additions price';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
+								     $price_addition += (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								}
+								if($target=='summ'){
+								     // echo 'additions summ';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
+									 $summ_addition += (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								}
+							}								
+						}
+					}
 				}
 			} 
-			//echo "all_coeffs ".$all_coeffs."\r\n";
-			$new_price_arr["price_in"] = (float)$new_price_arr["price_in"]*$all_coeffs;
-			$new_price_arr["price_out"] = (float)$new_price_arr["price_out"]*$all_coeffs;
 			
-			$new_summs["summ_in"] = $quantity*$new_price_arr["price_in"];
-			$new_summs["summ_out"] = $quantity*$new_price_arr["price_out"];
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+			// CXEMA  - new_summ = ((((price*price_coeff)+price_addition)*quantity)*sum_coeff)+sum_addition
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+			
+			
+			$new_summs["summ_in"] = round((((($new_price_arr['price_in']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
+			$new_summs["summ_out"] = round((((($new_price_arr['price_out']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
+		
+			
+			//echo "all_coeffs ".$all_coeffs."\r\n";
+			$new_price_arr["price_in"] =  round($new_summs["summ_in"]/$quantity,2);
+			$new_price_arr["price_out"] = round($new_summs["summ_out"]/$quantity,2);
+			$new_summs["summ_in"] = round($new_price_arr["price_in"]*$quantity,2);
+			$new_summs["summ_out"] = round($new_price_arr["price_out"]*$quantity,2);
 			
 			//echo "all_coeffs ".$all_coeffs." ".$new_summs["summ_in"]." \r";
 			//echo "all_coeffs ".$all_coeffs." ".$new_summs["summ_out"]."\r\n";
