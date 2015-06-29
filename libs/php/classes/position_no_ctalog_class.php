@@ -242,15 +242,15 @@ class Position_no_catalog{
 
 
 					$html .= "<tr data-id='".$value2['id']."'>
-							<td><span class='traffic_lights_".$value2['row_status']."'><span></span></span></td>
+							<td><span class='traffic_lights_".(($value2['row_status']!='')?$value2['row_status']:'green')."'><span></span></span></td>
 							<td>".$n."</td>
 							<td><span>".$value2['quantity']."</span> шт</td>
 							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span> р</td>
 							<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span> р</td>
 							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span> р</td>
 							<td ".(($edit_snab!='' || $edit_admin!='')?"class='change_supplier'":"")." data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
-							<td class='chenge_maket_date'></td>
-							<td><div ".(($edit_snab!='' || $edit_admin!='')?"class='change_srok'":"")." ".$edit_snab.$edit_admin.">".$value2['work_days']."</div></td>";
+							<td ".(($edit_snab!='' || $edit_admin!='')?"class='chenge_maket_date'":"")." ><input type='text' name='maket_date' value='".$value2['maket_date']."'></td>
+							<td ><div ".(($edit_snab!='' || $edit_admin!='')?"class='change_srok'":"")." ".$edit_snab.$edit_admin.">".$value2['work_days']."</div></td>";
 				
 				//$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
 				$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><div contenteditable='true' class='edit_snab_comment'> ".$value2['snab_comment']."</div></td>
@@ -267,16 +267,17 @@ class Position_no_catalog{
 		return $html;			
 	}
 
-	// // возвращает список имён поставщиков для каждого варианта
-	// private function get_suppliers_Database_String($id_s){
-	// 	$suppliers_arr = Supplier::get_suppliers_Database($id_s);
-
-	// 	$suppliers_name_arr = array();
-	// 	foreach ($suppliers_arr as $key => $value) {
-	// 		$suppliers_name_arr[] = $value['nickName'];
-	// 	}
-	// 	return implode(', ', $suppliers_name_arr);
-	// }
+	public function change_maket_date_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `maket_date` = '".date('Y-m-j', strtotime($this->POST['maket_date']))."'
+		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK","name":"change_maket_date_Database"}';
+	}
 
 	// редактируем информацию об поставщиках для некаталожного варианта расчёта
 	public function change_supliers_info_dop_data_Database(){
@@ -532,7 +533,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	// получаем все варианты
 	private function get_all_variants_Database_Array(){
 		global $mysqli;
-		$query = "SELECT * FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."'";
+		$query = "SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."'";
 		$result = $mysqli->query($query) or die($mysqli->error);				
 		$arr = array();
 		if($result->num_rows > 0){
@@ -540,6 +541,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				$arr[] = $row;
 			}
 		}
+		echo $query;
 		return $arr;
 	}
 
@@ -560,6 +562,14 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 	// выводит общую информацию по ВАРИАНТУ из json
 	public function variant_no_cat_json_Html($arr,$FORM/*экземпляр класса форм*/,$type_product){
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
+
+
+
 		$html = '';
 
 		// если у нас есть описание заявленного типа товара
@@ -569,8 +579,8 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 			foreach ($arr as $key => $value) {
 				$html .= '
 					<div class="row">
-						<div class="cell">'.$names[$key]['name'].'</div>
-						<div class="cell">';
+						<div class="cell" >'.$names[$key]['name'].'</div>
+						<div class="cell" data-type="'.$key.'" '.$edit_admin.$edit_snab.'>';
 				$html .= $value;
 				$html .='</div>
 					</div>
@@ -589,6 +599,33 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 	}
 
+
+	public function change_no_cat_json_Database(){
+		// echo '<pre>';
+		// print_r();
+		// echo '</pre>';
+
+		global $mysqli;
+		// $query = "SELECT * FROM `".RT_DOP_DATA."` WHERE id = '".$this->POST['id_dop_data']."' GROUP BY `status_snab`";
+		// $result = $mysqli->query($query) or die($mysqli->error);				
+		// $arr = array();
+		// if($result->num_rows > 0){
+		// 	while($row = $result->fetch_assoc()){
+		// 		$arr = $row;
+		// 	}
+		// }
+		// echo '<pre>';
+		// print_r(json_decode($arr['no_cat_json']));
+		// echo '</pre>'; 
+		
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`no_cat_json`='".addslashes(json_encode($this->POST['data']))."' 
+
+		WHERE `id`='".$this->POST['id_dop_data']."';
+";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+	}
 
 
 	// выводит общую информацию по позиции из json, 

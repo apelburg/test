@@ -153,8 +153,8 @@
 }
 
 #edit_variants_content #variant_of_snab span.traffic_lights_green,#edit_variants_content #variant_of_snab span.traffic_lights_grey,#edit_variants_content #variant_of_snab span.traffic_lights_red{
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   float: left;
  /*   position: absolute;
   margin-left: -28px;*/
@@ -162,9 +162,9 @@
   margin-top: -4px;
 }
 #edit_variants_content #variant_of_snab span.traffic_lights_green span,#edit_variants_content #variant_of_snab span.traffic_lights_grey span, #edit_variants_content #variant_of_snab span.traffic_lights_red span{
-    width: 8px;
-    height: 8px;
-    margin: 3px 0 0 3px;
+    width: 7px;
+    height: 7px;
+    margin: 4px 0 0 4px;
     float: left;
     border-radius: 15px;
 }
@@ -198,7 +198,7 @@
 
 
 #edit_variants_content #variant_of_snab span.traffic_lights_green{
-  border: 2px solid #92B73E;
+  border: 1px solid #92B73E;
 }
 #edit_variants_content #variant_of_snab span.traffic_lights_green span{
     border: 1px solid #92B73E;
@@ -206,14 +206,14 @@
 }
 
 #edit_variants_content #variant_of_snab span.traffic_lights_grey{
-    border: 2px solid #E3E5E5;
+    border: 1px solid #E3E5E5;
 }
 #edit_variants_content #variant_of_snab span.traffic_lights_grey span{
       border: 1px solid #E3E5E5;
 }
 
 #edit_variants_content #variant_of_snab span.traffic_lights_red{
-    border: 2px solid #F69679;
+    border: 1px solid #F69679;
 }
 #edit_variants_content #variant_of_snab span.traffic_lights_red span{
       border: 1px solid #F69679;
@@ -555,8 +555,13 @@ span.snab_comment {
 
 #inform_for_variant_head{ font-weight: bold; text-decoration: underline;}
 .edit_snab_comment,.change_srok{ min-height: 15px; border:1px solid grey; background: #fff; font-size: 12px; color: black; padding: 3px}
-.edit_snab_comment.saved,.save_comment_snab{ background-color: #e7e7e7;}
-.change_srok.saved,.change_srok.save_work_days{background-color: #e7e7e7;}
+.edit_snab_comment.saved,
+.save_comment_snab,
+#inform_for_variant.saved,
+.change_srok.saved,
+.change_srok.save_work_days,
+#inform_for_variant.save_no_cat_json{background-color: #e7e7e7;}
+
 #variant_of_snab table.show_table tr:nth-child(even){ background-color: #F5FAFF;}
 
 #variant_of_snab table.calkulate_table tr td:nth-last-child(1){ width: 35px}
@@ -576,3 +581,6 @@ span.snab_comment {
   background-color: #92b73e; }
 
 #chose_supplier_tbl tr td.checked{  background-color: #007036;color: #FFF;}
+
+.chenge_maket_date input{  width: 65px;}
+.change_srok{ width: 25px}

@@ -32,10 +32,12 @@ $(document).on('click', '#variant_of_snab table.show_table tr td', function(even
 	// показываем расширенную информацию по выбранному варианту
 	$('#variant_info_'+id_row).css({'display':'block'});
 
-	// трасляция подробной информации в правом верхнем углу экрана
-	$('#inform_for_variant').html($('#variant_info_'+id_row+ ' .table.inform_for_variant').parent().html());
+	// трасляция подробной информации в правом верхнем углу экрана, отмечаем id строки dop_data в хар-ках изделия
+	$('#inform_for_variant').html($('#variant_info_'+id_row+ ' .table.inform_for_variant').parent().html()).attr('data-id',id_row);
 
+	// пишем номер варианта в хар-ках изделия
 	$('#inform_for_variant_number').html($(this).parent().find('td').eq(1).html());
+
 });
 
 
@@ -930,7 +932,7 @@ $(document).on('click', '#chose_supplier_tbl tr td', function(event) {
 $(document).on('keyup', '.edit_snab_comment', function(event) {
 	timing_save_comment('save_comment_snab',$(this));	
 });
-
+// функция тайминга отправки запросов AJAX при сохранении данных
 function timing_save_comment(fancName,obj){
 	//если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
 	if(!obj.hasClass('saved')){
@@ -938,8 +940,7 @@ function timing_save_comment(fancName,obj){
 		
 		window[fancName](obj);
 
-		// обнуляем очередь
-		if(obj.hasClass(fancName)){obj.removeClass(fancName);}
+		
 
 		// пишем запрет на save
 		obj.addClass('saved');
@@ -960,7 +961,8 @@ function timing_save_comment(fancName,obj){
 			$('.'+fancName).each(function(index, el) {
 				console.log($(this).html());
 				
-				setTimeout(function(){timing_save_comment(fancName,$('.'+fancName).eq(index));}, time);	
+				setTimeout(function(){timing_save_comment(fancName,$('.'+fancName).eq(index));// обнуляем очередь
+		if(obj.hasClass(fancName)){obj.removeClass(fancName);}}, time);	
 			});
 			
 		}		
@@ -994,4 +996,120 @@ function save_worke_days(obj){
 		obj.removeClass('saved');
 		
 	});	
+}
+
+
+jQuery(document).ready(function($) {
+	// дата необходимого наличия макета
+	$('.chenge_maket_date input').datetimepicker({
+		minDate:new Date(),
+		// disabledDates:['07.05.2015'],
+		timepicker:false,
+	 	dayOfWeekStart: 1,
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		closeOnDateSelect:true,
+		onChangeDateTime: function(dp,$input){// событие выбора даты
+			// меняем html
+			// var id_variant = $('#variants_name .variant_name.checked ').attr('data-cont_id');
+			// $('#'+id_variant+' .timepicker2').show().val(''); // показать поле время
+			// $('#'+id_variant+' .fddtime_rd2').val('');
+			// $('#'+id_variant+' .btn_var_std[name="std"]').removeClass('checked');		
+
+
+			// получение данных для отправки на сервер
+			var id_dop_data = $input.parent().parent().attr('data-id');
+			//var row_id = $('#claim_number').attr('data-order');	
+			var maket_date = $input.val();
+
+			// alert(id);
+
+			$.post('', {
+				AJAX: 'change_maket_date',
+				id_dop_data: id_dop_data,
+				maket_date: maket_date
+			}, function(data, textStatus, xhr) {
+				/*optional stuff to do after success */
+			},"json");
+		},
+		format:'d.m.Y',
+	});	
+});
+
+
+// редактирование полей описания варианта
+$(document).on('keyup', '#inform_for_variant .inform_for_variant .cell', function(event) {
+	// save_no_cat_json($(this).parent().parent().parent())
+	timing_save_no_cat_json('save_no_cat_json',$(this).parent().parent().parent())
+	
+});
+
+// сохраняем хар-ки варианта
+function save_no_cat_json(obj){
+	var arr = {};
+	obj.find('.row').each(function(index, el) {
+		// console.log();
+		// console.log($(this).find('.cell').eq(1).attr('data-type') +' = '+$(this).find('.cell').eq(1).html());
+		arr[$(this).find('.cell').eq(1).attr('data-type')] = $(this).find('.cell').eq(1).html();
+
+	});
+	console.log(obj);
+	// var type = $(this).attr('data-type');
+	var dop_data_id = obj.attr('data-id');
+	// копируем отредактированную таблицу в скрытую область html
+	$('#variant_info_'+dop_data_id+' .inform_for_variant').html(obj.find('.inform_for_variant').html())
+
+
+	$.post('', {
+				AJAX: 'change_no_cat_json',
+				id_dop_data: dop_data_id,
+				// type: type,
+				data: arr
+			}, function(data, textStatus, xhr) {
+				obj.removeClass('saved');
+				// обнуляем очередь				
+			},"json");
+}
+
+// тайминг сохранения хар-к варианта
+function timing_save_no_cat_json(fancName,obj){
+	//если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
+	if(!obj.hasClass('saved')){
+		
+		
+		window[fancName](obj);		
+
+		// пишем запрет на save
+		obj.addClass('saved');
+		// снимаем запрет на через n времени
+		// var time = 2000;
+		
+		// setTimeout(function(){obj.removeClass('saved')}, time);				
+	}else{// стоит запрет, проверяем очередь по сейву данной функции
+		
+		if(obj.hasClass(fancName)){ //стоит в очереди на сохранение
+			// стоит очередь, значит мимо... всё и так сохранится
+		}else{
+			// не стоит в очереди, значит ставим
+			obj.addClass(fancName);
+
+			// вызываем эту же функцию через n времени всех очередей
+			var time = 2000;
+			$('.'+fancName).each(function(index, el) {
+				console.log($(this).html());
+				
+				setTimeout(function(){
+					timing_save_no_cat_json(fancName,$('#inform_for_variant'));// обнуляем очередь
+					if(obj.hasClass(fancName)){// убиваем метку очереди
+						obj.removeClass(fancName);
+					}
+
+				}, time);	
+			});
+			
+		}		
+	}
 }
