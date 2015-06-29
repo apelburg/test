@@ -288,22 +288,26 @@ class Position_no_catalog{
 	public function get_top_funcional_byttun_for_user_Html($status_snab,$pause){
 		// пауза 
 		$html = '<div class="hidden_top_buttons">';
-		if($this->user_access == 1 || $this->user_access == 5){
-			if($pause==0){
+		$pause_buttons = '';
+		if($pause==0){
+			if($this->user_access == 1 || $this->user_access == 5){
 				$pause_buttons = '<li class="status_art_right_class_pause" data-send_status="1"><div><span>Поставить на паузу</span></div></li>';
-				// все кнопки выводятся только когда пауза равна 0
-				// перебираем все возможные кнопки кнопки
-				foreach ($this->status_snab[$status_snab]['buttons'] as $key => $value) {
-					// при наличии допуска к кнопке - выводим её
-					if($this->user_access == 1 || $this->user_access == $value['access']){
-						$html .= '<li class="status_art_right_class" data-send_status="'.$key.'"><div><span>'.$value['name'].'</span></div></li>';			
-					}
-				}
-			}else{
-				// когда стоит пауза, единственное
-				$pause_buttons = '<li class="status_art_right_class_pause" data-send_status="0"><div><span>Снять с паузы</span></div></li>';
 			}
-		}		
+			// все кнопки выводятся только когда пауза равна 0
+			// перебираем все возможные кнопки кнопки
+			foreach ($this->status_snab[$status_snab]['buttons'] as $key => $value) {
+				// при наличии допуска к кнопке - выводим её
+				if($this->user_access == 1 || $this->user_access == $value['access']){
+					$html .= '<li class="status_art_right_class" data-send_status="'.$key.'"><div><span>'.$value['name'].'</span></div></li>';			
+				}
+			}
+		}else{
+			// когда стоит пауза, единственное
+			if($this->user_access == 1 || $this->user_access == 5){
+				$pause_buttons = '<li class="status_art_right_class_pause" data-send_status="0"><div><span>Снять с паузы</span></div></li>';
+			}	
+		}
+				
 		
 		$html .= $pause_buttons.'</div>';
 		// $html .= '</div>';
@@ -589,27 +593,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		return $arr;
 	}
 
-	/*
-	// получаем кнопку "пауза" для мена  
-	private function get_pause_status_button_Database_Html(){
-		$html = '';
-		if(isset($this->GET['id'])){
-			global $mysqli;
-			$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$this->GET['id']."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					if($row['paused']==0){
-						$html .= '<li class="status_art_right_class_pause" data-send_status="1"><div><span>Поставить на паузу</span></div></li>';
-					}else{
-						$html .= '<li class="status_art_right_class_pause" data-send_status="0"><div><span>Снять с паузы</span></div></li>';
-					}
-				}
-			}
-		}		
-		return $html;
-	}
-	*/
+	
 	//получаем все уникальные по статусу варанты
 	private function get_all_variants_Group_Database_Array(){
 		global $mysqli;
