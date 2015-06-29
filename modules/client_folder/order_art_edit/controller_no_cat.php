@@ -15,7 +15,31 @@
 
 	## POST
 	if(isset($_POST['AJAX'])){	
-		
+		// меняем статус для группы вариантов
+		if($_POST['AJAX'] == 'change_status_gl'){
+			$POSITION_NO_CAT->change_status_gl_Database();
+			exit;
+		}
+
+		// мен ставит на паузу
+		if($_POST['AJAX'] == 'change_status_gl_pause'){
+			$POSITION_NO_CAT->change_status_gl_pause_Database();
+			exit;
+		}
+
+		// редактируем дату подачи макета
+		if($_POST['AJAX'] == 'change_maket_date'){
+			$POSITION_NO_CAT->change_maket_date_Database();
+			exit;
+		}
+
+		// редактируем no_cat_json
+		if($_POST['AJAX'] == 'change_no_cat_json'){
+			$POSITION_NO_CAT->change_no_cat_json_Database();
+			exit;
+		}
+
+		// редактируем количество рабочих дней на изготовление продукции
 		if($_POST['AJAX'] == 'edit_work_days'){
 			$POSITION_NO_CAT->edit_work_days_Database();
 			exit;

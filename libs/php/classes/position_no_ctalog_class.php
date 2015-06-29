@@ -32,46 +32,74 @@ class Position_no_catalog{
 	// класс форм
 	private $FORM;
 
-	// кнопки для различных групп пользователей
-	private $buttons_top_command = array(
-		'confirm_calculation' => array(
-			'name' => 'Принять расчёт',
-			'access' => '1,5'
+	// статусы кнопки для различных групп пользователей 
+	private $status_snab = array(
+
+		'on_calculation' => array( //на расчёт мен
+			'name' => 'На расчёт',
+			'buttons' =>  array( // кнопки для данного статуса
+				'on_calculation_snab' => array(// статус позиции или даже запроса
+					'name' => 'Запросить расчёт',
+					'access' => '5'
+					)
+				)
 			),
-		'queryes_calculation' => array( // 
-			'name' => 'Запросить расчёт',
-			'access' => '1,5'
+
+
+		'on_calculation_snab' => array( 
+			'name' => 'Запрошен расчёт', // в снабжение
+			'buttons' =>  array( // кнопки для данного статуса
+				'in_calculation' => array(		
+					'name' => 'Принять в работу',
+					'access' => '8'
+					),
+				'tz_is_not_correct' => array( // статус снабжения по позиции
+					'name' => 'ТЗ не корректно',
+					'access' => '8'
+					)
+				)
 			),
-		'queryes_recalculation' => array( // меняет статус у всех отмеченных и переводит варианты "на расчёт"
-			'name' => 'Запросить пересчёт',
-			'access' => '1,5'
-			),
-		'get_in_work' => array(// статус по каждому варианту позиции
-			'name' => 'Принять в работу',
-			'access' => '1,8'
+		'on_recalculation_snab' => array(
+			'name' => 'На перерасчёт',
+			'buttons' =>  array( // кнопки для данного статуса
+				'in_calculation' => array(		
+					'name' => 'Принять в работу',
+					'access' => '8'
+					),
+				'tz_is_not_correct' => array( // статус снабжения по позиции
+					'name' => 'ТЗ не корректно',
+					'access' => '8'
+					)
+				)
 			),
 		'tz_is_not_correct' => array( // статус снабжения по позиции
 			'name' => 'ТЗ не корректно',
-			'access' => '1,8'
-			),
-		'to_set_pause' => array(// статус позиции или даже запроса
-			'name' => 'Поставить на паузу',
-			'access' => '1,5'
-			)
-		);
-
-	private $status_snab = array(
-		'on_calculation' => array(
-			'name' => 'На расчёт'
-			),
-		'query_on_calculation' => array(
-			'name' => 'Запроc на расчёт'
+			'buttons' =>  array( // кнопки для данного статуса
+				'on_recalculation_snab' => array( // 
+					'name' => 'Запросить расчёт',
+					'access' => '5'
+					)
+				)
+			
 			),
 		'in_calculation' => array(
-			'name' => 'В расчёте'
+			'name' => 'В расчёте снабжение',
+			'buttons' =>  array( // кнопки для данного статуса
+				'calculate_is_ready' => array(
+					'name' => 'Расчёт готов',
+					'access' => '8'
+					)
+				)
 			),
-		'calculation_of_snab' => array(
-			'name' => 'Расчёт от снабжения'
+
+		'calculate_is_ready' => array(
+			'name' => 'Расчёт от снабжения',
+			'buttons' =>  array( // кнопки для данного статуса
+				'on_recalculation_snab' => array( // 
+					'name' => 'Запросить перерасчёт',
+					'access' => '5'
+					)
+				)
 			)
 		);
 
@@ -99,27 +127,6 @@ class Position_no_catalog{
 		//echo $query;
 		return $int;
 	}
-
-	public function get_top_funcional_byttun_for_user_Html(){
-		$html = '';
-		// перебираем все возможные кнопки кнопки
-		foreach ($this->buttons_top_command as $key => $value) {
-			// получаем массив разрешёний данной кнопки
-			$access = 0;
-			foreach (explode(',', $value['access']) as $key2 => $value2) {
-				if(trim($value2)==$this->user_access){
-					$access = 1;
-				}
-			}
-
-			if($access==1){
-				$html .= '<li class="status_art_right_class"><div><span>'.$value['name'].'</span></div></li>';
-			}
-		}
-		return $html;
-	}
-
-	
 
 	public function edit_work_days_Database(){
 		global $mysqli;
@@ -169,7 +176,9 @@ class Position_no_catalog{
 			if(isset($this->status_snab[$value['status_snab']])){
 
 				$name_group = ($value['status_snab']=='calculation_of_snab')?$this->status_snab[$value['status_snab']]['name'].' от '.$value['snab_end_work']:$this->status_snab[$value['status_snab']]['name'];
-			
+				
+				//добавляем пометку о паузе
+				$name_group = ($value['pause']==1)?'ПАУЗА':$name_group;
 			}else{
 				// на всякий случай на время тестирования выведем
 				// вдруг найдутся варианты с неизвестными в классе статусами
@@ -186,7 +195,7 @@ class Position_no_catalog{
 			}
 
 			// добавляем вкладку в список
-			$variants_group_menu_Html .= '<li data-cont_id="variant_content_table_'.$key.'" class="variant_name '.(($key==0)?'checked':'').'">'.$name_group.' ('.$number_variants.')</li>';
+			$variants_group_menu_Html .= '<li data-cont_id="variant_content_table_'.$key.'" class="variant_name '.(($key==0)?'checked':'').'" data-status="'.$value['status_snab'].'">'.$name_group.' ('.$number_variants.')</li>';
 			
 			// шаблон для вкладки "на расчет"
 			$html .= '<div id="variant_content_table_'.$key.'" class="variant_content_table" '.(($key==0)?'style="display:block"':'style="display:none"').'>';
@@ -230,27 +239,33 @@ class Position_no_catalog{
 
 			### выбираем все строки по каждуму статусу снабжения
 			$n = 1;
+
+			// флаг кнопки пауза
+			$paused = 0;
+
 			foreach ($variants_array as $key2 => $value2) {
 				if ($status_snab==$value2['status_snab']) {
+					// флаг паузы
+					$paused = $value2['pause'];
 					// получаем услуги для данного варианта
 					$uslugi = $this->get_uslugi_Database_Array($value2['id']);
 					// расчёт стоимостей услуг
 					$uslugi_arr = $this->calclate_summ_uslug_arr($uslugi);
 					// получаем всю инфу по варианту
-					$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id'],$uslugi,$uslugi_arr);
-
+					$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id'],$uslugi,$uslugi_arr,$value2['pause']);
+					
 
 
 					$html .= "<tr data-id='".$value2['id']."'>
-							<td><span class='traffic_lights_".$value2['row_status']."'><span></span></span></td>
+							<td><span class='traffic_lights_".(($value2['row_status']!='')?$value2['row_status']:'green')."'><span></span></span></td>
 							<td>".$n."</td>
 							<td><span>".$value2['quantity']."</span> шт</td>
 							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span> р</td>
 							<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span> р</td>
 							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span> р</td>
 							<td ".(($edit_snab!='' || $edit_admin!='')?"class='change_supplier'":"")." data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
-							<td class='chenge_maket_date'></td>
-							<td><div ".(($edit_snab!='' || $edit_admin!='')?"class='change_srok'":"")." ".$edit_snab.$edit_admin.">".$value2['work_days']."</div></td>";
+							<td ".(($edit_snab!='' || $edit_admin!='')?"class='chenge_maket_date'":"")." ><input type='text' name='maket_date' value='".$value2['maket_date']."'></td>
+							<td ><div ".(($edit_snab!='' || $edit_admin!='')?"class='change_srok'":"")." ".$edit_snab.$edit_admin.">".$value2['work_days']."</div></td>";
 				
 				//$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
 				$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><div contenteditable='true' class='edit_snab_comment'> ".$value2['snab_comment']."</div></td>
@@ -262,21 +277,50 @@ class Position_no_catalog{
 			}
 			
 			$html .= "</table>";
-			$html = $html.$extended_info;// прикрепляем расшириную инфу
+			// получаем набор кнопок управления данной вкладкой
+			$buttons_option = $this->get_top_funcional_byttun_for_user_Html($status_snab,$paused);
+
+			$html = $html.$buttons_option.$extended_info;// прикрепляем расшириную инфу
 			
 		return $html;			
 	}
 
-	// // возвращает список имён поставщиков для каждого варианта
-	// private function get_suppliers_Database_String($id_s){
-	// 	$suppliers_arr = Supplier::get_suppliers_Database($id_s);
+	public function get_top_funcional_byttun_for_user_Html($status_snab,$pause){
+		// пауза 
+		$html = '<div class="hidden_top_buttons">';
+		if($this->user_access == 1 || $this->user_access == 5){
+			if($pause==0){
+				$pause_buttons = '<li class="status_art_right_class_pause" data-send_status="1"><div><span>Поставить на паузу</span></div></li>';
+				// все кнопки выводятся только когда пауза равна 0
+				// перебираем все возможные кнопки кнопки
+				foreach ($this->status_snab[$status_snab]['buttons'] as $key => $value) {
+					// при наличии допуска к кнопке - выводим её
+					if($this->user_access == 1 || $this->user_access == $value['access']){
+						$html .= '<li class="status_art_right_class" data-send_status="'.$key.'"><div><span>'.$value['name'].'</span></div></li>';			
+					}
+				}
+			}else{
+				// когда стоит пауза, единственное
+				$pause_buttons = '<li class="status_art_right_class_pause" data-send_status="0"><div><span>Снять с паузы</span></div></li>';
+			}
+		}		
+		
+		$html .= $pause_buttons.'</div>';
+		// $html .= '</div>';
+		return $html;
+	}
 
-	// 	$suppliers_name_arr = array();
-	// 	foreach ($suppliers_arr as $key => $value) {
-	// 		$suppliers_name_arr[] = $value['nickName'];
-	// 	}
-	// 	return implode(', ', $suppliers_name_arr);
-	// }
+	public function change_maket_date_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `maket_date` = '".date('Y-m-j', strtotime($this->POST['maket_date']))."'
+		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK","name":"change_maket_date_Database"}';
+	}
 
 	// редактируем информацию об поставщиках для некаталожного варианта расчёта
 	public function change_supliers_info_dop_data_Database(){
@@ -299,7 +343,7 @@ class Position_no_catalog{
 
 
 	// возвращает расшириную информацию по варианту в Html
-	private function get_extended_info_for_variant_Html($arr,$id,$uslugi,$uslugi_arr){
+	private function get_extended_info_for_variant_Html($arr,$id,$uslugi,$uslugi_arr,$pause){
 		// определяем редакторов для полей (html тегов)
 		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
@@ -308,6 +352,7 @@ class Position_no_catalog{
 
 
 		$html = '';
+		if($pause>0){return $html;}
 		$this->FORM = new Forms($this->GET,$this->POST,$this->SESSION);
 
 
@@ -334,14 +379,14 @@ class Position_no_catalog{
 									</tr>
 									<tr class="tirage_and_price_for_one" data-dop_data_id="'.$arr['id'].'">
 										<td>1 шт.</td>
-										<td class="row_tirage_in_one price_in"><span '.$edit_admin.$edit_snab.'>'.$this->round_money($arr['price_in']/$arr['quantity']).'</span> р.</td>
+										<td class="row_tirage_in_one price_in"><span '.$edit_admin.$edit_snab.'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_in']/$arr['quantity']):0).'</span> р.</td>
 										<td rowspan="2" class="percent_nacenki">
 											<span '.$edit_admin.$edit_snab.$edit_men.'>'.$percent.'</span>%
 
 										</td>
-										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$edit_admin.$edit_snab.'>'.$this->round_money(($arr['price_out_snab']/$arr['quantity'])).'</span> р.</td>
-										<td class="row_price_out_one price_out_men"><span '.$edit_admin.$edit_men.'>'.$this->round_money($arr['price_out']/$arr['quantity']).'</span> р.</td>
-										<td class="row_pribl_out_one pribl"><span>'.$this->round_money(($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])).'</span> р.</td>
+										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$edit_admin.$edit_snab.'>'.(($arr['quantity']!=0)?$this->round_money(($arr['price_out_snab']/$arr['quantity'])):0).'</span> р.</td>
+										<td class="row_price_out_one price_out_men"><span '.$edit_admin.$edit_men.'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_out']/$arr['quantity']):0).'</span> р.</td>
+										<td class="row_pribl_out_one pribl"><span>'.(($arr['quantity']!=0)?$this->round_money(($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])):0).'</span> р.</td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
@@ -532,7 +577,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	// получаем все варианты
 	private function get_all_variants_Database_Array(){
 		global $mysqli;
-		$query = "SELECT * FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."'";
+		$query = "SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."'";
 		$result = $mysqli->query($query) or die($mysqli->error);				
 		$arr = array();
 		if($result->num_rows > 0){
@@ -540,9 +585,31 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				$arr[] = $row;
 			}
 		}
+		// echo $query;
 		return $arr;
 	}
 
+	/*
+	// получаем кнопку "пауза" для мена  
+	private function get_pause_status_button_Database_Html(){
+		$html = '';
+		if(isset($this->GET['id'])){
+			global $mysqli;
+			$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$this->GET['id']."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					if($row['paused']==0){
+						$html .= '<li class="status_art_right_class_pause" data-send_status="1"><div><span>Поставить на паузу</span></div></li>';
+					}else{
+						$html .= '<li class="status_art_right_class_pause" data-send_status="0"><div><span>Снять с паузы</span></div></li>';
+					}
+				}
+			}
+		}		
+		return $html;
+	}
+	*/
 	//получаем все уникальные по статусу варанты
 	private function get_all_variants_Group_Database_Array(){
 		global $mysqli;
@@ -554,12 +621,81 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				$arr[] = $row;
 			}
 		}
+		// echo $query;
 		return $arr;
 
 	}
 
+	public function change_status_gl_Database(){
+		global $mysqli;
+		// получаем id dop_data строк в которых будем менять статус
+		$id_dop_data = implode(",", $this->POST['variants_arr']); 
+		
+		// получаем новый статус
+		$new_status = $this->POST['new_status'];
+		
+		// получаем кирилическое название
+		$new_status_rus = $this->status_snab[$new_status]['name'];
+
+		// меняем
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`status_snab`='".$new_status."'";
+		// если это конечный расчёт  от снаба, пишем дату этого расчёта
+		if($new_status == 'calculate_is_ready'){
+			$query .= ', `snab_end_work` = NOW()';
+
+		}
+		// вборка id
+		$query .= " WHERE `id` IN (".$id_dop_data.");";
+
+		// получаем новые функцианальные кнопки для нового статуса для данной в кладки
+		
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+
+		//ФОРМИРУЕМ ОТВЕТ СЕРВЕРА ДЛЯ ИЗМЕНЕНИЯ html НА СТРАНИЦЕ
+		// echo '{"new_name":"'.$new_status_rus.'","new_status":"'.$new_status.'",new_buttons":"'.base64_encode($this->get_top_funcional_byttun_for_user_Html($new_status)).'"}';
+		// В ВЕРСИИ 1.1 будем вносить правки в html в соответствии с ответом от сервера
+		// сейчас при получении ответа - просто перегружаем страницу яваскриптом
+		echo '{"response":"OK"}';
+
+	}
+
+	public function change_status_gl_pause_Database(){
+		global $mysqli;
+		// получаем id dop_data строк в которых будем менять статус
+		$id_dop_data = implode(",", $this->POST['variants_arr']); 
+		$new_status =$this->POST['new_status'];
+		// меняем
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`pause`='".$new_status."'";
+		// если это конечный расчёт  от снаба, пишем дату этого расчёта
+		if($new_status == 'calculate_is_ready'){
+			$query .= ', `snab_end_work` = NOW()';
+
+		}
+		// вборка id
+		$query .= " WHERE `id` IN (".$id_dop_data.");";
+
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		// В ВЕРСИИ 1.1 будем вносить правки в html в соответствии с ответом от сервера
+		// сейчас при получении ответа - просто перегружаем страницу яваскриптом
+		echo '{"response":"OK"}';
+
+	}
+
+
 	// выводит общую информацию по ВАРИАНТУ из json
 	public function variant_no_cat_json_Html($arr,$FORM/*экземпляр класса форм*/,$type_product){
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
+
+
+
 		$html = '';
 
 		// если у нас есть описание заявленного типа товара
@@ -569,8 +705,8 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 			foreach ($arr as $key => $value) {
 				$html .= '
 					<div class="row">
-						<div class="cell">'.$names[$key]['name'].'</div>
-						<div class="cell">';
+						<div class="cell" >'.$names[$key]['name'].'</div>
+						<div class="cell" data-type="'.$key.'" '.$edit_admin.$edit_snab.'>';
 				$html .= $value;
 				$html .='</div>
 					</div>
@@ -589,6 +725,33 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 	}
 
+
+	public function change_no_cat_json_Database(){
+		// echo '<pre>';
+		// print_r();
+		// echo '</pre>';
+
+		global $mysqli;
+		// $query = "SELECT * FROM `".RT_DOP_DATA."` WHERE id = '".$this->POST['id_dop_data']."' GROUP BY `status_snab`";
+		// $result = $mysqli->query($query) or die($mysqli->error);				
+		// $arr = array();
+		// if($result->num_rows > 0){
+		// 	while($row = $result->fetch_assoc()){
+		// 		$arr = $row;
+		// 	}
+		// }
+		// echo '<pre>';
+		// print_r(json_decode($arr['no_cat_json']));
+		// echo '</pre>'; 
+		
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`no_cat_json`='".addslashes(json_encode($this->POST['data']))."' 
+
+		WHERE `id`='".$this->POST['id_dop_data']."';
+";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+	}
 
 
 	// выводит общую информацию по позиции из json, 

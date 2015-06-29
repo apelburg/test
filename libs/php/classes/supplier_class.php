@@ -48,21 +48,6 @@ class Supplier{
 
 	}
 
-	// static function get_suppliers_Database($id_s){
-	// 	global $mysqli;		
-	// 	//получаем данные из основной таблицы
-	// 	$query = "SELECT * FROM `".SUPPLIERS_TBL."` WHERE `id` IN (".$id_s.") GROUP BY `nickName` ASC";
-	// 	$result = $mysqli->query($query) or die($mysqli->error);
-	// 	$arr = array();
-	// 	if($result->num_rows > 0){
-	// 		while($row = $result->fetch_assoc()){
-	// 			$arr[] = $row;
-	// 		}
-	// 	}
-
-	// 	return $arr;
-	// }
-
 	public function get_contact_info($tbl,$parent_id){
 		global $mysqli;
 		$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
