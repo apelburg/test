@@ -152,6 +152,23 @@
     border-radius: 15px;
 }
 
+#edit_variants_content #variant_of_snab span.traffic_lights_green,#edit_variants_content #variant_of_snab span.traffic_lights_grey,#edit_variants_content #variant_of_snab span.traffic_lights_red{
+  width: 17px;
+  height: 17px;
+  float: left;
+ /*   position: absolute;
+  margin-left: -28px;*/
+  margin-left: 10px;
+  margin-top: -4px;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_green span,#edit_variants_content #variant_of_snab span.traffic_lights_grey span, #edit_variants_content #variant_of_snab span.traffic_lights_red span{
+    width: 7px;
+    height: 7px;
+    margin: 4px 0 0 4px;
+    float: left;
+    border-radius: 15px;
+}
+
 /*
 ////////////////////
 */
@@ -159,21 +176,49 @@
   border: 2px solid green;
 }
 #menu_for_variants_status span.traffic_lights_green span{
-    border: 1px solid green;
+    border: 1px solid #92B73E;
+    background-color: #92B73E;
 }
 
 #menu_for_variants_status span.traffic_lights_grey{
-    border: 2px solid grey;
+    border: 2px solid #E3E5E5;
 }
 #menu_for_variants_status span.traffic_lights_grey span{
-      border: 1px solid grey;
+      border: 1px solid #E3E5E5;
 }
 
 #menu_for_variants_status span.traffic_lights_red{
-    border: 2px solid red;
+    border: 2px solid #F69679;
 }
 #menu_for_variants_status span.traffic_lights_red span{
-      border: 1px solid red;
+      border: 1px solid #F69679;
+}
+
+
+
+
+#edit_variants_content #variant_of_snab span.traffic_lights_green{
+  border: 1px solid #92B73E;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_green span{
+    border: 1px solid #92B73E;
+    background-color: #92B73E;
+}
+
+#edit_variants_content #variant_of_snab span.traffic_lights_grey{
+    border: 1px solid #E3E5E5;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_grey span{
+      border: 1px solid #E3E5E5;
+    background-color: #E3E5E5;
+}
+
+#edit_variants_content #variant_of_snab span.traffic_lights_red{
+    border: 1px solid #F69679;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_red span{
+      border: 1px solid #F69679;
+    background-color: #F69679;
 }
 /*
 /////////////////////////*/
@@ -424,6 +469,19 @@
 #number_position_and_type .status_art_right_class.green div span:hover {background: #86AB33;}
 
 #number_position_and_type .status_art_right_class.grey_border div span{ border-left: 1px solid grey; border-right: 1px solid grey;}
+
+
+#number_position_and_type .status_art_right_class_pause{ float: right;}
+
+#number_position_and_type .status_art_right_class_pause div{color: #5a5c61; font-size: 10px;}
+#number_position_and_type .status_art_right_class_pause div span{color: #000; cursor: default; font-size: 12px; padding:5px 10px; margin-left: 0px; }
+#number_position_and_type ul li.status_art_right_class_pause{padding-left: 0; padding-right: 0}
+
+#number_position_and_type .status_art_right_class_pause div span:hover{ background: #B1B3B6;}
+#number_position_and_type .status_art_right_class_pause.green div span{ background: #92b73e;}
+#number_position_and_type .status_art_right_class_pause.green div span:hover {background: #86AB33;}
+
+#number_position_and_type .status_art_right_class_pause.grey_border div span{ border-left: 1px solid grey; border-right: 1px solid grey;}
 /*#number_position_and_type ul li.status_art_right_class:nth-of-type(2){ background-color: none;}*/
 
 span.snab_comment {
@@ -433,7 +491,7 @@ span.snab_comment {
 #variant_of_snab table.show_table{ border-collapse: collapse; width: 100%}
 #variant_of_snab table.show_table{display: table}
 #variant_of_snab table.show_table tr td:nth-last-child(1) input{ width: 98%; padding: 0 1%;outline:none;}
-#variant_of_snab .show_table tr td:nth-of-type(1) span{ padding:2px 5px; border:1px solid grey;}
+/*#variant_of_snab .show_table tr td:nth-of-type(1) span{ padding:2px 5px; border:1px solid grey;}*/
 #variant_of_snab table.show_table.show_table tr th{ background-color: #e8e8e8; font-weight: normal; font-size: 10px; color: grey; padding: 5px}
 #variant_of_snab table.show_table tr td{  font-size: 10px;  padding: 5px; }
 
@@ -450,14 +508,14 @@ span.snab_comment {
 #variant_of_snab table.show_table tr th:nth-of-type(6),
 #variant_of_snab table.show_table tr td:nth-of-type(6){text-align: right;}
 #variant_of_snab table.show_table tr th:nth-of-type(7),
-#variant_of_snab table.show_table tr td:nth-of-type(7){text-align: right;}
+#variant_of_snab table.show_table tr td:nth-of-type(7){text-align: right;width: 350px;}
 #variant_of_snab table.show_table tr th:nth-of-type(8),
 #variant_of_snab table.show_table tr td:nth-of-type(8){text-align: center;}
 #variant_of_snab table.show_table tr th:nth-of-type(9),
 #variant_of_snab table.show_table tr td:nth-of-type(9){text-align: center;}
 #variant_of_snab table.show_table tr th:nth-last-child(1),
 #variant_of_snab table.show_table tr td:nth-last-child(1){text-align: left;}
-#variant_of_snab table.show_table tr td:nth-last-child(1){text-align: left;color: #9BD0FC;}
+#variant_of_snab table.show_table tr td:nth-last-child(1){text-align: left;color: #299EFF;}
 
 #variant_of_snab table.show_table tr:hover{ background-color: #f4f4f4}
 #variant_of_snab table.show_table tr .checked_row{background-color: #DAD9D9;}
@@ -511,7 +569,13 @@ span.snab_comment {
 .variant_info .table_extended_info td{padding: 0}
 
 #inform_for_variant_head{ font-weight: bold; text-decoration: underline;}
-.edit_snab_comment{ min-height: 15px; border:1px solid grey; background: #fff; font-size: 12px; color: black; padding: 3px}
+.edit_snab_comment,.change_srok{ min-height: 15px; border:1px solid grey; background: #fff; font-size: 12px; color: black; padding: 3px}
+.edit_snab_comment.saved,
+.save_comment_snab,
+#inform_for_variant.saved,
+.change_srok.saved,
+.change_srok.save_work_days,
+#inform_for_variant.save_no_cat_json{background-color: #e7e7e7;}
 
 #variant_of_snab table.show_table tr:nth-child(even){ background-color: #F5FAFF;}
 
@@ -524,3 +588,17 @@ span.snab_comment {
 
 #variant_of_snab table.calkulate_table tr.calculate.calculate_usl td:nth-child(even){ background-color: #F5FAFF;}
 #variant_of_snab table.calkulate_table tr.calculate.calculate_usl td.usl_del{ background: none;}
+.change_supplier:hover{background-color: $f4f4f4; cursor: default; color:#fff;}
+#chose_supplier_tbl tr td{
+  padding: 2px 5px; cursor: default;
+}
+#chose_supplier_tbl tr td:hover{  color: #FFF;
+  background-color: #92b73e; }
+
+#chose_supplier_tbl tr td.checked{  background-color: #007036;color: #FFF;}
+
+.chenge_maket_date input{  width: 65px;}
+.change_srok{ width: 25px}
+.hidden_top_buttons{ display: none}
+
+

@@ -32,6 +32,22 @@ class Supplier{
 		$this->cont_company_other = (isset($arr['other']))?$arr['other']:'';
 	}
 
+	static function get_all_suppliers_Database_Array(){
+		global $mysqli;		
+		//получаем данные из основной таблицы
+		$query = "SELECT * FROM `".SUPPLIERS_TBL."` GROUP BY `nickName` ASC";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$arr = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+
+		return $arr;
+
+	}
+
 	public function get_contact_info($tbl,$parent_id){
 		global $mysqli;
 		$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
@@ -69,6 +85,7 @@ class Supplier{
 		$row_cnt = $result->num_rows;
 		return $row_cnt;
 	}
+
 	static function create($name,$fullname,$dop_info){
 		global $mysqli;
 		$query ="INSERT INTO `".SUPPLIERS_TBL."` SET
@@ -82,13 +99,15 @@ class Supplier{
 		return $mysqli->insert_id;
 
 	}
-	static function get_activities($client_id){
+
+	//выды деятельности
+	static function get_activities($supplier_id){
 		global $mysqli;
 		$query = "
 			SELECT  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` . * ,  `".SUPPLIERS_ACTIVITIES_TBL."`.`name` AS  `name` 
 			FROM  `".SUPPLIERS_ACTIVITIES_TBL."` 
 			INNER JOIN  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` ON  `".SUPPLIERS_ACTIVITIES_TBL."`.`id` =  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."`.`activity_id` 
-			WHERE  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."`.`supplier_id` =  '".$client_id."'
+			WHERE  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."`.`supplier_id` =  '".$supplier_id."'
 		";
 		$arr = array();
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -101,6 +120,7 @@ class Supplier{
 		
 	}
 
+	// адреса
 	static function get_addres($id){
 		global $mysqli;
 		$query = "SELECT * FROM  `".CLIENT_ADRES_TBL."` WHERE `parent_id` = '".(int)$id."'";
@@ -114,6 +134,7 @@ class Supplier{
 		return $arr;
 	}
 
+	// контакты
 	static function get_contact_row($contact_company, $type,$array_dop_contacts_img){
 		
 		if(isset($type) && $type == "phone"){
@@ -148,6 +169,7 @@ class Supplier{
 		}			
 	}
 
+	// рейтинг
 	static function get_reiting($supplier_id){
 		global $mysqli;
 		// SUPPLIERS_RATINGS_TBL subject_id
@@ -177,6 +199,7 @@ class Supplier{
 		return $r;
 	}
 
+	// контактные лица
 	static function cont_faces($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".SUPPLIERS_CONT_FACES_TBL."` WHERE `supplier_id` = '".(int)$id."'";

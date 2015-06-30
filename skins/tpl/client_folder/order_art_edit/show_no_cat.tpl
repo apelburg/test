@@ -11,6 +11,9 @@
 
 <script type="text/javascript" src="../libs/js/jsArticulus.js"></script> -->
 
+<script type="text/javascript" src="./libs/js/classes/Base64Class.js"></script>
+
+
 <script type="text/javascript" src="./libs/js/position_no_cat.js"></script>
 
 <div id="order_art_edit">
@@ -31,7 +34,8 @@
 			<li><span>снабженец: </span><?php echo Manager::get_snab_name_for_query_String($snab_id); ?></li>
 			<li><span>статус позиции: </span>Расчитано</li>
 			<?php
-				echo $POSITION_NO_CAT->get_top_funcional_byttun_for_user_Html();
+				// получаем кнопки
+				//echo $POSITION_NO_CAT->get_top_funcional_byttun_for_user_Html();
 			?>
 		</ul>
 	</div>

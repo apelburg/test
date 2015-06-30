@@ -32,46 +32,74 @@ class Position_no_catalog{
 	// класс форм
 	private $FORM;
 
-	// кнопки для различных групп пользователей
-	private $buttons_top_command = array(
-		'confirm_calculation' => array(
-			'name' => 'Принять расчёт',
-			'access' => '1,5'
+	// статусы кнопки для различных групп пользователей 
+	private $status_snab = array(
+
+		'on_calculation' => array( //на расчёт мен
+			'name' => 'На расчёт',
+			'buttons' =>  array( // кнопки для данного статуса
+				'on_calculation_snab' => array(// статус позиции или даже запроса
+					'name' => 'Запросить расчёт',
+					'access' => '5'
+					)
+				)
 			),
-		'queryes_calculation' => array( // 
-			'name' => 'Запросить расчёт',
-			'access' => '1,5'
+
+
+		'on_calculation_snab' => array( 
+			'name' => 'Запрошен расчёт', // в снабжение
+			'buttons' =>  array( // кнопки для данного статуса
+				'in_calculation' => array(		
+					'name' => 'Принять в работу',
+					'access' => '8'
+					),
+				'tz_is_not_correct' => array( // статус снабжения по позиции
+					'name' => 'ТЗ не корректно',
+					'access' => '8'
+					)
+				)
 			),
-		'queryes_recalculation' => array( // меняет статус у всех отмеченных и переводит варианты "на расчёт"
-			'name' => 'Запросить пересчёт',
-			'access' => '1,5'
-			),
-		'get_in_work' => array(// статус по каждому варианту позиции
-			'name' => 'Принять в работу',
-			'access' => '1,8'
+		'on_recalculation_snab' => array(
+			'name' => 'На перерасчёт',
+			'buttons' =>  array( // кнопки для данного статуса
+				'in_calculation' => array(		
+					'name' => 'Принять в работу',
+					'access' => '8'
+					),
+				'tz_is_not_correct' => array( // статус снабжения по позиции
+					'name' => 'ТЗ не корректно',
+					'access' => '8'
+					)
+				)
 			),
 		'tz_is_not_correct' => array( // статус снабжения по позиции
 			'name' => 'ТЗ не корректно',
-			'access' => '1,8'
-			),
-		'to_set_pause' => array(// статус позиции или даже запроса
-			'name' => 'Поставить на паузу',
-			'access' => '1,5'
-			)
-		);
-
-	private $status_snab = array(
-		'on_calculation' => array(
-			'name' => 'На расчёт'
-			),
-		'query_on_calculation' => array(
-			'name' => 'Запроc на расчёт'
+			'buttons' =>  array( // кнопки для данного статуса
+				'on_recalculation_snab' => array( // 
+					'name' => 'Запросить расчёт',
+					'access' => '5'
+					)
+				)
+			
 			),
 		'in_calculation' => array(
-			'name' => 'В расчёте'
+			'name' => 'В расчёте снабжение',
+			'buttons' =>  array( // кнопки для данного статуса
+				'calculate_is_ready' => array(
+					'name' => 'Расчёт готов',
+					'access' => '8'
+					)
+				)
 			),
-		'calculation_of_snab' => array(
-			'name' => 'Расчёт от снабжения'
+
+		'calculate_is_ready' => array(
+			'name' => 'Расчёт от снабжения',
+			'buttons' =>  array( // кнопки для данного статуса
+				'on_recalculation_snab' => array( // 
+					'name' => 'Запросить перерасчёт',
+					'access' => '5'
+					)
+				)
 			)
 		);
 
@@ -100,25 +128,31 @@ class Position_no_catalog{
 		return $int;
 	}
 
-	public function get_top_funcional_byttun_for_user_Html(){
-		$html = '';
-		// перебираем все возможные кнопки кнопки
-		foreach ($this->buttons_top_command as $key => $value) {
-			// получаем массив разрешёний данной кнопки
-			$access = 0;
-			foreach (explode(',', $value['access']) as $key2 => $value2) {
-				if(trim($value2)==$this->user_access){
-					$access = 1;
-				}
-			}
+	public function edit_work_days_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `work_days` = '".$this->POST['work_days']."'
+		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK","name":"edit_work_days"}';
 
-			if($access==1){
-				$html .= '<li class="status_art_right_class"><div><span>'.$value['name'].'</span></div></li>';
-			}
-		}
-		return $html;
 	}
 
+	public function edit_snab_comment_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `snab_comment` = '".$this->POST['note']."'
+		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK","name":"edit_snab_comment_Database"}';
+
+	}
 
 	// выводит все варианты по группам, 
 	// по сути является главной функцией вывода основного контента
@@ -142,7 +176,9 @@ class Position_no_catalog{
 			if(isset($this->status_snab[$value['status_snab']])){
 
 				$name_group = ($value['status_snab']=='calculation_of_snab')?$this->status_snab[$value['status_snab']]['name'].' от '.$value['snab_end_work']:$this->status_snab[$value['status_snab']]['name'];
-			
+				
+				//добавляем пометку о паузе
+				$name_group = ($value['pause']==1)?'ПАУЗА':$name_group;
 			}else{
 				// на всякий случай на время тестирования выведем
 				// вдруг найдутся варианты с неизвестными в классе статусами
@@ -159,7 +195,7 @@ class Position_no_catalog{
 			}
 
 			// добавляем вкладку в список
-			$variants_group_menu_Html .= '<li data-cont_id="variant_content_table_'.$key.'" class="variant_name '.(($key==0)?'checked':'').'">'.$name_group.' ('.$number_variants.')</li>';
+			$variants_group_menu_Html .= '<li data-cont_id="variant_content_table_'.$key.'" class="variant_name '.(($key==0)?'checked':'').'" data-status="'.$value['status_snab'].'">'.$name_group.' ('.$number_variants.')</li>';
 			
 			// шаблон для вкладки "на расчет"
 			$html .= '<div id="variant_content_table_'.$key.'" class="variant_content_table" '.(($key==0)?'style="display:block"':'style="display:none"').'>';
@@ -179,6 +215,12 @@ class Position_no_catalog{
 
 	// возвращает таблицу со списком вариантов
 	private function get_variants_list_Html($variants_array,$status_snab){
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
+
 		$html = '';
 		$extended_info = '';// расширенная информация по каждому варианту
 		$html .= "<table class='show_table'>";
@@ -197,27 +239,33 @@ class Position_no_catalog{
 
 			### выбираем все строки по каждуму статусу снабжения
 			$n = 1;
+
+			// флаг кнопки пауза
+			$paused = 0;
+
 			foreach ($variants_array as $key2 => $value2) {
 				if ($status_snab==$value2['status_snab']) {
+					// флаг паузы
+					$paused = $value2['pause'];
 					// получаем услуги для данного варианта
 					$uslugi = $this->get_uslugi_Database_Array($value2['id']);
 					// расчёт стоимостей услуг
 					$uslugi_arr = $this->calclate_summ_uslug_arr($uslugi);
 					// получаем всю инфу по варианту
-					$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id'],$uslugi,$uslugi_arr);
-
+					$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id'],$uslugi,$uslugi_arr,$value2['pause']);
+					
 
 
 					$html .= "<tr data-id='".$value2['id']."'>
-							<td><span>X</span></td>
+							<td><span class='traffic_lights_".(($value2['row_status']!='')?$value2['row_status']:'green')."'><span></span></span></td>
 							<td>".$n."</td>
 							<td><span>".$value2['quantity']."</span> шт</td>
 							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span> р</td>
 							<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span> р</td>
 							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span> р</td>
-							<td class='change_supplier'>Антан</td>
-							<td class='chenge_maket_date'></td>
-							<td class='change_srok'>5</td>";
+							<td ".(($edit_snab!='' || $edit_admin!='')?"class='change_supplier'":"")." data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
+							<td ".(($edit_snab!='' || $edit_admin!='')?"class='chenge_maket_date'":"")." ><input type='text' name='maket_date' value='".$value2['maket_date']."'></td>
+							<td ><div ".(($edit_snab!='' || $edit_admin!='')?"class='change_srok'":"")." ".$edit_snab.$edit_admin.">".$value2['work_days']."</div></td>";
 				
 				//$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
 				$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><div contenteditable='true' class='edit_snab_comment'> ".$value2['snab_comment']."</div></td>
@@ -229,16 +277,73 @@ class Position_no_catalog{
 			}
 			
 			$html .= "</table>";
-			$html = $html.$extended_info;// прикрепляем расшириную инфу
+			// получаем набор кнопок управления данной вкладкой
+			$buttons_option = $this->get_top_funcional_byttun_for_user_Html($status_snab,$paused);
+
+			$html = $html.$buttons_option.$extended_info;// прикрепляем расшириную инфу
 			
 		return $html;			
 	}
 
-	
+	public function get_top_funcional_byttun_for_user_Html($status_snab,$pause){
+		// пауза 
+		$html = '<div class="hidden_top_buttons">';
+		if($this->user_access == 1 || $this->user_access == 5){
+			if($pause==0){
+				$pause_buttons = '<li class="status_art_right_class_pause" data-send_status="1"><div><span>Поставить на паузу</span></div></li>';
+				// все кнопки выводятся только когда пауза равна 0
+				// перебираем все возможные кнопки кнопки
+				foreach ($this->status_snab[$status_snab]['buttons'] as $key => $value) {
+					// при наличии допуска к кнопке - выводим её
+					if($this->user_access == 1 || $this->user_access == $value['access']){
+						$html .= '<li class="status_art_right_class" data-send_status="'.$key.'"><div><span>'.$value['name'].'</span></div></li>';			
+					}
+				}
+			}else{
+				// когда стоит пауза, единственное
+				$pause_buttons = '<li class="status_art_right_class_pause" data-send_status="0"><div><span>Снять с паузы</span></div></li>';
+			}
+		}		
+		
+		$html .= $pause_buttons.'</div>';
+		// $html .= '</div>';
+		return $html;
+	}
+
+	public function change_maket_date_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `maket_date` = '".date('Y-m-j', strtotime($this->POST['maket_date']))."'
+		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK","name":"change_maket_date_Database"}';
+	}
+
+	// редактируем информацию об поставщиках для некаталожного варианта расчёта
+	public function change_supliers_info_dop_data_Database(){
+		global $mysqli;
+		$query ="UPDATE `".RT_DOP_DATA."` SET
+		             `suppliers_id` = '".$this->POST['suppliers_id']."',
+		             `suppliers_name` = '".$this->POST['suppliers_name']."' 
+		             WHERE `id` =  '".$this->POST['dop_data_id']."';
+		             ";
+// echo $query.'    ';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		echo '{"response":"OK","name":"chose_supplier_end"}';
+	}
+
+	// форматируем денежный формат + округляем
+	private function round_money($num){
+		return number_format(round($num, 2), 2, '.', '');
+	}
 
 
 	// возвращает расшириную информацию по варианту в Html
-	private function get_extended_info_for_variant_Html($arr,$id,$uslugi,$uslugi_arr){
+	private function get_extended_info_for_variant_Html($arr,$id,$uslugi,$uslugi_arr,$pause){
 		// определяем редакторов для полей (html тегов)
 		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
@@ -247,6 +352,7 @@ class Position_no_catalog{
 
 
 		$html = '';
+		if($pause>0){return $html;}
 		$this->FORM = new Forms($this->GET,$this->POST,$this->SESSION);
 
 
@@ -260,7 +366,7 @@ class Position_no_catalog{
 		// формируем html c расширенной информацией по варианту
 		$html .= '<div id="variant_info_'.$id.'" class="variant_info" style="display:none">';
 		$html .= '<table><tr><td  style="vertical-align: baseline;">';
-		$html .= '<table class="calkulate_table">
+		$html .= '<table class="calkulate_table" data-save_enabled="">
 									<tbody><tr>
 										<th>Стоимость товара</th>
 										<th>$ вход.</th>
@@ -273,14 +379,14 @@ class Position_no_catalog{
 									</tr>
 									<tr class="tirage_and_price_for_one" data-dop_data_id="'.$arr['id'].'">
 										<td>1 шт.</td>
-										<td class="row_tirage_in_one price_in"><span '.$edit_admin.$edit_snab.'>'.round(($arr['price_in']/$arr['quantity']),2).'</span> р.</td>
+										<td class="row_tirage_in_one price_in"><span '.$edit_admin.$edit_snab.'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_in']/$arr['quantity']):0).'</span> р.</td>
 										<td rowspan="2" class="percent_nacenki">
-											<span contenteditable="true" class="edit_span">'.$percent.'</span>%
+											<span '.$edit_admin.$edit_snab.$edit_men.'>'.$percent.'</span>%
 
 										</td>
-										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$edit_admin.$edit_snab.'>'.round(($arr['price_out_snab']/$arr['quantity']),2).'</span> р.</td>
-										<td class="row_price_out_one price_out_men"><span '.$edit_admin.$edit_men.'>'.round(($arr['price_out']/$arr['quantity']),2).'</span> р.</td>
-										<td class="row_pribl_out_one pribl"><span>'.round((($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])),2).'</span> р.</td>
+										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$edit_admin.$edit_snab.'>'.(($arr['quantity']!=0)?$this->round_money(($arr['price_out_snab']/$arr['quantity'])):0).'</span> р.</td>
+										<td class="row_price_out_one price_out_men"><span '.$edit_admin.$edit_men.'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_out']/$arr['quantity']):0).'</span> р.</td>
+										<td class="row_pribl_out_one pribl"><span>'.(($arr['quantity']!=0)?$this->round_money(($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])):0).'</span> р.</td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
@@ -289,9 +395,9 @@ class Position_no_catalog{
 									<tr class="tirage_and_price_for_all for_all" data-dop_data_id="'.$arr['id'].'">
 										<td>тираж</td>
 										<td class="row_tirage_in_gen price_in"><span '.$edit_admin.$edit_snab.'>'.$arr['price_in'].'</span> р.</td>
-										<td class="row_price_out_gen price_out_snab"><span  '.$edit_admin.$edit_snab.' style="color:red">'.$arr['price_out_snab'].'</span> р.</td>
-										<td class="row_price_out_gen price_out_men"><span  '.$edit_admin.$edit_men.'>'.$arr['price_out'].'</span> р.</td>
-										<td class="row_pribl_out_gen pribl"><span>'.round(($arr['price_out']-$arr['price_in']),2).'</span> р.</td>
+										<td class="row_price_out_gen price_out_snab tirage" style="color:red"><span  '.$edit_admin.$edit_snab.'>'.$arr['price_out_snab'].'</span> р.</td>
+										<td class="row_price_out_gen price_out_men tirage"><span  '.$edit_admin.$edit_men.'>'.$arr['price_out'].'</span> р.</td>
+										<td class="row_pribl_out_gen pribl"><span>'.$this->round_money($arr['price_out']-$arr['price_in']).'</span> р.</td>
 										
 									</tr>
 									
@@ -307,7 +413,7 @@ class Position_no_catalog{
 									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
 										<td><span>'.($uslugi_arr['summ_price_in']+$arr['price_in']).'</span> р.</td>
-										<td><span>'.round((($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])),2).'</span> %</td>
+										<td><span>'.$this->round_money(($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])).'</span> %</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out_snab']).'</span> р.</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']).'</span> р.</td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']-$uslugi_arr['summ_price_in']-$arr['price_in']).'</span> р.</td>
@@ -319,12 +425,14 @@ class Position_no_catalog{
 		$html .= '</td><td style="display:none">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->FORM/*экземпляр класса форм*/,$this->type_product).'</td></tr></table>';
 		$html .= '</div>';
 
-
+		
 		return $html;
 	}
 
 	// ВЫВОДИТ СПИСОК УСЛУГ ПРИКРЕПЛЁННЫХ ДЛЯ ВАРИАНТА
-	private function uslugi_template_Html($arr){
+	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
+	// названия группы услуги
+	private function uslugi_template_Html($arr, $NO_show_head = 0){
 		// определяем редакторов для полей (html тегов)
 		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
@@ -360,8 +468,11 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 		$uslname = '';
 		foreach ($name_uslugi as $key => $value) {
-			if($uslname!=$value['parent_name']){
-				$html .= '<tr>
+			// $NO_show_head добавлен как необязательная переменная для отключения вывода 
+			// названия группы услуги
+
+			if($uslname!=$value['parent_name'] && !$NO_show_head){
+				$html .= '<tr  class="group_usl_name" data-usl_id="'.$value['parent_id'].'">
 		 				<th colspan="8">'.$value['parent_name'].'</th>
  				</tr>';
  				$uslname = $value['parent_name'];
@@ -380,13 +491,13 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 					$real_price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value2['quantity'];
 
-					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'">
+					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'" data-our_uslugi_parent_id="'.trim($value['parent_id']).'">
 										<td>'.$value['name'].' '.$dop_inf.'</td>
-										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$price_in.'</span> р.</td>
+										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$this->round_money($price_in).'</span> р.</td>
 										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$edit_admin.$edit_snab.$edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
-										<td class="row_price_out_gen uslugi_class price_out_snab" style="color:red" data-real_min_price_for_one="'.$value['price_out'].'" data-real_min_price_for_all="'.$real_price_out.'"><span '.$edit_admin.$edit_snab.'>'.$price_out_snab.'</span> р.</td>
-										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$edit_admin.$edit_men.'>'.$price_out_men.'</span> р.</td>
-										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$pribl.'</span> р.</td>
+										<td class="row_price_out_gen uslugi_class price_out_snab" style="color:red" data-real_min_price_for_one="'.$value['price_out'].'" data-real_min_price_for_all="'.$real_price_out.'"><span '.$edit_admin.$edit_snab.'>'.$this->round_money($price_out_snab).'</span> р.</td>
+										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$edit_admin.$edit_men.'>'.$this->round_money($price_out_men).'</span> р.</td>
+										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span> р.</td>
 										<td class="usl_edit"><!-- <span class="edit_row_variants"></span> --></td>
 										<td class="usl_del"><span class="del_row_variants"></span></td>
 									</tr>';
@@ -401,6 +512,12 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 	// подсчёт стоимотсти услуг для варианта
 	private function calclate_summ_uslug_arr($uslugi){
+		// echo '<pre>';
+		// print_r($uslugi);
+		// echo '</pre>';
+
+
+
 		$uslugi_arr['summ_price_in'] = 0;
 		$uslugi_arr['summ_price_out'] = 0;
 		$uslugi_arr['summ_pribl'] = 0;
@@ -409,13 +526,16 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 		foreach ($uslugi as $key => $value) {
 			if(trim($value['for_how'])!=''){
-				$uslugi_arr['summ_price_in'] += ($value['for_how']=="for_all")?$value['price_in']:$value['price_in']*$value['quantity'];
-				$uslugi_arr['summ_price_out'] += ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value['quantity'];
-				$uslugi_arr['summ_pribl'] += ($value['for_how']=="for_all")?($value['price_out']-$value['price_in']):($value['price_out']*$value['quantity']-$value['price_in']*$value['quantity']);
+				//echo '$value[\'for_how\'] = '.$value['for_how'].'  ,  '.(($value['for_how']=="for_one")?$value['price_out']*$value['quantity']:$value['price_out']).'  - '.$uslugi_arr['summ_price_out'].'<br>';
+				
+				$uslugi_arr['summ_price_in'] += ($value['for_how']=="for_one")?$value['price_in']*$value['quantity']:$value['price_in'];
+				$uslugi_arr['summ_price_out'] += ($value['for_how']=="for_one")?$value['price_out']*$value['quantity']:$value['price_out'];
+				$uslugi_arr['summ_pribl'] += ($value['for_how']=="for_one")?($value['price_out']*$value['quantity']-$value['price_in']*$value['quantity']):($value['price_out']-$value['price_in']);
 				$uslugi_arr['summ_percent'] += $this->get_percent_Int($value['price_in'],$value['price_out']);
 				$uslugi_arr['count_usl']++;
 			}
 		}
+		//echo $uslugi_arr['summ_price_out'].'   *   ';
 		return $uslugi_arr;
 	}
 
@@ -440,10 +560,10 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		return $arr;
 	}
 
-	// получаем все варианты
-	private function get_all_variants_Database_Array(){
+	// получаем услугу по id   МОЖЕТ НЕ ПОНАДОБИТЬСЯ !!!!!!!!!!!!!!!!!!
+	private function get_uslugi_of_id_Database_Array($id){
 		global $mysqli;
-		$query = "SELECT * FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."'";
+		$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE id = '".$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);				
 		$arr = array();
 		if($result->num_rows > 0){
@@ -454,6 +574,42 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		return $arr;
 	}
 
+	// получаем все варианты
+	private function get_all_variants_Database_Array(){
+		global $mysqli;
+		$query = "SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$arr = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+		// echo $query;
+		return $arr;
+	}
+
+	/*
+	// получаем кнопку "пауза" для мена  
+	private function get_pause_status_button_Database_Html(){
+		$html = '';
+		if(isset($this->GET['id'])){
+			global $mysqli;
+			$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$this->GET['id']."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					if($row['paused']==0){
+						$html .= '<li class="status_art_right_class_pause" data-send_status="1"><div><span>Поставить на паузу</span></div></li>';
+					}else{
+						$html .= '<li class="status_art_right_class_pause" data-send_status="0"><div><span>Снять с паузы</span></div></li>';
+					}
+				}
+			}
+		}		
+		return $html;
+	}
+	*/
 	//получаем все уникальные по статусу варанты
 	private function get_all_variants_Group_Database_Array(){
 		global $mysqli;
@@ -465,12 +621,81 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				$arr[] = $row;
 			}
 		}
+		// echo $query;
 		return $arr;
 
 	}
 
+	public function change_status_gl_Database(){
+		global $mysqli;
+		// получаем id dop_data строк в которых будем менять статус
+		$id_dop_data = implode(",", $this->POST['variants_arr']); 
+		
+		// получаем новый статус
+		$new_status = $this->POST['new_status'];
+		
+		// получаем кирилическое название
+		$new_status_rus = $this->status_snab[$new_status]['name'];
+
+		// меняем
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`status_snab`='".$new_status."'";
+		// если это конечный расчёт  от снаба, пишем дату этого расчёта
+		if($new_status == 'calculate_is_ready'){
+			$query .= ', `snab_end_work` = NOW()';
+
+		}
+		// вборка id
+		$query .= " WHERE `id` IN (".$id_dop_data.");";
+
+		// получаем новые функцианальные кнопки для нового статуса для данной в кладки
+		
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+
+		//ФОРМИРУЕМ ОТВЕТ СЕРВЕРА ДЛЯ ИЗМЕНЕНИЯ html НА СТРАНИЦЕ
+		// echo '{"new_name":"'.$new_status_rus.'","new_status":"'.$new_status.'",new_buttons":"'.base64_encode($this->get_top_funcional_byttun_for_user_Html($new_status)).'"}';
+		// В ВЕРСИИ 1.1 будем вносить правки в html в соответствии с ответом от сервера
+		// сейчас при получении ответа - просто перегружаем страницу яваскриптом
+		echo '{"response":"OK"}';
+
+	}
+
+	public function change_status_gl_pause_Database(){
+		global $mysqli;
+		// получаем id dop_data строк в которых будем менять статус
+		$id_dop_data = implode(",", $this->POST['variants_arr']); 
+		$new_status =$this->POST['new_status'];
+		// меняем
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`pause`='".$new_status."'";
+		// если это конечный расчёт  от снаба, пишем дату этого расчёта
+		if($new_status == 'calculate_is_ready'){
+			$query .= ', `snab_end_work` = NOW()';
+
+		}
+		// вборка id
+		$query .= " WHERE `id` IN (".$id_dop_data.");";
+
+		$result = $mysqli->query($query) or die($mysqli->error);
+		
+		// В ВЕРСИИ 1.1 будем вносить правки в html в соответствии с ответом от сервера
+		// сейчас при получении ответа - просто перегружаем страницу яваскриптом
+		echo '{"response":"OK"}';
+
+	}
+
+
 	// выводит общую информацию по ВАРИАНТУ из json
 	public function variant_no_cat_json_Html($arr,$FORM/*экземпляр класса форм*/,$type_product){
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
+
+
+
 		$html = '';
 
 		// если у нас есть описание заявленного типа товара
@@ -480,8 +705,8 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 			foreach ($arr as $key => $value) {
 				$html .= '
 					<div class="row">
-						<div class="cell">'.$names[$key]['name'].'</div>
-						<div class="cell">';
+						<div class="cell" >'.$names[$key]['name'].'</div>
+						<div class="cell" data-type="'.$key.'" '.$edit_admin.$edit_snab.'>';
 				$html .= $value;
 				$html .='</div>
 					</div>
@@ -500,6 +725,33 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 	}
 
+
+	public function change_no_cat_json_Database(){
+		// echo '<pre>';
+		// print_r();
+		// echo '</pre>';
+
+		global $mysqli;
+		// $query = "SELECT * FROM `".RT_DOP_DATA."` WHERE id = '".$this->POST['id_dop_data']."' GROUP BY `status_snab`";
+		// $result = $mysqli->query($query) or die($mysqli->error);				
+		// $arr = array();
+		// if($result->num_rows > 0){
+		// 	while($row = $result->fetch_assoc()){
+		// 		$arr = $row;
+		// 	}
+		// }
+		// echo '<pre>';
+		// print_r(json_decode($arr['no_cat_json']));
+		// echo '</pre>'; 
+		
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`no_cat_json`='".addslashes(json_encode($this->POST['data']))."' 
+
+		WHERE `id`='".$this->POST['id_dop_data']."';
+";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+	}
 
 
 	// выводит общую информацию по позиции из json, 
@@ -559,14 +811,21 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	//удаление услуги
 	static function del_uslug_Database($uslugi_id){
 		global $mysqli;
-		$query = "DELETE FROM  `apelburg_base`.`".OUR_USLUGI_LIST."` WHERE  `id` = '".$uslugi_id."';
+		$query = "DELETE FROM  `".RT_DOP_USLUGI."` WHERE  `id` = '".$uslugi_id."';
 ";
 		echo $query; echo  '   ';
 		$result = $mysqli->query($query) or die($mysqli->error);
 	}
 
 	// добавить доп услугу для варианта
-	static function add_uslug_Database($id_uslugi,$dop_row_id,$quantity){
+	public function add_uslug_Database_Html($id_uslugi,$dop_row_id,$quantity){
+		// определяем редакторов для полей (html тегов)
+		$edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$edit_admin.$edit_snab.$edit_men.'
+
+
 		global $mysqli;
 		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` = '".$id_uslugi."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -579,7 +838,14 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 		if(empty($usluga)){return 'такой услуги не существует';}
 
-		
+
+
+
+		// получаем флаг если этой услуги ещё нет и придётся формировать имя группы услуг
+		$flag = $this->check_parent_exists_Database_Int($dop_row_id,$usluga['parent_id']);
+
+
+		// вставляем новую услугу в базу
 		$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
 		             `dop_row_id` = '".$dop_row_id."',
 		             `uslugi_id` = '".$id_uslugi."',
@@ -589,9 +855,81 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					 `price_out_snab` = '".$usluga['price_out']."',
 					 `for_how` = '".$usluga['for_how']."',
 					 `quantity` = '".$quantity."'";
-		$result = $mysqli->multi_query($query) or die($mysqli->error);	
-		return 1;
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+
+		// формируем массив для генерации HTML выдачи для ajax
+		// ajax примет html и добавить на страницу
+		$NEW_usl[0]['id'] = $mysqli->insert_id;
+		$NEW_usl[0]['dop_row_id'] = $dop_row_id;
+		$NEW_usl[0]['uslugi_id'] = $id_uslugi;
+		$NEW_usl[0]['glob_type'] = 'extra';
+		$NEW_usl[0]['price_in'] = $usluga['price_in'];
+		$NEW_usl[0]['price_out'] = $usluga['price_out'];
+		$NEW_usl[0]['price_out_snab'] = $usluga['price_out'];
+		$NEW_usl[0]['for_how'] = $usluga['for_how'];
+		$NEW_usl[0]['quantity'] = $quantity;
+		
+		// генерим html выдачу для ajax
+		$html = $this->uslugi_template_Html($NEW_usl, $flag);
+
+		echo '{"response":"close_window","name":"add_uslugu","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
 	}
 
+	public function change_dop_data_Database(){
+		// $this->POST['parice_in'];
+		// $this->POST['parice_out'];
+		// $this->POST['parice_out_snab'];
+		// $this->POST['dop_data_id'];
 
+		global $mysqli;
+		$query = "UPDATE `".RT_DOP_DATA."` SET 
+		`price_in`='".$this->POST['price_in']."', 
+		`price_out`='".$this->POST['price_out']."',
+		`price_out_snab`='".$this->POST['price_out_snab']."' 
+
+		WHERE `id`='".$this->POST['dop_data_id']."';
+";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+
+	}
+
+	public function save_edit_price_dop_uslugi_Database(){
+		global $mysqli;
+		$query = '';
+		foreach ($this->POST['data'] as $id => $value) {
+			// $id
+			// $value['price_out_snab'];
+			// $value['price_out'];
+
+			$query .= "UPDATE `".RT_DOP_USLUGI."` SET
+			`price_out`='".$value['price_out']."',
+			`price_out_snab`='".$value['price_out_snab']."' 
+			WHERE `id`='".$id."';";
+		}
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+
+	}
+
+	private function check_parent_exists_Database_Int($dop_row_id, $parent_id){
+		global $mysqli;
+		
+		
+		$query = "SELECT `parent_id` FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (SELECT `uslugi_id` FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$dop_row_id."'
+) AND `parent_id` = '".$parent_id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows == 0){
+			$ret = '0';
+		}else{
+			$ret = '1';
+		}
+
+		return $ret;		
+	}
+
+	public function get_suppliers_Database_Array(){
+		global $mysqli;
+
+	}
 }

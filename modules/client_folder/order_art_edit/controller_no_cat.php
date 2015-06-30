@@ -10,17 +10,104 @@
 	/*******************************   AJAX   ***********************************/
 	## GET
 	if(isset($_GET['AJAX']) && $_GET['AJAX']=="get_uslugi_list_Database_Html"){
-		echo Position_no_catalog::get_uslugi_list_Database_Html();
-
-		exit;
+		
 	}
 
 	## POST
 	if(isset($_POST['AJAX'])){	
+		// меняем статус для группы вариантов
+		if($_POST['AJAX'] == 'change_status_gl'){
+			$POSITION_NO_CAT->change_status_gl_Database();
+			exit;
+		}
+
+		// мен ставит на паузу
+		if($_POST['AJAX'] == 'change_status_gl_pause'){
+			$POSITION_NO_CAT->change_status_gl_pause_Database();
+			exit;
+		}
+
+		// редактируем дату подачи макета
+		if($_POST['AJAX'] == 'change_maket_date'){
+			$POSITION_NO_CAT->change_maket_date_Database();
+			exit;
+		}
+
+		// редактируем no_cat_json
+		if($_POST['AJAX'] == 'change_no_cat_json'){
+			$POSITION_NO_CAT->change_no_cat_json_Database();
+			exit;
+		}
+
+		// редактируем количество рабочих дней на изготовление продукции
+		if($_POST['AJAX'] == 'edit_work_days'){
+			$POSITION_NO_CAT->edit_work_days_Database();
+			exit;
+		}
+
+		// редактируем комменты снаба
+		if ($_POST['AJAX'] == 'edit_snab_comment') {
+			$POSITION_NO_CAT->edit_snab_comment_Database();
+			exit;
+		}
+
 		// добаление данных, прикрепление новой услуги к расчёту
 		if($_POST['AJAX']=='add_new_usluga'){
-			Position_no_catalog::add_uslug_Database($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
-			echo '{"response":"close_window"}';
+			$POSITION_NO_CAT->add_uslug_Database_Html($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
+			exit;
+		}
+
+		if($_POST['AJAX']=='chose_supplier'){
+
+			// запоминаем id уже выбранных поставщиков
+			$already_chosen_arr = explode(',', $_POST['already_chosen']);
+
+
+			$suppliers_arr = Supplier::get_all_suppliers_Database_Array();
+			$html = '<form>';
+			$html .='<table id="chose_supplier_tbl">';
+
+			$n=0;
+			for ($i=1; $i < count($suppliers_arr); $i++) {
+				$html .= '<tr>';
+			    for ($j=1; $j<=3; $j++) {
+			    	$checked = '';
+			    	foreach ($already_chosen_arr as $key => $id) {
+			    		if($suppliers_arr[$i]['id']==trim($id)){
+			    			$checked = 'class="checked"';
+			    		}
+			    	}
+			    	$html .= (isset($suppliers_arr[$i]['nickName']))?'<td '.$checked.' data-id="'.$suppliers_arr[$i]['id'].'">'.$suppliers_arr[$i]['nickName']."</td>":"<td></td>";
+			    	$i++;
+			    }
+
+			    $html .= '</tr>';
+			}
+			$html .= '</table>';
+			$html .= '<input type="hidden" name="AJAX" value="change_supliers_info_dop_data">';
+			$html .= '<input type="hidden" name="dop_data_id" value="">';
+			$html .= '<input type="hidden" name="suppliers_id" value="">';
+			$html .= '<input type="hidden" name="suppliers_name" value="">';
+			$html .= '</form>';
+			echo $html;
+			exit;
+		}
+
+		if($_POST['AJAX'] == 'change_supliers_info_dop_data'){
+			$POSITION_NO_CAT->change_supliers_info_dop_data_Database();
+			exit;
+		}
+
+
+
+		if($_POST['AJAX'] == 'save_new_price_dop_uslugi'){
+			// редактирование цены в прикреплённой услуге
+			$POSITION_NO_CAT->save_edit_price_dop_uslugi_Database();
+			exit;
+		}
+
+		if($_POST['AJAX']=='save_new_price_dop_data'){
+			$POSITION_NO_CAT->change_dop_data_Database();
 			exit;
 		}
 
