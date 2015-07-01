@@ -104,7 +104,7 @@
 			if($result->num_rows>0){
 			    while($row = $result->fetch_assoc()){
 				    // получаем данные о типах нанесений соответсвующих данному месту
-					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__PRINT_TYPES_SIZES_PLACES_REL_TBL."` tbl1
+					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` tbl1
 					          INNER JOIN  `".OUR_USLUGI_LIST."` tbl2 
 					          ON tbl1.`print_id`  = tbl2.`id` 
 							  WHERE tbl1.`place_id` = '".$row['place_id']."'";
@@ -187,7 +187,7 @@
 				
 				
 				// выбираем данные по размерам нанесения в соответствии с типом и местом нанесения
-				$query="SELECT*FROM `".BASE__PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE `print_id` = '".$print_id."'";
+				$query="SELECT*FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE `print_id` = '".$print_id."'";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){

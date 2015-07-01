@@ -197,7 +197,7 @@ var rtCalculator = {
 			
 			// сумма
 			var td =  td.cloneNode(false);
-			td.innerHTML = rtCalculator.currentCalculationData[i].price_out*rtCalculator.currentCalculationData[i].quantity+' р.';
+			td.innerHTML = (Math.round(rtCalculator.currentCalculationData[i].price_out*rtCalculator.currentCalculationData[i].quantity * 100) / 100 ).toFixed(2) +' р.';
 			tr.appendChild(td);
 			
 			var td =  td.cloneNode(false);
@@ -291,7 +291,6 @@ var rtCalculator = {
 	}
 	,
     build_print_calculator:function(calculatorParamsData){
-
 		
 		// если калькулятор был вызван для существующего нанесения пересохраняем данные для конкретного нанесения 
 		// иначе готовим структуру для сохранения данных при создании калькулятора 
@@ -350,24 +349,34 @@ var rtCalculator = {
 		}
 		//currPlace_id = 1;
 		printPlaceSelect.onchange = function(){
+			if(document.getElementById("rtCalculatorBlockA"))document.getElementById("rtCalculatorBlockA").parentNode.removeChild(document.getElementById("rtCalculatorBlockA"));
+			//
+			rtCalculator.currentCalculationData.print_details = {};
+			rtCalculator.currentCalculationData.print_details.dop_params = {};
 			// определяем id места нанесения
 			rtCalculator.currentCalculationData.print_details.place_id = parseInt(this.options[this.selectedIndex].value);
 			//alert(place_id);
 			// создаем новый block_A
-			var block_A = rtCalculator.buildBlockA(rtCalculator.currentCalculationData.print_details.place_id);
-			if(document.getElementById("rtCalculatorBlockA"))document.getElementById("rtCalculatorBlockA").parentNode.removeChild(document.getElementById("rtCalculatorBlockA"));
-			this.parentNode.appendChild(block_A);
+			var block_A = rtCalculator.buildBlockA();
 			
+			this.parentNode.appendChild(block_A);
+			rtCalculator.makeProcessing();
 		}
 		
 		box.appendChild(printPlaceSelect);
 		
 		// создаем блок block_A который будет содеражать в себе select выбора типа нанесения
 		// и блок block_B содержащий в себе все остальные элементы интерфейса
-	    var block_A = rtCalculator.buildBlockA();
+		if(rtCalculator.currentCalculationData.print_details.place_id){
+			// если остался print_id от предыдущего запуска калькулятора удаляем его
+	        var block_A = rtCalculator.buildBlockA();
+		    box.appendChild(block_A);
+		}
+		else{
+			box.appendChild(document.createTextNode("Ошибка: не определен ID места нанесения "));
+			
+		}
 		
-		
-		box.appendChild(block_A);
 		document.body.appendChild(box);
 		
 		//
@@ -379,6 +388,7 @@ var rtCalculator = {
 	}
 	,
 	buildBlockA:function(){
+		
 		// метод строит блок block_A и взависимости от ситуации
 		// или ( строит и вставляет в него block_B ) или ( не делает этого )
 		// block_A содержит селект с выбором типа нанесения
@@ -404,6 +414,67 @@ var rtCalculator = {
 		}
 
 		return block_A;
+	}
+	,
+    build_print_types_select:function(){
+		
+		// строит и возвращает select для типов нанеснения
+		
+		var printTypesSelect = document.createElement('SELECT');
+		
+		var counter = 0;
+		// проходим по массиву содержащему id и названия типов нанесения соответствующих данному месту нанесения
+		for(var id in rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print){
+			// если это заново запускаемый калькулятор сохраняем id первого  нанесения 
+			if(typeof rtCalculator.currentCalculationData.print_details.print_id === 'undefined') rtCalculator.currentCalculationData.print_details.print_id = id;
+			counter++;
+			var option = document.createElement('OPTION');
+            option.setAttribute("value",id);
+            option.appendChild(document.createTextNode(rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print[id]));
+            printTypesSelect.appendChild(option);
+			//console.log(i + data_obj.places[i].name);
+			if(typeof rtCalculator.currentCalculationData.print_details.print_id !== 'undefined'){
+			    if(rtCalculator.currentCalculationData.print_details.print_id==id) option.setAttribute("selected",true);
+			}
+		}
+		// если типов нанесения было больше чем одно вставляем в начало Selectа option ' -- выберите вариант -- '
+		// и устанавливаем значение описывающиее id типа нанесения в 0
+		// id типа нанесения передается в вызывающий метод для дальнейшего построения калькулятора 
+		if(counter>1){
+			var option = document.createElement('OPTION');
+            option.setAttribute("value",0);
+            option.appendChild(document.createTextNode(' -- выберите вариант -- '));
+			printTypesSelect.insertBefore(option, printTypesSelect.firstChild); 
+            
+			// если это не был вызов калькулятора для конкретного существующего расчета 
+			// ставим выбранным  option ' -- выберите вариант -- '
+			// и устанавливаем print_id = 0
+			if(typeof rtCalculator.dataObj_toEvokeCalculator.currentCalculationData_id === 'undefined'){
+				option.setAttribute("selected",true);
+				rtCalculator.currentCalculationData.print_details.print_id = 0;
+			}
+		}
+
+		
+		// обработчик события onchange
+		printTypesSelect.onchange = function(){
+			rtCalculator.currentCalculationData.print_details.print_id = this.options[this.selectedIndex].value;
+			var block_B = rtCalculator.buildBlockB();
+			if(document.getElementById("rtCalculatorBlockB"))document.getElementById("rtCalculatorBlockB").parentNode.removeChild(document.getElementById("rtCalculatorBlockB"));
+			this.parentNode.appendChild(block_B);
+			// метод осуществляющий итоговый расчет 
+		    // и помещающий итоговые данные в сторку ИТОГО
+		    rtCalculator.makeProcessing();
+			
+		}
+		//alert(rtCalculator.currentCalculationData.print_details.print_id);
+		if(typeof rtCalculator.currentCalculationData.print_details.print_id === 'undefined'){
+		    var printTypesSelect = document.createElement('DIV');
+			printTypesSelect.appendChild(document.createTextNode("Ошибка: не определен ID типа нанесения "));
+			
+		}
+		
+		return printTypesSelect;
 	}
 	,
 	buildBlockB:function(){
@@ -452,7 +523,6 @@ var rtCalculator = {
 		
 		var br = document.createElement('BR');
 		var printParamsBox = document.createElement('DIV');
-
 		
 		// определяем переменную содержащую массив данных относящихся к текущему типу нанесения
 		var CurrPrintTypeData = rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id];
@@ -502,7 +572,15 @@ var rtCalculator = {
 			if(typeof rtCalculator.currentCalculationData.print_details.dop_params.colors !== 'undefined'){
 				for(var i = 0;i < rtCalculator.currentCalculationData.print_details.dop_params.colors.length; i++){ 
 				     var colorsSelectClone = colorsSelect.cloneNode(true);
-					 colorsSelectClone.options[parseInt(rtCalculator.currentCalculationData.print_details.dop_params.colors[i].id)].setAttribute("selected",true);
+					 var optionsArr = colorsSelectClone.getElementsByTagName("OPTION");
+					 //var optionsArr = colorsSelectClone.options;
+					 for(var j in optionsArr){
+						if(optionsArr[j] && optionsArr[j].nodeType ==1 && optionsArr[j].nodeName == 'OPTION'){ 
+							if(optionsArr[j].getAttribute("item_id") && optionsArr[j].getAttribute("item_id") == rtCalculator.currentCalculationData.print_details.dop_params.colors[i].id) optionsArr[j].setAttribute("selected",true);
+						}
+					 }
+					 
+					 //colorsSelectClone.options[parseInt(rtCalculator.currentCalculationData.print_details.dop_params.colors[i].id)].setAttribute("selected",true);
 				     colorsDiv.appendChild(colorsSelectClone);
 				}
 				var selectsArr = colorsDiv.getElementsByTagName("SELECT");
@@ -833,13 +911,13 @@ var rtCalculator = {
 		var total_price_in  = ((((price_in*price_coeff)+price_addition)*rtCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
 		
 		total_price_out = Math.round(total_price_out * 100) / 100 ;
-		total_price_in = Math.round(total_price_out * 100) / 100 ;
+		total_price_in = Math.round(total_price_in * 100) / 100 ;
 		
 	    rtCalculator.currentCalculationData.price_out = Math.round(total_price_out/rtCalculator.currentCalculationData.quantity * 100) / 100;
 		rtCalculator.currentCalculationData.price_in  = Math.round(total_price_in/rtCalculator.currentCalculationData.quantity * 100) / 100;
 		
 		total_price_out = Math.round((rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity) * 100) / 100 ;
-		total_price_in = Math.round((rtCalculator.currentCalculationData.price_out*rtCalculator.currentCalculationData.quantity) * 100) / 100 ;
+		total_price_in = Math.round((rtCalculator.currentCalculationData.price_in*rtCalculator.currentCalculationData.quantity) * 100) / 100 ;
 		
 		var total_str  = '';
 		    total_str += 'ВХОД - цена за штуку: '+(rtCalculator.currentCalculationData.price_in).toFixed(2)+',   за Тираж: '+(total_price_in).toFixed(2)+'<br><br>';
@@ -852,7 +930,7 @@ var rtCalculator = {
 			total_str += '<span style="color:#FF6633;">коэффициэнты суммы:</span> '+summ_coefficient_list+'<br>';
 			total_str += '<span style="color:#FF6633;">надбавки суммы:</span> '+summ_additions_list+'<br>';
 		
-		    document.getElementById("rtCalculatorItogDisplay").innerHTML = total_str;
+		    if(document.getElementById("rtCalculatorItogDisplay")) document.getElementById("rtCalculatorItogDisplay").innerHTML = total_str;
 	}
 	,
 	saveCalculatorResult:function(){
@@ -891,62 +969,6 @@ var rtCalculator = {
 			location.reload();
 		}
 		
-	}
-	,
-    build_print_types_select:function(){
-		
-		// строит и возвращает select для типов нанеснения
-		
-		var printTypesSelect = document.createElement('SELECT');
-		
-		var counter = 0;
-		// проходим по массиву содержащему id и названия типов нанесения соответствующих данному месту нанесения
-		for(var id in rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print){
-			// если это заново запускаемый калькулятор сохраняем id первого  нанесения 
-			if(typeof rtCalculator.currentCalculationData.print_details.print_id === 'undefined') rtCalculator.currentCalculationData.print_details.print_id = id;
-			counter++;
-			var option = document.createElement('OPTION');
-            option.setAttribute("value",id);
-            option.appendChild(document.createTextNode(rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print[id]));
-            printTypesSelect.appendChild(option);
-			//console.log(i + data_obj.places[i].name);
-			if(typeof rtCalculator.currentCalculationData.print_details.print_id !== 'undefined'){
-			    if(rtCalculator.currentCalculationData.print_details.print_id==id) option.setAttribute("selected",true);
-			}
-		}
-		// если типов нанесения было больше чем одно вставляем в начало Selectа option ' -- выберите вариант -- '
-		// и устанавливаем значение описывающиее id типа нанесения в 0
-		// id типа нанесения передается в вызывающий метод для дальнейшего построения калькулятора 
-		if(counter>1){
-			var option = document.createElement('OPTION');
-            option.setAttribute("value",0);
-            option.appendChild(document.createTextNode(' -- выберите вариант -- '));
-			printTypesSelect.insertBefore(option, printTypesSelect.firstChild); 
-            
-			// если это не был вызов калькулятора для конкретного существующего расчета 
-			// ставим выбранным  option ' -- выберите вариант -- '
-			// и устанавливаем print_id = 0
-			if(typeof rtCalculator.dataObj_toEvokeCalculator.currentCalculationData_id === 'undefined'){
-				option.setAttribute("selected",true);
-				rtCalculator.currentCalculationData.print_details.print_id = 0;
-			}
-		}
-
-		
-		// обработчик события onchange
-		printTypesSelect.onchange = function(){
-			rtCalculator.currentCalculationData.print_details.print_id = this.options[this.selectedIndex].value;
-			var block_B = rtCalculator.buildBlockB();
-			if(document.getElementById("rtCalculatorBlockB"))document.getElementById("rtCalculatorBlockB").parentNode.removeChild(document.getElementById("rtCalculatorBlockB"));
-			this.parentNode.appendChild(block_B);
-			// метод осуществляющий итоговый расчет 
-		    // и помещающий итоговые данные в сторку ИТОГО
-		    rtCalculator.makeProcessing();
-			
-		}
-		//alert(rtCalculator.currentCalculationData.print_details.print_id);
-		
-		return printTypesSelect;
 	}
 	,
 	onchangeColorsSelect:function(colorsDiv){
