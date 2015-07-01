@@ -22,9 +22,9 @@ function addSomeRowsToTbl(tbl,num,settings){
 	   }
 	   else{
 	       var row =  lastRow.cloneNode(true);
-		   if(settings && settings.clearCell) row.getElementsByTagName('TD')[settings.clearCell-1].innerHTML = '';
 	       lastRow.parentNode.appendChild(row);
 	   }
+	   if(settings && settings.clearCell) row.getElementsByTagName('TD')[settings.clearCell-1].innerHTML = '';
    }
 }
 
@@ -126,7 +126,7 @@ function priseManagerSendDataToBase(form,data_obj){
 	       var cels = rows[i].getElementsByTagName('TD');
 		   var celsData=[];
 		   // проходим по ячейкам таблицы
-		   for(var j=0;j<cels.length;j++){
+		   for(var j=0;j<cels.length-1;j++){
 		        
 			   var selectTagArr = cels[j].getElementsByTagName('SELECT');
 			   if(selectTagArr && selectTagArr[0]){
@@ -149,11 +149,13 @@ function priseManagerSendDataToBase(form,data_obj){
    form.submit();
    
 }
-function deleteRowFromTable(cell){
-   //alert('tbl'+type+key);
+function deleteRowFromTable(cell,idPart){
+   //alert();
    var tr = cell.parentNode.parentNode;
+   document.getElementById('dataBufferForDeleting'+idPart).value+='|'+tr.firstChild.innerHTML;//
    var tbl = tr.parentNode;
    tbl.removeChild(tr);
+   
 }
 function deleteColFromTable(cell){
    var cell = cell.parentNode;
@@ -176,6 +178,7 @@ function deleteColFromTable(cell){
 }
 
 </script>
+<div class="disclaimer">После запуска калькуляторов, существующие записи удалять только в крайних случаях,<br>это вызовет некорректное отображение уже существующих расчетов</div>
 <table class="mainWinTbl" border="1">
    <tr>
       <td width="150">

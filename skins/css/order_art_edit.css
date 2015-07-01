@@ -471,18 +471,32 @@
 #number_position_and_type .status_art_right_class.grey_border div span{ border-left: 1px solid grey; border-right: 1px solid grey;}
 
 
-#number_position_and_type .status_art_right_class_pause{ float: right;}
+#number_position_and_type .status_art_right_class_pause,
+#number_position_and_type .create_text_mail_for_supplier{ float: right;padding-left: 0; padding-right: 0}
 
-#number_position_and_type .status_art_right_class_pause div{color: #5a5c61; font-size: 10px;}
-#number_position_and_type .status_art_right_class_pause div span{color: #000; cursor: default; font-size: 12px; padding:5px 10px; margin-left: 0px; }
-#number_position_and_type ul li.status_art_right_class_pause{padding-left: 0; padding-right: 0}
+#number_position_and_type .status_art_right_class_pause div,
+#number_position_and_type .create_text_mail_for_supplier div{color: #5a5c61; font-size: 10px;}
+#number_position_and_type .status_art_right_class_pause div span,
+#number_position_and_type .create_text_mail_for_supplier div span{color: #000; cursor: default; font-size: 12px; padding:5px 10px; margin-left: 0px; }
 
-#number_position_and_type .status_art_right_class_pause div span:hover{ background: #B1B3B6;}
-#number_position_and_type .status_art_right_class_pause.green div span{ background: #92b73e;}
-#number_position_and_type .status_art_right_class_pause.green div span:hover {background: #86AB33;}
+
+#number_position_and_type .status_art_right_class_pause div span:hover,
+#number_position_and_type .create_text_mail_for_supplier div span:hover{ background: #B1B3B6;}
+#number_position_and_type .status_art_right_class_pause.green div span,
+#number_position_and_type .create_text_mail_for_supplier div span{ background: #92b73e;}
+#number_position_and_type .status_art_right_class_pause.green div span:hover,
+#number_position_and_type .create_text_mail_for_supplier div span:hover{background: #86AB33;}
 
 #number_position_and_type .status_art_right_class_pause.grey_border div span{ border-left: 1px solid grey; border-right: 1px solid grey;}
 /*#number_position_and_type ul li.status_art_right_class:nth-of-type(2){ background-color: none;}*/
+
+.get_top_funcional_byttun_for_user_Html{ margin-top: 15px}
+
+
+
+
+
+
 
 span.snab_comment {
   color: #9BD0FC;
@@ -600,5 +614,7 @@ span.snab_comment {
 .chenge_maket_date input{  width: 65px;}
 .change_srok{ width: 25px}
 .hidden_top_buttons{ display: none}
+.text_for_send_mail{display: none;}
+
 
 

@@ -52,7 +52,7 @@
 									<div class="row">
 										<div class="cell">
 											<?php 
-												echo $POSITION_NO_CAT->dop_info_no_cat_Html($dop_info_no_cat,$FORM,$type_product);
+												echo $POSITION_NO_CAT->dop_info_no_cat_Html($dop_info_no_cat,$type_product);
 											?>
 										</div>
 										
