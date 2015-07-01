@@ -199,6 +199,8 @@
 
 #edit_variants_content #variant_of_snab span.traffic_lights_green{
   border: 1px solid #92B73E;
+    margin-top: 2px;
+  margin-bottom: 2px;
 }
 #edit_variants_content #variant_of_snab span.traffic_lights_green span{
     border: 1px solid #92B73E;
@@ -207,6 +209,8 @@
 
 #edit_variants_content #variant_of_snab span.traffic_lights_grey{
     border: 1px solid #E3E5E5;
+      margin-top: 2px;
+  margin-bottom: 2px;
 }
 #edit_variants_content #variant_of_snab span.traffic_lights_grey span{
       border: 1px solid #E3E5E5;
@@ -215,6 +219,8 @@
 
 #edit_variants_content #variant_of_snab span.traffic_lights_red{
     border: 1px solid #F69679;
+      margin-top: 2px;
+  margin-bottom: 2px;
 }
 #edit_variants_content #variant_of_snab span.traffic_lights_red span{
       border: 1px solid #F69679;

@@ -287,7 +287,7 @@ class Position_no_catalog{
 				if ($status_snab==$value2['status_snab']) {
 					// наличие паузы ограничивает редактирование для снаба и мена, 
 					// мен может снять паузу
-					$pause = substr_count($value2['pause'], '_pause');
+					$pause = substr_count($value2['status_snab'], '_pause');
 
 					// генеральное разрешение.... проверяет не история ли это
 					$edit_true = substr_count($status_snab, 'ё')?false:true;
@@ -589,7 +589,7 @@ class Position_no_catalog{
 									</tr>
 								</tbody></table>
 							';
-		$html .= '</td><td style="display:none">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->type_product,$pause).'</td></tr></table>';
+		$html .= '</td><td style="display:none">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->type_product,$pause,$edit_true).'</td></tr></table>';
 		$html .= '</div>';
 
 		
@@ -762,7 +762,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				$arr[] = $row;
 			}
 		}
-		echo $query;
+		// echo $query;
 		return $arr;
 	}
 
@@ -784,7 +784,8 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	private function get_all_variants_Database_Array(){
 		global $mysqli;
 		$query = "SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."' 
-		UNION SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".DOP_DATA_HIST."` WHERE row_id='".$this->id_position."' ORDER BY id ASC;";
+		 UNION SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".DOP_DATA_HIST."` WHERE row_id='".$this->id_position."' ORDER BY id ASC;";
+		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);				
 		$arr = array();
 		if($result->num_rows > 0){
@@ -792,7 +793,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				$arr[] = $row;
 			}
 		}
-		// echo $query;
+		
 		return $arr;
 	}
 
@@ -803,7 +804,8 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	private function get_all_variants_Group_Database_Array(){
 		global $mysqli;
 		$query = "SELECT * FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."' GROUP BY `status_snab` 
-		UNION SELECT * FROM `".DOP_DATA_HIST."` WHERE row_id='".$this->id_position."' GROUP BY `snab_end_work`";
+		 UNION SELECT * FROM `".DOP_DATA_HIST."` WHERE row_id='".$this->id_position."' GROUP BY `snab_end_work`";
+		// echo $query.'<br>';
 		$result = $mysqli->query($query) or die($mysqli->error);				
 		$arr = array();
 		if($result->num_rows > 0){
@@ -811,7 +813,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				$arr[] = $row;
 			}
 		}
-		// echo $query.'<br>';
+		
 		return $arr;
 
 	}
@@ -1028,16 +1030,24 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 
 	// выводит общую информацию по ВАРИАНТУ из json
-	public function variant_no_cat_json_Html($arr,$type_product,$pause){
+	public function variant_no_cat_json_Html($arr,$type_product,$pause,$edit_true){
+
 		$FORM = $this->FORM; /*Экземпляр класса форм*/
 		// определяем редакторов для полей (html тегов)
 		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
 		$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
 		// '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
-
 		if($pause){$this->edit_snab=$this->edit_men='';}
 
+		// обнуляем все права при $edit_true == false
+		if($edit_true == false){
+			$this->edit_men = '';
+			$this->edit_snab = '';
+			$this->edit_admin = '';
+			$pause = 1;
+		}
+		
 		$html = '';
 
 		// если у нас есть описание заявленного типа товара
