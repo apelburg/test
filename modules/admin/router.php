@@ -12,6 +12,10 @@
 		case 'price_manager':
 		include 'price_manager/router.php';
 		break;
+
+		case 'edit_our_uslugi':
+		include 'edit_our_uslugi/router.php';
+		break;
 			
 		default:
 		include 'controller.php';

@@ -97,6 +97,10 @@
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
 	define("RT_ART_SIZE","os__rt_art_sizes"); //
 
+	// АРХИВ ВАРИАНТОВ В РТ НЕ УЧАВСТВУЕТ
+	define("DOP_USLUGI_HIST", 'os__dop_uslugi_history');
+	define("DOP_DATA_HIST", 'os__dop_data_history');
+
 	// новые таблицы для РТ
 	define("RT_VARIANTS_POL_LIST", "os__rt_variants_list_pol_listovaja"); // таблица вариантов расчёта для листовой продукции
 	define("RT_DOP_USLUGI_POL_LIST", "os__rt_dop_uslugi_pol_listovaja"); // услуги для листовой продукции

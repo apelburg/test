@@ -6,6 +6,13 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 	$('#'+table_id).css({'display':'block'});
 	// обновляем верхние кнопки
 	opcional_top_buttons();
+
+	// если выбранных строк нет - автоклик по первому варианту
+	if($('#'+$(this).attr('data-cont_id')+' .show_table tr.checked').length==0){
+		$('#'+$(this).attr('data-cont_id')+' .show_table tr').eq(1).find('td').eq(2).click();
+	}else{
+		$('#'+$(this).attr('data-cont_id')+' .show_table tr.checked').find('td').eq(2).click();
+	}
 });
 
 // клик по первому варианту при загрузке страницы
@@ -1120,10 +1127,10 @@ function timing_save_no_cat_json(fancName,obj){
 //#################   КНОПКИ ВЕРХ   ###################
 //#####################################################
 
-// функция подставновки верхних опуиональных кнопок 
+// функция подставновки верхних опциональных кнопок 
 function opcional_top_buttons(){
 	// удаляем такие кнопки, если они есть
-	$('#number_position_and_type ul .status_art_right_class,#number_position_and_type ul .status_art_right_class_pause').remove();
+	$('#number_position_and_type ul .buttons_top_1').remove();
 
 	// подставляем кнопки из скрытого дива соответствующего текущему разделу
 	var buttons = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .hidden_top_buttons').html();
@@ -1157,11 +1164,10 @@ $(document).on('click', '.status_art_right_class', function(event) {
 
 // ОТРАБОТКА КНОПКИ ПАУЗЫ
 $(document).on('click', '#number_position_and_type ul .status_art_right_class_pause', function(event) {
-	var new_status = $(this).attr('data-send_status');
 	$.post('', {
 		AJAX: 'change_status_gl_pause',
 		variants_arr: get_activ_tbl_variants_id(),
-		new_status:new_status
+		status:$('#all_variants_menu_pol .variant_name.checked').attr('data-status')
 	}, function(data, textStatus, xhr) {
 		// В ВЕРСИИ 1.1 будем вносить правки в html в соответствии с ответом от сервера
 		// сейчас при получении ответа - просто перегружаем страницу яваскриптом
@@ -1186,3 +1192,39 @@ function get_activ_tbl_variants_id(){
 	});
 	return arr;
 }
+
+
+// ***********************************
+// ПИСЬМО ПОСТАВЩИКУ ******* START
+$(document).on('click', '.create_text_mail_for_supplier', function(event) {
+	var title = 'Тут вы можете скопировать описание по всем вариантам активной вкладки';
+	var data = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' .text_for_send_mail').html();
+	show_dialog_and_send_mail_text(data,title,$(window).height()/100*90);
+});
+
+// показать окно
+function show_dialog_and_send_mail_text(html,title,height){
+	height_window = height || 'auto';
+	var buttons = new Array();
+	buttons.push({
+	    text: 'OK',
+	    click: function() {
+	    	$('#dialog_gen_window_form').dialog( "destroy" );
+	    }
+	});
+
+	if($('#dialog_gen_window_form').length==0){
+		$('body').append('<div id="dialog_gen_window_form"></div>');
+	}
+	$('#dialog_gen_window_form').html(html);
+	$('#dialog_gen_window_form').dialog({
+          width: '1000',
+          height: height_window,
+          modal: true,
+          title : title,
+          autoOpen : true,
+          buttons: buttons          
+        });
+}
+// ПИСЬМО ПОСТАВЩИКУ ******* END
+// ***********************************
