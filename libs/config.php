@@ -102,12 +102,9 @@
 	define("DOP_DATA_HIST", 'os__dop_data_history');
 
 	// новые таблицы для РТ
-	define("RT_VARIANTS_POL_LIST", "os__rt_variants_list_pol_listovaja"); // таблица вариантов расчёта для листовой продукции
-	define("RT_DOP_USLUGI_POL_LIST", "os__rt_dop_uslugi_pol_listovaja"); // услуги для листовой продукции
-	define("FORM_ROWS_LISTS_", "form_rows_for_lists"); //строки для списков
-
-
-	define("OUR_USLUGI_LIST","os__our_uslugi"); // Список всех услуг с ценами, в дальнейшем понадобится функционал для их редактирования 
+	define("FORM_ROWS_LISTS", "form_rows_for_lists"); // поля для генератора форм 
+	define('USLUGI_STATUS_LIST', 'os__our_uslugi_status_list'); // таблица статусов этапов выполнения для услуг
+	define("OUR_USLUGI_LIST","os__our_uslugi"); // Список всех услуг с ценами
 
 	
 	define("KP_LIST","os__kp_list"); // КП
