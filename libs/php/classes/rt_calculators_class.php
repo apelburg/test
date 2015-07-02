@@ -143,7 +143,7 @@
 				if($result->num_rows>0){
 				    
 				    while($row = $result->fetch_assoc()){
-					    $out_put['print_types'][$print_id][$row['param_type']][$row['value']] = array('percentage'=>$row['percentage'],'item_id'=>$row['id']);   
+					    $out_put['print_types'][$print_id]['y_price_param'][$row['value']] = array('percentage'=>$row['percentage'],'item_id'=>$row['id']);   
 				    }
 				}
 				
@@ -352,11 +352,10 @@
 				    // детали расчета нанесения
 					$print_details_obj = json_decode($row['print_details']);
 					//print_r($print_details_obj->dop_params);echo "\r\n";//
-					
+					$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
 					// получаем новые исходящюю и входящюю цену исходя из нового таража
-					$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj->print_id,$print_details_obj->priceIn_tblYindex,$print_details_obj->priceOut_tblYindex);
+					$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj->print_id,$YPriceParam);
 					//print_r($new_price_arr);echo "\r\n";//
-					
 					
 					// рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
 					$new_data = self::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
@@ -379,10 +378,10 @@
 				// если дошли до этого места значит все нормально
 				// отправляем новые данные обратно клиенту
 				// print_r($itog_sums);
-				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).'}';
+				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).''.(isset($new_price_arr['lackOfQuantity'])?',"lackOfQuantity":"1","minQuantInPrice":"'.$new_price_arr['minQuantInPrice'].'"':'').'}';
 			}
 		}
-		static function change_quantity_and_calculators_price_query($quantity,$print_id,$priceIn_tblYindex,$priceOut_tblYindex){
+		static function change_quantity_and_calculators_price_query($quantity,$print_id,$YPriceParam){
 		    global $mysqli;  
 			
 			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' ORDER by id, param_val";
@@ -391,23 +390,55 @@
 				if($result->num_rows>0){
 				   $priceIn_tblXindex = 0;
 				    while($row = $result->fetch_assoc()){
-					    
+					    //print_r($row);
 						if($row['param_val']==0){
 						    // здесь мы определяем в какой диапазон входит новое количество
-							// !!!! и если оно за пределами указанных в прайсе тиражей надо вернуть отсюда предупреждение
-							
 							for($i=1;isset($row[$i]);$i++){
-								if($row[$i] > $quantity) break;
-								if($row['price_type']=='in') $newIn_Xindex = $i;
-								if($row['price_type']=='out') $newOut_Xindex = $i;
+							    // если оно меньше минимального тиража
+							    
+								//if($row[$i] > $quantity) break;
+								if($row['price_type']=='in'){
+									if($quantity < $row[1]){
+										$newIn_Xindex = 1;
+										$lackOfQuantInPrice = true;
+										$minQuantInPrice  = $row[1];
+									}
+								    else if($row[$i] >0 && $quantity >= $row[$i]){
+										$newIn_Xindex = $i;
+									}
+								     
+								}
+								if($row['price_type']=='out'){
+									if($quantity < $row[1]){
+										$newOut_Xindex = 1;
+										$lackOfQuantOutPrice = true;
+										$minQuantOutPrice  = $row[1];
+									}
+								    else if($quantity >= $row[$i]  &&  $row[$i] >0){
+										$newOut_Xindex = $i;
+									}
+								}
 							}
 						}
 						// определяем новые входящие и исходящие цены
-						if($row['price_type']=='in' && $row['param_val']==$priceIn_tblYindex) $new_priceIn = $row[$newIn_Xindex];
-						if($row['price_type']=='out' && $row['param_val']==$priceOut_tblYindex) $new_priceOut = $row[$newOut_Xindex];   
+						if($row['price_type']=='in' && $row['param_val']==$YPriceParam) $new_priceIn = $row[$newIn_Xindex];
+						if($row['price_type']=='out' && $row['param_val']==$YPriceParam) $new_priceOut = $row[$newOut_Xindex];   
 				    }
-					// echo "\r\n In".$newIn_Xindex.' '.$new_priceIn; echo "\r\n Out".$newOut_Xindex.' '.$new_priceOut;
-					return array("price_in"=> $new_priceIn,"price_out"=> $new_priceOut);
+					$out = array("price_in"=> $new_priceIn,"price_out"=> $new_priceOut);
+					
+					// если тираж был меньше минимального значения в прайсе пересчитываем цены
+					if(isset($lackOfQuantIntPrice) && $lackOfQuantInPrice==true){
+					    $out['price_in'] = $new_priceIn*$minQuantInPrice/$quantity;
+						$out['lackOfQuantity'] = true;
+						$out['minQuantInPrice'] = (int)$minQuantInPrice;
+					}
+					if(isset($lackOfQuantOutPrice) && $lackOfQuantOutPrice==true){
+					    $out['price_out'] = $new_priceOut*$minQuantOutPrice/$quantity;
+						$out['lackOfQuantity'] = true;
+						$out['minQuantInPrice'] = (int)$minQuantInPrice;
+					}
+					// echo "\r \$YPriceParam - ".$YPriceParam."\r In".$newIn_Xindex.' '.$new_priceIn; echo "\r Out".$newOut_Xindex.' '.$new_priceOut."\r";
+					return $out;
 				}
 		}
 		static function make_calculations($quantity,$new_price_arr,$print_dop_params){
@@ -423,8 +454,11 @@
 			// НАДБАВКИ НА ИТОГОВУЮ СУММУ
 			foreach($print_dop_params as $glob_type => $set){
 				
-				if($glob_type=='colors' || $glob_type=='sizes'){
+				if($glob_type=='YPriceParam' || $glob_type=='sizes'){
 					foreach($set as $data){
+					    // подстраховка
+						if($data->coeff == 0) $data->coeff = 1;
+						
 						//echo "coeff ".$data->coeff."\r\n";
 						$price_coeff *= (float)$data->coeff;
 					}
@@ -433,6 +467,10 @@
 					foreach($set as $target => $data){
 					    foreach($data as $type => $details){
 							for($i = 0;$i < count($details);$i++){ 
+							    // подстраховка
+							    if((isset($details[$i]->multi)) && $details[$i]->multi == 0) $details[$i]->multi = 1;
+								if($details[$i]->value == 0) $details[$i]->value = 1;
+								
 								if($target=='price'){
 								     // echo 'coeffs price';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
 								     $price_coeff *= (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
@@ -449,6 +487,9 @@
 					foreach($set as $target => $data){
 					    foreach($data as $type => $details){
 							for($i = 0;$i < count($details);$i++){ 
+							    // подстраховка
+							    if((isset($details[$i]->multi)) && $details[$i]->multi == 0) $details[$i]->multi = 1;
+								
 								if($target=='price'){
 								    // echo 'additions price';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
 								     $price_addition += (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;

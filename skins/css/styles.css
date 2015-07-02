@@ -1598,6 +1598,10 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 .row{display:table-row}
 .cell{display:table-cell;vertical-align:middle;}
 
-.calculatorBox{ font-size: 12px;}
+.calculatorDialogBox{ font-size: 14px ; }
+.calculatorDialogBox .hidden{ display:none;}
+.calculatorBox{border: 0px solid #8b8a89; height:380px; overflow-y:auto; }
+.calculatorTotalDetails{ margin-top:3px; font-size: 10px ; }
+.rtCalculatorBlockA{border: 0px solid #8b8a89;}
 .calculatorPriceTbl{ border-collapse:collapse;}
 .calculatorPriceTbl td{ font-size: 11px;}
