@@ -378,7 +378,7 @@
 				// если дошли до этого места значит все нормально
 				// отправляем новые данные обратно клиенту
 				// print_r($itog_sums);
-				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).''.(isset($new_price_arr['lackOfQuantity'])?',"lackOfQuantity":"1","minQuantInPrice":"'.$new_price_arr['minQuantInPrice'].'"':'').'}';
+				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).''.(isset($new_price_arr['lackOfQuantity'])?',"lackOfQuantity":"1","minQuantInPrice":"'.$new_price_arr['minQuantInPrice'].'"':'').''.(isset($new_price_arr['outOfLimit'])?',"outOfLimit":"1","limit":"'.$new_price_arr['limit'].'"':'').''.(isset($new_price_arr['needIndividCalculation'])?',"needIndividCalculation":"1"':'').'}';
 			}
 		}
 		static function change_quantity_and_calculators_price_query($quantity,$print_id,$YPriceParam){
@@ -392,6 +392,7 @@
 				    while($row = $result->fetch_assoc()){
 					    //print_r($row);
 						if($row['param_val']==0){
+						    
 						    // здесь мы определяем в какой диапазон входит новое количество
 							for($i=1;isset($row[$i]);$i++){
 							    // если оно меньше минимального тиража
@@ -406,7 +407,10 @@
 								    else if($row[$i] >0 && $quantity >= $row[$i]){
 										$newIn_Xindex = $i;
 									}
-								     
+								    if($row[$i] >0){
+									    $in_limit = $row[$i];
+									    $in_limitIndex = $i;
+									}
 								}
 								if($row['price_type']=='out'){
 									if($quantity < $row[1]){
@@ -416,6 +420,10 @@
 									}
 								    else if($quantity >= $row[$i]  &&  $row[$i] >0){
 										$newOut_Xindex = $i;
+									}
+									if($row[$i] >0){
+										$out_limit = $row[$i];
+										$out_limitIndex = $i;
 									}
 								}
 							}
@@ -436,6 +444,27 @@
 					    $out['price_out'] = $new_priceOut*$minQuantOutPrice/$quantity;
 						$out['lackOfQuantity'] = true;
 						$out['minQuantInPrice'] = (int)$minQuantInPrice;
+					}
+					
+					//echo $newIn_Xindex .' - '. $in_limitIndex;  echo "\r" ;
+                    //echo $newOut_Xindex .' - '. $out_limitIndex;
+					
+					// если полученная цена оказалась равна 0 то значит стоимость не указана
+					if((float)($out['price_in']) == 0 ||(float)($out['price_out']) == 0){
+
+						// если это последние ряды прайс значит это лимит
+						if($newIn_Xindex == $in_limitIndex){
+							$out['outOfLimit'] = true;
+							$out['limit'] = (int)$out_limit;
+						}
+						elseif($newOut_Xindex == $out_limitIndex){
+							$out['outOfLimit'] = true;
+							$out['limit'] = (int)$out_limit;
+						}
+						else{//иначе это индивидуальный расчет cancelCalculator
+							if(!isset($out['outOfLimit']))
+							$out['needIndividCalculation'] = true;
+						}
 					}
 					// echo "\r \$YPriceParam - ".$YPriceParam."\r In".$newIn_Xindex.' '.$new_priceIn; echo "\r Out".$newOut_Xindex.' '.$new_priceOut."\r";
 					return $out;
