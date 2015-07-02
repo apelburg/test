@@ -856,7 +856,7 @@ var rtCalculator = {
 		
 		console.log('>>> priceOut_tbl <<<');
 		console.log( rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0] );
-		
+		//alert(rtCalculator.currentCalculationData.print_details.priceOut_tblXindex);
 		var price_out =rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0][rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length][rtCalculator.currentCalculationData.print_details.priceOut_tblXindex];
 		var price_in =rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceIn_tbl[0][rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length][rtCalculator.currentCalculationData.print_details.priceIn_tblXindex];
 		alert('out '+price_out+' - in '+price_in);
@@ -894,8 +894,8 @@ var rtCalculator = {
 			price_in = price_in*rtCalculator.currentCalculationData.print_details.minQuantInPrice/rtCalculator.currentCalculationData.quantity;
 		}
 			
-		console.log('>>> YPriceParam.length  --   priceIn_tblXindex  priceOut_tblXindex  --  price_in  price_out <<<');
-		console.log( rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length + ' -- '+rtCalculator.currentCalculationData.print_details.priceIn_tblXindex + ' '+ rtCalculator.currentCalculationData.print_details.priceOut_tblXindex+' -- '+ price_in + ' '+ price_out );
+		//console.log('>>> YPriceParam.length  --   priceIn_tblXindex  priceOut_tblXindex  --  price_in  price_out <<<');
+		//console.log( rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length + ' -- '+rtCalculator.currentCalculationData.print_details.priceIn_tblXindex + ' '+ rtCalculator.currentCalculationData.print_details.priceOut_tblXindex+' -- '+ price_in + ' '+ price_out );
 		
 		// КОЭФФИЦИЕНТЫ НА ПРАЙС
 		// КОЭФФИЦИЕНТЫ НА ИТОГОВУЮ СУММУ
@@ -1045,7 +1045,7 @@ var rtCalculator = {
 		if(typeof rtCalculator.currentCalculationData.glob_type !== 'undefined') delete rtCalculator.currentCalculationData.glob_type;
 		if(typeof rtCalculator.currentCalculationData.dop_row_id !== 'undefined') delete rtCalculator.currentCalculationData.dop_row_id;
 
-		if(typeof rtCalculator.currentCalculationData.print_details.priceOut_tblXindexd !== 'undefined') delete rtCalculator.currentCalculationData.print_details.priceOut_tblXindex;
+		if(typeof rtCalculator.currentCalculationData.print_details.priceOut_tblXindex !== 'undefined') delete rtCalculator.currentCalculationData.print_details.priceOut_tblXindex;
 		if(typeof rtCalculator.currentCalculationData.print_details.priceIn_tblXindex !== 'undefined') delete rtCalculator.currentCalculationData.print_details.priceIn_tblXindex;
 		if(typeof rtCalculator.currentCalculationData.print_details.priceOut_tbl !== 'undefined') delete rtCalculator.currentCalculationData.print_details.priceOut_tbl;
 		if(typeof rtCalculator.currentCalculationData.print_details.priceIn_tbl !== 'undefined') delete rtCalculator.currentCalculationData.print_details.priceIn_tbl;
@@ -1094,8 +1094,6 @@ var rtCalculator = {
 			if(value == 0) selectsArr[i].parentNode.removeChild(selectsArr[i]);
 		}
 		
-		rtCalculator.currentCalculationData.print_details.priceOut_tblYindex =  rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length;
-		rtCalculator.currentCalculationData.print_details.priceIn_tblYindex =  rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length;
 		// alert(YPriceParamDiv.getElementsByTagName('SELECT').length);
 		//
 		// если количество селектов меньше количества рядов в прайсе открываем ссылку для добавления новых селектов (она могла быть скрыта)
@@ -1146,24 +1144,26 @@ var rtCalculator = {
 					if(row == 0){
 						// если значение ячейки меньше или равно значения параметра quantity, значит мы еще не вышли из диапазона, значение сохраняем
 						if(type=='out'){
-							if(rtCalculator.currentCalculationData.quantity < parseInt(tbl[row][1])){
+							if(rtCalculator.currentCalculationData.quantity < parseFloat(tbl[row][1])){
 								var priceOut_tblXindex = 1;
 								rtCalculator.currentCalculationData.print_details.lackOfQuantOutPrice = true;
 								rtCalculator.currentCalculationData.print_details.minQuantOutPrice = parseInt(tbl[row][1]);
 							}
-						    else if(rtCalculator.currentCalculationData.quantity >= parseInt(tbl[row][counter]) && parseInt(tbl[row][counter])>0){
+						    else if(rtCalculator.currentCalculationData.quantity >= parseFloat(tbl[row][counter]) && parseFloat(tbl[row][counter])>0){
+								// alert(tbl[row][counter]+' '+counter);
 								var priceOut_tblXindex = counter;
 								if(typeof rtCalculator.currentCalculationData.print_details.lackOfQuantOutPrice !== 'undefined') delete rtCalculator.currentCalculationData.print_details.lackOfQuantOutPrice;
 								if(typeof rtCalculator.currentCalculationData.print_details.minQuantOutPrice !== 'undefined') delete rtCalculator.currentCalculationData.print_details.minQuantOutPrice;
 							}
 						}
 						if(type=='in'){
-							if(rtCalculator.currentCalculationData.quantity < parseInt(tbl[row][1])){
+							if(rtCalculator.currentCalculationData.quantity < parseFloat(tbl[row][1])){
 								var priceIn_tblXindex = 1;
 								rtCalculator.currentCalculationData.print_details.lackOfQuantInPrice = true;
 								rtCalculator.currentCalculationData.print_details.minQuantInPrice = parseInt(tbl[row][1]);
 							}
-						    else if(rtCalculator.currentCalculationData.quantity >= parseInt(tbl[row][counter]) && parseInt(tbl[row][counter])>0){
+						    else if(rtCalculator.currentCalculationData.quantity >= parseFloat(tbl[row][counter]) && parseFloat(tbl[row][counter])>0){
+								// alert(tbl[row][counter]+' '+counter);
 								var priceIn_tblXindex = counter;
 								if(typeof rtCalculator.currentCalculationData.print_details.lackOfQuantInPrice !== 'undefined') delete rtCalculator.currentCalculationData.print_details.lackOfQuantInPrice;
 								if(typeof rtCalculator.currentCalculationData.print_details.minQuantInPrice !== 'undefined') delete rtCalculator.currentCalculationData.print_details.minQuantInPrice;
@@ -1179,17 +1179,18 @@ var rtCalculator = {
 				tbl_html.appendChild(tr);
 				
 			}
-			
 			// собираем данные для расчета
 			// для определения текущей цены
 			if(type=='out'){
-			    if(typeof rtCalculator.currentCalculationData.print_details.priceOut_tblXindex=== 'undefined'){ 
+				if(typeof rtCalculator.currentCalculationData.print_details.priceOut_tblXindex=== 'undefined'){ 
+				    // alert('out>'+priceOut_tblXindex);
 					rtCalculator.currentCalculationData.print_details.priceOut_tblXindex = priceOut_tblXindex;
 					// alert(rtCalculator.currentCalculationData.print_details.priceOut_tblXindex);
 				}
 			}
 			else if(type=='in'){
 			    if(typeof rtCalculator.currentCalculationData.print_details.priceIn_tblXindex=== 'undefined'){ 
+				     // alert('in>'+priceIn_tblXindex);
 					rtCalculator.currentCalculationData.print_details.priceIn_tblXindex = priceIn_tblXindex;
 					// alert(rtCalculator.currentCalculationData.print_details.priceIn_tblXindex);
 				}
