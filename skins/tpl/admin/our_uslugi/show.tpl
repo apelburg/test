@@ -118,6 +118,18 @@ table#tbl_edit_usl{
 }
 #response_message.green{background-color: #78C05A;}
 #response_message.red{background-color: #DF9F9F;}
+
+#status_list .preload{
+	background-image: url(./skins/images/img_design/spiffygif_32x32.gif);
+	background-repeat: no-repeat;
+	background-position: 0 50%;
+	background-position-x: 75px;
+	/* background-color: #DD3; */
+	min-height: 23px;
+}
+.status_name.saved,.status_name.save_status_name{
+	background-color: #ddd;
+}
 </style>
 
 <script type="text/javascript">
@@ -137,41 +149,128 @@ $(document).on('click', '#tbl_edit_usl .lili', function(event) {
 
 
 
-
 // ОТРАБОТКА КНОПОК
 // удаление услуги
 $(document).on('click', '.button.usl_del', function(event) {
+	var obj = $(this);
+	event.stopPropagation();
 	if(confirm('Вы уверены, что хотите удалить эту услугу')){
-		alert('Удаляем');
-		$(this).parent().remove();
+		$.post('', {
+			AJAX:'del_uslugu',
+			id:obj.parent().attr('data-id')
+		}, function(data, textStatus, xhr) {			
+			if(data['response']=="OK"){
+				obj.parent().remove();
+			}else{
+				console.log('При удалении услуги произошла ошибка');
+			}
+		},'json');
 	}
 });
 
 // добавление услуги
 $(document).on('click', '.button.usl_add', function(event) {
+
+
+
 	if(confirm('Вы уверены, что хотите добавить сюда новую услугу')){
-		alert('Добавляем');
+		var obj = $(this);
+		// меняем класс на папку
+		obj.parent().attr('class','lili f_open');
+		$.post('', {
+			AJAX:'add_new_usluga',
+			parent_id: obj.parent().attr('data-id'),
+			padding_left:obj.parent().css('paddingLeft'),
+			bg_x:obj.parent().attr('data-bg_x')
+		}, function(data, textStatus, xhr) {
+				obj.parent().after(data);
+				obj.parent().next().click();
+			});	
+
 	}
 });
 
 // добавление статуса к услуге
 $(document).on('click', '#add_new_status', function(event) {
-	alert('добавить статус');
+	// добавляем div с классом анимашки загрузки
+	$('#status_list').append('<div class="preload"></div>');
+	var id = $('#edit_block_usluga input[name="id"]').val();
+	$.post('', {AJAX:'add_new_status',id:id}, function(data, textStatus, xhr) {
+		$('#status_list .preload').html(data).removeClass('preload');
+	});
 
 });
 
 // удслить статус
 $(document).on('click', '.button.status_del', function(event) {
 	if(confirm('Вы уверены, что хотите удалить данный статус')){
-		alert('Удаляем');
-		$(this).parent().remove();
+		var obj = $(this);
+		$.post('', {
+			AJAX:'delete_status_uslugi',
+			id: $(this).attr('data-id')
+		}, function(data, textStatus, xhr) {
+			if(data["response"]=="OK"){
+				obj.parent().html('Удалено.');
+			}else{
+				console.log('что-т пошло не так');
+			}
+		},'json');		
 	}
 });
 
-// меняем название статуса
+// РЕДАКТИРУЕМ НАЗВАНИЕ СТАТУСА
 $(document).on('keyup', '.status_name', function(event) {
-	console.log($(this).val());
+	timing_save_input('save_status_name',$(this));	
 });
+function save_status_name(obj){// на вход принимает object input
+	var id = obj.next().attr('data-id');
+	$.post('', {
+		AJAX:'edit_name_status',
+		id:id,
+		name:obj.val()
+	}, function(data, textStatus, xhr) {
+		if(data['response']=="OK"){
+			obj.removeClass('saved');
+		}else{
+			console.log('Данные не были сохранены.');
+		}
+	},'json');
+}
+function timing_save_input(fancName,obj){
+	//если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
+	if(!obj.hasClass('saved')){
+		window[fancName](obj);
+		obj.addClass('saved');					
+	}else{// стоит запрет, проверяем очередь по сейву данной функции		
+		if(obj.hasClass(fancName)){ //стоит в очереди на сохранение
+			// стоит очередь, значит мимо... всё и так сохранится
+		}else{
+			// не стоит в очереди, значит ставим
+			obj.addClass(fancName);
+			// вызываем эту же функцию через n времени всех очередей
+			var time = 2000;
+			$('.'+fancName).each(function(index, el) {
+				console.log($(this).html());
+				
+				setTimeout(function(){timing_save_input(fancName,$('.'+fancName).eq(index));// обнуляем очередь
+		if(obj.hasClass(fancName)){obj.removeClass(fancName);}}, time);	
+			});			
+		}		
+	}
+}
+
+//сохраняет коменты снаба, на вход подаётся объект поля (не imput)
+function save_comment_snab(obj){
+	$.post('', {
+		AJAX: 'edit_snab_comment',
+		note: obj.html(),
+		id_dop_data: obj.parent().parent().attr('data-id')
+	}, function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+		obj.removeClass('saved');
+		
+	});
+}
 
 
 // РЕДАКТИРУЕМ УСЛУГИ
@@ -193,20 +292,29 @@ $(document).on('click', '#save_usluga', function(event) {
 				.html(data['message'])
 				.fadeIn('fast')
 				.delay(3000)
-				.fadeOut('slow');
+				.fadeOut( "slow", function() {
+				   $('#save_usluga').parent().fadeOut( "fast");
+				  });
 		}else{
 			$("#response_message")
 				.html(data)
 				.fadeIn('fast')
 				.delay(3000)
-				.fadeOut('slow');
+				.fadeOut( "slow");
 		}
 	}, 'json');
 });
 
-
-
-
+// обнуляем цену в input при выборе в radio папки
+$(document).on('change', '#edit_block_usluga input[name="for_how"]', function(event){
+	if($(this).val()==""){
+		$('#edit_block_usluga input[name="price_in"]').val('0.00').attr('readonly',true);	
+		$('#edit_block_usluga input[name="price_out"]').val('0.00').attr('readonly',true);	
+	}else{		
+		$('#edit_block_usluga input[name="price_in"]').val($('#edit_block_usluga input[name="price_in"]').attr('data-real')).attr('readonly',false);	
+		$('#edit_block_usluga input[name="price_out"]').val($('#edit_block_usluga input[name="price_out"]').attr('data-real')).attr('readonly',false);
+	}
+});
 
 </script>
 

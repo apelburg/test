@@ -47,14 +47,121 @@
 			exit;
 		}
 
+		// создаем новый статус в услуге
+		if($this->POST['AJAX'] == 'add_new_status'){
+			echo $this->add_new_status_Html();
+			exit;
+		}
+
 		// сохраняем контент по услуге
 		if($this->POST['AJAX'] == 'save_edit_usluga'){
 			echo $this->save_change_usluga();
 			exit;
 		}
 
+		// удаляем статус
+		if($this->POST['AJAX'] == 'delete_status_uslugi'){
+			echo $this->delete_status_uslugi_Database();
+			exit;
+		} 
+
+		// редактируем статусы
+		if($this->POST['AJAX'] == 'edit_name_status'){
+			echo $this->edit_name_status_Database();
+			exit;
+		}
+
+		// удаление услуги
+		if($this->POST['AJAX'] == 'del_uslugu'){
+			echo $this->del_uslugu_Database();
+			exit;
+		}
+
+		// добавляем новую услугу
+		if($this->POST['AJAX'] == 'add_new_usluga'){
+			echo  $this->add_new_usluga_Database();
+			exit;
+		}
+
 	}
 
+	private function add_new_usluga_Database(){
+		
+		global $mysqli;
+
+		// 1 - приваращаем родительскую услугу в папку
+		// цены пока что оставляем
+		$query = "UPDATE `".OUR_USLUGI_LIST."` SET 
+			`for_how` = ''
+		 WHERE `id`='".$this->POST['parent_id']."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+
+		
+		// 2 - добавляем услугу 
+		$query ="INSERT INTO `".OUR_USLUGI_LIST."` SET
+		             `parent_id` = '".$this->POST['parent_id']."',
+		             `name` = 'Новая услуга',
+		             `price_in` = '0.00',
+		             `price_out` = '0.00',
+		             `for_how` = 'for_all',
+		             `type` = 'ЗАПОЛНИТЕ ПОЛЕ!!!' ";
+
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+
+
+		$html = '
+		<div data-id="'.$mysqli->insert_id.'" class="lili for_all" style="padding-left:'.($this->POST['padding_left']+30).'px;background-position-x:'.($this->POST['bg_x']+30).'px" data-bg_x="'.($this->POST['bg_x']+30).'">
+			Новая услуга
+			<span class="button  usl_add">+</span>
+			<span class="button usl_del">X</span>
+		</div>';
+		return $html;
+
+
+	}
+
+	private function del_uslugu_Database(){
+		global $mysqli;
+		$query = "DELETE FROM `".OUR_USLUGI_LIST."` WHERE `id`='".$this->POST['id']."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		$return_json = '{"response":"OK"}'; 
+		return $return_json; 
+	}
+
+	private function edit_name_status_Database(){
+		global $mysqli;
+
+		$query = "UPDATE `".USLUGI_STATUS_LIST."` SET 
+			`name` = '".$this->POST['name']."'
+		 WHERE `id`='".$this->POST['id']."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		$return_json = '{"response":"OK"}'; 
+		return $return_json; 
+	}
+
+	private function delete_status_uslugi_Database(){
+		global $mysqli;
+
+		$query = "DELETE FROM `".USLUGI_STATUS_LIST."` WHERE `id`='".$this->POST['id']."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		$return_json = '{"response":"OK"}'; 
+		return $return_json; 
+	}
+
+	// добавление статуса к услуге
+	private function add_new_status_Html(){
+		global $mysqli;
+		$query ="INSERT INTO `".USLUGI_STATUS_LIST."` SET
+		             `parent_id` = '".$this->POST['id']."',
+		             `name` = 'Новый статус для услуги'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+
+
+		$html = '<input class="status_name" value="Новый статус для услуги"> <span class="button status_del" data-id="'.$mysqli->insert_id.'">X</span>';
+		return $html;
+	}
+
+	// сохранение изменённых данных в услуге
 	private function save_change_usluga(){
 		global $mysqli;
 		$id = $this->POST['id']; 
@@ -106,7 +213,7 @@
 				// запрос на детей
 				$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
 				// присваиваем конечным услугам класс may_bee_checked
-				$html.= '<div data-id="'.$row['id'].'" class="lili'.(($child=='')?' '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px">'.$row['name'].'<span class="button  usl_add">+</span><span class="button usl_del">X</span></div>'.$child;
+				$html.= '<div data-id="'.$row['id'].'" class="lili'.(($child=='')?' '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'">'.$row['name'].'<span class="button  usl_add">+</span><span class="button usl_del">X</span></div>'.$child;
 				//}
 			}
 		}
@@ -160,10 +267,10 @@
 		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['type'].'" name="type"></div>';
 		// Цена входящая
 		$html .= '<div class="name_input">Цена входащя</div>';
-		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_in'].'" name="price_in"> руб.</div>';
+		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_in'].'" data-real="'.$usluga['price_in'].'" name="price_in"> руб.</div>';
 		// Цена исходящая
 		$html .= '<div class="name_input">Цена исходащая</div>';
-		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_out'].'" name="price_out"> руб.</div>';
+		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_out'].'" data-real="'.$usluga['price_out'].'" name="price_out"> руб.</div>';
 
 		// Цена исходящая
 		$html .= '<div class="name_input">Как считаем</div>';
