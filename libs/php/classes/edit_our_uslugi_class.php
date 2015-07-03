@@ -209,12 +209,12 @@
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				//if($row['id']!=6){// исключаем нанесение apelburg
+				if($row['id']!=6 && $row['id']!=23){// исключаем нанесение apelburg
 				// запрос на детей
 				$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
 				// присваиваем конечным услугам класс may_bee_checked
 				$html.= '<div data-id="'.$row['id'].'" class="lili'.(($child=='')?' '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'">'.$row['name'].'<span class="button  usl_add">+</span><span class="button usl_del">X</span></div>'.$child;
-				//}
+				}
 			}
 		}
 		return $html;
