@@ -157,7 +157,7 @@
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
 
-		$html = '<input class="status_name" value="Новый статус для услуги"> <span class="button status_del" data-id="'.$mysqli->insert_id.'">X</span>';
+		$html = '<input class="status_name" type="text" value="Новый статус для услуги"> <span class="button status_del" data-id="'.$mysqli->insert_id.'">X</span>';
 		return $html;
 	}
 
@@ -209,11 +209,19 @@
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				if($row['id']!=6 && $row['id']!=23){// исключаем нанесение apelburg
-				// запрос на детей
-				$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
-				// присваиваем конечным услугам класс may_bee_checked
-				$html.= '<div data-id="'.$row['id'].'" class="lili'.(($child=='')?' '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'">'.$row['name'].'<span class="button  usl_add">+</span><span class="button usl_del">X</span></div>'.$child;
+				if($row['id']!=6 && $row['id']!=23 && $row['parent_id']!=6 && $row['parent_id']!=23){// исключаем нанесение apelburg
+					# Это услуги НЕ из КАЛЬКУЛЯТОРА
+					// запрос на детей
+					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+					// присваиваем конечным услугам класс may_bee_checked
+					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'">'.$row['name'].'<span class="button  usl_add">+</span><span class="button usl_del">X</span></div>'.$child;
+				}else{
+					# Это услуги из КАЛЬКУЛЯТОРА
+					// запрос на детей
+					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+					// присваиваем конечным услугам класс may_bee_checked
+					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'">'.$row['name'].'</div>'.$child;
+				
 				}
 			}
 		}
@@ -258,28 +266,32 @@
 		// получаем полную информацию из базы по одной услуге
 		$usluga = $this->get_usluga_Database_Array($this->POST['id']);
 
+
+
+
 		// $html .= '<div></div>';
 		// наименовнаие услуги
 		$html .= '<div class="name_input">Наименование</div>';
 		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['name'].'" name="name"></div>';
-		// тип услуги
-		$html .= '<div class="name_input">Тип</div>';
-		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['type'].'" name="type"></div>';
-		// Цена входящая
-		$html .= '<div class="name_input">Цена входащя</div>';
-		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_in'].'" data-real="'.$usluga['price_in'].'" name="price_in"> руб.</div>';
-		// Цена исходящая
-		$html .= '<div class="name_input">Цена исходащая</div>';
-		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_out'].'" data-real="'.$usluga['price_out'].'" name="price_out"> руб.</div>';
+		if($this->POST['id'] != 6 && $this->POST['id'] != 23 && $this->POST['parent_id'] != 6 && $this->POST['parent_id'] != 23  ){
+			// тип услуги
+			$html .= '<div class="name_input">Тип</div>';
+			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['type'].'" name="type"></div>';
+			// Цена входящая
+			$html .= '<div class="name_input">Цена входащя</div>';
+			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_in'].'" data-real="'.$usluga['price_in'].'" name="price_in"> руб.</div>';
+			// Цена исходящая
+			$html .= '<div class="name_input">Цена исходащая</div>';
+			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_out'].'" data-real="'.$usluga['price_out'].'" name="price_out"> руб.</div>';
 
+			// Как считаем
+			$html .= '<div class="name_input">Как считаем</div>';
+			$html .= '<div class="edit_info"><input type="radio" id="for_how1" name="for_how" value="" '.(($usluga['for_how']=="")?'checked':'').'><label for="for_how1"><span class="icon_style folder">папка</span></label></div>';
+			$html .= '<div class="edit_info"><input type="radio" id="for_how2" name="for_how" value="for_one" '.(($usluga['for_how']=="for_one")?'checked':'').'><label for="for_how2"><span class="icon_style for_one">на единицу товара</span></label></div>';
+			$html .= '<div class="edit_info"><input type="radio" id="for_how3" name="for_how" value="for_all" '.(($usluga['for_how']=="for_all")?'checked':'').'><label for="for_how3"><span class="icon_style for_all">на тираж</span></label></div>';
+		}
 		// Цена исходящая
-		$html .= '<div class="name_input">Как считаем</div>';
-		$html .= '<div class="edit_info"><input type="radio" id="for_how1" name="for_how" value="" '.(($usluga['for_how']=="")?'checked':'').'><label for="for_how1"><span class="icon_style folder">папка</span></label></div>';
-		$html .= '<div class="edit_info"><input type="radio" id="for_how2" name="for_how" value="for_one" '.(($usluga['for_how']=="for_one")?'checked':'').'><label for="for_how2"><span class="icon_style for_one">на единицу товара</span></label></div>';
-		$html .= '<div class="edit_info"><input type="radio" id="for_how3" name="for_how" value="for_all" '.(($usluga['for_how']=="for_all")?'checked':'').'><label for="for_how3"><span class="icon_style for_all">на тираж</span></label></div>';
-		
-		// Цена исходящая
-		$html .= '<div class="name_input">Цена исходащая</div>';
+		$html .= '<div class="name_input">Описание услуги</div>';
 		$html .= '<div class="edit_info"><textarea name="note">'.$usluga['note'].'</textarea></div>';
 		// скрытое поле ID
 
@@ -319,7 +331,7 @@
 				
 				// $is_checked = ($real_val==$row['name'])?'selected="selected"':'';
 				// $html.= '<option value="'.$row['name'].'" '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
-				$html.= '<div><input class="status_name" value="'.$row['name'].'"> <span class="button status_del"  data-id="'.$row['id'].'">X</span></div>';
+				$html.= '<div><input class="status_name" type="text" value="'.$row['name'].'"> <span class="button status_del"  data-id="'.$row['id'].'">X</span></div>';
 			}
 		
 		}

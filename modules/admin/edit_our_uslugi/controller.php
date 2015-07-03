@@ -1,6 +1,6 @@
 <?php
 
-	$place = ' > <a href="?page=admin&section=price_manager">УПРАВЛЕНИЕ ДОП. УСЛУГАМИ</a>';
+	$place = ' > <a href="?page=admin&section=edit_our_uslugi">УПРАВЛЕНИЕ ДОП. УСЛУГАМИ</a>';
    
 
 
@@ -10,5 +10,5 @@
 	// echo '<pre>';
 	// print_r($EDIT_USLUG->get_id_parent(11,array()));
 	// echo '</pre>';
-
+	
 ?>

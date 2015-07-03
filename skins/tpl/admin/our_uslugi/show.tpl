@@ -6,12 +6,22 @@
 table#tbl_edit_usl{
 	border-collapse: collapse;
 }
+
+.edit_info input[type="text"],#status_list input[type="text"]{
+	min-width: 250px;
+}
+.edit_info textarea{
+	min-width: 450px;
+	min-height: 150px;
+}
 #tbl_edit_usl tr th{
 	border:1px solid #d4d4d4;
 	padding: 5px 15px 5px 15px;
-	text-align: left
+	text-align: left;
+	vertical-align: top;
 }
 #tbl_edit_usl tr td{
+	vertical-align: top;
 	border:1px solid #d4d4d4;
 	padding: 5px
 }
@@ -53,6 +63,11 @@ table#tbl_edit_usl{
 	background-repeat: no-repeat;
 	background-position-y: 3px;
 }
+#tbl_edit_usl .lili.calc_icon{
+	background-image: url('./skins/images/img_design/calc_icon.png');
+	background-repeat: no-repeat;
+	background-position-y: 3px;
+}
 
 #tbl_edit_usl .lili span.button{
 	padding: 2px 5px 0 5px;
@@ -73,7 +88,7 @@ table#tbl_edit_usl{
 	background-position: 50%;
 }
 #tbl_edit_usl_content div{
-	padding-top: 15px;
+	padding-top: 5px;
 }
 #tbl_edit_usl_content div input{
 	/*float: left;*/
@@ -105,6 +120,11 @@ table#tbl_edit_usl{
 	background-repeat: no-repeat;
 	background-position-y: -26px;
 }
+.icon_style.calc_icon{
+	background-image: url('./skins/images/img_design/calc_icon.png');
+	background-repeat: no-repeat;
+	background-position-y: -1px;
+}
 .icon_style.for_all{
 	background-image: url('./skins/images/img_design/usluga_icon_for_all_one.png');
 	background-repeat: no-repeat;
@@ -130,6 +150,7 @@ table#tbl_edit_usl{
 .status_name.saved,.status_name.save_status_name{
 	background-color: #ddd;
 }
+
 </style>
 
 <script type="text/javascript">
@@ -141,7 +162,8 @@ $(document).on('click', '#tbl_edit_usl .lili', function(event) {
 
 	$.post('', {
 		AJAX:'get_edit_content_for_usluga',
-		id:$(this).attr('data-id')
+		id:$(this).attr('data-id'),
+		parent_id:$(this).attr('data-parent_id')
 	}, function(data, textStatus, xhr) {
 		$('#tbl_edit_usl_content').html(data).removeClass('loading');
 	});
