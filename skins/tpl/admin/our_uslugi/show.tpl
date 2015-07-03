@@ -281,20 +281,6 @@ function timing_save_input(fancName,obj){
 	}
 }
 
-//сохраняет коменты снаба, на вход подаётся объект поля (не imput)
-function save_comment_snab(obj){
-	$.post('', {
-		AJAX: 'edit_snab_comment',
-		note: obj.html(),
-		id_dop_data: obj.parent().parent().attr('data-id')
-	}, function(data, textStatus, xhr) {
-		/*optional stuff to do after success */
-		obj.removeClass('saved');
-		
-	});
-}
-
-
 // РЕДАКТИРУЕМ УСЛУГИ
 
 // показываем кнопку сохраниеть при внесении изменений
@@ -309,14 +295,18 @@ $(document).on('change', '#edit_block_usluga input,#edit_block_usluga textarea',
 $(document).on('click', '#save_usluga', function(event) {
 	var form = $('#edit_block_usluga form').serialize();
 	$.post('',form, function(data, textStatus, xhr) {
+		// меняем название
+		$('#tbl_edit_usl .lili.checked span.name_text').html($('#edit_block_usluga form .edit_info input[name="name"]').val());
 		if(data['response']=="OK"){
 			$("#response_message")
 				.html(data['message'])
 				.fadeIn('fast')
 				.delay(3000)
 				.fadeOut( "slow", function() {
-				   $('#save_usluga').parent().fadeOut( "fast");
+					$('#save_usluga').parent().fadeOut( "fast");
+					
 				  });
+
 		}else{
 			$("#response_message")
 				.html(data)

@@ -96,24 +96,41 @@
 		 WHERE `id`='".$this->POST['parent_id']."'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
+		// если этота услуга принадлежит к разделу нанесения 
+		if($this->POST['parent_id']==6){
+			// - пишем пустую строку
+			$for_how = '';
+			// - выводим её с иконкой калькулятора
+			$class = 'calc_icon';
+			$buttons='';
+		}else{
+			$buttons = '<span class="button  usl_add">+</span>
+			<span class="button usl_del">X</span>';
+			$for_how = $class = 'for_all';
+		}
 		
+		
+
+
+
 		// 2 - добавляем услугу 
 		$query ="INSERT INTO `".OUR_USLUGI_LIST."` SET
 		             `parent_id` = '".$this->POST['parent_id']."',
 		             `name` = 'Новая услуга',
 		             `price_in` = '0.00',
 		             `price_out` = '0.00',
-		             `for_how` = 'for_all',
+		             `for_how` = '".$for_how."',
 		             `type` = 'ЗАПОЛНИТЕ ПОЛЕ!!!' ";
 
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
 
+		
+
 		$html = '
-		<div data-id="'.$mysqli->insert_id.'" class="lili for_all" style="padding-left:'.($this->POST['padding_left']+30).'px;background-position-x:'.($this->POST['bg_x']+30).'px" data-bg_x="'.($this->POST['bg_x']+30).'">
-			Новая услуга
-			<span class="button  usl_add">+</span>
-			<span class="button usl_del">X</span>
+		<div data-id="'.$mysqli->insert_id.'" data-parent_id="'.$this->POST['parent_id'].'" class="lili '.$class.'" style="padding-left:'.($this->POST['padding_left']+30).'px;background-position-x:'.($this->POST['bg_x']+30).'px" data-bg_x="'.($this->POST['bg_x']+30).'">
+			<span class="name_text">Новая услуга</span>
+			'.$buttons.'
 		</div>';
 		return $html;
 
@@ -209,18 +226,20 @@
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				if($row['id']!=6 && $row['id']!=23 && $row['parent_id']!=6 && $row['parent_id']!=23){// исключаем нанесение apelburg
+				if($row['id']!=6 && $row['parent_id']!=6){// исключаем нанесение apelburg
 					# Это услуги НЕ из КАЛЬКУЛЯТОРА
 					// запрос на детей
 					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
 					// присваиваем конечным услугам класс may_bee_checked
-					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'">'.$row['name'].'<span class="button  usl_add">+</span><span class="button usl_del">X</span></div>'.$child;
+					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span><span class="button  usl_add">+</span><span class="button usl_del">X</span></div>'.$child;
 				}else{
 					# Это услуги из КАЛЬКУЛЯТОРА
+					// кнопки добавления калькуляторов
+					$button_add = ($row['id']==6)?'<span class="button  usl_add">+</span>':'';
 					// запрос на детей
 					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
 					// присваиваем конечным услугам класс may_bee_checked
-					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'">'.$row['name'].'</div>'.$child;
+					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$button_add.'</div>'.$child;
 				
 				}
 			}
@@ -273,7 +292,7 @@
 		// наименовнаие услуги
 		$html .= '<div class="name_input">Наименование</div>';
 		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['name'].'" name="name"></div>';
-		if($this->POST['id'] != 6 && $this->POST['id'] != 23 && $this->POST['parent_id'] != 6 && $this->POST['parent_id'] != 23  ){
+		if($this->POST['id'] != 6 && $this->POST['parent_id'] != 6){
 			// тип услуги
 			$html .= '<div class="name_input">Тип</div>';
 			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['type'].'" name="type"></div>';
@@ -307,7 +326,7 @@
 
 
 	// получаем выпадающий список статусов для услуги
-	public function get_status_uslugi_Html($id,$uslugi_all_list=array()){
+	public function get_status_uslugi_Html($id,$uslugi_all_list = array()){
 		//получаем полный список услуг
 		if(empty($uslugi_all_list)){
 			$uslugi_all_list = $this->get_ALL_uslugi_list_Database_Array();
