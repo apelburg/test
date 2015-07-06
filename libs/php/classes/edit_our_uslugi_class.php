@@ -133,8 +133,6 @@
 			'.$buttons.'
 		</div>';
 		return $html;
-
-
 	}
 
 	private function del_uslugu_Database(){

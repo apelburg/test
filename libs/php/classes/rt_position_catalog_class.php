@@ -1,8 +1,324 @@
 <?php
 class Articul{
-	function __construct(){
+	// экземпляр класса mysqli
+	private $mysqli;
+
+	// глобальные массивы
+	private $POST;
+	private $GET;
+	private $SESSION;
+
+	// id юзера
+	private $user_id;
+
+	// допуски пользователя
+	private $user_access;
+	
+	function __construct($get,$post,$session){
+		$this->GET = $get;
+		$this->POST = $post;
+		$this->SESSION = $session;
+
+		$this->user_id = $session['access']['user_id'];
+
+		$this->user_access = $this->get_user_access_Database_Int($this->user_id);
+
+		// обработчик AJAX // в первой редакции.... РАБОЧИЙ !!!!
+		if(isset($this->POST['global_change']) && isset($this->POST['change_name'])){
+			$this->_AJAX_first();
+		}
+
+		// обработчик AJAX // в конечной редакции... теперь все обработчики будут 
+		// передававться через ключ AJAX
+		if(isset($this->POST['AJAX'])){
+			$this->_AJAX_();
+		}
+
 	}
 
+	public function get_user_access_Database_Int($id){
+		global $mysqli;
+		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$int = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$int = (int)$row['access'];
+			}
+		}
+		//echo $query;
+		return $int;
+	}
+
+
+	////////////      AJAX STATIC    /////////////////
+	// вариант 2
+	// для организации возможности вызова методов AJAX из других скриптов 
+	// без создания экземпляра класса пришлось сделать их статичными
+	private function _AJAX_(){
+		$method_AJAX = $this->POST['AJAX'].'_AJAX';
+		self::$method_AJAX();
+		exit;
+	}
+
+	static function add_new_usluga_AJAX(){
+		if (class_exists('MyClass')) {
+		    $myclass = new MyClass();
+		}
+		
+	}
+	// добаление данных, прикрепление новой услуги к расчёту
+	// 	if($_POST['AJAX']=='add_new_usluga'){
+	// 		$POSITION_NO_CAT->add_uslug_Database_Html($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
+	// 		exit;
+	// 	}
+	// // Проверяем существование класса перед его использованием
+	// if (class_exists('MyClass')) {
+	//     $myclass = new MyClass();
+	// }
+
+	static function get_uslugi_list_Database_Html_AJAX(){
+		// получение формы выбора услуги
+		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
+			$html = '<form>';
+			$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
+			$html .= self::get_uslugi_list_Database_Html_();
+			$html .= '<input type="hidden" name="id_uslugi" value="">';
+			$html .= '<input type="hidden" name="dop_row_id" value="">';
+			$html .= '<input type="hidden" name="quantity" value="">';
+			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
+			$html .= '</form>';
+			echo $html;
+		}
+	}
+
+	static function get_uslugi_list_Database_Html_($id=0,$pad=30){	
+		global $mysqli;
+		$html = '';
+		
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$price = '<div class="echo_price_uslug"><span></span><span></span></div>';
+				if($row['id']!=6 && $row['parent_id']!=6){// исключаем нанесение apelburg
+					# Это услуги НЕ из КАЛЬКУЛЯТОРА
+					// запрос на детей
+					$child = self::get_uslugi_list_Database_Html_($row['id'],($pad+30));
+					
+					$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+					
+
+					// присваиваем конечным услугам класс may_bee_checked
+					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+				}else{
+					# Это услуги из КАЛЬКУЛЯТОРА
+					// запрос на детей
+					$child = self::get_uslugi_list_Database_Html_($row['id'],($pad+30));
+
+					$price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+					// присваиваем конечным услугам класс may_bee_checked
+					$html.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+				}
+			}
+		}
+		return $html;
+	}
+
+
+
+
+	////////////      AJAX PRIVATE    /////////////////
+	// вариант 1, 
+	// все новые вызовы пишется по варианту 2 !!!!!
+	private function _AJAX_first(){ // router
+		$method_AJAX = $this->POST['change_name'].'_AJAX';
+		$this->$method_AJAX();
+	}
+
+	private function get_uslugi_list_Database_Html_7777($id=0){	
+		global $mysqli;
+		$html = '';
+		
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			$html .= '<ul>';
+			while($row = $result->fetch_assoc()){
+				if($row['id']!=6){// исключаем нанесение apelburg
+				// запрос на детей
+				$child = $this->get_uslugi_list_Database_Html_($row['id']);
+				// присваиваем конечным услугам класс may_bee_checked
+				$html.= '<li data-id="'.$row['id'].'" '.(($child=='')?'class="may_bee_checked"':'').'>'.$row['name'].' '.$child.'</li>';
+				}
+			}
+			$html.= '</ul>';
+		}
+		return $html;
+	}
+
+	private function size_in_var_AJAX(){
+		global $mysqli;
+
+		$query = "SELECT `tirage_json`,`print_z` FROM ".RT_DOP_DATA." WHERE `id` = '".$this->POST['id']."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$json = '';
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$json = $row['tirage_json'];
+				$print_z = $row['print_z'];
+			}
+		}
+		$arr_json = json_decode($json,true);
+
+		$arr_json[$this->POST['key']][$this->POST['dop']] = $this->POST['val'];
+		/*
+			ОБСУДИТЬ С АНДРЕЕМ РАСПРЕДЕЛЕНИЕ ТИРАЖА 
+			ВВЕДЁННОГО В ОБЩЕЕ поле
+		*/
+		// $quantity = 0;
+		// foreach ($arr_json as $key => $value) {
+		// 	$quantity += $arr_json[$key]['tir'];
+		// 	if($print_z){$quantity += $arr_json[$key]['dop'];}
+		// }
+
+		$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."', `quantity` = '".$quantity."' WHERE  `id` ='".$this->POST['id']."'";	
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}
+	private function size_in_var_all_AJAX(){
+		global $mysqli;
+		// echo "<pre>";
+		// print_r($this->POST);
+		// echo "</pre>";
+		$tir = $this->POST['val']; // array / тиражи
+		$key2 = $this->POST['key']; // array / id _ row size
+		$dop = $this->POST['dop']; // array / запас
+		$id = $this->POST['id']; // array / id 
+
+			//print_r($this->POST['id']);exit;
+		$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$id[0]."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$json = '';
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$json = $row['tirage_json'];
+				//echo $row['tirage_json'];
+			}
+		}
+		//echo $json;
+		//$r = $json;
+		$arr_json = json_decode($json,true);
+		$sum_tir = 0;
+		$sum_zap = 0;
+		foreach ($key2 as $key => $value) {
+			//echo $value;
+			$arr_json[$value]['dop'] = $dop[$key];
+			$arr_json[$value]['tir'] = $tir[$key];
+
+			$sum_zap += $dop[$key];
+			$sum_tir += $tir[$key];
+		}
+
+		// $arr_json[$this->POST['key']][$this->POST['dop']] = $this->POST['val'];
+		//echo $r .'   -   ';
+		//echo json_encode($arr_json);
+		$query = "UPDATE `".RT_DOP_DATA."` SET `quantity` = '".$sum_tir."',`zapas` = '".$sum_zap."',`tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
+		// // echo $query;			
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}
+	private function change_status_row_AJAX(){
+		global $mysqli;
+
+		$color = $this->POST['color'];
+		$id_in = $this->POST['id_in'];
+		$query  = "UPDATE `".RT_DOP_DATA."` SET `row_status` = '".$color."' WHERE  `id` IN (".$id_in.");";
+		echo $query;
+		// echo '<pre>';
+		// print_r($this->POST);
+		// echo '</pre>';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"1","text":"test"}';
+		exit;
+	}
+	private function change_archiv_AJAX(){
+		global $mysqli;
+
+		$query = "UPDATE `".RT_DOP_DATA."` SET `row_status` = 'green' WHERE  `id` ='".$this->POST['id']."';";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		// $result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"1","text":"test"}';
+		exit;
+	}
+	private function change_tirage_pz_AJAX(){
+		global $mysqli;
+
+		$query = "UPDATE `".RT_DOP_DATA."` SET `print_z` = '".$this->POST['pz']."' WHERE  `id` ='".$this->POST['id']."'";	
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+
+	}
+	private function change_variante_shipping_time_AJAX(){
+		global $mysqli;
+
+		$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_time` = '".$this->POST['time']."', `standart` = '' WHERE  `id` ='".$this->POST['id']."'";	
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}
+	private function new_variant_AJAX(){
+		global $mysqli;
+
+		// собираем запрос, копируем строку в БД
+		$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, row_status,quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, row_status,quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$this->POST['id']."')";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		// запоминаем новый id
+		$insert_id = $mysqli->insert_id;
+		// узнаем количество строк
+		$query = "SELECT COUNT( * ) AS `num`
+				FROM  `os__rt_dop_data` 
+				WHERE  `row_id` ='1'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$num_rows = $row['num'];
+			}
+		}
+		echo '{ "response":"1",
+				"text":"test",
+				"new_id":"'.$insert_id.'",
+				"num_row":"'.($num_rows-1).'",
+				"num_row_for_name":"Вариант '.$num_rows.'"
+				}';
+		exit;
+	}
+	private function save_standart_day_AJAX(){
+		global $mysqli;
+
+		$query = "UPDATE `".RT_DOP_DATA."` 
+					SET `shipping_time` = '00:00:00',
+					`shipping_date` = '0000-00-00' ,
+					`standart` =  '".$this->POST['standart']."'
+					WHERE  `id` ='".$this->POST['id']."'";	
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}
+	private function change_variante_shipping_date_AJAX(){
+		global $mysqli;
+
+		$date = $this->POST['date'];
+		$date = strtotime($date);
+		$date = date("Y-m-d", $date);
+		$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."' , `standart` = '' WHERE  `id` ='".$this->POST['id']."'";	
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		exit;
+	}
+	///////////    AJAX END   /////////////////
 
 	public function get_all_info($art_id){
 		$this->color = $this->get_color($art_id);		
@@ -468,6 +784,24 @@ class Articul{
 		}
 			return find_matches($art,$matches[1]);	
 		//exit;
+	}
+
+	// получаем все варианты просчёта по данному артикулу
+	public function get_all_variants_info_Database_Array($id){
+		global $mysqli;
+
+		//$query = "SELECT `".RT_DOP_DATA."`.*,`".RT_ART_SIZE."`.`tirage_json`,`".RT_ART_SIZE."`.`id` AS `id_2` FROM `".RT_DOP_DATA."` INNER JOIN `".RT_ART_SIZE."` ON `".RT_ART_SIZE."`.`variant_id` = `".RT_DOP_DATA."`.`id` WHERE `".RT_DOP_DATA."`.`row_id` = '".$id."'";
+		$query = "SELECT `".RT_DOP_DATA."`.*, DATE_FORMAT(shipping_date,'%d.%m.%Y') AS `shipping_date` FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$id."'";
+		
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		// $this->info = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$variants[] = $row;
+			}
+		}	
+		return $variants;
 	}
 
 }

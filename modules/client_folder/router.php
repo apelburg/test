@@ -18,8 +18,8 @@
 		include 'order_tbl/router.php';
 		break;
 
-		case 'order_art_edit':
-		include 'order_art_edit/router.php';
+		case 'rt_position':
+		include 'rt_position/router.php';
 		break;
 		
 		case 'business_offers':

@@ -1,12 +1,7 @@
-
-
-
-
 <style type="text/css">
 table#tbl_edit_usl{
 	border-collapse: collapse;
 }
-
 .edit_info input[type="text"],#status_list input[type="text"]{
 	min-width: 250px;
 }

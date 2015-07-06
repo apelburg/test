@@ -253,7 +253,8 @@ class Position_no_catalog{
 
 	// возвращает таблицу со списком вариантов
 	private function get_variants_list_Html($variants_array,$status_snab){
-		
+		// сохраняем статус 
+		$status_snab_whith_pause = $status_snab;
 
 		// определяем редакторов для полей (html тегов
 		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
@@ -280,11 +281,12 @@ class Position_no_catalog{
 			### выбираем все строки по каждуму статусу снабжения
 			$n = 1;
 
-			
+			$status_snab_whith_pause = $status_snab;
+
 			$text_for_send_mail = '';
 			$text_for_send_mail_name_product = '';
 			foreach ($variants_array as $key2 => $value2) {
-				if ($status_snab==$value2['status_snab']) {
+				if ($status_snab_whith_pause==$value2['status_snab']) {
 					// наличие паузы ограничивает редактирование для снаба и мена, 
 					// мен может снять паузу
 					$pause = substr_count($value2['status_snab'], '_pause');
@@ -300,6 +302,7 @@ class Position_no_catalog{
 					}
 					// расчёт стоимостей услуг
 					$uslugi_arr = $this->calclate_summ_uslug_arr($uslugi);
+					
 					// получаем реальный статус (буз паузы)
 					$status_snab = ($pause)?str_replace('_pause', '', $value2['status_snab']):$value2['status_snab'];
 
@@ -350,13 +353,13 @@ class Position_no_catalog{
 						":"<td>".$value2['snab_comment']."</td>";
 				$html .= "</tr>";
 				
-				$n++;		
+				$n++;	
 				}
 			}
 			
 			$html .= "</table>";
 			// получаем набор кнопок управления данной вкладкой
-			$buttons_option = $this->get_top_funcional_byttun_for_user_Html($status_snab,$pause);
+			$buttons_option = $this->get_top_funcional_byttun_for_user_Html($status_snab_whith_pause,$pause);
 			
 
 			// составляем конечный текст письма
@@ -379,10 +382,9 @@ class Position_no_catalog{
 		// пауза 
 		$html = '<div class="hidden_top_buttons">';
 		$pause_buttons = '';
-
 		if(!substr_count($status_snab, '_pause')){
 			if(!substr_count($status_snab, 'Расчёт от снабжения')){
-				if($this->user_access == 1 || $this->user_access == 5){
+				if(($this->user_access == 1 || $this->user_access == 5) && ($status_snab == 'in_calculation' || $status_snab == 'on_recalculation_snab')){
 					$pause_buttons = '<li class="buttons_top_1 status_art_right_class_pause" data-send_status="1"><div><span>Поставить на паузу</span></div></li>';
 				}
 				// все кнопки выводятся только когда пауза равна 0
