@@ -159,7 +159,7 @@ class Position_general_Class{
 		return $int;
 	}
 
-
+	# В данном классе расположены обработчики AJAX ОБЩИЕ для всей продукции !!!
 	/////////////////  AJAX START ///////////////// 
 	private function _AJAX_(){
 		$method_AJAX = $this->POST['AJAX'].'_AJAX';
@@ -173,25 +173,139 @@ class Position_general_Class{
 	}
 	/////////////////  AJAX METHODs  ///////////////// 
 
-	// НУЖНО ЛИ СЕЙЧАС ????  ЗАКОММЕНТИРОВАНО ДО ВЫЯСНЕНИЯ
-	// private function to_chose_the_type_product_form_AJAX(){   
-	// 	// форма выбора типа продукта
-	// 	$this->FORM->to_chose_the_type_product_form_Html();	
+
+	// private function add_new_usluga_AJAX(){
+	// 	// добавляет новую услугу
+	// 	global $type_product;
+	// 	// echo $type_product;
+	// 	switch ($type_product) {
+	// 		case 'cat':
+	// 			$this->POSITION_CATALOG->add_uslug_Database_Html($_POST['id_uslugi'], $_POST['dop_row_id'], $_POST['quantity']);
+	// 			break;			
+	// 		default:
+	// 			$this->POSITION_NO_CATALOG->add_uslug_Database_Html($_POST['id_uslugi'], $_POST['dop_row_id'], $_POST['quantity']);
+	// 			break;
+	// 	}
 	// }
 
+	// добавить доп услугу для варианта
+	public function add_new_usluga_AJAX(){
+		$id_uslugi = $this->POST['id_uslugi'];
+		$dop_row_id = $this->POST['dop_row_id'];
+		$quantity = $this->POST['quantity'];
 
-	
+		global $mysqli;
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` = '".$id_uslugi."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$usluga = array();
+		if($result->num_rows > 0){		
+			while($row = $result->fetch_assoc()){
+				$usluga = $row;
+			}		
+		}
+
+		// если массив услуг пуст
+		if(empty($usluga)){return 'такой услуги не существует';}
+
+
+
+
+		// получаем флаг если этой услуги ещё нет и придётся формировать имя группы услуг
+		$flag = $this->POSITION_NO_CATALOG->check_parent_exists_Database_Int($dop_row_id,$usluga['parent_id']);
+
+
+		// вставляем новую услугу в базу
+		$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
+		             `dop_row_id` = '".$dop_row_id."',
+		             `uslugi_id` = '".$id_uslugi."',
+					 `glob_type` = 'extra',
+					 `price_in` = '".$usluga['price_in']."',
+					 `price_out` = '".$usluga['price_out']."',
+					 `price_out_snab` = '".$usluga['price_out']."',
+					 `for_how` = '".$usluga['for_how']."',
+					 `creator_id` = '". $this->user_id."',
+					 `quantity` = '".$quantity."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+
+		// формируем массив для генерации HTML выдачи для ajax
+		// ajax примет html и добавить на страницу
+		$NEW_usl[0]['id'] = $mysqli->insert_id;
+		$NEW_usl[0]['dop_row_id'] = $dop_row_id;
+		$NEW_usl[0]['uslugi_id'] = $id_uslugi;
+		$NEW_usl[0]['glob_type'] = 'extra';
+		$NEW_usl[0]['price_in'] = $usluga['price_in'];
+		$NEW_usl[0]['price_out'] = $usluga['price_out'];
+		$NEW_usl[0]['price_out_snab'] = $usluga['price_out'];
+		$NEW_usl[0]['for_how'] = $usluga['for_how'];
+		$NEW_usl[0]['quantity'] = $quantity;
+		$NEW_usl[0]['creator_id'] = $this->user_id;
+		
+		// генерим html выдачу для ajax
+		global $type_product;
+		// echo $type_product;
+		switch ($type_product) {
+			case 'cat':
+				$dop = '_cat';
+				$html = $this->POSITION_CATALOG->uslugi_template_cat_Html($NEW_usl, $flag);
+				break;			
+			default:
+
+				$dop = '_no_cat';
+				$html = $this->POSITION_NO_CATALOG->uslugi_template_Html($NEW_usl, $flag);
+				break;
+		}
+
+		echo '{"response":"close_window","name":"add_uslugu'.$dop.'","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
+	}
+
 	private function get_uslugi_list_Database_Html_AJAX(){
+		global $type_product;
 		// получение формы выбора услуги
-		$html = '<form>';
-		// $html .= POSITION_GEN->Position_no_catalog::get_uslugi_list_Database_Html();
-		$html .= Position_catalog::get_uslugi_list_Database_Html_AJAX();
-		$html .= '<input type="hidden" name="id_uslugi" value="">';
-		$html .= '<input type="hidden" name="dop_row_id" value="">';
-		$html .= '<input type="hidden" name="quantity" value="">';
-		$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
-		$html .= '</form>';
-		echo $html;
+		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
+			$html = '<form>';
+			$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
+			$html .= $this->get_uslugi_list_Database_Html();
+			$html .= '<input type="hidden" name="id_uslugi" value="">';
+			$html .= '<input type="hidden" name="dop_row_id" value="">';
+			$html .= '<input type="hidden" name="quantity" value="">';
+			$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
+			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
+			$html .= '</form>';
+			echo $html;
+		}
+	}
+
+	private function get_uslugi_list_Database_Html($id=0,$pad=30){	
+		global $mysqli;
+		$html = '';
+		
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$price = '<div class="echo_price_uslug"><span></span><span></span></div>';
+				if($row['id']!=6 && $row['parent_id']!=6){// исключаем нанесение apelburg
+					# Это услуги НЕ из КАЛЬКУЛЯТОРА
+					// запрос на детей
+					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+					
+					$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+					
+
+					// присваиваем конечным услугам класс may_bee_checked
+					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+				}else{
+					# Это услуги из КАЛЬКУЛЯТОРА
+					// запрос на детей
+					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+
+					$price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+					// присваиваем конечным услугам класс may_bee_checked
+					$html.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+				}
+			}
+		}
+		return $html;
 	}
 
 	/////////////////   AJAX  END   ///////////////// 

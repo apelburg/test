@@ -190,10 +190,10 @@ class Position_no_catalog{
 		$this->edit_snab_comment_Database();
 	}
 
-	private function add_new_usluga_AJAX(){
-		// добаление данных, прикрепление новой услуги к расчёту
-		$this->add_uslug_Database_Html($this->POST['id_uslugi'],$this->POST['dop_row_id'],$this->POST['quantity']);
-	}
+	// private function add_new_usluga_AJAX(){
+	// 	// добаление данных, прикрепление новой услуги к расчёту
+	// 	$this->add_uslug_Database_Html($this->POST['id_uslugi'],$this->POST['dop_row_id'],$this->POST['quantity']);
+	// }
 
 
 	private function chose_supplier_AJAX(){
@@ -699,7 +699,7 @@ class Position_no_catalog{
 	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
 	// $pause - флаг запрета редактирования
 	// названия группы услуги
-	private function uslugi_template_Html($arr, $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
+	public function uslugi_template_Html($arr, $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
 
 		// echo '<pre>';
 		// print_r($arr);
@@ -778,7 +778,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 
 					$real_price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value2['quantity'];
-
+					
 					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'" data-our_uslugi_parent_id="'.trim($value['parent_id']).'">
 										<td>'.$value['name'].' '.$dop_inf.'</td>
 										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$this->round_money($price_in).'</span> р.</td>
@@ -837,7 +837,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	}
 
 	// получаем услуги по варианту расчета
-	private function get_uslugi_Database_Array($id){
+	public function get_uslugi_Database_Array($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);				
@@ -1273,10 +1273,10 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	// добавить доп услугу для варианта
 	public function add_uslug_Database_Html($id_uslugi,$dop_row_id,$quantity){
 		// определяем редакторов для полей (html тегов)
-		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
-		// '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
+		// $this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		// $this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		// $this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// // '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
 
 
 		global $mysqli;
@@ -1368,7 +1368,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 	}
 
-	private function check_parent_exists_Database_Int($dop_row_id, $parent_id){
+	public function check_parent_exists_Database_Int($dop_row_id, $parent_id){
 		global $mysqli;
 		
 		

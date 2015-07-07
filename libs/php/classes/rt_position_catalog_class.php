@@ -46,89 +46,23 @@ class Position_catalog{
 	}
 
 	/////////////////  AJAX START ///////////////// 
-	////////////      AJAX STATIC    /////////////////
-	// вариант 2
-	// для организации возможности вызова методов AJAX из других скриптов 
-	// без создания экземпляра класса пришлось сделать их статичными
 	private function _AJAX_(){
 		$method_AJAX = $this->POST['AJAX'].'_AJAX';
 
 		// если в этом классе существует такой метод - выполняем его и выходим
 		if(method_exists($this, $method_AJAX)){
-			self::$method_AJAX();
+			$this->$method_AJAX();
 			exit;
 		}		
 		
 	}
 	/////////////////  AJAX METHODs  ///////////////// 
 
-	static function add_new_usluga_AJAX(){
-		// инициализация класса формы
-		$post = isset($_POST)?$_POST:array();
-		$get = isset($_GET)?$_GET:array();
-		$FORM = new Forms($get,$post,$_SESSION);
-
-		// инициализация класса работы с некаталожными позициями
-		$POSITION_NO_CAT = new Position_no_catalog($get,$post,$_SESSION);
-
-		$POSITION_NO_CAT->add_uslug_Database_Html($_POST['id_uslugi'], $_POST['dop_row_id'], $_POST['quantity']);
-
-		inset($POSITION_NO_CAT);
-	}
-	
-
-	static function get_uslugi_list_Database_Html_AJAX(){
-		// получение формы выбора услуги
-		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
-			$html = '<form>';
-			$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
-			$html .= self::get_uslugi_list_Database_Html_();
-			$html .= '<input type="hidden" name="id_uslugi" value="">';
-			$html .= '<input type="hidden" name="dop_row_id" value="">';
-			$html .= '<input type="hidden" name="quantity" value="">';
-			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
-			$html .= '</form>';
-			echo $html;
-		}
-	}
-
-	static function get_uslugi_list_Database_Html_($id=0,$pad=30){	
-		global $mysqli;
-		$html = '';
-		
-		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$price = '<div class="echo_price_uslug"><span></span><span></span></div>';
-				if($row['id']!=6 && $row['parent_id']!=6){// исключаем нанесение apelburg
-					# Это услуги НЕ из КАЛЬКУЛЯТОРА
-					// запрос на детей
-					$child = self::get_uslugi_list_Database_Html_($row['id'],($pad+30));
-					
-					$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
-					
-
-					// присваиваем конечным услугам класс may_bee_checked
-					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
-				}else{
-					# Это услуги из КАЛЬКУЛЯТОРА
-					// запрос на детей
-					$child = self::get_uslugi_list_Database_Html_($row['id'],($pad+30));
-
-					$price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
-					// присваиваем конечным услугам класс may_bee_checked
-					$html.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
-				}
-			}
-		}
-		return $html;
-	}
 
 
 
 
-	////////////      AJAX PRIVATE    /////////////////
+	////////////      AJAX 2    /////////////////
 	// вариант 1, 
 	// все новые вызовы пишется по варианту 2 !!!!!
 	private function _AJAX_first(){ // router
@@ -387,24 +321,25 @@ class Position_catalog{
 		return $arr;
 	}
 
+
+
+	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
+	// ВАРИАНТ ВЫВОДА УСЛУГ № 1   **** старт ****
+	/*
 	public function get_dop_uslugi($id_dop_data){
 		global $mysqli;
 		//$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".(int)$id_dop_data."'";
-		$query = "SELECT  `".RT_DOP_USLUGI."`. * ,  `rt_uslugi_gen`.`name` AS  `group_name` ,  `".OUR_USLUGI_LIST."`.`name` AS  `name` ,  `rt_uslugi_gen`.`type` AS  `group_type` ,  `".OUR_USLUGI_LIST."`.`type` AS  `type` 
+		$query = "SELECT  `".RT_DOP_USLUGI."`. * ,  
+				`rt_uslugi_gen`.`name` AS  `group_name` ,  
+				`".OUR_USLUGI_LIST."`.`name` AS  `name` ,  
+				`rt_uslugi_gen`.`type` AS  `group_type` ,  
+				`".OUR_USLUGI_LIST."`.`type` AS  `type` ,
+				`".OUR_USLUGI_LIST."`.`parent_id` 
 			FROM  `".RT_DOP_USLUGI."` 
 			INNER JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` =  `".RT_DOP_USLUGI."`.`uslugi_id` 
 			INNER JOIN  `".OUR_USLUGI_LIST."` AS  `rt_uslugi_gen` ON  `".OUR_USLUGI_LIST."`.`parent_id` =  `rt_uslugi_gen`.`id` 
-			WHERE  `".RT_DOP_USLUGI."`.`dop_row_id` =  '".$id_dop_data."'";
-		/*
-			// запрос без переменных
-			SELECT  `os__rt_dop_uslugi`. * ,  `rt_uslugi_gen`.`name` AS  `group_name` ,  `os__rt_uslugi`.`name` AS  `name` ,  `rt_uslugi_gen`.`type` AS  `group_type` ,  `os__rt_uslugi`.`type` AS  `type` 
-			FROM  `os__rt_dop_uslugi` 
-			INNER JOIN  `os__rt_uslugi` ON  `os__rt_uslugi`.`id` =  `os__rt_dop_uslugi`.`uslugi_id` 
-			INNER JOIN  `os__rt_uslugi` AS  `rt_uslugi_gen` ON  `os__rt_uslugi`.`parent_id` =  `rt_uslugi_gen`.`id` 
-			WHERE  `os__rt_dop_uslugi`.`dop_row_id` =  '1'
-		*/
-
-
+			WHERE  `".RT_DOP_USLUGI."`.`dop_row_id` =  '".$id_dop_data."' ORDER BY  `rt_uslugi_gen`.`name` ASC";
+		// echo $query;
 		$arr = array();
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$this->info = 0;
@@ -431,19 +366,19 @@ class Position_catalog{
 
 		foreach ($arr as $k => $val) {
 
-			$percent_nacenki = round((($val['price_out']-$val['price_in'])*100/$val['price_in']),2);
+			$percent_nacenki = $this->get_percent_Int($val['price_in'],$val['price_out']);
 
 			if( $general_name != trim($val['group_name']) ){
 				
 				$general_name = trim($val['group_name']);
 					$html .='
-							<tr>
+							<tr class="group_usl_name" data-usl_id="'.$val['parent_id'].'">
 								<th colspan="7">'.$general_name.'</th>
 							</tr>
 					';
 			}			
 
-			$html .='<tr class="'.$val['for_how'].'">';
+			$html .='<tr class="'.$val['for_how'].'"  data-dop_uslugi_id="'.$val['id'].'">';
 			$html .='<td>'.$val['name'].'</td>';
 			$html .='<td class="price_in"><span>'.$val['price_in'].'</span> р.</td>';
 			$html .='<td class="percent_nacenki"><span>'.$percent_nacenki.'</span>%</td>';
@@ -455,31 +390,119 @@ class Position_catalog{
 		}
 		//return $html;
 
-
-		$uslugi = $this->uslugi_template_Html();
-
-		
-			
-		
-		return $html.$uslugi;
-	}
-
-	public function uslugi_template_Html($arr=array()){
-		$html = '';
-		$html .='							<tr>
-										<th colspan="7"><span class="add_row">+</span>печать</th>
-									</tr>
-									<tr >
-										<td>Термотрансфер, 1цв</td>
-										<td> 133,00р</td>
-										<td rowspan="2" class="percent_nacenki"><span>20</span>%</td>
-										<td>195,00р</td>
-										<td>12,00</td>
-										<td rowspan="2"><span class="edit_row_variants"></span></td>
-										<td rowspan="2"><span class="del_row_variants"></span></td>
-									</tr>';
 		return $html;
 	}
+	*/
+	// ВАРИАНТ ВЫВОДА УСЛУГ № 1   **** конец ****
+	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
+	
+	// ВЫВОДИТ СПИСОК УСЛУГ ПРИКРЕПЛЁННЫХ ДЛЯ ВАРИАНТА
+	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
+	// $pause - флаг запрета редактирования
+	// названия группы услуги
+	//public function uslugi_template_cat_Html($arr=array(), $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
+	public function uslugi_template_cat_Html($arr, $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
+		
+		// echo '<pre>';
+		// print_r($arr);
+		// echo '</pre>';
+		// определяем редакторов для полей (html тегов)
+		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
+
+		// если работает снаб, ограничиваем права мена и наоборот
+		if($status_snab=='in_calculation' || $status_snab=='in_recalculation'){
+			$this->edit_snab = ($this->user_access == 8 && !$pause)?' contenteditable="true" class="edit_span"':'';
+			$this->edit_men = '';						
+		}else{
+			$this->edit_men = ($this->user_access == 5 && !$pause)?' contenteditable="true" class="edit_span"':'';
+			$this->edit_snab = '';						
+		}
+
+		// обнуляем все права при $edit_true == false
+		if($edit_true == false){
+			$this->edit_men = '';
+			$this->edit_snab = '';
+			$this->edit_admin = '';
+			$pause = 1;
+		}
+
+		$html ='';
+		// если массив услуг пуст возвращаем пустое значение 
+		if(!count($arr)){return $html;}
+		
+		// сохраняем id услуг
+		$id_s = array();
+		foreach ($arr as $key => $value) {
+			$id_s[] = $value['uslugi_id'];
+		}
+		$id_s = implode(', ', $id_s);
+
+		// делаем запрос по услугам  
+		global $mysqli;
+		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`price_out`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
+inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.") ORDER BY  `os__our_uslugi_par`.`name` ASC ";
+		// $query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id_s.")";
+		//echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$name_uslugi = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				foreach ($arr as $key => $value) {
+						$name_uslugi[$row['id']] = $row;
+				}
+			}
+		}
+
+		$uslname = '';
+		foreach ($name_uslugi as $key => $value) {
+			// $NO_show_head добавлен как необязательная переменная для отключения вывода 
+			// названия группы услуги
+
+			if($uslname!=$value['parent_name'] && !$NO_show_head){
+				$html .= '<tr  class="group_usl_name" data-usl_id="'.$value['parent_id'].'">
+		 				<th colspan="7">'.$value['parent_name'].'</th>
+ 				</tr>';
+ 				$uslname = $value['parent_name'];
+			}
+			foreach ($arr as $key2 => $value2) {
+				if($value2['uslugi_id']==$key){
+
+					$price_in = (($value2['for_how']=="for_all")?$value2['price_in']:($value2['price_in']*$value2['quantity']));
+					$price_out_men = ($value2['for_how']=="for_all")?$value2['price_out']:$value2['price_out']*$value2['quantity'];
+					
+					$pribl = ($value2['for_how']=="for_all")?($value2['price_out']-$value2['price_in']):($value2['price_out']*$value2['quantity']-$value2['price_in']*$value2['quantity']);
+					$dop_inf = ($value2['for_how']=="for_one")?'(за тираж '.$value2['quantity'].' шт.)':'';
+					
+					$price_out_snab = ($value2['for_how']=="for_all")?$value2['price_out_snab']:$value2['price_out_snab']*$value2['quantity'];
+
+
+					$real_price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value2['quantity'];
+
+					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'" data-our_uslugi_parent_id="'.trim($value['parent_id']).'">
+										<td>'.$value['name'].' '.$dop_inf.'</td>
+										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$this->round_money($price_in).'</span> р.</td>
+										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$this->edit_admin.$this->edit_snab.$this->edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
+										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$this->edit_admin.$this->edit_men.'>'.$this->round_money($price_out_men).'</span> р.</td>
+										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span> р.</td>
+										<td class="usl_edit"><!-- <span class="edit_row_variants"></span> --></td>';
+
+					$html .= ($this->user_id == $value2['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';
+					// $html .= $value2['creator_id'];
+					$html .='</tr>';
+
+				}
+			}
+
+		}
+
+		return $html;
+	}
+	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
+
+
 
 	public function get_dop_params($art_id){
 		// выгружает данные запроса в массив
@@ -502,25 +525,7 @@ class Position_catalog{
 		}
 		return $arr;
 	}
-	public function generate_variants_menu_OLD($variants,$draft_enable){
-		$html = '';
-		for ($i=0; $i < count($variants); $i++) { 
-			// если есть $draft_enable=1, т.е. мы знаем, что в списке есть основной
-			// вариант, то грузим его выбранным по умолчанию
-			$checked = '';
-			if($draft_enable){
-				$draft = ($variants[$i]['draft']=='0')?'osnovnoy checked':'';
-			}else{
-			// если же все варианты являются черновиками, то выбираем первый по списку
-			// для одного черновика схема отработает соответственно
-				$checked = ($i==0)?'checked':'';				
-			}
-			$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$draft.' '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants['row_status'].'"></span></li>';
-		}
-		return $html;
-	}
-
-
+	
 	public function generate_variants_menu($variants,$dop_enable){		
 		$html = ''; // контент функции
 		
@@ -629,7 +634,25 @@ class Position_catalog{
 
 	}
 
+	##################################################
+	#### СЕРВИСНЫЕ МЕТОДЫ (для удобства обсчёта)  ####
+	##################################################
+	// форматируем денежный формат + округляем
+	private function round_money($num){
+		return number_format(round($num, 2), 2, '.', '');
+	}
+	// подсчёт процентов наценки
+	private function get_percent_Int($price_in,$price_out){
+		$per = ($price_in!= 0)?$price_in:0.09;
+		$percent = round((($price_out-$price_in)*100/$per),2);
+		return $percent;
+	}
+	##################################################
+	##################################################
+	##################################################
 
+
+	
 	// далее старые функции 
 	public function fetch_images_for_article2($art){
 		if(!$art || $art=='0'){return array();}

@@ -4,6 +4,8 @@
 
 <script type="text/javascript" src="libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 
+<script type="text/javascript" src="./libs/js/classes/Base64Class.js"></script>
+
 <script type="text/javascript" src="libs/js/rt_position.js"></script>
 <script type="text/javascript" src="./libs/js/rt_position_gen.js"></script>
 <!-- <script type="text/javascript" src="../libs/js/jqGeneralScript.js"></script> -->

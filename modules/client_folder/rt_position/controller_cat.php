@@ -1,15 +1,11 @@
 <?php
-	
-
 	if(!isset($type_product)){echo "Тип товара не определён,<br>или строка с id=".$_GET['id']." в таблице `".RT_DOP_DATA."` не существует ";exit;}
-	// инициализация класса формы
-	$post = isset($_POST)?$_POST:array();
-	$get = isset($_GET)?$_GET:array();
-	//$FORM = new Forms($get,$post,$_SESSION);
+	
+	// инициализация класса работы с позициями
+	// ВНИМАНИЕ!!!
+	// AJAX ОБРАБАТЫВАЕТСЯ ВНУТРИ КЛАССОВ
+	$POSITION_GEN = new Position_general_Class((isset($_GET)?$_GET:array()),(isset($_POST)?$_POST:array()),$_SESSION);
 
-	//создаем экземпляр класса
-	$POSITION_GEN = new Position_general_Class($get,$post,$_SESSION);
-	//$ARTICUL = new Articul($_GET,$_POST,$_SESSION);
 
 	// получаем все варианты просчёта по данному артикулу
 	$variants = $POSITION_GEN->POSITION_CATALOG->get_all_variants_info_Database_Array($id);
@@ -111,7 +107,7 @@
 		$print_z = ($value['print_z']=='1')?'checked':'';
 		$print_z_no = ($value['print_z']=='0')?'checked':'';
 
-		$dop_uslugi = $POSITION_GEN->POSITION_CATALOG->get_dop_uslugi_html($value['id'],($sum_tir+$sum_dop));
+		
 		// стандартное время изготовления
 		// $std_pr = ($value['standart']=='10' && $type_tovar=='cat')?1:0;
 		$std_time_print = ($value['standart']=='10' && $type_tovar=='cat')?'checked':'';
