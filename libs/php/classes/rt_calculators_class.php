@@ -1,6 +1,12 @@
 <?php
     class rtCalculators{
 	    //public $val = NULL;
+		public static $outOfLimit = false;
+		public static $outOfLimitDetails  = array();
+		public static $needIndividCalculation = false;
+		public static $needIndividCalculationDetails  = array();
+		public static $lackOfQuantity  = false;
+		public static $lackOfQuantityDetails = array();
 	    function __consturct(){
 		}
 		static function grab_data($data){
@@ -64,8 +70,6 @@
 			
 			//print_r($out_put);
 			echo json_encode($out_put);
-			//return print_r($out_put,true);
-			return $out_put;
 		
 		}
 		static function get_related_art_and_print_types($art_id){
@@ -107,7 +111,7 @@
 					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` tbl1
 					          INNER JOIN  `".OUR_USLUGI_LIST."` tbl2 
 					          ON tbl1.`print_id`  = tbl2.`id` 
-							  WHERE tbl1.`place_id` = '".$row['place_id']."'";
+							  WHERE tbl1.`place_id` = '".$row['place_id']."' GROUP BY tbl1.print_id";
 					
 					$result_2 = $mysqli->query($query_2)or die($mysqli->error);/**/
 					if($result_2->num_rows>0){
@@ -135,7 +139,7 @@
 			
 			// 
 			foreach($out_put['print_types'] as $print_id => $val){
-			
+			    //if($print_id != 13) continue;
 			    // выбираем дополнительные параметры  определяющие вертикальную позицию в прайсе (такие как например цвета)
 				$query="SELECT*FROM `".BASE__CALCULATORS_Y_PRICE_PARAMS."` WHERE `print_type_id` = '".$print_id."'";
 				//echo $query;
@@ -157,31 +161,34 @@
 					    $count = $row['count'];
 					    unset($row['id'],$row['print_type_id'],$row['count']);
 						
-						if(!isset($end[$row['price_type']]))$end[$row['price_type']] = false;
+						if(!isset($end[$row['price_type']])){
+						
+						   $end[$row['price_type']] = false;
+						   //echo "\r";
+						 }
+						
+						//if($row['price_type'] == 'in') print_r($row);
 						
 						if($row['param_val']==0){
-						      $end_counter = 0;
-							  foreach($row as $key => $val){
-								  if($key!='param_val' && $key!='param_type'){
-									  //echo $val;
-									  if($val==0 && !$end[$row['price_type']]) $end[$row['price_type']] = $end_counter;
-								  } 
-								  $end_counter++;
-							  }
+							 for($i=1;isset($row[$i]);$i++){
+								 if($row[$i] >0){
+								      $end[$row['price_type']] = $i;
+									  $row['maxXIndex'] = $i;
+								 }
+							 }
 						}
-						
+						//echo $end[$row['price_type']];
 						if($end[$row['price_type']]){
-							 $counter = 0;
-							 foreach($row as $key => $val){
-								  if($counter>=$end[$row['price_type']]){
-									  unset($row[$key]);
-								  } 
-								  $counter++;
-							  }
-						  }	
+							 for($i=1;isset($row[$i]);$i++){
+								 if($i >(int)$end[$row['price_type']]){
+								  //echo $i." ".(int)$end[$row['price_type']]." ". $row[$i]."\r ";
+								  unset($row[$i]);
+								  }
+							 }
+						}	
 						
 					    if($row['price_type']=='out') $out_put['print_types'][$print_id]['priceOut_tbl'][$count][] = $row; 
-						else if($row['price_type']=='in')  $out_put['print_types'][$print_id]['priceIn_tbl'][$count][] = $row;  
+						else if($row['price_type']=='in')  $out_put['print_types'][$print_id]['priceIn_tbl'][$count][] = $row; /* */
 				    }
 				}
 				
@@ -337,9 +344,94 @@
 				 $mysqli->query($query)or die($mysqli->error);
 			}
 		}
+		static function distribute_print($details){
+		    global $mysqli;  
+		    $details_obj = json_decode($details);
+			unset($details_obj->calculationData->price_in);
+			unset($details_obj->calculationData->price_out);
+			unset($details_obj->calculationData->quantity);
+			unset($details_obj->calculationData->dop_data_row_id);
+			unset($details_obj->calculationData->print_details->priceIn_tblXindex);
+			unset($details_obj->calculationData->print_details->priceOut_tblXindex);
+			
+			$details_obj->calculationData->print_details->print_type = 'ПРОБА';
+									  
+			//print_r($details_obj);echo "\r\n";//
+			
+			foreach($details_obj->ids as $id){
+				// выбираем данные о вариантах расчетов существующих для данных позиций
+				 $query="SELECT dop_data.id dop_data_id ,dop_data.quantity quantity FROM `".RT_MAIN_ROWS."` main INNER JOIN
+									`".RT_DOP_DATA."` dop_data
+									  ON   main.`id` = dop_data.`row_id`
+									  WHERE main.id = '".$id."'";
+				//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+				    while($row = $result->fetch_assoc()){
+					    $print_details_obj = $details_obj->calculationData->print_details;
+						// здесь мы рассчитываем стоимость нанесения для текущей строки и одновременно 
+						// выясняем нет ли противоречий с данным типом нанесения:
+						// 1. тираж не меньше минимально возможного
+						// 2. тираж не больше лимита
+						// 3. тираж не нуждается в индивидуальном рассчете
+						
+						$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
+					    // получаем новые исходящюю и входящюю цену исходя из нового таража
+					    $new_price_arr = self::change_quantity_and_calculators_price_query($row['quantity'],$print_details_obj,$YPriceParam);
+						print_r($new_price_arr);echo "\r\n";////
+						
+						// если все в порядке и нет ни каких исключений делаем дальнейшие операции
+						if(!(self::$needIndividCalculation || self::$outOfLimit)){
+							 
+							/* foreach($dataArr as $key => $dataVal){
+							 // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
+								$new_data = self::make_calculations($quantity,$dataVal['new_price_arr'],$dataVal['print_details_obj']->dop_params);
+								
+								// перезаписываем новые значения прайсов и X индекса обратно в базу данных
+								$query="UPDATE `".RT_DOP_USLUGI."` 
+											  SET 
+											  quantity = '".$quantity."',
+											  price_in = '".$new_data["new_price_arr"]["price_in"]."',
+											  price_out = '".$new_data["new_price_arr"]["price_out"]."'
+											  WHERE id = '".$dataVal['uslugi_row_id']."'";
+								//$mysqli->query($query)or die($mysqli->error);
+								
+								$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
+								$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
+								//print_r($new_summs);
+								//echo "\r\n";
+								// обновляем количество 
+								$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$dop_data_id."'";
+								$result = $mysqli->query($query)or die($mysqli->error);
+							}*/
+						}
+						
+						if(self::$needIndividCalculation) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'needIndividCalculation' => 1);//[$row['quantity']]['needIndividCalculation'] = 1;
+						if(self::$outOfLimit) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'outOfLimit' => 1);
+						if(self::$lackOfQuantity) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'lackOfQuantity' => 1);//[$row['quantity']]['lackOfQuantity'] = 1;
+						
+                        self::$needIndividCalculation = false;
+						self::$outOfLimit = false;
+						self::$lackOfQuantity = false;
+
+				/*
+						$json_str =  '{"result":"'.$result.'","row_id":'.$dop_data_id;
+						if($result=='ok')	$json_str .= ',"new_sums":'.json_encode($itog_sums);
+						if(self::$lackOfQuantity)	$json_str .= ',"lackOfQuantity":'.json_encode(self::$lackOfQuantityDetails);
+						if(self::$outOfLimit)  $json_str .= ',"outOfLimit":'.json_encode(self::$outOfLimitDetails);
+						if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
+						$json_str .=  '}';
+						*/
+					}
+					echo "\r\n --- \r";////
+					echo print_r($out);
+				}
+			}
+		}
 		static function change_quantity_and_calculators($quantity,$dop_data_id){
 		    global $mysqli;  
 			$itog_sums = array("summ_in"=>0,"summ_out"=>0);
+			
 			// делаем запрос чтобы получить данные о всех расчетах нанесений привязанных к данному ряду
 		    $query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
 			                    `".RT_DOP_DATA."` dop_data
@@ -349,126 +441,158 @@
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
 				while($row = $result->fetch_assoc()){
-				    // детали расчета нанесения
-					$print_details_obj = json_decode($row['print_details']);
-					//print_r($print_details_obj->dop_params);echo "\r\n";//
-					$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
-					// получаем новые исходящюю и входящюю цену исходя из нового таража
-					$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj->print_id,$YPriceParam);
-					//print_r($new_price_arr);echo "\r\n";//
+				    if($quantity != 0){
+						// детали расчета нанесения
+						$print_details_obj = json_decode($row['print_details']);
+						//print_r($print_details_obj->dop_params);echo "\r\n";//
+						$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
+						// получаем новые исходящюю и входящюю цену исходя из нового таража
+						$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
+						//print_r($new_price_arr);echo "\r\n";//
 					
-					// рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
-					$new_data = self::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
-					
-					// перезаписываем новые значения прайсов и X индекса обратно в базу данных
-					$query2="UPDATE `".RT_DOP_USLUGI."` 
-					              SET 
-								  quantity = '".$quantity."',
-								  price_in = '".$new_data["new_price_arr"]["price_in"]."',
-								  price_out = '".$new_data["new_price_arr"]["price_out"]."'
-			                      WHERE id = '".$row['uslugi_row_id']."'";
-					$mysqli->query($query2)or die($mysqli->error);
-					
-					$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
-					$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
-					//print_r($new_summs);
-					//echo "\r\n";
+						// сохраняем полученные данные в промежуточный массив
+						$dataArr[]= array('new_price_arr' => $new_price_arr,'print_details_obj' => $print_details_obj,'uslugi_row_id' => $row['uslugi_row_id']);
+					 }
+					 else $dataArr[]= array('uslugi_row_id' => $row['uslugi_row_id']);
+				}
+				
+				// если все в порядке и нет ни каких исключений делаем дальнейшие операции
+				if(!(self::$needIndividCalculation || self::$outOfLimit)){
+				     
+					 foreach($dataArr as $key => $dataVal){
+				     // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
+						if($quantity != 0) $new_data = self::make_calculations($quantity,$dataVal['new_price_arr'],$dataVal['print_details_obj']->dop_params);
+						else{
+						    $new_data["new_price_arr"] = array("price_in"=>0,"price_out"=>0);
+							$new_data["new_summs"] = array("summ_in"=>0,"summ_out"=>0); 
+						}
+						
+						// перезаписываем новые значения прайсов и X индекса обратно в базу данных
+						$query="UPDATE `".RT_DOP_USLUGI."` 
+									  SET 
+									  quantity = '".$quantity."',
+									  price_in = '".$new_data["new_price_arr"]["price_in"]."',
+									  price_out = '".$new_data["new_price_arr"]["price_out"]."'
+									  WHERE id = '".$dataVal['uslugi_row_id']."'";
+						$mysqli->query($query)or die($mysqli->error);
+						
+						$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
+						$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
+						//print_r($new_summs);
+						//echo "\r\n";
+						// обновляем количество 
+						$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$dop_data_id."'";
+			            $result = $mysqli->query($query)or die($mysqli->error);
+				    }
 				}
 				
 				// если дошли до этого места значит все нормально
 				// отправляем новые данные обратно клиенту
 				// print_r($itog_sums);
-				echo '{"result":"ok","row_id":'.$dop_data_id.',"new_sums":'.json_encode($itog_sums).''.(isset($new_price_arr['lackOfQuantity'])?',"lackOfQuantity":"1","minQuantInPrice":"'.$new_price_arr['minQuantInPrice'].'"':'').''.(isset($new_price_arr['outOfLimit'])?',"outOfLimit":"1","limit":"'.$new_price_arr['limit'].'"':'').''.(isset($new_price_arr['needIndividCalculation'])?',"needIndividCalculation":"1"':'').'}';
+				$result =(self::$needIndividCalculation || self::$outOfLimit)?'error':'ok';
+
+				
+				$json_str =  '{"result":"'.$result.'","row_id":'.$dop_data_id;
+				if($result=='ok')	$json_str .= ',"new_sums":'.json_encode($itog_sums);
+				if(self::$lackOfQuantity)	$json_str .= ',"lackOfQuantity":'.json_encode(self::$lackOfQuantityDetails);
+				if(self::$outOfLimit)  $json_str .= ',"outOfLimit":'.json_encode(self::$outOfLimitDetails);
+				if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
+				$json_str .=  '}';
+				echo $json_str;
 			}
 		}
-		static function change_quantity_and_calculators_price_query($quantity,$print_id,$YPriceParam){
+		static function change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam){
 		    global $mysqli;  
 			
-			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' ORDER by id, param_val";
+			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_details_obj->print_id."' ORDER by id, param_val";
 				//echo $query;
-				$result = $mysqli->query($query)or die($mysqli->error);/**/
-				if($result->num_rows>0){
-				   $priceIn_tblXindex = 0;
-				    while($row = $result->fetch_assoc()){
-					    //print_r($row);
-						if($row['param_val']==0){
-						    
-						    // здесь мы определяем в какой диапазон входит новое количество
-							for($i=1;isset($row[$i]);$i++){
-							    // если оно меньше минимального тиража
-							    
-								//if($row[$i] > $quantity) break;
-								if($row['price_type']=='in'){
-									if($quantity < $row[1]){
-										$newIn_Xindex = 1;
-										$lackOfQuantInPrice = true;
-										$minQuantInPrice  = $row[1];
-									}
-								    else if($row[$i] >0 && $quantity >= $row[$i]){
-										$newIn_Xindex = $i;
-									}
-								    if($row[$i] >0){
-									    $in_limit = $row[$i];
-									    $in_limitIndex = $i;
-									}
+			$result = $mysqli->query($query)or die($mysqli->error);/**/
+			if($result->num_rows>0){
+			    $priceIn_tblXindex = 0;
+				while($row = $result->fetch_assoc()){
+					//print_r($row);
+					if($row['param_val']==0){
+						
+						// здесь мы определяем в какой диапазон входит новое количество
+						for($i=1;isset($row[$i]);$i++){
+							// если оно меньше минимального тиража
+							
+							//if($row[$i] > $quantity) break;
+							if($row['price_type']=='in'){
+								if($quantity < $row[1]){
+									$newIn_Xindex = 1;
+									$lackOfQuantInPrice = true;
+									$minQuantInPrice  = $row[1];
 								}
-								if($row['price_type']=='out'){
-									if($quantity < $row[1]){
-										$newOut_Xindex = 1;
-										$lackOfQuantOutPrice = true;
-										$minQuantOutPrice  = $row[1];
-									}
-								    else if($quantity >= $row[$i]  &&  $row[$i] >0){
-										$newOut_Xindex = $i;
-									}
-									if($row[$i] >0){
-										$out_limit = $row[$i];
-										$out_limitIndex = $i;
-									}
+								else if($row[$i] >0 && $quantity >= $row[$i]){
+									$newIn_Xindex = $i;
+								}
+								if($row[$i] >0){
+									$in_limit = $row[$i];
+									$in_limitIndex = $i;
+								}
+							}
+							if($row['price_type']=='out'){
+								if($quantity < $row[1]){
+									$newOut_Xindex = 1;
+									$lackOfQuantOutPrice = true;
+									$minQuantOutPrice  = $row[1];
+								}
+								else if($quantity >= $row[$i]  &&  $row[$i] >0){
+									$newOut_Xindex = $i;
+								}
+								if($row[$i] >0){
+									$out_limit = $row[$i];
+									$out_limitIndex = $i;
 								}
 							}
 						}
-						// определяем новые входящие и исходящие цены
-						if($row['price_type']=='in' && $row['param_val']==$YPriceParam) $new_priceIn = $row[$newIn_Xindex];
-						if($row['price_type']=='out' && $row['param_val']==$YPriceParam) $new_priceOut = $row[$newOut_Xindex];   
-				    }
-					$out = array("price_in"=> $new_priceIn,"price_out"=> $new_priceOut);
-					
-					// если тираж был меньше минимального значения в прайсе пересчитываем цены
-					if(isset($lackOfQuantIntPrice) && $lackOfQuantInPrice==true){
-					    $out['price_in'] = $new_priceIn*$minQuantInPrice/$quantity;
-						$out['lackOfQuantity'] = true;
-						$out['minQuantInPrice'] = (int)$minQuantInPrice;
 					}
-					if(isset($lackOfQuantOutPrice) && $lackOfQuantOutPrice==true){
-					    $out['price_out'] = $new_priceOut*$minQuantOutPrice/$quantity;
-						$out['lackOfQuantity'] = true;
-						$out['minQuantInPrice'] = (int)$minQuantInPrice;
-					}
-					
-					//echo $newIn_Xindex .' - '. $in_limitIndex;  echo "\r" ;
-                    //echo $newOut_Xindex .' - '. $out_limitIndex;
-					
-					// если полученная цена оказалась равна 0 то значит стоимость не указана
-					if((float)($out['price_in']) == 0 ||(float)($out['price_out']) == 0){
-
-						// если это последние ряды прайс значит это лимит
-						if($newIn_Xindex == $in_limitIndex){
-							$out['outOfLimit'] = true;
-							$out['limit'] = (int)$out_limit;
-						}
-						elseif($newOut_Xindex == $out_limitIndex){
-							$out['outOfLimit'] = true;
-							$out['limit'] = (int)$out_limit;
-						}
-						else{//иначе это индивидуальный расчет cancelCalculator
-							if(!isset($out['outOfLimit']))
-							$out['needIndividCalculation'] = true;
-						}
-					}
-					// echo "\r \$YPriceParam - ".$YPriceParam."\r In".$newIn_Xindex.' '.$new_priceIn; echo "\r Out".$newOut_Xindex.' '.$new_priceOut."\r";
-					return $out;
+					// определяем новые входящие и исходящие цены
+					if($row['price_type']=='in' && $row['param_val']==$YPriceParam) $new_priceIn = $row[$newIn_Xindex];
+					if($row['price_type']=='out' && $row['param_val']==$YPriceParam) $new_priceOut = $row[$newOut_Xindex];   
 				}
+				$out = array("price_in"=> $new_priceIn,"price_out"=> $new_priceOut);
+				
+				// если тираж был меньше минимального значения в прайсе пересчитываем цены
+				if(isset($lackOfQuantIntPrice) && $lackOfQuantInPrice==true){
+					$out['price_in'] = $new_priceIn*$minQuantInPrice/$quantity;
+					self::$lackOfQuantity = true;
+					self::$lackOfQuantityDetails[] = array('minQuantity'=>(int)$minQuantInPrice,'print_type'=>$print_details_obj->print_type);
+				}
+				if(isset($lackOfQuantOutPrice) && $lackOfQuantOutPrice==true){
+					$out['price_out'] = $new_priceOut*$minQuantOutPrice/$quantity;
+					self::$lackOfQuantity = true;
+					self::$lackOfQuantityDetails[] = array('minQuantity'=>(int)$minQuantOutPrice,'print_type'=>$print_details_obj->print_type);
+					
+				}
+				
+				//echo $newIn_Xindex .' - '. $in_limitIndex;  echo "\r" ;
+				//echo $newOut_Xindex .' - '. $out_limitIndex;
+				
+				// если полученная цена оказалась равна 0 то значит стоимость не указана
+				if((float)($out['price_in']) == 0 ||(float)($out['price_out']) == 0){
+
+					// если это последние ряды прайс значит это лимит
+					if($newIn_Xindex == $in_limitIndex){
+						self::$outOfLimit = true;
+						self::$outOfLimitDetails[] = array('limitValue'=>(int)$in_limit,'print_type'=>$print_details_obj->print_type);
+					}
+					elseif($newOut_Xindex == $out_limitIndex){
+						self::$outOfLimit = true;
+						self::$outOfLimitDetails[] = array('limitValue'=>(int)$out_limit,'print_type'=>$print_details_obj->print_type);
+					}
+					else{//иначе это индивидуальный расчет cancelCalculator
+						if(!self::$outOfLimit){
+						    self::$needIndividCalculation = true;
+						    self::$needIndividCalculationDetails[] = array('print_type'=>$print_details_obj->print_type);
+						}
+
+					}
+				}
+				// echo "\r \$YPriceParam - ".$YPriceParam."\r In".$newIn_Xindex.' '.$new_priceIn; echo "\r Out".$newOut_Xindex.' '.$new_priceOut."\r";
+				return $out;
+			}
 		}
 		static function make_calculations($quantity,$new_price_arr,$print_dop_params){
 			

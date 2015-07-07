@@ -19,7 +19,7 @@
 			case 'sizes_editor':
 			include 'sizes_editor/controller.php';
 			break;
-			
+ 
 			case 'places_editor':
 			include 'places_editor/controller.php';
 			break;

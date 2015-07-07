@@ -10,6 +10,13 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
+		static function change_quantity($quantity,$id){
+		    global $mysqli;   //print_r($data); 
+	   
+			$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$id."'";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);
+		}
 		static function expel_value_from_calculation($id,$val){
 		    global $mysqli;   //print_r($data); 
 	   
