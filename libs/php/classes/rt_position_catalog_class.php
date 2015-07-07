@@ -1,5 +1,5 @@
 <?php
-class Articul{
+class Position_catalog{
 	// экземпляр класса mysqli
 	private $mysqli;
 
@@ -13,15 +13,24 @@ class Articul{
 
 	// допуски пользователя
 	private $user_access;
+
+	// права на редактирование поля определяются внутри 
+	// некоторых функций 
+	private $edit_admin;
+	private $edit_men;
+	private $edit_snab;
+
+	// id позиции
+	private $id_position;
 	
-	function __construct($get,$post,$session){
+	function __construct($get,$post,$session,$user_access){
 		$this->GET = $get;
 		$this->POST = $post;
 		$this->SESSION = $session;
 
 		$this->user_id = $session['access']['user_id'];
 
-		$this->user_access = $this->get_user_access_Database_Int($this->user_id);
+		$this->user_access = $user_access;
 
 		// обработчик AJAX // в первой редакции.... РАБОЧИЙ !!!!
 		if(isset($this->POST['global_change']) && isset($this->POST['change_name'])){
@@ -36,46 +45,37 @@ class Articul{
 
 	}
 
-	public function get_user_access_Database_Int($id){
-		global $mysqli;
-		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);				
-		$int = 0;
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$int = (int)$row['access'];
-			}
-		}
-		//echo $query;
-		return $int;
-	}
-
-
+	/////////////////  AJAX START ///////////////// 
 	////////////      AJAX STATIC    /////////////////
 	// вариант 2
 	// для организации возможности вызова методов AJAX из других скриптов 
 	// без создания экземпляра класса пришлось сделать их статичными
 	private function _AJAX_(){
 		$method_AJAX = $this->POST['AJAX'].'_AJAX';
-		self::$method_AJAX();
-		exit;
-	}
 
-	static function add_new_usluga_AJAX(){
-		if (class_exists('MyClass')) {
-		    $myclass = new MyClass();
-		}
+		// если в этом классе существует такой метод - выполняем его и выходим
+		if(method_exists($this, $method_AJAX)){
+			self::$method_AJAX();
+			exit;
+		}		
 		
 	}
-	// добаление данных, прикрепление новой услуги к расчёту
-	// 	if($_POST['AJAX']=='add_new_usluga'){
-	// 		$POSITION_NO_CAT->add_uslug_Database_Html($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
-	// 		exit;
-	// 	}
-	// // Проверяем существование класса перед его использованием
-	// if (class_exists('MyClass')) {
-	//     $myclass = new MyClass();
-	// }
+	/////////////////  AJAX METHODs  ///////////////// 
+
+	static function add_new_usluga_AJAX(){
+		// инициализация класса формы
+		$post = isset($_POST)?$_POST:array();
+		$get = isset($_GET)?$_GET:array();
+		$FORM = new Forms($get,$post,$_SESSION);
+
+		// инициализация класса работы с некаталожными позициями
+		$POSITION_NO_CAT = new Position_no_catalog($get,$post,$_SESSION);
+
+		$POSITION_NO_CAT->add_uslug_Database_Html($_POST['id_uslugi'], $_POST['dop_row_id'], $_POST['quantity']);
+
+		inset($POSITION_NO_CAT);
+	}
+	
 
 	static function get_uslugi_list_Database_Html_AJAX(){
 		// получение формы выбора услуги
@@ -453,13 +453,20 @@ class Articul{
 			$html .='<td><span class="del_row_variants"></span></td>';
 			$html .='</tr>';	
 		}
-		return $html;
+		//return $html;
 
 
+		$uslugi = $this->uslugi_template_Html();
 
-		/*
+		
 			
-									<tr>
+		
+		return $html.$uslugi;
+	}
+
+	public function uslugi_template_Html($arr=array()){
+		$html = '';
+		$html .='							<tr>
 										<th colspan="7"><span class="add_row">+</span>печать</th>
 									</tr>
 									<tr >
@@ -470,8 +477,8 @@ class Articul{
 										<td>12,00</td>
 										<td rowspan="2"><span class="edit_row_variants"></span></td>
 										<td rowspan="2"><span class="del_row_variants"></span></td>
-									</tr>
-		*/
+									</tr>';
+		return $html;
 	}
 
 	public function get_dop_params($art_id){
@@ -803,5 +810,8 @@ class Articul{
 		}	
 		return $variants;
 	}
+
+
+	function __destruct(){}
 
 }

@@ -193,7 +193,7 @@ $(document).ready(function() {
 								<td>
 									<ul id="all_variants_menu">
 										<!-- вставка кнопок вариантов -->
-										<?php echo $ARTICUL->generate_variants_menu($variants,$dop_enable); ?>
+										<?php echo $POSITION_GEN->POSITION_CATALOG->generate_variants_menu($variants,$dop_enable); ?>
 									</ul>
 								</td>
 								<td>

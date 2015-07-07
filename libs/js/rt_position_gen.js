@@ -22,7 +22,7 @@ $(document).on('click', '.add_usl', function(event) {
 		{
 			AJAX:"get_uslugi_list_Database_Html"
 		}, function(data, textStatus, xhr) {
-		show_dialog_and_send_POST_window(data,'Выберите услугу');
+		show_dialog_and_send_POST_window(data,'Выберите услугу', 800);
 		
 	});
 	

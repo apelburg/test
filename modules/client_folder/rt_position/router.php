@@ -10,6 +10,8 @@
 	// класс работы с поставщиками
 	include './libs/php/classes/supplier_class.php';
 
+	// главный класс по позициям
+	include './libs/php/classes/rt_position_gen_class.php';
 	// класс работы с позициями каталога
 	include './libs/php/classes/rt_position_catalog_class.php';
 	// класс работы с позициями не каталога
