@@ -30,6 +30,11 @@
 		 RT::save_rt_changes(json_decode($_GET['save_rt_changes']));
 		 exit;
 	}
+	if(isset($_GET['change_quantity'])){
+		// echo $_GET['quantity'];
+		RT::change_quantity($_GET['quantity'],$_GET['id']);
+		exit;
+	}
 	if(isset($_GET['expel_value_from_calculation'])){
 	     //print_r(json_decode($_GET['expel_value_from_calculation']));
 		 RT::expel_value_from_calculation($_GET['id'],$_GET['expel_value_from_calculation']);
@@ -104,6 +109,12 @@
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 		
 		rtCalculators::change_quantity_and_calculators($_GET['quantity'],$_GET['id']);
+		exit;
+	}
+	if(isset($_GET['distribute_print'])){
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+		
+		rtCalculators::distribute_print($_GET['details']);
 		exit;
 	}
 

@@ -280,19 +280,186 @@ var rtCalculator = {
 		rtCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){
-			
+			// alert(response_calculatorParamsData);
 			if(typeof rtCalculator.calculatorParamsObj !== 'undefined') delete rtCalculator.calculatorParamsObj;
 			
             rtCalculator.calculatorParamsObj = JSON.parse(response_calculatorParamsData);
 			// строим калькулятор
 			rtCalculator.build_print_calculator();
-
 			// открываем окно с калькулятором
 			
 				
-			$("#calculatorDialogBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет с нанесением логотипа",modal:true,width: 600,close: function() {this.remove();$("#calculatorDialogBox").remove();}});
+			$("#calculatorDialogBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет нанесения логотипа",modal:true,width: 600,close: function() {this.remove();$("#calculatorDialogBox").remove();}});
 			$("#calculatorDialogBox").dialog("open");
 		}
+	}
+	,
+    distributePrint:function(e){
+
+	    e = e || window.event;
+	    // устанавливаем текущюю ячейку и сохраняем изначальное значение
+	    var cell = e.target || e.srcElement;
+        // меняем отображение меню
+		var divArr = cell.parentNode.getElementsByTagName('DIV');
+		for(var name in divArr) divArr[name].className = "calculatorMenuCell pointer";
+		cell.className += " deepGreyBg";
+		
+		// скрываем первое окно калькулятора 
+		document.getElementById('mainCalculatorBox').style.display = 'none';
+		
+		
+        if(document.getElementById('calculatorDataBox')){
+			document.getElementById('calculatorDataBox').parentNode.removeChild(document.getElementById('calculatorDataBox'));
+		}
+		
+		//строим контейнер для данного окна 
+		var calculatorDataBox = document.createElement('DIV'); 
+		calculatorDataBox.id = 'calculatorDataBox';
+		
+		//проверяем есть ли данные по месту печати и типу печати если чего-то нет выводим предупреждение
+		if(typeof rtCalculator.currentCalculationData.print_details.place_id === 'undefined'){
+			alert('Вы не выбрали место нанесения');
+			return;
+		}
+		if(typeof rtCalculator.currentCalculationData.print_details.print_id === 'undefined' || rtCalculator.currentCalculationData.print_details.print_id == 0){
+			alert('Вы не выбрали тип нанесения');
+			return;
+		}
+		
+		// предварительно удаляем предыдущие данные rtCalculator.distributionData в если они есть 
+		if(typeof rtCalculator.distributionData !== 'undefined') delete rtCalculator.distributionData;
+		if(typeof rtCalculator.distributionData === 'undefined') rtCalculator.distributionData = {};
+		if(typeof rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id] === 'undefined') rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id] = {};
+		// если еще нет данных по данным типам мест и нанесения строим массив с данными
+		if(typeof rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] === 'undefined'){
+			rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] = [];
+			var table = rtCalculator.createDistributionDataTbl();
+			if(table){
+				
+				calculatorDataBox.appendChild(table);
+			    var saveBtn = document.createElement('DIV'); 
+				saveBtn.className = 'saveBtn';
+				saveBtn.id = 'distributionSaveResultBtn';
+				saveBtn.innerHTML = 'Сохранить';
+				saveBtn.onclick = function(){
+					var idsArr = [];
+					var inputsArr = table.getElementsByTagName('INPUT');
+					for(var i = 0;i < inputsArr.length;i++){
+						if(inputsArr[i].type == 'checkbox' && inputsArr[i].checked == true){
+							idsArr.push(inputsArr[i].value);//alert(inputsArr[i].value);
+						}
+					}
+					if(idsArr.length>0){
+						    var details = {};
+							details.ids = idsArr;
+							details.calculationData = rtCalculator.currentCalculationData;
+							
+							var url = OS_HOST+'?' + addOrReplaceGetOnURL('distribute_print=1&details='+JSON.stringify(details));
+							rtCalculator.send_ajax(url,callback);
+						 
+							//$("#distributionSaveResultBtn").remove();
+							
+							function callback(response){ 
+								alert(response);
+								// console.log(response);
+								//location.reload();
+							}
+					}  
+					else{
+						alert('Вы не выбрали позиции к которым надо применить нанесение');
+					}
+				}
+				calculatorDataBox.appendChild(saveBtn);
+				rtCalculator.commonContainer.appendChild(calculatorDataBox);
+				
+			}
+		}
+	}
+	,
+    createDistributionDataTbl:function(){
+	    //if(typeof rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] === 'undefined') rtCalculator.createDistributionDataTbl();
+		
+		// проходимся по рядам РТ и собираем те позиции к которым может быть применен данный тип нанесения на данном месте нанесения
+
+		var tbl = document.getElementById('rt_tbl_body');
+		var trs_arr = tbl.getElementsByTagName('tr');
+		for(var i = 0;i < trs_arr.length;i++){ 
+		
+		    if(!trs_arr[i].getAttribute('pos_id')) continue;
+			if(!trs_arr[i].getAttribute('type')) continue;
+			
+			var pos_id = trs_arr[i].getAttribute('pos_id');
+			var row_id = trs_arr[i].getAttribute('row_id');
+			var trType = trs_arr[i].getAttribute('type');
+			if(trType=='cat'){
+				
+				var art_id = trs_arr[i].getAttribute('art_id');
+			    var tr = trs_arr[i].cloneNode(true);
+				
+				var newTR = document.createElement('TR'); 
+				var tdsArr = tr.getElementsByTagName('TD');
+				var artTd = document.createElement('TD'); 
+				artTd.width = '60';
+
+				var checkbox = document.createElement('INPUT');
+				checkbox.type = 'checkbox';
+				checkbox.style.display = 'block';
+				var checkboxTd = document.createElement('TD'); 
+				checkboxTd.width = '10';
+				checkboxTd.appendChild(checkbox);	
+				
+				for(var j =0; j < tdsArr.length/**/; j++){
+					if(tdsArr[j].getAttribute('type')){
+						var type = tdsArr[j].getAttribute('type');
+						if(type == 'glob_counter' || type == 'master_btn' || type == 'name' || type == 'quantity'){
+							if(tdsArr[j].hasAttribute('colspan')) tdsArr[j].removeAttribute('colspan');
+							if(tdsArr[j].hasAttribute('rowspan')) tdsArr[j].removeAttribute('rowspan');
+							
+							if(type == 'master_btn'){ 
+							    var checkboxTdClone = checkboxTd.cloneNode(true);
+								checkboxTdClone.getElementsByTagName('INPUT')[0].value = pos_id;
+							    newTR.appendChild(checkboxTdClone);
+								continue;
+							}
+							if(type == 'name'){ 
+							   if(tdsArr[j].hasAttribute('width')) tdsArr[j].removeAttribute('width');
+							   //var article = tdsArr[j].getElementsByTagName('DIV')[0].getElementsByTagName('A')[0].innerHTML;
+							   artTd.innerHTML = tdsArr[j].getElementsByTagName('DIV')[0].getElementsByTagName('A')[0].innerHTML;
+							   
+							   newTR.appendChild(artTd.cloneNode(true));
+							   tdsArr[j].getElementsByTagName('DIV')[0].parentNode.removeChild(tdsArr[j].getElementsByTagName('DIV')[0]);
+							   
+							}
+
+							if(type == 'quantity'){ 
+							   if(tdsArr[j].innerHTML == '') tdsArr[j].innerHTML = 'Варианты';
+							}
+							newTR.appendChild(tdsArr[j].cloneNode(true));
+						}
+					}
+				}
+				rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].push({"art_id":art_id,"tr":newTR});
+			}
+	    }
+		
+		if(rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].length > 0){
+			var dataArr = rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id];
+			 
+			var table = document.createElement('TABLE');
+			table.className="calculatorDistributionTbl";
+			
+		    for(var i =0; i < dataArr.length; i++){
+				//console.log(dataArr[i]);
+				//console.log(dataArr[i].art_id);
+				//console.log(dataArr[i].tr);
+				
+				
+				table.appendChild(dataArr[i].tr);
+			}
+			return table;
+		}
+		//console.log('rtCalculator.distributionData');
+		//console.log(rtCalculator.distributionData);
 	}
 	,
     build_print_calculator:function(){
@@ -339,12 +506,55 @@ var rtCalculator = {
 		//box.style.width = '300px';
 		dialogBox.style.display = "none";
 		
-		dialogBox.appendChild(document.createTextNode("Тираж "+rtCalculator.currentCalculationData.quantity+' шт.'));
-		dialogBox.appendChild(br.cloneNode(true));
-		dialogBox.appendChild(br.cloneNode(true));
+		// 
+		var menuContainer = document.createElement('DIV');
+		var btn1 = document.createElement('DIV');
+		btn1.onclick = function(e){
+
+			e = e || window.event;
+			// устанавливаем текущюю ячейку и сохраняем изначальное значение
+			var cell = e.target || e.srcElement;
+			
+			var divArr = cell.parentNode.getElementsByTagName('DIV');
+
+			for(var name in divArr) divArr[name].className = "calculatorMenuCell pointer";
+			cell.className += " deepGreyBg";
+			
+			document.getElementById('mainCalculatorBox').style.display = 'block';
+			if(typeof document.getElementById('calculatorDataBox') !== 'undefined') document.getElementById('calculatorDataBox').style.display = 'none';
+		}
+		btn1.className = "calculatorMenuCell pointer deepGreyBg";
+		btn1.innerHTML = 'Расчет печати';
+		var btn2 = document.createElement('DIV');
+		btn2.className = "calculatorMenuCell pointer";
+		btn2.innerHTML = 'Артикулы';
+		btn2.onclick = rtCalculator.distributePrint;
+		var infoField = document.createElement('DIV');
+		infoField.className = "calculatorMenuCell";
+		infoField.innerHTML = "Тираж "+rtCalculator.currentCalculationData.quantity+' шт.';
 		
+		
+		menuContainer.appendChild(btn1);
+		menuContainer.appendChild(btn2);
+		menuContainer.appendChild(infoField);
+		dialogBox.appendChild(menuContainer);
+		
+		var clear_div = document.createElement('DIV');
+		clear_div.className = "clear_div";
+		dialogBox.appendChild(clear_div);
+		
+        // общий контейнер для всех закладок(разделов) калькулятора
+		rtCalculator.commonContainer = document.createElement('DIV');
+
+
+        // контейнер для главного окна калькулятора
+		var mainCalculatorBox = document.createElement('DIV');
+		mainCalculatorBox.className = "mainCalculatorBox";
+		mainCalculatorBox.id = "mainCalculatorBox";
+		
+		//
 		var box = document.createElement('DIV');
-		box.className = "calculatorBox";
+		box.className = "calculatorBodyBox";
 		
 		// строим select выбора мест нанесений
 		var printPlaceSelect = document.createElement('SELECT');
@@ -365,6 +575,8 @@ var rtCalculator = {
 		//currPlace_id = 1;
 		printPlaceSelect.onchange = function(){
 			if(document.getElementById("rtCalculatorBlockA"))document.getElementById("rtCalculatorBlockA").parentNode.removeChild(document.getElementById("rtCalculatorBlockA"));
+			if(document.getElementById("rtCalculatorItogDisplay")) document.getElementById("rtCalculatorItogDisplay").innerHTML = 'смена';
+			// alert('printPlaceSelect');
 			//
 			rtCalculator.currentCalculationData.print_details = {};
 			rtCalculator.currentCalculationData.print_details.dop_params = {};
@@ -375,10 +587,11 @@ var rtCalculator = {
 			var block_A = rtCalculator.buildBlockA();
 			
 			this.parentNode.appendChild(block_A);
-			rtCalculator.makeProcessing();
+			if(rtCalculator.makeProcessingFlag) rtCalculator.makeProcessing();
 		}
 		
 		box.appendChild(printPlaceSelect);
+		
 		
 		// создаем блок block_A который будет содеражать в себе select выбора типа нанесения
 		// и блок block_B содержащий в себе все остальные элементы интерфейса
@@ -391,28 +604,26 @@ var rtCalculator = {
 			box.appendChild(document.createTextNode("Ошибка: не определен ID места нанесения "));
 			
 		}
-
-		dialogBox.appendChild(box);
+        
+		mainCalculatorBox.appendChild(box);
 		
 		// дисплей итоговых подсчетов
 		var itogDisplay = document.createElement('DIV');
 		itogDisplay.id = 'rtCalculatorItogDisplay';
 		
-		dialogBox.appendChild(br.cloneNode(true));
-		dialogBox.appendChild(itogDisplay);
+		mainCalculatorBox.appendChild(br.cloneNode(true));
+		mainCalculatorBox.appendChild(itogDisplay);
 		
 		// кнопка сохранения данных в таблицу на сервер
 		var saveBtn = document.createElement('DIV');
 		saveBtn.id = 'calculatorsaveResultBtn';
-		saveBtn.style.border = '#CCC solid 1px';
-		saveBtn.style.margin = '20px 1px 1px 50px';
-		saveBtn.style.padding = '10px 20px';
-		saveBtn.style.width = '200px';
-		saveBtn.style.cursor = 'pointer';
+	    saveBtn.className = 'saveBtn';
 		saveBtn.innerHTML = 'Сохранить расчет';
 		saveBtn.onclick =  rtCalculator.saveCalculatorResult;
-		dialogBox.appendChild(saveBtn);
+		mainCalculatorBox.appendChild(saveBtn);
 		
+		rtCalculator.commonContainer.appendChild(mainCalculatorBox);
+		dialogBox.appendChild(rtCalculator.commonContainer);
 		document.body.appendChild(dialogBox);
 		
 		
@@ -495,9 +706,17 @@ var rtCalculator = {
 		
 		// обработчик события onchange
 		printTypesSelect.onchange = function(){
-			rtCalculator.currentCalculationData.print_details.print_id = this.options[this.selectedIndex].value;
-			var block_B = rtCalculator.buildBlockB();
+			
 			if(document.getElementById("rtCalculatorBlockB"))document.getElementById("rtCalculatorBlockB").parentNode.removeChild(document.getElementById("rtCalculatorBlockB"));
+			if(document.getElementById("rtCalculatorItogDisplay")) document.getElementById("rtCalculatorItogDisplay").innerHTML = 'смена printTypesSelect';
+			// alert('printTypesSelect');
+			var place_id  = rtCalculator.currentCalculationData.print_details.place_id;
+			rtCalculator.currentCalculationData.print_details = {};
+			rtCalculator.currentCalculationData.print_details.dop_params = {};
+			rtCalculator.currentCalculationData.print_details.place_id = place_id;
+			rtCalculator.currentCalculationData.print_details.print_id = this.options[this.selectedIndex].value;
+			
+			var block_B = rtCalculator.buildBlockB();
 			this.parentNode.appendChild(block_B);
 			// метод осуществляющий итоговый расчет 
 		    // и помещающий итоговые данные в сторку ИТОГО
@@ -843,7 +1062,11 @@ var rtCalculator = {
 	}
 	,
 	makeProcessing:function(){
+		// alert('makeProcessing');
 		
+		if(typeof rtCalculator.makeProcessingFlag !== 'undefined') delete rtCalculator.makeProcessingFlag;
+		
+		if(typeof document.getElementById("calculatorsaveResultBtn") !== 'undefined')  document.getElementById("calculatorsaveResultBtn").style.display = 'block';
 		// обращаемся к ряду таблицы цен, 
 		// по значению параметра rtCalculator.currentCalculationData.print_details.priceOut_tblYindex
 		// и выбираем нужную ячейку 
@@ -857,20 +1080,23 @@ var rtCalculator = {
 		console.log('>>> priceOut_tbl <<<');
 		console.log( rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0] );
 		//alert(rtCalculator.currentCalculationData.print_details.priceOut_tblXindex);
-		var price_out =rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0][rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length][rtCalculator.currentCalculationData.print_details.priceOut_tblXindex];
-		var price_in =rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceIn_tbl[0][rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length][rtCalculator.currentCalculationData.print_details.priceIn_tblXindex];
-		alert('out '+price_out+' - in '+price_in);
+		var priceOut_tblYindex = (typeof rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam !== 'undefined')? rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length:1;
+		var priceIn_tblYindex = (typeof rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam !== 'undefined')? rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length:1;
+		
+		var price_out =rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0][priceOut_tblYindex][rtCalculator.currentCalculationData.print_details.priceOut_tblXindex];
+		var price_in =rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceIn_tbl[0][priceIn_tblYindex][rtCalculator.currentCalculationData.print_details.priceIn_tblXindex];
+		// alert('out '+price_out+' - in '+price_in);
 		// если полученная цена оказалась равна 0 то значит стоимость не  указана
 	    if(parseFloat(price_out) == 0 || parseFloat(price_in) == 0){
 			
 			var sourse_tbls = ['priceIn_tbl','priceOut_tbl'];
 			for(index in sourse_tbls){
-				 sourse_tbls[index]
-				 var sourse_tblXindex = sourse_tbls[index]+'Xindex';
-				 //alert(rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id][sourse_tbls[index]][0].length+1);
-				//alert(rtCalculator.currentCalculationData.print_details[sourse_tblXindex]);
+			    var sourse_tblXindex = sourse_tbls[index]+'Xindex';
+				// alert(rtCalculator.currentCalculationData.print_details.print_id); 
+				// alert(rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id][sourse_tbls[index]][0][0]['maxXIndex']);
+				// alert(rtCalculator.currentCalculationData.print_details[sourse_tblXindex]);
 				// если это последние ряды прайс значит это лимит
-				if((rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id][sourse_tbls[index]][0].length+1) == rtCalculator.currentCalculationData.print_details[sourse_tblXindex]){
+				if(rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id][sourse_tbls[index]][0][0]['maxXIndex'] == rtCalculator.currentCalculationData.print_details[sourse_tblXindex]){
 	
 					var limimt =parseInt(rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id][sourse_tbls[index]][0][0][rtCalculator.currentCalculationData.print_details[sourse_tblXindex]]);
 					
@@ -883,7 +1109,6 @@ var rtCalculator = {
 					rtCalculator.cancelSaveReslut = true;
 					var caution = 'Рассчет с данными параметрами не может быть произведен \rтребуется индивидуальный расчет';
 				}
-				
 			}
 		}
 					
@@ -1015,7 +1240,7 @@ var rtCalculator = {
 			alert(caution);
 	
 			delete rtCalculator.cancelSaveReslut;
-			if(typeof document.getElementById("calculatorsaveResultBtn") !== 'undefined')  document.getElementById("calculatorsaveResultBtn").parentNode.removeChild(document.getElementById("calculatorsaveResultBtn"));
+			if(typeof document.getElementById("calculatorsaveResultBtn") !== 'undefined')  document.getElementById("calculatorsaveResultBtn").style.display = 'none';
 			
 		}
 
@@ -1122,9 +1347,17 @@ var rtCalculator = {
 				td.innerHTML = (row == 0)? '':tbl[row]['param_val']+' '+tbl[row]['param_type'];
 				tr.appendChild(td);
 				
-				
 				// перебераем ячейки таблицы озаглавленные 1,2,3,4 и т.д.
-				for(var counter = 1 ;tbl[row][counter] != undefined ; counter++){
+				
+				/*if(row == 0){
+					var maxColInex = 1;
+					for(var counter = 1 ;typeof tbl[row][counter] !== 'undefined' ; counter++){
+						if(parseFloat(tbl[row][counter])==0) break;
+						maxColInex = counter;
+					}
+				}*/
+				// перебераем ячейки таблицы озаглавленные 1,2,3,4 и т.д.
+				for(var counter = 1 ;typeof tbl[row][counter] !== 'undefined'; counter++){
 					var td = document.createElement('TD');  
 					
 					// если это первый ряд (указывающий на количество) преобразуем значения до Integer и добавляем тип параметра ( например 100 шт.)
@@ -1224,8 +1457,10 @@ var rtCalculator = {
 			var tds_arr = trs_arr[i].getElementsByTagName('td');
 			//alert(row_id);
 			for(var j = 0;j < tds_arr.length;j++){
-				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+				//if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+				if(tds_arr[j].hasAttribute('type')){
 					var type = tds_arr[j].getAttribute('type');
+					if(type == 'glob_counter' || type == 'master_btn' || type == 'name') continue;
 				    this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
 				}
 			}/**/
@@ -1254,6 +1489,8 @@ var rtCalculator = {
 			for(var j = 0;j < tds_arr.length;j++){
 				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 					var type = tds_arr[j].getAttribute('type');
+					if(type == 'glob_counter' || type == 'master_btn' || type == 'name') continue;
+					
 					this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
 					
 	
@@ -1323,12 +1560,23 @@ var rtCalculator = {
 								   rtCalculator.changes_in_process = true;
 								}
 								tds_arr[j].onkeyup = function(){
-								   rtCalculator.check();
-								   // запускаем таймер по истечению которого вызываем функцию rtCalculator.complite_input
-								   // отправляющую данные на сервер
-								   if(!rtCalculator.complite_timer) rtCalculator.complite_timer = setTimeout(rtCalculator.complite_input,2000);
+								   if(rtCalculator.cur_cell.getAttribute('type') && rtCalculator.cur_cell.getAttribute('type')== 'quantity'){
+									   rtCalculator.checkQuantity();
+								   }
+								   else{
+									   rtCalculator.check();
+									   // запускаем таймер по истечению которого вызываем функцию rtCalculator.complite_input
+									   // отправляющую данные на сервер
+									   //if(rtCalculator.cur_cell.getAttribute('type') && rtCalculator.cur_cell.getAttribute('type')== 'quantity'){
+									   if(!rtCalculator.complite_timer) rtCalculator.complite_timer = setTimeout(rtCalculator.complite_input,2000); 
+								   }
+								   
 								}
-								tds_arr[j].onblur = this.complite_input;
+								tds_arr[j].onblur = function(){
+								   if(rtCalculator.cur_cell.getAttribute('type') && rtCalculator.cur_cell.getAttribute('type')!= 'quantity'){
+									   this.complite_input();
+								   } 
+								}
 								tds_arr[j].setAttribute("contenteditable",true);
 								tds_arr[j].style.outline="none";
 							}
@@ -1385,13 +1633,61 @@ var rtCalculator = {
 		}
 	}
 	,
+	checkQuantity:function(){// корректировка значений вводимых пользователем
+
+		var cell = rtCalculator.cur_cell;
+		//alert(cell.innerHTML);
+		//alert(floatLengthToFixed (cell.innerHTML));
+		var result = correctToInt(cell.innerHTML);
+
+		if(result != 0) setCaretToPos2(cell,result);
+		rtCalculator.makeQuantityCalculations(cell);
+		
+		
+	
+		function correctToInt(str){// корректировка значений вводимых пользователем в поле ввода типа Integer
+		    var wrong_input = false;
+            var pos = 0;
+			
+			// если строка пустая правим на 0
+			if(str == ''){ wrong_input = true; str = '0'; pos = 1;}
+			
+			// если строка содержит что-то кроме цифры или точки вырезаем этот символ
+			var pattern = /[^\d]+/; 
+			var result = pattern.exec(str);
+		    if(result !== null){ 
+			    wrong_input = true;
+				var substr_arr = str.split(result[0]);
+				pos =  substr_arr[0].length;
+				str =  substr_arr[0] + substr_arr[1];
+			    
+		    }
+			if(str.length>10){ wrong_input = true;  str = '1000000000'; pos = 10;}
+			
+		    // если был выявлен некорректный ввод исправляем содержимое ячейки 
+			if(wrong_input) cell.innerHTML = str ;  
+			
+			return pos;
+		}
+
+		function setCaretToPos2(el, pos) {
+		    var range = document.createRange();
+			var sel = window.getSelection();
+			range.setStart(el.childNodes[0], pos);
+			range.collapse(true);
+			sel.removeAllRanges();
+			sel.addRange(range);
+		}
+
+
+		return true;//parseInt(str);
+    }
+	,
 	check:function(){// корректировка значений вводимых пользователем
 
 		var cell = rtCalculator.cur_cell;
 		
-		//alert(floatLengthToFixed (cell.innerHTML));
-		if(cell.getAttribute('type') == 'quantity')  var result = correctToInt(cell.innerHTML);
-		else  var result = correctToFloat(cell.innerHTML);
+	    var result = correctToFloat(cell.innerHTML);
 		
 		//placeCaretAtEnd(cell);
 		if(result != 0) setCaretToPos2(cell,result);
@@ -1447,31 +1743,7 @@ var rtCalculator = {
 			//alert(str);
 			return pos; 
 		}
-		function correctToInt(str){// корректировка значений вводимых пользователем в поле ввода типа Integer
-		    var wrong_input = false;
-            var pos = 0;
-			
-			// если строка пустая правим на 0
-			if(str == ''){ wrong_input = true; str = '0'; pos = 1;}
-			
-			// если строка содержит что-то кроме цифры или точки вырезаем этот символ
-			var pattern = /[^\d]+/; 
-			var result = pattern.exec(str);
-		    if(result !== null){ 
-			    wrong_input = true;
-				var substr_arr = str.split(result[0]);
-				pos =  substr_arr[0].length;
-				str =  substr_arr[0] + substr_arr[1];
-			    
-		    }
-			if(str.length>10){ wrong_input = true;  str = '1000000000'; pos = 10;}
-			
-		    // если был выявлен некорректный ввод исправляем содержимое ячейки 
-			if(wrong_input) cell.innerHTML = str ;  
-			
-			return pos;
-		}
-
+		
 		function setCaretToPos2(el, pos) {
 		    var range = document.createRange();
 			var sel = window.getSelection();
@@ -1507,53 +1779,6 @@ var rtCalculator = {
 		// вносим изменённое значение в соответствующую ячейку this.tbl_model
 		var type = cell.getAttribute('type');
 		rtCalculator.tbl_model[row_id][type] = (type=='quantity')? parseInt(cell.innerHTML):parseFloat(cell.innerHTML);
-	    
-		// если ячека это количества
-		if(type=='quantity'){
-			var tds_arr = rtCalculator.cur_tr.getElementsByTagName('td');
-			for(var j = 0;j < tds_arr.length;j++){
-				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type') && tds_arr[j].getAttribute('type') == 'print_exists_flag'){
-					// отправляем запрос на сервер
-			        if(tds_arr[j].innerHTML == 'yes'){
-						var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity_and_calculators=1&quantity='+cell.innerHTML+'&id='+row_id);
-		                rtCalculator.send_ajax(url,callback);
-						
-						// прерываем выполнение основной функции
-						// продолжение действий будет выполнено после получения ответа
-						return;
-						
-						
-						function callback(response){
-							 alert(response);//
-							var response_obj = JSON.parse(response);
-							
-							if(response_obj.lackOfQuantity) alert("Минимальный тираж для данного типа нанесения - "+response_obj.minQuantInPrice+"шт \rстоимость будет пересчитана как для минимального тиража");
-							if(response_obj.outOfLimit) alert('Цена не может быть расчитана, достигнут лимит тиража в '+response_obj.limit+' шт.\rтребуется индивидуальный расчет');
-							if(response_obj.needIndividCalculation) alert('Рассчет с данными параметрами не может быть произведен \rтребуется индивидуальный расчет');
-							
-							//// console.log(response_obj);
-							// если ответ был ok значит все нормально изменения сделаны 
-							// теперь нужно внести изменения в hmlt
-							if(response_obj.result == 'ok'){
-								//// console.log(response_obj.new_sums);
-								rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.new_sums.summ_in);
-								rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.new_sums.summ_out);
-								rtCalculator.tbl_model[row_id]["print_exists_flag"] = 'yes';
-								
-								// производим пересчет ряда
-								rtCalculator.calculate_row(response_obj.row_id);
-								
-								//**print_r(rtCalculator.tbl_model[row_id]);
-								
-								// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
-								rtCalculator.change_html(response_obj.row_id);
-							}
-							//alert(response);
-						}
-					}
-				}
-			}
-		}
 		
 		// производим пересчет ряда
 		rtCalculator.calculate_row(row_id);
@@ -1563,6 +1788,111 @@ var rtCalculator = {
 		// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
 		rtCalculator.change_html(row_id);
 
+	}
+	,
+	makeQuantityCalculations:function(cell){
+	    // Когда в ячейке(поле ввода) в результате каких то действий происходит изменение содержимого нужно вызывать этот метод
+		// метод производит калькуляцию текущих данных, и вычисляет разность текущих данных с теми которые были до изменения 
+
+		// получаем id ряда
+		rtCalculator.cur_tr = cell.parentNode;
+		var row_id = cell.parentNode.getAttribute('row_id');
+		
+		//**print_r(rtCalculator.tbl_model[row_id]);
+		
+		// сохраняем итоговые суммы ряда до изменения ячейки
+		rtCalculator.previos_data['price_in_summ'] = rtCalculator.tbl_model[row_id]['price_in_summ'];
+		rtCalculator.previos_data['price_out_summ'] = rtCalculator.tbl_model[row_id]['price_out_summ'];
+		rtCalculator.previos_data['in_summ'] = rtCalculator.tbl_model[row_id]['in_summ'];
+		rtCalculator.previos_data['out_summ'] = rtCalculator.tbl_model[row_id]['out_summ'];
+		rtCalculator.previos_data['delta'] = rtCalculator.tbl_model[row_id]['delta'];
+		rtCalculator.previos_data['margin'] = rtCalculator.tbl_model[row_id]['margin'];
+		
+	    
+		// проверяем есть ли в ячейке расчеты нанесения
+		var printsExitst = false;
+		var tds_arr = rtCalculator.cur_tr.getElementsByTagName('td');
+		for(var j = 0;j < tds_arr.length;j++){
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type') && tds_arr[j].getAttribute('type') == 'print_exists_flag'){
+				// отправляем запрос на сервер
+				if(tds_arr[j].innerHTML == 'yes'){
+					printsExitst = true;
+				}
+			}
+		}
+		
+		if(printsExitst){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity_and_calculators=1&quantity='+cell.innerHTML+'&id='+row_id);
+		    rtCalculator.send_ajax(url,callbackPrintsExitst);
+		}
+		else{// отправляем запрос на изменение только лишь значения тиража в базе данных 
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity=1&quantity='+cell.innerHTML+'&id='+row_id);
+		    rtCalculator.send_ajax(url,callbackOnlyQuantity);
+		}
+						
+		function callbackPrintsExitst(response){
+			// alert(response);
+			var response_obj = JSON.parse(response);
+							
+			if(response_obj.lackOfQuantity){
+				 var str =''; 
+				 for(var index in response_obj.lackOfQuantity){
+					 str += (parseInt(index)+1)+'). '+response_obj.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.lackOfQuantity[index].minQuantity+"\r";  
+				 }
+				 alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
+			}
+			if(response_obj.outOfLimit){
+				 var str ='';  
+				 for(var index in response_obj.outOfLimit){
+					 str += (parseInt(index)+1)+'). '+response_obj.outOfLimit[index].print_type+', лимит тиража - '+response_obj.outOfLimit[index].limitValue+"\r";  
+				 }
+				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :\r"+str+"для этих нанесений требуется индивидуальный расчет");
+			}
+			if(response_obj.needIndividCalculation){ 
+				 var str ='';  
+				 for(var index in response_obj.needIndividCalculation){
+					 str += (parseInt(index)+1)+'). '+response_obj.needIndividCalculation[index].print_type+"\r";  
+				 }
+				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :\r"+str+"");
+				
+			}
+			
+			//// console.log(response_obj);
+			// если ответ был ok значит все нормально изменения сделаны 
+			// теперь нужно внести изменения в hmlt
+			if(response_obj.result == 'ok'){
+				rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
+				//// console.log(response_obj.new_sums);
+				rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.new_sums.summ_in);
+				rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.new_sums.summ_out);
+				rtCalculator.tbl_model[row_id]["print_exists_flag"] = 'yes';
+				
+				// производим пересчет ряда
+				rtCalculator.calculate_row(response_obj.row_id);
+				
+				//**print_r(rtCalculator.tbl_model[row_id]);
+				
+				// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
+				rtCalculator.change_html(response_obj.row_id);
+			}
+			else{
+				// самый лучщий вариант иначе могут быть разные ошибки
+				location.reload();
+			}
+			rtCalculator.changes_in_process = false;
+		}
+		function callbackOnlyQuantity(response){
+			//alert('callbackOnlyQuantity');
+			// вносим изменённое значение в соответствующую ячейку this.tbl_model
+			rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
+			// производим пересчет ряда
+			rtCalculator.calculate_row(row_id);
+			
+			// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
+			rtCalculator.change_html(row_id);
+			
+			rtCalculator.changes_in_process = false;
+		}
 	}
 	,
 	calculate_row:function(row_id){

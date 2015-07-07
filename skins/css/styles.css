@@ -27,6 +27,7 @@ body{
          -o-user-select: none;
             user-select: none;
 }
+.pointer{cursor: pointer}
 .main_container{
   font-family:Arial, Helvetica, sans-serif;
   border:#000000 solid 0px;
@@ -1600,8 +1601,14 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 
 .calculatorDialogBox{ font-size: 14px ; }
 .calculatorDialogBox .hidden{ display:none;}
-.calculatorBox{border: 0px solid #8b8a89; height:380px; overflow-y:auto; }
-.calculatorTotalDetails{ margin-top:3px; font-size: 10px ; }
-.rtCalculatorBlockA{border: 0px solid #8b8a89;}
-.calculatorPriceTbl{ border-collapse:collapse;}
-.calculatorPriceTbl td{ font-size: 11px;}
+.calculatorDialogBox .calculatorBodyBox{border: 0px solid #8b8a89; height:380px; overflow-y:auto; }
+.calculatorDialogBox .calculatorTotalDetails{ margin-top:3px; font-size: 10px ; }
+.calculatorDialogBox .rtCalculatorBlockA{border: 0px solid #8b8a89;}
+.calculatorDialogBox .calculatorPriceTbl{ border-collapse:collapse;}
+.calculatorDialogBox .calculatorPriceTbl td{ font-size: 11px;}
+.calculatorDialogBox .calculatorMenuCell { float:left; padding:4px 40px; color:#000000; border-left: 1px solid #8b8a89; background-color:#99B52A}
+.calculatorDialogBox .deepGreyBg { background-color:#6D6E73; color:#FFFFFF; }
+.calculatorDialogBox .menuContainer {border: 1px solid #8b8a89;}
+.calculatorDialogBox .calculatorDistributionTbl { border-collapse:collapse}
+.calculatorDialogBox .calculatorDistributionTbl td{ vertical-align:top; font-size: 11px; border-bottom: 1px solid #8b8a89;}
+.calculatorDialogBox .saveBtn{border:#CCC solid 1px;margin:20px 1px 1px 50px;padding:10px 20px;cursor:pointer}/*min-width:70px;*/
