@@ -120,7 +120,8 @@
 		// получение формы выбора услуги
 		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
 			$html = '<form>';
-			$html .= Position_no_catalog::get_uslugi_list_Database_Html();
+			// $html .= Position_no_catalog::get_uslugi_list_Database_Html();
+			$html .= Articul::get_uslugi_list_Database_Html_AJAX();
 			$html .= '<input type="hidden" name="id_uslugi" value="">';
 			$html .= '<input type="hidden" name="dop_row_id" value="">';
 			$html .= '<input type="hidden" name="quantity" value="">';

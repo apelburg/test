@@ -240,7 +240,7 @@
 			 //echo $row['row_type'].' = ';
 				 if($row['row_type'] == 'cat'){ 
 				     $extra_panel = '<div class="pos_plank cat">
-									   <a href="?page=client_folder&section=order_art_edit&id='.$key.'">'.$row['art'].'</a>
+									   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['art'].'</a>
 									   <div class="pos_link_plank">
 										  <div class="catalog">
 											  <a id="" href="/?page=description&id='.$art_id.'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
@@ -253,12 +253,12 @@
 				 }
 				 if($row['row_type'] == 'ext'){
 				     $extra_panel = '<div class="pos_plank ext">
-									   <a href="?page=client_folder&section=order_art_edit&id='.$key.'">'.$row['name'].'</a>
+									   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 									 </div>';
 				 }
 				 if($row['row_type'] == 'pol'){
 				     $extra_panel = '<div class="pos_plank pol">
-									   <a href="?page=client_folder&section=order_art_edit&id='.$key.'">'.$row['name'].'</a>
+									   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 									 </div>';
 				 }
 			 

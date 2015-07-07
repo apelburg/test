@@ -1,10 +1,11 @@
-<link href="./skins/css/order_art_edit.css" rel="stylesheet" type="text/css">
+<link href="./skins/css/rt_position.css" rel="stylesheet" type="text/css">
 <link href="./skins/css/forum.css" rel="stylesheet" type="text/css">
 <link href="libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript" src="libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 
-<script type="text/javascript" src="libs/js/order_art_edit.js"></script>
+<script type="text/javascript" src="libs/js/rt_position.js"></script>
+<script type="text/javascript" src="./libs/js/rt_position_gen.js"></script>
 <!-- <script type="text/javascript" src="../libs/js/jqGeneralScript.js"></script> -->
 <script type="text/javascript" src="../libs/js/jquery.uploadify.min.js"></script>
 

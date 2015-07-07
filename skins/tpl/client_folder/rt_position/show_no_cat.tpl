@@ -1,4 +1,4 @@
-<link href="./skins/css/order_art_edit.css" rel="stylesheet" type="text/css">
+<link href="./skins/css/rt_position.css" rel="stylesheet" type="text/css">
 <link href="./skins/css/forum.css" rel="stylesheet" type="text/css">
 <link href="libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 
@@ -14,7 +14,8 @@
 <script type="text/javascript" src="./libs/js/classes/Base64Class.js"></script>
 
 
-<script type="text/javascript" src="./libs/js/position_no_cat.js"></script>
+<script type="text/javascript" src="./libs/js/rt_position_no_cat.js"></script>
+<script type="text/javascript" src="./libs/js/rt_position_gen.js"></script>
 
 <div id="order_art_edit">
 	<div id="info_string_on_query">

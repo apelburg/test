@@ -1,3 +1,17 @@
+#preloader_window_block{
+  background: #fff;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  z-index: 50;
+  opacity: 0.8;
+  background-image: url(../images/img_design/preloader.gif);
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+
 #order_art_edit{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px}
 
 
@@ -56,7 +70,7 @@
 #fddtime .row .cell {padding:5px 0 5px 0;}
 #fddtime input{ margin-left: 5px}
 /*#btn_make_std,#btn_make_var,#btn_date_std,#btn_date_var*/
-.btn_var_std{ margin-left: 5px; cursor: default; padding: 4px 10px; border:1px solid #e2e2e4; color:#e2e2e4;}
+.btn_var_std{ margin-left: 5px; /*cursor: default;*/ padding: 4px 10px; border:1px solid #e2e2e4; color:#e2e2e4;}
 .btn_var_std.checked{ background-color: #c7c8ca; border-color: #c7c8ca; color:#000; }
 #fddtime_rd,.fddtime_rd2{ width: 30px}
 .input_disabled,#edit_variants_content .variant_info .size_card table tr td .input_disabled{ border:1px solid #c7c8ca; background-color: #fff; color:#c7c8ca; padding: 2px 1px}
@@ -83,10 +97,10 @@
 #variants_name table tr td:nth-of-type(1),#variants_name2 table tr td:nth-of-type(1){ /*padding-left: 30px*/ width: 25px}
 #variants_name ul,#variants_name2 ul { padding: 0; margin: 0; /*padding-left: 5px*/}
 #variants_name ul li,#variants_name2 ul li{ display: inline-block;padding: 5px 26px;background-color: #BAD28E;}
-#variants_name ul li#new_variant,#variants_name2 ul li#new_variant2{  cursor: default;padding: 5px 10px; background: url('../../skins/images/img_design/plus_variant.png') no-repeat;}
+#variants_name ul li#new_variant,#variants_name2 ul li#new_variant2{  /*cursor: default;*/padding: 5px 10px; background: url('../images/img_design/plus_variant.png') no-repeat;}
 /*#new_variant{ margin-left: -26px}*/
 /*#variants_name #all_variants_menu li:nth-of-type(2){ margin-left: -3px}*/
-#variants_name ul li:hover,#variants_name ul li#new_variant:hover, #variants_name2 ul li:hover,#variants_name2 ul li#new_variant2:hover{  background-color:#ACC283; color: #000; cursor: default;}
+#variants_name ul li:hover,#variants_name ul li#new_variant:hover, #variants_name2 ul li:hover,#variants_name2 ul li#new_variant2:hover{  background-color:#ACC283; color: #000; /*cursor: default;*/}
 #variants_name .checked,#variants_name .checked:hover,#variants_name2 .checked,#variants_name2 .checked:hover{   background-color: #5A5C61;color: #fff}
 #variants_name ul li.osnovnoy,#variants_name2 ul li.osnovnoy{background-image: url('../images/img_design/draft_grey.png'); background-repeat: no-repeat;background-position: 88px 3px;}
 #variants_name ul li.checked.osnovnoy,#variants_name2 ul li.checked.osnovnoy{background-image: url('../images/img_design/draft_white.png'); background-repeat: no-repeat;}
@@ -258,7 +272,7 @@
 .variant_info .table_spacer{ height: 10px}
 
 #variants_name ul #show_archive{float: right; padding: 0}
-#variants_name ul #show_archive a{  padding: 5px 15px;float: right; color: #5a5c61; cursor: default;}
+#variants_name ul #show_archive a{  padding: 5px 15px;float: right; color: #5a5c61; /*cursor: default;*/}
 #variants_name ul li#choose_end_variant,#variants_name ul li#extract_from_archive{background-image: url('../images/img_design/choose_end_variant.png'); background-repeat: no-repeat; padding-left: 45px; float: right; background-position: 12px 0;}
 
 .variant_info table tr td .edit_row_variants{ 
@@ -467,7 +481,7 @@
 #number_position_and_type .status_art_right_class{ float: right;}
 
 #number_position_and_type .status_art_right_class div{color: #5a5c61; font-size: 10px;}
-#number_position_and_type .status_art_right_class div span{color: #000; cursor: default; font-size: 12px; padding:5px 10px; margin-left: 0px; }
+#number_position_and_type .status_art_right_class div span{color: #000; /*cursor: default;*/ font-size: 12px; padding:5px 10px; margin-left: 0px; }
 #number_position_and_type ul li.status_art_right_class{padding-left: 0; padding-right: 0}
 
 #number_position_and_type .status_art_right_class div span:hover{ background: #B1B3B6;}
@@ -483,7 +497,7 @@
 #number_position_and_type .status_art_right_class_pause div,
 #number_position_and_type .create_text_mail_for_supplier div{color: #5a5c61; font-size: 10px;}
 #number_position_and_type .status_art_right_class_pause div span,
-#number_position_and_type .create_text_mail_for_supplier div span{color: #000; cursor: default; font-size: 12px; padding:5px 10px; margin-left: 0px; }
+#number_position_and_type .create_text_mail_for_supplier div span{color: #000; /*cursor: default;*/ font-size: 12px; padding:5px 10px; margin-left: 0px; }
 
 
 #number_position_and_type .status_art_right_class_pause div span:hover,
@@ -580,7 +594,7 @@ span.snab_comment {
 
 .variants_show_head_block ul{padding: 0; margin: 0}
 .variants_show_head_block ul li {display: inline-block;  padding: 5px 7px;}
-.variants_show_head_block ul li:hover {background-color: #CBDFA7; cursor:default;}
+.variants_show_head_block ul li:hover {background-color: #CBDFA7;/* cursor:default;*/}
 .variants_show_head_block ul li.checked{background-color: #BAD28E;}
 
 .dop_info_for_snab_calculate{ padding: 15px}
@@ -608,9 +622,9 @@ span.snab_comment {
 
 #variant_of_snab table.calkulate_table tr.calculate.calculate_usl td:nth-child(even){ background-color: #F5FAFF;}
 #variant_of_snab table.calkulate_table tr.calculate.calculate_usl td.usl_del{ background: none;}
-.change_supplier:hover{background-color: $f4f4f4; cursor: default; color:#fff;}
+.change_supplier:hover{background-color: $f4f4f4; /*cursor: default;*/ color:#fff;}
 #chose_supplier_tbl tr td{
-  padding: 2px 5px; cursor: default;
+  padding: 2px 5px; /*cursor: default;*/
 }
 #chose_supplier_tbl tr td:hover{  color: #FFF;
   background-color: #92b73e; }
@@ -622,5 +636,58 @@ span.snab_comment {
 .hidden_top_buttons{ display: none}
 .text_for_send_mail{display: none;}
 
+.may_bee_checked,.calc_icon_chose{
+  cursor: pointer;
+}
+.may_bee_checked:hover,.calc_icon_chose:hover{
+  background-color: #f1f1f1;
+}
 
+.echo_price_uslug{
+  float: right;
+  width: 250px;
+}
 
+.echo_price_uslug span{
+  float: left;
+  min-width: 70px;
+  padding-right: 5px
+}
+
+#dialog_gen_window_form .lili{
+  padding: 3px
+}
+.lili_head{
+  font-weight: bold;
+}
+#dialog_gen_window_form .lili.f_open{
+  background-image: url('../images/img_design/open-closed-folder.png');
+  background-repeat: no-repeat;
+  background-position-y: -25px;
+}
+
+#dialog_gen_window_form .lili.for_one{
+  background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+  background-repeat: no-repeat;
+  background-position-y: -23px;
+}
+
+#dialog_gen_window_form .lili.for_all{
+  background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+  background-repeat: no-repeat;
+  background-position-y: 0px;
+}
+#dialog_gen_window_form .lili.f_close{
+  background-image: url('../images/img_design/open-closed-folder.png');
+  background-repeat: no-repeat;
+  background-position-y: 0px;
+}
+#dialog_gen_window_form .lili.calc_icon{
+  background-image: url('../images/img_design/calc_icon.png');
+  background-repeat: no-repeat;
+  background-position-y: 0px;
+}
+
+.may_bee_checked.checked{
+  background-color: grey
+}

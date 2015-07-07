@@ -427,7 +427,7 @@ PS было бы неплохо взять взять это за правило
 
 		// выдаёт форму по типу продукции
 		public function get_form_Html($arr,$type_product){
-			global $mysqli;
+			// global $mysqli;
 			$html = '';
 			$html .= '<div id="general_form_for_create_product"><form>';
 			$html .= '<input type="hidden" name="AJAX" value="general_form_for_create_product">';
@@ -634,7 +634,7 @@ PS было бы неплохо взять взять это за правило
 		
 		// получает массив описаний всех полей (кроме списков)
 		private function get_cirilic_names_keys_Database(){
-			$query = "SELECT `parent_name`,`name_cirilic` FROM `form_rows_for_lists` WHERE type NOT LIKE('select') AND type NOT LIKE('checkbox');";
+			$query = "SELECT `parent_name`,`name_cirilic` FROM `".FORM_ROWS_LISTS."` WHERE type NOT LIKE('select') AND type NOT LIKE('checkbox');";
 			global $mysqli;			
 			$arr = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -776,7 +776,7 @@ PS было бы неплохо взять взять это за правило
 		// запрашивает из базы список вариантов для полей формы по отдельности
 		private function get_form_Html_listing_Database_Array($type_product,$input_name){
 			global $mysqli;			
-			$query = "SELECT * FROM `form_rows_for_lists` WHERE `type_product` = '".$type_product."' AND `parent_name` = '".$input_name."'";
+			$query = "SELECT * FROM `".FORM_ROWS_LISTS."` WHERE `type_product` = '".$type_product."' AND `parent_name` = '".$input_name."'";
 			$arr = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){
@@ -790,7 +790,7 @@ PS было бы неплохо взять взять это за правило
 		// запрашивает из базы список CHILD для полей формы
 		private function get_child_listing_Database_Array($child){
 			global $mysqli;			
-			$query = "SELECT * FROM `form_rows_for_lists` WHERE `id` IN (".$child.")";
+			$query = "SELECT * FROM `".FORM_ROWS_LISTS."` WHERE `id` IN (".$child.")";
 			$arr = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){

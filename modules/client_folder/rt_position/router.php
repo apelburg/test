@@ -11,9 +11,9 @@
 	include './libs/php/classes/supplier_class.php';
 
 	// класс работы с позициями каталога
-	include './libs/php/classes/articul_class.php';
+	include './libs/php/classes/rt_position_catalog_class.php';
 	// класс работы с позициями не каталога
-	include './libs/php/classes/position_no_ctalog_class.php';
+	include './libs/php/classes/rt_position_no_catalog_class.php';
 	
 	// класс работы с менеджерами
 	include './libs/php/classes/manager_class.php';
@@ -130,7 +130,7 @@
 	if(isset($_GET['forum'])){
 		ob_start();	
 		
-		include 'skins/tpl/client_folder/order_art_edit/forum.tpl';
+		include 'skins/tpl/client_folder/rt_position/forum.tpl';
 		
 		$forum = ob_get_contents();
 		ob_get_clean();
@@ -140,7 +140,7 @@
 	// шаблон поиска
 	include'./skins/tpl/common/quick_bar.tpl';
 	// шаблон страницы
-	include 'skins/tpl/client_folder/order_art_edit/show_'.$tpl_style.'.tpl';
+	include 'skins/tpl/client_folder/rt_position/show_'.$tpl_style.'.tpl';
 
 	
 

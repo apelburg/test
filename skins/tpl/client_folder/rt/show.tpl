@@ -1,5 +1,5 @@
 <!-- begin skins/tpl/client_folder/rt/show.tpl --> 
-<link href="<?php  echo HOST; ?>/skins/css/order_art_edit.css" rel="stylesheet" type="text/css">
+<link href="<?php  echo HOST; ?>/skins/css/rt_position.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 
