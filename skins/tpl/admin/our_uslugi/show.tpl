@@ -172,16 +172,32 @@ $(document).on('click', '.button.usl_del', function(event) {
 	var obj = $(this);
 	event.stopPropagation();
 	if(confirm('Вы уверены, что хотите удалить эту услугу')){
-		$.post('', {
-			AJAX:'del_uslugu',
-			id:obj.parent().attr('data-id')
-		}, function(data, textStatus, xhr) {			
-			if(data['response']=="OK"){
-				obj.parent().remove();
-			}else{
-				console.log('При удалении услуги произошла ошибка');
+		if($(this).parent().hasClass('calc_icon')){
+			var text  = 'Удаление раздела удалит из калькуляторов опцию расчета данного нанесения! Производите удаление только если вы уверенны в правильности данного шага!';
+			if(confirm(text)){
+				$.post('', {
+					AJAX:'del_uslugu',
+					id:obj.parent().attr('data-id')
+				}, function(data, textStatus, xhr) {			
+					if(data['response']=="OK"){
+						obj.parent().remove();
+					}else{
+						console.log('При удалении услуги произошла ошибка');
+					}
+				},'json');
 			}
-		},'json');
+		}else{
+			$.post('', {
+				AJAX:'del_uslugu',
+				id:obj.parent().attr('data-id')
+			}, function(data, textStatus, xhr) {			
+				if(data['response']=="OK"){
+					obj.parent().remove();
+				}else{
+					console.log('При удалении услуги произошла ошибка');
+				}
+			},'json');
+		}
 	}
 });
 
