@@ -512,33 +512,7 @@ function calc_pribl_tir(){
 	console.log(price_out_for_all_men-price_in_for_all);
 }
 
-// Удаление услуги
-$(document).on('click', '.del_row_variants', function(event) {
-	/* Act on the event */
-	console.log('клик на удаление услуги');
-	console.log($(this).parent().parent().prev().find('th').length);
-	console.log($(this).parent().parent().next().find('th').length);
-	//если это последняя услуга в своём разделе, удаляем имя раздела
-	if($(this).parent().parent().next().find('th').length){
-		if($(this).parent().parent().prev().find('th').length){
-			$(this).parent().parent().prev().remove();
-		}
-	}
 
-	var dop_uslugi_id = $(this).parent().parent().attr('data-dop_uslugi_id');
-	$(this).parent().parent().remove();
-	// подсчёт ИТОГО
-	recalculate_table_price_Itogo();
-
-	$.post('', 
-		{
-			AJAX: 'delete_usl_of_variant',
-			uslugi_id: dop_uslugi_id
-		}, function(data, textStatus, xhr) {
-		console.log(data);
-	});
-	
-});
 
 
 // ДОП УСЛУГИ

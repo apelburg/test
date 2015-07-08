@@ -4,6 +4,8 @@
 
 <script type="text/javascript" src="libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 
+<script type="text/javascript" src="./libs/js/classes/Base64Class.js"></script>
+
 <script type="text/javascript" src="libs/js/rt_position.js"></script>
 <script type="text/javascript" src="./libs/js/rt_position_gen.js"></script>
 <!-- <script type="text/javascript" src="../libs/js/jqGeneralScript.js"></script> -->
@@ -193,7 +195,7 @@ $(document).ready(function() {
 								<td>
 									<ul id="all_variants_menu">
 										<!-- вставка кнопок вариантов -->
-										<?php echo $ARTICUL->generate_variants_menu($variants,$dop_enable); ?>
+										<?php echo $POSITION_GEN->POSITION_CATALOG->generate_variants_menu($variants,$dop_enable); ?>
 									</ul>
 								</td>
 								<td>

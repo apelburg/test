@@ -1,36 +1,37 @@
 <?php
-	
-
 	if(!isset($type_product)){echo "Тип товара не определён,<br>или строка с id=".$_GET['id']." в таблице `".RT_DOP_DATA."` не существует ";exit;}
+	
+	// инициализация класса работы с позициями
+	// ВНИМАНИЕ!!!
+	// AJAX ОБРАБАТЫВАЕТСЯ ВНУТРИ КЛАССОВ
+	$POSITION_GEN = new Position_general_Class((isset($_GET)?$_GET:array()),(isset($_POST)?$_POST:array()),$_SESSION);
 
-	//создаем экземпляр класса
-	$ARTICUL = new Articul($_GET,$_POST,$_SESSION);
 
 	// получаем все варианты просчёта по данному артикулу
-	$variants = $ARTICUL->get_all_variants_info_Database_Array($id);
+	$variants = $POSITION_GEN->POSITION_CATALOG->get_all_variants_info_Database_Array($id);
 
 	// получаем необходимые данные в переменные класса
-	$ARTICUL->get_all_info($art_id);
+	$POSITION_GEN->POSITION_CATALOG->get_all_info($art_id);
 
 	// основная информация по артикулу
-	$articul = $ARTICUL->info;
+	$articul = $POSITION_GEN->POSITION_CATALOG->info;
 	// акртикул
 	$art = $articul['art'];
 	//цвет
-	$art_colors = implode(",", $ARTICUL->color);
+	$art_colors = implode(",", $POSITION_GEN->POSITION_CATALOG->color);
 	// материал
-	$art_materials = implode(",", $ARTICUL->material);
+	$art_materials = implode(",", $POSITION_GEN->POSITION_CATALOG->material);
 	// вид печати
-	$art_get_print_mode = implode(",", $ARTICUL->get_print_mode);
+	$art_get_print_mode = implode(",", $POSITION_GEN->POSITION_CATALOG->get_print_mode);
 	// получаем изображения артикула
-	$images_data = $ARTICUL->fetch_images_for_article2($art_id,'1');
+	$images_data = $POSITION_GEN->POSITION_CATALOG->fetch_images_for_article2($art_id,'1');
 	// получаем дополнительные параметры: размер, цену ...
-	$art_dop_params = $ARTICUL->get_dop_params($art_id);
+	$art_dop_params = $POSITION_GEN->POSITION_CATALOG->get_dop_params($art_id);
 	
 	
 	// вычисление вариантов данного артикула с другими цветами
-	if($color_variants = $ARTICUL->get_art_color_variants($art)){
-		$color_variants_block = $ARTICUL->color_variants_to_html2($color_variants);	
+	if($color_variants = $POSITION_GEN->POSITION_CATALOG->get_art_color_variants($art)){
+		$color_variants_block = $POSITION_GEN->POSITION_CATALOG->color_variants_to_html2($color_variants);	
 	}else{ $color_variants_block = '';}
 
 
@@ -79,7 +80,7 @@
 			break;
 		}
 		
-		$get_size_table = $ARTICUL->get_size_table($art_dop_params,$value);
+		$get_size_table = $POSITION_GEN->POSITION_CATALOG->get_size_table($art_dop_params,$value);
 		/* 
 		старый вариант
 		тут подсчитывается тираж и запас варианта расчета каталожной продукции 
@@ -106,7 +107,7 @@
 		$print_z = ($value['print_z']=='1')?'checked':'';
 		$print_z_no = ($value['print_z']=='0')?'checked':'';
 
-		$dop_uslugi = $ARTICUL->get_dop_uslugi_html($value['id'],($sum_tir+$sum_dop));
+		
 		// стандартное время изготовления
 		// $std_pr = ($value['standart']=='10' && $type_tovar=='cat')?1:0;
 		$std_time_print = ($value['standart']=='10' && $type_tovar=='cat')?'checked':'';

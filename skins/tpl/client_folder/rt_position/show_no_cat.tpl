@@ -30,7 +30,7 @@
 	<div id="number_position_and_type">
 		<ul>
 			<li title="порядковый номер позиции в заказе">Позиция № 1 (Это нужно????)</li>
-			<li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span><?php echo $FORM->arr_type_product[$type_product]['name']; ?></li>
+			<li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span><?php echo $POSITION_GEN->FORM->arr_type_product[$type_product]['name']; ?></li>
 			<li><span>доп инфо: </span>Тендер</li>
 			<li><span>снабженец: </span><?php echo Manager::get_snab_name_for_query_String($snab_id); ?></li>
 			<li><span>статус позиции: </span>Расчитано</li>
@@ -53,7 +53,7 @@
 									<div class="row">
 										<div class="cell">
 											<?php 
-												echo $POSITION_NO_CAT->dop_info_no_cat_Html($dop_info_no_cat,$type_product);
+												echo $POSITION_GEN->POSITION_NO_CATALOG->dop_info_no_cat_Html($dop_info_no_cat,$type_product);
 											?>
 										</div>
 										
@@ -74,7 +74,7 @@
 					
 					<?php
 
-					echo $POSITION_NO_CAT->get_all_on_calculation_Html($type_product);
+					echo $POSITION_GEN->POSITION_NO_CATALOG->get_all_on_calculation_Html($type_product);
 
 					?>
 					

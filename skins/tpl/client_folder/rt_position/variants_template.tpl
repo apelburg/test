@@ -66,12 +66,14 @@
 									</tr>
 									<tr  class="tirage_and_price_for_all for_all">
 										<td>тираж</td>
-										<td class="row_tirage_in_gen price_in"><span><?php echo $sum_of_tirage_in;   ?></span> р.</td>
+										<td class="row_tirage_in_gen price_in"><span class="price_in_all"><?php echo $sum_of_tirage_in;   ?></span> р.</td>
 										<td class="row_price_out_gen price_out"><span><?php echo $sum_of_tirage_out;  ?></span> р.</td>
 										<td class="row_pribl_out_gen pribl" ><span><?php echo $sum_prib_of_tirage; ?></span> р.</td>
 									</tr>
 									<?php 
-										echo $dop_uslugi;
+									
+									$uslugi = $POSITION_GEN->POSITION_NO_CATALOG->get_uslugi_Database_Array($value['id']);
+										echo $POSITION_GEN->POSITION_CATALOG->uslugi_template_cat_Html($uslugi);
 									?>
 									<tr>
 										<th colspan="7"  class="type_row_calc_tbl"><div class="add_usl">Добавить ещё услуги</div></th>

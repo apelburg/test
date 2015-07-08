@@ -2,11 +2,6 @@
 /*
 ОПИСАНИЕ:
 
-
-
-
-
-
 */
 
 /*
@@ -19,8 +14,6 @@ Database - если метод предназначен только для ра
 
 PS было бы неплохо взять взять это за правило 
 
-
-
 */
 class Position_no_catalog{
 	// глобальные массивы
@@ -31,16 +24,14 @@ class Position_no_catalog{
 	// тип продукта
 	private $type_product;
 
-	// 
-
 	// id юзера
 	private $user_id;
 
 	// допуски пользователя
 	private $user_access;
 
-	// права на редактирование поля определяются внутри 
-	// некоторых функций 
+	// права на редактирование поля определяются внутри некоторых функций 
+	// содержат html код для разрешения на редакторование для полей html тегов	
 	private $edit_admin;
 	private $edit_men;
 	private $edit_snab;
@@ -137,30 +128,136 @@ class Position_no_catalog{
 		
 		);
 
-	function __construct($get,$post,$session){
+	function __construct($get,$post,$session,$user_access){
 		$this->GET = $get;
 		$this->POST = $post;
 		$this->SESSION = $session;
 		$this->user_id = $session['access']['user_id'];
 
-		$this->user_access = $this->get_user_access_Database_Int($this->user_id);
+		$this->user_access = $user_access;
 
 		$this->id_position = isset($this->GET['id'])?$this->GET['id']:0;
+
+
+		// обработчик AJAX // в конечной редакции... теперь все обработчики будут 
+		// передававться через ключ AJAX
+		if(isset($this->POST['AJAX'])){
+			$this->_AJAX_();
+		}
 	}
 
-	public function get_user_access_Database_Int($id){
-		global $mysqli;
-		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);				
-		$int = 0;
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$int = (int)$row['access'];
-			}
-		}
-		//echo $query;
-		return $int;
+
+	/////////////////  AJAX START ///////////////// 
+	private function _AJAX_(){
+		$method_AJAX = $this->POST['AJAX'].'_AJAX';
+
+		// если в этом классе существует такой метод - выполняем его и выходим
+		if(method_exists($this, $method_AJAX)){
+			$this->$method_AJAX();
+			exit;
+		}		
+		
 	}
+	/////////////////  AJAX METHODs  ///////////////// 
+	
+	private function change_status_gl_AJAX(){
+		// меняем статус для группы вариантов
+		$this->change_status_gl_Database();
+	}
+
+	private function change_status_gl_pause_AJAX(){
+		// установка статуса pause
+		$this->change_status_gl_pause_Database();
+	}
+
+	private function change_maket_date_AJAX(){
+		// редактируем дату подачи макета
+		$this->change_maket_date_Database();
+	}
+
+	private function change_no_cat_json_AJAX(){
+		// редактируем no_cat_json
+		$this->change_no_cat_json_Database();
+	}
+
+	private function edit_work_days_AJAX(){
+		// редактируем количество рабочих дней на изготовление продукции
+		$this->edit_work_days_Database();
+	}
+
+	private function edit_snab_comment_AJAX(){
+		// редактируем комменты снаба
+		$this->edit_snab_comment_Database();
+	}
+
+	// private function add_new_usluga_AJAX(){
+	// 	// добаление данных, прикрепление новой услуги к расчёту
+	// 	$this->add_uslug_Database_Html($this->POST['id_uslugi'],$this->POST['dop_row_id'],$this->POST['quantity']);
+	// }
+
+
+	private function chose_supplier_AJAX(){
+		// выбор поставщика
+
+
+		// запоминаем id уже выбранных поставщиков
+		$already_chosen_arr = explode(',', $this->POST['already_chosen']);
+
+		$suppliers_arr = Supplier::get_all_suppliers_Database_Array();
+		$html = '<form>';
+		$html .='<table id="chose_supplier_tbl">';
+
+		$n=0;
+		for ($i=1; $i < count($suppliers_arr); $i++) {
+			$html .= '<tr>';
+		    for ($j=1; $j<=3; $j++) {
+		    	$checked = '';
+		    	foreach ($already_chosen_arr as $key => $id) {
+		    		if($suppliers_arr[$i]['id']==trim($id)){
+		    			$checked = 'class="checked"';
+		    		}
+		    	}
+		    	$html .= (isset($suppliers_arr[$i]['nickName']))?'<td '.$checked.' data-id="'.$suppliers_arr[$i]['id'].'">'.$suppliers_arr[$i]['nickName']."</td>":"<td></td>";
+		    	$i++;
+		    }
+
+		    $html .= '</tr>';
+		}
+		$html .= '</table>';
+		$html .= '<input type="hidden" name="AJAX" value="change_supliers_info_dop_data">';
+		$html .= '<input type="hidden" name="dop_data_id" value="">';
+		$html .= '<input type="hidden" name="suppliers_id" value="">';
+		$html .= '<input type="hidden" name="suppliers_name" value="">';
+		$html .= '</form>';
+		echo $html;
+		exit;	
+	}
+
+	private function change_supliers_info_dop_data_AJAX(){
+		$this->change_supliers_info_dop_data_Database();
+	}
+
+	private function save_new_price_dop_uslugi_AJAX(){
+		// редактирование цены в прикреплённой услуге
+		$this->save_edit_price_dop_uslugi_Database();
+	}
+
+	private function save_new_price_dop_data_AJAX(){
+		$this->change_dop_data_Database();
+	}
+
+	private function delete_usl_of_variant_AJAX(){
+		Position_no_catalog::del_uslug_Database($this->POST['uslugi_id']);
+		echo '{"response":"OK"}';
+	}
+	
+
+	// private function _AJAX(){
+		
+	// }
+
+	/////////////////   AJAX  END   ///////////////// 
+	
 
 	public function edit_work_days_Database(){
 		global $mysqli;
@@ -602,7 +699,7 @@ class Position_no_catalog{
 	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
 	// $pause - флаг запрета редактирования
 	// названия группы услуги
-	private function uslugi_template_Html($arr, $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
+	public function uslugi_template_Html($arr, $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
 
 		// echo '<pre>';
 		// print_r($arr);
@@ -681,7 +778,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 
 					$real_price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value2['quantity'];
-
+					
 					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'" data-our_uslugi_parent_id="'.trim($value['parent_id']).'">
 										<td>'.$value['name'].' '.$dop_inf.'</td>
 										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$this->round_money($price_in).'</span> р.</td>
@@ -740,7 +837,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	}
 
 	// получаем услуги по варианту расчета
-	private function get_uslugi_Database_Array($id){
+	public function get_uslugi_Database_Array($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);				
@@ -1176,10 +1273,10 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	// добавить доп услугу для варианта
 	public function add_uslug_Database_Html($id_uslugi,$dop_row_id,$quantity){
 		// определяем редакторов для полей (html тегов)
-		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
-		// '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
+		// $this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
+		// $this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
+		// $this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
+		// // '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
 
 
 		global $mysqli;
@@ -1271,7 +1368,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 	}
 
-	private function check_parent_exists_Database_Int($dop_row_id, $parent_id){
+	public function check_parent_exists_Database_Int($dop_row_id, $parent_id){
 		global $mysqli;
 		
 		
@@ -1291,4 +1388,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		global $mysqli;
 
 	}
+
+
+	function __destruct(){}
 }
