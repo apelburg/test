@@ -207,7 +207,7 @@ var rtCalculator = {
 			td.innerHTML = 'Удалить нанесение';
 			td.style.textDecoration = 'underline';
 			td.style.cursor = 'pointer';
-			td.setAttribute('usluga_id',data_AboutPrintsArr[i].id);
+			td.setAttribute('usluga_id',data_AboutPrintsArr[i].dop_uslugi_id);
 			td.onclick = function(){ 
 			
 				// отправляем запрос на удаление для текущего нанесения
@@ -215,7 +215,7 @@ var rtCalculator = {
 				rtCalculator.send_ajax(url,callback);
 			
 				function callback(response){ 
-				    // console.log(response);
+				    // alert(response);
 					$("#calculatorDopUslugiBox").remove();
 					location.reload();
 				}
@@ -332,7 +332,9 @@ var rtCalculator = {
 		if(typeof rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id] === 'undefined') rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id] = {};
 		// если еще нет данных по данным типам мест и нанесения строим массив с данными
 		if(typeof rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] === 'undefined'){
-			rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] = [];
+			rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] = {};
+			
+			// создаем таблицу с позициями к которым возможно применить данное нанесение
 			var table = rtCalculator.createDistributionDataTbl();
 			if(table){
 				
@@ -342,6 +344,7 @@ var rtCalculator = {
 				saveBtn.id = 'distributionSaveResultBtn';
 				saveBtn.innerHTML = 'Сохранить';
 				saveBtn.onclick = function(){
+					alert("Нанесение которое вы собиратесь скопировать, будет скопированно на все варианты расчетов относящихся к позициям которые вы выбрали, нанесение будет скопировано со всеми настройками.");
 					var idsArr = [];
 					var inputsArr = table.getElementsByTagName('INPUT');
 					for(var i = 0;i < inputsArr.length;i++){
@@ -354,15 +357,45 @@ var rtCalculator = {
 							details.ids = idsArr;
 							details.calculationData = rtCalculator.currentCalculationData;
 							
+							if(typeof details.calculationData.print_details.place_type === 'undefined') details.calculationData.print_details.place_type = rtCalculator.currentCalculationData.print_details.place_type =  rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].name;
+							
+							if(typeof details.calculationData.print_details.print_type === 'undefined') details.calculationData.print_details.print_type = rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print[rtCalculator.currentCalculationData.print_details.print_id];
+							
+							
+							
 							var url = OS_HOST+'?' + addOrReplaceGetOnURL('distribute_print=1&details='+JSON.stringify(details));
 							rtCalculator.send_ajax(url,callback);
 						 
 							//$("#distributionSaveResultBtn").remove();
+							//$("#calculatorDialogBox").remove();
 							
 							function callback(response){ 
-								alert(response);
-								// console.log(response);
-								//location.reload();
+								 alert(response);
+								 return;
+								var response_obj =JSON.parse(response);
+								if(response_obj.errors){
+									var str = 'ВНИМАНИЕ\r\n';
+									var space = '        ';
+									
+									for(var i in response_obj.errors){
+										str += 'строка '+rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data[i].glob_counter+', артикул. '+rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data[i].article+"\r";
+										var errors = [];
+										
+										for(var j in response_obj.errors[i]){
+											if(response_obj.errors[i][j].needIndividCalculation)  errors.push('    Ошибка! Нанесение не может быть применено, требуется индивидуальный расчет');
+											if(response_obj.errors[i][j].outOfLimit)  errors.push('    Ошибка! Нанесение не может быть применено, превышен максимальный лимит');
+											if(response_obj.errors[i][j].lackOfQuantity)  errors.push('    Количество меньше минимального тиража, цена была рассчитана по минимально расценке');
+											 
+											 
+										     str += space+"расчет на "+response_obj.errors[i][j].quantity +"шт. "+errors.join(',') + "\r";
+									    }
+										str += "\r";
+									}
+									alert(str);
+								}
+								//
+								// console.log(rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data);
+								location.reload();
 							}
 					}  
 					else{
@@ -383,6 +416,8 @@ var rtCalculator = {
 
 		var tbl = document.getElementById('rt_tbl_body');
 		var trs_arr = tbl.getElementsByTagName('tr');
+		
+		outerloop:
 		for(var i = 0;i < trs_arr.length;i++){ 
 		
 		    if(!trs_arr[i].getAttribute('pos_id')) continue;
@@ -411,7 +446,26 @@ var rtCalculator = {
 				for(var j =0; j < tdsArr.length/**/; j++){
 					if(tdsArr[j].getAttribute('type')){
 						var type = tdsArr[j].getAttribute('type');
-						if(type == 'glob_counter' || type == 'master_btn' || type == 'name' || type == 'quantity'){
+						
+						if(type == 'dop_details'){ 
+						   var dop_details = tdsArr[j].innerHTML;
+						   
+						   // alert(dop_details);
+						   dop_details_obj = JSON.parse(dop_details);
+						   
+						   //alert(typeof dop_details_obj.allowed_prints[rtCalculator.currentCalculationData.print_details.place_id]);
+						   
+						   if(typeof dop_details_obj.allowed_prints ==='undefined') continue outerloop;
+						   if(typeof dop_details_obj.allowed_prints[rtCalculator.currentCalculationData.print_details.place_id] ==='undefined') continue outerloop;
+						   if(typeof dop_details_obj.allowed_prints[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] ==='undefined') continue outerloop;
+						   
+						}
+						
+						
+						if(type == 'glob_counter' ||  type == 'master_btn' || type == 'name' || type == 'quantity'){
+							// проверяем может ли быть применено текущее нанесение к этой данной позиции
+							
+							
 							if(tdsArr[j].hasAttribute('colspan')) tdsArr[j].removeAttribute('colspan');
 							if(tdsArr[j].hasAttribute('rowspan')) tdsArr[j].removeAttribute('rowspan');
 							
@@ -423,8 +477,8 @@ var rtCalculator = {
 							}
 							if(type == 'name'){ 
 							   if(tdsArr[j].hasAttribute('width')) tdsArr[j].removeAttribute('width');
-							   //var article = tdsArr[j].getElementsByTagName('DIV')[0].getElementsByTagName('A')[0].innerHTML;
-							   artTd.innerHTML = tdsArr[j].getElementsByTagName('DIV')[0].getElementsByTagName('A')[0].innerHTML;
+							   var article = tdsArr[j].getElementsByTagName('DIV')[0].getElementsByTagName('A')[0].innerHTML;
+							   artTd.innerHTML = article;
 							   
 							   newTR.appendChild(artTd.cloneNode(true));
 							   tdsArr[j].getElementsByTagName('DIV')[0].parentNode.removeChild(tdsArr[j].getElementsByTagName('DIV')[0]);
@@ -434,26 +488,36 @@ var rtCalculator = {
 							if(type == 'quantity'){ 
 							   if(tdsArr[j].innerHTML == '') tdsArr[j].innerHTML = 'Варианты';
 							}
+							if(type == 'glob_counter'){ 
+							   var glob_counter = tdsArr[j].innerHTML;
+							}
+							
 							newTR.appendChild(tdsArr[j].cloneNode(true));
 						}
 					}
 				}
-				rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].push({"art_id":art_id,"tr":newTR});
+				//rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].push({"art_id":art_id,"tr":newTR});
+				if(typeof rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].trs === 'undefined'){
+					rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].trs = [];
+				}
+				if(typeof rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data === 'undefined'){
+					rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data = {};
+				}
+				
+				rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].trs.push({"art_id":art_id,"tr":newTR});
+				rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data[pos_id]= {"glob_counter":glob_counter,"article":article};
 			}
 	    }
 		
-		if(rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].length > 0){
-			var dataArr = rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id];
+		//alert(rtCalculator.currentCalculationData.print_details.place_id+' '+rtCalculator.currentCalculationData.print_details.print_id);
+		if(rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].trs && rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].trs.length > 0){
+			var dataArr = rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].trs;
 			 
 			var table = document.createElement('TABLE');
 			table.className="calculatorDistributionTbl";
 			
 		    for(var i =0; i < dataArr.length; i++){
 				//console.log(dataArr[i]);
-				//console.log(dataArr[i].art_id);
-				//console.log(dataArr[i].tr);
-				
-				
 				table.appendChild(dataArr[i].tr);
 			}
 			return table;
@@ -1460,7 +1524,7 @@ var rtCalculator = {
 				//if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 				if(tds_arr[j].hasAttribute('type')){
 					var type = tds_arr[j].getAttribute('type');
-					if(type == 'glob_counter' || type == 'master_btn' || type == 'name') continue;
+					if(type == 'glob_counter' || type == 'dop_details' || type == 'master_btn' || type == 'name') continue;
 				    this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
 				}
 			}/**/
@@ -1935,6 +1999,9 @@ var rtCalculator = {
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 			    var type = tds_arr[j].getAttribute('type');
 				var connected_vals = tds_arr[j].getAttribute('connected_vals');
+				
+				
+				if(type == 'glob_counter' || type == 'dop_details' || type == 'master_btn' || type == 'name') continue;
 				
 				if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type];
 				else if(type=='print_exists_flag') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]; 

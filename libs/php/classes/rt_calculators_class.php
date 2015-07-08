@@ -328,12 +328,11 @@
 		}
 		static function delete_prints_for_row($dop_row_id,$usluga_id,$all){
 		    global $mysqli;  
-			
 			// если надо удалить все расчеты нанесения
 			if($all && !$usluga_id){
 			    $query="DELETE FROM `".RT_DOP_USLUGI."` WHERE
 									   `dop_row_id` ='".$dop_row_id."'"; 
-				 //echo $query;
+				 echo $query;
 				 $mysqli->query($query)or die($mysqli->error);
 			
 			}
@@ -353,80 +352,86 @@
 			unset($details_obj->calculationData->dop_data_row_id);
 			unset($details_obj->calculationData->print_details->priceIn_tblXindex);
 			unset($details_obj->calculationData->print_details->priceOut_tblXindex);
-			
-			$details_obj->calculationData->print_details->print_type = 'ПРОБА';
 									  
-			//print_r($details_obj);echo "\r\n";//
-			
+			 print_r($details_obj);echo "\r\n";
+			//// $details_obj->calculationData->dop_uslugi_id;
+			// exit;
+			// определяем к какому варианту расчета относится данное нанесение 
+			// и затем исключим его в следующей выборке чтобы повторно не присвоить нанесение которое мы распределяем 
+			// тому варианту расчета из которого оно было вызвано 
+			// но если это было новое не сохраненное нанесение то у него отсутсвует $details_obj->calculationData->dop_uslugi_id 
+			// для него по умолчанию присваиваем 0 для  $expel_dop_data_id
+			$expel_dop_data_id = 0;
+			if(isset($details_obj->calculationData->dop_uslugi_id)){
+				$query="SELECT dop_data.id id FROM `".RT_DOP_DATA."` dop_data INNER JOIN
+										`".RT_DOP_USLUGI."` uslugi 
+										  ON   dop_data.id = uslugi.dop_row_id
+										  WHERE uslugi.id = '".$details_obj->calculationData->dop_uslugi_id."'";
+				
+					//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					$row = $result->fetch_assoc();
+					$expel_dop_data_id = $row['id'];
+				}
+			}
+	 
+			 
 			foreach($details_obj->ids as $id){
 				// выбираем данные о вариантах расчетов существующих для данных позиций
 				 $query="SELECT dop_data.id dop_data_id ,dop_data.quantity quantity FROM `".RT_MAIN_ROWS."` main INNER JOIN
 									`".RT_DOP_DATA."` dop_data
 									  ON   main.`id` = dop_data.`row_id`
-									  WHERE main.id = '".$id."'";
+									  WHERE main.id = '".$id."' AND dop_data.id <> '".$expel_dop_data_id."'";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);
 				if($result->num_rows>0){
 				    while($row = $result->fetch_assoc()){
 					    $print_details_obj = $details_obj->calculationData->print_details;
-						// здесь мы рассчитываем стоимость нанесения для текущей строки и одновременно 
-						// выясняем нет ли противоречий с данным типом нанесения:
-						// 1. тираж не меньше минимально возможного
-						// 2. тираж не больше лимита
-						// 3. тираж не нуждается в индивидуальном рассчете
+						// 
+						if($row['quantity'] != 0){
+							$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
+							// получаем новые исходящюю и входящюю цену исходя из нового таража
+							$new_price_arr = self::change_quantity_and_calculators_price_query($row['quantity'],$print_details_obj,$YPriceParam);
+						   // print_r($new_price_arr);echo "\r\n";//
+						}
 						
-						$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
-					    // получаем новые исходящюю и входящюю цену исходя из нового таража
-					    $new_price_arr = self::change_quantity_and_calculators_price_query($row['quantity'],$print_details_obj,$YPriceParam);
-						print_r($new_price_arr);echo "\r\n";////
 						
 						// если все в порядке и нет ни каких исключений делаем дальнейшие операции
 						if(!(self::$needIndividCalculation || self::$outOfLimit)){
 							 
-							/* foreach($dataArr as $key => $dataVal){
-							 // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
-								$new_data = self::make_calculations($quantity,$dataVal['new_price_arr'],$dataVal['print_details_obj']->dop_params);
-								
-								// перезаписываем новые значения прайсов и X индекса обратно в базу данных
-								$query="UPDATE `".RT_DOP_USLUGI."` 
-											  SET 
-											  quantity = '".$quantity."',
-											  price_in = '".$new_data["new_price_arr"]["price_in"]."',
-											  price_out = '".$new_data["new_price_arr"]["price_out"]."'
-											  WHERE id = '".$dataVal['uslugi_row_id']."'";
-								//$mysqli->query($query)or die($mysqli->error);
-								
-								$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
-								$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
-								//print_r($new_summs);
-								//echo "\r\n";
-								// обновляем количество 
-								$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$dop_data_id."'";
-								$result = $mysqli->query($query)or die($mysqli->error);
-							}*/
+
+						    // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
+							if($row['quantity'] != 0){
+							    $new_data = self::make_calculations($row['quantity'],$new_price_arr,$print_details_obj->dop_params);
+							}
+							else  $new_data["new_price_arr"] =  array("price_in"=>0,"price_out"=>0);
+							
+							// вписываем новое нанесение для данного расчета в базу данных
+							$query="INSERT INTO `".RT_DOP_USLUGI."` 
+										  SET 
+										  dop_row_id = '".$row['dop_data_id']."',
+										  glob_type = 'print',
+										  print_details = '".self::json_fix_cyr(json_encode($print_details_obj))."',
+										  quantity = '".$row['quantity']."',
+										  price_in = '".$new_data["new_price_arr"]["price_in"]."',
+										  price_out = '".$new_data["new_price_arr"]["price_out"]."'";
+							$mysqli->query($query)or die($mysqli->error);
+							
 						}
 						
-						if(self::$needIndividCalculation) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'needIndividCalculation' => 1);//[$row['quantity']]['needIndividCalculation'] = 1;
-						if(self::$outOfLimit) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'outOfLimit' => 1);
-						if(self::$lackOfQuantity) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'lackOfQuantity' => 1);//[$row['quantity']]['lackOfQuantity'] = 1;
+						if(self::$needIndividCalculation) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'needIndividCalculation' => 1);
+						if(self::$outOfLimit) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'outOfLimit' => 1);
+						if(self::$lackOfQuantity) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'lackOfQuantity' => 1);
 						
                         self::$needIndividCalculation = false;
 						self::$outOfLimit = false;
 						self::$lackOfQuantity = false;
-
-				/*
-						$json_str =  '{"result":"'.$result.'","row_id":'.$dop_data_id;
-						if($result=='ok')	$json_str .= ',"new_sums":'.json_encode($itog_sums);
-						if(self::$lackOfQuantity)	$json_str .= ',"lackOfQuantity":'.json_encode(self::$lackOfQuantityDetails);
-						if(self::$outOfLimit)  $json_str .= ',"outOfLimit":'.json_encode(self::$outOfLimitDetails);
-						if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
-						$json_str .=  '}';
-						*/
 					}
-					echo "\r\n --- \r";////
-					echo print_r($out);
 				}
 			}
+			//print_r($out);
+			echo json_encode($out);
 		}
 		static function change_quantity_and_calculators($quantity,$dop_data_id){
 		    global $mysqli;  

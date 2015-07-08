@@ -1,4 +1,25 @@
-<!-- begin skins/tpl/clients/client_details_field_general.tpl -->          
+<!-- begin skins/tpl/clients/client_details_field_general.tpl -->     
+<style type="text/css">
+#order_art_edit{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px}
+
+
+#info_string_on_query{ background-color: #5a5c61; color: #fff;}
+
+#info_string_on_query ul{ padding: 0; list-style: none; margin: 0}
+#info_string_on_query ul li{ display: inline-block;padding: 5px 10px;}
+#back_to_string_of_claim a{width: 32px;
+  height: 24px;
+  cursor: pointer;
+  background: url('../../skins/images/img_design/back_art.png') no-repeat;
+  /* float: left; */
+  position: absolute;
+  z-index: 3;
+  /* top: 61px; */
+  margin-top: -5px;
+  background-position-x: 3px;}
+</style>
+
+     
 <div id="order_art_edit">
 <div id="info_string_on_query">
 		<ul>

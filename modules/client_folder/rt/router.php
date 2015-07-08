@@ -97,7 +97,7 @@
 		exit;
 	}
 	if(isset($_GET['delete_prints_for_row'])){
-		//print_r(json_decode($_GET['details']));
+		//echo  $_GET['usluga_id'].' - '. $_GET['delete_prints_for_row'];
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 		$usluga_id = (isset($_GET['usluga_id']))? $_GET['usluga_id'] : FALSE;
 		$all = (isset($_GET['all']))? $_GET['all'] : FALSE;
