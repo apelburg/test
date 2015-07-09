@@ -860,17 +860,30 @@ var rtCalculator = {
 	  
 		
         if(CurrPrintTypeData['y_price_param']){
-		
+		    // содержит всё название подарздела контейнеры для селектов ЦМИКов и т.д.
 			var YPriceParamDivContainer = document.createElement('DIV');
             YPriceParamDivContainer.className = 'YPriceParamDivContainer';
 			
+			// содержит селекты в обертках
 			var YPriceParamDiv = document.createElement('DIV');
-            YPriceParamDiv.id = 'rtCalculatorYPriceParamDiv';
-			YPriceParamDiv.className = 'rtCalculatorYPriceParamDiv';
+            YPriceParamDiv.id = 'YPriceParamDiv';
+			YPriceParamDiv.className = 'YPriceParamDiv';
+			
+			// содержит ЦМИКи
+			var YPriceParamCMYKdiv = document.createElement('DIV');
+			YPriceParamCMYKdiv.className = 'YPriceParamCMYKdiv';
+			
+			// содержит поле ввода ЦМИКа
+			var YPriceParamCMYK = document.createElement('DIV');
+			YPriceParamCMYK.className = 'YPriceParamCMYK';
+			YPriceParamCMYK.setAttribute("contenteditable",true);
+			YPriceParamCMYK.onblur =  rtCalculator.onblurCMYK;
 			
 			var YPriceParamSelect = document.createElement('SELECT');
+			var YPriceParamSelectWrap =  document.createElement('DIV');
 			// метод onchangeYPriceParamSelect пикрепляется к Селекту здесь и пикрепляется к добавляемым селектам ниже в специальном цикле 
-			YPriceParamSelect.onchange = function(){ rtCalculator.onchangeYPriceParamSelect(YPriceParamDiv); }
+			YPriceParamSelect.onchange = function(){ rtCalculator.onchangeYPriceParamSelect(YPriceParamDiv,YPriceParamCMYKdiv); }
+			// добавляем теги OPTION
 			for(var color in CurrPrintTypeData['y_price_param']){
 				
 				var option = document.createElement('OPTION');
@@ -886,7 +899,7 @@ var rtCalculator = {
             option.appendChild(document.createTextNode(' -- выбрать -- '));
 			YPriceParamSelect.insertBefore(option, YPriceParamSelect.firstChild); 
 			
-			
+			// ссылка добавить цвет
 			var addYPriceParamLink = document.createElement('A');
 			addYPriceParamLink.href = '#';
 			addYPriceParamLink.id = 'calculatoraddYPriceParamLink';
@@ -894,9 +907,19 @@ var rtCalculator = {
 			addYPriceParamLink.onclick =  function(){
 				
 				var YPriceParamSelectClone = YPriceParamSelect.cloneNode(true);
+
 				// навешиваем обработчик события селекту, потому что при YPriceParamSelect.cloneNode(true); он слетает
-				YPriceParamSelectClone.onchange = function(){ rtCalculator.onchangeYPriceParamSelect(YPriceParamDiv); }
-				YPriceParamDiv.appendChild(YPriceParamSelectClone);
+				YPriceParamSelectClone.onchange = function(){ rtCalculator.onchangeYPriceParamSelect(YPriceParamDiv,YPriceParamCMYKdiv); }
+				
+				var YPriceParamSelectWrapClone = YPriceParamSelectWrap.cloneNode();
+				YPriceParamSelectWrapClone.appendChild(YPriceParamSelectClone);
+				YPriceParamDiv.appendChild(YPriceParamSelectWrapClone);
+				
+				var YPriceParamCMYKсlone = YPriceParamCMYK.cloneNode(true);
+				YPriceParamCMYKсlone.onblur = rtCalculator.onblurCMYK;
+				YPriceParamCMYKdiv.appendChild(YPriceParamCMYKсlone);
+				
+				
 				// если количество селектов сравнялось с количеством рядов в прайсе скрываем ссылку для добавления новых селектов
 				if(YPriceParamDiv.getElementsByTagName('SELECT').length ==  rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0].length-1){
 				    this.className += ' hidden';
@@ -907,7 +930,9 @@ var rtCalculator = {
 			// для уже существующего расчета или для нового расчета 
 			if(typeof rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam !== 'undefined'){
 				for(var i = 0;i < rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length; i++){ 
+				     // Select
 				     var YPriceParamSelectClone = YPriceParamSelect.cloneNode(true);
+					 var YPriceParamSelectWrapClone = YPriceParamSelectWrap.cloneNode(true);
 					 var optionsArr = YPriceParamSelectClone.getElementsByTagName("OPTION");
 					 //var optionsArr = YPriceParamSelectClone.options;
 					 for(var j in optionsArr){
@@ -917,16 +942,28 @@ var rtCalculator = {
 					 }
 					 
 					 //YPriceParamSelectClone.options[parseInt(rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].id)].setAttribute("selected",true);
-				     YPriceParamDiv.appendChild(YPriceParamSelectClone);
+					 // Select
+				     YPriceParamSelectWrapClone.appendChild(YPriceParamSelectClone);
+					 YPriceParamDiv.appendChild(YPriceParamSelectWrapClone);
+					 // CMYK
+					 var YPriceParamCMYKсlone = YPriceParamCMYK.cloneNode(true);
+					 if(rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk) YPriceParamCMYKсlone.innerHTML = rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk;
+					 YPriceParamCMYKсlone.onblur = rtCalculator.onblurCMYK;
+				     YPriceParamCMYKdiv.appendChild(YPriceParamCMYKсlone);
 				}
 				var selectsArr = YPriceParamDiv.getElementsByTagName("SELECT");
 				// навешиваем обработчики события каждому селекту, потому что при YPriceParamSelect.cloneNode(true); они слетают
 				for(var i in selectsArr){
-					selectsArr[i].onchange = function(){ rtCalculator.onchangeYPriceParamSelect(YPriceParamDiv); }
+					selectsArr[i].onchange = function(){ rtCalculator.onchangeYPriceParamSelect(YPriceParamDiv,YPriceParamCMYKdiv); }
 				}
 			}
 			else{
-				YPriceParamDiv.appendChild(YPriceParamSelect);
+				// Select
+				YPriceParamSelectWrap.appendChild(YPriceParamSelect);
+				YPriceParamDiv.appendChild(YPriceParamSelectWrap);
+				// CMYK
+				YPriceParamCMYKdiv.appendChild(YPriceParamCMYK);
+				
 				rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam = [];
 				rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam.push({'id':0,'coeff':1});
 			}
@@ -945,6 +982,7 @@ var rtCalculator = {
 			
 			YPriceParamDivContainer.appendChild(title);
 			YPriceParamDivContainer.appendChild(elementsBox);
+			YPriceParamDivContainer.appendChild(YPriceParamCMYKdiv);
 			YPriceParamDivContainer.appendChild(clear_div.cloneNode(true));
 			printParamsBox.appendChild(YPriceParamDivContainer);
 			
@@ -1021,14 +1059,14 @@ var rtCalculator = {
 		
 		// входящяя цена 
 		if(CurrPrintTypeData['priceIn_tbl']){
-			var price_tbl = rtCalculator.build_priceTbl(CurrPrintTypeData['priceIn_tbl'],'in');
-		   // printParamsBox.appendChild(price_tbl);
+			rtCalculator.price_tblIn = rtCalculator.build_priceTbl(CurrPrintTypeData['priceIn_tbl'],'in');
+		    // printParamsBox.appendChild(rtCalculator.price_tblIn);
 		}
 		else alert('отсутствует прайс входящих цен');
 		// исходящяя цена 
 		if(CurrPrintTypeData['priceOut_tbl']){
-			var price_tbl = rtCalculator.build_priceTbl(CurrPrintTypeData['priceOut_tbl'],'out');
-		    // printParamsBox.appendChild(price_tbl);
+			rtCalculator.price_tblOut = rtCalculator.build_priceTbl(CurrPrintTypeData['priceOut_tbl'],'out');
+		    // printParamsBox.appendChild(rtCalculator.price_tblOut);
 		}
 		else alert('отсутствует прайс исходящих цен');
 		
@@ -1425,33 +1463,35 @@ var rtCalculator = {
 			tdClone.innerHTML = 'штука';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = 'траж';
+			tdClone.innerHTML = 'тираж';
 			TRclone.appendChild(tdClone);
 			total_tbl.appendChild(TRclone);
 			
 			
 			TRclone = tr.cloneNode(true);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = 'Входящая';
+			tdClone .className = 'title';
+			tdClone.innerHTML = 'Входящая:';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = (rtCalculator.currentCalculationData.price_in).toFixed(2);
+			tdClone.innerHTML = ((rtCalculator.currentCalculationData.price_in).toFixed(2)).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")+'р';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = (total_price_in).toFixed(2);
+			tdClone.innerHTML = ((total_price_in).toFixed(2)).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")+'р';
 			TRclone.appendChild(tdClone);
 			total_tbl.appendChild(TRclone);
-			
+	//alert("1231231.23".replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 "));		
 			
 			TRclone = tr.cloneNode(true);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = 'Исходящая';
+			tdClone .className = 'title';
+			tdClone.innerHTML = 'Исходящая:';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = (rtCalculator.currentCalculationData.price_out).toFixed(2);
+			tdClone.innerHTML = ((rtCalculator.currentCalculationData.price_out).toFixed(2)).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")+'р';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = (total_price_out).toFixed(2);
+			tdClone.innerHTML = ((total_price_out).toFixed(2)).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")+'р';
 			TRclone.appendChild(tdClone);
 			total_tbl.appendChild(TRclone);
 	
@@ -1466,13 +1506,18 @@ var rtCalculator = {
 
 		 //console.log('>>> total_str <<<');
 		// console.log('in  - '+(rtCalculator.currentCalculationData.price_in).toFixed(2)+' '+(total_price_in).toFixed(2)+' out - '+(rtCalculator.currentCalculationData.price_out).toFixed(2)+' '+(total_price_out).toFixed(2));   
-			
-		total_details = '<div class="calculatorTotalDetails">';
-		total_details += '<span style="color:#FF6633;">коэффициэнты прайса:</span> '+price_coeff_list+'<br>';
+		rtCalculator.total_details = document.createElement('div');	
+		rtCalculator.total_details.className ="calculatorTotalDetails";
+
+		var total_details = '<span style="color:#FF6633;">коэффициэнты прайса:</span> '+price_coeff_list+'<br>';
 		total_details += '<span style="color:#FF6633;">надбавки прайса:</span> '+price_additions_list+'<br>';
 		total_details += '<span style="color:#FF6633;">коэффициэнты суммы:</span> '+summ_coefficient_list+'<br>';
 		total_details += '<span style="color:#FF6633;">надбавки суммы:</span> '+summ_additions_list+'<br>';
-		total_details += '<div>';
+        rtCalculator.total_details.innerHTML = total_details;
+		if(document.getElementById("showProcessingDetailsBoxTotalDetails")){
+			document.getElementById("showProcessingDetailsBoxTotalDetails").innerHTML = '';
+			document.getElementById("showProcessingDetailsBoxTotalDetails").appendChild(rtCalculator.total_details);
+		}
 			
 		if(total_tbl){
 			
@@ -1492,20 +1537,24 @@ var rtCalculator = {
 		
 			rtCalculatorItogDisplay.appendChild(total_tbl);
 			
-			if(document.getElementById("calculatorsaveResultBtn")){
-				saveBtn = document.getElementById("calculatorsaveResultBtn");
-			}
-			else{
-				var saveBtn = document.createElement('DIV');
-				saveBtn.id = 'calculatorsaveResultBtn';
-				saveBtn.className = 'saveBtn';
-				saveBtn.innerHTML = 'Сохранить расчет';
-				saveBtn.onclick =  rtCalculator.saveCalculatorResult;
-				mainCalculatorBox.appendChild(saveBtn);
-				
-			} 
+			var BtnsDiv = document.createElement('DIV');
+			BtnsDiv.className = 'BtnsDiv';
 			
-			rtCalculatorItogDisplay.appendChild(saveBtn);
+			var showProcDetBtn = document.createElement('DIV');
+			showProcDetBtn.className = 'showProcessingDetailsBtn';
+			showProcDetBtn.innerHTML = 'Включить вкладку прайс';
+			showProcDetBtn.onclick =  rtCalculator.showProcessingDetails;
+			
+			BtnsDiv.appendChild(showProcDetBtn);
+			
+			var saveBtn = document.createElement('DIV');
+			saveBtn.className = 'saveBtn';
+			saveBtn.innerHTML = 'Сохранить расчет';
+			saveBtn.onclick =  rtCalculator.saveCalculatorResult;
+			
+			BtnsDiv.appendChild(saveBtn);
+			rtCalculatorItogDisplay.appendChild(BtnsDiv);
+	
 			
 			document.getElementById("mainCalculatorBox").appendChild(rtCalculatorItogDisplay);
 		}
@@ -1513,6 +1562,27 @@ var rtCalculator = {
 		
 		
 		
+	}
+	,
+	showProcessingDetails:function(){
+
+		var box = document.createElement('DIV');
+		box.id = "showProcessingDetailsBox";
+		//box.style.width = '300px';
+		box.style.display = "none";
+		box.appendChild(rtCalculator.price_tblIn);
+		box.appendChild(rtCalculator.price_tblOut);
+		var total_details = document.createElement('DIV');
+		total_details.id = "showProcessingDetailsBoxTotalDetails";
+		
+		total_details.appendChild(rtCalculator.total_details);
+		box.appendChild(total_details);
+		document.body.appendChild(box);
+		
+		$("#showProcessingDetailsBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Детали расчета",width: 400,close: function() {this.remove();$("#showProcessingDetailsBox").remove();}});
+		$("#showProcessingDetailsBox").dialog("open");
+		 //
+        //
 	}
 	,
 	saveCalculatorResult:function(){
@@ -1532,6 +1602,10 @@ var rtCalculator = {
 		if(typeof rtCalculator.currentCalculationData.print_details.priceIn_tblXindex !== 'undefined') delete rtCalculator.currentCalculationData.print_details.priceIn_tblXindex;
 		if(typeof rtCalculator.currentCalculationData.print_details.priceOut_tbl !== 'undefined') delete rtCalculator.currentCalculationData.print_details.priceOut_tbl;
 		if(typeof rtCalculator.currentCalculationData.print_details.priceIn_tbl !== 'undefined') delete rtCalculator.currentCalculationData.print_details.priceIn_tbl;
+		if(typeof rtCalculator.price_tblIn !== 'undefined') delete rtCalculator.price_tblIn;
+		if(typeof rtCalculator.price_tblOut !== 'undefined') delete rtCalculator.price_tblOut;
+		if(typeof rtCalculator.total_details !== 'undefined') delete rtCalculator.total_details;
+		
 		
 		if(typeof rtCalculator.dataObj_toEvokeCalculator !== 'undefined') delete rtCalculator.dataObj_toEvokeCalculator;
 		
@@ -1555,7 +1629,19 @@ var rtCalculator = {
 		
 	}
 	,
-	onchangeYPriceParamSelect:function(YPriceParamDiv){
+	onblurCMYK:function(e){ 
+	    e = e || window.event;
+	    // устанавливаем текущюю ячейку
+	    cur_cell = e.target || e.srcElement;
+		var container = cur_cell.parentNode;
+		var cellsArr = container.getElementsByTagName("DIV");
+		for( var i = 0; i < cellsArr.length; i++){
+			if(cellsArr[i] == cur_cell) break;//alert(i);
+		}
+		rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk = cur_cell.innerHTML;
+	}
+	,
+	onchangeYPriceParamSelect:function(YPriceParamDiv,YPriceParamCMYKdiv){
 		// здесь нам надо пройти по всем селектам в YPriceParamDiv и собрать данные о выбранных полях
 		// чтобы сохранить их в dataForProcessing а затем запустить rtCalculator.makeProcessing();
 		
@@ -1563,6 +1649,8 @@ var rtCalculator = {
 		if(rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam) rtCalculator.currentCalculationData.print_details.dop_params.YPriceParam = [];
 		
 		var selectsArr = YPriceParamDiv.getElementsByTagName("SELECT");
+		var CMYKsArr = YPriceParamCMYKdiv.getElementsByTagName("DIV");
+		
 		//alert(selectsArr.length);
 		for( var i = 0; i < selectsArr.length; i++){
 			var value = selectsArr[i].options[selectsArr[i].selectedIndex].value;
@@ -1574,7 +1662,11 @@ var rtCalculator = {
 			}
 			// если value == 0(0 равно вспомогательное значение "Выбрать"), значит выбор в селекте не сделан
 			// удаляем этот селект
-			if(value == 0) selectsArr[i].parentNode.removeChild(selectsArr[i]);
+			// if(value == 0) selectsArr[i].parentNode.parentNode.removeChild(selectsArr[i].parentNode);
+			if(value == 0){
+				selectsArr[i].parentNode.parentNode.removeChild(selectsArr[i].parentNode);
+				CMYKsArr[i].parentNode.removeChild(CMYKsArr[i]);
+			}
 		}
 		
 		// alert(YPriceParamDiv.getElementsByTagName('SELECT').length);
