@@ -193,7 +193,8 @@ class Position_general_Class{
 		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".$this->POST['tz']."' WHERE `id`='".$this->POST['rt_dop_uslugi_id']."';
 ";
 		$result = $mysqli->query($query) or die($mysqli->error);
-		return '{"response":"OK"}';
+
+		echo '{"response":"OK" , "name":"save_tz_text_AJAX","increment_id":"'.$this->POST['increment_id'].'"}';
 	}
 	// добавить доп услугу для варианта
 	public function add_new_usluga_AJAX(){
@@ -246,6 +247,7 @@ class Position_general_Class{
 		$NEW_usl[0]['for_how'] = $usluga['for_how'];
 		$NEW_usl[0]['quantity'] = $quantity;
 		$NEW_usl[0]['creator_id'] = $this->user_id;
+		$NEW_usl[0]['tz'] = '';
 		
 		// генерим html выдачу для ajax
 		global $type_product;

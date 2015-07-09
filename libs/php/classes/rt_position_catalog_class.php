@@ -321,81 +321,6 @@ class Position_catalog{
 		return $arr;
 	}
 
-
-
-	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
-	// ВАРИАНТ ВЫВОДА УСЛУГ № 1   **** старт ****
-	/*
-	public function get_dop_uslugi($id_dop_data){
-		global $mysqli;
-		//$query = "SELECT * FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".(int)$id_dop_data."'";
-		$query = "SELECT  `".RT_DOP_USLUGI."`. * ,  
-				`rt_uslugi_gen`.`name` AS  `group_name` ,  
-				`".OUR_USLUGI_LIST."`.`name` AS  `name` ,  
-				`rt_uslugi_gen`.`type` AS  `group_type` ,  
-				`".OUR_USLUGI_LIST."`.`type` AS  `type` ,
-				`".OUR_USLUGI_LIST."`.`parent_id` 
-			FROM  `".RT_DOP_USLUGI."` 
-			INNER JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` =  `".RT_DOP_USLUGI."`.`uslugi_id` 
-			INNER JOIN  `".OUR_USLUGI_LIST."` AS  `rt_uslugi_gen` ON  `".OUR_USLUGI_LIST."`.`parent_id` =  `rt_uslugi_gen`.`id` 
-			WHERE  `".RT_DOP_USLUGI."`.`dop_row_id` =  '".$id_dop_data."' ORDER BY  `rt_uslugi_gen`.`name` ASC";
-		// echo $query;
-		$arr = array();
-		$result = $mysqli->query($query) or die($mysqli->error);
-		$this->info = 0;
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$arr[] = $row;
-			}
-		}
-		return $arr;
-	}
-
-	public function get_dop_uslugi_html($id){
-		$arr = $this->get_dop_uslugi($id);
-		// ob_start();	
-		// echo "<pre>";
-		// print_r($arr);
-		// echo "</pre>";
-		// $html = ob_get_contents();
-		// ob_get_clean();
-		// return $html;
-		$html = '';
-		$general_name = '';
-		$percent_nacenki = 0;
-
-		foreach ($arr as $k => $val) {
-
-			$percent_nacenki = $this->get_percent_Int($val['price_in'],$val['price_out']);
-
-			if( $general_name != trim($val['group_name']) ){
-				
-				$general_name = trim($val['group_name']);
-					$html .='
-							<tr class="group_usl_name" data-usl_id="'.$val['parent_id'].'">
-								<th colspan="7">'.$general_name.'</th>
-							</tr>
-					';
-			}			
-
-			$html .='<tr class="'.$val['for_how'].'"  data-dop_uslugi_id="'.$val['id'].'">';
-			$html .='<td>'.$val['name'].'</td>';
-			$html .='<td class="price_in"><span>'.$val['price_in'].'</span> р.</td>';
-			$html .='<td class="percent_nacenki"><span>'.$percent_nacenki.'</span>%</td>';
-			$html .='<td  class="price_out"><span>'.$val['price_out'].'</span> р.</td>';
-			$html .='<td  class="pribl"><span>'.($val['price_out'] - $val['price_in']).'</span> р.</td>';
-			$html .='<td><span class="edit_row_variants"></span></td>';
-			$html .='<td><span class="del_row_variants"></span></td>';
-			$html .='</tr>';	
-		}
-		//return $html;
-
-		return $html;
-	}
-	*/
-	// ВАРИАНТ ВЫВОДА УСЛУГ № 1   **** конец ****
-	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
-	
 	// ВЫВОДИТ СПИСОК УСЛУГ ПРИКРЕПЛЁННЫХ ДЛЯ ВАРИАНТА
 	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
 	// $pause - флаг запрета редактирования
@@ -440,7 +365,7 @@ class Position_catalog{
 		}
 		$id_s = implode(', ', $id_s);
 
-		// делаем запрос по услугам  
+		// делаем запрос по услугам
 		global $mysqli;
 		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`tz`,`".OUR_USLUGI_LIST."`.`edit_pr_in`,`".OUR_USLUGI_LIST."`.`price_out`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
 inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.") ORDER BY  `os__our_uslugi_par`.`name` ASC ";

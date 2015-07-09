@@ -721,3 +721,4 @@ span.snab_comment {
 
 .calculate.calculate_usl.editing td{ background-color: #f1f1f1}
 .tz_text_shablon,.tz_text{ display: none}
+.tz_taxtarea_edit{ width: 100%;  min-height: 250px;}
