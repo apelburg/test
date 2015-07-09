@@ -188,6 +188,13 @@ class Position_general_Class{
 	// 	}
 	// }
 
+	private function save_tz_text_AJAX(){
+		global $mysqli;
+		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".$this->POST['tz']."' WHERE `id`='".$this->POST['rt_dop_uslugi_id']."';
+";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		return '{"response":"OK"}';
+	}
 	// добавить доп услугу для варианта
 	public function add_new_usluga_AJAX(){
 		$id_uslugi = $this->POST['id_uslugi'];

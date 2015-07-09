@@ -284,6 +284,33 @@
   background-position: 0px 2px;
   border: 1px solid #fff;
 }
+.tz_text_edit{
+  background: url('../images/img_design/tz_text_edit.png') no-repeat; 
+  float: right; 
+  margin:auto;
+    width: 30px;
+  height: 30px;
+  background-position: 0px 2px;
+  border: 1px solid #fff;
+}
+.tz_text_see{
+  background: url('../images/img_design/tz_text_edit.png') no-repeat; 
+  float: right; 
+  margin:auto;
+    width: 30px;
+  height: 30px;
+  background-position: 0px 2px;
+  border: 1px solid #fff;
+}
+.tz_text_new{
+  background: url('../images/img_design/tz_text_new.png') no-repeat; 
+  float: right; 
+  margin:auto;
+    width: 30px;
+  height: 30px;
+  background-position: 0px 2px;
+  border: 1px solid #fff;
+}
 .variant_info table tr td .del_row_variants{ 
   background: url('../images/img_design/del_row_variants.png') no-repeat; 
   float: right; 
@@ -691,3 +718,6 @@ span.snab_comment {
 .may_bee_checked.checked{
   background-color: grey
 }
+
+.calculate.calculate_usl.editing td{ background-color: #f1f1f1}
+.tz_text_shablon,.tz_text{ display: none}

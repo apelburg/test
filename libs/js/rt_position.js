@@ -1122,8 +1122,48 @@ $(document).keydown(function(e) {
 });
 
 
-// ОТРАБОТКА КНОПОК ОБМЕНА СТАТУСОВ МЕЖДУ ПЕРСООНАЛОМ
 
+// сохраняет данные в таблицу dop_data
+function save_dop_dop_usluga(obj){	
+	console.log(obj);
+	var data = {};
+	obj.find('.calculate.calculate_usl.editing').each(function(index, el) {
+		var dop_usl_id = $(this).attr('data-dop_uslugi_id');
+		var price_out_snab = $(this).find('.row_price_out_gen.uslugi_class.price_out_snab span').html();
+		var price_out = $(this).find('.row_price_out_gen.uslugi_class.price_out_men span').html();
+		var price_in = Number($(this).find('.row_tirage_in_gen.uslugi_class.price_in span').html());
+		var quantity = Number($('.variant_content_block:visible .tirage_var').val())+Number($('.variant_content_block:visible .dop_tirage_var').val());
+		var for_how = $(this).attr('data-for_how');
+		console.log(for_how);
+		console.log(quantity);
+		console.log(price_in);
+		console.log(price_out);
+		if(for_how == 'for_one'){
+			price_out_snab = round_s(price_out_snab/quantity);
+			price_out = round_s(price_out/quantity);
+			price_in = round_s(price_in/quantity);			
+		}
+
+		// console.log(price_out_snab);
+		// console.log(price_out);
+
+		data[$(this).attr('data-dop_uslugi_id')] = {"price_out":price_out,"price_in":price_in,"price_out_snab":price_out_snab};		
+		// $(this).removeClass('editing');
+	});
+	// console.log(data);
+	$.post('', { 
+			AJAX: 'save_new_price_dop_uslugi',
+			data:data
+		}
+		, function(data, textStatus, xhr) {
+		console.log(data);
+
+		// снимаем класс сохранения
+		obj.find('.calculate.calculate_usl.editing').each(function(index, el) {
+			$(this).removeClass('editing');
+		})
+	});
+}
 
 
 

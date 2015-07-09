@@ -234,10 +234,15 @@
 					# Это услуги из КАЛЬКУЛЯТОРА
 					// кнопки добавления калькуляторов
 					$button_add = ($row['id']==6)?'<span class="button  usl_add">+</span>':'';
+					// кнопки удаления калькуляторов
+					$button_del = ($row['parent_id']==6)?'<span class="button usl_del calc_type">X</span>':'';
+
+					$buttons = $button_del.$button_add;
+
 					// запрос на детей
 					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
 					// присваиваем конечным услугам класс may_bee_checked
-					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$button_add.'</div>'.$child;
+					$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$buttons.'</div>'.$child;
 				
 				}
 			}
@@ -300,6 +305,12 @@
 			// Цена исходящая
 			$html .= '<div class="name_input">Цена исходащая</div>';
 			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_out'].'" data-real="'.$usluga['price_out'].'" name="price_out"> руб.</div>';
+
+			// Разрешить редактировать входящую цену
+			$html .= '<div class="name_input">Разрешить редактировать входящую цену</div>';
+			$html .= '<div class="edit_info"><input type="radio" id="edit_pr_in1" name="edit_pr_in" value="0" '.(($usluga['edit_pr_in']=="0")?'checked':'').'><label for="edit_pr_in1"><span>Запретить</span></label></div>';
+			$html .= '<div class="edit_info"><input type="radio" id="edit_pr_in2" name="edit_pr_in" value="1" '.(($usluga['edit_pr_in']=="1")?'checked':'').'><label for="edit_pr_in2"><span>Разрешить</span></label></div>';
+			
 
 			// Как считаем
 			$html .= '<div class="name_input">Как считаем</div>';

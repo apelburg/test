@@ -44,7 +44,7 @@
 										<th>%</th>
 										<th>$ исход.</th>
 										<th>прибыль</th>
-										<th class="edit_cell">ред.</th>
+										<th class="edit_cell">ТЗ</th>
 										<th class="del_cell">del</th>
 									</tr>
 									<tr class="tirage_and_price_for_one">

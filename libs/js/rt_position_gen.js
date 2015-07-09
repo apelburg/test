@@ -194,3 +194,211 @@ $(document).on('click', '.calc_icon_chose', function(event) {
 
 	alert('хотим калькулятор '+$(this).find('.name_text').html()+', type = '+$(this).attr('data-type')+', id = '+$(this).attr('data-id'));
 });
+
+
+// редактируем входящую цену за услугу
+$(document).on('keyup', '.row_tirage_in_gen.uslugi_class.price_in span', function(event) {
+	var pr_in = Number($(this).html());
+	var pr_out_men = Number($(this).parent().parent().find('.row_price_out_gen.uslugi_class.price_out_men span').html());
+	if(pr_out_men<pr_in){
+		$(this).parent().parent().find('.row_price_out_gen.uslugi_class.price_out_men span').html(pr_in)
+	}
+
+
+	// считаем прибыль
+	calc_usl_pribl($(this).parent().parent());
+
+	// считаем %
+	calc_usl_percent($(this).parent().parent());
+
+	// подсчёт ИТОГО
+	recalculate_table_price_Itogo();
+	
+
+	// добавляем маркер к строке которое мы отредактировали
+	$(this).parent().parent().addClass('editing');
+	// сохраняем значения тиража в dop_uslugi
+	time_to_save('save_dop_dop_usluga',$('.calkulate_table:visible'));
+});
+
+//пересчитать прибыль для услуги
+function calc_usl_pribl(obj){// на вход подаётся строка услуги
+	var price_in = Number(obj.find('.row_tirage_in_gen.uslugi_class.price_in span').html());
+	var price_out = Number(obj.find('.row_price_out_gen.uslugi_class.price_out_men span').html());
+	obj.find('.row_pribl_out_gen.uslugi_class.pribl span').html(round_s(price_out-price_in));
+}
+
+//пересчитать % наценки для услуги
+function calc_usl_percent(obj){// на вход подаётся строка услуги
+	var price_in = Number(obj.find('.row_tirage_in_gen.uslugi_class.price_in span').html());
+	var price_out = Number(obj.find('.row_price_out_gen.uslugi_class.price_out_men span').html());
+	obj.find('.row_tirage_in_gen.uslugi_class.percent_usl span').html(percent_calc(price_out,price_in));
+}
+function percent_calc(price_out,price_in){
+	return Math.ceil(((price_out-price_in)*100/price_in)*100)/100;
+}
+
+// SAVE DATA
+/*
+атрибут data-save_enabled="" в теге table активной таблицы calkulate_table
+сигнализирует о том можно ли приступать скрипту к сохранению
+если нет, то скрипт проверяет теге table активной таблицы calkulate_table наличие атрибута
+с названием data-*имя функции сохранения*, этот атрибут может быть только в ТРЁХ состаяниях:
+1. data-*имя функции сохранения*="true"
+	ФУНКЦИЯ СОХРАНЕНИЯ ПОСТАВЛЕНА В ОЧЕРЕДЬ
+	запрос на сохранение будет автоматически повтарен через 2 сек
+2. data-*имя функции сохранения*=""
+	можно приступать к сохранению, сохранения из этой функции на странице уже были
+
+3. data-*имя функции сохранения* - не существует 
+	можно приступать к сохранению, сохранений из этой функции на странице еще не было
+*/
+
+function time_to_save(fancName,obj){
+
+
+	console.log(obj.attr('data-save_enabled'));
+	//если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
+	if(obj.attr('data-save_enabled')!="false"){
+		// обнуляем очередь
+		if(obj.hasClass(fancName)){obj.removeClass(fancName);}
+		// console.log(obj);
+
+		// console.log('re '+obj.find('.row_tirage_in_gen.price_in span').html());
+		console.log(fancName);
+		window[fancName](obj);
+
+		// пишем запрет на save
+		obj.attr('data-save_enabled','false');
+		// снимаем запрет на через n времени
+		var time = 2000;
+		
+		setTimeout(function(){obj.attr("data-save_enabled","")}, time);				
+	}else{// стоит запрет, проверяем очередь по сейву данной функции
+		
+		if(obj.hasClass(fancName)){ //стоит в очереди на сохранение
+			// стоит очередь, значит мимо... всё и так сохранится
+		}else{
+			// не стоит в очереди, значит ставим
+			obj.addClass(fancName);
+
+			// вызываем эту же функцию через n времени всех очередей
+			var time = 2000;
+			$('.calkulate_table.'+fancName).each(function(index, el) {
+				console.log($(this).find('.row_tirage_in_gen.price_in span').html());
+				
+				setTimeout(function(){time_to_save(fancName,$('.calkulate_table.'+fancName).eq(index));}, time);	
+			});
+			
+		}		
+	}
+}
+
+
+// ДОП УСЛУГИ
+// %
+$(document).on('keyup', '.row_tirage_in_gen.uslugi_class.percent_usl span', function(event) {
+	// получаем реальные значения цены данной услуги, цены взяты из прайса
+	// если эти значения равны, то услуга применяется к тиражу, если нет то к единице товара
+	var min_price_real_for_one = Number($(this).parent().next().attr('data-real_min_price_for_one'));
+	var min_price_real_for_all = Number($(this).parent().next().attr('data-real_min_price_for_all'));
+	
+	// цена от снаба (устанавливает снаб или админ)
+	var min_price_snab = Number($(this).parent().next().find('span').html());
+	
+	// ввёденное значение процентов
+	var enter_percent = Number($(this).html());
+
+	// входящая цена
+	var price_in = Number($(this).parent().prev().find('span').html());
+
+	// если % меньше 0, то  % = 0
+	if(enter_percent<0){
+		enter_percent =0;
+		$(this).html(enter_percent);
+	}
+
+	// если рабтает не мен, то замена исх. цены за услугу идёт и в поле менеджера и в поле снаба
+	if($(this).parent().next().find('span').attr('contenteditable')=="true"){
+		
+		// высчитываем исходящую стоимость исходя из введённых процентов
+		price_out_snab = price_out_men = round_s((100+enter_percent)*price_in/100);
+		
+		// если новая цена меньше цены по прайсу за тираж, то пересчитываем процент
+		// и меняем его на минимально возможный (прайсовый)
+		if(price_out_snab<min_price_real_for_all){
+			enter_percent = percent_calc(min_price_real_for_all,price_in);
+			$(this).html(enter_percent);
+			price_out_snab = price_out_men = min_price_real_for_all;
+		}
+		// gпишем исходящие цены снаба и мена
+		$(this).parent().next().find('span').html(price_out_snab).parent().next().find('span').html(price_out_men);
+		// считаем прибыль
+		calc_usl_pribl($(this).parent().parent());
+
+	}else{ // работает мен
+
+		// высчитываем исходящую стоимость исходя из введённых процентов
+		price_out_men = round_s((100+enter_percent)*price_in/100);
+		
+		// если новая цена меньше цены цены от снаба, то пересчитываем процент
+		// и меняем его на минимально возможный (от снаба)
+		if(price_out_men<min_price_snab){
+			enter_percent = percent_calc(min_price_snab,price_in);
+			$(this).html(enter_percent);
+			price_out_snab = price_out_men = min_price_snab;
+		}
+		// пишем исходящую цену мена
+		$(this).parent().next().next().find('span').html(price_out_men);
+		// считаем прибыль
+		calc_usl_pribl($(this).parent().parent());
+	}
+
+	// подсчёт ИТОГО
+	recalculate_table_price_Itogo();
+
+
+	// добавляем маркер к строке которое мы отредактировали
+	$(this).parent().parent().addClass('editing');
+	// сохраняем значения тиража в dop_uslugi
+	time_to_save('save_dop_dop_usluga',$('.calkulate_table:visible'));
+
+
+});
+
+// редактирование цена мен
+$(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_men span', function(event) {
+	var price_out_snab = Number($(this).parent().prev().find('span').html());
+	var price_out_men = Number($(this).html());
+
+	// если мен указал цену меньше, чем указал снаб
+	if(price_out_men<price_out_snab){
+		$(this).html(price_out_snab);
+	}
+
+	// считаем прибыль
+	calc_usl_pribl($(this).parent().parent());
+
+	// считаем %
+	calc_usl_percent($(this).parent().parent());
+
+	// подсчёт ИТОГО
+	recalculate_table_price_Itogo();
+
+	// добавляем маркер к строке которое мы отредактировали
+	$(this).parent().parent().addClass('editing');
+	// сохраняем значения тиража в dop_uslugi
+	time_to_save('save_dop_dop_usluga',$('.calkulate_table:visible'));
+});
+
+
+// РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ В ТЗ ПО УСЛУГЕ
+$(document).on('click', '.tz_text_new', function(event) {
+
+	var text = '<form><textarea name="tz">'+$(this).parent().find('.tz_text_shablon').html()+'</textarea>';
+	var ajax_name = '<input type="hidden" name="AJAX" value="save_tz_text">';
+	ajax_name += '<input type="hidden" name="rt_dop_uslugi_id" value="'+$(this).parent().parent().attr('data-dop_uslugi_id')+'"></form>';
+
+
+	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ',600);
+});

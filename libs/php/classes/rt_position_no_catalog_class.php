@@ -641,7 +641,7 @@ class Position_no_catalog{
 										<th>$ МИН исход.</th>
 										<th>$ исход.</th>
 										<th>прибыль</th>
-										<th class="edit_cell">ред.</th>
+										<th class="edit_cell">ТЗ</th>
 										<th class="del_cell">del</th>
 									</tr>
 									<tr class="tirage_and_price_for_one" data-dop_data_id="'.$arr['id'].'">
@@ -661,7 +661,7 @@ class Position_no_catalog{
 									</tr>
 									<tr class="tirage_and_price_for_all for_all" data-dop_data_id="'.$arr['id'].'">
 										<td>тираж</td>
-										<td class="row_tirage_in_gen price_in"><span '.$this->edit_admin.$this->edit_snab.'>'.$arr['price_in'].'</span> р.</td>
+										<td class="row_tirage_in_gen price_in tir"><span '.$this->edit_admin.$this->edit_snab.'>'.$arr['price_in'].'</span> р.</td>
 										<td class="row_price_out_gen price_out_snab tirage" style="color:red"><span  '.$this->edit_admin.$this->edit_snab.'>'.$arr['price_out_snab'].'</span> р.</td>
 										<td class="row_price_out_gen price_out_men tirage"><span  '.$this->edit_admin.$this->edit_men.'>'.$arr['price_out'].'</span> р.</td>
 										<td class="row_pribl_out_gen pribl"><span>'.$this->round_money($arr['price_out']-$arr['price_in']).'</span> р.</td>
@@ -740,7 +740,7 @@ class Position_no_catalog{
 
 		// делаем запрос по услугам  
 		global $mysqli;
-		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`price_out`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
+		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`edit_pr_in`,`".OUR_USLUGI_LIST."`.`price_out`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
 inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.") ORDER BY  `os__our_uslugi_par`.`name` ASC ";
 		// $query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id_s.")";
 		//echo $query;
@@ -779,9 +779,9 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 					$real_price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value2['quantity'];
 					
-					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'" data-our_uslugi_parent_id="'.trim($value['parent_id']).'">
+					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'"  data-our_uslugi_parent_id="'.trim($value['parent_id']).'" data-for_how="'.trim($value['for_how']).'">
 										<td>'.$value['name'].' '.$dop_inf.'</td>
-										<td class="row_tirage_in_gen uslugi_class price_in"><span>'.$this->round_money($price_in).'</span> р.</td>
+										<td class="row_tirage_in_gen uslugi_class price_in"><span '.(($value['edit_pr_in'] == '1')?$this->edit_admin.$this->edit_snab:'').'>'.$this->round_money($price_in).'</span> р.</td>
 										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$this->edit_admin.$this->edit_snab.$this->edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
 										<td class="row_price_out_gen uslugi_class price_out_snab" style="color:red" data-real_min_price_for_one="'.$value['price_out'].'" data-real_min_price_for_all="'.$real_price_out.'"><span '.$this->edit_admin.$this->edit_snab.'>'.$this->round_money($price_out_snab).'</span> р.</td>
 										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$this->edit_admin.$this->edit_men.'>'.$this->round_money($price_out_men).'</span> р.</td>
@@ -1359,9 +1359,11 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 			// $value['price_out'];
 
 			$query .= "UPDATE `".RT_DOP_USLUGI."` SET
-			`price_out`='".$value['price_out']."',
-			`price_out_snab`='".$value['price_out_snab']."' 
-			WHERE `id`='".$id."';";
+			`price_in`='".$value['price_in']."',
+			`price_out`='".$value['price_out']."'";
+			$query .= (isset($value['price_out_snab'])?", `price_out_snab`='".$value['price_out_snab']."'":'');
+			 
+			$query .= "WHERE `id`='".$id."';";
 		}
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 		echo '{"response":"OK"}';
