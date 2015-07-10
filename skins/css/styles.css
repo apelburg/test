@@ -1615,7 +1615,9 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #calculatorDialogBox .calculatorDistributionTbl { border-collapse:collapse}
 #calculatorDialogBox .calculatorDistributionTbl td { vertical-align:top; font-size: 11px; border-bottom: 1px solid #8b8a89;}
 #calculatorDialogBox .printPlaceSelectDiv { margin-left: 54px; border: #FFFF66 solid 0px;}
+#calculatorDialogBox .printPlaceSelectDiv select{width: 144px; }
 #calculatorDialogBox .printTypesSelectDiv {  margin-left: 310px; border: #3333FF solid 0px;}
+#calculatorDialogBox .printTypesSelectDiv select{ width: 144px; }
 #calculatorDialogBox .calculatorTitle{ float:left;margin:2px 5px 0 0;}
 #calculatorDialogBox .calculatorElementsBox{ float:left;}
 
@@ -1643,6 +1645,8 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #calculatorDialogBox .BtnsDiv{margin:2px 0 0 50px; width: 485px; height:45px; border:#CCC solid 0px;}
 #calculatorDialogBox .showProcessingDetailsBtn{ float:left; border:#CCC solid 1px;padding:10px 20px;cursor:pointer}
 #calculatorDialogBox .saveBtn {float:right; border:#CCC solid 1px;padding:10px 20px;cursor:pointer; background-color:#99B52A}
+#calculatorDialogBox .distributionSaveBtn { float:right; margin:12px 65px 12px 0 ; border:#CCC solid 1px;padding:10px 20px;cursor:pointer; background-color:#99B52A}
+
 /*margin:20px 1px 1px 50px;*/
 
 

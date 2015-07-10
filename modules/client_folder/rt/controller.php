@@ -47,6 +47,7 @@
 		     if(!isset($multi_dim_arr[$row['main_id']])){
 			     $multi_dim_arr[$row['main_id']]['row_type'] = $row['main_row_type'];
 				 $multi_dim_arr[$row['main_id']]['master_btn'] = $row['master_btn'];
+				 $multi_dim_arr[$row['main_id']]['art_id'] = $row['art_id'];
 				 $multi_dim_arr[$row['main_id']]['art'] = $row['art'];
 				 $multi_dim_arr[$row['main_id']]['name'] = $row['item_name'];
 				 if($row['main_row_type']=='cat'){
@@ -243,7 +244,7 @@
 				 
 				  
 			 }
-			 $art_id = get_base_art_id($row['art']);
+			 //$art_id = get_base_art_id($row['art']);
 			  
 			 $dop_details = '';
 			  //echo $row['row_type'].' = ';
@@ -252,7 +253,7 @@
 								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['art'].'</a>
 								   <div class="pos_link_plank">
 									  <div class="catalog">
-										  <a id="" href="/?page=description&id='.$art_id.'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
+										  <a id="" href="/?page=description&id='.$row['art_id'].'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
 									  </div>
 									  <div class="supplier">
 										   '.identify_supplier_by_prefix($row['art']).'
@@ -260,7 +261,7 @@
 								   </div>
 								 </div>'.$row['name'];
 				 // дополнительная скрытая инфа 
-		        if($counter==0)  $dop_details['allowed_prints'] = $row['dop_details'];
+		        if($counter==0 &&  count($row['dop_details'])>0)  $dop_details['allowed_prints'] = $row['dop_details'];
 			 }
 			 if($row['row_type'] == 'ext'){
 				 $extra_panel = '<div class="pos_plank ext">
@@ -275,7 +276,7 @@
 			 
 			 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$art_id.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
+		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="glob_counter" class="top glob_counter" width="30">'.$glob_counter.'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="master_btn" class="top master_btn noselect" width="35">   
 											<div class="masterBtnContainer" id="">
@@ -288,7 +289,7 @@
 										  
 										  //extra_panel
 			 $cur_row .=  '<td class="hidden"></td>
-			               <td type="dop_details" class="_hidden">'.json_encode($dop_details).'</td>
+			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
 			               <td width="40" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
 			               <td width="60" type="quantity" class="right"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="20" class="r_border left quantity_dim">'.$quantity_dim.'</td>

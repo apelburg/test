@@ -281,23 +281,23 @@
 				
 			return $out_put;	
 		}
-		static function get_related_art_and_print_types($out_put, $art_id){
+		static function get_related_art_and_print_types($out_put,$art_id){
 		    global $mysqli;  
-			$places = array();
-			$print_types = array();
+		
 			//UPDATE `new__base__print_mode` SET `print_id`=13 WHERE `print` = 'шелкография'
 			// получаем данные о типах нанесений соответсвующих данному артикулу на прямую
 			$query="SELECT*FROM `".BASE_PRINT_MODE_TBL."` WHERE `art_id` = '".$art_id."'";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);/**/
 			if($result->num_rows>0){
+
 			    while($row = $result->fetch_assoc()){
-				    // складываем все присвоенные id нанесений
-					$out_put[0][$row['print_id']] = '';	
+				    if($row['print_id']!=0){
+				       $out_put[0][$row['print_id']] = '';		
+					}
 				}
 			}
 			return $out_put;
-		    
 		}
 		static function get_related_print_places($out_put,$art_id){
 		    global $mysqli;  

@@ -96,7 +96,14 @@ var rtCalculator = {
 				var quantity = parseInt(tdsArr[i].innerHTML);
 			} 
 		}
-		if(typeof quantity === 'undefined') alert('Не удается получить данные о количестве товара!!!');
+		if(typeof quantity === 'undefined'){
+			alert('Не удается получить данные о количестве товара!!!');
+			return;
+		}
+		if(quantity === 0){
+			alert('Расчет не возможен, тираж 0шт. !!!');
+			return;
+		}
 		
 		
 		if(calculator_type == 'print'){
@@ -110,7 +117,7 @@ var rtCalculator = {
 			var url = OS_HOST+'?' + addOrReplaceGetOnURL('fetch_dop_uslugi_for_row='+dop_data_row_id);
 			rtCalculator.send_ajax(url,callback);
 			function callback(response){ 
-			    //alert(response);
+			    // alert(response);
 				// этап 1
 				if(typeof data_AboutPrintsArr !== 'undefined') delete data_AboutPrintsArr;
 				var data_AboutPrintsArr = JSON.parse(response);
@@ -281,6 +288,7 @@ var rtCalculator = {
 		//alert(last_val);
 		function callback(response_calculatorParamsData){
 			// alert(response_calculatorParamsData);
+			// return;
 			if(typeof rtCalculator.calculatorParamsObj !== 'undefined') delete rtCalculator.calculatorParamsObj;
 			
             rtCalculator.calculatorParamsObj = JSON.parse(response_calculatorParamsData);
@@ -340,7 +348,7 @@ var rtCalculator = {
 				
 				calculatorDataBox.appendChild(table);
 			    var saveBtn = document.createElement('DIV'); 
-				saveBtn.className = 'saveBtn';
+				saveBtn.className = 'distributionSaveBtn';
 				saveBtn.id = 'distributionSaveResultBtn';
 				saveBtn.innerHTML = 'Сохранить';
 				saveBtn.onclick = function(){
@@ -359,7 +367,7 @@ var rtCalculator = {
 							
 							if(typeof details.calculationData.print_details.place_type === 'undefined') details.calculationData.print_details.place_type = rtCalculator.currentCalculationData.print_details.place_type =  rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].name;
 							
-							if(typeof details.calculationData.print_details.print_type === 'undefined') details.calculationData.print_details.print_type = rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print[rtCalculator.currentCalculationData.print_details.print_id];
+							if(typeof details.calculationData.print_details.print_type === 'undefined') details.calculationData.print_details.print_type = rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].prints[rtCalculator.currentCalculationData.print_details.print_id];
 							
 							
 							
@@ -391,10 +399,8 @@ var rtCalculator = {
 									    }
 										str += "\r";
 									}
-									alert(str);
+									//alert(str);
 								}
-								//
-								// console.log(rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data);
 								location.reload();
 							}
 					}  
@@ -426,7 +432,7 @@ var rtCalculator = {
 			var pos_id = trs_arr[i].getAttribute('pos_id');
 			var row_id = trs_arr[i].getAttribute('row_id');
 			var trType = trs_arr[i].getAttribute('type');
-			if(trType=='cat'){
+			if(true/*trType=='cat'*/){
 				
 				var art_id = trs_arr[i].getAttribute('art_id');
 			    var tr = trs_arr[i].cloneNode(true);
@@ -455,9 +461,21 @@ var rtCalculator = {
 						   
 						   //alert(typeof dop_details_obj.allowed_prints[rtCalculator.currentCalculationData.print_details.place_id]);
 						   
-						   if(typeof dop_details_obj.allowed_prints ==='undefined') continue outerloop;
-						   if(typeof dop_details_obj.allowed_prints[rtCalculator.currentCalculationData.print_details.place_id] ==='undefined') continue outerloop;
-						   if(typeof dop_details_obj.allowed_prints[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] ==='undefined') continue outerloop;
+						   //if(typeof dop_details_obj.allowed_prints ==='undefined') continue outerloop;
+						   
+						   // здесь вообще полная шизофрения 
+						   // если dop_details_obj.allowed_prints не существует в природе - мы продолжаем работать с этим рядом
+						   // тоесть к нему можно все применять - так как не указано ничего конкретно
+						   // но если dop_details_obj.allowed_prints есть, то мы начинаем проверять на наличие в ней:
+						   // сначала вложенности указывающей конкретное place_id 
+						   // потом  вложенности указывающей конкретное print_id 
+						   // если все сошлось значит такое нанесение на таком месте к этой позиции можно применить 
+						   // причем сначала надо проверить первую вложенность а затем только вторую иначе может вылезти ошибка если 
+						   // первая вложенность с таким данными будет отсутсвовать
+						   if(typeof dop_details_obj.allowed_prints !=='undefined'){
+							   if(typeof dop_details_obj.allowed_prints[rtCalculator.currentCalculationData.print_details.place_id] ==='undefined') continue outerloop;
+							   if(typeof dop_details_obj.allowed_prints[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id] ==='undefined') continue outerloop;
+						   }
 						   
 						}
 						
@@ -755,13 +773,13 @@ var rtCalculator = {
 		
 		var counter = 0;
 		// проходим по массиву содержащему id и названия типов нанесения соответствующих данному месту нанесения
-		for(var id in rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print){
+		for(var id in rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].prints){
 			// если это заново запускаемый калькулятор сохраняем id первого  нанесения 
 			if(typeof rtCalculator.currentCalculationData.print_details.print_id === 'undefined') rtCalculator.currentCalculationData.print_details.print_id = id;
 			counter++;
 			var option = document.createElement('OPTION');
             option.setAttribute("value",id);
-            option.appendChild(document.createTextNode(rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print[id]));
+            option.appendChild(document.createTextNode(rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].prints[id]));
             printTypesSelect.appendChild(option);
 			//// console.log(i + data_obj.places[i].name);
 			if(typeof rtCalculator.currentCalculationData.print_details.print_id !== 'undefined'){
@@ -774,7 +792,7 @@ var rtCalculator = {
 		if(counter>1){
 			var option = document.createElement('OPTION');
             option.setAttribute("value",0);
-            option.appendChild(document.createTextNode(' -- выберите вариант -- '));
+            option.appendChild(document.createTextNode(' -выберите вариант- '));
 			printTypesSelect.insertBefore(option, printTypesSelect.firstChild); 
             
 			// если это не был вызов калькулятора для конкретного существующего расчета 
@@ -905,24 +923,28 @@ var rtCalculator = {
 			addYPriceParamLink.id = 'calculatoraddYPriceParamLink';
 			addYPriceParamLink.innerHTML = 'добавить цвет';
 			addYPriceParamLink.onclick =  function(){
-				
-				var YPriceParamSelectClone = YPriceParamSelect.cloneNode(true);
-
-				// навешиваем обработчик события селекту, потому что при YPriceParamSelect.cloneNode(true); он слетает
-				YPriceParamSelectClone.onchange = function(){ rtCalculator.onchangeYPriceParamSelect(YPriceParamDiv,YPriceParamCMYKdiv); }
-				
-				var YPriceParamSelectWrapClone = YPriceParamSelectWrap.cloneNode();
-				YPriceParamSelectWrapClone.appendChild(YPriceParamSelectClone);
-				YPriceParamDiv.appendChild(YPriceParamSelectWrapClone);
-				
-				var YPriceParamCMYKсlone = YPriceParamCMYK.cloneNode(true);
-				YPriceParamCMYKсlone.onblur = rtCalculator.onblurCMYK;
-				YPriceParamCMYKdiv.appendChild(YPriceParamCMYKсlone);
-				
-				
-				// если количество селектов сравнялось с количеством рядов в прайсе скрываем ссылку для добавления новых селектов
-				if(YPriceParamDiv.getElementsByTagName('SELECT').length ==  rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0].length-1){
-				    this.className += ' hidden';
+				// если количество селектов меньше рядов в таблице прайса то можем добавлять новый 
+				// если сравнялось или больше добавлять не можем
+				if(YPriceParamDiv.getElementsByTagName('SELECT').length < rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0].length-1){
+					var YPriceParamSelectClone = YPriceParamSelect.cloneNode(true);
+	
+					// навешиваем обработчик события селекту, потому что при YPriceParamSelect.cloneNode(true); он слетает
+					YPriceParamSelectClone.onchange = function(){ rtCalculator.onchangeYPriceParamSelect(YPriceParamDiv,YPriceParamCMYKdiv); }
+					
+					var YPriceParamSelectWrapClone = YPriceParamSelectWrap.cloneNode();
+					YPriceParamSelectWrapClone.appendChild(YPriceParamSelectClone);
+					YPriceParamDiv.appendChild(YPriceParamSelectWrapClone);
+					
+					var YPriceParamCMYKсlone = YPriceParamCMYK.cloneNode(true);
+					YPriceParamCMYKсlone.onblur = rtCalculator.onblurCMYK;
+					YPriceParamCMYKdiv.appendChild(YPriceParamCMYKсlone);
+					
+					
+						
+				}
+				if(YPriceParamDiv.getElementsByTagName('SELECT').length >= rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0].length-1){
+					// скрываем ссылку добавления если она есть
+				   this.className += ' hidden';	
 				}
 			}
 			
@@ -978,7 +1000,8 @@ var rtCalculator = {
 		 
 			
 			elementsBox.appendChild(YPriceParamDiv);
-			elementsBox.appendChild(addYPriceParamLink);
+			// если количество селектов меньше рядов в таблице прайса то добавляем сслыку добавления новых селектов
+			if(YPriceParamDiv.getElementsByTagName('SELECT').length < rtCalculator.calculatorParamsObj.print_types[rtCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0].length-1) elementsBox.appendChild(addYPriceParamLink);
 			
 			YPriceParamDivContainer.appendChild(title);
 			YPriceParamDivContainer.appendChild(elementsBox);
@@ -988,7 +1011,7 @@ var rtCalculator = {
 			
 		}
 		
-			if(CurrPrintTypeData['sizes']){
+		if(CurrPrintTypeData['sizes'][rtCalculator.currentCalculationData.print_details.place_id]){
 			// собираем данные для расчета
 			// площади нанесения
 			// if(typeof rtCalculator.dataForProcessing['coefficients'] === 'undefined') rtCalculator.dataForProcessing['coefficients']={};
@@ -1081,11 +1104,6 @@ var rtCalculator = {
         //                        ([0] => Array ([print_id] => 13[size] => до 630 см2 (А4)[percentage] => 1.00)
 		//						   [1] => Array ([print_id] => 13[size] => до 1260 см2 (А3)[percentage] => 1.50))
 		//				  )
-
-        var dopParametrsTitle = document.createElement('DIV');
-		dopParametrsTitle.className = "dopParametrsTitle";
-		dopParametrsTitle.innerHTML = 'Дополнительно:';
-		printParamsBox.appendChild(dopParametrsTitle);
 		
 		var dopParamsArr = [];
 
@@ -1153,13 +1171,22 @@ var rtCalculator = {
 				
 			}
 		}
-		//alert(dopParamsArr.length);
-		var tbl = document.createElement('TABLE');
-		tbl.className = 'dopParametrsTbl';
-		var tr = document.createElement('TR');
-		var td = document.createElement('TD');
+		// alert(dopParamsArr.length);
+		
 		if(dopParamsArr.length>0){
-			for(var i = 0;i < 9/*dopParamsArr.length*/;i++){ 
+			
+			var dopParametrsTitle = document.createElement('DIV');
+		    dopParametrsTitle.className = "dopParametrsTitle";
+		    dopParametrsTitle.innerHTML = 'Дополнительно:';
+		    printParamsBox.appendChild(dopParametrsTitle);
+			
+			
+			var tbl = document.createElement('TABLE');
+		    tbl.className = 'dopParametrsTbl';
+		    var tr = document.createElement('TR');
+		    var td = document.createElement('TD');
+			
+			for(var i = 0;i < dopParamsArr.length;i++){ 
 			    if(0 || (i)%2 == 0)  var trClone = tr.cloneNode(true);
 				trClone.appendChild(dopParamsArr[i]);
 				if((i+1)%2 == 0) tbl.appendChild(trClone);
@@ -1169,8 +1196,14 @@ var rtCalculator = {
 				tbl.appendChild(trClone);
 				
 			}
+			printParamsBox.appendChild(tbl);
 		}
-        printParamsBox.appendChild(tbl);
+		else{
+		   var empytDiv = document.createElement('DIV');
+		   empytDiv.style.height = '50px';
+		   printParamsBox.appendChild(empytDiv);	
+		}
+		
 		
 	    var dopParametrsTitle = document.createElement('DIV');
 		dopParametrsTitle.className = "dopParametrsTitle";
@@ -1592,7 +1625,7 @@ var rtCalculator = {
 		// console.log(rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id]); 
 		// корректируем объект с информацией удаляем не нужные для сохранение данные, добавляем нужные
 		rtCalculator.currentCalculationData.print_details.place_type =  rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].name;
-		rtCalculator.currentCalculationData.print_details.print_type =  rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].print[rtCalculator.currentCalculationData.print_details.print_id];
+		rtCalculator.currentCalculationData.print_details.print_type =  rtCalculator.calculatorParamsObj.places[rtCalculator.currentCalculationData.print_details.place_id].prints[rtCalculator.currentCalculationData.print_details.print_id];
 		
 		
 		if(typeof rtCalculator.currentCalculationData.glob_type !== 'undefined') delete rtCalculator.currentCalculationData.glob_type;
@@ -2112,7 +2145,6 @@ var rtCalculator = {
 		// метод производит калькуляцию текущих данных, и вычисляет разность текущих данных с теми которые были до изменения 
 
 		// получаем id ряда
-		rtCalculator.cur_tr = cell.parentNode;
 		var row_id = cell.parentNode.getAttribute('row_id');
 		
 		//**print_r(rtCalculator.tbl_model[row_id]);
@@ -2145,7 +2177,7 @@ var rtCalculator = {
 		// метод производит калькуляцию текущих данных, и вычисляет разность текущих данных с теми которые были до изменения 
 
 		// получаем id ряда
-		rtCalculator.cur_tr = cell.parentNode;
+		var cur_tr = cell.parentNode;
 		var row_id = cell.parentNode.getAttribute('row_id');
 		
 		//**print_r(rtCalculator.tbl_model[row_id]);
@@ -2161,7 +2193,7 @@ var rtCalculator = {
 	    
 		// проверяем есть ли в ячейке расчеты нанесения
 		var printsExitst = false;
-		var tds_arr = rtCalculator.cur_tr.getElementsByTagName('td');
+		var tds_arr = cur_tr.getElementsByTagName('td');
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type') && tds_arr[j].getAttribute('type') == 'print_exists_flag'){
 				// отправляем запрос на сервер
@@ -2279,8 +2311,16 @@ var rtCalculator = {
 	change_html:function(row_id){
 	    // метод который вносит изменения (итоги рассчетов в таблицу HTML)
 		
+		var trs_arr = rtCalculator.body_tbl.getElementsByTagName('tr');
+		for(var i = 0;i < trs_arr.length;i++){
+			if(trs_arr[i].hasAttribute && trs_arr[i].hasAttribute('row_id')){
+				if(trs_arr[i].getAttribute('row_id') == row_id) var cur_tr = trs_arr[i];
+			}
+		}
+			
+			
 		// внесение изменений в затронутый ряд
-		var tds_arr = rtCalculator.cur_tr.getElementsByTagName('td');
+		var tds_arr = cur_tr.getElementsByTagName('td');
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 			    var type = tds_arr[j].getAttribute('type');
