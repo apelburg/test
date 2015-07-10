@@ -55,49 +55,98 @@
 			//          )
            
 			
-			// ищем типы нанесения присвоенные данному артикулу на прямую 
-			// возврашаемое значение: массив содержащий один элемент обозначающий (имитирующий)
-			// стандартное (дефолтное) место нанесения с вложенными в него типами нанесения 
-			$out_put = self::get_related_art_and_print_types($data->art_id);
+			// если есть id артикула
+			if(isset($data->art_id) && (int)$data->art_id!=0){ 
+				// ищем типы нанесения присвоенные данному артикулу на прямую
+				// возврашаемое значение: массив содержащий один элемент обозначающий (имитирующий)
+				// стандартное (дефолтное) место нанесения с вложенными в него типами нанесения 
+			    $out_put_data = self::get_related_art_and_print_types($data->art_id);
+				$result1 = $out_put_data['result1'];
+		 
+				// получаем (если установленны) данные о конкретных местах нанесения для данного артикула
+				// если были найдены места добавляем их в масив $out_put
+				// и заполняем их данным о присвоенных местам типам нанесиния 
+                $out_put_data = self::get_related_print_places($out_put_data['out_put'],$data->art_id);
+				$out_put_data['result1'] = $result1;
+			}
+			//echo $out_put_data['result1'].'-';
+			//echo $out_put_data['result2'];
+			// !! если id аритикула не известно присваиваем "стандартное" место нанесения и присваимваем все возможные типы нанесения 
+			// и если до этого не были никакие типы и места нанесения
+			if(!(isset($data->art_id) && (int)$data->art_id!=0) || (!$out_put_data['result1'] && !$out_put_data['result2'])){ 
+			    //echo 'all_sizes_in_one_place';
+			    $all_sizes_in_one_place = TRUE;
+				$out_put = self::get_all_print_types();
+			}
+			else{
+			   $all_sizes_in_one_place = FALSE;
+			   $out_put = $out_put_data['out_put'];
+			}
 			
-			// получаем (если установленны) данные о конкретных местах нанесения для данного артикула
-			// если были найдены места добавляем их в масив $out_put
-			// и заполняем их данным о присвоенных местам типам нанесиния 
-            $out_put = self::get_related_print_places($out_put,$data->art_id);
-
-		    // получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
-            $out_put = self::get_print_types_related_data($out_put);
+			// получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
+            $out_put = self::get_print_types_related_data($out_put,$all_sizes_in_one_place);
 			
 			//print_r($out_put);
 			echo json_encode($out_put);
 		
 		}
+		static function get_all_print_types(){
+		    global $mysqli; 
+			
+			$out_put = array();
+
+			$out_put['places'][0]['name'] = 'Стандартно';
+			// получаем данные всех возможных типах нанесений
+			$query="SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '6' ORDER BY id";
+			
+			$result = $mysqli->query($query)or die($mysqli->error);/**/
+			if($result->num_rows>0){
+				$print_types = array();
+				while($row = $result->fetch_assoc()){
+					if(!isset($out_put['print_types'][$row['id']])) $out_put['print_types'][$row['id']] = array();	
+					
+					$print_types[$row['id']] = $row['name'];
+				}
+				// добавляем результат в итоговый массив ключем устанавливаем id места нанесения
+				$out_put['places'][0]['prints'] = $print_types;		
+			}	
+			return $out_put;		
+		}
 		static function get_related_art_and_print_types($art_id){
 		    global $mysqli;  
-			$places = array();
-			$print_types = array();
+			$out_put = array();
+
+			
 			//UPDATE `new__base__print_mode` SET `print_id`=13 WHERE `print` = 'шелкография'
 			// получаем данные о типах нанесений соответсвующих данному артикулу на прямую
 			$query="SELECT*FROM `".BASE_PRINT_MODE_TBL."` WHERE `art_id` = '".$art_id."'";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);/**/
 			if($result->num_rows>0){
-			    $places[0]['name'] = 'Стандартно';	
-			    while($row = $result->fetch_assoc()){
-					$places[0]['print'][$row['print_id']] = $row['print'];	
-					$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00","size"=> "Стандартно"); 
-					//$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00","print_id"=> '"'.$print_id.'"',"size"=> "Стандартно");   
-					//$print_types[$row['print_id']]['sizes'][0][] = array("item_id" => "0", "percentage"=>"1.00", "print_id"=>$print_id,"size"=> "Стандартно");   
-				}/**/
+			    
+			   
 				
+			    while($row = $result->fetch_assoc()){
+				    if($row['print_id']!=0){
+				        if(!isset($out_put['print_types'][$row['print_id']])) $out_put['print_types'][$row['print_id']] = array();
+					    $out_put['places'][0]['prints'][$row['print_id']] = $row['print'];		
+					}
+				}
+				if(isset($out_put['print_types'])){
+					$out_put['places'][0]['name'] = 'Стандартно';
+					$gotResult = true;
+				}
+				$gotResult = false;
 			}
-			else $places[0] = false;	
+			else $gotResult = false;	
+
 			
-			return array('places'=>$places,'print_types'=>$print_types);
+			return  array('out_put'=>$out_put,'result1'=>$gotResult);
 		}
 		static function get_related_print_places($out_put,$art_id){
 		    global $mysqli;  
 			 
+			
 			// получаем данные о местах нанесений соответсвующих данному артикулу
 			$query="SELECT tbl1.`place_id` place_id, tbl2.`name` name  FROM `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl1 
 			        INNER JOIN  `".BASE__PRINT_PLACES_TYPES_TBL."` tbl2 
@@ -123,14 +172,16 @@
 						}
 						// добавляем результат в итоговый массив ключем устанавливаем id места нанесения
 						$out_put['places'][$row['place_id']]['name'] = $row['name'];
-						$out_put['places'][$row['place_id']]['print'] = $print_types;		
+						$out_put['places'][$row['place_id']]['prints'] = $print_types;		
 					}			
 				}
+				$gotResult = true;
 			}
+			else $gotResult = false;
 			
-			return $out_put;
+			return array('out_put'=>$out_put,'result2'=>$gotResult);
 		}
-		static function get_print_types_related_data($out_put){
+		static function get_print_types_related_data($out_put,$all_sizes_in_one_place){
 		    global $mysqli;  
 			
 			
@@ -203,7 +254,8 @@
 						$row['item_id'] = $row['id'];
 					    unset($row['id'],$row['place_id']);
 						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения и id места нанесения
-					    $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row;   
+					    if(!$all_sizes_in_one_place) $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
+						else  $out_put['print_types'][$print_id]['sizes'][0][] = $row; 
 				    }
 				}
 				
@@ -328,12 +380,11 @@
 		}
 		static function delete_prints_for_row($dop_row_id,$usluga_id,$all){
 		    global $mysqli;  
-			
 			// если надо удалить все расчеты нанесения
 			if($all && !$usluga_id){
 			    $query="DELETE FROM `".RT_DOP_USLUGI."` WHERE
 									   `dop_row_id` ='".$dop_row_id."'"; 
-				 //echo $query;
+				 echo $query;
 				 $mysqli->query($query)or die($mysqli->error);
 			
 			}
@@ -353,80 +404,86 @@
 			unset($details_obj->calculationData->dop_data_row_id);
 			unset($details_obj->calculationData->print_details->priceIn_tblXindex);
 			unset($details_obj->calculationData->print_details->priceOut_tblXindex);
-			
-			$details_obj->calculationData->print_details->print_type = 'ПРОБА';
 									  
-			//print_r($details_obj);echo "\r\n";//
-			
+			 print_r($details_obj);echo "\r\n";
+			//// $details_obj->calculationData->dop_uslugi_id;
+			// exit;
+			// определяем к какому варианту расчета относится данное нанесение 
+			// и затем исключим его в следующей выборке чтобы повторно не присвоить нанесение которое мы распределяем 
+			// тому варианту расчета из которого оно было вызвано 
+			// но если это было новое не сохраненное нанесение то у него отсутсвует $details_obj->calculationData->dop_uslugi_id 
+			// для него по умолчанию присваиваем 0 для  $expel_dop_data_id
+			$expel_dop_data_id = 0;
+			if(isset($details_obj->calculationData->dop_uslugi_id)){
+				$query="SELECT dop_data.id id FROM `".RT_DOP_DATA."` dop_data INNER JOIN
+										`".RT_DOP_USLUGI."` uslugi 
+										  ON   dop_data.id = uslugi.dop_row_id
+										  WHERE uslugi.id = '".$details_obj->calculationData->dop_uslugi_id."'";
+				
+					//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					$row = $result->fetch_assoc();
+					$expel_dop_data_id = $row['id'];
+				}
+			}
+	 
+			 
 			foreach($details_obj->ids as $id){
 				// выбираем данные о вариантах расчетов существующих для данных позиций
 				 $query="SELECT dop_data.id dop_data_id ,dop_data.quantity quantity FROM `".RT_MAIN_ROWS."` main INNER JOIN
 									`".RT_DOP_DATA."` dop_data
 									  ON   main.`id` = dop_data.`row_id`
-									  WHERE main.id = '".$id."'";
+									  WHERE main.id = '".$id."' AND dop_data.id <> '".$expel_dop_data_id."'";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);
 				if($result->num_rows>0){
 				    while($row = $result->fetch_assoc()){
 					    $print_details_obj = $details_obj->calculationData->print_details;
-						// здесь мы рассчитываем стоимость нанесения для текущей строки и одновременно 
-						// выясняем нет ли противоречий с данным типом нанесения:
-						// 1. тираж не меньше минимально возможного
-						// 2. тираж не больше лимита
-						// 3. тираж не нуждается в индивидуальном рассчете
+						// 
+						if($row['quantity'] != 0){
+							$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
+							// получаем новые исходящюю и входящюю цену исходя из нового таража
+							$new_price_arr = self::change_quantity_and_calculators_price_query($row['quantity'],$print_details_obj,$YPriceParam);
+						   // print_r($new_price_arr);echo "\r\n";//
+						}
 						
-						$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
-					    // получаем новые исходящюю и входящюю цену исходя из нового таража
-					    $new_price_arr = self::change_quantity_and_calculators_price_query($row['quantity'],$print_details_obj,$YPriceParam);
-						print_r($new_price_arr);echo "\r\n";////
 						
 						// если все в порядке и нет ни каких исключений делаем дальнейшие операции
 						if(!(self::$needIndividCalculation || self::$outOfLimit)){
 							 
-							/* foreach($dataArr as $key => $dataVal){
-							 // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
-								$new_data = self::make_calculations($quantity,$dataVal['new_price_arr'],$dataVal['print_details_obj']->dop_params);
-								
-								// перезаписываем новые значения прайсов и X индекса обратно в базу данных
-								$query="UPDATE `".RT_DOP_USLUGI."` 
-											  SET 
-											  quantity = '".$quantity."',
-											  price_in = '".$new_data["new_price_arr"]["price_in"]."',
-											  price_out = '".$new_data["new_price_arr"]["price_out"]."'
-											  WHERE id = '".$dataVal['uslugi_row_id']."'";
-								//$mysqli->query($query)or die($mysqli->error);
-								
-								$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
-								$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
-								//print_r($new_summs);
-								//echo "\r\n";
-								// обновляем количество 
-								$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$dop_data_id."'";
-								$result = $mysqli->query($query)or die($mysqli->error);
-							}*/
+
+						    // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
+							if($row['quantity'] != 0){
+							    $new_data = self::make_calculations($row['quantity'],$new_price_arr,$print_details_obj->dop_params);
+							}
+							else  $new_data["new_price_arr"] =  array("price_in"=>0,"price_out"=>0);
+							
+							// вписываем новое нанесение для данного расчета в базу данных
+							$query="INSERT INTO `".RT_DOP_USLUGI."` 
+										  SET 
+										  dop_row_id = '".$row['dop_data_id']."',
+										  glob_type = 'print',
+										  print_details = '".self::json_fix_cyr(json_encode($print_details_obj))."',
+										  quantity = '".$row['quantity']."',
+										  price_in = '".$new_data["new_price_arr"]["price_in"]."',
+										  price_out = '".$new_data["new_price_arr"]["price_out"]."'";
+							$mysqli->query($query)or die($mysqli->error);
+							
 						}
 						
-						if(self::$needIndividCalculation) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'needIndividCalculation' => 1);//[$row['quantity']]['needIndividCalculation'] = 1;
-						if(self::$outOfLimit) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'outOfLimit' => 1);
-						if(self::$lackOfQuantity) $out[$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'lackOfQuantity' => 1);//[$row['quantity']]['lackOfQuantity'] = 1;
+						if(self::$needIndividCalculation) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'needIndividCalculation' => 1);
+						if(self::$outOfLimit) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'outOfLimit' => 1);
+						if(self::$lackOfQuantity) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'lackOfQuantity' => 1);
 						
                         self::$needIndividCalculation = false;
 						self::$outOfLimit = false;
 						self::$lackOfQuantity = false;
-
-				/*
-						$json_str =  '{"result":"'.$result.'","row_id":'.$dop_data_id;
-						if($result=='ok')	$json_str .= ',"new_sums":'.json_encode($itog_sums);
-						if(self::$lackOfQuantity)	$json_str .= ',"lackOfQuantity":'.json_encode(self::$lackOfQuantityDetails);
-						if(self::$outOfLimit)  $json_str .= ',"outOfLimit":'.json_encode(self::$outOfLimitDetails);
-						if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
-						$json_str .=  '}';
-						*/
 					}
-					echo "\r\n --- \r";////
-					echo print_r($out);
 				}
 			}
+			//print_r($out);
+			echo json_encode($out);
 		}
 		static function change_quantity_and_calculators($quantity,$dop_data_id){
 		    global $mysqli;  

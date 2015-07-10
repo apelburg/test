@@ -686,7 +686,7 @@
 		
 		$return = '';
 		
-		$query = "SELECT*FROM `".BASE_TBL."` WHERE `art` = '".trim($art)."'";
+		$query = "SELECT*FROM `".BASE_TBL."` WHERE `art` <> ''  AND `art` = '".trim($art)."'";
 		$result = mysql_query($query,$db);
 		
 		if(!$result) $return = ($art.' '.mysql_error());

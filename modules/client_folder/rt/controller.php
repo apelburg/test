@@ -20,14 +20,14 @@
 	//
 	//
 	//
-
+	
     
 	function fetch_rows_from_rt($query_num){
 	     global $mysqli;
 		 
 		 $rows = array();
 		 
-		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn ,
+		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn ,
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel,
 						  
@@ -47,8 +47,13 @@
 		     if(!isset($multi_dim_arr[$row['main_id']])){
 			     $multi_dim_arr[$row['main_id']]['row_type'] = $row['main_row_type'];
 				 $multi_dim_arr[$row['main_id']]['master_btn'] = $row['master_btn'];
+				 $multi_dim_arr[$row['main_id']]['art_id'] = $row['art_id'];
 				 $multi_dim_arr[$row['main_id']]['art'] = $row['art'];
 				 $multi_dim_arr[$row['main_id']]['name'] = $row['item_name'];
+				 if($row['main_row_type']=='cat'){
+				     $data = RT::getArtRelatedPrintInfo($row['art_id']);
+				     $multi_dim_arr[$row['main_id']]['dop_details'] = $data;
+				 }
 			 }
 			 //$multi_dim_arr[$row['main_id']]['uslugi_id'][] = $row['uslugi_id'];
 			 if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
@@ -94,7 +99,7 @@
 	 // draft - РЕАЛИЗАЦИЯ ФУНКЦИОНАЛА "ДРАФТ" оказалась не востребованной поле draft можно удалить из таблицы в базе данных
 	 // если что реализация сохранена, закомментирована внизу скрипта 
 	 
-	 // echo '<pre>'; print_r($rows[0]); echo '</pre>';
+	 //echo '<pre>'; print_r($rows[0]); echo '</pre>';
 	 
 	 $service_row[0] = array('quantity'=>'','price_in'=>'','price_out'=>'','row_status'=>'','glob_status'=>'');
 	 $glob_counter = 0;
@@ -116,7 +121,6 @@
 		 }
 		 
 		 //array_unshift($row['dop_data'],array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0));
-		 
 		 
 		 // здесь мы определяем значение для атрибута rowspan тегов td которые будут выводится единой ячейкой для всей товарной позиции
 		 $row_span = count($row['dop_data']);
@@ -227,6 +231,9 @@
 				 $expel_class_main = ($expel['main']=='1')?' red_cell':'';
 				 $expel_class_print = ($expel['print']=='1')?' red_cell':'';
 				 $expel_class_dop = ($expel['dop']=='1')?' red_cell':'';
+				 
+				  // дополнительная скрытая инфа 
+		         
 		     }
 			 else{
 			     $expel = array ("main"=>0,"print"=>0,"dop"=>0);
@@ -234,37 +241,42 @@
 				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
 				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $nacenka = $srock_sdachi = $print_exists_flag ='';
+				 
+				  
 			 }
-			 $art_id = get_base_art_id($row['art']);
-			 
-			 //echo $row['row_type'].' = ';
-				 if($row['row_type'] == 'cat'){ 
-				     $extra_panel = '<div class="pos_plank cat">
-									   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['art'].'</a>
-									   <div class="pos_link_plank">
-										  <div class="catalog">
-											  <a id="" href="/?page=description&id='.$art_id.'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
-										  </div>
-										  <div class="supplier">
-											   '.identify_supplier_by_prefix($row['art']).'
-										  </div>
-									   </div>
-									 </div>'.$row['name'];
-				 }
-				 if($row['row_type'] == 'ext'){
-				     $extra_panel = '<div class="pos_plank ext">
-									   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
-									 </div>';
-				 }
-				 if($row['row_type'] == 'pol'){
-				     $extra_panel = '<div class="pos_plank pol">
-									   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
-									 </div>';
-				 }
+			 //$art_id = get_base_art_id($row['art']);
+			  
+			 $dop_details = '';
+			  //echo $row['row_type'].' = ';
+			 if($row['row_type'] == 'cat'){ 
+				 $extra_panel = '<div class="pos_plank cat">
+								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['art'].'</a>
+								   <div class="pos_link_plank">
+									  <div class="catalog">
+										  <a id="" href="/?page=description&id='.$row['art_id'].'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
+									  </div>
+									  <div class="supplier">
+										   '.identify_supplier_by_prefix($row['art']).'
+									  </div>
+								   </div>
+								 </div>'.$row['name'];
+				 // дополнительная скрытая инфа 
+		        if($counter==0 &&  count($row['dop_details'])>0)  $dop_details['allowed_prints'] = $row['dop_details'];
+			 }
+			 if($row['row_type'] == 'ext'){
+				 $extra_panel = '<div class="pos_plank ext">
+								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
+								 </div>';
+			 }
+			 if($row['row_type'] == 'pol'){
+				 $extra_panel = '<div class="pos_plank pol">
+								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
+								 </div>';
+			 }
 			 
 			 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$art_id.'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
+		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="glob_counter" class="top glob_counter" width="30">'.$glob_counter.'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="master_btn" class="top master_btn noselect" width="35">   
 											<div class="masterBtnContainer" id="">
@@ -277,6 +289,7 @@
 										  
 										  //extra_panel
 			 $cur_row .=  '<td class="hidden"></td>
+			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
 			               <td width="40" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
 			               <td width="60" type="quantity" class="right"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="20" class="r_border left quantity_dim">'.$quantity_dim.'</td>
@@ -334,6 +347,7 @@
 				      &nbsp;<a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
 					  прибыль ???? р подробно?
 				  </td>
+				  <td class="_hidden">dop_details</td>
 				  <td class="hidden">draft</td>
 				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
 				  <td width="60" class="right">тираж</td>
@@ -374,6 +388,7 @@
 				  <td class="hidden"></td>
 				  <td class="hidden"></td>
 				  <td class="right">Счет №45384? оплата 70%?</td>
+				  <td class="_hidden">dop_details</td>
 				  <td></td>
 				  <td></td>
 				  <td width="20" class="r_border"></td>

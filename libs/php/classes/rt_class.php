@@ -266,6 +266,65 @@
 			 }
 			 return  number_format($summ,'2','.','');
 		}
+		static function getArtRelatedPrintInfo($art_id){
+
+			$out_put = array();
+			// ищем типы нанесения присвоенные данному артикулу на прямую 
+			// возврашаемое значение: массив содержащий один элемент обозначающий (имитирующий)
+			// стандартное (дефолтное) место нанесения с вложенными в него типами нанесения 
+			$out_put = self::get_related_art_and_print_types($out_put, $art_id);
+			
+			// получаем (если установленны) данные о конкретных местах нанесения для данного артикула
+			// если были найдены места добавляем их в масив $out_put
+			// и заполняем их данным о присвоенных местам типам нанесиния 
+			$out_put = self::get_related_print_places($out_put,$art_id);
+				
+			return $out_put;	
+		}
+		static function get_related_art_and_print_types($out_put,$art_id){
+		    global $mysqli;  
+		
+			//UPDATE `new__base__print_mode` SET `print_id`=13 WHERE `print` = 'шелкография'
+			// получаем данные о типах нанесений соответсвующих данному артикулу на прямую
+			$query="SELECT*FROM `".BASE_PRINT_MODE_TBL."` WHERE `art_id` = '".$art_id."'";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);/**/
+			if($result->num_rows>0){
+
+			    while($row = $result->fetch_assoc()){
+				    if($row['print_id']!=0){
+				       $out_put[0][$row['print_id']] = '';		
+					}
+				}
+			}
+			return $out_put;
+		}
+		static function get_related_print_places($out_put,$art_id){
+		    global $mysqli;  
+			 
+			// получаем данные о местах нанесений соответсвующих данному артикулу
+			$query="SELECT  place_id FROM `".BASE__ART_PRINT_PLACES_REL_TBL."`
+                                WHERE art_id = '".$art_id."'";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);/**/
+			if($result->num_rows>0){
+			    while($row = $result->fetch_assoc()){
+				    // получаем данные о типах нанесений соответсвующих данному месту
+					$query2="SELECT  print_id FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` 
+							  WHERE place_id = '".$row['place_id']."' GROUP BY print_id";
+					
+					$result2 = $mysqli->query($query2)or die($mysqli->error);/**/
+					if($result2->num_rows>0){
+					    while($row2 = $result2->fetch_assoc()){
+						    $out_put[$row['place_id']][$row2['print_id']] ='' ;
+							//$out_put[2][] = 1;
+						}	
+					}			
+				}
+			}
+			
+			return $out_put; 
+		}
 		static function make_order($json){
 			// СОЗДАНИЕ ЗАКАЗА
 			global $mysqli;
