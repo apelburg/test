@@ -65,6 +65,7 @@
 	
 	
 	
+	/*
 	// выбираем данные из таблицы содержащей данные о типах нанесения
 	$query="SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '6'";
     $result = $mysqli->query($query)or die($mysqli->error);
@@ -73,12 +74,14 @@
 		    $printsOpions[$row['id']] = '<option value="'.$row['id'].'" selected_mark>'.$row['name'].'</option>';
 		}
 	}
-
+    */
 	
 	// выбираем данные из таблицы содержащей данные о местах нанесения
 	$query="SELECT*FROM `".BASE__PRINT_PLACES_TYPES_TBL."` ORDER by  id";
 	//echo $query;
 	$result = $mysqli->query($query)or die($mysqli->error);
+	
+	$placesOpions[0] = '<option value="0" selected_mark></option>';
 	
 	if($result->num_rows>0){
 		while($row = $result->fetch_assoc()){     

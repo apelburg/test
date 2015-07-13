@@ -50,6 +50,7 @@
 	
 	$td1  = '<td contenteditable="true">'; 
 	$td1_hidden  = '<td style="display:none;">'; 
+	$td1_grey  = '<td style="color:#AEC7EC;">'; 
 	$td1_unedit  = '<td>'; 
 	$td2  = '</td>';
 	$td_td  = $td2.$td1;
@@ -71,7 +72,7 @@
 			 
 			 array_push($row,'<span class="deleteElementBtn" onclick="deleteRowFromTable(this,\''.$type.'\');">&#215;</span>');
 			 //
-		     $tbl_rows[] = $tr1.$td1_hidden.implode($td_td,$row).$td2.$tr2;
+		     $tbl_rows[] = $tr1.$td1_grey.implode($td_td,$row).$td2.$tr2;
 			 
 			 //print_r($tbl_rows);
 		}
@@ -79,6 +80,7 @@
 	function make_table_tpl(){
 	    global $td1;
 		global $td1_hidden;
+		global $$td1_grey;
 		global $td2;
 		global $td_td;
 		global $tr1;
@@ -86,17 +88,17 @@
 		global $tr_tr;
 	
 	    $row_tpl =array('','место нанесения', 'комментарий','');	
-	    $row[] = $tr1.$td1_hidden.implode($td_td,$row_tpl).$td2.$tr2;
+	    $row[] = $tr1.$td1_grey.implode($td_td,$row_tpl).$td2.$tr2;
 		
 		$row_tpl = array('','грудь (00х00)(пример)', 'футболка, поло(пример)','<span class="deleteElementBtn" onclick="deleteRowFromTable(this,\''.$type.'\');">&#215;</span>');
-	    $row[] = $tr1.$td1_hidden.implode($td_td,$row_tpl).$td2.$tr2;
+	    $row[] = $tr1.$td1_grey.implode($td_td,$row_tpl).$td2.$tr2;
 		return $row;
 	}
 	
 	if(isset($tbl_rows)){
 	   
 		$row =array('','место нанесения', 'комментарий','');	
-		array_unshift($tbl_rows,$td1_hidden.implode($td_td_unedit,$row).$td2.$tr2);	
+		array_unshift($tbl_rows,$td1_grey.implode($td_td_unedit,$row).$td2.$tr2);	
 	
          
 		 

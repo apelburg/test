@@ -178,6 +178,7 @@ function deleteColFromTable(cell){
 }
 
 </script>
+<div class="priceManager">
 <div class="disclaimer">После запуска калькуляторов, существующие записи удалять только в крайних случаях,<br>это вызовет некорректное отображение уже существующих расчетов</div>
 <table class="mainWinTbl" border="1">
    <tr>
@@ -208,7 +209,7 @@ function deleteColFromTable(cell){
 </table> 
 <table class="mainWinTbl" border="1">
   <tr>
-    <td width="200" class="leftMenuTd">
+    <td width="230" class="leftMenuTd">
        <?php echo implode('',$menu_arr); ?>
     </td>
     <td class="subContentTd">
@@ -216,4 +217,5 @@ function deleteColFromTable(cell){
     </td>
   </tr>
 </table> 
+</div>
 <!-- end skins/tpl/admin/price_manager/show.tpl -->

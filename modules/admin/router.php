@@ -16,6 +16,10 @@
 		case 'edit_our_uslugi':
 		include 'edit_our_uslugi/router.php';
 		break;
+		
+		case 'places_editor':
+		include 'places_editor/router.php';
+		break;
 			
 		default:
 		include 'controller.php';
