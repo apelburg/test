@@ -2,9 +2,10 @@
 	
 	class Cabinet_snab_class{
 
-		// подраздел раздела
+		// название подраздела кабинета
 		private $sub_subsection;
 
+		// содержит экземпляр класса кабинета вер. 1.0
 		private $CABINET;
 
 
@@ -20,6 +21,7 @@
 				$this->_AJAX_($_GET['AJAX']);
 			}
 
+			// экземпляр класса кабинета вер. 1.0
 			$this->CABINET = new Cabinet;
 		}
 
@@ -46,20 +48,25 @@
 		}
 
 
-		##################################################
-		###  МЕТОДЫ ДЛЯ ШАБЛОНОВ ЛЕВОГО МЕНЮ РАЗДЕЛОВ  ###
-		##################################################
-		## Важно
+		#############################################################
+		##                          START                          ##
+		##      методы для работы с поддиректориями subsection     ##
+		#############################################################
+
+		##########################################
+		################ Важно
 		Private Function important_Template(){
-			// $message = 'important_Template';
-			// $html = '';
-			// other content template
-
-			// $html .= $message;
-			// return $html;
+			echo 'Раздел в разработке =)';
 		}
+		## Важно __ запросы к базе
+		private function ___Database1(){
+			// запрос 1
+		}
+		################ Важно_END
+		##########################################
 
 
+		##########################################
 		################ Запросы
 		Private Function requests_Template(){			
 			include ('./libs/php/classes/rt_class.php');
@@ -103,12 +110,11 @@
 							<td>'.$value['company'].'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
 							<td></td>
-							<td></td>
 						</tr>
 				';
 				$html .= '<tr class="query_detail">';
 				$html .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
-				$html .= '<td colspan="6" class="each_art">';
+				$html .= '<td colspan="5" class="each_art">';
 				
 
 				
@@ -161,8 +167,8 @@
 					<td>'.$calc_summ_dop_uslug.'</td>
 					<td>'.$calc_summ_dop_uslug2.'</td>
 					<td>'.$in_out.'</td>
-					<td><!--$val1[\'status_man\']--></td>
-					<td><!--$val1[\'status_snab\']--></td>
+					<td></td>
+					<td>'.$val1['status_snab'].'</td>
 							</tr>';
 				}
 				$html .= '</table>';
@@ -179,12 +185,12 @@
 								<th>Компания</th>
 								<!-- <th>Клиент</th> -->
 								<th>Сумма</th>
-								<th>Статус мен.</th>
-								<th>Статус снаб.</th>
+								<th>Статус</th>
 							</tr>';
 			echo $html;
 			echo '</table>';
 		}
+		## Запросы __ запросы к базе
 		private function requests_Template_recuestas_main_rows_Database($id){
 			global $mysqli;
 			$query = "
@@ -194,6 +200,7 @@
 					`".RT_DOP_DATA."`.`price_out`,		
 					`".RT_DOP_DATA."`.`print_z`,	
 					`".RT_DOP_DATA."`.`zapas`,	
+					`".RT_DOP_DATA."`.`status_snab`,	
 					DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 					`".RT_MAIN_ROWS."`.*,
 					`".RT_LIST."`.`id` AS `request_id` 
@@ -201,9 +208,7 @@
 					INNER JOIN `".RT_DOP_DATA."` ON `".RT_DOP_DATA."`.`row_id` = `".RT_MAIN_ROWS."`.`id`
 					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
 					WHERE `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".RT_MAIN_ROWS."`.`query_num` = '".$id."'
-					ORDER BY `".RT_MAIN_ROWS."`.`id` ASC
-			                
-				";
+					ORDER BY `".RT_MAIN_ROWS."`.`id` ASC";
 				// $html .= $query;
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -215,11 +220,12 @@
 			}
 			return $main_rows;
 		}
-		## Запросы __ запросы к базе
-
 
 		################ Запросы __ END
+		##########################################
 
+
+		##########################################
 		## Предзаказ
 		Private Function paperwork_Template(){
 
@@ -404,10 +410,6 @@
 			echo $html1;
 			echo '</table>';
 		}
-
-		
-
-
 
 
 		################ Заказы
@@ -1016,14 +1018,31 @@
 			// return $html;
 		}
 
+		#############################################################
+		##      методы для работы с поддиректориями subsection     ##
+		##                           END                           ##
+		#############################################################
 
-		// методы для работы с базой данных
+
+
+
+		#################################################
+		##                   START                     ##
+		##      методы для работы с базой данных       ##
+		#################################################
+
 		function get_all_orders_Database_Array(){
 			global $mysqli;
 			$arr = array();
 			$query = '';
 
 		}
+
+		#################################################
+		##      методы для работы с базой данных       ##
+		##                    END                      ##
+		#################################################
+		
 
 
 
