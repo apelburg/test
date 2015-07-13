@@ -317,6 +317,10 @@
 			$html .= '<div class="edit_info"><input type="radio" id="for_how1" name="for_how" value="" '.(($usluga['for_how']=="")?'checked':'').'><label for="for_how1"><span class="icon_style folder">папка</span></label></div>';
 			$html .= '<div class="edit_info"><input type="radio" id="for_how2" name="for_how" value="for_one" '.(($usluga['for_how']=="for_one")?'checked':'').'><label for="for_how2"><span class="icon_style for_one">на единицу товара</span></label></div>';
 			$html .= '<div class="edit_info"><input type="radio" id="for_how3" name="for_how" value="for_all" '.(($usluga['for_how']=="for_all")?'checked':'').'><label for="for_how3"><span class="icon_style for_all">на тираж</span></label></div>';
+			
+			// Цена исходящая
+		$html .= '<div class="name_input">Шаблон ТЗ для менеджера</div>';
+		$html .= '<div class="edit_info"><textarea name="tz">'.$usluga['tz'].'</textarea></div>';
 		}
 		// Цена исходящая
 		$html .= '<div class="name_input">Описание услуги</div>';

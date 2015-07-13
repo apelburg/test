@@ -78,6 +78,10 @@ function show_dialog_and_send_POST_window(html,title,height){
 					show_dialog_and_send_POST_window(data['html'],title);
 				}else{
 					$('#dialog_gen_window_form').dialog( "destroy" );
+					// меняем иконку добавления ТЗ на редактировать
+					if(data['name'] == 'save_tz_text_AJAX'){
+						$('#'+data['increment_id']).attr('class','tz_text_edit').removeAttr('id');
+					}
 
 					if(data['name'] == 'chose_supplier_end'){
 						$('#chose_supplier_id').removeAttr('id');
@@ -392,13 +396,33 @@ $(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_men span', fu
 });
 
 
-// РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ В ТЗ ПО УСЛУГЕ
+// ДОБАВЛЕНИЕ ИНФОРМАЦИИ В ТЗ ПО УСЛУГЕ
 $(document).on('click', '.tz_text_new', function(event) {
-
-	var text = '<form><textarea name="tz">'+$(this).parent().find('.tz_text_shablon').html()+'</textarea>';
+	var id = 'incr'+Date.now();
+	var text = '<form><textarea name="tz" data-id="'+id+'" class="tz_taxtarea_edit">'+$(this).parent().find('.tz_text_shablon').html()+'</textarea>';
 	var ajax_name = '<input type="hidden" name="AJAX" value="save_tz_text">';
+	ajax_name += '<input type="hidden" name="increment_id" value="'+id+'">';
 	ajax_name += '<input type="hidden" name="rt_dop_uslugi_id" value="'+$(this).parent().parent().attr('data-dop_uslugi_id')+'"></form>';
 
-
+	$(this).attr('id',id);
+	// окно редактирования ТЗ
 	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ',600);
 });
+
+$(document).on('keyup', '.tz_taxtarea_edit', function(event) {
+	$('#'+$(this).attr('data-id')).parent().find('.tz_text').html($(this).val());
+});
+
+// РЕДАКТИРОВАНИЕ ИНФОРМАЦИИ В ТЗ ПО УСЛУГЕ
+$(document).on('click', '.tz_text_edit', function(event) {
+	var id = 'incr'+Date.now();
+	var text = '<form><textarea name="tz" data-id="'+id+'" class="tz_taxtarea_edit">'+$(this).parent().find('.tz_text').html()+'</textarea>';
+	var ajax_name = '<input type="hidden" name="AJAX" value="save_tz_text">';
+	ajax_name += '<input type="hidden" name="increment_id" value="'+id+'">';
+	ajax_name += '<input type="hidden" name="rt_dop_uslugi_id" value="'+$(this).parent().parent().attr('data-dop_uslugi_id')+'"></form>';
+
+	$(this).attr('id',id);
+	// окно редактирования ТЗ
+	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ');
+});
+

@@ -1161,7 +1161,7 @@ function save_dop_dop_usluga(obj){
 		// снимаем класс сохранения
 		obj.find('.calculate.calculate_usl.editing').each(function(index, el) {
 			$(this).removeClass('editing');
-		})
+		}
 	});
 }
 

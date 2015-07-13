@@ -79,22 +79,20 @@
 /*.query_detail{display: none}*/
 .cabinett_row_hide{
 	border-top: 1px solid #e2e2e2;
-	border-bottom: 1px solid #e2e2e2;
-	content: "";
-	position: absolute;
- 	width: 40px;
- 	margin-left: -5px;
-	height: 100%;
-	background: #f1f1f1;
-	background-image: url('../../skins/images/img_design/cabinet_1.png');
-	background-position-y: 50%;
-	background-position-x: 10px;
-	background-repeat: no-repeat;
-	color: grey;
-	/*top: -26px;
-	padding-top: 25px;*/
-	top: -33px;
-  	padding-top: 32px;
+  border-bottom: 1px solid #e2e2e2;
+  content: "";
+  position: absolute;
+  width: 40px;
+  margin-left: -5px;
+  height: 100%;
+  background: #f1f1f1;
+  background-image: url('../../skins/images/img_design/cabinet_1.png');
+  background-position-y: 50%;
+  background-position-x: 10px;
+  background-repeat: no-repeat;
+  color: grey;
+  top: -26px;
+  padding-top: 25px;
 }
 .cabinett_row_hide:hover{
 	background-color: #e2e2e2;

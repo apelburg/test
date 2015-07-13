@@ -96,10 +96,10 @@ function get_gen_price_out($variable){
 				$main_rows[] = $row;
 			}
 		}
-		// echo '<pre>';
-		// print_r($main_rows);
-		// echo '</pre>';
-
+		echo '<pre>';
+		print_r($value2);
+		echo '</pre>';
+		// echo $value2;
 		if(!isset($value2)){continue;}
 		
 		$html .= '<table class="cab_position_div">';

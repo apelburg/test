@@ -52,6 +52,8 @@
 			$html .= '</select>';
 			return $html;
 		}
+
+		
 		public function select_status($rights_int/*права для определения списка статуса*/,$real_val){
 			global $STATUS_LIST;
 			$status_arr = $STATUS_LIST[$rights_int];
@@ -63,6 +65,8 @@
 			$html .= '</select>';
 			return $html;
 		}
+
+		
 		public function get_gen_status($variable,$type){
 			$start_status = $variable[0]['status_'.$type];
 
@@ -125,13 +129,13 @@
 		}
 
 		static function show_order_num($key){
-		$i = 6 - strlen($key);
-		// echo $i.'    */';
-		$str = '';
-		for ($t=0; $t < $i ; $t++) { 
-			$str .='0';		}
-		return $str.$key;
-	}
+			$i = 6 - strlen($key);
+			// echo $i.'    */';
+			$str = '';
+			for ($t=0; $t < $i ; $t++) { 
+				$str .='0';		}
+			return $str.$key;
+		}
 
 
    	}
