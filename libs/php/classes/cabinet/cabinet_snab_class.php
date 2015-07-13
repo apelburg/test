@@ -2,15 +2,60 @@
 	
 	class Cabinet_snab_class{
 
+		// формулировки статусов для юзера
+		public $menu_name_arr = array(
+		'important' => 'Важно',
+		'no_worcked' => 'Не обработанные',
+		'in_work' => 'В работе',
+		'send_to_snab' => 'Отправлены в СНАБ',
+		'calk_snab' => 'Рассчитанные',
+		'ready_KP' => 'Выставлено КП',
+		'denied' => 'Отказанные',
+		'all' => 'Все',
+		'orders' => 'Заказы',
+		'requests' =>'Запросы',
+		'create_spec' => 'Спецификация создана',
+		'signed' => 'Спецификация подписана',
+		'expense' => 'Счёт выставлен',
+		'paperwork' => 'Предзаказ',
+		'start' => 'Запуск',
+		'tz_no_correct' => 'ТЗ не корректно',
+		'purchase' => 'Закупка',
+		'design' => 'Дизайн',
+		'production' => 'Производство',
+		'ready_for_shipment' => 'Готов к отгрузке',
+		'paused' => 'на паузе',
+		'history' => 'история',
+		'simples' => 'Образцы',
+		'closed'=>'Закрытые',
+		'for_shipping' => 'На отгрузку',
+		'order_of_documents' => 'Заказ документов',
+		'arrange_delivery' => 'Оформить доставку',
+		'delivery' => 'Доставка',
+		'pclosing_documents' => 'Закрывающие документы',
+		'otgrugen' => 'Отгруженные'													
+		); 
+
 		// название подраздела кабинета
 		private $sub_subsection;
 
 		// содержит экземпляр класса кабинета вер. 1.0
 		private $CABINET;
 
+		// экземпляр класса продукции НЕ каталог (там нас интересуют кириллические названия статусов)
+		public $POSITION_NO_CATALOG;
 
-		function __construct(){
-			echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; left:0">this->Cabinet_snab_class </div>';
+		function __construct($user_access = 0){ // необязательный параметр доступа... не передан - нет доступа =)) 
+
+			$this->user_id = $_SESSION['access']['user_id'];
+			$this->user_access = $user_access;
+
+			//echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; left:0">this->Cabinet_snab_class </div>';
+			
+			// экземпляр класса продукции НЕ каталог
+			$this->POSITION_NO_CATALOG = new Position_no_catalog();
+
+
 			## данные POST
 			if(isset($_POST['AJAX'])){
 				$this->_AJAX_($_POST['AJAX']);
@@ -23,6 +68,8 @@
 
 			// экземпляр класса кабинета вер. 1.0
 			$this->CABINET = new Cabinet;
+
+			//$this->FORM = new Forms;
 		}
 
 
@@ -117,10 +164,11 @@
 				$html .= '<td colspan="5" class="each_art">';
 				
 
-				
+				// получаем позиции по запросу
 				$main_rows = $this->requests_Template_recuestas_main_rows_Database($value['query_num']);
 
 				
+					
 				//if(!isset($value2)){continue;}
 				
 				$html .= '<table class="cab_position_div">';
@@ -139,6 +187,10 @@
 					<th></th>
 						</tr>';
 
+
+				// наименование продукта
+				$name_product = ''; $name_count = 1;
+				
 				foreach ($main_rows as $key1 => $val1) {
 					//ОБСЧЁТ ВАРИАНТОВ
 					// получаем массив стоимости нанесения и доп услуг для данного варианта 
@@ -148,19 +200,28 @@
 					// выборка только массива стоимости доп услуг
 					$dop_usl_no_print = $this->CABINET -> get_dop_uslugi_no_print_type($dop_usl);
 
+					// echo '<pre>';
+					// print_r($dop_usl);
+					// echo '</pre>';
+						
+
 					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
 					// стоимость печати варианта
 					$calc_summ_dop_uslug = $this->CABINET -> calc_summ_dop_uslug($dop_usl_print,$val1['quantity']);
+					
 					// стоимость доп услуг варианта
 					$calc_summ_dop_uslug2 = $this->CABINET -> calc_summ_dop_uslug($dop_usl_no_print,$val1['quantity']);
+					
 					// стоимость товара для варианта
-					$price_out = $val1['price_out'] * $val1['quantity'];
+					$price_out = $val1['price_out'];
 					// стоимость варианта на выходе
 					$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
-
-					$html .= '<tr>
-					<td>'.$val1['id_dop_data'].'<!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
-					<td>'.$val1['name'].'</td>
+					
+					
+					if($name_product != $val1['name']){$name_product = $val1['name']; $name_count = 1;}
+					$html .= '<tr data-id_dop_data="'.$val1['id_dop_data'].'">
+					<td>'.$val1['art'].'</td>
+					<td><a class="go_to_position_card_link" href="./?page=client_folder&section=rt_position&id='.$val1['id'].'">'.$val1['name'].'</a> <span class="variant_comments_dop">( Вариант '.$name_count++.' )</span></td>
 					<td>'.$val1['quantity'].'</td>
 					<td></td>
 					<td>'.$price_out.'</td>
@@ -168,8 +229,9 @@
 					<td>'.$calc_summ_dop_uslug2.'</td>
 					<td>'.$in_out.'</td>
 					<td></td>
-					<td>'.$val1['status_snab'].'</td>
+					<td data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.'">'.(isset($this->POSITION_NO_CATALOG->status_snab[$val1['status_snab']]['name'])?$this->POSITION_NO_CATALOG->status_snab[$val1['status_snab']]['name']:$val1['status_snab']).'</td>
 							</tr>';
+
 				}
 				$html .= '</table>';
 				$html .= '</td>';
@@ -191,7 +253,25 @@
 			echo '</table>';
 		}
 		## Запросы __ запросы к базе
+
+		// получаем позиции по запросу
 		private function requests_Template_recuestas_main_rows_Database($id){
+			switch ($_GET['subsection']) {
+				case 'all':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					break;
+				case 'no_worcked':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'on_calculate' ";
+					break;
+				
+				default:
+					$where = "WHERE `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					break;
+			}
+
+
+
+
 			global $mysqli;
 			$query = "
 				SELECT 
@@ -207,9 +287,9 @@
 					FROM `".RT_MAIN_ROWS."` 
 					INNER JOIN `".RT_DOP_DATA."` ON `".RT_DOP_DATA."`.`row_id` = `".RT_MAIN_ROWS."`.`id`
 					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
-					WHERE `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".RT_MAIN_ROWS."`.`query_num` = '".$id."'
+					".$where."
 					ORDER BY `".RT_MAIN_ROWS."`.`id` ASC";
-				// $html .= $query;
+				// echo  $query.'<br><br>';
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();

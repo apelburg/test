@@ -3,11 +3,6 @@ class Position_catalog{
 	// экземпляр класса mysqli
 	private $mysqli;
 
-	// глобальные массивы
-	private $POST;
-	private $GET;
-	private $SESSION;
-
 	// id юзера
 	private $user_id;
 
@@ -23,23 +18,18 @@ class Position_catalog{
 	// id позиции
 	private $id_position;
 	
-	function __construct($get,$post,$session,$user_access){
-		$this->GET = $get;
-		$this->POST = $post;
-		$this->SESSION = $session;
-
-		$this->user_id = $session['access']['user_id'];
-
+	function __construct($user_access = 0){ // необязательный параметр доступов юзера, нет допуска - нет редактирования
+		$this->user_id = $_SESSION['access']['user_id'];
 		$this->user_access = $user_access;
 
 		// обработчик AJAX // в первой редакции.... РАБОЧИЙ !!!!
-		if(isset($this->POST['global_change']) && isset($this->POST['change_name'])){
+		if(isset($_POST['global_change']) && isset($_POST['change_name'])){
 			$this->_AJAX_first();
 		}
 
 		// обработчик AJAX // в конечной редакции... теперь все обработчики будут 
 		// передававться через ключ AJAX
-		if(isset($this->POST['AJAX'])){
+		if(isset($_POST['AJAX'])){
 			$this->_AJAX_();
 		}
 
@@ -47,7 +37,7 @@ class Position_catalog{
 
 	/////////////////  AJAX START ///////////////// 
 	private function _AJAX_(){
-		$method_AJAX = $this->POST['AJAX'].'_AJAX';
+		$method_AJAX = $_POST['AJAX'].'_AJAX';
 
 		// если в этом классе существует такой метод - выполняем его и выходим
 		if(method_exists($this, $method_AJAX)){
@@ -66,7 +56,7 @@ class Position_catalog{
 	// вариант 1, 
 	// все новые вызовы пишется по варианту 2 !!!!!
 	private function _AJAX_first(){ // router
-		$method_AJAX = $this->POST['change_name'].'_AJAX';
+		$method_AJAX = $_POST['change_name'].'_AJAX';
 		$this->$method_AJAX();
 	}
 
@@ -94,7 +84,7 @@ class Position_catalog{
 	private function size_in_var_AJAX(){
 		global $mysqli;
 
-		$query = "SELECT `tirage_json`,`print_z` FROM ".RT_DOP_DATA." WHERE `id` = '".$this->POST['id']."'";
+		$query = "SELECT `tirage_json`,`print_z` FROM ".RT_DOP_DATA." WHERE `id` = '".$_POST['id']."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$json = '';
 		if($result->num_rows > 0){
@@ -105,7 +95,7 @@ class Position_catalog{
 		}
 		$arr_json = json_decode($json,true);
 
-		$arr_json[$this->POST['key']][$this->POST['dop']] = $this->POST['val'];
+		$arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
 		/*
 			ОБСУДИТЬ С АНДРЕЕМ РАСПРЕДЕЛЕНИЕ ТИРАЖА 
 			ВВЕДЁННОГО В ОБЩЕЕ поле
@@ -116,7 +106,7 @@ class Position_catalog{
 		// 	if($print_z){$quantity += $arr_json[$key]['dop'];}
 		// }
 
-		$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."', `quantity` = '".$quantity."' WHERE  `id` ='".$this->POST['id']."'";	
+		$query = "UPDATE `".RT_DOP_DATA."` SET `tirage_json` = '".json_encode($arr_json)."', `quantity` = '".$quantity."' WHERE  `id` ='".$_POST['id']."'";	
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
@@ -124,14 +114,14 @@ class Position_catalog{
 	private function size_in_var_all_AJAX(){
 		global $mysqli;
 		// echo "<pre>";
-		// print_r($this->POST);
+		// print_r($_POST);
 		// echo "</pre>";
-		$tir = $this->POST['val']; // array / тиражи
-		$key2 = $this->POST['key']; // array / id _ row size
-		$dop = $this->POST['dop']; // array / запас
-		$id = $this->POST['id']; // array / id 
+		$tir = $_POST['val']; // array / тиражи
+		$key2 = $_POST['key']; // array / id _ row size
+		$dop = $_POST['dop']; // array / запас
+		$id = $_POST['id']; // array / id 
 
-			//print_r($this->POST['id']);exit;
+			//print_r($_POST['id']);exit;
 		$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$id[0]."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$json = '';
@@ -155,7 +145,7 @@ class Position_catalog{
 			$sum_tir += $tir[$key];
 		}
 
-		// $arr_json[$this->POST['key']][$this->POST['dop']] = $this->POST['val'];
+		// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
 		//echo $r .'   -   ';
 		//echo json_encode($arr_json);
 		$query = "UPDATE `".RT_DOP_DATA."` SET `quantity` = '".$sum_tir."',`zapas` = '".$sum_zap."',`tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
@@ -166,12 +156,12 @@ class Position_catalog{
 	private function change_status_row_AJAX(){
 		global $mysqli;
 
-		$color = $this->POST['color'];
-		$id_in = $this->POST['id_in'];
+		$color = $_POST['color'];
+		$id_in = $_POST['id_in'];
 		$query  = "UPDATE `".RT_DOP_DATA."` SET `row_status` = '".$color."' WHERE  `id` IN (".$id_in.");";
 		echo $query;
 		// echo '<pre>';
-		// print_r($this->POST);
+		// print_r($_POST);
 		// echo '</pre>';
 		$result = $mysqli->query($query) or die($mysqli->error);
 		echo '{"response":"1","text":"test"}';
@@ -180,7 +170,7 @@ class Position_catalog{
 	private function change_archiv_AJAX(){
 		global $mysqli;
 
-		$query = "UPDATE `".RT_DOP_DATA."` SET `row_status` = 'green' WHERE  `id` ='".$this->POST['id']."';";
+		$query = "UPDATE `".RT_DOP_DATA."` SET `row_status` = 'green' WHERE  `id` ='".$_POST['id']."';";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 		// $result = $mysqli->query($query) or die($mysqli->error);
 		echo '{"response":"1","text":"test"}';
@@ -189,7 +179,7 @@ class Position_catalog{
 	private function change_tirage_pz_AJAX(){
 		global $mysqli;
 
-		$query = "UPDATE `".RT_DOP_DATA."` SET `print_z` = '".$this->POST['pz']."' WHERE  `id` ='".$this->POST['id']."'";	
+		$query = "UPDATE `".RT_DOP_DATA."` SET `print_z` = '".$_POST['pz']."' WHERE  `id` ='".$_POST['id']."'";	
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
@@ -198,7 +188,7 @@ class Position_catalog{
 	private function change_variante_shipping_time_AJAX(){
 		global $mysqli;
 
-		$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_time` = '".$this->POST['time']."', `standart` = '' WHERE  `id` ='".$this->POST['id']."'";	
+		$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_time` = '".$_POST['time']."', `standart` = '' WHERE  `id` ='".$_POST['id']."'";	
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
@@ -207,7 +197,7 @@ class Position_catalog{
 		global $mysqli;
 
 		// собираем запрос, копируем строку в БД
-		$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, row_status,quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, row_status,quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$this->POST['id']."')";
+		$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, row_status,quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, row_status,quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id']."')";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		// запоминаем новый id
 		$insert_id = $mysqli->insert_id;
@@ -235,8 +225,8 @@ class Position_catalog{
 		$query = "UPDATE `".RT_DOP_DATA."` 
 					SET `shipping_time` = '00:00:00',
 					`shipping_date` = '0000-00-00' ,
-					`standart` =  '".$this->POST['standart']."'
-					WHERE  `id` ='".$this->POST['id']."'";	
+					`standart` =  '".$_POST['standart']."'
+					WHERE  `id` ='".$_POST['id']."'";	
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
@@ -244,10 +234,10 @@ class Position_catalog{
 	private function change_variante_shipping_date_AJAX(){
 		global $mysqli;
 
-		$date = $this->POST['date'];
+		$date = $_POST['date'];
 		$date = strtotime($date);
 		$date = date("Y-m-d", $date);
-		$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."' , `standart` = '' WHERE  `id` ='".$this->POST['id']."'";	
+		$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."' , `standart` = '' WHERE  `id` ='".$_POST['id']."'";	
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;

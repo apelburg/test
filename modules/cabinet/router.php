@@ -6,7 +6,7 @@
 	if(!@$ACCESS['cabinet']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 
-
+		
     /////////////////////////////////// AJAX //////////////////////////////////////
 	if(isset($_POST['AJAX'])){
 		// ИЗМЕНЕНИЯ РАЗРЕШЁННЫЕ ДЛЯ БУЧА
@@ -70,7 +70,8 @@
 	}
 	 
 	/////////////////////////////////// AJAX //////////////////////////////////////
-	
+		
+		include './libs/php/classes/rt_position_no_catalog_class.php';
 		include './libs/php/classes/cabinet/cabinet_class.php';		
 		include './libs/php/classes/cabinet/cabinet_general_class.php';		
 
@@ -79,6 +80,10 @@
 		$content = ob_get_contents();
 		ob_get_clean();
 		
+		// обновляем доступы в соответствии с проверенными по базе допусками
+		// на случай вхождения админом в чужой аккаунт 
+		$ACCESS = $ACCESS_SHABLON[$CABINET->user_access];
+
 
 		$menu_name_arr = $CABINET->menu_name_arr;
 		
@@ -91,7 +96,7 @@
 			}
 		}
 		
-		// СЕНТРАЛЬНОЕ МЕНЮ СВЕРХУ
+		// ЦЕНТРАЛЬНОЕ МЕНЮ СВЕРХУ
 		$menu_central = "";
 		$menu_central_arr = (array_key_exists($section, $ACCESS['cabinet']['section']))?$ACCESS['cabinet']['section'][$section]['subsection']:array();
 		foreach ($menu_central_arr as $key2 => $value2) {

@@ -14,9 +14,6 @@ PS было бы неплохо взять взять это за правило
 
 */
     class Forms{
-    	private $GET;
-		private $POST;
-		private $SESSION;
 		// id пользователя
     	private $user_id;
 
@@ -218,12 +215,8 @@ PS было бы неплохо взять взять это за правило
      		);
 
 
-		function __construct($get,$post,$session){
-			$this->GET = $get;
-			$this->POST = $post;
-			$this->SESSION = $session;	
-
-			$this->usser_id = $session['access']['user_id'];
+		function __construct(){
+			$this->usser_id = $_SESSION['access']['user_id'];
 		}
 
 		// возвращает форму выбора заведения новой позиции в запрос
@@ -280,18 +273,17 @@ PS было бы неплохо взять взять это за правило
 
 		// заносит новые варианты в базу, на вход принимает массив POST
 		public function insert_new_options_in_the_Database(){
-			// $id_i = (isset($this->POST['id']))?$this->POST['id']:(isset($this->GET['id'])?$this->GET['id']:0);
-			$id_i = (isset($this->GET['id'])?$this->GET['id']:0);
+			$id_i = (isset($_GET['id'])?$_GET['id']:0);
 
 			// $query_num_i = (isset($this->POST['query_num']))?$_POST['query_num']:(isset($_GET['query_num'])?$_GET['query_num']:0);
-			$query_num_i =isset($this->GET['query_num'])?$this->GET['query_num']:0;
+			$query_num_i =isset($_GET['query_num'])?$_GET['query_num']:0;
 
 			//type_product
-			$type_product = isset($this->POST['type_product'])?$this->POST['type_product']:0;
+			$type_product = isset($_POST['type_product'])?$_POST['type_product']:0;
 
 			// проверяем наличие вариантов, если все впорядке идём дальше
 
-			if(!isset($this->POST['json_variants']) || count($this->POST['json_variants'])==0){return 'Не было создано ни одного варианта.';}
+			if(!isset($_POST['json_variants']) || count($_POST['json_variants'])==0){return 'Не было создано ни одного варианта.';}
 			
 
 			// echo '<pre>';
@@ -303,7 +295,7 @@ PS было бы неплохо взять взять это за правило
 				// если нам известен $query_num, то работа ведётся из РТ
 				
 				#/ получаем наименование и доп название позиции из Json
-				$arr = json_decode($this->POST['json_general'],true);
+				$arr = json_decode($_POST['json_general'],true);
 
 				
 				#/ заводим новую строку позиции и получаем её id
@@ -312,7 +304,7 @@ PS было бы неплохо взять взять это за правило
 				#/ для каждой строки варианта заводим новую строку варианта с ценой равной нулю
 				
 				#/ Json
-				foreach ($this->POST['json_variants'] as $key => $json_for_variant) {
+				foreach ($_POST['json_variants'] as $key => $json_for_variant) {
 					// $str = json_decode(,true);
 					$this->insert_new_dop_data_row_Database($new_position_id,$json_for_variant);
 				}
@@ -373,7 +365,7 @@ PS было бы неплохо взять взять это за правило
 				`name` = '".$arr['name_product'][0]." ".$arr['product_dop_text'][0]."',
 				`date_create` = CURRENT_DATE(),
 				`type` = '".$type_product."',
-			    `dop_info_no_cat` = '".addslashes($this->POST['json_general'])."'";				 
+			    `dop_info_no_cat` = '".addslashes($_POST['json_general'])."'";				 
 		    
 		    $result = $mysqli->query($query) or die($mysqli->error);
 			

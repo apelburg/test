@@ -96,7 +96,7 @@
 #variants_name table tr td,#variants_name2 table tr td{ padding: 0; margin:0; height: 20px}
 #variants_name table tr td:nth-of-type(1),#variants_name2 table tr td:nth-of-type(1){ /*padding-left: 30px*/ width: 25px}
 #variants_name ul,#variants_name2 ul { padding: 0; margin: 0; /*padding-left: 5px*/}
-#variants_name ul li,#variants_name2 ul li{ display: inline-block;padding: 5px 26px;background-color: #BAD28E;}
+#variants_name ul li,#variants_name2 ul li{ display: inline-block;padding: 5px 26px;background-color: #BAD28E; cursor:default}
 #variants_name ul li#new_variant,#variants_name2 ul li#new_variant2{  /*cursor: default;*/padding: 5px 10px; background: url('../images/img_design/plus_variant.png') no-repeat;}
 /*#new_variant{ margin-left: -26px}*/
 /*#variants_name #all_variants_menu li:nth-of-type(2){ margin-left: -3px}*/

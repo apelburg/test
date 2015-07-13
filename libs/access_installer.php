@@ -143,7 +143,7 @@
 										'access'=> true
 										),
 				       );
-							  
+	// БУХГАЛТЕР						  
 	$ACCESS_SHABLON[2] = array(
 				       'clients'=> array(
 										'access'=> true,
@@ -205,13 +205,44 @@
 				       'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
+											'important'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'all' => array('access'=>true)
+													)
+												),
+											'requests'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'no_worcked' => array('access'=>true),
+													'in_work' => array('access'=>true),
+													'calk_snab' => array('access'=>true),
+													'denied' => array('access'=>true),
+													'paused' => array('access'=>true),
+													'all' => array('access'=>true),
+													'history' => array('access'=>true)
+													)
+												),
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
+													'start' => array('access'=>true),
+													'purchase' => array('access'=>true),
+													'design' => array('access'=>true),
+													'production' => array('access'=>true),
+													'ready_for_shipment' => array('access'=>true),
+													'paused' => array('access'=>true),
 													'all' => array('access'=>true)
+													)
+												),
+											'closed'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
 													)
 												)
 											)
+											
 										)
 				       );
 		// Снабжение

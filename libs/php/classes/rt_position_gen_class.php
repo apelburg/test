@@ -1,15 +1,8 @@
 <?php
 
 class Position_general_Class{
-	// глобальные массивы
-	private $POST;
-	private $GET;
-	private $SESSION;
-
 	// тип продукта
 	private $type_product;
-
-	// 
 
 	// id юзера
 	private $user_id;
@@ -46,8 +39,6 @@ class Position_general_Class{
 					)
 				)
 			),
-
-
 		'on_calculation_snab' => array( 
 			'name' => 'Запрошен расчёт', // в снабжение
 			'buttons' =>  array( // кнопки для данного статуса
@@ -63,7 +54,6 @@ class Position_general_Class{
 					)
 				)
 			),
-
 		'on_recalculation_snab' => array(
 			'name' => 'На перерасчёт',
 			'buttons' =>  array( // кнопки для данного статуса
@@ -79,7 +69,6 @@ class Position_general_Class{
 					)
 				)
 			),
-
 		'tz_is_not_correct' => array( // статус снабжения по позиции
 			'name' => 'ТЗ не корректно',
 			'buttons' =>  array( // кнопки для данного статуса
@@ -120,27 +109,24 @@ class Position_general_Class{
 		);
 
 
-	function __construct($get,$post,$session){
-		$this->GET = $get;
-		$this->POST = $post;
-		$this->SESSION = $session;
-		$this->user_id = $session['access']['user_id'];
+	function __construct(){
+		$this->user_id = $_SESSION['access']['user_id'];
 
 		$this->user_access = $this->get_user_access_Database_Int($this->user_id);
 
-		$this->id_position = isset($this->GET['id'])?$this->GET['id']:0;
+		$this->id_position = isset($_GET['id'])?$_GET['id']:0;
 		
 		// экземпляр класса продукции каталог
-		$this->POSITION_CATALOG = new Position_catalog($this->GET,$this->POST,$this->SESSION,$this->user_access);
+		$this->POSITION_CATALOG = new Position_catalog($this->user_access);
 
-		// экземпляр класса продукции каталог
-		$this->POSITION_NO_CATALOG = new Position_no_catalog($this->GET,$this->POST,$this->SESSION,$this->user_access);
+		// экземпляр класса продукции НЕ каталог
+		$this->POSITION_NO_CATALOG = new Position_no_catalog($this->user_access);
 
 		// экземпляр класса форм
-		$this->FORM = new Forms($this->GET,$this->POST,$this->SESSION);
+		$this->FORM = new Forms();
 
 		// обработчик AJAX через ключ AJAX
-		if(isset($this->POST['AJAX'])){
+		if(isset($_POST['AJAX'])){
 			$this->_AJAX_();
 		}
 	}
@@ -162,7 +148,7 @@ class Position_general_Class{
 	# В данном классе расположены обработчики AJAX ОБЩИЕ для всей продукции !!!
 	/////////////////  AJAX START ///////////////// 
 	private function _AJAX_(){
-		$method_AJAX = $this->POST['AJAX'].'_AJAX';
+		$method_AJAX = $_POST['AJAX'].'_AJAX';
 
 		// если в этом классе существует такой метод - выполняем его и выходим
 		if(method_exists($this, $method_AJAX)){
@@ -190,17 +176,17 @@ class Position_general_Class{
 
 	private function save_tz_text_AJAX(){
 		global $mysqli;
-		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".$this->POST['tz']."' WHERE `id`='".$this->POST['rt_dop_uslugi_id']."';
+		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".$_POST['tz']."' WHERE `id`='".$_POST['rt_dop_uslugi_id']."';
 ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 
-		echo '{"response":"OK" , "name":"save_tz_text_AJAX","increment_id":"'.$this->POST['increment_id'].'"}';
+		echo '{"response":"OK" , "name":"save_tz_text_AJAX","increment_id":"'.$_POST['increment_id'].'"}';
 	}
 	// добавить доп услугу для варианта
 	public function add_new_usluga_AJAX(){
-		$id_uslugi = $this->POST['id_uslugi'];
-		$dop_row_id = $this->POST['dop_row_id'];
-		$quantity = $this->POST['quantity'];
+		$id_uslugi = $_POST['id_uslugi'];
+		$dop_row_id = $_POST['dop_row_id'];
+		$quantity = $_POST['quantity'];
 
 		global $mysqli;
 		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` = '".$id_uslugi."'";
@@ -247,6 +233,7 @@ class Position_general_Class{
 		$NEW_usl[0]['for_how'] = $usluga['for_how'];
 		$NEW_usl[0]['quantity'] = $quantity;
 		$NEW_usl[0]['creator_id'] = $this->user_id;
+		// $NEW_usl[0]['print_details'] = $usluga['print_details'];
 		$NEW_usl[0]['tz'] = '';
 		
 		// генерим html выдачу для ajax
@@ -263,9 +250,9 @@ class Position_general_Class{
 				$html = $this->POSITION_NO_CATALOG->uslugi_template_Html($NEW_usl, $flag);
 				break;
 		}
-
 		echo '{"response":"close_window","name":"add_uslugu'.$dop.'","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
 	}
+
 
 	private function get_uslugi_list_Database_Html_AJAX(){
 		global $type_product;
@@ -283,6 +270,7 @@ class Position_general_Class{
 			echo $html;
 		}
 	}
+
 
 	private function get_uslugi_list_Database_Html($id=0,$pad=30){	
 		global $mysqli;

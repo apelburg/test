@@ -43,7 +43,7 @@
 		); 
 
 		// допуски пользователя
-		private $user_access;
+		public $user_access;
 
 		// права на редактирование поля определяются внутри 
 		// некоторых функций 
@@ -102,9 +102,10 @@
 				case '8':
 					include_once 'cabinet_snab_class.php';
 					// создаём экземпляр класса
-					$this->CALASS = new Cabinet_snab_class();
+					$this->CLASS = new Cabinet_snab_class($this->user_access);
 					// запускаем роутер шаблонов
-					$this->CALASS->__subsection_router__();
+					$this->CLASS->__subsection_router__();
+					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
 
 				case '9':
