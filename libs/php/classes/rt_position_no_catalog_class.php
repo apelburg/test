@@ -16,11 +16,6 @@ PS было бы неплохо взять взять это за правило
 
 */
 class Position_no_catalog{
-	// глобальные массивы
-	private $POST;
-	private $GET;
-	private $SESSION;
-
 	// тип продукта
 	private $type_product;
 
@@ -43,7 +38,7 @@ class Position_no_catalog{
 	private $FORM;
 
 	// статусы кнопки для различных групп пользователей 
-	private $status_snab = array(
+	public $status_snab = array(
 
 		'on_calculation' => array( //на расчёт мен
 			'name' => 'На расчёт',
@@ -128,20 +123,16 @@ class Position_no_catalog{
 		
 		);
 
-	function __construct($get,$post,$session,$user_access){
-		$this->GET = $get;
-		$this->POST = $post;
-		$this->SESSION = $session;
-		$this->user_id = $session['access']['user_id'];
-
+	function __construct($user_access = 0){
+		$this->user_id = $_SESSION['access']['user_id'];
 		$this->user_access = $user_access;
 
-		$this->id_position = isset($this->GET['id'])?$this->GET['id']:0;
+		$this->id_position = isset($_GET['id'])?$_GET['id']:0;
 
 
 		// обработчик AJAX // в конечной редакции... теперь все обработчики будут 
 		// передававться через ключ AJAX
-		if(isset($this->POST['AJAX'])){
+		if(isset($_POST['AJAX'])){
 			$this->_AJAX_();
 		}
 	}
@@ -149,7 +140,7 @@ class Position_no_catalog{
 
 	/////////////////  AJAX START ///////////////// 
 	private function _AJAX_(){
-		$method_AJAX = $this->POST['AJAX'].'_AJAX';
+		$method_AJAX = $_POST['AJAX'].'_AJAX';
 
 		// если в этом классе существует такой метод - выполняем его и выходим
 		if(method_exists($this, $method_AJAX)){
@@ -192,7 +183,7 @@ class Position_no_catalog{
 
 	// private function add_new_usluga_AJAX(){
 	// 	// добаление данных, прикрепление новой услуги к расчёту
-	// 	$this->add_uslug_Database_Html($this->POST['id_uslugi'],$this->POST['dop_row_id'],$this->POST['quantity']);
+	// 	$this->add_uslug_Database_Html($_POST['id_uslugi'],$_POST['dop_row_id'],$_POST['quantity']);
 	// }
 
 
@@ -201,7 +192,7 @@ class Position_no_catalog{
 
 
 		// запоминаем id уже выбранных поставщиков
-		$already_chosen_arr = explode(',', $this->POST['already_chosen']);
+		$already_chosen_arr = explode(',', $_POST['already_chosen']);
 
 		$suppliers_arr = Supplier::get_all_suppliers_Database_Array();
 		$html = '<form>';
@@ -247,7 +238,7 @@ class Position_no_catalog{
 	}
 
 	private function delete_usl_of_variant_AJAX(){
-		Position_no_catalog::del_uslug_Database($this->POST['uslugi_id']);
+		Position_no_catalog::del_uslug_Database($_POST['uslugi_id']);
 		echo '{"response":"OK"}';
 	}
 	
@@ -262,8 +253,8 @@ class Position_no_catalog{
 	public function edit_work_days_Database(){
 		global $mysqli;
 		$query ="UPDATE `".RT_DOP_DATA."` SET
-		             `work_days` = '".$this->POST['work_days']."'
-		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             `work_days` = '".$_POST['work_days']."'
+		             WHERE `id` =  '".$_POST['id_dop_data']."';
 		             ";
 		$result = $mysqli->query($query) or die($mysqli->error);		
 		echo '{"response":"OK","name":"edit_work_days"}';
@@ -272,8 +263,8 @@ class Position_no_catalog{
 	public function edit_snab_comment_Database(){
 		global $mysqli;
 		$query ="UPDATE `".RT_DOP_DATA."` SET
-		             `snab_comment` = '".$this->POST['note']."'
-		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             `snab_comment` = '".$_POST['note']."'
+		             WHERE `id` =  '".$_POST['id_dop_data']."';
 		             ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		echo '{"response":"OK","name":"this->edit_snab_comment_Database"}';
@@ -289,7 +280,7 @@ class Position_no_catalog{
 
 				// ТАКЖЕ СУЩЕСТВУЮТ ЕЩЕ ВАРИАНТЫ ПОСТАВЛЕННЫЕ НА ПАУЗУ _pause
 				if(substr_count($status_snab, '_pause')){
-					return $this->get_name_group(str_replace('_pause','',$status_snab)).' (ПАУЗА)'; 
+					return $_GET_name_group(str_replace('_pause','',$status_snab)).' (ПАУЗА)'; 
 					// return '(ПАУЗА)';
 				}else{
 					// варант статуса отсутствует в предусмотренных
@@ -405,7 +396,7 @@ class Position_no_catalog{
 
 
 					// получаем всю инфу по варианту
-					$this->FORM = new Forms($this->GET,$this->POST,$this->SESSION);//для вызова следующего метода нужна информация из сласса форм
+					$this->FORM = new Forms();//для вызова следующего метода нужна информация из сласса форм
 					
 					// контент для отправки поставщику
 					$no_cat_json = json_decode($value2['no_cat_json'],true);
@@ -511,8 +502,8 @@ class Position_no_catalog{
 	public function change_maket_date_Database(){
 		global $mysqli;
 		$query ="UPDATE `".RT_DOP_DATA."` SET
-		             `maket_date` = '".date('Y-m-j', strtotime($this->POST['maket_date']))."'
-		             WHERE `id` =  '".$this->POST['id_dop_data']."';
+		             `maket_date` = '".date('Y-m-j', strtotime($_POST['maket_date']))."'
+		             WHERE `id` =  '".$_POST['id_dop_data']."';
 		             ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		
@@ -523,9 +514,9 @@ class Position_no_catalog{
 	public function change_supliers_info_dop_data_Database(){
 		global $mysqli;
 		$query ="UPDATE `".RT_DOP_DATA."` SET
-		             `suppliers_id` = '".$this->POST['suppliers_id']."',
-		             `suppliers_name` = '".$this->POST['suppliers_name']."' 
-		             WHERE `id` =  '".$this->POST['dop_data_id']."';
+		             `suppliers_id` = '".$_POST['suppliers_id']."',
+		             `suppliers_name` = '".$_POST['suppliers_name']."' 
+		             WHERE `id` =  '".$_POST['dop_data_id']."';
 		             ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		
@@ -1019,7 +1010,6 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					$uslugi[] = $row;
 				}
 			}
-			
 			//составляем множественный запрос на запись всех услуг в базу истории
 			foreach ($uslugi as $key1 => $usl) {
 				$query ="INSERT INTO `".DOP_USLUGI_HIST."` SET ";
@@ -1054,10 +1044,10 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	public function change_status_gl_Database(){
 		global $mysqli;
 		// получаем id dop_data строк в которых будем менять статус
-		$id_dop_data = implode(",", $this->POST['variants_arr']); 
+		$id_dop_data = implode(",", $_POST['variants_arr']); 
 		
 		// получаем новый статус
-		$new_status = $this->POST['new_status'];
+		$new_status = $_POST['new_status'];
 		
 		// если новый статус - это запрос на перерасчёт:
 		if($new_status == 'on_recalculation_snab'){
@@ -1086,7 +1076,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		
 
 		//ФОРМИРУЕМ ОТВЕТ СЕРВЕРА ДЛЯ ИЗМЕНЕНИЯ html НА СТРАНИЦЕ
-		// echo '{"new_name":"'.$new_status_rus.'","new_status":"'.$new_status.'",new_buttons":"'.base64_encode($this->get_top_funcional_byttun_for_user_Html($new_status)).'"}';
+		// echo '{"new_name":"'.$new_status_rus.'","new_status":"'.$new_status.'",new_buttons":"'.base64_encode($_GET_top_funcional_byttun_for_user_Html($new_status)).'"}';
 		// В ВЕРСИИ 1.1 будем вносить правки в html в соответствии с ответом от сервера
 		// сейчас при получении ответа - просто перегружаем страницу яваскриптом
 		echo '{"response":"OK"}';
@@ -1096,8 +1086,8 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	public function change_status_gl_pause_Database(){
 		global $mysqli;
 		// получаем id dop_data строк в которых будем менять статус
-		$id_dop_data = implode(",", $this->POST['variants_arr']); 
-		$status =$this->POST['status'];
+		$id_dop_data = implode(",", $_POST['variants_arr']); 
+		$status =$_POST['status'];
 
 		// если позиции уже на паузе - снимаеем их с паузы
 		if(substr_count($status, '_pause')){			
@@ -1187,7 +1177,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		// echo '</pre>';
 
 		global $mysqli;
-		// $query = "SELECT * FROM `".RT_DOP_DATA."` WHERE id = '".$this->POST['id_dop_data']."' GROUP BY `status_snab`";
+		// $query = "SELECT * FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id_dop_data']."' GROUP BY `status_snab`";
 		// $result = $mysqli->query($query) or die($mysqli->error);				
 		// $arr = array();
 		// if($result->num_rows > 0){
@@ -1200,9 +1190,9 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		// echo '</pre>'; 
 		
 		$query = "UPDATE `".RT_DOP_DATA."` SET 
-		`no_cat_json`='".addslashes(json_encode($this->POST['data']))."' 
+		`no_cat_json`='".addslashes(json_encode($_POST['data']))."' 
 
-		WHERE `id`='".$this->POST['id_dop_data']."';
+		WHERE `id`='".$_POST['id_dop_data']."';
 ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		echo '{"response":"OK"}';
@@ -1214,7 +1204,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	public function dop_info_no_cat_Html($arr,$type_product){
 		$html = '';
 		
-		$this->FORM = new Forms($this->GET,$this->POST,$this->SESSION);//для вызова следующего метода нужна информация из сласса форм
+		$this->FORM = new Forms($_GET,$_POST,$_SESSION);//для вызова следующего метода нужна информация из сласса форм
 		
 		// если у нас есть описание заявленного типа товара
 		if(isset($this->FORM->form_type[$type_product])){
@@ -1336,18 +1326,18 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	}
 
 	public function change_dop_data_Database(){
-		// $this->POST['parice_in'];
-		// $this->POST['parice_out'];
-		// $this->POST['parice_out_snab'];
-		// $this->POST['dop_data_id'];
+		// $_POST['parice_in'];
+		// $_POST['parice_out'];
+		// $_POST['parice_out_snab'];
+		// $_POST['dop_data_id'];
 
 		global $mysqli;
 		$query = "UPDATE `".RT_DOP_DATA."` SET 
-		`price_in`='".$this->POST['price_in']."', 
-		`price_out`='".$this->POST['price_out']."',
-		`price_out_snab`='".$this->POST['price_out_snab']."' 
+		`price_in`='".$_POST['price_in']."', 
+		`price_out`='".$_POST['price_out']."',
+		`price_out_snab`='".$_POST['price_out_snab']."' 
 
-		WHERE `id`='".$this->POST['dop_data_id']."';
+		WHERE `id`='".$_POST['dop_data_id']."';
 ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		echo '{"response":"OK"}';
@@ -1357,7 +1347,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	public function save_edit_price_dop_uslugi_Database(){
 		global $mysqli;
 		$query = '';
-		foreach ($this->POST['data'] as $id => $value) {
+		foreach ($_POST['data'] as $id => $value) {
 			// $id
 			// $value['price_out_snab'];
 			// $value['price_out'];

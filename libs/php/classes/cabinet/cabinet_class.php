@@ -14,13 +14,10 @@
 				//echo $value['dop_row_id'].'  |  '.$value['glob_type'].'  |  '.$value['type'].'  |  '.$value['for_how'].' - ';
 				if($value['for_how']=="for_one"){
 					//echo ''.$value['price_out'].' * '.$tir.' + '.$summ.' = '.($summ+$value['price_out']*$tir).'<br>';
-					$summ += ($value['price_out']*$tir);
-					
+					$summ += ($value['price_out']*$tir);					
 				}else{
 					//echo ''.$value['price_out'].' + '.$summ.'= '.($summ+$value['price_out']).'<br>';
-					$summ += $value['price_out'];
-
-					
+					$summ += $value['price_out'];					
 				}
 				
 			}
@@ -92,8 +89,9 @@
 			return $arr_new;
 		}
 
-		// выбираем данные о доп услугах для запроса
-		public function get_query_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
+
+		// выбираем данные о доп услугах для варианта расчёта
+		public function get_query_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data`
 			global $mysqli;
 			$query = "SELECT `".RT_DOP_USLUGI."`.*,`os__our_uslugi`.`name` FROM `".RT_DOP_USLUGI."` 
 			LEFT JOIN  `os__our_uslugi` ON  `os__our_uslugi`.`id` = `".RT_DOP_USLUGI."`.`uslugi_id` 
@@ -107,6 +105,7 @@
 			}
 			return $arr;
 		}
+
 		// выбираем данные о доп услугах для заказа
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			global $mysqli;

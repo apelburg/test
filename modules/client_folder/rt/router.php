@@ -184,7 +184,8 @@
 	     $manager_nickname .= get_manager_nickname_by_id($mngr_id).', ';	 
 	 }
 	 $manager_nickname = trim($manager_nickname,', ');
-	 if($forbidd_flag && $user_status!='1'){
+	 
+	 if($forbidd_flag && $user_status!='1' && $user_status!='8'){ 
 	     echo 'данная страница отсутствует';
 		 exit;
 	 }   

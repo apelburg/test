@@ -4,7 +4,7 @@
 	// инициализация класса работы с позициями
 	// ВНИМАНИЕ!!!
 	// AJAX ОБРАБАТЫВАЕТСЯ ВНУТРИ КЛАССОВ
-	$POSITION_GEN = new Position_general_Class((isset($_GET)?$_GET:array()),(isset($_POST)?$_POST:array()),$_SESSION);
+	$POSITION_GEN = new Position_general_Class();
 
 
 	// получаем все варианты просчёта по данному артикулу
