@@ -183,7 +183,7 @@
 		   	
 		   echo '<input type="hidden" name="dataBufferForDeleting" id="dataBufferForDeleting'.$type.$count.'" value="">';
 		   echo '<input type="hidden" name="dataBufferForSavingToBase" id="tblDataBuffer'.$type.$count.'" value="">';
-		   echo '<input type="button"  class="pointer" onclick="priseManagerSendDataToBase(this.form,{\'type\':\'price\',\'bufferId\':\'tblDataBuffer'.$type.$count.'\',\'tblId\':\'tbl'.$type.$count.'\',\'price_type\':\''.$type.'\',\'print_type_id\':\''.$usluga_id.'\',\'count\':\''.$count.'\'});" value="сохранить">';
+		   echo '<input type="button"  class="pointer" onclick="priceManagerSendDataToBase(this.form,{\'type\':\'price\',\'bufferId\':\'tblDataBuffer'.$type.$count.'\',\'tblId\':\'tbl'.$type.$count.'\',\'price_type\':\''.$type.'\',\'print_type_id\':\''.$usluga_id.'\',\'count\':\''.$count.'\'});" value="сохранить">';
 		   echo '</form>';
 		   echo '<br><br><br>';
 	}
