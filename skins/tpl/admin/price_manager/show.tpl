@@ -55,7 +55,7 @@ function addSomeColsToTbl(tbl,num){
    }
 }
 
-function priseManagerSendDataToBase(form,data_obj){
+function priceManagerSendDataToBase(form,data_obj){
    //alert(data_obj.type);
    if(data_obj.type=='price'){
        var tbl = document.getElementById(data_obj.tblId);

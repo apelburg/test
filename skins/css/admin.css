@@ -1,5 +1,6 @@
 @charset "utf-8";
 /* CSS Document */
+.pointer{ cursor:pointer; }
 
 .priceManager .mainWinTbl{ width:100%; border-collapse:collapse;}
 .priceManager .mainWinTbl td{ font-size: 14px;vertical-align:top; text-align:left; border:#ccc 1px solid;  }
@@ -13,8 +14,17 @@
 .priceManager .commoMenuCurrItem{ color: #FF9933;}
 .priceManager .disclaimer{ position:absolute; top:40px; right:0px;color: #AAA;font-size: 11px;}
 
-placesEditor
-.priceManager .mainWinTbl{ width:100%; border-collapse:collapse;}
+
+.placesEditor .mainWinTbl{ width:100%; border-collapse:collapse;}
+.placesEditor .mainWinTbl  td{ vertical-align:top;border:#BBB 1px solid;}
+.placesEditor .catalogMenu { border-collapse:collapse;}
+.placesEditor .catalogMenu  td{ font-size: 14px; border:none; border-bottom:#BBB 1px solid; border-right:#BBB 0px solid;}
+.placesEditor .catalogMenu  a{ text-decoration:none; color:#777;}
+.placesEditor .catalogMenu .active{ color:#FF0000;}
+.placesEditor .subContentTd{  padding:10px 10px;}
+.placesEditor .subContentTd select{  margin: 15px 0 10px 0;}
+.placesEditor .containsDataTbl{ margin: 20px 0 30px 0; }
+.placesEditor .containsDataTbl td{ font-size: 14px; padding:1px 5px; text-align:left; border:#ccc 1px solid }
 
 .tbl_edit_usl{border-collapse:collapse;}
 .tbl_edit_us tr td{border:1px solid red; padding: 15px}
