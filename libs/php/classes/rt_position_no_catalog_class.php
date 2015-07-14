@@ -41,7 +41,7 @@ class Position_no_catalog{
 	public $status_snab = array(
 
 		'on_calculation' => array( //на расчёт мен
-			'name' => 'На расчёт',
+			'name' => 'В работе менеджер',
 			'buttons' =>  array( // кнопки для данного статуса
 				'on_calculation_snab' => array(// статус позиции или даже запроса
 					'name' => 'Запросить расчёт',

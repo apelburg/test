@@ -121,3 +121,18 @@ td.calculate_is_ready_8{
 td.in_calculation_8{
 	background-color: #7EB6D8;
 }
+
+tr.cat_8 td {
+  color: rgb(194, 194, 194);
+  background-color: #F7F7F5;
+
+}
+.cat_8{
+	display: none
+}
+
+#cabinet_general_content .cab_position_div tr .click_me_and_show_catalog{
+	text-align: center;
+	padding: 5px;
+	  border: 1px solid #f1f1f1;
+}

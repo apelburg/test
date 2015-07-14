@@ -144,53 +144,38 @@
 			// echo '<pre>';
 			// print_r($zapros);
 			// echo '</pre>';
-
+			$general_tbl_row = '';
 			// собираем html строк-запросов 
 			$html = '';
 			foreach ($zapros as $key => $value) {
-
-				$html .= '
-						<tr>
-							<td class="cabinett_row_show show"><span></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
-							<td>'.$value['create_time'].'</td>
-							<td>'.$value['company'].'</td>
-							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td></td>
-						</tr>
-				';
-				$html .= '<tr class="query_detail">';
-				$html .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
-				$html .= '<td colspan="5" class="each_art">';
-				
-
 				// получаем позиции по запросу
 				$main_rows = $this->requests_Template_recuestas_main_rows_Database($value['query_num']);
-
-				
+				// echo '<pre>';
+				// print_r($main_rows);
+				// echo '</pre>';
 					
-				//if(!isset($value2)){continue;}
-				
-				$html .= '<table class="cab_position_div">';
-				
-				// шапка таблицы вариантов запроса
-				$html .= '<tr>
-						<th>артикул</th>
-						<th>номенклатура</th>
-						<th>тираж</th>
-						<th>цены:</th>
-						<th>товар</th>
-						<th>печать</th>
-						<th>доп. услуги</th>
-					<th>в общем</th>
-					<th></th>
-					<th></th>
-						</tr>';
+				if(empty($main_rows)){ continue;}
 
 
+				// в эту переменную запишется 0 если при переборе вариантов 
+				// не встретится ни одного некаталожного товара
+				// потом проверим и если все товары в запросе каталожные вывод данного запроса отменяем
+				$enabled_echo_this_query = 0;
+
+				
 				// наименование продукта
 				$name_product = ''; $name_count = 1;
 				
+				$variant_row = '';
+
+				// счетчик кнопок показа каталожных позиций
+				// необходим для ограничения до одной кнопки
+				$count_button_show_catalog_variants=0;
+
+				// копия $main_rows... необходима для вычесления количества каталожных позиций в запросе для показа в кнопке показа каталожных строк
+				$main_rows_Copy = $main_rows;
+
+				// перебор вариантов
 				foreach ($main_rows as $key1 => $val1) {
 					//ОБСЧЁТ ВАРИАНТОВ
 					// получаем массив стоимости нанесения и доп услуг для данного варианта 
@@ -200,11 +185,7 @@
 					// выборка только массива стоимости доп услуг
 					$dop_usl_no_print = $this->CABINET -> get_dop_uslugi_no_print_type($dop_usl);
 
-					// echo '<pre>';
-					// print_r($dop_usl);
-					// echo '</pre>';
-						
-
+					
 					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
 					// стоимость печати варианта
 					$calc_summ_dop_uslug = $this->CABINET -> calc_summ_dop_uslug($dop_usl_print,$val1['quantity']);
@@ -217,28 +198,86 @@
 					// стоимость варианта на выходе
 					$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
 					
-					
-					if($name_product != $val1['name']){$name_product = $val1['name']; $name_count = 1;}
-					$html .= '<tr data-id_dop_data="'.$val1['id_dop_data'].'">
-					<td>'.$val1['art'].'</td>
-					<td><a class="go_to_position_card_link" href="./?page=client_folder&section=rt_position&id='.$val1['id'].'">'.$val1['name'].'</a> <span class="variant_comments_dop">( Вариант '.$name_count++.' )</span></td>
-					<td>'.$val1['quantity'].'</td>
-					<td></td>
-					<td>'.$price_out.'</td>
-					<td>'.$calc_summ_dop_uslug.'</td>
-					<td>'.$calc_summ_dop_uslug2.'</td>
-					<td>'.$in_out.'</td>
-					<td></td>
-					<td data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.'">'.(isset($this->POSITION_NO_CATALOG->status_snab[$val1['status_snab']]['name'])?$this->POSITION_NO_CATALOG->status_snab[$val1['status_snab']]['name']:$val1['status_snab']).'</td>
-							</tr>';
+					// если есть каталожные продукции... формируем строку - кнопку для их показа
+					// изначально они будут скрытые
+					// !!!! ОЧЕНЬ ВАЖНО ЧТОБЫ ПОЗИЦИИ БЫЛИ ОТСОРТИРОВАНЫ ПО КАТАЛОГУ И НЕ КАТАЛОГУ
+					if($val1['type'] == 'cat' && $count_button_show_catalog_variants==0){
+						$button_show_catalog_variants = '<tr><td colspan="10" class="click_me_and_show_catalog">Показать '.count($main_rows_Copy).' скрытых позиций каталога</td></tr>';
+						$variant_row .= $button_show_catalog_variants;
+						$count_button_show_catalog_variants++;
+					}
+					// удаляем из копии позицию с текущим ключём
+					unset($main_rows_Copy[$key1]);
 
+					//////////////////////////
+					//	собираем строки вариантов по каждой позиции
+					//////////////////////////
+					if($name_product != $val1['name']){$name_product = $val1['name']; $name_count = 1;}
+					$variant_row .= '<tr data-id_dop_data="'.$val1['id_dop_data'].'" class="'.$val1['type'].'_8">
+						<td>'.$val1['art'].'</td>
+						<td><a class="go_to_position_card_link" href="./?page=client_folder&section=rt_position&id='.$val1['id'].'">'.$val1['name'].'</a> <span class="variant_comments_dop">( Вариант '.$name_count++.' )</span></td>
+						<td>'.$val1['quantity'].'</td>
+						<td></td>
+						<td>'.$price_out.'</td>
+						<td>'.$calc_summ_dop_uslug.'</td>
+						<td>'.$calc_summ_dop_uslug2.'</td>
+						<td>'.$in_out.'</td>
+						<td></td>
+						<td data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.'">'.(isset($this->POSITION_NO_CATALOG->status_snab[$val1['status_snab']]['name'])?$this->POSITION_NO_CATALOG->status_snab[$val1['status_snab']]['name']:$val1['status_snab']).'</td>
+					</tr>';
+					// если при переборе вариантов попался хотябы 1 не каталог - ставим 1
+					if($val1['type'] != 'cat'){$enabled_echo_this_query = 1;}
+					
 				}
-				$html .= '</table>';
-				$html .= '</td>';
-				$html .= '</tr>';
+
+				// если вся продукция из каталога - не показываем её снабу, переходим к следующему заказу
+				if($enabled_echo_this_query == 0){ continue;}
+
+				//////////////////////////
+				//	собираем строку с номером заказа (шапку заказа)
+				//////////////////////////
+				$general_tbl_row .= '
+						<tr>
+							<td class="cabinett_row_show show"><span></span></td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
+							<td>'.$value['create_time'].'</td>
+							<td>'.$value['company'].'</td>
+							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
+							<td></td>
+						</tr>';
+				
+				$general_tbl_row .= '<tr class="query_detail">';
+				$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
+				$general_tbl_row .= '<td colspan="5" class="each_art">';
+
+				// шапка таблицы вариантов запроса
+				$variant_top = '<table class="cab_position_div">
+					<tr>
+						<th>артикул</th>
+						<th>номенклатура</th>
+						<th>тираж</th>
+						<th>цены:</th>
+						<th>товар</th>
+						<th>печать</th>
+						<th>доп. услуги</th>
+						<th>в общем</th>
+						<th></th>
+						<th></th>
+					</tr>';
+
+
+				// прикручиваем найденные варианты
+				$general_tbl_row .=	$variant_top.$variant_row;
+				// закрываем теги
+				$general_tbl_row .= '</table>';
+				$general_tbl_row .= '</td>';
+				$general_tbl_row .= '</tr>';
 			}
 			
-			echo '
+			//////////////////////////
+			//	собираем шапку главной таблицы в окне
+			//////////////////////////
+			$general_tbl_top = '
 			<table class="cabinet_general_content_row">
 							<tr>
 								<th id="show_allArt"></th>
@@ -249,27 +288,39 @@
 								<th>Сумма</th>
 								<th>Статус</th>
 							</tr>';
+			// Закрывающий тег главной таблицы
+			$general_tbl_bottm = '</table>';
+
+			// собраем воедино контент с главной таблицей
+			$html = $general_tbl_top.$general_tbl_row.$general_tbl_bottm;
+
+			// выводим
 			echo $html;
-			echo '</table>';
 		}
+
 		## Запросы __ запросы к базе
 
 		// получаем позиции по запросу
 		private function requests_Template_recuestas_main_rows_Database($id){
+			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ
 			switch ($_GET['subsection']) {
 				case 'all':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
 					break;
 				case 'no_worcked':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'on_calculate' ";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
 					break;
-				
+				case 'history':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
+					break;
+				case '':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от'";
+					break;
+
 				default:
 					$where = "WHERE `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
 					break;
 			}
-
-
 
 
 			global $mysqli;
@@ -288,7 +339,7 @@
 					INNER JOIN `".RT_DOP_DATA."` ON `".RT_DOP_DATA."`.`row_id` = `".RT_MAIN_ROWS."`.`id`
 					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
 					".$where."
-					ORDER BY `".RT_MAIN_ROWS."`.`id` ASC";
+					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
 				// echo  $query.'<br><br>';
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -298,6 +349,7 @@
 					$main_rows[] = $row;
 				}
 			}
+			// if($main_rows){ echo $query;}
 			return $main_rows;
 		}
 

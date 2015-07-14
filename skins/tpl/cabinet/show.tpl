@@ -3,10 +3,13 @@
 <link href="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 <script type="text/javascript">
+// показать / скрыть каталожные позиции 
+$(document).on('click', '.click_me_and_show_catalog', function(event) {
+	$(this).parent().parent().find('tr.cat_8').toggle('fast');
+});
+
 //календарь
 $(document).ready(function() {
-	
-
 	$('.payment_date').datetimepicker({
 		minDate:new Date(),
 		// disabledDates:['07.05.2015'],
