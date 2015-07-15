@@ -280,7 +280,7 @@ class Position_no_catalog{
 
 				// ТАКЖЕ СУЩЕСТВУЮТ ЕЩЕ ВАРИАНТЫ ПОСТАВЛЕННЫЕ НА ПАУЗУ _pause
 				if(substr_count($status_snab, '_pause')){
-					return $_GET_name_group(str_replace('_pause','',$status_snab)).' (ПАУЗА)'; 
+					return $this->get_name_group(str_replace('_pause','',$status_snab)).' (ПАУЗА)'; 
 					// return '(ПАУЗА)';
 				}else{
 					// варант статуса отсутствует в предусмотренных

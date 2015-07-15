@@ -10,7 +10,7 @@
 		// id юзера
 		private $user_id;
 
-		// меню
+		// дефолтная расшифровка меню
 		public $menu_name_arr = array(
 		'important' => 'Важно',
 		'no_worcked' => 'Не обработанные',
@@ -39,7 +39,8 @@
 		'arrange_delivery' => 'Оформить доставку',
 		'delivery' => 'Доставка',
 		'pclosing_documents' => 'Закрывающие документы',
-		'otgrugen' => 'Отгруженные'													
+		'otgrugen' => 'Отгруженные',
+		'history' => 'История'													
 		); 
 
 		// допуски пользователя
@@ -79,24 +80,57 @@
 			$this->__ROUTER_CLASS__();
 		}
 
+		//////////////////////////
+		//	Для раздичных подразделений компании необходимы совершенно различные права
+		//  и отображение информации, причём одни и теже статусы в программе для каждого пользователя 
+		//  выгледят по разному, поэтому для каждого отдела предусмотрен отдельный класс
+		//  в каждом классе содержится метод с названием '.$_GET['section'].'_Template для каждого пункта левого меню  
+		//////////////////////////
 		private Function __ROUTER_CLASS__(){
 			switch ($this->user_access) {
-				case '1':
+				case '1':					
+					$text = 'кабинет для админа в разработке<br>
+						для администратора подключен класс снабжения<br>';
+					echo $this->wrap_text_in_warning_message($text);
+					
+					include_once 'cabinet_snab_class.php';
+					// создаём экземпляр класса
+					$this->CLASS = new Cabinet_snab_class($this->user_access);
+					// запускаем роутер шаблонов
+					$this->CLASS->__subsection_router__();
+					// получаем из класса снабжения формулировки для меню, понятные для снаба
+					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
 
-				case '2':
+				case '2':				
+					$text = 'кабинет для бухгалтера в разработке<br>';
+					echo $this->wrap_text_in_warning_message($text);
+					
 					break;
 
-				case '3':
-					break;
-
-				case '4':
+				case '4':					
+					$text = 'кабинет для производства в разработке<br>';
+					echo $this->wrap_text_in_warning_message($text);
 					break;
 
 				case '5':
+					include_once 'cabinet_men_class.php';
+					// создаём экземпляр класса
+					$this->CLASS = new Cabinet_men_class($this->user_access);
+					// запускаем роутер шаблонов
+					$this->CLASS->__subsection_router__();
+					// получаем из класса снабжения формулировки для меню, понятные для снаба
+					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
 
 				case '6':
+					$text = 'кабинет для водителя в разработке';
+					echo $this->wrap_text_in_warning_message($text);
+					break;
+
+				case '7':
+					$text = 'кабинет для склада в разработке';
+					echo $this->wrap_text_in_warning_message($text);
 					break;
 
 				case '8':
@@ -110,10 +144,13 @@
 					break;
 
 				case '9':
+					$text = 'кабинет для дизайнера в разработке';
+					echo $this->wrap_text_in_warning_message($text);
 					break;
 
-				default:
-					# code...
+				default:					
+					$text = 'У вас не хватает прав на доступ к данному разделу!!!';
+					echo $this->wrap_text_in_warning_message($text);
 					break;
 			}
 		}
@@ -174,5 +211,14 @@
 			return $int;
 		}
 
+		//////////////////////////
+		//	оборачивает в оболочку warning_message
+		//////////////////////////
+		private function wrap_text_in_warning_message($text){
+			$html = '<div class="warning_message"><div>';	
+			$html .= $text;
+			$html .= '</div></div>';
+			return $html;
+		}
 
    	}

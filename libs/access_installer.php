@@ -264,6 +264,25 @@
 						'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
+											'important'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'all' => array('access'=>true)
+													)
+												),
+											'requests'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'in_work' => array('access'=>true),
+													'no_worcked' => array('access'=>true),
+													'in_work_snab' => array('access'=>true),
+													'calk_snab' => array('access'=>true),
+													'denied' => array('access'=>true),
+													'paused' => array('access'=>true),
+													'all' => array('access'=>true),
+													'history' => array('access'=>true)
+													)
+												),
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2

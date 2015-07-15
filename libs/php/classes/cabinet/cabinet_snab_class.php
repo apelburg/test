@@ -2,7 +2,7 @@
 	
 	class Cabinet_snab_class{
 
-		// формулировки статусов для юзера
+		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
 		'important' => 'Важно',
 		'no_worcked' => 'Не обработанные',
@@ -10,7 +10,7 @@
 		'send_to_snab' => 'Отправлены в СНАБ',
 		'calk_snab' => 'Рассчитанные',
 		'ready_KP' => 'Выставлено КП',
-		'denied' => 'Отказанные',
+		'denied' => 'ТЗ не корректно',
 		'all' => 'Все',
 		'orders' => 'Заказы',
 		'requests' =>'Запросы',
@@ -223,7 +223,7 @@
 						<td>'.$calc_summ_dop_uslug2.'</td>
 						<td>'.$in_out.'</td>
 						<td></td>
-						<td data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.'">'.(isset($this->POSITION_NO_CATALOG->status_snab[$val1['status_snab']]['name'])?$this->POSITION_NO_CATALOG->status_snab[$val1['status_snab']]['name']:$val1['status_snab']).'</td>
+						<td data-type="'.$val1['type'].'" data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($val1['status_snab']).'</td>
 					</tr>';
 					// если при переборе вариантов попался хотябы 1 не каталог - ставим 1
 					if($val1['type'] != 'cat'){$enabled_echo_this_query = 1;}
@@ -239,7 +239,7 @@
 				$general_tbl_row .= '
 						<tr>
 							<td class="cabinett_row_show show"><span></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$value['name'].' '.$value['last_name'].'</td>
 							<td>'.$value['create_time'].'</td>
 							<td>'.$value['company'].'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
@@ -302,19 +302,32 @@
 
 		// получаем позиции по запросу
 		private function requests_Template_recuestas_main_rows_Database($id){
-			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ
+			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ 
 			switch ($_GET['subsection']) {
 				case 'all':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
 					break;
 				case 'no_worcked':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
+					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab')";
 					break;
 				case 'history':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
+					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
+				$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
 					break;
-				case '':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от'";
+				case 'in_work':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'in_calculation'";
+					break;
+				case 'denied':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct'";
+					break;
+
+				case 'paused':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE '%pause%'";
+					break;
+
+				case 'calk_snab':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE 'calculate_is_ready'";
 					break;
 
 				default:
@@ -1175,8 +1188,25 @@
 		##                    END                      ##
 		#################################################
 		
+		//////////////////////////
+		//	service method
+		//////////////////////////
+		private function show_cirilic_name_status_snab($status_snab){
+			if(substr_count($status_snab, '_pause')){
+				$status_snab = 'На паузе';
+			}
+			// echo '<pre>';
+			// print_r($this->POSITION_NO_CATALOG->status_snab);
+			// echo '</pre>';
+						
+			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
+				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
+			}else{
+				$status_snab;
+			}
 
-
+			return $status_snab;
+		}
 
 		function __destruct(){}
 	}

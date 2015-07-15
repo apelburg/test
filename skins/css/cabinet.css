@@ -134,5 +134,13 @@ tr.cat_8 td {
 #cabinet_general_content .cab_position_div tr .click_me_and_show_catalog{
 	text-align: center;
 	padding: 5px;
-	  border: 1px solid #f1f1f1;
+	border: 1px solid #f1f1f1;
+}
+.warning_message{
+	padding: 5px;
+}
+.warning_message div{
+	padding: 5px;
+	border: 1px solid red;
+	color: #FF0000;
 }
