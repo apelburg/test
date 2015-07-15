@@ -55,7 +55,7 @@
 }
 #cabinet_general_content .cabinett_row_show.show{
 	background-image: url('../../skins/images/img_design/cabinet_2.png');
-	background-position: 5px -2px;
+	background-position: 50%;
 	background-repeat: no-repeat;
 	background-color: #f1f1f1;
 	width: 30px
@@ -87,12 +87,14 @@
   height: 100%;
   background: #f1f1f1;
   background-image: url('../../skins/images/img_design/cabinet_1.png');
-  background-position-y: 50%;
-  background-position-x: 10px;
+  background-position: 50%;
   background-repeat: no-repeat;
   color: grey;
-  top: -26px;
-  padding-top: 25px;
+  top: -1px;
+  /*padding-top: 25px;*/
+}
+.cabinett_row_hide.show{
+	background-image: url('../../skins/images/img_design/cabinet_2.png');
 }
 .cabinett_row_hide:hover{
 	background-color: #e2e2e2;

@@ -5,7 +5,7 @@
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
 		'important' => 'Важно',
-		'no_worcked' => 'Отправлены в СНАБ',
+		'no_worcked_men' => 'Не обработанные',
 		'in_work' => 'В работе',
 		'in_work_snab' => 'В работе СНАБ',
 		'send_to_snab' => '&&&',
@@ -124,37 +124,60 @@
 			$query = "SELECT 
 				`".RT_LIST."`.*, 
 				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-				`".CLIENTS_TBL."`.`company`,
 				`".MANAGERS_TBL."`.`name`,
 				`".MANAGERS_TBL."`.`last_name`,
 				`".MANAGERS_TBL."`.`email` 
 				FROM `".RT_LIST."`
-				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".RT_LIST."`.`client_id`
-				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".RT_LIST."`.`manager_id`";
+				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".RT_LIST."`.`manager_id`
+				WHERE `".RT_LIST."`.`manager_id` = '".$_SESSION['access']['user_id']."'";
+			
+			/////////////////////////
+			// фильтрация по статусам запросов
+			/////////////////////////
+			// 
+			// статусы могут быть трёх (3) типов:
+			// not_process - не обработанные:
+			// 		те, что приходят от клиентов через корзину, и прикрепляются к тому или иному менеджеру
+			// in_work - в работе
+			// 		те, что менеджер завёл сам или взял из необработанных, которые в свою очередь ему отдал админ 
+			// history - история
+			//  	сюда попадают все запросы после того как из запроса создана спецификация и сгенерирован предзаказ
+			//
+			//////////////////////////
+			//	в последствии:
+			// 1 - необходимо запретить рт для запросов попавших в историю
+			// 2 - необходимо сделать возможность копирования исторического запроса из истории в работу, при этом цены на услуги вероятно есть смысл пересчитать по новой
+			//////////////////////////
+			// делаем фильтрацию в зависимости от того по какому фильтру мы собираемся выбирать выдачу
+			switch ($_GET['subsection']) {
+				case 'history':
+					$query .= " AND `".RT_LIST."`.`status` = 'history'";
+					break;
+				case 'no_worcked_men':
+					$query .= " AND `".RT_LIST."`.`status` = 'not_process'";
+					break;
+				default:
+					$query .= " AND `".RT_LIST."`.`status` = 'in_work'";
+					break;
+			}
+
+			echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
+			$zapros = array();
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$zapros[] = $row;
 				}
 			}
 
-			
-			// $main_rows_id = implode(',', $main_rows_id);
-			// echo $main_rows_id;
-			// echo '<pre>';
-			// print_r($zapros);
-			// echo '</pre>';
+
 			$general_tbl_row = '';
 			// собираем html строк-запросов 
 			$html = '';
 			foreach ($zapros as $key => $value) {
 				// получаем позиции по запросу
 				$main_rows = $this->requests_Template_recuestas_main_rows_Database($value['query_num']);
-				// echo '<pre>';
-				// print_r($main_rows);
-				// echo '</pre>';
-					
+									
 				if(empty($main_rows)){ continue;}
 
 
@@ -172,9 +195,6 @@
 				// счетчик кнопок показа каталожных позиций
 				// необходим для ограничения до одной кнопки
 				$count_button_show_catalog_variants=0;
-
-				// копия $main_rows... необходима для вычесления количества каталожных позиций в запросе для показа в кнопке показа каталожных строк
-				$main_rows_Copy = $main_rows;
 
 				// перебор вариантов
 				foreach ($main_rows as $key1 => $val1) {
@@ -199,22 +219,12 @@
 					// стоимость варианта на выходе
 					$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
 					
-					// если есть каталожные продукции... формируем строку - кнопку для их показа
-					// изначально они будут скрытые
-					// !!!! ОЧЕНЬ ВАЖНО ЧТОБЫ ПОЗИЦИИ БЫЛИ ОТСОРТИРОВАНЫ ПО КАТАЛОГУ И НЕ КАТАЛОГУ
-					if($val1['type'] == 'cat' && $count_button_show_catalog_variants==0){
-						$button_show_catalog_variants = '<tr><td colspan="10" class="click_me_and_show_catalog">Показать '.count($main_rows_Copy).' скрытых позиций каталога</td></tr>';
-						$variant_row .= $button_show_catalog_variants;
-						$count_button_show_catalog_variants++;
-					}
-					// удаляем из копии позицию с текущим ключём
-					unset($main_rows_Copy[$key1]);
-
+									
 					//////////////////////////
 					//	собираем строки вариантов по каждой позиции
 					//////////////////////////
 					if($name_product != $val1['name']){$name_product = $val1['name']; $name_count = 1;}
-					$variant_row .= '<tr data-id_dop_data="'.$val1['id_dop_data'].'" class="'.$val1['type'].'_8">
+					$variant_row .= '<tr data-id_dop_data="'.$val1['id_dop_data'].'" class="'.$val1['type'].'_5">
 						<td>'.$val1['art'].'</td>
 						<td><a class="go_to_position_card_link" href="./?page=client_folder&section=rt_position&id='.$val1['id'].'">'.$val1['name'].'</a> <span class="variant_comments_dop">( Вариант '.$name_count++.' )</span></td>
 						<td>'.$val1['quantity'].'</td>
@@ -226,29 +236,24 @@
 						<td></td>
 						<td data-type="'.$val1['type'].'" data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($val1['status_snab']).'</td>
 					</tr>';
-					// если при переборе вариантов попался хотябы 1 не каталог - ставим 1
-					if($val1['type'] != 'cat'){$enabled_echo_this_query = 1;}
 					
 				}
-
-				// если вся продукция из каталога - не показываем её снабу, переходим к следующему заказу
-				if($enabled_echo_this_query == 0){ continue;}
 
 				//////////////////////////
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
 				$general_tbl_row .= '
-						<tr>
-							<td class="cabinett_row_show show"><span></span></td>
+						<tr>							
+							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
 							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$value['name'].' '.$value['last_name'].'</td>
 							<td>'.$value['create_time'].'</td>
-							<td>'.$value['company'].'</td>
+							<td>'.$this->get_client_name($value['client_id']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td></td>
+							<td>'.(($value['status'] == 'not_process')?'<button class="get_in_work">Взять в работу</button>':'').'</td>
 						</tr>';
 				
 				$general_tbl_row .= '<tr class="query_detail">';
-				$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
+				//$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
 				$general_tbl_row .= '<td colspan="5" class="each_art">';
 
 				// шапка таблицы вариантов запроса
@@ -303,24 +308,22 @@
 
 		// получаем позиции по запросу
 		private function requests_Template_recuestas_main_rows_Database($id){
+						
 			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ 
 			switch ($_GET['subsection']) {
-				case 'all':
+				case 'no_worcked_men': // не обработанные
+					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
 					break;
-				case 'no_worcked':
-					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab')";
-					break;
+					
+
+				case 'in_work': // в работе у менеджера
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					break;				
+
 				case 'history':
 					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
 				$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
-					break;
-				case 'in_work_snab':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'in_calculation'";
-					break;
-				case 'in_work':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'on_calculation'";
 					break;
 				case 'denied':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct'";
@@ -359,7 +362,7 @@
 					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
 					".$where."
 					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
-				// echo  $query.'<br><br>';
+				echo  $query.'<br><br>';
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -1213,6 +1216,24 @@
 
 			return $status_snab;
 		}
+
+		private function get_client_name($id){
+			global $mysqli;		
+			//получаем название клиента
+			$query = "SELECT `company` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$name = '';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name = $row['company'];
+				}
+			}else{
+				$name = '<button class="attach_the_client">Прикрепить клиента</button>';
+			}
+			return $name;
+		}
+
+
 
 		function __destruct(){}
 	}

@@ -75,7 +75,8 @@
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'no_worcked' => array('access'=>true),
+													'no_worcked_men' => array('access'=>true),
+													'no_worcked_snab' => array('access'=>true),
 													'in_work' => array('access'=>true),
 													'send_to_snab' => array('access'=>true),
 													'calk_snab' => array('access'=>true),
@@ -214,7 +215,7 @@
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'no_worcked' => array('access'=>true),
+													'no_worcked_snab' => array('access'=>true),
 													'in_work' => array('access'=>true),
 													'calk_snab' => array('access'=>true),
 													'denied' => array('access'=>true),
@@ -273,13 +274,12 @@
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
+													'no_worcked_men' => array('access'=>true),
 													'in_work' => array('access'=>true),
-													'no_worcked' => array('access'=>true),
 													'in_work_snab' => array('access'=>true),
 													'calk_snab' => array('access'=>true),
 													'denied' => array('access'=>true),
 													'paused' => array('access'=>true),
-													'all' => array('access'=>true),
 													'history' => array('access'=>true)
 													)
 												),

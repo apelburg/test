@@ -72,21 +72,22 @@ $(document).ready(function() {
 	});
 
 
-/*
-// Cвернуть строку запроса
-$(document).on('click','#cabinet_general_content .show_hide',function() {
-	$(this).parent().hide();
-	$(this).parent().prev().find('td:nth-of-type(1)').addClass('show');
+
+// свернуть/развернуть строку запроса
+$(document).on('click','#cabinet_general_content .cabinett_row_hide',function() {	
+	if($(this).hasClass('show')){
+		$(this).parent().attr('rowspan','2').parent().next().show();
+		$(this).removeClass('show');
+	}else{
+		$(this).parent().removeAttr('rowspan').parent().next().hide();
+		$(this).addClass('show');
+	}	
 });
 
-// Развернуть строку запроса
-$(document).on('click','#cabinet_general_content .cabinett_row_show',function() {
-	$('.query_detail').css('display','none');
-	//$(this).removeClass('show');
-	$(this).parent().next().show('fast');
-});
 
-*/
+
+
+
 
 
 //БУХГАЛТЕРИЯ START

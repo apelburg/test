@@ -13,7 +13,8 @@
 		// дефолтная расшифровка меню
 		public $menu_name_arr = array(
 		'important' => 'Важно',
-		'no_worcked' => 'Не обработанные',
+		'no_worcked_snab' => 'Не обработанные СНАБ',
+		'no_worcked_men' => 'Не обработанные МЕН',
 		'in_work' => 'В работе',
 		'send_to_snab' => 'Отправлены в СНАБ',
 		'calk_snab' => 'Рассчитанные СНАБ',
@@ -89,31 +90,33 @@
 		private Function __ROUTER_CLASS__(){
 			switch ($this->user_access) {
 				case '1':					
-					$text = 'кабинет для админа в разработке<br>
-						для администратора подключен класс снабжения<br>';
+					$text = 'администратор <br>';
 					echo $this->wrap_text_in_warning_message($text);
 					
-					include_once 'cabinet_snab_class.php';
+					include_once 'Cabinet_admin_class.php';
 					// создаём экземпляр класса
-					$this->CLASS = new Cabinet_snab_class($this->user_access);
+					$this->CLASS = new Cabinet_admin_class($this->user_access);
 					// запускаем роутер шаблонов
 					$this->CLASS->__subsection_router__();
 					// получаем из класса снабжения формулировки для меню, понятные для снаба
 					$this->menu_name_arr = $this->CLASS->menu_name_arr;
+					
 					break;
 
 				case '2':				
-					$text = 'кабинет для бухгалтера в разработке<br>';
+					$text = 'бухгалтер<br>';
 					echo $this->wrap_text_in_warning_message($text);
 					
 					break;
 
 				case '4':					
-					$text = 'кабинет для производства в разработке<br>';
+					$text = 'производства<br>';
 					echo $this->wrap_text_in_warning_message($text);
 					break;
 
 				case '5':
+					$text = 'менеджер';
+					echo $this->wrap_text_in_warning_message($text);
 					include_once 'cabinet_men_class.php';
 					// создаём экземпляр класса
 					$this->CLASS = new Cabinet_men_class($this->user_access);
@@ -124,16 +127,18 @@
 					break;
 
 				case '6':
-					$text = 'кабинет для водителя в разработке';
+					$text = 'водитель';
 					echo $this->wrap_text_in_warning_message($text);
 					break;
 
 				case '7':
-					$text = 'кабинет для склада в разработке';
+					$text = 'склад';
 					echo $this->wrap_text_in_warning_message($text);
 					break;
 
 				case '8':
+					$text = 'снабжение';
+					echo $this->wrap_text_in_warning_message($text);
 					include_once 'cabinet_snab_class.php';
 					// создаём экземпляр класса
 					$this->CLASS = new Cabinet_snab_class($this->user_access);
@@ -144,7 +149,7 @@
 					break;
 
 				case '9':
-					$text = 'кабинет для дизайнера в разработке';
+					$text = 'дизайнер';
 					echo $this->wrap_text_in_warning_message($text);
 					break;
 
