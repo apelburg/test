@@ -100,15 +100,10 @@
 		############################################
 		###				AJAX START               ###
 		############################################
-		private function get_a_list_of_managers_to_be_attached_to_the_request_AJAX(){
-			
+
+		
 
 
-			echo '<pre>';
-			print_r($_POST);
-			echo '</pre>';
-				
-		}
 		############################################
 		###				AJAX END               ###
 		############################################
@@ -142,10 +137,6 @@
 		Private Function requests_Template(){
 		 	// для обсчёта суммы за тираж			
 			include_once ('./libs/php/classes/rt_class.php');
-
-			// класс менеджера
-			include_once ('./libs/php/classes/manager_class.php');
-
 
 			$array_request = array();
 			global $mysqli;
@@ -274,9 +265,9 @@
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
 				$general_tbl_row .= '
-						<tr data-id="'.$value['id'].'">
+						<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">
 							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$this->get_meneger_name_Database_Html($value['manager_id']).'</td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
 							<td>'.$value['create_time'].'</td>
 							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
@@ -1262,9 +1253,9 @@
 			return $name;
 		}
 
-		private 	function get_meneger_name_Database_Html($id){
+		private 	function get_manager_name_Database_Html($id){
 		    global $mysqli;
-		    $String = '<span class="attach_the_meneger add" data-id="0">Прикрепить менеджера</span>';
+		    $String = '<span class="attach_the_manager add" data-id="0">Прикрепить менеджера</span>';
 		   	$arr = array();
 		    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
 		    $result = $mysqli->query($query)or die($mysqli->error);
@@ -1276,10 +1267,23 @@
 
 		    
 		    if(count($arr)){
-		    	$String = '<span class="attach_the_meneger" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+		    	$String = '<span class="attach_the_manager" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
 		    }
 		    return $String;
 		}
+
+		//////////////////////////
+		//	оборачивает в оболочку warning_message
+		//////////////////////////
+		private function wrap_text_in_warning_message($text){
+			$html = '<div class="warning_message"><div>';	
+			$html .= $text;
+			$html .= '</div></div>';
+
+			return $html;
+		}
+
+
 
 
 		function __destruct(){}

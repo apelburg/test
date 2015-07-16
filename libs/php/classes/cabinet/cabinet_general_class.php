@@ -172,6 +172,214 @@
 			
 		}
 		/////////////////  AJAX METHODs  ///////////////// 
+		############################################
+		###				AJAX START               ###
+		############################################
+		public function get_a_list_of_managers_to_be_attached_to_the_request_AJAX(){
+			global $mysqli;
+			$html = '';				
+
+			//
+			if($_POST['client_id']!='0'){// если клиент приклеплён
+				$html .= $this->wrap_text_in_warning_message('Для прикреплённого клиента доступны следующие кураторы:');
+				# получаем список кураторов
+				// подключаем класс клиента
+				include_once ('./libs/php/classes/client_class.php');
+				$managers_arr = Client::get_relate_managers($_POST['client_id']);
+			}else{ // если клиент не прикреплён
+				$managers_arr = array();
+			    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `access` = '5'";
+			    $result = $mysqli->query($query)or die($mysqli->error);
+			    if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$managers_arr[] = $row;
+					}
+				}
+			    // echo  $query;
+			}
+
+
+
+			// echo count($managers_arr);
+			$html .= '<form  id="chose_manager_tbl">';
+			$html .='<table>';
+
+			
+			for ($i=0; $i < count($managers_arr); $i++) {
+				$html .= '<tr>';
+			    for ($j=1; $j<=3; $j++) {
+			    	if(isset($managers_arr[$i])){
+				    	$checked = ($managers_arr[$i]['id'] == $_POST['manager_id'])?'class="checked"':'';
+				    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
+				    	$html .= '<td '.$checked.' data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
+			    	}else{
+			    		$html .= "<td></td>";
+			    	}
+			    	$i++;
+			    }
+
+			    $html .= '</tr>';
+			}
+			$html .= '</table>';
+			$html .= '<input type="hidden" value="attach_manager_to_request" name="AJAX">';
+			$html .= '<input type="hidden" value="'.$_POST['manager_id'].'" name="manager_id">';
+			$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
+			$html .= '<input type="hidden" value="" name="client_id">';
+			$html .= '<form>';
+			echo $html;
+			// вывод менеджеров				
+		}
+
+		private function attach_manager_to_request_AJAX(){
+			global $mysqli;
+			// прикрепить менеджера к запросу	
+			$client_id = (trim($_POST['client_id'])=='')?0:$_POST['client_id'];
+			$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$_POST['manager_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+			$result = $mysqli->query($query) or die($mysqli->error);	
+			echo '{"response":"OK"}';
+			return;		
+		}
+
+
+		// выводит форму со списоком клиентов для прикрепления к запросу 
+		private function get_a_list_of_clients_to_be_attached_to_the_request_AJAX(){
+			global $mysqli;
+			$html ='';
+			$query = "SELECT * FROM `".CLIENTS_TBL."` ";
+
+			// Запрос с сортировкой почему-то не хочет выводит ь некоторые компании
+			// к примеру не выводит компанию *Морской салон ЗАО  - id = 18
+			// $query = "SELECT * FROM `".CLIENTS_TBL."`  order by company ASC;";
+			$result = $mysqli->query($query) or die($mysqli->error);				
+			$clients = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$clients[] = $row;
+				}
+			}
+
+			$html .= '<form  id="chose_client_tbl">';
+			$html .='<table>';
+
+			$html_row = '';
+			$first_row = ''; 
+			$f_r = 0;
+
+			for ($i=0; $i < count($clients); $i++) {
+				$row = '<tr>';
+			    for ($j=1; $j<=3; $j++) {
+			    	if(isset($clients[$i])){
+				    	$checked = ($clients[$i]['id'] == $_POST['client_id'])?'class="checked"':'';
+				    	$row .= '<td '.$checked.' data-id="'.$clients[$i]['id'].'">'.$clients[$i]['company']."</td>";
+			    		// если присутствует выбранный клиент, ставим флаг
+			    		if($checked!=''){$f_r = 1;}	
+			    	}else{
+			    		$row .= "<td></td>";
+			    	}			    	
+			    	$i++;
+			    }
+
+			    $row .= '</tr>';
+
+			    // если нам попалась строка с выбранным клиентом, запоминаем её и не добавляем в Html...
+			    // добавим её в начало таблицы позже
+			    if($f_r==1){
+			    	$first_row .= $row; $f_r = 0;
+			    }else{
+			    	$html_row .= $row;
+			    }
+			}
+
+			// помещаем выбранного клиента в начало таблицы
+			$html .= $first_row.$html_row;
+
+			$html .= '</table>';
+			$html .= '<input type="hidden" value="attach_client_to_request" name="AJAX">';
+			$html .= '<input type="hidden" value="" name="manager_id">';
+			$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
+			$html .= '<input type="hidden" value="'.$_POST['client_id'].'" name="client_id">';
+			$html .= '<form>';
+			echo $html;
+		}
+
+		private function attach_client_to_request_AJAX(){
+			// получаем кураторов по выбранному клиенту
+			// подключаем класс клиента
+			include_once ('./libs/php/classes/client_class.php');
+			$managers_arr = Client::get_relate_managers($_POST['client_id']);
+						
+
+			switch (count($managers_arr)) {
+				case '0':
+					// если у нас не прикреплено к данному клиенту ни одного менеджера - выводим сообщение об ошибке
+					$html = $this->wrap_text_in_warning_message_post('К данному клиенту не прикреплено ни одного менеджера.');
+					echo '{"response":"show_new_window","title":"Ошибка","html":"'.base64_encode($html).'"}';
+					break;
+				case '1':
+					// если прикреплен только 1 - никаких проблем. 
+					// прикрепляем к запросу клиента и менеджера 
+					// Переписываем менеджера, отправляем данные о нем в браузер, вызываем там функцию и меняем имя менеджера на странице
+					global $mysqli;
+					// прикрепить клиента и менеджера к запросу	
+					$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$_POST['manager_id']."',`client_id` =  '".(int)$_POST['client_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+					$result = $mysqli->query($query) or die($mysqli->error);	
+					echo '{"response":"OK","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
+
+					break;
+				
+				default:
+					// если к клиенту присоединено несколько кураторов выполняем первый пункт по умолчанию, потом вызываем окно с выбором менеджера
+					global $mysqli;
+					// прикрепить клиента и менеджера к запросу	
+					$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$_POST['manager_id']."',`client_id` =  '".(int)$_POST['client_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+					$result = $mysqli->query($query) or die($mysqli->error);	
+					
+					//////////////////////////
+					//	осбираем форму для выбора одного из кураторов
+					//  
+					//////////////////////////
+					$html = '<form  id="chose_manager_tbl">';
+					$html .='<table>';					
+					for ($i=0; $i < count($managers_arr); $i++) {
+						$html .= '<tr>';
+					    for ($j=1; $j<=3; $j++) {
+					    	if(isset($managers_arr[$i])){
+						    	$checked = ($managers_arr[$i]['id'] == $managers_arr[0]['id'])?'class="checked"':'';
+						    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
+						    	$html .= '<td '.$checked.' data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
+					    	}else{
+					    		$html .= "<td></td>";
+					    	}
+					    	$i++;
+					    }
+
+					    $html .= '</tr>';
+					}
+					$html .= '</table>';
+					$html .= '<input type="hidden" value="attach_manager_to_request" name="AJAX">';
+					$html .= '<input type="hidden" value="'.$_POST['manager_id'].'" name="manager_id">';
+					$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
+					$html .= '<input type="hidden" value="" name="client_id">';
+					$html .= '<form>';
+					
+					// записываем на странице пользователя в строку с установленным клиентом имя первого куратора из списка
+					// затем даём выбрать из иставшихся
+					echo '{"response":"show_new_window","html":"'.base64_encode($html).'","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
+
+
+					break;
+			}
+
+
+
+
+			
+			// echo '<pre>';
+			// print_r($managers_arr);
+			// echo '</pre>';				
+		}
+
+
 
 		//пример обработки AJAX запроса
 		# выводит информацию из глобальных массивов и объекта текущего класса
@@ -198,6 +406,9 @@
 		}
 
 
+		############################################
+		###				 AJAX END                ###
+		############################################
 
 
 		// запрашивает из базы допуски пользователя
@@ -226,6 +437,13 @@
 
 			// в случае получения POST запроса предупреждения отключаем
 			if(!empty($_POST)){$html='';}
+			return $html;
+		}
+		private function wrap_text_in_warning_message_post($text){
+			$html = '<div class="warning_message"><div>';	
+			$html .= $text;
+			$html .= '</div></div>';
+
 			return $html;
 		}
 

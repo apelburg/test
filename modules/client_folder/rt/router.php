@@ -174,21 +174,21 @@
 	$client_reg_date_arr = explode('-',$client_data_arr['set_client_date']);
 	@$client_reg_date = $client_reg_date_arr[2].'.'.$client_reg_date_arr[1].'.'.substr($client_reg_date_arr[0],2);
 	// кураторы //////////////
-	 $manager_nickname = '';
+	$manager_nickname = '';
 	 
-	 //print_r($_POST);
-	 $manager_id_arr = detect_manager_for_client($client_id);
-	 $forbidd_flag = true;	
-	 foreach($manager_id_arr as $mngr_id){
-	     if($user_id == $mngr_id)$forbidd_flag = false;
-	     $manager_nickname .= get_manager_nickname_by_id($mngr_id).', ';	 
-	 }
-	 $manager_nickname = trim($manager_nickname,', ');
+	//print_r($_POST);
+	$manager_id_arr = detect_manager_for_client($client_id);
+	$forbidd_flag = true;	
+	foreach($manager_id_arr as $mngr_id){
+	    if($user_id == $mngr_id)$forbidd_flag = false;
+	    $manager_nickname .= get_manager_nickname_by_id($mngr_id).', ';	 
+	}
+	$manager_nickname = trim($manager_nickname,', ');
 	 
-	 if($forbidd_flag && $user_status!='1' && $user_status!='8'  && $user_status!='5'){ 
-	     echo 'данная страница отсутствует';
-		 exit;
-	 }   
+	if($forbidd_flag && $user_status!='1' && $user_status!='8'  && $user_status!='5'){ 
+	    echo 'данная страница отсутствует';
+		exit;
+	}   
 	 // end кураторы /////////
 	$main_cont_face_data = get_main_client_cont_face($client_id);
 	///////////////////////////////////////////  end  информация о клиенте   ////////////////////////////////////////////////

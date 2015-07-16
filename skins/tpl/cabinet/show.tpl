@@ -2,6 +2,7 @@
 <link href="./skins/css/cabinet.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.js"></script>
+<script type="text/javascript" src="./libs/js/classes/Base64Class.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jsCabinet.js"></script>
 
 <div class="table" id="cabinet">

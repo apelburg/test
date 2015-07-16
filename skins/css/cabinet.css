@@ -153,13 +153,31 @@ tr.cat_8 td {
 	color: #C2C2C2;
 	font-size: 20px;
 }
-.attach_the_meneger,
+.attach_the_manager,
 .attach_the_client{
 	padding: 5px;
 	border: 1px solid #92B73E;
 	cursor: default;
 }
-.attach_the_meneger:hover,
+.attach_the_manager:hover,
 .attach_the_client:hover{
 	background-color: #f1f1f1;
+}
+
+#chose_manager_tbl table,#chose_client_tbl table{
+	width: 100%;
+}
+#chose_manager_tbl table tr td,#chose_client_tbl table tr td{
+	padding: 2px 0px 2px 5px;
+	font-size: 12px;
+}
+#chose_manager_tbl table tr td:hover, #chose_client_tbl table tr td:hover {
+	background-color: #EDB4B4;
+	cursor: default;
+}
+
+#chose_manager_tbl table tr td.checked, #chose_client_tbl table tr td.checked{
+	background-color: #A6CC8B;
+	font-weight: bold;
+	color: #fff;
 }
