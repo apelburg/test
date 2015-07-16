@@ -223,6 +223,9 @@
 			$html = '<div class="warning_message"><div>';	
 			$html .= $text;
 			$html .= '</div></div>';
+
+			// в случае получения POST запроса предупреждения отключаем
+			if(!empty($_POST)){$html='';}
 			return $html;
 		}
 

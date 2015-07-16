@@ -96,6 +96,29 @@
 		}
 
 
+
+		############################################
+		###				AJAX START               ###
+		############################################
+		private function get_a_list_of_managers_to_be_attached_to_the_request_AJAX(){
+			
+
+
+			echo '<pre>';
+			print_r($_POST);
+			echo '</pre>';
+				
+		}
+		############################################
+		###				AJAX END               ###
+		############################################
+
+
+
+
+
+
+
 		#############################################################
 		##                          START                          ##
 		##      методы для работы с поддиректориями subsection     ##
@@ -116,19 +139,21 @@
 
 		##########################################
 		################ Запросы
-		Private Function requests_Template(){			
-			include ('./libs/php/classes/rt_class.php');
+		Private Function requests_Template(){
+		 	// для обсчёта суммы за тираж			
+			include_once ('./libs/php/classes/rt_class.php');
+
+			// класс менеджера
+			include_once ('./libs/php/classes/manager_class.php');
+
+
 			$array_request = array();
 			global $mysqli;
 	
 			$query = "SELECT 
 				`".RT_LIST."`.*, 
-				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-				`".MANAGERS_TBL."`.`name`,
-				`".MANAGERS_TBL."`.`last_name`,
-				`".MANAGERS_TBL."`.`email` 
-				FROM `".RT_LIST."`
-				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".RT_LIST."`.`manager_id`";
+				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".RT_LIST."`";
 			
 
 			/////////////////////////
@@ -160,9 +185,15 @@
 					break;
 			}
 
+			// массви с переводом статусов запроса
+			$name_cirillic_status['history'] = 'история';
+			$name_cirillic_status['not_process'] = 'не обработан менеджером';
+			$name_cirillic_status['in_work'] = 'в работе';
+
+
 			echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
+			$zapros = array();
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$zapros[] = $row;
@@ -234,7 +265,7 @@
 						<td>'.$calc_summ_dop_uslug2.'</td>
 						<td>'.$in_out.'</td>
 						<td></td>
-						<td data-type="'.$val1['type'].'" data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($val1['status_snab']).'</td>
+						<td data-type="'.$val1['type'].'" data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.' '.$value['status'].'_status_snab_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($val1['status_snab']).'</td>
 					</tr>';
 					
 				}
@@ -243,13 +274,13 @@
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
 				$general_tbl_row .= '
-						<tr>
+						<tr data-id="'.$value['id'].'">
 							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$value['name'].' '.$value['last_name'].'</td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$this->get_meneger_name_Database_Html($value['manager_id']).'</td>
 							<td>'.$value['create_time'].'</td>
-							<td>'.$this->get_client_name($value['client_id']).'</td>
+							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td></td>
+							<td class="'.$value['status'].'_'.$this->user_access.'">'.$name_cirillic_status[$value['status']].'</td>
 						</tr>';
 				
 				$general_tbl_row .= '<tr class="query_detail">';
@@ -319,7 +350,8 @@
 					break;
 				case 'history':
 					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
-				$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
+					// $where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."'";
 					break;
 				case 'in_work':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'in_calculation'";
@@ -1214,20 +1246,39 @@
 			return $status_snab;
 		}
 
-		private function get_client_name($id){
+		private function get_client_name_Database($id){
 			global $mysqli;		
 			//получаем название клиента
-			$query = "SELECT `company` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$name = '';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$name = $row['company'];
+					$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';
 				}
 			}else{
-				$name = '<button class="attach_the_client">Прикрепить клиента</button>';
+				$name = '<div class="attach_the_client add" data-id="0">Прикрепить клиента</div>';
 			}
 			return $name;
+		}
+
+		private 	function get_meneger_name_Database_Html($id){
+		    global $mysqli;
+		    $String = '<span class="attach_the_meneger add" data-id="0">Прикрепить менеджера</span>';
+		   	$arr = array();
+		    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
+		    $result = $mysqli->query($query)or die($mysqli->error);
+		    if($result->num_rows>0){
+				foreach($result->fetch_assoc() as $key => $val){
+				   $arr[$key] = $val;
+				}
+		    }
+
+		    
+		    if(count($arr)){
+		    	$String = '<span class="attach_the_meneger" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+		    }
+		    return $String;
 		}
 
 

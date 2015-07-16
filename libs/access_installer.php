@@ -82,7 +82,8 @@
 													'calk_snab' => array('access'=>true),
 													'ready_KP' => array('access'=>true),
 													'denied' => array('access'=>true),
-													'all' => array('access'=>true)
+													'all' => array('access'=>true),
+													'history' => array('access'=>true)
 													)
 												), 
 											'paperwork'=> array(

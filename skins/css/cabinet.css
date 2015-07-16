@@ -146,3 +146,20 @@ tr.cat_8 td {
 	border: 1px solid red;
 	color: #FF0000;
 }
+.history_status_snab_1{
+	color: #E4E4E4;
+}
+.cabinet_general_content_row tr td.history_1 {
+	color: #C2C2C2;
+	font-size: 20px;
+}
+.attach_the_meneger,
+.attach_the_client{
+	padding: 5px;
+	border: 1px solid #92B73E;
+	cursor: default;
+}
+.attach_the_meneger:hover,
+.attach_the_client:hover{
+	background-color: #f1f1f1;
+}

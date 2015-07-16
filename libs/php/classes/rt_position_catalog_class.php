@@ -81,6 +81,18 @@ class Position_catalog{
 		return $html;
 	}
 
+	private function save_price_in_out_for_one_price_AJAX(){
+		global $mysqli;
+		$query = "UPDATE ".RT_DOP_DATA." SET 
+		`price_in`='".$_POST['price_in']."', 
+		`price_out`='".$_POST['price_out']."' 
+		WHERE `id`='".$_POST['dop_data']."';";
+		
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+		exit;
+	}
+
 	private function size_in_var_AJAX(){
 		global $mysqli;
 

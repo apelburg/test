@@ -497,6 +497,9 @@ $(document).on('keyup','.tirage_and_price_for_one .percent_nacenki span.edit_spa
 	var zapas = Number($(id_variant+' .dop_tirage_var').val());
 	var pr = (zapas+tirage)*price_out;
 	$(id_variant+' .row_price_out_gen.price_out span').html(pr.toFixed(2));
+	// сохраняем входящую и исходящую цены за ед. товара
+	save_price_in_out_for_one_price();
+	// пересчитываем итого
 	recalculate_table_price_Itogo();
 });
 
