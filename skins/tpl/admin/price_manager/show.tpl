@@ -215,6 +215,7 @@ function deleteColFromTable(cell){
     <td class="subContentTd">
        <?php echo $subsection_content; ?>
     </td>
+    <?php echo @$price_comment; ?>
   </tr>
 </table> 
 </div>

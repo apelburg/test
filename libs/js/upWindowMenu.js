@@ -1,5 +1,10 @@
 // JavaScript Document
+    // по окончании нового варианта КП удалить функцию contextmenu и все что с ней связанно
+	// удалить  insertRow, copyRow
+	// удалить функцию openCloseTableMenu
+
     document.addEventListener('contextmenu',closeAllMenuWindows,false);
+	document.addEventListener('contextmenuNew',closeAllMenuWindows,false);
 	document.addEventListener('click',closeAllMenuWindows,false);
 	function closeAllMenuWindows(){
 		////alert(3);
@@ -22,6 +27,7 @@
 		}
 		
 		if(type == 'contextmenu') openCloseContextMenu(e,params.id,params.control_num);
+		if(type == 'contextmenuNew') openCloseContextMenuNew(e,params.pos_id,params.control_num);
 		if(type == 'tableMenu') openCloseTableMenu(e);
 		if(type == 'rtMenu') openCloseRtMenu(e);
 		if(type == 'quickMenu') openCloseQuickMenu(e);
@@ -188,7 +194,7 @@
 		var a = document.createElement('a');
 		a.setAttribute('action','delete');
 		a.href = '#';
-		a.onclick = rtRowsManager;
+		a.onclick = rtCalculator.delete_rows;
 		a.appendChild(document.createTextNode('Удалить выделенные строки'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
@@ -976,6 +982,122 @@
 			 }
 		}
 	}
+	
+	function openCloseContextMenuNew(e,pos_id,control_num){
+
+		if (e.preventDefault){
+			if(e.button != 2) return;
+			e.preventDefault(); 
+		}
+		else{
+			if(e.button != 0) return;
+			e.returnValue= false; 
+		}
+		
+		var target = e.target || e.srcElement;
+		
+		target.addEventListener('click',setMenuWindow,false);
+		function setMenuWindow(e){
+			e.stopPropagation();
+		}
+		
+		if(openCloseMenu.lastElement === target ) return;
+		
+		if(openCloseMenu.lastElement) openCloseMenu.lastElement.style.backgroundColor = '#FFFFFF';
+		
+		if(openCloseMenu.lastWindow){
+			openCloseMenu.lastWindow.parentNode.removeChild(openCloseMenu.lastWindow);
+			openCloseMenu.lastWindow = null;
+		}
+		
+		openCloseContextMenuNew.lastElement = target;
+		
+		target.style.backgroundColor = '#C6E09F';
+		target.style.position = 'relative';
+	
+		// building menu
+		var div = document.createElement('div');
+		div.className = "contextWindow";
+		div.setAttribute('type','windowContainer');
+		//div.id = "quickContextExtraWindow";
+		div.style.width = "160px";
+		div.style.top =  "2px";
+		div.style.left = "33px";
+		div.style.display = "block";
+		
+		var cup = document.createElement('div');
+		cup.className = "cup";
+		cup.appendChild(document.createTextNode('Добавить строку:'));
+		div.appendChild(cup);
+		
+		
+		//<div class="link2Arrow"><a href="#" onclick="return openExtraContextWindow(this,'article')">основной каталог</a></div>
+		var innerDivsArr = [['основной каталог','article'],['другой каталог','ordinary'],['полиграфия',''],['разделитель','']];
+		for( var i= 0 ; i < innerDivsArr.length; i++){
+			var innerDiv = document.createElement('div');
+			innerDiv.className = "link2Arrow";
+			var a = document.createElement('a');
+			a.setAttribute('type',innerDivsArr[i][1]);
+			a.setAttribute('action','add_rows_to_rt');
+			// a.setAttribute('id',id);
+			a.setAttribute('control_num',control_num);
+			a.appendChild(document.createTextNode(innerDivsArr[i][0]));
+			// if(innerDivsArr[i][1]) a.onclick = openExtraContextWindow;
+			// else{
+				var span = document.createElement('span');
+		        span.className = "notWork";
+				span.appendChild(document.createTextNode('x'));
+		        a.appendChild(span);
+			// }
+			
+			innerDiv.appendChild(a);
+			div.appendChild(innerDiv);
+		}
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "fence";
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('control_num',control_num);
+		a.setAttribute('pos_id',pos_id);
+		a.onclick = rtCalculator.delete_rows;
+		a.appendChild(document.createTextNode('Удалить строку'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('control_num',control_num);
+		a.setAttribute('pos_id',pos_id);
+		a.onclick =  rtCalculator.copy_row;
+		a.appendChild(document.createTextNode('Копировать строку'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('control_num',control_num);
+		a.setAttribute('pos_id',pos_id);
+		a.onclick = rtCalculator.insert_copied_rows;
+		a.appendChild(document.createTextNode('Вставить строку'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		
+		target.appendChild(div);
+		
+		openCloseMenu.lastWindow = div;
+	    openCloseMenu.lastElement = target;
+		
+		e.stopPropagation();
+		
+	}
+	
 	function openCloseContextMenu(e,id,control_num){
 
 		if (e.preventDefault){
