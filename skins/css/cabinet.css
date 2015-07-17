@@ -207,3 +207,20 @@ tr.cat_8 td {
 #cabinet_general_content .icon_comment_show.white{
 	background-position-y: -67px;
 }
+#add_new_comment textarea{
+	width: 100%;
+	min-height:  150px;
+}
+
+#add_new_comment .comment.table .row .cell.comment_text{
+	  vertical-align: baseline;
+	  font-size: 12px;
+}
+#add_new_comment .comment.table .row .cell{ padding: 5px}
+#add_new_comment .comment.table{ width: 100%}
+#add_new_comment .user_name_comments{
+	vertical-align: top;
+ 	padding-top: 15px;
+  	width: 170px;
+}
+#add_new_comment_button{ float: right;}
