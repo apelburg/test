@@ -17,8 +17,7 @@
 	$get = isset($_GET)?$_GET:array();
 	$FORM = new Forms($get,$post,$_SESSION);
 
-	$quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_position" style="
-  display: block;" class="button add">Добавить</a></div>';
+	$quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_position" style="display: block;" class="button add">Добавить</a></div>';
 	
 	$theme = 'Откуда берется тема?';
 
