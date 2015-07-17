@@ -1084,7 +1084,7 @@
 		a.setAttribute('control_num',control_num);
 		a.setAttribute('pos_id',pos_id);
 		a.onclick = rtCalculator.insert_copied_rows;
-		a.appendChild(document.createTextNode('Вставить строку'));
+		a.appendChild(document.createTextNode('Вставить строки'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		

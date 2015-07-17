@@ -2665,7 +2665,7 @@ var rtCalculator = {
 		} 
 		var control_num = 1;
 		show_processing_timer();
-		//alert(idsObj);
+		/*console.log(idsObj);return; */
 		
 		// Сохраняем полученные данные в cессию(SESSION) чтобы потом при выполнении действия (вставить скопированное) получить данные из SESSION
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_copied_rows_to_buffer='+JSON.stringify(idsObj)+'&control_num='+control_num);
@@ -2749,8 +2749,9 @@ var rtCalculator = {
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('insert_copied_rows=1&control_num='+control_num+'&query_num='+query_num+((typeof place_id != 'undefined')?'&place_id='+place_id:''));
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ 
-		    /* console.log(response); //  
-			alert(response); */
+		    /*alert(response);
+		    console.log(response); //  
+			 alert(response); */
 
             close_processing_timer(); 
 			closeAllMenuWindows();
@@ -2761,7 +2762,7 @@ var rtCalculator = {
 			if(data[0]==0){
 				alert(data[1]);
 				return;
-			}
+			}/**/
 			location.reload();
 		}
 	}
@@ -2797,8 +2798,8 @@ var rtCalculator = {
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_rows='+JSON.stringify(idsArr)+'&control_num='+control_num);
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ 
-		     console.log(response); //  
-			/*alert(response); */
+		    /* console.log(response); //  
+			alert(response); */
 
             close_processing_timer(); 
 			closeAllMenuWindows();

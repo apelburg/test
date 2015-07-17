@@ -35,12 +35,7 @@
 		}
 		static function save_copied_rows_to_buffer($data,$control_num){
 		    global $mysqli;   
-			// проверка control_num
-	        //echo 2;
-			/*$query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = '".$val."'  WHERE `id` = '".$id."'";
-			//echo $query;
-			$result = $mysqli->query($query)or die($mysqli->error);*/
-			 RT::save_to_buffer($data,'copied_rows');
+			RT::save_to_buffer($data,'copied_rows');
 		}
 		static function save_to_buffer($data,$type){
 		    if(!isset($_SESSION['rt']['buffer'])) $_SESSION['rt']['buffer'] = array();
@@ -67,7 +62,7 @@
 			return $shift_counter;
 	      
 		}
-		static function insert_copied_rows_insert_part($place_id,$mainCopiedRowId,$query_num,$dop_data /* $place_id - куда вставляем, $pos_id - что будем вставлять */){
+		static function insert_copied_rows_insert_part_TO_HOLE_TBL($place_id,$mainCopiedRowId,$query_num,$dop_data /* $place_id - куда вставляем, $pos_id - что будем вставлять */){
 		    global $mysqli;
 			
 			// echo 'insert_copied_rows_insert_part'."\r\n";
@@ -135,7 +130,130 @@
 			
 	      
 		}
+		static function insert_copied_rows_insert_part($sort_id,$mainCopiedRowId,$query_num,$dop_data /* $sort_id - значение которое мы присвоим полю sort нового ряда, $mainCopiedRowId - что будем вставлять */){
+		    global $mysqli;
+			
+			// echo 'insert_copied_rows_insert_part'."\r\n";
+			// копируем и вставляем ряд из таблицы RT_MAIN_ROWS
+			$query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$mainCopiedRowId."'";
+			//  echo $query."\r\n";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows>0){
+				$copied_row = $result->fetch_assoc();
+				$copied_row['id']='';
+				$copied_row['sort']= $sort_id;
+				$copied_row['query_num']= $query_num;
+				$copied_row['master_btn']= 0;
+				$copied_row['date_create']= date('Y-m-d H:i:s');
+
+				$query2="INSERT INTO `".RT_MAIN_ROWS."` VALUES ('".implode("','",$copied_row)."')";
+
+			    //  echo $query2."\r\n";
+				$mysqli->query($query2)or die($mysqli->error);
+				$row_id = $mysqli->insert_id;
+				
+				// вставляем ряды в таблицу RT_DOP_DATA и в таблицу RT_DOP_USLUGI
+				foreach ($dop_data as $dop_id => $dop_value){
+					//echo  $dop_key;
+					// выбираем данные из таблицы RT_DOP_DATA
+					$query3="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_id."'";
+					$result3 = $mysqli->query($query3)or die($mysqli->error);
+					if($result3->num_rows>0){
+						// сохраняем полученный вывод в массив и производим корректировку данных:
+						// меняем row_id обозначивающий внешний ключ на id вставленного в RT_MAIN_ROWS ряда и присваиваем id пустое значение 
+						$copied_dop_row = $result3->fetch_assoc();
+						$dop_row_id = $copied_dop_row['id'];
+						$copied_dop_row['id']='';
+						// id родительского ряда равно последнего вставленного ряда
+						$copied_dop_row['row_id']= $row_id;
+						
+						$query4="INSERT INTO `".RT_DOP_DATA."` VALUES ('".implode("','",$copied_dop_row)."')"; 
+						// echo $query4."\r\n";
+						$mysqli->query($query4)or die($mysqli->error);
+						$new_dop_row_id = $mysqli->insert_id;
+						
+						// выбираем данные из таблицы RT_DOP_USLUGI
+						$query5="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
+						$result5 = $mysqli->query($query5)or die($mysqli->error);
+						if($result5->num_rows>0){
+							while($copied_data = $result5->fetch_assoc()){
+								// сохраняем полученный вывод в массив и производим корректировку данных:
+								// меняем dop_row_id обозначивающий внешний ключ на id вставленного в RT_DOP_DATA ряда и
+								$copied_data['id']='';
+								$copied_data['dop_row_id']= $new_dop_row_id;
+								$query6="INSERT INTO `".RT_DOP_USLUGI."` VALUES ('".implode("','",$copied_data)."')"; 
+								//echo $query."\r\n";
+								$mysqli->query($query6)or die($mysqli->error);
+							}
+						}
+					}
+				}	 
+			}
+		}
 		static function insert_copied_rows($query_num,$control_num,$place_id){
+			
+			if(empty($_SESSION['rt']['buffer']['copied_rows'])) return '[0,"нет сохраненной информации для вставки"]';
+			
+			if(($data = json_decode($_SESSION['rt']['buffer']['copied_rows']))==NULL) return '[0,"нет сохраненной информации для вставки"]';
+			$data = (array)$data;
+			// print_r($data); 
+			// exit;
+			$shift_counter = 0;
+		    foreach ($data as $mainCopiedRowId => $dop_data) {
+			    // если у нас есть место в которое мы хотим вставить скопированные ряды
+			    if($place_id){
+				    // echo 'mainCopiedRowId-'.$mainCopiedRowId."\r\n";
+					// первым шагом "опускаем" ряды, которые находятся на том и ниже местах куда хотим вставить скопированные ряды
+					// тоесть увеличиваем sort на 1 (sort+1) в рамках данной заявки там где id равно или больше $place_id
+					// функция возвращает новый sort_id который был у ряда в который мы хотим вставить, чтобы затем присвоить его
+					// новому ряду
+					$sort_id = RT::change_rows_sort((int)$place_id,$query_num);
+				}
+				else{
+				    // нам нужно получить максимальное значение поля sort для текущей заявки
+					// затем мы присвоим новому вставляемому ряду это значение увеличенное на еденицу
+				    $sort_id = RT::get_maximum_sort_id($query_num);
+				}
+				
+				// теперь мы вставляем ряд в конец таблицы RT_MAIN_ROWS копируя его из RT_MAIN_ROWS по $mainCopiedRowId
+				// затем вставляем в RT_DOP_DATA новые ряды скопированные из RT_DOP_DATA  
+				// затем вставляем в RT_DOP_USLUGI новые ряды скопированные из RT_DOP_USLUGI  
+				RT::insert_copied_rows_insert_part((int)$sort_id,(int)$mainCopiedRowId,$query_num,$dop_data);
+			}
+			return '[1]';
+		}
+		static function change_rows_sort($place_id,$query_num){
+		    global $mysqli;
+			
+			// получаем значение sort существующее на данный момент у ряда на место которого мы хотим вставить новый ряд
+			$query="SELECT sort FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$place_id."'";
+			// echo $query."\r\n";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			$row = $result->fetch_assoc();
+			$sort_id = $row['sort'];
+			// echo $sort;
+			// увеличиваем sort на 1 (sort+1) в рамках данной заявки там где id равно или больше $place_id
+			$query_enlarge = "UPDATE `".RT_MAIN_ROWS."` SET `sort` = `sort` + 1  WHERE `query_num` = '".$query_num."' AND `sort` >= '".$sort_id."'";
+			// echo $query_enlarge."\r\n";
+			$result_enlarge = $mysqli->query($query_enlarge)or die($mysqli->error);
+			
+			return $sort_id;
+			
+		}
+		static function get_maximum_sort_id($query_num){
+		    global $mysqli;
+			
+			// получаем значение sort существующее на данный момент у ряда на место которого мы хотим вставить новый ряд
+			$query="SELECT MAX(sort) max_sort FROM `".RT_MAIN_ROWS."` WHERE `query_num` = '".$query_num."'";
+			// echo $query."\r\n";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			$row = $result->fetch_assoc();
+			$sort_id = $row['max_sort'];
+			
+			return $sort_id++;
+			
+		}
+		static function insert_copied_rows_TO_HOLE_TBL($query_num,$control_num,$place_id){
 			
 			if(empty($_SESSION['rt']['buffer']['copied_rows'])) return '[0,"нет сохраненной информации для вставки"]';
 			
@@ -341,7 +459,7 @@
 												
 			$result = $mysqli->query($query) or die($mysqli->error);
 			
-			
+			$sort_id = 0;
 			foreach($basket_arr as $data){
 				// выбираем из базы каталога данные об артикуле
 				$query = "SELECT*FROM `".BASE_TBL."` WHERE id = '".$data['article']."'"; 								
@@ -352,6 +470,7 @@
 				// вносим основные данные о позиции в RT_MAIN_ROWS
 				// ПРИМЕЧАНИЕ id артикула на сегодняшний день из корзины  поступает в виде $data['article']
 				$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 
+				                                `sort` = '".++$sort_id."',
 												`query_num` = '$query_num',
 												`type` = 'cat',
 												`art_id` = '".$data['article']."',
