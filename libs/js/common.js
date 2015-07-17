@@ -297,7 +297,7 @@
 		make_ajax_request(url,callback);
 		
 		function callback(response){
-			console.log(onClickMasterBtn.status);
+			// console.log(onClickMasterBtn.status);
 			// устанавливаем значение чекбокса именно здесь потому что нам надо чтобы оно установилось после срабатывания ajax запроса
 			// срабатывание установки назначения checked по умолчанию - отключено 
 			element.checked = onClickMasterBtn.status;

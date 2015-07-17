@@ -277,7 +277,8 @@
 			 
 		     $cur_row  =  '';
 		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
-			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="glob_counter" class="top glob_counter" width="30">'.$glob_counter.'</td>':'';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="glob_counter" class="top glob_counter" width="30" oncontextmenu="openCloseMenu(event,\'contextmenuNew\',{\'pos_id\':\''.$key.'\',\'control_num\':\''.'4'.'\'});">'.$glob_counter.'</td>':'';
+			 
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="master_btn" class="top master_btn noselect" width="35">   
 											<div class="masterBtnContainer" id="">
 											   <input type="checkbox" id="masterBtn'.$key.'" rowIdNum="'.$key.'" name="masterBtn"   onclick="return onClickMasterBtn(this,\'rt_tbl_body\','.$key.');" '.(($row['master_btn'] == 1)? 'checked':'').'/><label for="masterBtn'.$key.'"></label>

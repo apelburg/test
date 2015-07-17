@@ -22,7 +22,7 @@
 	
 	$theme = 'Откуда берется тема?';
 
-	$query_num = (!empty($_GET['query_num']))? $_GET['query_num']:10147;
+	$query_num = (!empty($_GET['query_num']))? $_GET['query_num']:FALSE;
 	
 	////////////////////////  AJAX  //////////////////////// 
 	if(isset($_GET['save_rt_changes'])){
@@ -69,10 +69,14 @@
 		 exit;
 	}
 	if(isset($_GET['insert_copied_rows'])){
-		 echo RT::insert_copied_rows($query_num,$_GET['control_num']);
+	     $place_id = (isset($_GET['place_id']))? $_GET['place_id']: FALSE;
+		 echo RT::insert_copied_rows($_GET['query_num'],$_GET['control_num'],$place_id);
 		 exit;
 	}
-	
+	if(isset($_GET['delete_rows'])){
+		 echo RT::delete_rows(json_decode($_GET['delete_rows']),$_GET['control_num']);
+		 exit;
+	}
 	if(isset($_GET['fetch_dop_uslugi_for_row'])){
 		//print_r(json_decode($_GET['grab_calculator_data']));
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
@@ -164,9 +168,9 @@
 	
 	// client_details
 	
-	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] :((isset($_POST['client_id']))? $_POST['client_id']: '') ;
-	$client_id = 1894;
-	
+	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] :((isset($_POST['client_id']))? $_POST['client_id']: FALSE) ;
+
+	if(!$client_id) echo '<div class="alert_window">Клиент не определен</div>';
 	///////////////////////////////////////////    информация о клиенте   ////////////////////////////////////////////////
     $client_data_arr = select_all_client_data($client_id);
 	//echo '<pre>'; print_r($client_data_arr); echo '</pre>';

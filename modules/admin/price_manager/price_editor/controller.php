@@ -1,4 +1,23 @@
 <?php 
+     $usluga_id = $_GET['usluga'];
+	 
+     if(isset($_POST['save_comment'])){
+	     // echo $_POST['comment'];
+		
+		 $query ="SELECT id FROM `".BASE__PRICE_COMMENTS_TBL."` WHERE `print_id` = '".$usluga_id."'";
+		 $result = $mysqli->query($query)or die($mysqli->error);
+		 if($result->num_rows>0){
+		      $query ="UPDATE `".BASE__PRICE_COMMENTS_TBL."` SET `comment` = '".cor_data_for_SQL($_POST['comment'])."' WHERE  `print_id` = '".$usluga_id."'";
+			  $mysqli->query($query)or die($mysqli->error);
+		 }
+		 else{
+		      $query ="INSERT `".BASE__PRICE_COMMENTS_TBL."` SET `comment` = '".cor_data_for_SQL($_POST['comment'])."', `print_id` = '".$usluga_id."'";
+			  $mysqli->query($query)or die($mysqli->error);
+		 }		   
+		 // echo $query.'<br>';
+		 header('location:'.$_SERVER['HTTP_REFERER']);
+		 exit;
+	 }
 
     if(!empty($_POST['dataBufferForSavingToBase'])){
 	    
@@ -59,8 +78,6 @@
 		header('location:'.$_SERVER['HTTP_REFERER']);
 		exit;
 	}
-
-    $usluga_id = $_GET['usluga'];
 	
 	$td1  = '<td contenteditable="true">'; 
 	$td1_hidden  = '<td style="display:none;">'; 
@@ -188,5 +205,19 @@
 		   echo '<br><br><br>';
 	}
 	
-
+	$query ="SELECT comment FROM `".BASE__PRICE_COMMENTS_TBL."` WHERE `print_id` = '".$usluga_id."'";
+	$result = $mysqli->query($query)or die($mysqli->error);
+	if($result->num_rows>0){
+		  $cell = $result->fetch_assoc();
+		  $comment = $cell['comment'];
+	}
+	else $comment='';
+	 
+	$price_comment ='<td width="230" class="subContentTd">';
+	$price_comment .='Комментарий:';
+	$price_comment .='<form method="POST" style="margin-top:8px;">';
+    $price_comment .='<div style="margin-bottom:8px;"><textarea name="comment">'.$comment.'</textarea></div>';
+	$price_comment .='<input type="submit" name="save_comment" value="сохранить">';
+	$price_comment .='</form>';
+	$price_comment .='</td>';
 ?>

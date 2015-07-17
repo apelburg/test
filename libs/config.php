@@ -34,6 +34,7 @@
 	//
 	define('BASE__CALCULATORS_PRICE_TABLES_TBL','os__calculators_price_tables');
 	define('BASE__CALCULATORS_Y_PRICE_PARAMS','os__calculators_y_price_params'); 
+	define('BASE__PRICE_COMMENTS_TBL','os__calculators_prices_comments'); 
 	define('BASE__CALCULATORS_COEFFS','os__calculators_coeffs'); 
 	define('BASE__CALCULATORS_ADDITIONS','os__calculators_additions'); 
 	define('BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL','os__calculators_print_types_sizes_places_relation'); // таблица связей , типы нанесения - размеры нанесения - места нанесения

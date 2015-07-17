@@ -13,6 +13,7 @@
 .priceManager .commoMenuItem{ color: #777; text-decoration:none}
 .priceManager .commoMenuCurrItem{ color: #FF9933;}
 .priceManager .disclaimer{ position:absolute; top:40px; right:0px;color: #AAA;font-size: 11px;}
+.priceManager textarea{ width:230px; height:230px;}
 
 
 .placesEditor .mainWinTbl{ width:100%; border-collapse:collapse;}
@@ -23,8 +24,11 @@
 .placesEditor .catalogMenu .active{ color:#FF0000;}
 .placesEditor .subContentTd{  padding:10px 10px;}
 .placesEditor .subContentTd select{  margin: 15px 0 10px 0;}
-.placesEditor .containsDataTbl{ margin: 20px 0 30px 0; }
+.placesEditor .containsDataTbl{ margin: 20px 0 10px 0; }
 .placesEditor .containsDataTbl td{ font-size: 14px; padding:1px 5px; text-align:left; border:#ccc 1px solid }
+.placesEditor .disclaimer{ /*position:absolute; top:40px;right:0px;*/ margin: 25px 0 10px 0;color: #AAA;font-size: 12px;}
+.placesEditor .affected_subparts{ margin: 0 0 30px 0; }
+
 
 .tbl_edit_usl{border-collapse:collapse;}
 .tbl_edit_us tr td{border:1px solid red; padding: 15px}

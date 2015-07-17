@@ -1,4 +1,6 @@
 <?php
+    // удалить insert_copied_rows_old
+
     class RT{
 	    //public $val = NULL;
 	    function __consturct(){
@@ -46,12 +48,174 @@
 			//echo '<pre>'; print_r($_SESSION); echo '</pre>';
 			return 1;
 		}
-		static function insert_copied_rows($query_num,$control_num){
-		    global $mysqli;   //print_r($data); 
+		static function shift_rows_down($place_id,$mainCopiedRowId,$shift_counter /* $place_id - куда вставляем, $pos_id - что будем вставлять */){
+		    global $mysqli;
+			
+			// опускаем ряды в таблице чтобы освободить место
+		    $query_enlarge = "UPDATE `".RT_MAIN_ROWS."` SET `id` = `id` + 1  WHERE `id` >= '".$place_id."' ORDER BY `id` DESC";
+			// echo $query_enlarge."\r\n";
+			$result_enlarge = $mysqli->query($query_enlarge)or die($mysqli->error);
+			
+			// теперь в таблице RT_DOP_DATA нужно изменть parent_id всех рядов у которых parent_id больше или равен $place_id
+			$query_enlarge = "UPDATE `".RT_DOP_DATA."` SET `row_id` = `row_id` + 1  WHERE `row_id` >= '".$place_id."' ORDER BY `row_id` DESC";
+			//echo $query_enlarge."\r\n";
+			$result_enlarge = $mysqli->query($query_enlarge)or die($mysqli->error);
+			
+			// если id ($pos_id) скопированного ряда который мы хотим вставить больше или равен id ($place_id) ряда в который мы вставляем 
+			// - то увеличиваем его на 1 тоже, и меняем parent_id рядов в таблице RT_DOP_DATA
+			if($mainCopiedRowId >= $place_id) $shift_counter++;
+			return $shift_counter;
+	      
+		}
+		static function insert_copied_rows_insert_part($place_id,$mainCopiedRowId,$query_num,$dop_data /* $place_id - куда вставляем, $pos_id - что будем вставлять */){
+		    global $mysqli;
+			
+			// echo 'insert_copied_rows_insert_part'."\r\n";
+			// копируем и вставляем ряд из таблицы RT_MAIN_ROWS
+			$query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$mainCopiedRowId."'";
+			// echo $query."\r\n";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows>0){
+				$copied_row = $result->fetch_assoc();
+				$copied_row['query_num']= $query_num;
+				$copied_row['master_btn']= 0;
+				$copied_row['date_create']= date('Y-m-d H:i:s');
+				foreach($copied_row as $param => $val){
+				    // если мы знаем id места ($place_id) куда мы хотим вставить ряды 
+					// указываем его id, иначе указываем пустое значение чтобы добавить их в конец
+				    if($place_id && $param == 'id') $val=$place_id;
+					else if($param == 'id') $val='';
+					
+					$substrArr[] = $param."='".$val."'";
+				}
+				$query2="INSERT INTO `".RT_MAIN_ROWS."`
+				       SET ".implode(",",$substrArr); 
+			    // echo $query2."\r\n";
+				$mysqli->query($query2)or die($mysqli->error);
+				$row_id = $mysqli->insert_id;
+				
+				// вставляем ряды в таблицу RT_DOP_DATA и в таблицу RT_DOP_USLUGI
+				foreach ($dop_data as $dop_id => $dop_value){
+					//echo  $dop_key;
+					// выбираем данные из таблицы RT_DOP_DATA
+					$query3="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_id."'";
+					$result3 = $mysqli->query($query3)or die($mysqli->error);
+					if($result3->num_rows>0){
+						// сохраняем полученный вывод в массив и производим корректировку данных:
+						// меняем row_id обозначивающий внешний ключ на id вставленного в RT_MAIN_ROWS ряда и присваиваем id пустое значение 
+						$copied_dop_row = $result3->fetch_assoc();
+						$dop_row_id = $copied_dop_row['id'];
+						$copied_dop_row['id']='';
+						// id родительского ряда равно последнего вставленного ряда
+						$copied_dop_row['row_id']= $row_id;
+						
+						$query4="INSERT INTO `".RT_DOP_DATA."` VALUES ('".implode("','",$copied_dop_row)."')"; 
+						// echo $query4."\r\n";
+						$mysqli->query($query4)or die($mysqli->error);
+						$new_dop_row_id = $mysqli->insert_id;
+						
+						// выбираем данные из таблицы RT_DOP_USLUGI
+						$query5="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
+						$result5 = $mysqli->query($query5)or die($mysqli->error);
+						if($result5->num_rows>0){
+							while($copied_data = $result5->fetch_assoc()){
+								// сохраняем полученный вывод в массив и производим корректировку данных:
+								// меняем dop_row_id обозначивающий внешний ключ на id вставленного в RT_DOP_DATA ряда и
+								$copied_data['id']='';
+								$copied_data['dop_row_id']= $new_dop_row_id;
+								$query6="INSERT INTO `".RT_DOP_USLUGI."` VALUES ('".implode("','",$copied_data)."')"; 
+								//echo $query."\r\n";
+								$mysqli->query($query6)or die($mysqli->error);
+							}
+						}
+					}
+				}	 
+			}
+			
+			
+	      
+		}
+		static function insert_copied_rows($query_num,$control_num,$place_id){
+			
+			if(empty($_SESSION['rt']['buffer']['copied_rows'])) return '[0,"нет сохраненной информации для вставки"]';
+			
+			if(($data = json_decode($_SESSION['rt']['buffer']['copied_rows']))==NULL) return '[0,"нет сохраненной информации для вставки"]';
+			$data = (array)$data;
+			// если вставляем в конкретное место разворачиваем массив, если нет оставляем в существующем виде
+			if($place_id) $data = array_reverse($data);
+			// print_r($data); 
+			// exit;
+			$shift_counter = 0;
+		    foreach ($data as $mainCopiedRowId => $dop_data) {
+			    // если у нас есть место в которое мы хотим вставить скопированные ряды
+			    if($place_id){
+				    // echo 'mainCopiedRowId-'.$mainCopiedRowId."\r\n";
+					// первым шагом "опускаем" ряд куда хотим вставить и все ряды в таблице находящиеся ниже 1 (id+1)
+					// тем самым освобождая место для вставки ряда в RT_MAIN_ROWS
+					// затем меням parent_id рядов в таблице RT_DOP_DATA у которых parent_id больше или равен id ряда куда хотим вставить
+					// если id ($mainCopiedRowId) скопированного ряда который мы хотим вставить больше или равен id ряда в который мы вставляем 
+					// - то увеличиваем его на 1 тоже, 
+					// функция возвращает новый $mainCopiedRowId который мог быть изменен
+					$shift_counter = RT::shift_rows_down((int)$place_id,(int)$mainCopiedRowId,$shift_counter);
+					$mainCopiedRowId +=$shift_counter;
+				}
+				
+				// теперь мы вставляем ряд в таблицу RT_MAIN_ROWS копируя его из RT_MAIN_ROWS по $pos_id в $place_id
+				// затем просто вставляем в RT_DOP_DATA новые ряды скопированные из RT_DOP_DATA по старым id 
+				// потому что в RT_DOP_DATA они не менялись и устанавливаем им parent_id равный $pos_id
+				RT::insert_copied_rows_insert_part((int)$place_id,(int)$mainCopiedRowId,$query_num,$dop_data);
+			}
+			return '[1]';
+		}
+		static function delete_rows($data,$control_num){
+			
+			global $mysqli;
+	
+		    // print_r($data); 
+		
+		    foreach ($data as $deletedRowId) {
+			    // сначала удаляем ряд и все связанные с ним ряды в других таблицах
+				
+				// удаляем ряд в RT_MAIN_ROWS
+			    $query="DELETE FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$deletedRowId."'";
+			    $result = $mysqli->query($query)or die($mysqli->error);
+				// echo $query."\r\n";
+				// получаем id рядов из таблицы RT_DOP_DATA перед удалением потому что они являются родительскими для
+				// рядов из таблицы RT_DOP_USLUGI в которой нам тоже надо будет удалить ряды
+			    $query="SELECT id FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$deletedRowId."'";
+				// echo $query."\r\n";
+			    $result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					while($row = $result->fetch_assoc()){
+					   $dopRowIdsArr[] = $row['id'];
+				    }
+				}
+				// print_r($dopRowIdsArr);
+				
+				// удаляем ряды из таблицы RT_DOP_DATA
+				$query="DELETE FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$deletedRowId."'";
+				// echo $query."\r\n";
+			    $result = $mysqli->query($query)or die($mysqli->error);
+				
+				// удаляем ряды из таблицы RT_DOP_USLUGI 
+				if(isset($dopRowIdsArr)){
+					$query="DELETE FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` IN('".implode("','",$dopRowIdsArr)."')";
+					// echo $query."\r\n";
+					$result = $mysqli->query($query)or die($mysqli->error);
+				}
 
+			}
+			return '[1]';
+		}
+		static function insert_copied_rows_old($query_num,$control_num,$pos_id){
+		    global $mysqli;   //print_r($data); 
+         
             if(empty($_SESSION['rt']['buffer']['copied_rows'])) return "[0]";
 			
 			if(($data = json_decode($_SESSION['rt']['buffer']['copied_rows']))==NULL) return "[0]";
+			
+			print_r($data); 
+			exit;
 			
 			// копируем выбранные ряды в таблицы
 			foreach ($data as $key => $dop_data) {

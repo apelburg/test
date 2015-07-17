@@ -124,11 +124,7 @@
 		return $idsArr;
 	}
 	
-
-    function rendering_menu()
-	{
-		
-		function rendering($id,$level){	
+    function rendering($id,$level){	
 			global $mysqli;
 			global $menu_id;
 			 
@@ -158,10 +154,29 @@
 			return '';
 			
 	    }
+    function rendering_menu($id =0 ,$level =0 )
+	{
+	    global $mysqli;
+	    	
+		$trs ='';
+		if($id !=0)
+		{	
+		    $level++;
+		    $query = "SELECT*FROM `".GIFTS_MENU_TBL."` WHERE id = '".$id."' ORDER BY id";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			$item = $result->fetch_assoc();
+			$trs .= "<tr section_id=".$item['id']." parent_id=".$item['parent_id'].">
+						<td width='60'>
+							<span style='color:#AEC7EC;'>(ID ".$item['id'].")</span>
+						</td>
+						<td  width='270' style='padding:1px 1px 1px ".(40*($level-1))."px;'>
+						   <a href='?page=admin&section=places_editor&menu_id=".$item['id']."' class='active'>".$item['name']."</a>
+						</td>
+					</tr>";
+		}
+		$trs .= rendering($id,$level);
 		
-		$td = rendering(0,0);	
-		return '<table class="catalogMenu">'.$td.'</table>';
-	
+		return '<table class="catalogMenu">'.$trs.'</table>';
 	}
 
 			
@@ -223,8 +238,8 @@
 	
 	if($menu_id){
 	   
-	
-	    $placesSelectInterface = '<div>Добавьте место нанесения выбрав из списка:</div>';
+	    $placesSelectInterface = '<div class="affected_subparts">Затрагиваемые разделы:'.rendering_menu($menu_id).'</div>';
+	    $placesSelectInterface .= '<div>Добавьте место нанесения выбрав из списка:</div>';
 	    $placesSelectInterface .= buildPlacesSelectInterface();
 		$placesSelectInterface .= '<form method="POST">';
 		

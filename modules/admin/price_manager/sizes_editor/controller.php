@@ -142,7 +142,7 @@
    echo '<table id="tbl'.$type.'">'.implode('',$tbl_rows).'</table>';	
    echo '<input type="hidden" name="dataBufferForDeleting" id="dataBufferForDeleting'.$type.'" value="">';
    echo '<input type="hidden" name="dataBufferForSavingToBase" id="tblDataBuffer'.$type.'" value="">';
-   echo '<input type="button"  class="pointer" onclick="priseManagerSendDataToBase(this.form,{\'type\':\'sizes\',\'bufferId\':\'tblDataBuffer'.$type.'\',\'tblId\':\'tbl'.$type.'\'});" value="сохранить">';/**/
+   echo '<input type="button"  class="pointer" onclick="priceManagerSendDataToBase(this.form,{\'type\':\'sizes\',\'bufferId\':\'tblDataBuffer'.$type.'\',\'tblId\':\'tbl'.$type.'\'});" value="сохранить">';/**/
    echo '</form>';
    echo '<br><br><br>';
 	

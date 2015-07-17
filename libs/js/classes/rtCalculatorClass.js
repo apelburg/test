@@ -2629,10 +2629,34 @@ var rtCalculator = {
 		return (nothing)? false : idsObj;
 	}
 	,
+	get_active_main_rows:function(){ 
+	    
+		// обходим РТ чтобы 
+		// 1. определить какие Мастер Кнопки были нажаты 
+		
+		var tbl = document.getElementById('rt_tbl_body');
+		var trsArr = tbl.getElementsByTagName('tr');
+		var pos_id = false;
+		var idsArr = [];
+		// обходим ряды таблицы
+		for( var i= 0 ; i < trsArr.length; i++){
+			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
+			if(trsArr[i].getAttribute('pos_id')){
+				pos_id = trsArr[i].getAttribute('pos_id');
+				
+				// работаем с рядом - ищем мастер кнопку 
+				var inputs = trsArr[i].getElementsByTagName('input');
+				for( var j= 0 ; j < inputs.length; j++){
+					if(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn' && inputs[j].checked == true){
+						idsArr.push(pos_id); 
+				    }
+				}
+			}
+		}
+		return (idsArr.length>0)? idsArr : false ;
+	}
+	,
 	copy_rows:function(e){ 
-	   
-	    e = e|| window.event;
-		var cell = e.target || e.srcElement;
 		
 		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)
 		if(!(idsObj = rtCalculator.get_active_rows())){
@@ -2646,7 +2670,60 @@ var rtCalculator = {
 		// Сохраняем полученные данные в cессию(SESSION) чтобы потом при выполнении действия (вставить скопированное) получить данные из SESSION
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_copied_rows_to_buffer='+JSON.stringify(idsObj)+'&control_num='+control_num);
 		rtCalculator.send_ajax(url,callback);
-		function callback(response){  /* // console.log(response); */ close_processing_timer(); closeAllMenuWindows(); }
+		function callback(response){  /*console.log(response); //  */ close_processing_timer(); closeAllMenuWindows(); }
+	}
+	,
+	copy_row:function(e){ 
+	   
+	    e = e|| window.event;
+		var cell = e.target || e.srcElement;
+		
+		var pos_id = cell.getAttribute("pos_id");
+		var control_num = 1;
+		show_processing_timer();
+		// собираем данные о расчетах присвоенных данному ряду и о том которые из них "зеленые"
+		var idsObj = rtCalculator.get_active_rows_for_one_position(pos_id);
+		
+		// Сохраняем полученные данные в cессию(SESSION) чтобы потом при выполнении действия (вставить скопированное) получить данные из SESSION
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_copied_rows_to_buffer='+JSON.stringify(idsObj)+'&control_num='+control_num);
+		rtCalculator.send_ajax(url,callback);
+		function callback(response){  /* // console.log(response);*/   close_processing_timer(); closeAllMenuWindows();  if(openCloseContextMenuNew.lastElement) openCloseContextMenuNew.lastElement.style.backgroundColor = '#FFFFFF'; }
+	}
+	,
+	get_active_rows_for_one_position:function(pos_id){ 
+	    
+		// обходим РТ 
+		// собираем данные о расчетах присвоенных данному ряду и о том которые из них "зеленые"
+		var idsObj = {};
+		var goAhead = false;
+		var trsArr = this.body_tbl.getElementsByTagName('tr');
+		for(var i = 0;i < trsArr.length;i++){
+		    // если ряд не имеет атрибута row_id пропускаем его
+		    if(!trsArr[i].getAttribute('row_id')) continue;
+			
+			
+			if(trsArr[i].getAttribute('pos_id')){
+				if(goAhead && trsArr[i].getAttribute('pos_id') != pos_id){
+					goAhead=false;
+				}
+				
+				// если встречается ряд позиции из которого было вызвано событие , создаем объект в который будем добавлять возможные ряды расчетов
+				if(trsArr[i].getAttribute('pos_id') == pos_id){
+					idsObj[pos_id] = {};
+					var goAhead = true;
+				}
+			}
+			if(goAhead && idsObj[pos_id]){
+				// работаем с рядом - ищем светофор 
+				var tdsArr = trsArr[i].getElementsByTagName('td'); 
+				for( var j= 0 ; j < tdsArr.length; j++){
+					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
+						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
+					}
+				}
+			}
+		}
+		return idsObj;
 	}
 	,
 	insert_copied_rows:function(e){ 
@@ -2655,6 +2732,13 @@ var rtCalculator = {
 		var cell = e.target || e.srcElement;
 		
 		var control_num = 1;
+		if(cell.getAttribute('pos_id')) var place_id = cell.getAttribute('pos_id');
+		if(rtCalculator.body_tbl.getAttribute('query_num')) query_num =  rtCalculator.body_tbl.getAttribute('query_num');
+		else{
+			alert('Не удалось определить номер заявки');
+			return;
+		}
+		
 		show_processing_timer();
 		//  
 		// 1. Обращаемся к серверу, получаем данные из буфера(SESSIONS)
@@ -2662,13 +2746,71 @@ var rtCalculator = {
 		// 3. Получаем ответ об успешном действии
 		// 4. Вносим изменения в HTML
 
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('insert_copied_rows=1&control_num='+control_num);
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('insert_copied_rows=1&control_num='+control_num+'&query_num='+query_num+((typeof place_id != 'undefined')?'&place_id='+place_id:''));
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ 
-		    // console.log(response);  /* */ 
+		    /* console.log(response); //  
+			alert(response); */
+
+            close_processing_timer(); 
+			closeAllMenuWindows();
+			if(openCloseContextMenuNew.lastElement) openCloseContextMenuNew.lastElement.style.backgroundColor = '#FFFFFF';
+			
 			var data = JSON.parse(response);
-			if(!data[0]) return;
-			close_processing_timer(); closeAllMenuWindows(); location.reload();
+			// alert(data[0]);
+			if(data[0]==0){
+				alert(data[1]);
+				return;
+			}
+			location.reload();
+		}
+	}
+	,
+	delete_rows:function(e){ 
+	   
+	    e = e|| window.event;
+		var cell = e.target || e.srcElement;
+		
+	
+		if(cell.getAttribute('pos_id')) var pos_id = cell.getAttribute('pos_id');
+		
+		var idsArr =[];
+		
+		// если есть pos_id то значит функция вызвана из контекстног меню - тоесть удаляем одну позицию
+		// обходить ряды таблицы чтобы проверять мастер-кнопки не нужно 
+        if(pos_id){
+		    idsArr.push(pos_id);
+		}
+		else{// иначе обходим ряды таблицы
+			 // определяем какие ряды были выделены (какие Мастер Кнопки были нажаты)
+			if(!(idsArr = rtCalculator.get_active_main_rows())){
+				alert('не возможно удалить ряды, вы не выбрали ни одной позиции');
+				return;
+			} 
+		}
+		// alert(idsArr.join(';'));
+		
+		var control_num = 1;
+		show_processing_timer();
+		
+		// Сохраняем полученные данные в cессию(SESSION) чтобы потом при выполнении действия (вставить скопированное) получить данные из SESSION
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_rows='+JSON.stringify(idsArr)+'&control_num='+control_num);
+		rtCalculator.send_ajax(url,callback);
+		function callback(response){ 
+		     console.log(response); //  
+			/*alert(response); */
+
+            close_processing_timer(); 
+			closeAllMenuWindows();
+			if(openCloseContextMenuNew.lastElement) openCloseContextMenuNew.lastElement.style.backgroundColor = '#FFFFFF';
+			
+			var data = JSON.parse(response);
+			// alert(data[0]);
+			if(data[0]==0){
+				alert(data[1]);
+				return;
+			}
+			location.reload();
 		}
 	}
 	,
