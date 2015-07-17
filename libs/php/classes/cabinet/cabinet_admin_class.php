@@ -1,6 +1,6 @@
 <?php
 	
-	class Cabinet_snab_class{
+	class Cabinet_admin_class{
 
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
@@ -96,6 +96,24 @@
 		}
 
 
+
+		############################################
+		###				AJAX START               ###
+		############################################
+
+		
+
+
+		############################################
+		###				AJAX END               ###
+		############################################
+
+
+
+
+
+
+
 		#############################################################
 		##                          START                          ##
 		##      методы для работы с поддиректориями subsection     ##
@@ -116,35 +134,63 @@
 
 		##########################################
 		################ Запросы
-		Private Function requests_Template(){			
-			include ('./libs/php/classes/rt_class.php');
+		Private Function requests_Template(){
+		 	// для обсчёта суммы за тираж			
+			include_once ('./libs/php/classes/rt_class.php');
+
 			$array_request = array();
 			global $mysqli;
 	
 			$query = "SELECT 
 				`".RT_LIST."`.*, 
-				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-				`".CLIENTS_TBL."`.`company`,
-				`".MANAGERS_TBL."`.`name`,
-				`".MANAGERS_TBL."`.`last_name`,
-				`".MANAGERS_TBL."`.`email` 
-				FROM `".RT_LIST."`
-				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".RT_LIST."`.`client_id`
-				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".RT_LIST."`.`manager_id`";
+				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".RT_LIST."`";
+			
+
+			/////////////////////////
+			// фильтрация по статусам запросов
+			/////////////////////////
+			// 
+			// статусы могут быть трёх (3) типов:
+			// not_process - не обработанные:
+			// 		те, что приходят от клиентов через корзину, и прикрепляются к тому или иному менеджеру
+			// in_work - в работе
+			// 		те, что менеджер завёл сам или взял из необработанных, которые в свою очередь ему отдал админ 
+			// history - история
+			//  	сюда попадают все запросы после того как из запроса создана спецификация и сгенерирован предзаказ
+			//
+			//////////////////////////
+			//	в последствии:
+			// 1 - необходимо запретить рт для запросов попавших в историю
+			// 2 - необходимо сделать возможность копирования исторического запроса из истории в работу, при этом цены на услуги вероятно есть смысл пересчитать по новой
+			//////////////////////////
+			// делаем фильтрацию в зависимости от того по какому фильтру мы собираемся выбирать выдачу
+			switch ($_GET['subsection']) {
+				case 'history':
+					$query .= " WHERE `".RT_LIST."`.`status` = 'history'";
+					break;
+				case 'no_worcked_men':
+					$query .= " WHERE `".RT_LIST."`.`status` = 'not_process'";
+					break;
+				default:
+					break;
+			}
+
+			// массви с переводом статусов запроса
+			$name_cirillic_status['history'] = 'история';
+			$name_cirillic_status['not_process'] = 'не обработан менеджером';
+			$name_cirillic_status['in_work'] = 'в работе';
+
+
+			echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
+			$zapros = array();
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$zapros[] = $row;
 				}
 			}
 
-			
-			// $main_rows_id = implode(',', $main_rows_id);
-			// echo $main_rows_id;
-			// echo '<pre>';
-			// print_r($zapros);
-			// echo '</pre>';
 			$general_tbl_row = '';
 			// собираем html строк-запросов 
 			$html = '';
@@ -173,9 +219,6 @@
 				// необходим для ограничения до одной кнопки
 				$count_button_show_catalog_variants=0;
 
-				// копия $main_rows... необходима для вычесления количества каталожных позиций в запросе для показа в кнопке показа каталожных строк
-				$main_rows_Copy = $main_rows;
-
 				// перебор вариантов
 				foreach ($main_rows as $key1 => $val1) {
 					//ОБСЧЁТ ВАРИАНТОВ
@@ -199,22 +242,11 @@
 					// стоимость варианта на выходе
 					$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
 					
-					// если есть каталожные продукции... формируем строку - кнопку для их показа
-					// изначально они будут скрытые
-					// !!!! ОЧЕНЬ ВАЖНО ЧТОБЫ ПОЗИЦИИ БЫЛИ ОТСОРТИРОВАНЫ ПО КАТАЛОГУ И НЕ КАТАЛОГУ
-					if($val1['type'] == 'cat' && $count_button_show_catalog_variants==0){
-						$button_show_catalog_variants = '<tr><td colspan="10" class="click_me_and_show_catalog">Показать '.count($main_rows_Copy).' скрытых позиций каталога</td></tr>';
-						$variant_row .= $button_show_catalog_variants;
-						$count_button_show_catalog_variants++;
-					}
-					// удаляем из копии позицию с текущим ключём
-					unset($main_rows_Copy[$key1]);
-
 					//////////////////////////
 					//	собираем строки вариантов по каждой позиции
 					//////////////////////////
 					if($name_product != $val1['name']){$name_product = $val1['name']; $name_count = 1;}
-					$variant_row .= '<tr data-id_dop_data="'.$val1['id_dop_data'].'" class="'.$val1['type'].'_8">
+					$variant_row .= '<tr data-id_dop_data="'.$val1['id_dop_data'].'" class="'.$val1['type'].'_1">
 						<td>'.$val1['art'].'</td>
 						<td><a class="go_to_position_card_link" href="./?page=client_folder&section=rt_position&id='.$val1['id'].'">'.$val1['name'].'</a> <span class="variant_comments_dop">( Вариант '.$name_count++.' )</span></td>
 						<td>'.$val1['quantity'].'</td>
@@ -224,54 +256,49 @@
 						<td>'.$calc_summ_dop_uslug2.'</td>
 						<td>'.$in_out.'</td>
 						<td></td>
-						<td data-type="'.$val1['type'].'" data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($val1['status_snab']).'</td>
+						<td data-type="'.$val1['type'].'" data-status="'.$val1['status_snab'].'" class="'.$val1['status_snab'].'_'.$this->user_access.' '.$value['status'].'_status_snab_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($val1['status_snab']).'</td>
 					</tr>';
-					// если при переборе вариантов попался хотябы 1 не каталог - ставим 1
-					if($val1['type'] != 'cat'){$enabled_echo_this_query = 1;}
 					
 				}
-
-				// если вся продукция из каталога - не показываем её снабу, переходим к следующему заказу
-				if($enabled_echo_this_query == 0){ continue;}
 
 				//////////////////////////
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
 				$general_tbl_row .= '
-						<tr>
-							<td class="cabinett_row_show show"><span></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$value['name'].' '.$value['last_name'].'</td>
+						<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">
+							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
 							<td>'.$value['create_time'].'</td>
-							<td>'.$value['company'].'</td>
+							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td></td>
+							<td class="'.$value['status'].'_'.$this->user_access.'">'.$name_cirillic_status[$value['status']].'</td>
 						</tr>';
 				
 				$general_tbl_row .= '<tr class="query_detail">';
-				$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
-				$general_tbl_row .= '<td colspan="5" class="each_art">';
+					//$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
+					$general_tbl_row .= '<td colspan="5" class="each_art">';
 
-				// шапка таблицы вариантов запроса
-				$variant_top = '<table class="cab_position_div">
-					<tr>
-						<th>артикул</th>
-						<th>номенклатура</th>
-						<th>тираж</th>
-						<th>цены:</th>
-						<th>товар</th>
-						<th>печать</th>
-						<th>доп. услуги</th>
-						<th>в общем</th>
-						<th></th>
-						<th></th>
-					</tr>';
+					// шапка таблицы вариантов запроса
+					$variant_top = '<table class="cab_position_div">
+						<tr>
+							<th>артикул</th>
+							<th>номенклатура</th>
+							<th>тираж</th>
+							<th>цены:</th>
+							<th>товар</th>
+							<th>печать</th>
+							<th>доп. услуги</th>
+							<th>в общем</th>
+							<th></th>
+							<th></th>
+						</tr>';
 
 
-				// прикручиваем найденные варианты
-				$general_tbl_row .=	$variant_top.$variant_row;
-				// закрываем теги
-				$general_tbl_row .= '</table>';
-				$general_tbl_row .= '</td>';
+					// прикручиваем найденные варианты
+					$general_tbl_row .=	$variant_top.$variant_row;
+					// закрываем теги
+					$general_tbl_row .= '</table>';
+					$general_tbl_row .= '</td>';
 				$general_tbl_row .= '</tr>';
 			}
 			
@@ -314,7 +341,8 @@
 					break;
 				case 'history':
 					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
-				$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
+					// $where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."'";
 					break;
 				case 'in_work':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'in_calculation'";
@@ -1208,6 +1236,55 @@
 
 			return $status_snab;
 		}
+
+		private function get_client_name_Database($id){
+			global $mysqli;		
+			//получаем название клиента
+			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$name = '';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';
+				}
+			}else{
+				$name = '<div class="attach_the_client add" data-id="0">Прикрепить клиента</div>';
+			}
+			return $name;
+		}
+
+		private 	function get_manager_name_Database_Html($id){
+		    global $mysqli;
+		    $String = '<span class="attach_the_manager add" data-id="0">Прикрепить менеджера</span>';
+		   	$arr = array();
+		    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
+		    $result = $mysqli->query($query)or die($mysqli->error);
+		    if($result->num_rows>0){
+				foreach($result->fetch_assoc() as $key => $val){
+				   $arr[$key] = $val;
+				}
+		    }
+
+		    
+		    if(count($arr)){
+		    	$String = '<span class="attach_the_manager" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+		    }
+		    return $String;
+		}
+
+		//////////////////////////
+		//	оборачивает в оболочку warning_message
+		//////////////////////////
+		private function wrap_text_in_warning_message($text){
+			$html = '<div class="warning_message"><div>';	
+			$html .= $text;
+			$html .= '</div></div>';
+
+			return $html;
+		}
+
+
+
 
 		function __destruct(){}
 	}

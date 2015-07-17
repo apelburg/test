@@ -20,7 +20,7 @@
 	// если нет массива $ACCESS (права доступа) прерываем работу скирпта 
 	if(!isset($ACCESS)) exit('доступ отсутсвует');
 
-	if(!($user_status == 1 || (isset($_SESSION['access']['come_back_in_own_profile']) && mysql_result(select_manager_data($_SESSION['access']['come_back_in_own_profile']),0,'access') == 1))) exit;
+	//if(!($user_status == 1 || (isset($_SESSION['access']['come_back_in_own_profile']) && mysql_result(select_manager_data($_SESSION['access']['come_back_in_own_profile']),0,'access') == 1))) exit;
 
 	
 	ob_start();	

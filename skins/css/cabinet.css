@@ -55,7 +55,7 @@
 }
 #cabinet_general_content .cabinett_row_show.show{
 	background-image: url('../../skins/images/img_design/cabinet_2.png');
-	background-position: 5px -2px;
+	background-position: 50%;
 	background-repeat: no-repeat;
 	background-color: #f1f1f1;
 	width: 30px
@@ -87,12 +87,14 @@
   height: 100%;
   background: #f1f1f1;
   background-image: url('../../skins/images/img_design/cabinet_1.png');
-  background-position-y: 50%;
-  background-position-x: 10px;
+  background-position: 50%;
   background-repeat: no-repeat;
   color: grey;
-  top: -26px;
-  padding-top: 25px;
+  top: -1px;
+  /*padding-top: 25px;*/
+}
+.cabinett_row_hide.show{
+	background-image: url('../../skins/images/img_design/cabinet_2.png');
 }
 .cabinett_row_hide:hover{
 	background-color: #e2e2e2;
@@ -120,4 +122,62 @@ td.calculate_is_ready_8{
 }
 td.in_calculation_8{
 	background-color: #7EB6D8;
+}
+
+tr.cat_8 td {
+  color: rgb(194, 194, 194);
+  background-color: #F7F7F5;
+
+}
+.cat_8{
+	display: none
+}
+
+#cabinet_general_content .cab_position_div tr .click_me_and_show_catalog{
+	text-align: center;
+	padding: 5px;
+	border: 1px solid #f1f1f1;
+}
+.warning_message{
+	padding: 5px;
+}
+.warning_message div{
+	padding: 5px;
+	border: 1px solid red;
+	color: #FF0000;
+}
+.history_status_snab_1{
+	color: #E4E4E4;
+}
+.cabinet_general_content_row tr td.history_1 {
+	color: #C2C2C2;
+	font-size: 20px;
+}
+.attach_the_manager,
+.attach_the_client{
+	padding: 5px;
+	border: 1px solid #92B73E;
+	cursor: default;
+}
+.attach_the_manager:hover,
+.attach_the_client:hover{
+	background-color: #f1f1f1;
+}
+
+#chose_manager_tbl table,#chose_client_tbl table{
+	width: 100%;
+}
+#chose_manager_tbl table tr td,#chose_client_tbl table tr td{
+	padding: 2px 0px 2px 5px;
+	font-size: 12px;
+}
+#chose_manager_tbl table tr td:hover, #chose_client_tbl table tr td:hover {
+	background-color: #EDB4B4;
+	cursor: default;
+}
+
+#chose_manager_tbl table tr td.checked, #chose_client_tbl table tr td.checked{
+	background-color: #A6CC8B;
+	font-weight: bold;
+	color: #fff;
 }
