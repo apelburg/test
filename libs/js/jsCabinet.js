@@ -239,7 +239,7 @@ $(document).on('click', '#chose_manager_tbl table tr td', function(event) {
 		$(this).addClass('checked');
 		// rt_list_id_
 		var rt_list_id = $(this).parent().parent().parent().parent().find('input[name$="rt_list_id"]').val();
-		$('#rt_list_id_'+rt_list_id + ' .attach_the_manager').html($(this).html());
+		$('#rt_list_id_'+rt_list_id + ' .attach_the_manager').html($(this).html()).attr('data-id',$(this).attr('data-id'));
 		var manager_id = $(this).attr('data-id');//alert($(this).parent().parent().parent().parent().html());
 		$(this).parent().parent().parent().parent().find('input[name$="manager_id"]').val(manager_id);
 	}
@@ -252,7 +252,7 @@ $(document).on('click', '#chose_client_tbl table tr td', function(event) {
 		$(this).addClass('checked');
 		// rt_list_id_
 		var rt_list_id = $(this).parent().parent().parent().parent().find('input[name$="rt_list_id"]').val();
-		$('#rt_list_id_'+rt_list_id + ' .attach_the_client').html($(this).html());
+		$('#rt_list_id_'+rt_list_id + ' .attach_the_client').html($(this).html()).attr('data-id',$(this).attr('data-id'));
 		var manager_id = $(this).attr('data-id');//alert($(this).parent().parent().parent().parent().html());
 		$(this).parent().parent().parent().parent().find('input[name$="client_id"]').val(manager_id);
 	}
@@ -320,3 +320,49 @@ function show_dialog_and_send_POST_window(html,title,height){
 //	General function for generate dialog windo END
 //////////////////////////////////////////////////////
 
+
+
+//////////////////////////
+//	МЕНЕДЖЕР start
+//////////////////////////
+
+// взять в работу запрос
+$(document).on('click', '.get_in_work', function(event) {
+	var obj = $(this);
+	if(Number($(this).parent().parent().find('.attach_the_client').attr('data-id')) == 0){
+		alert('Сначала укажите клиента.');
+	}else{
+		var rt_list_id = $(this).parent().parent().attr('data-id');
+		$.post('', {
+			AJAX: 'taken_into_operation',
+			rt_list_id:rt_list_id
+		}, function(data, textStatus, xhr) {
+			if(data['response'] != 'OK'){
+				alert(data);
+			}else{
+				// показываем что сменили статус и удаляем строку из дом модели
+				obj.html('в работе').delay(3000).parent().parent().addClass('remove_this_row').next().addClass('remove_this_row').parent().parent().find('.remove_this_row').remove();
+				
+			}
+		},'json');
+	}
+});
+
+
+//////////////////////////
+//	МЕНЕДЖЕР end
+//////////////////////////
+
+
+//////////////////////////
+//	ОБЩИЕ ФУНКЦИИ
+//////////////////////////
+$(document).on('click', '.icon_comment_show', function(event) {
+	var os__rt_list_id = $(this).parent().parent().attr('data-id');
+	$.post('', {
+		AJAX: 'get_comment_for_query',
+		os__rt_list_id:os__rt_list_id
+	}, function(data, textStatus, xhr) {
+		show_dialog_and_send_POST_window(Base64.decode(data['html']),'Комментарии к запросу',800)
+	},'json');
+});

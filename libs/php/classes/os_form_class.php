@@ -352,9 +352,22 @@ PS было бы неплохо взять взять это за правило
 			
 			return $mysqli->insert_id;
 		}
+		
+		private function get_sort_num(){
+			global $mysqli;
+			$query = "SELECT max(`sort`) AS `max_num` FROM `".RT_MAIN_ROWS."` WHERE `query_num` = '".(int)$_GET['query_num']."'";
+			$num = 0;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$num = $row['max_num']+1;
+				}
+			}
+			return $num;
+		}
 
 		private function insert_new_main_row_Database($query_num_i, $arr, $type_product){	
-			
+			$this->sort_num = $this->get_sort_num();
 			// echo '<pre>';
 			// print_r($arr);
 			// echo '</pre>';
@@ -365,6 +378,7 @@ PS было бы неплохо взять взять это за правило
 				`name` = '".$arr['name_product'][0]." ".$arr['product_dop_text'][0]."',
 				`date_create` = CURRENT_DATE(),
 				`type` = '".$type_product."',
+				`sort` = '".$this->sort_num."',
 			    `dop_info_no_cat` = '".addslashes($_POST['json_general'])."'";				 
 		    
 		    $result = $mysqli->query($query) or die($mysqli->error);

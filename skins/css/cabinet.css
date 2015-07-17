@@ -154,13 +154,15 @@ tr.cat_8 td {
 	font-size: 20px;
 }
 .attach_the_manager,
-.attach_the_client{
+.attach_the_client,
+.get_in_work{
 	padding: 5px;
 	border: 1px solid #92B73E;
 	cursor: default;
 }
 .attach_the_manager:hover,
-.attach_the_client:hover{
+.attach_the_client:hover,
+.get_in_work:hover{
 	background-color: #f1f1f1;
 }
 
@@ -180,4 +182,28 @@ tr.cat_8 td {
 	background-color: #A6CC8B;
 	font-weight: bold;
 	color: #fff;
+}
+
+#cabinet_general_content .icon_comment_show{
+	height: 29px;
+	width: 36px;
+	float: left;
+	padding: 2px;
+	cursor: default;
+	border:1px solid transparent;
+	background-image: url('../../skins/images/img_design/comment_icons.png');
+	background-repeat: no-repeat;
+	background-position-y: -7px;
+
+	background-position-x: -3px;
+}
+#cabinet_general_content .icon_comment_show:hover{
+	border:1px dashed #8b8a89;
+}
+#cabinet_general_content .icon_comment_show.no_empty{
+	background-position-x: -57px;
+}
+
+#cabinet_general_content .icon_comment_show.white{
+	background-position-y: -67px;
 }
