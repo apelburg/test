@@ -143,6 +143,9 @@
 	
 			$query = "SELECT 
 				`".RT_LIST."`.*, 
+				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
+				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
+				
 				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
 				FROM `".RT_LIST."`";
 			
@@ -182,7 +185,7 @@
 			$name_cirillic_status['in_work'] = 'в работе';
 
 
-			echo $query;
+			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$zapros = array();
 			if($result->num_rows > 0){
@@ -264,11 +267,14 @@
 				//////////////////////////
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
+				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
 				$general_tbl_row .= '
 						<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">
 							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
 							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
+							<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span></td>
 							<td>'.$value['create_time'].'</td>
+							<td><span class="icon_comment_show white"></span></td>
 							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
 							<td class="'.$value['status'].'_'.$this->user_access.'">'.$name_cirillic_status[$value['status']].'</td>
@@ -276,7 +282,7 @@
 				
 				$general_tbl_row .= '<tr class="query_detail">';
 					//$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
-					$general_tbl_row .= '<td colspan="5" class="each_art">';
+					$general_tbl_row .= '<td colspan="7" class="each_art">';
 
 					// шапка таблицы вариантов запроса
 					$variant_top = '<table class="cab_position_div">
@@ -310,9 +316,10 @@
 							<tr>
 								<th id="show_allArt"></th>
 								<th>Номер</th>
-								<th>Дата/время</th>
+								<th>отдан менеджеру</th>
+								<th>запрос от клиента</th>
+								<th>Коммент</th>
 								<th>Компания</th>
-								<!-- <th>Клиент</th> -->
 								<th>Сумма</th>
 								<th>Статус</th>
 							</tr>';
@@ -374,8 +381,8 @@
 					`".RT_DOP_DATA."`.`print_z`,	
 					`".RT_DOP_DATA."`.`zapas`,	
 					`".RT_DOP_DATA."`.`status_snab`,	
-					DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 					`".RT_MAIN_ROWS."`.*,
+					DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 					`".RT_LIST."`.`id` AS `request_id` 
 					FROM `".RT_MAIN_ROWS."` 
 					INNER JOIN `".RT_DOP_DATA."` ON `".RT_DOP_DATA."`.`row_id` = `".RT_MAIN_ROWS."`.`id`
@@ -1282,6 +1289,17 @@
 
 			return $html;
 		}
+
+
+
+		//////////////////////////
+		//	комментарии к запросу
+		//////////////////////////
+		private function get_comment_for_query_Database(){
+			global $mysqli;
+			$query = "";
+		}
+
 
 
 

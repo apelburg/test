@@ -40,6 +40,19 @@ class Manager {
 	    }
 	    return $String;
 	}
+
+	static 	function get_apl_users(){
+	    global $mysqli;
+	   	$arr = array();
+	    $query="SELECT `id`,`nickname`,`name`,`last_name`,`access` FROM `".MANAGERS_TBL."`  WHERE `access` IN (1,2,3,4,5,6,7,8,9,10)";
+	    $result = $mysqli->query($query)or die($mysqli->error);
+	    if($result->num_rows>0){
+			foreach($result->fetch_assoc() as $key => $val){
+			   $arr[] = $val;
+			}
+	    }
+	    return $arr;
+	}
 }
 
 ?>

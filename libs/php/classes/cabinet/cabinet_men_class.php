@@ -96,6 +96,24 @@
 		}
 
 
+
+		############################################
+		###		        AJAX START               ###
+		############################################
+		private function taken_into_operation_AJAX(){
+			global $mysqli;
+			// прикрепить клиента и менеджера к запросу	
+			$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+			$result = $mysqli->query($query) or die($mysqli->error);	
+			echo '{"response":"OK"}';
+		}
+
+		############################################
+		###		         AJAX END                ###
+		############################################
+		
+
+
 		#############################################################
 		##                          START                          ##
 		##      методы для работы с поддиректориями subsection     ##
@@ -123,6 +141,9 @@
 	
 			$query = "SELECT 
 				`".RT_LIST."`.*, 
+				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP()) AS `time_attach_manager_sec`,
+				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
+				
 				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
 				`".MANAGERS_TBL."`.`name`,
 				`".MANAGERS_TBL."`.`last_name`,
@@ -161,7 +182,13 @@
 					break;
 			}
 
-			echo $query;
+			// массви с переводом статусов запроса
+			$name_cirillic_status['history'] = 'история';
+			$name_cirillic_status['not_process'] = 'не обработан менеджером';
+			$name_cirillic_status['in_work'] = 'в работе';
+
+
+			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$zapros = array();
 			if($result->num_rows > 0){
@@ -243,13 +270,13 @@
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
 				$general_tbl_row .= '
-						<tr>							
+						<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">							
 							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
 							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$value['name'].' '.$value['last_name'].'</td>
 							<td>'.$value['create_time'].'</td>
-							<td>'.$this->get_client_name($value['client_id']).'</td>
+							<td>'.$this->get_client_name($value['client_id'],$value['status']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td>'.(($value['status'] == 'not_process')?'<button class="get_in_work">Взять в работу</button>':'').'</td>
+							<td>'.(($value['status'] == 'not_process')?'<div class="get_in_work">Взять в работу</div>':$name_cirillic_status[$value['status']]).'</td>
 						</tr>';
 				
 				$general_tbl_row .= '<tr class="query_detail">';
@@ -356,13 +383,14 @@
 					`".RT_MAIN_ROWS."`.*,
 					`".RT_LIST."`.`id` AS `request_id`,
 					`".RT_LIST."`.`manager_id`,
+					`".RT_LIST."`.`manager_id`,
 					`".RT_LIST."`.`client_id`
 					FROM `".RT_MAIN_ROWS."` 
 					INNER JOIN `".RT_DOP_DATA."` ON `".RT_DOP_DATA."`.`row_id` = `".RT_MAIN_ROWS."`.`id`
 					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
 					".$where."
 					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
-				echo  $query.'<br><br>';
+				// echo  $query.'<br><br>';
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -1217,18 +1245,18 @@
 			return $status_snab;
 		}
 
-		private function get_client_name($id){
+		private function get_client_name($id,$status){
 			global $mysqli;		
 			//получаем название клиента
-			$query = "SELECT `company` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$name = '';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$name = $row['company'];
+					$name = '<div data-id="'.$row['id'].'">'.$row['company'].'</div>';
 				}
 			}else{
-				$name = '<button class="attach_the_client">Прикрепить клиента</button>';
+				$name = '<div class="attach_the_client" data-id="0">Прикрепить клиента</div>';
 			}
 			return $name;
 		}

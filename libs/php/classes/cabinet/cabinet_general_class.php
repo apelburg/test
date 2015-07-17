@@ -175,6 +175,70 @@
 		############################################
 		###				AJAX START               ###
 		############################################
+
+		private function get_comment_for_query_AJAX(){
+			global $mysqli;
+			$html = '';	
+			$comments = array();
+			$query = "SELECT * FROM `".RT_LIST_COMMENTS."`  WHERE `os__rt_list_id` = '".(int)$_POST['os__rt_list_id']."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$comments[] = $row;
+				}
+			}
+
+			// подключаем класс менеджера
+			include_once ('./libs/php/classes/manager_class.php');
+			$user_name = Manager::get_apl_users(); 
+
+
+			
+			foreach ($comments as $key => $value) {
+				$html .= '<div class="comment table">';
+					$html .= '<div class="row">';
+						$html .= '<div class="cell">';
+						$html .= '';
+						$html .= '</div>';
+						$html .= '<div class="cell">';
+						$html .= '';
+						$html .= '</div>';
+					$html .= '</div>';
+					$html .= '<div class="row">';
+						$html .= '<div class="cell">';
+						$html .= '';
+						$html .= '</div>';
+						$html .= '<div class="cell">';
+						$html .= '';
+						$html .= '</div>';
+					$html .= '</div>';
+				$html .= '</div>';
+			}
+
+
+
+			$html .= '<div>';
+			$html .= '<form>';
+			$html .= '<textarea name="comment_text"></textarea>';
+			$html .= '<input name="name" type="hidden" value="'.$user_name.'"></input>';
+			$html .= '<input name="id" type="hidden" value="'.$this->user_id.'"></input>';
+			$html .= '</form>';
+			$html .= '</div>';
+
+
+			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+			// echo '<pre>';
+			// print_r($_SESSION);
+			// echo '</pre>';
+				
+			// echo '<pre>';
+			// print_r($comments);
+			// echo '</pre>';
+				
+
+
+		}
+
 		public function get_a_list_of_managers_to_be_attached_to_the_request_AJAX(){
 			global $mysqli;
 			$html = '';				
@@ -316,12 +380,16 @@
 					echo '{"response":"show_new_window","title":"Ошибка","html":"'.base64_encode($html).'"}';
 					break;
 				case '1':
+					// echo '<pre>';
+					// print_r($_POST);
+					// echo '</pre>';
+						
 					// если прикреплен только 1 - никаких проблем. 
 					// прикрепляем к запросу клиента и менеджера 
 					// Переписываем менеджера, отправляем данные о нем в браузер, вызываем там функцию и меняем имя менеджера на странице
 					global $mysqli;
 					// прикрепить клиента и менеджера к запросу	
-					$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$_POST['manager_id']."',`client_id` =  '".(int)$_POST['client_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+					$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$managers_arr[0]['id']."',`client_id` =  '".(int)$_POST['client_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 					$result = $mysqli->query($query) or die($mysqli->error);	
 					echo '{"response":"OK","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
 
@@ -331,7 +399,7 @@
 					// если к клиенту присоединено несколько кураторов выполняем первый пункт по умолчанию, потом вызываем окно с выбором менеджера
 					global $mysqli;
 					// прикрепить клиента и менеджера к запросу	
-					$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$_POST['manager_id']."',`client_id` =  '".(int)$_POST['client_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+					$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$managers_arr[0]['id']."',`client_id` =  '".(int)$_POST['client_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 					$result = $mysqli->query($query) or die($mysqli->error);	
 					
 					//////////////////////////
