@@ -238,7 +238,9 @@
 		     }
 			 else{
 			     $expel = array ("main"=>0,"print"=>0,"dop"=>0);
-			     $svetofor = $svetofor_td_attrs = $currency = $print_btn = $dop_uslugi_btn = '';
+				 $svetofor = '<img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_on.png" onclick="rtCalculator.svetofor_display_relay(this,true);" class="svetofor_btn">';
+			     $svetofor_td_attrs = 'svetofor_btn';
+				 $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
 				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $nacenka = $srock_sdachi = $print_exists_flag ='';
@@ -349,9 +351,9 @@
 				      &nbsp;<a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
 					  прибыль ???? р подробно?
 				  </td>
-				  <td class="_hidden">dop_details</td>
+				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
-				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn.png"></td>
+				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_on.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
 				  <td width="60" class="right">тираж</td>
 				  <td width="20" class="r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br><span class="small">входящая штука</span></td>
@@ -390,7 +392,7 @@
 				  <td class="hidden"></td>
 				  <td class="hidden"></td>
 				  <td class="right">Счет №45384? оплата 70%?</td>
-				  <td class="_hidden">dop_details</td>
+				  <td class="hidden">dop_details</td>
 				  <td></td>
 				  <td></td>
 				  <td width="20" class="r_border"></td>

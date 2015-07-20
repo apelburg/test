@@ -2546,6 +2546,86 @@ var rtCalculator = {
 		function pause(){ rtCalculator.show_svetofor.pause = false; }
 	}
 	,
+	svetofor_display_relay:function(img_btn,certainRow){ 
+	    var status = img_btn.src.slice((img_btn.src.lastIndexOf('_')+1),img_btn.src.lastIndexOf('.'));
+	    // alert(status);
+		if(status =='on'){
+		    var new_status = 'off';	
+			var action = 'hide';
+		}
+		else{
+			var new_status = 'on';	
+			var action = 'show';
+		}
+		// alert(new_status,status);
+		// определяем стартовый ряд
+		if(certainRow) var start = img_btn.parentNode.parentNode;
+		else{
+			var start = rtCalculator.body_tbl.firstChild;
+			if(start.nodeName == 'TBODY') start = start.firstChild;
+		}
+		//start = start.nextSibling;
+		//alert(start.nodeName);
+		
+		// проходим по рядам таблицы и меняем отображение рядов
+		for( var tr = start ; tr != null ; tr = tr.nextSibling){ 
+		     var target = false;
+			 if(tr.getAttribute("pos_id")) pos_row = tr;//tr.style.backgroundColor = '#FF0000';
+		     
+			// //if(tr.getAttribute("pos_id")) continue;
+			 var tdsArr = tr.getElementsByTagName('td');
+			 for(var j in tdsArr){
+				 tdsArr[j].display = 'hidden';
+				 if(tdsArr[j].nodeName == 'TD'){
+					// tdsArr[j].style.backgroundColor = '#FFFF00';//
+					 if(tdsArr[j].getAttribute("svetofor")){
+						 if(tdsArr[j].getAttribute("svetofor") == 'red') target = true;
+						 //break;
+					 }
+				 }
+			 }
+		     if(target){
+				 // обрабатываем текущий ряд
+				 // обрабатываем текущий ряд 
+				 cur_display = tr.style.display;
+				// alert(cur_display);
+				 var new_display = (action == 'show')?'':'none';
+				 if(cur_display == new_display) continue;
+				 
+				 tr.style.display = new_display;
+				 
+				 // производим изменения атрибута rowspan в ряду позиции (pos_row) иначе таблицу перекорежит
+				 // в зависимости от того скрываем или открываем, нужно уменьшить или увеличить row_span в pos_row
+				 if(typeof pos_row !=='undefined'){
+					 var val = (action == 'show')?1:-1;
+					 
+					 var tdsArr = pos_row.getElementsByTagName('td');
+					 for(var j in tdsArr){
+						 if(tdsArr[j].nodeName == 'TD' && tdsArr[j].hasAttribute("rowspan")){
+							row_span = parseInt(tdsArr[j].getAttribute("rowspan"))+val;
+							tdsArr[j].setAttribute("rowspan",row_span);
+							//alert(tdsArr[j].getAttribute("rowspan"));
+						 }
+						 if(tdsArr[j].nodeName == 'TD' && tdsArr[j].hasAttribute("svetofor_btn")){
+							tdsArr[j].getElementsByTagName('IMG')[0].src = tdsArr[j].getElementsByTagName('IMG')[0].src.replace(status,new_status);
+							//tdsArr[j].getElementsByTagName('IMG')[0].src.replace(status,new_status);
+							//tdsArr[j].getElementsByTagName('IMG')[0].src = 'rt_svetofor_red.png';
+						 }
+					 }			 
+				 }
+			 }
+			 //tr.style.backgroundColor = '#FF0000';//
+			 img_btn.src = img_btn.src.replace(status,new_status);
+			 if(certainRow && tr.nextSibling.getAttribute("pos_id")) break;
+			 
+		}
+		
+	}
+	,
+	change_row_span:function(tr,val){ 
+	    
+	}
+	,
 	relay_connected_cols:function(e){ 
 	   
 	    e = e|| window.event;
