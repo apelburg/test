@@ -1,9 +1,16 @@
 <!-- begin skins/tpl/cabinet/show.tpl -->  
 <link href="./skins/css/cabinet.css" rel="stylesheet" type="text/css">
+
 <link href="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 <script type="text/javascript" src="./libs/js/classes/Base64Class.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jsCabinet.js"></script>
+
+<!-- комментарии к запросу START -->
+<link href="./skins/css/comments.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/comments.js"></script>
+ <!-- комментарии к запросу END -->
+ 
 
 <div class="table" id="cabinet">
 	<div class="row">

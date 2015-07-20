@@ -63,6 +63,7 @@ $(document).ready(function() {
 			<li id="claim_date"><span>от <?php echo $order_num_date; ?></span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
 			<li id="art_name_topic"><span>Тема:</span> <?php echo $articul['name']; ?></li>
+			<li style="float:right"><span data-rt_list_query_num="<?php  echo $order_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($order_num); ?> "></span></li>
 		</ul>
 	</div>
 	<div id="number_position_and_type">
