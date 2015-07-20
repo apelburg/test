@@ -130,6 +130,9 @@ table-layout:fixed;
  border-bottom:#FF0000 solid 0px;
  padding-bottom:25px;
 }
+.rt_tbl_body .svetofor_btn{
+ margin:0 0 0 10px;
+}
 .rt_tbl_body .svetofor{
  position:relative;
  padding-top:14px;
