@@ -2,6 +2,11 @@
 
 
 	$forum = '';
+	
+	// комментарии
+	include './libs/php/classes/comments_class.php';
+	$comments = new Comments_for_query_class;
+	
 	// класс работы с базой
 	include './libs/php/classes/db_class.php';
 	// класс работы с формами

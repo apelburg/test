@@ -138,6 +138,8 @@
 		 	// для обсчёта суммы за тираж			
 			include_once ('./libs/php/classes/rt_class.php');
 
+			include_once ('./libs/php/classes/comments_class.php');
+
 			$array_request = array();
 			global $mysqli;
 	
@@ -180,9 +182,33 @@
 			}
 
 			// массви с переводом статусов запроса
-			$name_cirillic_status['history'] = 'история';
-			$name_cirillic_status['not_process'] = 'не обработан менеджером';
+
+			/*
+				Любой запрос имеет этот статус по умолчанию
+				список запросов с этим статусом видит только админ	
+			*/
+			$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
+
+			/*
+				статус после назначения админом мена , клиента, что то-же самое 
+				так же статус меняется при нажатии на кнопку отдать всем
+			*/
+			$name_cirillic_status['not_process'] = 'не обработан менеджером'; 
+			
+			/*
+				статус означает, что кто-то из менеджеров взял заказ в предварительную обработку.
+			*/
+			$name_cirillic_status['taken into operation'] = 'взят в обработку';			
+
+			/*
+				статус означает, что заказ взят менеджером в работу
+			*/
 			$name_cirillic_status['in_work'] = 'в работе';
+
+			/*
+				история
+			*/
+			$name_cirillic_status['history'] = 'история';
 
 
 			// echo $query;
@@ -274,7 +300,7 @@
 							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
 							<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span></td>
 							<td>'.$value['create_time'].'</td>
-							<td><span class="icon_comment_show white"></span></td>
+							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
 							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
 							<td class="'.$value['status'].'_'.$this->user_access.'">'.$name_cirillic_status[$value['status']].'</td>

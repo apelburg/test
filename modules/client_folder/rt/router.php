@@ -9,13 +9,16 @@
 
 	// класс работы с формами
 	include './libs/php/classes/os_form_class.php';
+
+	// класс комментов к запросу
+	include './libs/php/classes/comments_class.php';
+	$comments = new Comments_for_query_class;
+
 	/*
 	вызов формы планируется из РТ
 	*/
     // инициализация класса формы
-	$post = isset($_POST)?$_POST:array();
-	$get = isset($_GET)?$_GET:array();
-	$FORM = new Forms($get,$post,$_SESSION);
+	$FORM = new Forms();
 
 	$quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_position" style="display: block;" class="button add">Добавить</a></div>';
 	

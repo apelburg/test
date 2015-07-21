@@ -32,7 +32,7 @@
 	// вычисление вариантов данного артикула с другими цветами
 	if($color_variants = $POSITION_GEN->POSITION_CATALOG->get_art_color_variants($art)){
 		$color_variants_block = $POSITION_GEN->POSITION_CATALOG->color_variants_to_html2($color_variants);	
-	}else{ $color_variants_block = '';}
+	}else{$color_variants_block = '';}
 
 
 
@@ -81,6 +81,7 @@
 		}
 		
 		$get_size_table = $POSITION_GEN->POSITION_CATALOG->get_size_table($art_dop_params,$value);
+		
 		/* 
 		старый вариант
 		тут подсчитывается тираж и запас варианта расчета каталожной продукции 
@@ -94,6 +95,7 @@
 			$sum_dop += (isset($v['dop']))?(int)$v['dop']:0;
 		}
 		*/
+		
 		// тираж
 		$sum_tir = $value['quantity'];
 		$sum_dop = $value['zapas'];
