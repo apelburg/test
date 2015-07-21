@@ -378,30 +378,30 @@ var rtCalculator = {
 							//$("#calculatorDialogBox").remove();
 							
 							function callback(response){ 
-								 alert(response);
-								 return;
+								// alert(response);
+								// return;
 								var response_obj =JSON.parse(response);
 								if(response_obj.errors){
 									var str = 'ВНИМАНИЕ\r\n';
 									var space = '        ';
 									
 									for(var i in response_obj.errors){
-										str += 'строка '+rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data[i].glob_counter+', артикул. '+rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data[i].article+"\r";
-										var errors = [];
+										str += 'строка '+rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data[response_obj.errors[i].id].glob_counter+', артикул. '+rtCalculator.distributionData[rtCalculator.currentCalculationData.print_details.place_id][rtCalculator.currentCalculationData.print_details.print_id].dop_data[response_obj.errors[i].id].article+"\r";
 										
-										for(var j in response_obj.errors[i]){
-											if(response_obj.errors[i][j].needIndividCalculation)  errors.push('    Ошибка! Нанесение не может быть применено, требуется индивидуальный расчет');
-											if(response_obj.errors[i][j].outOfLimit)  errors.push('    Ошибка! Нанесение не может быть применено, превышен максимальный лимит');
-											if(response_obj.errors[i][j].lackOfQuantity)  errors.push('    Количество меньше минимального тиража, цена была рассчитана по минимально расценке');
+										for(var j in response_obj.errors[i].errors){
+											var errors = [];
+											if(response_obj.errors[i].errors[j].needIndividCalculation)  errors.push('    Ошибка! Нанесение не может быть применено, требуется индивидуальный расчет');
+											if(response_obj.errors[i].errors[j].outOfLimit)  errors.push('    Ошибка! Нанесение не может быть применено, превышен максимальный лимит');
+											if(response_obj.errors[i].errors[j].lackOfQuantity)  errors.push('    Количество меньше минимального тиража, цена была рассчитана по минимально расценке');
 											 
 											 
-										     str += space+"расчет на "+response_obj.errors[i][j].quantity +"шт. "+errors.join(',') + "\r";
+										     str += space+"расчет на "+response_obj.errors[i].errors[j].quantity +"шт. "+errors.join(',') + "\r";
 									    }
 										str += "\r";
 									}
-									//alert(str);
+									alert(str);
 								}
-								location.reload();
+								//location.reload();
 							}
 					}  
 					else{
@@ -2309,8 +2309,10 @@ var rtCalculator = {
 	}
 	,
 	change_html:function(row_id){
+	
 	    // метод который вносит изменения (итоги рассчетов в таблицу HTML)
 		
+		// вычисляем текущий ряд
 		var trs_arr = rtCalculator.body_tbl.getElementsByTagName('tr');
 		for(var i = 0;i < trs_arr.length;i++){
 			if(trs_arr[i].hasAttribute && trs_arr[i].hasAttribute('row_id')){
@@ -2468,7 +2470,7 @@ var rtCalculator = {
 		
 		function callback(response){ /*alert(response);*/
 			// вызываем метод производящий замену значений в HTML
-			rtCalculator.change_html(cell.parentNode,row_id);
+			rtCalculator.change_html(row_id);
 	
 			rtCalculator.expel_value_from_calculation.in_process = false;
 		}
@@ -2547,6 +2549,10 @@ var rtCalculator = {
 	}
 	,
 	svetofor_display_relay:function(img_btn,certainRow){ 
+
+		if(rtCalculator.svetofor_display_relay.in_process) return; 
+		rtCalculator.svetofor_display_relay.in_process = true;
+		
 	    var status = img_btn.src.slice((img_btn.src.lastIndexOf('_')+1),img_btn.src.lastIndexOf('.'));
 	    // alert(status);
 		if(status =='on'){
@@ -2557,7 +2563,7 @@ var rtCalculator = {
 			var new_status = 'on';	
 			var action = 'show';
 		}
-		// alert(new_status,status);
+		// alert(new_status+' - '+status);
 		// определяем стартовый ряд
 		if(certainRow) var start = img_btn.parentNode.parentNode;
 		else{
@@ -2567,15 +2573,19 @@ var rtCalculator = {
 		//start = start.nextSibling;
 		//alert(start.nodeName);
 		
+		var idsArr = [];
 		// проходим по рядам таблицы и меняем отображение рядов
+		fff:
 		for( var tr = start ; tr != null ; tr = tr.nextSibling){ 
 		     var target = false;
-			 if(tr.getAttribute("pos_id")) pos_row = tr;//tr.style.backgroundColor = '#FF0000';
-		     
-			// //if(tr.getAttribute("pos_id")) continue;
+			 if(tr.getAttribute("pos_id")){
+				 pos_row = tr;//
+				 idsArr.push(tr.getAttribute("pos_id"));
+			 }
+			 // tr.style.backgroundColor = '#FF0000';
+			 // if(tr.getAttribute("pos_id")) continue;
 			 var tdsArr = tr.getElementsByTagName('td');
 			 for(var j in tdsArr){
-				 tdsArr[j].display = 'hidden';
 				 if(tdsArr[j].nodeName == 'TD'){
 					// tdsArr[j].style.backgroundColor = '#FFFF00';//
 					 if(tdsArr[j].getAttribute("svetofor")){
@@ -2586,13 +2596,15 @@ var rtCalculator = {
 			 }
 		     if(target){
 				 // обрабатываем текущий ряд
-				 // обрабатываем текущий ряд 
-				 cur_display = tr.style.display;
-				// alert(cur_display);
-				 var new_display = (action == 'show')?'':'none';
-				 if(cur_display == new_display) continue;
+			     var curClassArr = tr.className.split(' ');
+				 // alert(cur_display);
+				 var newClass = (action == 'show')?'':'hidden';
+				 // if(!certainRow && cur_display == new_display) continue;
+				 for(var j in curClassArr){
+					 if(curClassArr[j] == newClass) continue fff;
+				 }
 				 
-				 tr.style.display = new_display;
+				 tr.className = newClass;
 				 
 				 // производим изменения атрибута rowspan в ряду позиции (pos_row) иначе таблицу перекорежит
 				 // в зависимости от того скрываем или открываем, нужно уменьшить или увеличить row_span в pos_row
@@ -2616,9 +2628,18 @@ var rtCalculator = {
 			 }
 			 //tr.style.backgroundColor = '#FF0000';//
 			 img_btn.src = img_btn.src.replace(status,new_status);
-			 if(certainRow && tr.nextSibling.getAttribute("pos_id")) break;
+			 if(certainRow && tr.nextSibling && tr.nextSibling.getAttribute("pos_id")) break;
 			 
 		}
+		
+		
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('svetofor_display_relay='+ new_status +'&ids='+idsArr.join("','"));
+		rtCalculator.send_ajax(url,callback);
+		function callback(response){ /*alert(response);*/
+		    rtCalculator.svetofor_display_relay.in_process = false;
+		}
+		
+		
 		
 	}
 	,
@@ -2847,13 +2868,14 @@ var rtCalculator = {
 		}
 	}
 	,
-	delete_rows:function(e){ 
+	deleting:function(e){ 
 	   
 	    e = e|| window.event;
 		var cell = e.target || e.srcElement;
 		
 	
 		if(cell.getAttribute('pos_id')) var pos_id = cell.getAttribute('pos_id');
+		if(cell.getAttribute('type')) var type = cell.getAttribute('type');
 		
 		var idsArr =[];
 		
@@ -2865,17 +2887,19 @@ var rtCalculator = {
 		else{// иначе обходим ряды таблицы
 			 // определяем какие ряды были выделены (какие Мастер Кнопки были нажаты)
 			if(!(idsArr = rtCalculator.get_active_main_rows())){
-				alert('не возможно удалить ряды, вы не выбрали ни одной позиции');
+				if(type && type == 'prints') var target = 'нанесения';
+				else if(type && type == 'uslugi') var target = 'доп услуги';
+				else if(type && type == 'printsAndUslugi') var target = 'нанесения и доп услуги';
+				else var target = 'ряды';
+				alert('не возможно удалить '+target+', вы не выбрали ни одной позиции');
 				return;
 			} 
 		}
 		// alert(idsArr.join(';'));
-		
-		var control_num = 1;
 		show_processing_timer();
 		
 		// Сохраняем полученные данные в cессию(SESSION) чтобы потом при выполнении действия (вставить скопированное) получить данные из SESSION
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_rows='+JSON.stringify(idsArr)+'&control_num='+control_num);
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('deleting='+JSON.stringify(idsArr)+((typeof type !== 'undefined')?'&type='+type:''));
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ 
 		    /* console.log(response); //  

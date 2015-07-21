@@ -21,14 +21,13 @@
 	//
 	//
 	//
-	
     
 	function fetch_rows_from_rt($query_num){
 	     global $mysqli;
 		 
 		 $rows = array();
 		 
-		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn ,
+		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn , main_tbl.svetofor_display AS svetofor_display ,
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel,
 						  
@@ -51,6 +50,8 @@
 				 $multi_dim_arr[$row['main_id']]['art_id'] = $row['art_id'];
 				 $multi_dim_arr[$row['main_id']]['art'] = $row['art'];
 				 $multi_dim_arr[$row['main_id']]['name'] = $row['item_name'];
+				 $multi_dim_arr[$row['main_id']]['svetofor_display'] = $row['svetofor_display'];
+				 
 				 if($row['main_row_type']=='cat'){
 				     $data = RT::getArtRelatedPrintInfo($row['art_id']);
 				     $multi_dim_arr[$row['main_id']]['dop_details'] = $data;
@@ -99,12 +100,13 @@
 	 // элементы третьего уровня $dop_row['dop_uslugi'] выводятся в виде ссылки внутри существующего ряда, если $dop_row['dop_uslugi'] существует
 	 // draft - РЕАЛИЗАЦИЯ ФУНКЦИОНАЛА "ДРАФТ" оказалась не востребованной поле draft можно удалить из таблицы в базе данных
 	 // если что реализация сохранена, закомментирована внизу скрипта 
-	 
-	 //echo '<pre>'; print_r($rows[0]); echo '</pre>';
+	  
+	 // echo '<pre>'; print_r($rows[0]); echo '</pre>';
 	 
 	 $service_row[0] = array('quantity'=>'','price_in'=>'','price_out'=>'','row_status'=>'','glob_status'=>'');
 	 $glob_counter = 0;
 	 $mst_btn_summ = 0;
+	 $svetofor_display_relay_status_all = 'on';
 	 foreach($rows[0] as $key => $row){
 	     $glob_counter++;
          // Проходим по первому уровню и определям некоторые моменты отображения таблицы, которые будут применены при проходе по второму
@@ -124,7 +126,17 @@
 		 //array_unshift($row['dop_data'],array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0));
 		 
 		 // здесь мы определяем значение для атрибута rowspan тегов td которые будут выводится единой ячейкой для всей товарной позиции
+		 $svetofor_display_relay_status = 'on';
 		 $row_span = count($row['dop_data']);
+		 if($row['svetofor_display']==1){
+		      foreach($row['dop_data'] as $dop_row){
+			      if($dop_row['row_status']=='red'){
+				      $row_span--;
+					  $svetofor_display_relay_status_all = 'off';
+					  $svetofor_display_relay_status = 'off';
+				  }
+			  }
+		 }
 		 $counter=0;
 		
 		  
@@ -224,6 +236,7 @@
 				 $svetofor_src = $img_design_path.'rt_svetofor_'.$svetofor_stat.'.png';
 				 $svetofor = '<img src="'.$svetofor_src.'" />';
 				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer center"';
+				 $svetofor_tr_display = ($row['svetofor_display']==1 && $dop_row['row_status']=='red')?'hidden':'';
 				 $currency = 'р';
 				 $quantity_dim = 'шт';
 				 $nacenka = '&nbsp;0%';
@@ -238,7 +251,7 @@
 		     }
 			 else{
 			     $expel = array ("main"=>0,"print"=>0,"dop"=>0);
-				 $svetofor = '<img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_on.png" onclick="rtCalculator.svetofor_display_relay(this,true);" class="svetofor_btn">';
+				 $svetofor = '<img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status.'.png" onclick="rtCalculator.svetofor_display_relay(this,true);" class="svetofor_btn">';
 			     $svetofor_td_attrs = 'svetofor_btn';
 				 $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
@@ -279,7 +292,7 @@
 			 
 			 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge':'').' '.(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos':'').'">';
+		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge ':'').(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos ':'').(($counter!=0)?$svetofor_tr_display:'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="glob_counter" class="top glob_counter" width="30" oncontextmenu="openCloseMenu(event,\'contextmenuNew\',{\'pos_id\':\''.$key.'\',\'control_num\':\''.'4'.'\'});">'.$glob_counter.'</td>':'';
 			 
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="master_btn" class="top master_btn noselect" width="35">   
@@ -353,7 +366,7 @@
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
-				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_on.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
+				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status_all.'.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
 				  <td width="60" class="right">тираж</td>
 				  <td width="20" class="r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br><span class="small">входящая штука</span></td>
