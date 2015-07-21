@@ -47,7 +47,10 @@
 		public $POSITION_NO_CATALOG;
 
 		function __construct($user_access = 0){ // необязательный параметр доступа... не передан - нет доступа =)) 
-
+			// echo '<pre>';
+			// print_r($_SESSION);
+			// echo '</pre>';
+				
 			$this->user_id = $_SESSION['access']['user_id'];
 			$this->user_access = $user_access;
 
@@ -100,12 +103,76 @@
 		############################################
 		###		        AJAX START               ###
 		############################################
-		private function taken_into_operation_AJAX(){
+		private function get_in_work_AJAX(){
 			global $mysqli;
 			// прикрепить клиента и менеджера к запросу	
-			$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+			$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 			$result = $mysqli->query($query) or die($mysqli->error);	
 			echo '{"response":"OK"}';
+		}
+
+		private function take_in_operation_AJAX(){
+			global $mysqli;
+			// прикрепить клиента и менеджера к запросу	
+			$query ="UPDATE  `".RT_LIST."` SET `status`='taken_into_operation',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+			$result = $mysqli->query($query) or die($mysqli->error);	
+			echo '{"response":"OK"}';
+		}
+
+
+
+		private function replace_query_row_AJAX(){
+			global $mysqli;
+			// получаем строку из os__rt_list
+			$query = "SELECT `".RT_LIST."`.*, 
+				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
+				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
+				
+				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['os__rt_list_id']."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$zapros = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$zapros[] = $row;
+				}
+			}
+			// для обсчёта суммы за тираж			
+			include_once ('./libs/php/classes/rt_class.php');
+			
+			// массви с переводом статусов запроса
+			$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
+			$name_cirillic_status['not_process'] = 'не обработан менеджером';
+			$name_cirillic_status['taken_into_operation'] = 'взят в обработку';
+			$name_cirillic_status['in_work'] = 'в работе';
+			$name_cirillic_status['history'] = 'история';
+			
+			foreach ($zapros as $key => $value) {
+				switch ($value['status']) {
+					case 'not_process':
+						$status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+						break;
+					case 'taken_into_operation':
+						$status_or_button = '<div class="get_in_work">Взять в работу</div>';						
+						break;					
+
+					default:
+						$status_or_button = $name_cirillic_status[$value['status']];
+						break;
+				}
+				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
+				$html = '<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
+							<td>'.$this->get_client_name($value['client_id'],$value['status']).'</td>
+							<td>'.$value['create_time'].'</td>
+							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
+							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
+							<td>'.$status_or_button.'</td>';
+
+			}
+			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+					
+			// echo $html;
 		}
 
 		############################################
@@ -144,13 +211,9 @@
 				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP()) AS `time_attach_manager_sec`,
 				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
 				
-				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-				`".MANAGERS_TBL."`.`name`,
-				`".MANAGERS_TBL."`.`last_name`,
-				`".MANAGERS_TBL."`.`email` 
+				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
 				FROM `".RT_LIST."`
-				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".RT_LIST."`.`manager_id`
-				WHERE `".RT_LIST."`.`manager_id` = '".$_SESSION['access']['user_id']."'";
+				WHERE (`".RT_LIST."`.`manager_id` = '".$_SESSION['access']['user_id']."') ";
 			
 			/////////////////////////
 			// фильтрация по статусам запросов
@@ -172,10 +235,10 @@
 			// делаем фильтрацию в зависимости от того по какому фильтру мы собираемся выбирать выдачу
 			switch ($_GET['subsection']) {
 				case 'history':
-					$query .= " AND `".RT_LIST."`.`status` = 'history'";
+					$query .= " AND `".RT_LIST."`.`status` = 'history' ";
 					break;
 				case 'no_worcked_men':
-					$query .= " AND `".RT_LIST."`.`status` = 'not_process'";
+					$query .= " AND (`".RT_LIST."`.`status` = 'not_process' OR `".RT_LIST."`.`status` = 'taken_into_operation') OR (( `".RT_LIST."`.`manager_id` = '0' OR `".RT_LIST."`.`manager_id` = '') AND (`".RT_LIST."`.`status` = 'not_process')) ";
 					break;
 				default:
 					$query .= " AND `".RT_LIST."`.`status` = 'in_work'";
@@ -183,10 +246,11 @@
 			}
 
 			// массви с переводом статусов запроса
-			$name_cirillic_status['history'] = 'история';
+			$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
 			$name_cirillic_status['not_process'] = 'не обработан менеджером';
+			$name_cirillic_status['taken_into_operation'] = 'взят в обработку';
 			$name_cirillic_status['in_work'] = 'в работе';
-
+			$name_cirillic_status['history'] = 'история';
 
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -269,19 +333,34 @@
 				//////////////////////////
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
+
+				switch ($value['status']) {
+					case 'not_process':
+						$status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+						break;
+					case 'taken_into_operation':
+						$status_or_button = '<div class="get_in_work">Взять в работу</div>';						
+						break;					
+
+					default:
+						$status_or_button = $name_cirillic_status[$value['status']];
+						break;
+				}
+
 				$general_tbl_row .= '
 						<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">							
 							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$value['name'].' '.$value['last_name'].'</td>
-							<td>'.$value['create_time'].'</td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
 							<td>'.$this->get_client_name($value['client_id'],$value['status']).'</td>
+							<td>'.$value['create_time'].'</td>
+							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td>'.(($value['status'] == 'not_process')?'<div class="get_in_work">Взять в работу</div>':$name_cirillic_status[$value['status']]).'</td>
+							<td>'.$status_or_button.'</td>
 						</tr>';
 				
 				$general_tbl_row .= '<tr class="query_detail">';
 				//$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
-				$general_tbl_row .= '<td colspan="5" class="each_art">';
+				$general_tbl_row .= '<td colspan="6" class="each_art">';
 
 				// шапка таблицы вариантов запроса
 				$variant_top = '<table class="cab_position_div">
@@ -313,11 +392,11 @@
 			$general_tbl_top = '
 			<table class="cabinet_general_content_row">
 							<tr>
-								<th id="show_allArt"></th>
-								<th>Номер</th>
-								<th>Дата/время</th>
-								<th>Компания</th>
-								<!-- <th>Клиент</th> -->
+								<th class="show_allArt"></th>
+								<th>Запрос №</th>
+								<th class="company_name">Компания</th>
+								<th>Время обращения</th>
+								<th>Коммент</th>
 								<th>Сумма</th>
 								<th>Статус</th>
 							</tr>';
@@ -1232,16 +1311,13 @@
 			if(substr_count($status_snab, '_pause')){
 				$status_snab = 'На паузе';
 			}
-			// echo '<pre>';
-			// print_r($this->POSITION_NO_CATALOG->status_snab);
-			// echo '</pre>';
 						
 			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
 				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
 			}else{
 				$status_snab;
 			}
-
+			
 			return $status_snab;
 		}
 
@@ -1251,9 +1327,21 @@
 			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$name = '';
+
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$name = '<div data-id="'.$row['id'].'">'.$row['company'].'</div>';
+					switch ($status) {
+					case 'not_process':
+						$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';	
+						break;
+					case 'taken_into_operation':
+						$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';						
+						break;					
+
+					default:
+						$name = '<div data-id="'.$row['id'].'">'.$row['company'].'</div>';					
+						break;
+				}
 				}
 			}else{
 				$name = '<div class="attach_the_client" data-id="0">Прикрепить клиента</div>';

@@ -221,6 +221,7 @@ $(document).on('click', '.attach_the_client', function(event) {
 	var manager_id = Number($(this).parent().parent().find('.attach_the_manager').attr('data-id'));
 	var client_id = Number($(this).attr('data-id'));
 	var rt_list_id = Number($(this).parent().parent().attr('data-id'));
+	var obj = $(this).parent().parent();
 	$.post('', {
 		AJAX:'get_a_list_of_clients_to_be_attached_to_the_request',
 		client_id:client_id,
@@ -228,6 +229,7 @@ $(document).on('click', '.attach_the_client', function(event) {
 		rt_list_id:rt_list_id
 	}, function(data, textStatus, xhr) {
 		show_dialog_and_send_POST_window(data,'Выбрать клиента',750);
+		replace_query_row_obj(obj);
 	});
 });
 
@@ -295,6 +297,8 @@ function show_dialog_and_send_POST_window(html,title,height){
 					title = data['title'];// для генерации окна всегда должен передаваться title
 					show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
 				}else{
+					// подчищаем за собой
+					$('#dialog_gen_window_form').html('');
 					$('#dialog_gen_window_form').dialog( "destroy" );
 					// тут можно расположить какие либо действия в зависимости от ответа
 					// с сервера					
@@ -329,6 +333,24 @@ function show_dialog_and_send_POST_window(html,title,height){
 //	МЕНЕДЖЕР start
 //////////////////////////
 
+// принять запрос в обработку
+$(document).on('click', '.take_in_operation', function(event) {
+	var obj = $(this);
+	var obj_row = $(this).parent().parent();
+	var rt_list_id = $(this).parent().parent().attr('data-id');
+	$.post('', {
+		AJAX: 'take_in_operation',
+			rt_list_id:rt_list_id
+		}, function(data, textStatus, xhr) {
+			if(data['response'] != 'OK'){
+				alert(data);
+			}else{
+				replace_query_row_obj(obj_row);
+			}
+	},'json');
+});
+
+
 // взять в работу запрос
 $(document).on('click', '.get_in_work', function(event) {
 	var obj = $(this);
@@ -337,7 +359,7 @@ $(document).on('click', '.get_in_work', function(event) {
 	}else{
 		var rt_list_id = $(this).parent().parent().attr('data-id');
 		$.post('', {
-			AJAX: 'taken_into_operation',
+			AJAX: 'get_in_work',
 			rt_list_id:rt_list_id
 		}, function(data, textStatus, xhr) {
 			if(data['response'] != 'OK'){
@@ -352,8 +374,38 @@ $(document).on('click', '.get_in_work', function(event) {
 });
 
 
+
+
 //////////////////////////
 //	МЕНЕДЖЕР end
 //////////////////////////
+// показать загрузку траницы
+function window_preload_add(){
+	if(!$('#preloader_window_block').length){
+		var object = $('<div/>').attr('id','preloader_window_block'); object.appendTo('body')
+	}	
+}
+// скрыть загрузку страницы
+function window_preload_del(){
+	if($('#preloader_window_block').length){
+		$('#preloader_window_block').remove();
+	}	
+}
 
+// запрос на обновление строки
+// с отредактированными данными.... 
+// сделано ВРЕМЕННО в целях экономии времени на проверку и смену всех данных в строке пооочерёдно
+function replace_query_row_obj(obj){
+	var os__rt_list_id = obj.attr('data-id');
+	$.post('', {
+		AJAX: 'replace_query_row',
+		os__rt_list_id: os__rt_list_id
+	}, function(data, textStatus, xhr) {
+		if(data['response'] == 'OK'){
+			obj.html(Base64.decode(data['html']));
+		}else{
+			alert('что-то пошло не так');
+		}
+	},'json');
+}
 

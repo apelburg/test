@@ -101,11 +101,53 @@
 		###				AJAX START               ###
 		############################################
 
+		private function replace_query_row_AJAX(){
+			global $mysqli;
+			// получаем строку из os__rt_list
+			$query = "SELECT `".RT_LIST."`.*, 
+				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
+				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
+				
+				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['os__rt_list_id']."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$zapros = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$zapros[] = $row;
+				}
+			}
+			// для обсчёта суммы за тираж			
+			include_once ('./libs/php/classes/rt_class.php');
+			
+			// массви с переводом статусов запроса
+			$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
+			$name_cirillic_status['not_process'] = 'не обработан менеджером';
+			$name_cirillic_status['taken_into_operation'] = 'взят в обработку';
+			$name_cirillic_status['in_work'] = 'в работе';
+			$name_cirillic_status['history'] = 'история';
+			
+			foreach ($zapros as $key => $value) {
+				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
+				$html = '<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> </td>
+							<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span></td>
+							<td>'.$value['create_time'].''.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
+							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
+							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
+							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
+							<td class="'.$value['status'].'_'.$this->user_access.'">'.$name_cirillic_status[$value['status']].'</td>';
+
+			}
+			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+					
+			// echo $html;
+		}
 		
 
 
 		############################################
-		###				AJAX END               ###
+		###				AJAX END                 ###
 		############################################
 
 
@@ -175,19 +217,20 @@
 					$query .= " WHERE `".RT_LIST."`.`status` = 'history'";
 					break;
 				case 'no_worcked_men':
-					$query .= " WHERE `".RT_LIST."`.`status` = 'not_process'";
+					$query .= " WHERE `".RT_LIST."`.`status` = 'not_process' OR `".RT_LIST."`.`status` = 'new_query'";
 					break;
 				default:
 					break;
 			}
 
-			// массви с переводом статусов запроса
 
+			// массви с переводом статусов запроса
 			/*
 				Любой запрос имеет этот статус по умолчанию
 				список запросов с этим статусом видит только админ	
 			*/
 			$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
+
 
 			/*
 				статус после назначения админом мена , клиента, что то-же самое 
@@ -195,15 +238,18 @@
 			*/
 			$name_cirillic_status['not_process'] = 'не обработан менеджером'; 
 			
+
 			/*
 				статус означает, что кто-то из менеджеров взял заказ в предварительную обработку.
 			*/
 			$name_cirillic_status['taken into operation'] = 'взят в обработку';			
 
+
 			/*
 				статус означает, что заказ взят менеджером в работу
 			*/
 			$name_cirillic_status['in_work'] = 'в работе';
+
 
 			/*
 				история
@@ -211,7 +257,6 @@
 			$name_cirillic_status['history'] = 'история';
 
 
-			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$zapros = array();
 			if($result->num_rows > 0){
@@ -219,6 +264,13 @@
 					$zapros[] = $row;
 				}
 			}
+
+
+			// echo $query;
+			// echo '<pre>';
+			// print_r($zapros);
+			// echo '</pre>';
+				
 
 			$general_tbl_row = '';
 			// собираем html строк-запросов 
@@ -293,17 +345,25 @@
 				//////////////////////////
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
+				switch ($value['status']) {
+					case 'new_query':
+						$status_or_button = '<div class="give_to_all">отдать свободному</div>';
+						break;
+					default:
+						$status_or_button = $name_cirillic_status[$value['status']];
+						break;
+				}
 				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
 				$general_tbl_row .= '
 						<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">
 							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
-							<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span></td>
+							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> </td>
+							<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span>'.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
 							<td>'.$value['create_time'].'</td>
 							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
 							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td class="'.$value['status'].'_'.$this->user_access.'">'.$name_cirillic_status[$value['status']].'</td>
+							<td class="'.$value['status'].'_'.$this->user_access.'">'.$status_or_button.'</td>
 						</tr>';
 				
 				$general_tbl_row .= '<tr class="query_detail">';
