@@ -205,7 +205,7 @@
 				FROM `".CAB_ORDER_ROWS."`
 				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
 				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared'";
+			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared' OR `".CAB_ORDER_ROWS."`.`global_status` = 'requeried_expense'";
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();

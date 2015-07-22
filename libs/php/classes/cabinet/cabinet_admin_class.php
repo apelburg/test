@@ -517,7 +517,7 @@
 			if($id_row){
 				$query .=" WHERE `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
 			}else{
-				$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared'";	
+				$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared' OR `".CAB_ORDER_ROWS."`.`global_status` = 'requeried_expense'";
 			}
 			
 			// echo $query;
