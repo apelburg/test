@@ -75,8 +75,10 @@
 		 echo RT::insert_copied_rows($_GET['query_num'],$_GET['control_num'],$place_id);
 		 exit;
 	}
-	if(isset($_GET['delete_rows'])){
-		 echo RT::delete_rows(json_decode($_GET['delete_rows']),$_GET['control_num']);
+	if(isset($_GET['deleting'])){
+		 if($_GET['type']== 'rows') echo RT::delete_rows(json_decode($_GET['deleting']));
+		 if($_GET['type']== 'prints' || $_GET['type']== 'uslugi' || $_GET['type']== 'printsAndUslugi' )  echo RT::deletePrintsAndUslugi(json_decode($_GET['deleting']), $_GET['type']);
+		 
 		 exit;
 	}
 	if(isset($_GET['fetch_dop_uslugi_for_row'])){
@@ -121,6 +123,11 @@
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 		
 		rtCalculators::distribute_print($_GET['details']);
+		exit;
+	}
+	if(isset($_GET['svetofor_display_relay'])){
+	    // echo $_GET['ids'];
+		echo RT::svetofor_display_relay($_GET['svetofor_display_relay'],$_GET['ids']);
 		exit;
 	}
 
@@ -199,7 +206,7 @@
 	$main_cont_face_data = get_main_client_cont_face($client_id);
 	///////////////////////////////////////////  end  информация о клиенте   ////////////////////////////////////////////////
 	
-	
+	$create_time = RT::fetch_query_create_time($query_num);
 	
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';

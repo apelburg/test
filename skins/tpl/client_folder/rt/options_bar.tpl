@@ -25,7 +25,7 @@
 		<ul>
 			<li id="back_to_string_of_claim"></li>
 			<li id="claim_number">Запрос №<?php  echo $query_num; ?></li>
-			<li id="claim_date"><span>от 12.11.15 19:38</span></li>
+			<li id="claim_date"><span>от <?php echo $create_time; ?></span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
 			<li id="art_name_topic"><span>Тема:</span> <?php echo $theme; ?></li>
 			<li style="float:right"><span data-rt_list_query_num="<?php  echo $query_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($query_num); ?> "></span></li>

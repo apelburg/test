@@ -33,6 +33,26 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
+		static function svetofor_display_relay($status,$ids){
+		    global $mysqli; 
+			
+			$status = ( $status == 'on')?0:1;
+		    $query = "UPDATE `".RT_MAIN_ROWS."` SET `svetofor_display` = '".$status."'  WHERE `id` IN ('".$ids."')";
+		    echo $query."\r\n";
+			$mysqli->query($query)or die($mysqli->error);
+			return 1;
+		}
+		static function fetch_query_create_time($query_num){
+		    global $mysqli; 
+			
+			$query = "SELECT create_time FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$row = $result->fetch_assoc();
+			$create_time_arr = explode(' ',$row['create_time']);
+			$create_time_arr[1] = substr($create_time_arr[1],0,5);
+			$create_time_arr2 = explode('-',$create_time_arr[0]);
+			return $create_time_arr2[2].'.'.$create_time_arr2[1].'.'.$create_time_arr2[0].' '.$create_time_arr[1];
+		}
 		static function save_copied_rows_to_buffer($data,$control_num){
 		    global $mysqli;   
 			RT::save_to_buffer($data,'copied_rows');
@@ -285,14 +305,14 @@
 			}
 			return '[1]';
 		}
-		static function delete_rows($data,$control_num){
+		static function delete_rows($data){
 			
 			global $mysqli;
 	
 		    // print_r($data); 
 		
 		    foreach ($data as $deletedRowId) {
-			    // сначала удаляем ряд и все связанные с ним ряды в других таблицах
+			    //удаляем ряд и все связанные с ним ряды в других таблицах
 				
 				// удаляем ряд в RT_MAIN_ROWS
 			    $query="DELETE FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$deletedRowId."'";
@@ -325,6 +345,40 @@
 			}
 			return '[1]';
 		}
+		static function deletePrintsAndUslugi($data,$type){
+			
+			global $mysqli;
+	
+		    // print_r($data); 
+		
+		    foreach ($data as $deletedRowId) {
+				// получаем id рядов из таблицы RT_DOP_DATA потому что они являются родительскими для
+				// рядов из таблицы RT_DOP_USLUGI
+			    $query="SELECT id FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$deletedRowId."'";
+				// echo $query."\r\n";
+			    $result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					while($row = $result->fetch_assoc()){
+					   $dopRowIdsArr[] = $row['id'];
+				    }
+				}
+				// print_r($dopRowIdsArr);
+
+				// удаляем ряды из таблицы RT_DOP_USLUGI 
+				if(isset($dopRowIdsArr)){
+					$query="DELETE FROM `".RT_DOP_USLUGI."` 
+					        WHERE `dop_row_id` IN('".implode("','",$dopRowIdsArr)."')";
+							if($type == 'prints') $query.=" AND glob_type = 'print'";
+							if($type == 'uslugi') $query.=" AND glob_type = 'extra'";
+							if($type == 'printsAndUslugi') $query.=" AND (glob_type = 'print' OR glob_type = 'extra')";
+					// echo $query."\r\n";
+					$result = $mysqli->query($query)or die($mysqli->error);
+				}
+
+			}
+			return '[1]';
+		}
+		
 		static function insert_copied_rows_old($query_num,$control_num,$pos_id){
 		    global $mysqli;   //print_r($data); 
          

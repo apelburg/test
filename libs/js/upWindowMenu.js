@@ -73,7 +73,7 @@
 		var div = document.createElement('div');
 		div.className = "contextWindow";
 		//div.id = "quickContextExtraWindow";
-		div.style.width = "200px";
+		div.style.width = "220px";
 		div.style.top =  "19px";
 		div.style.left = "-3px";
 		div.style.display = "block";
@@ -194,25 +194,57 @@
 		var a = document.createElement('a');
 		a.setAttribute('action','delete');
 		a.href = '#';
-		a.onclick = rtCalculator.delete_rows;
-		a.appendChild(document.createTextNode('Удалить выделенные строки'));
-		innerDiv.appendChild(a);
-		div.appendChild(innerDiv);
-		
-		var innerDiv = document.createElement('div');
-		innerDiv.className = "link1";
-		var a = document.createElement('a');
-		a.setAttribute('action','delete');
-		a.href = '#';
 		a.onclick = rtCalculator.copy_rows;
-		a.appendChild(document.createTextNode('Копировать выделенные строки'));
+		a.appendChild(document.createTextNode('Создать копию'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
 		var innerDiv = document.createElement('div');
 		innerDiv.className = "link1";
 		var a = document.createElement('a');
-		a.setAttribute('action','delete');
+		a.setAttribute('type','rows');
+		a.href = '#';
+		a.onclick = rtCalculator.deleting;
+		a.appendChild(document.createTextNode('Удалить позиции'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('type','prints');
+		a.href = '#';
+		a.onclick = rtCalculator.deleting;
+		a.appendChild(document.createTextNode('Удалить нанесения'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('type','uslugi');
+		a.href = '#';
+		a.onclick = rtCalculator.deleting;
+		a.appendChild(document.createTextNode('Удалить дополнительные услуги'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('type','printsAndUslugi');
+		a.href = '#';
+		a.onclick = rtCalculator.deleting;
+		a.appendChild(document.createTextNode('Удалить нанесения и доп. услуги'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
 		a.href = '#';
 		a.onclick = rtCalculator.insert_copied_rows;
 		a.appendChild(document.createTextNode('Вставить скопированные строки'));
@@ -1020,7 +1052,7 @@
 		div.className = "contextWindow";
 		div.setAttribute('type','windowContainer');
 		//div.id = "quickContextExtraWindow";
-		div.style.width = "160px";
+		div.style.width = "210px";
 		div.style.top =  "2px";
 		div.style.left = "33px";
 		div.style.display = "block";
@@ -1061,10 +1093,45 @@
 		var innerDiv = document.createElement('div');
 		innerDiv.className = "link1";
 		var a = document.createElement('a');
-		a.setAttribute('control_num',control_num);
+		a.href = '#';
+		a.setAttribute('type','rows');
 		a.setAttribute('pos_id',pos_id);
-		a.onclick = rtCalculator.delete_rows;
+		a.onclick = rtCalculator.deleting;
 		a.appendChild(document.createTextNode('Удалить строку'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('type','prints');
+		a.setAttribute('pos_id',pos_id);
+		a.href = '#';
+		a.onclick = rtCalculator.deleting;
+		a.appendChild(document.createTextNode('Удалить нанесения'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('type','uslugi');
+		a.setAttribute('pos_id',pos_id);
+		a.href = '#';
+		a.onclick = rtCalculator.deleting;
+		a.appendChild(document.createTextNode('Удалить дополнительные услуги'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.setAttribute('type','printsAndUslugi');
+		a.setAttribute('pos_id',pos_id);
+		a.href = '#';
+		a.onclick = rtCalculator.deleting;
+		a.appendChild(document.createTextNode('Удалить нанесения и доп. услуги'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 

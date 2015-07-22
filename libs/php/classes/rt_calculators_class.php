@@ -405,7 +405,8 @@
 			unset($details_obj->calculationData->print_details->priceIn_tblXindex);
 			unset($details_obj->calculationData->print_details->priceOut_tblXindex);
 									  
-			 print_r($details_obj);echo "\r\n";
+		     //print_r($details_obj);echo "\r\n";
+		    $out = array();
 			//// $details_obj->calculationData->dop_uslugi_id;
 			// exit;
 			// определяем к какому варианту расчета относится данное нанесение 
@@ -430,6 +431,7 @@
 	 
 			 
 			foreach($details_obj->ids as $id){
+			    $index = (isset($out['errors']))? count($out['errors']): 0;
 				// выбираем данные о вариантах расчетов существующих для данных позиций
 				 $query="SELECT dop_data.id dop_data_id ,dop_data.quantity quantity FROM `".RT_MAIN_ROWS."` main INNER JOIN
 									`".RT_DOP_DATA."` dop_data
@@ -472,10 +474,22 @@
 							
 						}
 						
-						if(self::$needIndividCalculation) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'needIndividCalculation' => 1);
+						if(self::$needIndividCalculation){
+						      $out['errors'][$index]['errors'][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'needIndividCalculation' => 1);
+							  $out['errors'][$index]['id'] = $id;
+						}
+						if(self::$outOfLimit){
+						      $out['errors'][$index]['errors'][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'outOfLimit' => 1);
+							  $out['errors'][$index]['id'] = $id;
+						} 
+						if(self::$lackOfQuantity){
+							  $out['errors'][$index]['errors'][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'lackOfQuantity' => 1);
+							  $out['errors'][$index]['id'] = $id;
+						}
+						/*if(self::$needIndividCalculation) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'needIndividCalculation' => 1);
 						if(self::$outOfLimit) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'outOfLimit' => 1);
-						if(self::$lackOfQuantity) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'lackOfQuantity' => 1);
-						
+						if(self::$lackOfQuantity) $out['errors'][$id][$row['dop_data_id']] = array('quantity'=>$row['quantity'],'lackOfQuantity' => 1);*/
+						 
                         self::$needIndividCalculation = false;
 						self::$outOfLimit = false;
 						self::$lackOfQuantity = false;
@@ -483,7 +497,7 @@
 				}
 			}
 			//print_r($out);
-			echo json_encode($out);
+			echo (isset($out))? json_encode($out):'';
 		}
 		static function change_quantity_and_calculators($quantity,$dop_data_id){
 		    global $mysqli;  

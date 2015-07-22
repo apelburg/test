@@ -1086,7 +1086,7 @@ body{
 }
 
 .contextWindow .fence{
-   margin:0px 10px 0px 10px;  
+   margin:3px 10px 3px 10px;  
    border-top:#CCC solid 1px;
    height:1px;
 }
@@ -1096,19 +1096,19 @@ body{
 }
 
 .contextWindow .link1 a{
-  padding: 5px 10px 5px 20px;
+  padding: 3px 10px 3px 20px;
   color:inherit;
   text-decoration:none;
   display:block;
 }
 .contextWindow .link2 a{
-  padding: 5px 10px 5px 30px;
+  padding: 3px 10px 3px 30px;
   color:inherit;
   text-decoration:none;
   display:block;
 }
 .contextWindow .link2Arrow a{
-  padding: 5px 10px 5px 30px;
+  padding: 3px 10px 3px 30px;
   color:inherit;
   text-decoration:none;
   display:block;
