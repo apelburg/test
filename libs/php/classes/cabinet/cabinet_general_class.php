@@ -98,7 +98,7 @@
 					$this->CLASS = new Cabinet_admin_class($this->user_access);
 					// запускаем роутер шаблонов
 					$this->CLASS->__subsection_router__();
-					// получаем из класса снабжения формулировки для меню, понятные для снаба
+					// получаем из класса формулировки для меню
 					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					
 					break;
@@ -106,7 +106,13 @@
 				case '2':				
 					$text = 'бухгалтер<br>';
 					echo $this->wrap_text_in_warning_message($text);
-					
+					include_once 'cabinet_buch_class.php';
+					// создаём экземпляр класса
+					$this->CLASS = new Cabinet_buch_class($this->user_access);
+					// запускаем роутер шаблонов
+					$this->CLASS->__subsection_router__();
+					// получаем из класса формулировки для меню
+					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
 
 				case '4':					
@@ -122,7 +128,7 @@
 					$this->CLASS = new Cabinet_men_class($this->user_access);
 					// запускаем роутер шаблонов
 					$this->CLASS->__subsection_router__();
-					// получаем из класса снабжения формулировки для меню, понятные для снаба
+					// получаем из класса формулировки для меню
 					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
 

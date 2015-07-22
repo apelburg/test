@@ -525,15 +525,13 @@
 			}
 
 			
-			// echo '<pre>';
-			// print_r($main_rows_id);
-			// echo '</pre>';
+			
 			// собираем html строк-запросов
 			$html1 = '';
 			if(count($main_rows_id)==0){return 1;}
 
 			foreach ($main_rows_id as $key => $value) {
-				if(!isset($value2)){continue;} // !!!!!!!!!!!!!!!!!
+				//if(!isset($value2)){continue;} // !!!!!!!!!!!!!!!!!
 				$order_num_1 = Cabinet::show_order_num($value['order_num']);
 				$invoice_num = $value['invoice_num'];
 
@@ -638,7 +636,7 @@
 				###############################
 
 				// получаем % оплаты
-				$percent_payment = round($value['payment_status']*100/$in_out_summ,2);		
+				$percent_payment = ($in_out_summ!=0)?round($value['payment_status']*100/$in_out_summ,2):'0.00';		
 				// собираем строку заказа
 				$html2 = '
 						<tr data-id="'.$value['id'].'">

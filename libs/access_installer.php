@@ -271,7 +271,7 @@
 												'subsection'=>array( // 2
 													'all' => array('access'=>true)
 													)
-												),
+												),											
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
@@ -284,6 +284,14 @@
 													'history' => array('access'=>true)
 													)
 												),
+											'paperwork'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'create_spec' => array('access'=>true),
+													'signed' => array('access'=>true),
+													'expense' => array('access'=>true)
+													)
+												), 
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
