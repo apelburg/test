@@ -41,13 +41,15 @@ $(document).ready(function() {
 		// записываем id строки услуги
 		var row_id = $(this).parent().parent().attr('data-id');
 		var value = $(this).val();
-		
+		var obj = $(this).parent().parent();
+		window_preload_add();
 		$.post('', {
 			AJAX:'buch_status_select',
 			row_id:row_id,
 			value:value
 		}, function(data, textStatus, xhr) {
 			console.log(data);
+			replace_query_row_obj(obj);
 		});
 	});
 
@@ -396,15 +398,27 @@ function window_preload_del(){
 // с отредактированными данными.... 
 // сделано ВРЕМЕННО в целях экономии времени на проверку и смену всех данных в строке пооочерёдно
 function replace_query_row_obj(obj){
+	window_preload_add();
 	var os__rt_list_id = obj.attr('data-id');
+	// запоминаем rowspan
+	console.log('65654546');
+	var rowspan = obj.find('.show_hide').attr('rowspan');
+
+	console.log(obj);
+	console.log(rowspan);
 	$.post('', {
 		AJAX: 'replace_query_row',
-		os__rt_list_id: os__rt_list_id
+		os__rt_list_id: os__rt_list_id,
+		rowspan:rowspan
 	}, function(data, textStatus, xhr) {
 		if(data['response'] == 'OK'){
+			
+			// console.log(Base64.decode(data['html'])+' ++++++++++++++++++' + obj.html());
 			obj.html(Base64.decode(data['html']));
+			window_preload_del();
 		}else{
 			alert('что-то пошло не так');
+			window_preload_del();
 		}
 	},'json');
 }

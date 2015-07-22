@@ -2071,5 +2071,16 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
   font-weight:bold;
 }
 
-
+#preloader_window_block{
+  background: #fff;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  z-index: 50;
+  opacity: 0.8;
+  background-image: url(../images/img_design/preloader.gif);
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
     

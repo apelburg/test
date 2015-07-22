@@ -340,12 +340,12 @@
 							<td><input type="text" class="payment_date" readonly="readonly" value="'.$value['payment_date'].'"></td>
 							<td class="number_payment_list" contenteditable="true">'.$value['number_pyament_list'].'</td>
 							<td><span>'.$percent_payment.'</span> %</td>
-							<td><span class="payment_status_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
+							<td><span class="payment_status_span edit_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
 							<td><span>'.$in_out_summ.'</span> р.</td>
 							<td class="buch_status_select">'.$this->select_status($value['buch_status'],$this->buch_status).'</td>
-							<td class="select_global_status">'.$this->select_global_status($value['global_status'],$this->order_status).'</td>
-						</tr>
-				';
+							<td class="select_global_status">'.$this->order_status[$value['global_status']].'</td>
+						</tr>';
+
 				$html1 .= $html2 . $html;
 			}
 			echo '
