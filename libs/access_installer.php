@@ -272,7 +272,7 @@
 												'subsection'=>array( // 2
 													'all' => array('access'=>true)
 													)
-												),
+												),											
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
@@ -285,6 +285,14 @@
 													'history' => array('access'=>true)
 													)
 												),
+											'paperwork'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'create_spec' => array('access'=>true),
+													'signed' => array('access'=>true),
+													'expense' => array('access'=>true)
+													)
+												), 
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
@@ -307,6 +315,23 @@
 													)
 												),
 											)
+										),
+						'client_folder'=> array(
+										'access'=> true,
+										'show___foo___'=> false,
+										'section'=> array( // 1
+										    'rt'=> array('access'=>true),
+											'business_offers'=> array('access'=>true),
+											'order_art_edit'=> array('access'=>true),
+											'order_tbl'=> array(
+												'access'=>true,
+												'change_status_glob'=> array('access'=>true),
+												'ttn_see'=> array('access'=>true),
+												'change_status_uslug'=> array('access'=>true),
+												'change_status_men'=> array('access'=>true),
+												'change_status_snab'=> array('access'=>true)
+												)
+											)	
 										),
 				       'clients'=> array(
 										'access'=> true,

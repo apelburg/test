@@ -1,5 +1,31 @@
 <?php
     class Cabinet{
+    	// глобальные статусы заказа
+    	// могут меняться кириллические формулировки в зависимости от уровня доступа
+    	// содержится в базе в `os__cab_orders_list` в global_status
+    	protected $order_status = array(
+			'being_prepared'=>'В оформлении',
+			'request_expense'=>'Запрошен счёт',
+			'requeried_expense'=>'Перевыставить счёт',
+			'waiting_for_payment' => 'ждём оплаты', // сервисный
+			'in_work'=>'В работе',
+			'ready_for_shipment'=>'Готов к отгрузке',
+			'shipped'=>'Отгружен',
+			'paused'=>'Приостановлен',		
+			'cancelled'=>'Аннулирован'
+			);
+
+    	protected $buch_status = array(
+    		'score_exhibited' => 'счёт выставлен',
+			'payment' => 'оплачен',//дата в таблицу
+			'partially_paid' => 'частично оплачен',//дата в таблицу			
+			'prihodnik_on_bail' => 'приходник на залог',
+			'cancelled'=>'Аннулирован',		
+			'returns_client_collateral' => 'возврат залога клиенту',
+			'refund_in_a_row' => 'возврат денег по счёту',
+			'ogruzochnye_accepted' => 'огрузочные приняты (подписанные)'
+    	);
+
     	function __consturct(){
 		}
 
@@ -36,28 +62,24 @@
 			}
 			return $arr_new;
 		}
-		public function select_global_status($real_val){
-
-			global $GLOBAL_STATUS_ORDER;
-			$status_arr = $GLOBAL_STATUS_ORDER;
-			//$html = '<select><option value="">...</option>';
+		public function select_global_status($real_val,$status_arr){
+			
 			$html = '<select>';
 			foreach ($status_arr as $key => $value) {
-				$is_checked = ($real_val==$value)?'selected="selected"':'';
-				$html .= ' <option '.$is_checked.'>'.$value.'</option>';
+				$is_checked = ($key==$real_val)?'selected="selected"':'';
+				$html .= ' <option '.$is_checked.' value="'.$key.'">'.$value.'</option>';
 			}	
 			$html .= '</select>';
 			return $html;
 		}
 
 		
-		public function select_status($rights_int/*права для определения списка статуса*/,$real_val){
-			global $STATUS_LIST;
-			$status_arr = $STATUS_LIST[$rights_int];
+		public function select_status($real_val,$status_arr){
+			
 			$html = '<select><option value="">...</option>';
 			foreach ($status_arr as $key => $value) {
-				$is_checked = ($real_val==$value)?'selected="selected"':'';
-				$html .= ' <option '.$is_checked.'>'.$value.'</option>';
+				$is_checked = ($real_val==$key)?'selected="selected"':'';
+				$html .= ' <option '.$is_checked.' value="'.$key.'">'.$value.'</option>';
 			}	
 			$html .= '</select>';
 			return $html;

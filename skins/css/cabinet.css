@@ -43,6 +43,8 @@
 .cabinet_general_content_row tr th:nth-last-child(3){width: 100px; padding: 0}
 .cabinet_general_content_row tr th:nth-last-child(2){width: 120px;padding: 0}
 .cabinet_general_content_row tr th:nth-last-child(1){width: 120px;padding: 0}
+.cabinet_general_content_row tr th:nth-of-type(2){width: 60px;padding: 0}
+
 #cabinet_general_content .cab_position_div tr th:nth-last-child(3){width: 100px;padding: 2px}
 #cabinet_general_content .cab_position_div tr th:nth-last-child(2){width: 120px;padding: 2px}
 #cabinet_general_content .cab_position_div tr th:nth-last-child(1){width: 126px;padding: 2px}
@@ -155,6 +157,7 @@ tr.cat_8 td {
 }
 .attach_the_manager,
 .attach_the_client,
+.take_in_operation,
 .get_in_work{
 	padding: 5px;
 	border: 1px solid #92B73E;
@@ -162,6 +165,7 @@ tr.cat_8 td {
 }
 .attach_the_manager:hover,
 .attach_the_client:hover,
+.take_in_operation:hover,
 .get_in_work:hover{
 	background-color: #f1f1f1;
 }
@@ -184,3 +188,7 @@ tr.cat_8 td {
 	color: #fff;
 }
 
+
+.cabinet_general_content_row tr th{
+
+}

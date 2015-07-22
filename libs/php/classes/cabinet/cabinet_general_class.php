@@ -98,7 +98,7 @@
 					$this->CLASS = new Cabinet_admin_class($this->user_access);
 					// запускаем роутер шаблонов
 					$this->CLASS->__subsection_router__();
-					// получаем из класса снабжения формулировки для меню, понятные для снаба
+					// получаем из класса формулировки для меню
 					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					
 					break;
@@ -106,7 +106,13 @@
 				case '2':				
 					$text = 'бухгалтер<br>';
 					echo $this->wrap_text_in_warning_message($text);
-					
+					include_once 'cabinet_buch_class.php';
+					// создаём экземпляр класса
+					$this->CLASS = new Cabinet_buch_class($this->user_access);
+					// запускаем роутер шаблонов
+					$this->CLASS->__subsection_router__();
+					// получаем из класса формулировки для меню
+					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
 
 				case '4':					
@@ -122,7 +128,7 @@
 					$this->CLASS = new Cabinet_men_class($this->user_access);
 					// запускаем роутер шаблонов
 					$this->CLASS->__subsection_router__();
-					// получаем из класса снабжения формулировки для меню, понятные для снаба
+					// получаем из класса формулировки для меню
 					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
 
@@ -178,12 +184,11 @@
 
 
 		
-
+		// выводит форму с выбором менеджеров 
 		public function get_a_list_of_managers_to_be_attached_to_the_request_AJAX(){
 			global $mysqli;
 			$html = '';				
 
-			//
 			if($_POST['client_id']!='0'){// если клиент приклеплён
 				$html .= $this->wrap_text_in_warning_message('Для прикреплённого клиента доступны следующие кураторы:');
 				# получаем список кураторов
@@ -199,10 +204,7 @@
 						$managers_arr[] = $row;
 					}
 				}
-			    // echo  $query;
 			}
-
-
 
 			// echo count($managers_arr);
 			$html .= '<form  id="chose_manager_tbl">';
@@ -221,9 +223,9 @@
 			    	}
 			    	$i++;
 			    }
-
 			    $html .= '</tr>';
 			}
+
 			$html .= '</table>';
 			$html .= '<input type="hidden" value="attach_manager_to_request" name="AJAX">';
 			$html .= '<input type="hidden" value="'.$_POST['manager_id'].'" name="manager_id">';
@@ -234,11 +236,16 @@
 			// вывод менеджеров				
 		}
 
+
 		private function attach_manager_to_request_AJAX(){
 			global $mysqli;
 			// прикрепить менеджера к запросу	
 			$client_id = (trim($_POST['client_id'])=='')?0:$_POST['client_id'];
-			$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$_POST['manager_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+			$query ="UPDATE  `".RT_LIST."` SET  
+			`manager_id` =  '".(int)$_POST['manager_id']."', 
+			`time_attach_manager` = NOW(),
+			`status` = 'not_process'
+			 WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 			$result = $mysqli->query($query) or die($mysqli->error);	
 			echo '{"response":"OK"}';
 			return;		
@@ -306,6 +313,7 @@
 			echo $html;
 		}
 
+		// прикрепляет клиента к запросу
 		private function attach_client_to_request_AJAX(){
 			// получаем кураторов по выбранному клиенту
 			// подключаем класс клиента
@@ -329,7 +337,12 @@
 					// Переписываем менеджера, отправляем данные о нем в браузер, вызываем там функцию и меняем имя менеджера на странице
 					global $mysqli;
 					// прикрепить клиента и менеджера к запросу	
-					$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$managers_arr[0]['id']."',`client_id` =  '".(int)$_POST['client_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+					$query ="UPDATE  `".RT_LIST."` SET  
+					`manager_id` =  '".(int)$managers_arr[0]['id']."',
+					`client_id` =  '".(int)$_POST['client_id']."', 
+					`time_attach_manager` = NOW(),
+					`status` = 'not_process' 
+					WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 					$result = $mysqli->query($query) or die($mysqli->error);	
 					echo '{"response":"OK","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
 
@@ -339,7 +352,12 @@
 					// если к клиенту присоединено несколько кураторов выполняем первый пункт по умолчанию, потом вызываем окно с выбором менеджера
 					global $mysqli;
 					// прикрепить клиента и менеджера к запросу	
-					$query ="UPDATE  `".RT_LIST."` SET  `manager_id` =  '".(int)$managers_arr[0]['id']."',`client_id` =  '".(int)$_POST['client_id']."', `time_attach_manager` = NOW() WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+					$query ="UPDATE  `".RT_LIST."` SET  
+						`manager_id` =  '".(int)$managers_arr[0]['id']."',
+						`client_id` =  '".(int)$_POST['client_id']."', 
+						`time_attach_manager` = NOW(),
+						`status` = 'not_process'
+						WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 					$result = $mysqli->query($query) or die($mysqli->error);	
 					
 					//////////////////////////
@@ -373,15 +391,8 @@
 					// записываем на странице пользователя в строку с установленным клиентом имя первого куратора из списка
 					// затем даём выбрать из иставшихся
 					echo '{"response":"show_new_window","html":"'.base64_encode($html).'","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
-
-
 					break;
 			}
-
-
-
-
-			
 			// echo '<pre>';
 			// print_r($managers_arr);
 			// echo '</pre>';				
