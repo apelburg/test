@@ -233,6 +233,7 @@ class Client {
 		}
 	}
 	static function get_requisites($client_id){
+	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИАЦИЙ (АНДРЕЙ)
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".$client_id."'";
 		$requisites = array();

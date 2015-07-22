@@ -1,0 +1,5 @@
+<?php
+
+   echo 'default page';
+
+?>

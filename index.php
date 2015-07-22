@@ -61,11 +61,12 @@
 	   include 'modules/admin/router.php';
 	   break;
 	   
-	   /*
-	   case 'in_work':
-	   include 'modules/in_work/router.php';
+	   
+	   case 'agreement':
+	   include 'modules/agreement/router.php';
 	   break;
 	   
+	   /*
 	   case 'planner':
 	   include 'modules/planner/router.php';
 	   break;

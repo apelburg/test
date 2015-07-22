@@ -1647,7 +1647,429 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #calculatorDialogBox .saveBtn {float:right; border:#CCC solid 1px;padding:10px 20px;cursor:pointer; background-color:#99B52A}
 #calculatorDialogBox .distributionSaveBtn { float:right; margin:12px 65px 12px 0 ; border:#CCC solid 1px;padding:10px 20px;cursor:pointer; background-color:#99B52A}
 
-/*margin:20px 1px 1px 50px;*/
+.agreement_setting_window{
+   font-family: Arial, Helvetica, sans-serif;
+   font-size:14px;
+}
+.agreement_setting_window .button{
+   padding:8px 25px 8px 25px;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size:20px;
+   cursor:pointer;
+}
+.agreement_setting_window .cap{
+   font-size:16px;
+   font-weight:bold
+}
+.agreement_setting_window .subsection{
+   margin:10px 0px 10px 0px;
+   /*font-style:italic;*/
+   font-size:14px;
+}
+.agreement_setting_window .row{
+   margin:8px 0px 8px 10px;
+   font-size:14px;
+}
+.agreement_setting_window .prepayment_row{
+   margin:8px 10px 8px 10px;
+  
+}
+.agreement_setting_window .prepayment_row a{
+   color:#333333; 
+   padding:4px 4px 4px 20px;
+   text-decoration:none;
+   font-size:14px;
+   font-weight:100;
+   line-height:18px;
+   display:block;
+}
+.agreement_setting_window .prepayment_row:hover{
+   background-color:#CCCCCC;
+}
+.agreement_setting_window .add_requisits_link{
+    margin:10px 0px 0px 0px;
+}
+.agreement_setting_window .add_requisits_link a{
+    color:#9F9F9F;
+}
+.agreement_list_tbl{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.agreement_list_tbl td{
+  padding:6px;
+  border:1px solid #BBBBBB;
+  background-color:#FFFFFF;
+}
+.agreement_list_tbl .line td{
+  padding:5px;
+  background-color:#F5F5F5;
+}
+.agreement_list_tbl .cup_line_1 td{
+  border-top:1px solid #BBBBBB;
+  border-bottom:none;
+  border-left:none;
+  border-right:none;
+  border:1px solid #BBBBBB;
+  padding:2px 5px 5px 6px;
+  color:#555555;
+  font-style:italic;
+  font-size:11px;
+  font-weight:bold;
+  
+}
+
+.agreement_list_tbl .cup_line_2 td{
+  border-top:0px solid #BBBBBB;
+  border-bottom:none;
+  border-left:none;
+  border-right:none;
+  border:0px solid #BBBBBB;
+  padding:2px 5px 5px 6px;
+  color:#555555;
+  font-style:italic;
+  background-color:#EEEEEE;
+  font-size:11px;
+  font-weight:bold;
+}
+
+
+.agreement .cap{
+   position:fixed;
+   width:100%;
+   border:1px solid #CCCCCC;
+   background-color:#FFFFFF;
+   padding: 6px;
+   box-shadow: 0 0 8px -1px #555555;
+   -moz-box-shadow: 0 0 8px -1px #555555;
+   -webkit-box-shadow: 0 0 8px -1px #555555;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size:14px;
+}
+.agreement .agreement_tpl{
+   width:900px;
+   margin:auto;
+   font-family: Arial, Helvetica, sans-serif; /*"Times New Roman", Times, serif;*/
+   font-size:14px;
+   line-height:18px;
+}
+.agreement .agreement_tpl p.chap_title{
+   text-align:center;
+   font-size:15px;
+   font-weight:bold;
+}
+.agreement .agreement_tpl p.requisites_tbl{
+   width:80%;
+}
+
+.agreement .agreement_field{
+   padding-top: 40px;
+   height:1000px;
+}
+.areement_set_label{
+   margin-top: 30px;
+   cursor:pointer;
+}
+.areement_set_label:hover{
+   text-decoration:underline;
+}
+
+ 
+.agreements_sub_razdel{
+   background-color:#FFFFFF;
+   min-height:400px;
+   font:Arial, Helvetica, sans-serif;
+   font-size:12px;
+  
+}
+.agreements_sub_razdel .bookmarks{
+   width:100%;
+   border-bottom:1px solid #CCCCCC;
+}
+.agreements_sub_razdel .all_agreements_list{
+   width:100%;
+   border-bottom:1px solid #CCCCCC;
+}
+.agreements_sub_razdel .bookmarks .bookmark_init{
+   float:left;
+   width:150px;
+   height:40px;
+   border-right:1px solid #CCCCCC;
+   padding:4px;
+   background-color:#FFFFFF;
+}
+
+.agreements_sub_razdel .bookmarks .bookmark{
+   float:left;
+   width:150px;
+   height:40px;
+   border-right:1px solid #CCCCCC;
+   padding:4px;
+   background-color:#FFFFFF;
+}
+.agreements_sub_razdel .bookmarks .bookmark_active{
+   float:left;
+   width:150px;
+   height:40px;
+   border-right:1px solid #CCCCCC;
+   padding:4px;
+   background-color:#EEEEEE;
+}
+
+.agreements_sub_razdel .bookmarks .bookmark_init a{
+   text-decoration:none;
+   color:#000000;
+}
+.agreements_sub_razdel .bookmarks .bookmark_init a.basic{
+   font-weight:bold;
+}
+
+.agreements_sub_razdel .bookmarks .bookmark_active a{
+   text-decoration:none;
+   color:#000000;
+}
+.agreements_sub_razdel .bookmarks .bookmark_active a.basic{
+   font-weight:bold;
+}
+
+.agreements_sub_razdel .bookmarks .bookmark a{
+   text-decoration:none;
+   color:#AAAAAA;
+}
+.agreements_sub_razdel .bookmarks .bookmark a.basic{
+   font-weight:bold;
+}
+
+
+.agreements_sub_razdel .bookmarks .bookmark a:hover{
+   text-decoration:underline;
+}
+
+.agreements_sub_razdel .all_agreements .agreements_detail_init{
+   float:left;
+   width:150px;
+   height:75px;
+   border-right:1px solid #CCCCCC;
+   padding:4px;
+   background-color:#FFFFFFF;
+}
+
+.agreements_sub_razdel .all_agreements .agreements_detail{
+   float:left;
+   width:150px;
+   height:75px;
+   border-right:1px solid #CCCCCC;
+   padding:4px;
+   background-color:#FFFFFFF;
+}
+
+.agreements_sub_razdel .all_agreements .agreements_detail_active{
+   float:left;
+   width:150px;
+   height:75px;
+   border-right:1px solid #CCCCCC;
+   padding:4px;
+   background-color:#EEEEEE;
+}
+
+.agreements_sub_razdel .all_agreements .agreements_detail_init a{
+   text-decoration:none;
+   color:#000000;
+}
+
+.agreements_sub_razdel .all_agreements .agreements_detail_init a.basic{ 
+   font-weight:bold;
+}
+
+.agreements_sub_razdel .all_agreements .agreements_detail_active a{
+   text-decoration:none;
+   color:#000000;
+}
+.agreements_sub_razdel .all_agreements .agreements_detail_active a.basic{
+   font-weight:bold;
+}
+
+.agreements_sub_razdel .all_agreements .agreements_detail a{
+   text-decoration:none;
+   color:#AAAAAA;
+}
+
+.agreements_sub_razdel .all_agreements .agreements_detail a.basic{
+   font-weight:bold;
+}
+
+
+.agreements_sub_razdel .all_agreements{
+   border:0px solid #CC3300;
+   display:none;
+}
+
+.agreements_sub_razdel .specification_list{
+  display:none;
+}
+.agreements_sub_razdel .specification_tbl{
+  border-collapse:collapse;
+  border:1px solid #CCCCCC;
+}
+.agreements_sub_razdel .specification_tbl td{
+  border:1px solid #CCCCCC;
+  width:200px;
+}
+
+.requisites_choice .choice_display_tbl{
+   width:500px;
+   border-collapse:collapse;
+   font-size:12px;
+   font-family:Verdana, Helvetica, Arial,  sans-serif;
+}
+
+.requisites_choice .choice_display_tbl input[type=text]{
+   border: #AAA solid 1px;
+   width:67px;
+   padding:2px 5px 2px 5px;
+}
+
+
+.requisites_choice .choice_display_tbl td{
+   vertical-align:top;
+   width:250px;
+   padding: 0px 30px;
+   border:0px solid #CCCCCC;
+}
+.requisites_choice .choice_display_tbl .close_btn, .client_requisites_tbl .close_btn{
+   position:absolute;
+   top:0px;
+   right:2px;
+}
+.requisites_choice .choice_display_tbl .close_btn a, .client_requisites_tbl .close_btn a{
+   text-decoration:none;
+   font-size:20px;
+   font-family:Arial
+}
+.requisites_choice .choice_display_tbl .close_btn a:hover{
+   color:#CCCCCC;
+}
+.requisites_choice .choice_display_tbl .add_requisits_link{
+    margin:10px 0px 0px 0px;
+}
+.requisites_choice .choice_display_tbl .add_requisits_link a{
+    color:#9F9F9F;
+}
+.requisites_choice .choice_display_tbl .caption{
+    margin:25px 0px 15px 0px;
+	font-weight:bold;
+	font-size:14px;
+}
+.requisites_choice .button{
+   padding:8px 25px 8px 25px;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size:20px;
+   cursor:pointer;
+}
+.requisites_choice .row{
+   margin:8px 0px 8px -6px;
+}
+.requisites_choice .subsection{
+   margin:10px 0px 10px 0px;
+   /*font-style:italic;*/
+   font-size:13px;
+}
+
+.specification{
+  width:800px;margin:auto;
+}
+.specification p, .specification table td{
+  font-family: Arial, Helvetica, sans-serif; /*"Times New Roman", Times, serif;*/
+  font-size:16px;
+  font-weight:bold;
+  
+
+}
+
+.specification .terms{
+  font-size:14px;
+  line-height:18px;
+  font-weight:100;
+}
+
+.specification .spec_tbl{
+  border-collapse:collapse;
+  border: #000000 solid 1px;
+  table-layout:fixed;
+}
+.specification .spec_tbl td{
+  border: #000000 solid 1px;
+  padding:5px;
+  font-size:14px;
+  font-weight:100;
+}
+.specification .spec_tbl td.num{
+  width:20px;
+}
+.specification .spec_tbl td.name{
+  width:510px;
+}
+.specification .spec_tbl td.quantity{
+  text-align:center;
+  width:80px;
+}
+
+.specification .spec_tbl td.price{
+  border-right: #000000 solid 0px;
+  padding:5px 2px 5px 5px;
+  text-align:right;
+  width:80px;
+}
+.specification .spec_tbl td.currensy{
+  border-left: #000000 solid 0px;
+  padding:5px 3px 5px 0px;
+  text-align:left;
+  width:15px;
+}
+.specification .spec_edit_plank{
+  border-collapse:collapse;
+  border:none;
+  width:800px;
+}
+.specification .spec_edit_plank td{
+  padding:0px;
+}
+
+.specification .spec_edit_plank input{
+  margin:0px 0px 5px 0px;
+  cursor:pointer;
+}
+
+.specification  .spec_tbl .bold_font td{
+  font-weight:bold;
+}
+
+.specification .town_date_tbl{
+  border-collapse:collapse;
+  border: #FFFFFF solid 0px;
+}
+
+.specification .town_date_tbl td{
+  border: #FFFFFF solid 0px;
+}
+
+.specification .requisites_tbl{
+  border-collapse:collapse;
+  border: #FFFFFF solid 0px;
+  page-break-inside: avoid;
+}
+
+.specification .requisites_tbl td{
+  border: #FFFFFF solid 0px;
+  padding:5px;
+  font-size:14px;
+  font-weight:100;
+}
+
+.specification  .requisites_tbl .bold_font td{
+  font-weight:bold;
+}
 
 
     
