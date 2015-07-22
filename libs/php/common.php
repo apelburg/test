@@ -1635,5 +1635,534 @@
 		
 	}
 	
+	function fetch_client_agreements_by_type($type,$client_id){
+	    global $db;
+	    $query = "SELECT*FROM `".GENERATED_AGREEMENTS_TBL."` WHERE client_id='$client_id' AND type='$type'";
+		$result = mysql_query($query,$db);
+		if($result) return array('results_num' => mysql_num_rows($result),'result' => $result);
+		else  return array('results_num' => FALSE ,'result' => mysql_error());
+	}
+	function fetch_all_client_agreements($client_id){
+	    global $db;
+	    $query = "SELECT*FROM `".GENERATED_AGREEMENTS_TBL."` WHERE client_id='$client_id' ORDER BY basic DESC, type ASC,our_requisit_id ASC,client_requisit_id  ASC";
+		$result = mysql_query($query,$db);
+		if($result) return array('results_num' => mysql_num_rows($result),'result' => $result);
+		else  return array('results_num' => FALSE ,'result' => mysql_error());
+	}
+	function fetch_agreement_content($agreement_id){
+	    global $db;
+	    $query = "SELECT*FROM `".GENERATED_AGREEMENTS_TBL."` WHERE id='$agreement_id'";
+		$result = mysql_query($query,$db) or die (mysql_error());
+		if(mysql_num_rows($result) == 0){
+		    echo 'не удается получить содержимое договора';
+			exit;
+		} 
+		else return mysql_fetch_array($result);
+	}
+	
+
+	function add_items_for_specification($specification_num,$rows_id_str,$control_num,$client_id,$agreement_id,$agreement_date,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$date,$short_description,$address,$prepayment){
+	    global $db;
+		
+
+		// схема:
+		//  1).   блокируем таблицу CALCULATE_TBL
+		//        блокируем таблицу CALCULATE_TBL_PROTOCOL
+		//        блокируем таблицу GENERATED_SPECIFICATIONS_TBL
+		//  2).   
+		//  3).  разболкируем таблицы CALCULATE_TBL и CALCULATE_TBL_PROTOCOL 
+      
+		
+		
+		//  1)
+		mysql_query("LOCK TABLES ".CALCULATE_TBL." WRITE, ".CALCULATE_TBL_PROTOCOL." WRITE , ".GENERATED_SPECIFICATIONS_TBL." WRITE ") or die(mysql_error());
+
+		//  2)
+		if(!$specification_num){
+			$query = "SELECT MAX(specification_num) specification_num FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."'";
+			$result = mysql_query($query,$db) or die(mysql_error());
+			
+			$specification_num = (mysql_num_rows($result) > 0)? (int)mysql_result($result,0,'specification_num') + 1 : 1 ;
+		}
+		$date_arr = explode('.',$date);
+	    $date = $date_arr[2].'-'.$date_arr[1].'-'.$date_arr[0];
+		
+		
+		$arr = explode(';',$rows_id_str);
+		
+		foreach($arr as $id){
+		
+		    $row_id = check_changes_to_rt_protocol($control_num,$id);
+			
+			$query = "SELECT * FROM `".CALCULATE_TBL."` WHERE id = '".$row_id."'";
+		    $result = mysql_query($query,$db) or die(mysql_error());
+		    if(mysql_num_rows($result) > 0){
+		         $row = mysql_fetch_assoc($result);
+				 //echo print_r($our_firm_acting_manegement_face).'<br>';
+				 //echo print_r($client_firm_acting_manegement_face).'<br>';
+				 //exit;
+				  
+				 $price = ($row['discount'] != 0 )? round(($row['price']/100)*(100 + $row['discount']),2) : $row['price'] ;
+					
+				 $query2 = "INSERT INTO `".GENERATED_SPECIFICATIONS_TBL."` SET 
+				              client_id='".$client_id."',
+				              agreement_id='".$agreement_id."',
+							  our_chief='".$our_firm_acting_manegement_face['name']."',
+							  our_chief_in_padeg='".$our_firm_acting_manegement_face['name_in_padeg']."',
+							  our_chief_position='".$our_firm_acting_manegement_face['position']."',
+							  our_chief_position_in_padeg='".$our_firm_acting_manegement_face['position_in_padeg']."',
+							  our_basic_doc='".$our_firm_acting_manegement_face['basic_doc']."',
+							  client_chief='".$client_firm_acting_manegement_face['name']."',
+							  client_chief_in_padeg='".$client_firm_acting_manegement_face['name_in_padeg']."',
+							  client_chief_position='".$client_firm_acting_manegement_face['position']."',
+							  client_chief_position_in_padeg='".$client_firm_acting_manegement_face['position_in_padeg']."',
+							  client_basic_doc='".$client_firm_acting_manegement_face['basic_doc']."',
+							  specification_num='".$specification_num."',
+							  short_description='".$short_description."',
+							  address='".$address."',
+							  prepayment='".$prepayment."',
+							  date = '$date',
+							  name='".(($row['article']!='')? 'арт.'.$row['article']:'')." ".$row['name']."',
+							  makets_delivery_term='5 (пяти)',
+							  item_production_term='10 (десять)',
+							  quantity='".$row['quantity']."',
+							  price='".$price."',
+							  summ='".$row['quantity']*$price."'
+							  ";
+							  
+							  
+		         $result2 = mysql_query($query2,$db) or die(mysql_error());
+		    }
+		
+		}
+		
+	    //  3)
+		mysql_query("UNLOCK TABLES") or die(mysql_error());
+		
+		
+		// этап создания отдельного файла Спецификации и сохраниения его на диск
+		// проверяем существует ли папка данного клиента если нет создаем её
+		// если происходит ошибка выводим отчет
+		
+		// проверяем есть папка данного клента, если её нет то создаем её
+		$client_dir_name = 'data/agreements/'.strval($client_id);
+		//chmod("data/com_offers/", 0775);
+		
+		if(!file_exists($client_dir_name)){
+		    if(!mkdir($client_dir_name, 0775)){
+			    echo 'ошибка создания папки клиента (4)'.$client_dir_name;
+			    exit;
+			}
+		}
+		
+		// папка обозначающая год (название папки - название года)
+		
+		$agreement_date = explode('-',$agreement_date);
+		$year_dir_name = $client_dir_name.'/'.$agreement_date[0];
+		if(!file_exists($year_dir_name)){
+		    if(!mkdir($year_dir_name, 0775)){
+			    echo 'ошибка создания папки с именем года'.$year_dir_name;
+			    exit;
+			}
+		}
+		
+		// папка для типа договора
+		$type_dir_name = $year_dir_name.'/long_term';
+		if(!file_exists($type_dir_name)){
+		    if(!mkdir($type_dir_name, 0775)){
+			    echo 'ошибка создания папки с именем года'.$type_dir_name;
+			    exit;
+			}
+		}
+		
+		$our_requisit_id = fetchOneValFromGeneratedAgreementTbl(array('retrieve'=>'our_requisit_id','coll'=>'id','val'=>$agreement_id));
+		$client_requisit_id = fetchOneValFromGeneratedAgreementTbl(array('retrieve'=>'client_requisit_id','coll'=>'id','val'=>$agreement_id));
+		
+		// папка для выбранных сторон
+		$full_dir_name = $type_dir_name.'/'.$our_requisit_id.'_'.$client_requisit_id;
+		if(!file_exists($full_dir_name)){
+		    if(!mkdir($full_dir_name, 0775)){
+			    echo 'ошибка создания папки с именем года'.$full_dir_name;
+			    exit;
+			}
+		}
+		
+		// папка для выбранных спецификаций
+		$full_dir_name = $full_dir_name.'/specifications';
+		if(!file_exists($full_dir_name)){
+		    if(!mkdir($full_dir_name, 0775)){
+			    echo 'ошибка создания папки с именем года'.$full_dir_name;
+			    exit;
+			}
+		}
+		
+		// записываем файл
+		$file_name = $full_dir_name.'/'.$specification_num.'.tpl';
+		//$file_name = $dir_name_full.'/com_pred_1_1.doc';
+		if(file_exists($file_name)){
+		    echo 'файл с таким именем уже существует (2)';
+		    exit;
+		}
+
+		$origin_file_name = 'agreement/agreements_templates/specification.tpl';
+		$fd_origin = fopen($origin_file_name,'r');
+		$file_content = fread($fd_origin,filesize($origin_file_name));
+		fclose($fd_origin);
+		
+		$fd = fopen($file_name,'w');
+		$write_result = fwrite($fd,$file_content); //\r\n
+		fclose($fd);
+		
+		return $specification_num;
+
+	}
+	
+	function delete_specification($client_id,$agreement_id,$specification_num){
+	    global $db;
+		
+		$query = "DELETE FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."' AND specification_num = '".$specification_num."'";
+		
+		mysql_query($query,$db) or die(mysql_error());
+		
+		$our_requisit_id = fetchOneValFromGeneratedAgreementTbl(array('retrieve'=>'our_requisit_id','coll'=>'id','val'=>$agreement_id));
+		$client_requisit_id = fetchOneValFromGeneratedAgreementTbl(array('retrieve'=>'client_requisit_id','coll'=>'id','val'=>$agreement_id));
+		$date= fetchOneValFromGeneratedAgreementTbl(array('retrieve'=>'date','coll'=>'id','val'=>$agreement_id));
+		
+		
+	    $file_name = 'data/agreements/'.strval($client_id).'/'.substr($date,0,4).'/long_term/'.$our_requisit_id.'_'.$client_requisit_id.'/specifications/'.$specification_num.'.tpl';
+		
+		if(file_exists($file_name)) unlink($file_name);
+		
+	}
+	function fetch_our_firms_data(){
+	    global $db;
+	    $query = "SELECT*FROM `".OUR_FIRMS_TBL."`";
+		$result = mysql_query($query,$db);
+		if($result) return array('results_num' => mysql_num_rows($result),'result' => $result);
+		else  return array('results_num' => FALSE ,'result' => mysql_error());
+	}
+	function fetch_our_certain_firm_data($id){
+	    global $db;
+	    $query = "SELECT*FROM `".OUR_FIRMS_TBL."` WHERE id='$id'";
+		$result = mysql_query($query,$db) or die (mysql_error());
+	    if(mysql_num_rows($result)>0) return mysql_fetch_assoc($result);
+		else
+		{
+		    echo  'fetch_our_certain_firm_data() - наша фирма не определена';
+			exit;
+		}
+	}
+	
+	function fetch_our_comp_full_name_requisites($id){
+	    global $db;
+		$query = "SELECT comp_full_name FROM `".OUR_FIRMS_TBL."` WHERE `id` = '".$id."'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		
+		return mysql_result($result,0,'comp_full_name');
+	}
+	
+	function fetch_our_requisites_nikename($id){
+	    global $db;
+		$query = "SELECT company FROM `".OUR_FIRMS_TBL."` WHERE `id` = '".$id."'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		
+		return mysql_result($result,0,'company');
+	}
+	
+	function fetch_all_agreements_data(){
+	    global $db;
+	    $query = "SELECT*FROM `".OUR_AGREEMENTS_TBL."`";
+		$result = mysql_query($query,$db);
+		if($result) return array('results_num' => mysql_num_rows($result),'result' => $result);
+		else  return array('results_num' => FALSE ,'result' => mysql_error());
+	}
+	
+	function fetch_agreement_type($id){
+	    global $db;
+	    $query = "SELECT*FROM `".OUR_AGREEMENTS_TBL."` WHERE id ='".$id."'";
+		$result = mysql_query($query,$db) or die (mysql_error());
+		if(mysql_num_rows($result)>0)
+		{
+		    return array('type_ru' => mysql_result($result,0,'type_ru'),'type' => mysql_result($result,0,'type'));
+		}
+		else
+		{
+		    echo 'тип догорова не определен';
+		    exit;
+		}
+	}
+	function fetch_agreement_type_in_ru($type){
+	    global $db;
+	    $query = "SELECT type_ru FROM `".OUR_AGREEMENTS_TBL."` WHERE type ='".$type."'";
+		$result = mysql_query($query,$db) or die (mysql_error());
+		if(mysql_num_rows($result)>0)
+		{
+		    return mysql_result($result,0,'type_ru');
+		}
+		else
+		{
+		    echo 'тип догорова не определен';
+		    exit;
+		}
+	}
+	
+	function fetchOneValFromAgreementTbl($params){
+	    global $db;
+		
+	    $query = "SELECT ".$params['retrieve']." FROM `".OUR_AGREEMENTS_TBL."` WHERE ".$params['coll']." ='".$params['val']."'";
+		$result = mysql_query($query,$db) or die (mysql_error());
+		if(mysql_num_rows($result)>0)
+		{
+		    return  mysql_result($result,0,$params['retrieve']);
+		}
+		else
+		{
+		    echo 'тип догорова не определен';
+		    exit;
+		}
+	
+	}
+	
+	function fetchOneValFromGeneratedAgreementTbl($params){
+	    global $db;
+		
+	    $query = "SELECT ".$params['retrieve']." FROM `".GENERATED_AGREEMENTS_TBL."` WHERE ".$params['coll']." ='".$params['val']."'";
+		$result = mysql_query($query,$db) or die (mysql_error());
+		if(mysql_num_rows($result)>0)
+		{
+		    return  mysql_result($result,0,$params['retrieve']);
+		}
+	}
+	
+	function check_agreements_existence($client_id,$type,$date,$our_requisit_id,$client_requisit_id){
+	    global $db;
+		if($type == 'long_term')
+		{
+			$date_arr = explode('.',$date);
+			$query = "SELECT id FROM `".GENERATED_AGREEMENTS_TBL."` 
+					  WHERE client_id='$client_id' AND type='$type' AND 
+					  our_requisit_id='$our_requisit_id' AND client_requisit_id='$client_requisit_id' AND LEFT(date,4) = '".$date_arr[2]."'";	  
+			$result = mysql_query($query,$db) or die(mysql_error());
+			if(mysql_num_rows($result)>0)
+			{   
+				echo 'лимит на создание долгосрочных договоров: 1 договор в год,<br>
+					  договор на '.$date_arr[2].' год  между компаниями:<br>'.fetch_client_requisites_nikename($client_requisit_id).' и '.fetch_our_requisites_nikename($our_requisit_id).' уже создан';///.mysql_result($result,0,'id');
+			    echo '<br><br>';
+		        echo '<a href="'.$_SERVER['HTTP_REFERER'].'"><< назад</a>';
+				exit;
+			}
+	    }
+		
+	}
+	function add_new_agreement($client_id,$agreement_num,$type,$existent,$standart,$our_requisit_id,$client_requisit_id,$our_comp_full_name,$our_firm_acting_manegement_face,$client_comp_full_name,$client_firm_acting_manegement_face,$date,$expire_date,$short_description){
+	    global $db;
+		//echo print_r($our_firm_acting_manegement_face).'<br>';
+		//echo print_r($client_firm_acting_manegement_face).'<br>';
+		//exit;
+
+		if($type == 'long_term')
+		{
+			$date_arr = explode('-',$date);
+			$query = "SELECT id FROM `".GENERATED_AGREEMENTS_TBL."` 
+					  WHERE client_id='$client_id' AND type='$type' AND 
+					  our_requisit_id='$our_requisit_id' AND client_requisit_id='$client_requisit_id' AND LEFT(date,4) = '".$date_arr[0]."'";
+					  
+			$result = mysql_query($query,$db) or die(mysql_error());
+			if(mysql_num_rows($result)>0)
+			{   
+				echo 'лимит на создание долгосрочных договоров: 1 договор в год,<br>
+					  договор на '.$date_arr[0].' год  между компаниями:<br>'.fetch_client_requisites_nikename($client_requisit_id).' и '.fetch_our_requisites_nikename($our_requisit_id).' уже создан';///.mysql_result($result,0,'id');
+				exit;
+			}
+		}
+		
+		if(!$agreement_num){
+		    $date_arr = explode('-',$date);
+		    $query = "SELECT MAX(agreement_num) agreement_num FROM `".GENERATED_AGREEMENTS_TBL."` WHERE `standart` = '1' AND  `existent` = '0' AND  LEFT(date,4) = '".$date_arr[0]."'";
+		    $result = mysql_query($query,$db) or die(mysql_error());
+		    $agreement_num = mysql_result($result,0,'agreement_num');
+		
+			$agreement_num_arr = explode('/',$agreement_num);
+			if($agreement_num_arr[0] == 0) $agreement_num_arr[0] = 100;
+			$agreement_num = ((int)$agreement_num_arr[0]+1).'/'.$date_arr[1].substr($date_arr[0],2);
+			
+			//echo $agreement_num;
+			//exit;
+		}
+		
+		$query = "INSERT INTO `".GENERATED_AGREEMENTS_TBL."` SET
+		          date = '$date', 
+				  expire_date = '$expire_date',
+				  client_id='$client_id',
+				  type='$type',
+				  standart='$standart',
+				  existent='$existent',
+				  agreement_num='$agreement_num',
+				  our_comp_full_name='$our_comp_full_name',
+				  our_chief='".$our_firm_acting_manegement_face['name']."',
+				  our_chief_in_padeg='".$our_firm_acting_manegement_face['name_in_padeg']."',
+                  our_chief_position_in_padeg='".$our_firm_acting_manegement_face['position_in_padeg']."',
+				  our_chief_position='".$our_firm_acting_manegement_face['position']."',
+                  our_basic_doc='".$our_firm_acting_manegement_face['basic_doc']."',
+				  client_comp_full_name='$client_comp_full_name',
+				  client_chief_position='".$client_firm_acting_manegement_face['position']."',
+				  client_chief_position_in_padeg='".$client_firm_acting_manegement_face['position_in_padeg']."',
+				  client_chief='".$client_firm_acting_manegement_face['name']."',
+				  client_chief_in_padeg='".$client_firm_acting_manegement_face['name_in_padeg']."',
+				  client_basic_doc='".$client_firm_acting_manegement_face['basic_doc']."',
+         		  our_requisit_id='$our_requisit_id',
+				  client_requisit_id='$client_requisit_id',
+				  short_description='$short_description'
+				  ";
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		$last_agreement_id =  mysql_insert_id($db);
+		
+		
+		
+		
+		// этап создания отдельного файла Договра и сохраниения его на диск
+		// проверяем существует ли папка данного клиента если нет создаем её
+		// если происходит ошибка выводим отчет
+		
+		// проверяем есть папка данного клента, если её нет то создаем её
+		$client_dir_name = 'data/agreements/'.strval(intval($_GET['client_id']));
+		//chmod("data/com_offers/", 0775);
+		
+		if(!file_exists($client_dir_name)){
+		    if(!mkdir($client_dir_name, 0775)){
+			    echo 'ошибка создания папки клиента (4)'.$client_dir_name;
+			    exit;
+			}
+		}
+		
+		
+		// папка обозначающая год (название папки - название года)
+		$year_dir_name = $client_dir_name.'/'.$date_arr[0];
+		if(!file_exists($year_dir_name)){
+		    if(!mkdir($year_dir_name, 0775)){
+			    echo 'ошибка создания папки с именем года'.$year_dir_name;
+			    exit;
+			}
+		}
+		
+		// папка для типа договора
+		$type_dir_name = $year_dir_name.'/'.$type;
+		if(!file_exists($type_dir_name)){
+		    if(!mkdir($type_dir_name, 0775)){
+			    echo 'ошибка создания папки с именем года'.$type_dir_name;
+			    exit;
+			}
+		}
+		
+		
+		// папка для выбранных сторон
+		$full_dir_name = $type_dir_name.'/'.$our_requisit_id.'_'.$client_requisit_id;
+		if(!file_exists($full_dir_name)){
+		    if(!mkdir($full_dir_name, 0775)){
+			    echo 'ошибка создания папки с именем года'.$full_dir_name;
+			    exit;
+			}
+		}
+		
+		if((boolean)$existent) return $last_agreement_id;
+		
+		// записываем файл
+		$file_name = $full_dir_name.'/agreement.tpl';
+		//$file_name = $dir_name_full.'/com_pred_1_1.doc';
+		if(file_exists($file_name)){
+		    echo 'файл с таким именем уже существует (2)';
+		    exit;
+		}
+		
+		
+		$origin_file_name = 'agreement/agreements_templates/long_term.tpl';
+		$fd_origin = fopen($origin_file_name,'r');
+		$file_content = fread($fd_origin,filesize($origin_file_name));
+		fclose($fd_origin);
+		
+		$fd = fopen($file_name,'w');
+		$write_result = fwrite($fd,$file_content); //\r\n
+		fclose($fd);
+	
+		return $last_agreement_id;
+
+	}
+	
+	function save_agreement($id,$data_arr){
+	    global $db;
+		
+		$data ='';
+		foreach($data_arr as $key => $val){  $data .= '&'.$key.'='.$val;  }
+		$data = trim($data,'&');
+		
+		$query = "UPDATE `".GENERATED_AGREEMENTS_TBL."` SET 
+				  data='".$data."' WHERE id='$id'";
+	    $result = mysql_query($query,$db) or die(mysql_error());
+
+	}
+	
+	function delete_agreement($agreement_id){
+	    global $db;
+		
+		
+		$query = "SELECT*FROM `".GENERATED_AGREEMENTS_TBL."` WHERE id='$agreement_id'";
+		$result = mysql_query($query,$db) or die (mysql_error());
+		
+		$client_id = mysql_result($result,0,'client_id');
+		$date = mysql_result($result,0,'date');
+		$date = substr($date,0,4);
+		$type = mysql_result($result,0,'type');
+		$our_requisit_id = mysql_result($result,0,'our_requisit_id');
+		$client_requisit_id = mysql_result($result,0,'client_requisit_id');
+		$filename = 'agreement.tpl';
+		
+		unlink('data/agreements/'.$client_id.'/'.$date.'/'.$type.'/'.$our_requisit_id.'_'.$client_requisit_id.'/'.$filename);
+		$path = 'data/agreements/'.$client_id.'/'.$date.'/'.$type.'/'.$our_requisit_id.'_'.$client_requisit_id;
+		$specifications_folder = $path.'/specifications';
+		$dir = opendir($specifications_folder);
+		while(($file = readdir()) !== FALSE)
+		{
+		    if($file != '.' && $file != '..')
+			{
+			    unlink($specifications_folder.'/'.$file);			
+			}
+		}
+		// неработает
+		//rmdir($specifications_folder);
+		//rmdir($path);
+		
+	    $query = "DELETE FROM `".GENERATED_AGREEMENTS_TBL."` WHERE id='$agreement_id'";
+		mysql_query($query,$db) or die (mysql_error());
+		
+	}
+	
+	function set_agreement_as_basic($client_id,$agreement_id){
+	    global $db;
+	    $query = "UPDATE `".GENERATED_AGREEMENTS_TBL."` SET 
+				  basic='0' WHERE client_id='$client_id'";
+	    mysql_query($query,$db) or die(mysql_error());
+		
+		$query = "UPDATE `".GENERATED_AGREEMENTS_TBL."` SET 
+				  basic='1' WHERE id='$agreement_id'";
+	    mysql_query($query,$db) or die(mysql_error());
+		
+	}
+	function GETtoINPUT($query,$change=array(0),$ignore=array(0))
+	{
+	     $data ='';
+		 $pairs = explode('&',urldecode($query));
+	     foreach($pairs as $pair)
+		 {
+			 list($prop,$val) = explode('=',$pair);
+             if(in_array($prop,$ignore)) continue;
+			 if(array_key_exists($prop, $change)) $val = $change[$prop];
+			 $data .= '<input type="hidden" name="'.$prop.'" value="'.$val.'">'."\r\n";
+			
+		 }
+		 return $data;
+		 
+	}
 	
 ?>

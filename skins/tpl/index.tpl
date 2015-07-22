@@ -46,11 +46,11 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
                 
                     <a href="?page=planner" class="<?php if($page=='planner')echo'selected'; ?>">Планы</a>
                 
-                    <a href="?page=orders" class="<?php if($page=='orders')echo'selected'; ?>">Заказы</a>
+                    <!-- <a href="?page=orders" class="<?php if($page=='orders')echo'selected'; ?>">Заказы</a>
                 
-                    <a href="?page=documents" class="<?php if($page=='documents')echo'selected'; ?>">Документы</a>
+                    <a href="?page=documents" class="<?php if($page=='documents')echo'selected'; ?>">Документы</a>-->
                 
-                    <a href="?page=samples&sample_page=start" class="<?php if($page=='samples')echo'selected'; ?>">Образцы</a>
+                    <!--<a href="?page=samples&sample_page=start" class="<?php if($page=='samples')echo'selected'; ?>">Образцы</a>
                 
                     <a href="?page=delivery" class="<?php if($page=='delivery')echo'selected'; ?>">Доставка</a>
                 
@@ -58,11 +58,9 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
                 
                     <a href="?page=empty2" class="<?php if($page=='empty2')echo'selected'; ?>">Производство</a>
                 
-                    <a href="?page=empty3" class="<?php if($page=='empty3')echo'selected'; ?>">Уведомления</a>
+                    <a href="?page=empty3" class="<?php if($page=='empty3')echo'selected'; ?>">Уведомления</a>-->
 
                     <a href="?page=cabinet&section=requests&subsection=no_worcked" class="<?php if($page=='cabinet')echo'selected'; ?>">Кабинет</a>
-                    
-                    <a href="?page=client_folder" class="<?php if($page=='client_folder')echo'selected'; ?>">Папка клиента</a>
                     
                     <a href="?page=admin" class="<?php if($page=='admin')echo'selected'; ?>">Админка</a>
                 

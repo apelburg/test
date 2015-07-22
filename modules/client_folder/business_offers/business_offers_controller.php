@@ -12,7 +12,7 @@
 	    //echo  $_GET['send_kp_by_mail'];
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/manager_class.php");
 		$manager = new Manager($user_id);
-		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+		// include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
 
 	    $kp_id = $_GET['send_kp_by_mail'];
 		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$user_id);

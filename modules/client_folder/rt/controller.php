@@ -275,7 +275,8 @@
 										   '.identify_supplier_by_prefix($row['art']).'
 									  </div>
 								   </div>
-								 </div>'.$row['name'];
+								 </div>
+								 <div>'.$row['name'].'</div>';
 				 // дополнительная скрытая инфа 
 		        if($counter==0 &&  count($row['dop_details'])>0)  $dop_details['allowed_prints'] = $row['dop_details'];
 			 }

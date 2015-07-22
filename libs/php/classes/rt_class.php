@@ -44,7 +44,6 @@
 		}
 		static function fetch_query_create_time($query_num){
 		    global $mysqli; 
-			
 			$query = "SELECT create_time FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$row = $result->fetch_assoc();
