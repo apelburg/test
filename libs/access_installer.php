@@ -315,6 +315,23 @@
 												),
 											)
 										),
+						'client_folder'=> array(
+										'access'=> true,
+										'show___foo___'=> false,
+										'section'=> array( // 1
+										    'rt'=> array('access'=>true),
+											'business_offers'=> array('access'=>true),
+											'order_art_edit'=> array('access'=>true),
+											'order_tbl'=> array(
+												'access'=>true,
+												'change_status_glob'=> array('access'=>true),
+												'ttn_see'=> array('access'=>true),
+												'change_status_uslug'=> array('access'=>true),
+												'change_status_men'=> array('access'=>true),
+												'change_status_snab'=> array('access'=>true)
+												)
+											)	
+										),
 				       'clients'=> array(
 										'access'=> true,
 										'full_clients_delete'=> false

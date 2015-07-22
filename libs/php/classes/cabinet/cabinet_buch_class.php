@@ -1,6 +1,27 @@
 <?php
 	
-	class Cabinet_buch_class{
+	class Cabinet_buch_class extends Cabinet{
+
+		private $order_status2 = array(
+			'being_prepared'=>'В оформлении',
+			'request_expense'=>'Запрошен счёт',
+			'in_work'=>'В работе',
+			'ready_for_shipment'=>'Готов к отгрузке',
+			'shipped'=>'Отгружен',
+			'paused'=>'Приостановлен',		
+			'cancelled'=>'Аннулирован'
+			);
+
+		private $buch_status2 = array(
+    		'score_exhibited' => 'счёт выставлен',
+			'payment' => 'оплачен',//дата в таблицу
+			'partially_paid' => 'частично оплачен',//дата в таблицу			
+			'prihodnik_on_bail' => 'приходник на залог',
+			'cancelled'=>'Аннулирован',		
+			'returns_client_collateral' => 'возврат залога клиенту',
+			'refund_in_a_row' => 'возврат денег по счёту',
+			'ogruzochnye_accepted' => 'огрузочные приняты (подписанные)'
+    	);
 
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
@@ -40,8 +61,7 @@
 		// название подраздела кабинета
 		private $sub_subsection;
 
-		// содержит экземпляр класса кабинета вер. 1.0
-		private $CABINET;
+		
 
 		// экземпляр класса продукции НЕ каталог (там нас интересуют кириллические названия статусов)
 		public $POSITION_NO_CATALOG;
@@ -67,10 +87,7 @@
 				$this->_AJAX_($_GET['AJAX']);
 			}
 
-			// экземпляр класса кабинета вер. 1.0
-			$this->CABINET = new Cabinet;
-
-			//$this->FORM = new Forms;
+			
 		}
 
 
@@ -174,7 +191,6 @@
 
 			global $mysqli;
 			
-
 			// простой запрос
 			$array_request = array();
 
@@ -189,7 +205,7 @@
 				FROM `".CAB_ORDER_ROWS."`
 				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
 				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'В оформлении'";
+			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared'";
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -273,17 +289,17 @@
 				foreach ($main_rows as $key1 => $val1) {
 					//ОБСЧЁТ ВАРИАНТОВ
 					// получаем массив стоимости нанесения и доп услуг для данного варианта 
-					$dop_usl = $this->CABINET -> get_order_dop_uslugi($val1['id_dop_data']);
+					$dop_usl = $this-> get_order_dop_uslugi($val1['id_dop_data']);
 					// выборка только массива стоимости печати
-					$dop_usl_print = $this->CABINET->get_dop_uslugi_print_type($dop_usl);
+					$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
 					// выборка только массива стоимости доп услуг
-					$dop_usl_no_print = $this->CABINET -> get_dop_uslugi_no_print_type($dop_usl);
+					$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
 
 					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
 					// стоимость печати варианта
-					$calc_summ_dop_uslug = $this->CABINET -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
+					$calc_summ_dop_uslug = $this-> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 					// стоимость доп услуг варианта
-					$calc_summ_dop_uslug2 = $this->CABINET -> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
+					$calc_summ_dop_uslug2 = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 					// стоимость товара для варианта
 					$price_out = $val1['price_out'] * $val1['quantity'];
 					// стоимость варианта на выходе
@@ -326,8 +342,8 @@
 							<td><span>'.$percent_payment.'</span> %</td>
 							<td><span class="payment_status_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
 							<td><span>'.$in_out_summ.'</span> р.</td>
-							<td class="buch_status_select">'.$this->CABINET->select_status(2,$value['buch_status']).'</td>
-							<td class="select_global_status">'.$this->CABINET->select_global_status($value['global_status']).'</td>
+							<td class="buch_status_select">'.$this->select_status($value['buch_status'],$this->buch_status).'</td>
+							<td class="select_global_status">'.$this->select_global_status($value['global_status'],$this->order_status).'</td>
 						</tr>
 				';
 				$html1 .= $html2 . $html;
@@ -345,7 +361,7 @@
 								<th>% оплаты</th>
 								<th>Оплачено</th>
 								<th>стоимость заказа</th>
-								<th></th>
+								<th>стутус БУХ</th>
 								<th>Статус заказа.</th>
 							</tr>';
 			echo $html1;
@@ -448,17 +464,17 @@
 				foreach ($main_rows as $key1 => $val1) {
 					//ОБСЧЁТ ВАРИАНТОВ
 					// получаем массив стоимости нанесения и доп услуг для данного варианта 
-					$dop_usl = $this->CABINET->get_order_dop_uslugi($val1['id_dop_data']);
+					$dop_usl = $this->get_order_dop_uslugi($val1['id_dop_data']);
 					// выборка только массива стоимости печати
-					$dop_usl_print = $this->CABINET->get_dop_uslugi_print_type($dop_usl);
+					$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
 					// выборка только массива стоимости доп услуг
-					$dop_usl_no_print = $this->CABINET -> get_dop_uslugi_no_print_type($dop_usl);
+					$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
 
 					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
 					// стоимость печати варианта
-					$calc_summ_dop_uslug = $this->CABINET -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
+					$calc_summ_dop_uslug = $this-> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 					// стоимость доп услуг варианта
-					$calc_summ_dop_uslug2 = $this->CABINET -> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
+					$calc_summ_dop_uslug2 = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 					// стоимость товара для варианта
 					$price_out = $val1['price_out'] * $val1['quantity'];
 					// стоимость варианта на выходе
@@ -474,7 +490,7 @@
 					<td><span>'.$calc_summ_dop_uslug.'</span> р.</td>
 					<td><span>'.$calc_summ_dop_uslug2.'</span> р.</td>
 					<td><span>'.$in_out.'</span> р.</td>
-					<td class="status_snab">'.$this->CABINET->select_status(8,$val1['status_snab']).'</td>
+					<td class="status_snab">'.$this->select_status(8,$val1['status_snab']).'</td>
 					<td>'.$val1['status_sklad'].'</td>
 					<td>'.$val1['status_men'].'</td>
 							</tr>';
@@ -678,17 +694,17 @@
 				foreach ($main_rows as $key1 => $val1) {
 					//ОБСЧЁТ ВАРИАНТОВ
 					// получаем массив стоимости нанесения и доп услуг для данного варианта 
-					$dop_usl = $CABINET -> get_order_dop_uslugi($val1['id_dop_data']);
+					$dop_usl = $this -> get_order_dop_uslugi($val1['id_dop_data']);
 					// выборка только массива стоимости печати
-					$dop_usl_print = $CABINET->get_dop_uslugi_print_type($dop_usl);
+					$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
 					// выборка только массива стоимости доп услуг
-					$dop_usl_no_print = $CABINET -> get_dop_uslugi_no_print_type($dop_usl);
+					$dop_usl_no_print = $this -> get_dop_uslugi_no_print_type($dop_usl);
 
 					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
 					// стоимость печати варианта
-					$calc_summ_dop_uslug = $CABINET -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
+					$calc_summ_dop_uslug = $this -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 					// стоимость доп услуг варианта
-					$calc_summ_dop_uslug2 = $CABINET -> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
+					$calc_summ_dop_uslug2 = $this -> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 					// стоимость товара для варианта
 					$price_out = $val1['price_out'] * $val1['quantity'];
 					// стоимость варианта на выходе
