@@ -2,7 +2,7 @@
 
     // ** БЕЗОПАСНОСТЬ **
 	// проверяем выдан ли доступ на вход на эту страницу
-	// если нет $ACCESS['suppliers']['access'] или она равна FALSE прерываем работу скирпта 
+	// если нет $ACCESS['client_folder']['section']['rt']['access'] или она равна FALSE прерываем работу скирпта 
 	if(!@$ACCESS['client_folder']['section']['rt']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 	include ROOT.'/libs/php/classes/rt_class.php';
@@ -180,7 +180,8 @@
 	
 	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] :((isset($_POST['client_id']))? $_POST['client_id']: FALSE) ;
 
-	if(!$client_id) echo '<div class="alert_window">Клиент не определен</div>';
+	if(!$client_id) echo '<div id="clientDontFound">Клиент не определен</div><script>$("#clientDontFound").dialog({autoOpen: false ,title: "Ошибка",modal:true,width: 600,close: function() { location = history.go(-1);}});
+		$("#clientDontFound").dialog("open");</script>'; //class="alert_window"
 	///////////////////////////////////////////    информация о клиенте   ////////////////////////////////////////////////
     $client_data_arr = select_all_client_data($client_id);
 	//echo '<pre>'; print_r($client_data_arr); echo '</pre>';
