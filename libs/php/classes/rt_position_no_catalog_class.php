@@ -296,7 +296,7 @@ class Position_no_catalog{
 	public function get_all_on_calculation_Html($type_product){
 		//сохраняем тип продукта
 		$this->type_product = $type_product;
-// !!!!!!!!!!!!!!!!!!!!!!!!!
+	// !!!!!!!!!!!!!!!!!!!!!!!!!
 	// **
 		$variants_array = $this->get_all_variants_Database_Array();
 		$variants_array_GROUP_status_snab = $this->get_all_variants_Group_Database_Array();

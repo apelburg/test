@@ -8,29 +8,18 @@
 
 	include './libs/php/classes/comments_class.php';
 	$comments = new Comments_for_query_class;
-	include './libs/php/classes/rt_position_no_catalog_class.php';
-	include './libs/php/classes/cabinet/cabinet_class.php';		
-	include './libs/php/classes/cabinet/cabinet_general_class.php';		
-	ob_start();	
-	$CABINET = new Cabinet_general();
-	$content = ob_get_contents();
-	ob_get_clean();
-		
-		
-
-	// обновляем доступы в соответствии с проверенными по базе допусками
-	// на случай вхождения админом в чужой аккаунт 
-	$ACCESS = $ACCESS_SHABLON[$CABINET->user_access];
+	
 	
 	include './libs/php/classes/rt_position_no_catalog_class.php';
 	include './libs/php/classes/cabinet/cabinet_class.php';		
 	include './libs/php/classes/cabinet/cabinet_general_class.php';		
 
+
 	ob_start();	
 	$CABINET = new Cabinet_general();
 	$content = ob_get_contents();
 	ob_get_clean();
-		
+
 	// обновляем доступы в соответствии с проверенными по базе допусками
 	// на случай вхождения админом в чужой аккаунт 
 	$ACCESS = $ACCESS_SHABLON[$CABINET->user_access];
