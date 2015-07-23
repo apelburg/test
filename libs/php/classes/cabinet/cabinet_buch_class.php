@@ -187,7 +187,7 @@
 
 		##########################################
 		## Предзаказ
-		Private Function paperwork_Template(){
+		private function paperwork_Template($id_row=0){
 
 			global $mysqli;
 			
@@ -197,15 +197,15 @@
 			
 			$query = "SELECT 
 				`".CAB_ORDER_ROWS."`.*, 
-				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-				`".CLIENTS_TBL."`.`company`,
-				`".MANAGERS_TBL."`.`name`,
-				`".MANAGERS_TBL."`.`last_name`,
-				`".MANAGERS_TBL."`.`email` 
-				FROM `".CAB_ORDER_ROWS."`
-				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
-				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared' OR `".CAB_ORDER_ROWS."`.`global_status` = 'requeried_expense'";
+				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".CAB_ORDER_ROWS."`";
+			
+			if($id_row){
+				$query .=" WHERE `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
+			}else{
+				$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared' OR `".CAB_ORDER_ROWS."`.`global_status` = 'requeried_expense'";
+			}
+			
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -330,12 +330,14 @@
 				// получаем % оплаты
 				$percent_payment = ($in_out_summ!=0)?round($value['payment_status']*100/$in_out_summ,2):'0.00';		
 				// собираем строку заказа
-				$html2 = '
-						<tr data-id="'.$value['id'].'">
-							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
+				
+				$html2 = '<tr data-id="'.$value['id'].'" >';
+				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
+				//'.$this->get_manager_name_Database_Html($value['manager_id']).'
+				$html2_body = '<td class="show_hide" rowspan="'.$rowspan.'"><span class="cabinett_row_hide"></span></td>
 							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.$order_num_1.'</a></td>
-							<td>'.$value['create_time'].'</td>
-							<td>'.$value['company'].'</td>
+							<td>'.$value['create_time'].'<br>'.$this->get_manager_name_Database_Html($value['manager_id'],1).'</td>
+							<td>'.$this->get_client_name_Database($value['client_id'],1).'</td>
 							<td class="invoice_num" contenteditable="true">'.$value['invoice_num'].'</td>
 							<td><input type="text" class="payment_date" readonly="readonly" value="'.$value['payment_date'].'"></td>
 							<td class="number_payment_list" contenteditable="true">'.$value['number_pyament_list'].'</td>
@@ -343,11 +345,17 @@
 							<td><span class="payment_status_span edit_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
 							<td><span>'.$in_out_summ.'</span> р.</td>
 							<td class="buch_status_select">'.$this->select_status($value['buch_status'],$this->buch_status).'</td>
-							<td class="select_global_status">'.$this->order_status[$value['global_status']].'</td>
-						</tr>';
+							<td class="select_global_status">'.$this->order_status[$value['global_status']].'</td>';
+				$html3 = '</tr>';
 
-				$html1 .= $html2 . $html;
+				$html1 .= $html2 .$html2_body.$html3. $html;
+				// запрос по одной строке без подробностей
+				if($id_row){return $html2_body;}
 			}
+
+			
+
+
 			echo '
 			<table class="cabinet_general_content_row">
 							<tr>
@@ -367,6 +375,7 @@
 			echo $html1;
 			echo '</table>';
 		}
+		################ Предзаказ __ END
 
 		################ Заказы
 		Private Function orders_Template(){

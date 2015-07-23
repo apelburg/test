@@ -2083,4 +2083,10 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
   background-repeat: no-repeat;
   background-position: 50%;
 }
-    
+.dop_grey_small_info{
+  font-size: 10px;
+  color: #B8B7B7;
+}
+.dop__info{
+  font-size: 12px;
+}

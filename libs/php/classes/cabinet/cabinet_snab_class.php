@@ -240,7 +240,7 @@
 				$general_tbl_row .= '
 						<tr>
 							<td class="cabinett_row_show show"><span></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$value['name'].' '.$value['last_name'].'</td>
+							<td><a href="./?page=client_folder&client_id='.$value['client_id'].'&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> '.$value['name'].' '.$value['last_name'].'</td>
 							<td>'.$value['create_time'].'</td>
 							<td>'.$value['company'].'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>

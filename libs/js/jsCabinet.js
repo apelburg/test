@@ -58,13 +58,15 @@ $(document).ready(function() {
 		// записываем id строки услуги
 		var row_id = $(this).parent().parent().attr('data-id');
 		var value = $(this).val();
-		
+		var obj = $(this).parent().parent();
+		window_preload_add();
 		$.post('', {
 			AJAX:'select_global_status',
 			row_id:row_id,
 			value:value
 		}, function(data, textStatus, xhr) {
 			console.log(data);
+			replace_query_row_obj(obj);
 		});
 	});
 
@@ -76,7 +78,7 @@ $(document).on('click','#cabinet_general_content .cabinett_row_hide',function() 
 		$(this).parent().attr('rowspan','2').parent().next().show();
 		$(this).removeClass('show');
 	}else{
-		$(this).parent().removeAttr('rowspan').parent().next().hide();
+		$(this).parent().attr('rowspan','1').parent().next().hide();
 		$(this).addClass('show');
 	}	
 });
@@ -401,11 +403,12 @@ function replace_query_row_obj(obj){
 	window_preload_add();
 	var os__rt_list_id = obj.attr('data-id');
 	// запоминаем rowspan
-	console.log('65654546');
-	var rowspan = obj.find('.show_hide').attr('rowspan');
+	// console.log('65654546');
 
-	console.log(obj);
-	console.log(rowspan);
+	var rowspan = obj.find('.show_hide').attr('rowspan');
+	// console.log(obj.find('.show_hide').attr('rowspan'));
+	// console.log(obj);
+	// console.log(rowspan);
 	$.post('', {
 		AJAX: 'replace_query_row',
 		os__rt_list_id: os__rt_list_id,

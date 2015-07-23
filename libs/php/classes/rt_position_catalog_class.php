@@ -44,7 +44,6 @@ class Position_catalog{
 			$this->$method_AJAX();
 			exit;
 		}		
-		
 	}
 	/////////////////  AJAX METHODs  ///////////////// 
 

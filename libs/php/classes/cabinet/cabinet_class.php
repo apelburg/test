@@ -158,5 +158,112 @@
 			return $str.$key;
 		}
 
+		// выводит имя клиента для запроса в форме редактирования
+		protected function get_client_name_Database($id,$no_edit=0){
+			global $mysqli;		
+			//получаем название клиента
+			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$name = '';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name = '<div'.(($no_edit==0)?' class="attach_the_client"':' class="dop__info"').' data-id="'.$row['id'].'">'.$row['company'].'</div>';
+				}
+			}else{
+				$name = '<div'.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</div>';
+			}
+			return $name;
+		}
+
+		
+		protected 	function get_manager_name_Database_Html($id,$no_edit=0){
+		    global $mysqli;
+		    $String = '<span'.(($no_edit==0)?' class="attach_the_manager add"':' class="dop_grey_small_info"').' data-id="0">Прикрепить менеджера</span>';
+		   	$arr = array();
+		    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
+		    $result = $mysqli->query($query)or die($mysqli->error);
+		    if($result->num_rows>0){
+				foreach($result->fetch_assoc() as $key => $val){
+				   $arr[$key] = $val;
+				}
+		    }		    
+		    if(count($arr)){
+		    	$String = '<span'.(($no_edit==0)?' class="attach_the_manager"':' class="dop_grey_small_info"').' data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+		    }
+		    return $String;
+		}
+
+
+		## Запросы __ запросы к базе
+		// фильтрация позиций ЗАПРОСОВ по горизонтальному меню
+		private function requests_Template_recuestas_main_rows_Database($id){
+						
+			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ 
+			switch ($_GET['subsection']) {
+				case 'no_worcked_men': // не обработанные
+					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					break;
+					
+
+				case 'in_work': // в работе у менеджера
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					break;				
+
+				case 'history':
+					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
+				$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
+					break;
+				case 'denied':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct'";
+					break;
+
+				case 'paused':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE '%pause%'";
+					break;
+
+				case 'calk_snab':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE 'calculate_is_ready'";
+					break;
+
+				default:
+					$where = "WHERE `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					break;
+			}
+
+
+			global $mysqli;
+			$query = "
+				SELECT 
+					`".RT_DOP_DATA."`.`id` AS `id_dop_data`,
+					`".RT_DOP_DATA."`.`quantity`,	
+					`".RT_DOP_DATA."`.`price_out`,		
+					`".RT_DOP_DATA."`.`print_z`,	
+					`".RT_DOP_DATA."`.`zapas`,	
+					`".RT_DOP_DATA."`.`status_snab`,	
+					DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
+					`".RT_MAIN_ROWS."`.*,
+					`".RT_LIST."`.`id` AS `request_id`,
+					`".RT_LIST."`.`manager_id`,
+					`".RT_LIST."`.`manager_id`,
+					`".RT_LIST."`.`client_id`
+					FROM `".RT_MAIN_ROWS."` 
+					INNER JOIN `".RT_DOP_DATA."` ON `".RT_DOP_DATA."`.`row_id` = `".RT_MAIN_ROWS."`.`id`
+					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
+					".$where."
+					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
+				// echo  $query.'<br><br>';
+			$main_rows = array();
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$main_rows_id = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$main_rows[] = $row;
+				}
+			}
+			// if($main_rows){ echo $query;}
+			return $main_rows;
+		}
+
 
    	}

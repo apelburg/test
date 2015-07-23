@@ -119,61 +119,70 @@
 			echo '{"response":"OK"}';
 		}
 
-
-
 		private function replace_query_row_AJAX(){
-			global $mysqli;
-			// получаем строку из os__rt_list
-			$query = "SELECT `".RT_LIST."`.*, 
-				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
-				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
-				
-				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
-				FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['os__rt_list_id']."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$zapros = array();
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$zapros[] = $row;
-				}
-			}
-			// для обсчёта суммы за тираж			
-			include_once ('./libs/php/classes/rt_class.php');
-			
-			// массви с переводом статусов запроса
-			$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
-			$name_cirillic_status['not_process'] = 'не обработан менеджером';
-			$name_cirillic_status['taken_into_operation'] = 'взят в обработку';
-			$name_cirillic_status['in_work'] = 'в работе';
-			$name_cirillic_status['history'] = 'история';
-			
-			foreach ($zapros as $key => $value) {
-				switch ($value['status']) {
-					case 'not_process':
-						$status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
-						break;
-					case 'taken_into_operation':
-						$status_or_button = '<div class="get_in_work">Взять в работу</div>';						
-						break;					
+			$method = $_GET['section'].'_Template';
 
-					default:
-						$status_or_button = $name_cirillic_status[$value['status']];
-						break;
-				}
-				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
-				$html = '<td class="show_hide" rowspan="'.$_POST['rowspan'].'"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
-							<td>'.$this->get_client_name($value['client_id'],$value['status']).'</td>
-							<td>'.$value['create_time'].'</td>
-							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
-							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td>'.$status_or_button.'</td>';
-
-			}
-			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-					
-			// echo $html;
+			// echo $method;
+			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+			if(method_exists($this, $method)){
+				echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
+				exit;
+			}							
 		}
+
+		// private function replace_query_row_AJAX(){
+		// 	global $mysqli;
+		// 	// получаем строку из os__rt_list
+		// 	$query = "SELECT `".RT_LIST."`.*, 
+		// 		(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
+		// 		SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
+				
+		// 		DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+		// 		FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['os__rt_list_id']."'";
+		// 	$result = $mysqli->query($query) or die($mysqli->error);
+		// 	$zapros = array();
+		// 	if($result->num_rows > 0){
+		// 		while($row = $result->fetch_assoc()){
+		// 			$zapros[] = $row;
+		// 		}
+		// 	}
+		// 	// для обсчёта суммы за тираж			
+		// 	include_once ('./libs/php/classes/rt_class.php');
+			
+		// 	// массви с переводом статусов запроса
+		// 	$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
+		// 	$name_cirillic_status['not_process'] = 'не обработан менеджером';
+		// 	$name_cirillic_status['taken_into_operation'] = 'взят в обработку';
+		// 	$name_cirillic_status['in_work'] = 'в работе';
+		// 	$name_cirillic_status['history'] = 'история';
+			
+		// 	foreach ($zapros as $key => $value) {
+		// 		switch ($value['status']) {
+		// 			case 'not_process':
+		// 				$status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+		// 				break;
+		// 			case 'taken_into_operation':
+		// 				$status_or_button = '<div class="get_in_work">Взять в работу</div>';						
+		// 				break;					
+
+		// 			default:
+		// 				$status_or_button = $name_cirillic_status[$value['status']];
+		// 				break;
+		// 		}
+		// 		$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
+		// 		$html = '<td class="show_hide" rowspan="'.$_POST['rowspan'].'"><span class="cabinett_row_hide"></span></td>
+		// 					<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
+		// 					<td>'.$this->get_client_name($value['client_id'],$value['status']).'</td>
+		// 					<td>'.$value['create_time'].'</td>
+		// 					<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
+		// 					<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
+		// 					<td>'.$status_or_button.'</td>';
+
+		// 	}
+		// 	echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+					
+		// 	// echo $html;
+		// }
 
 		############################################
 		###		         AJAX END                ###
@@ -201,7 +210,7 @@
 
 		##########################################
 		################ Запросы
-		Private Function requests_Template(){			
+		private function requests_Template($id_row=0){			
 			include ('./libs/php/classes/rt_class.php');
 			$array_request = array();
 			global $mysqli;
@@ -219,30 +228,34 @@
 			// фильтрация по статусам запросов
 			/////////////////////////
 			// 
-			// статусы могут быть трёх (3) типов:
-			// not_process - не обработанные:
-			// 		те, что приходят от клиентов через корзину, и прикрепляются к тому или иному менеджеру
-			// in_work - в работе
-			// 		те, что менеджер завёл сам или взял из необработанных, которые в свою очередь ему отдал админ 
-			// history - история
-			//  	сюда попадают все запросы после того как из запроса создана спецификация и сгенерирован предзаказ
-			//
-			//////////////////////////
-			//	в последствии:
-			// 1 - необходимо запретить рт для запросов попавших в историю
-			// 2 - необходимо сделать возможность копирования исторического запроса из истории в работу, при этом цены на услуги вероятно есть смысл пересчитать по новой
-			//////////////////////////
-			// делаем фильтрацию в зависимости от того по какому фильтру мы собираемся выбирать выдачу
-			switch ($_GET['subsection']) {
-				case 'history':
-					$query .= " AND `".RT_LIST."`.`status` = 'history' ";
-					break;
-				case 'no_worcked_men':
-					$query .= " AND (`".RT_LIST."`.`status` = 'not_process' OR `".RT_LIST."`.`status` = 'taken_into_operation') OR (( `".RT_LIST."`.`manager_id` = '0' OR `".RT_LIST."`.`manager_id` = '') AND (`".RT_LIST."`.`status` = 'not_process')) ";
-					break;
-				default:
-					$query .= " AND `".RT_LIST."`.`status` = 'in_work'";
-					break;
+			if($id_row){// если указан, осущевствляем вывод только одного заказа
+				$query .=" AND `".RT_LIST."`.`id` = '".$id_row."'";
+			}else{
+				// статусы могут быть трёх (3) типов:
+				// not_process - не обработанные:
+				// 		те, что приходят от клиентов через корзину, и прикрепляются к тому или иному менеджеру
+				// in_work - в работе
+				// 		те, что менеджер завёл сам или взял из необработанных, которые в свою очередь ему отдал админ 
+				// history - история
+				//  	сюда попадают все запросы после того как из запроса создана спецификация и сгенерирован предзаказ
+				//
+				//////////////////////////
+				//	в последствии:
+				// 1 - необходимо запретить рт для запросов попавших в историю
+				// 2 - необходимо сделать возможность копирования исторического запроса из истории в работу, при этом цены на услуги вероятно есть смысл пересчитать по новой
+				//////////////////////////
+				// делаем фильтрацию в зависимости от того по какому фильтру мы собираемся выбирать выдачу
+				switch ($_GET['subsection']) {
+					case 'history':
+						$query .= " AND `".RT_LIST."`.`status` = 'history' ";
+						break;
+					case 'no_worcked_men':
+						$query .= " AND (`".RT_LIST."`.`status` = 'not_process' OR `".RT_LIST."`.`status` = 'taken_into_operation') OR (( `".RT_LIST."`.`manager_id` = '0' OR `".RT_LIST."`.`manager_id` = '') AND (`".RT_LIST."`.`status` = 'not_process')) ";
+						break;
+					default:
+						$query .= " AND `".RT_LIST."`.`status` = 'in_work'";
+						break;
+				}
 			}
 
 			// массви с переводом статусов запроса
@@ -350,7 +363,7 @@
 				$general_tbl_row .= '
 						<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">							
 							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
+							<td><a href="./?page=client_folder&client_id='.$value['client_id'].'&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
 							<td>'.$this->get_client_name($value['client_id'],$value['status']).'</td>
 							<td>'.$value['create_time'].'</td>
 							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
@@ -410,77 +423,7 @@
 			echo $html;
 		}
 
-		## Запросы __ запросы к базе
-
-		// получаем позиции по запросу
-		private function requests_Template_recuestas_main_rows_Database($id){
-						
-			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ 
-			switch ($_GET['subsection']) {
-				case 'no_worcked_men': // не обработанные
-					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
-					break;
-					
-
-				case 'in_work': // в работе у менеджера
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
-					break;				
-
-				case 'history':
-					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
-				$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
-					break;
-				case 'denied':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct'";
-					break;
-
-				case 'paused':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE '%pause%'";
-					break;
-
-				case 'calk_snab':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE 'calculate_is_ready'";
-					break;
-
-				default:
-					$where = "WHERE `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
-					break;
-			}
-
-
-			global $mysqli;
-			$query = "
-				SELECT 
-					`".RT_DOP_DATA."`.`id` AS `id_dop_data`,
-					`".RT_DOP_DATA."`.`quantity`,	
-					`".RT_DOP_DATA."`.`price_out`,		
-					`".RT_DOP_DATA."`.`print_z`,	
-					`".RT_DOP_DATA."`.`zapas`,	
-					`".RT_DOP_DATA."`.`status_snab`,	
-					DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
-					`".RT_MAIN_ROWS."`.*,
-					`".RT_LIST."`.`id` AS `request_id`,
-					`".RT_LIST."`.`manager_id`,
-					`".RT_LIST."`.`manager_id`,
-					`".RT_LIST."`.`client_id`
-					FROM `".RT_MAIN_ROWS."` 
-					INNER JOIN `".RT_DOP_DATA."` ON `".RT_DOP_DATA."`.`row_id` = `".RT_MAIN_ROWS."`.`id`
-					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
-					".$where."
-					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
-				// echo  $query.'<br><br>';
-			$main_rows = array();
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$main_rows[] = $row;
-				}
-			}
-			// if($main_rows){ echo $query;}
-			return $main_rows;
-		}
+		
 
 		################ Запросы __ END
 		##########################################
@@ -489,7 +432,7 @@
 
 		##########################################
 		## Предзаказ
-		Private Function paperwork_Template(){
+		private function paperwork_Template($id_row=0){
 
 			global $mysqli;
 			
@@ -499,15 +442,34 @@
 			
 			$query = "SELECT 
 				`".CAB_ORDER_ROWS."`.*, 
-				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-				`".CLIENTS_TBL."`.`company`,
-				`".MANAGERS_TBL."`.`name`,
-				`".MANAGERS_TBL."`.`last_name`,
-				`".MANAGERS_TBL."`.`email` 
-				FROM `".CAB_ORDER_ROWS."`
-				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
-				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared'";
+				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".CAB_ORDER_ROWS."`";
+			$query .=" WHERE `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
+			
+
+			//////////////////////////
+			//	исключения по фильтрации  СТАРТ
+			//////////////////////////
+			if($id_row){// если указан, осущевствляем вывод только одного заказа
+				$query .=" AND `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
+			}else{
+				// если указан id клиента, делаем выборку заказов по клиенту
+				if(isset($_GET['client_id']) && $_GET['client_id']!=''){
+					$query .=" AND `".CAB_ORDER_ROWS."`.`client_id` = '".(int)$_GET['client_id']."'";
+				}
+				// default
+				$query .=" AND `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared' OR `".CAB_ORDER_ROWS."`.`global_status` = 'requeried_expense'";
+			}
+
+			// если указан id клиента, делаем выборку заказов по клиенту
+			if(isset($_GET['client_id']) && $_GET['client_id']!=''){
+				$query .=" AND `".CAB_ORDER_ROWS."`.`client_id` = '".(int)$_GET['client_id']."'";
+			}
+
+			//////////////////////////
+			//	исключения по вильтрации ENDЫ
+			//////////////////////////
+			
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -581,9 +543,9 @@
 						<th>товар</th>
 						<th>печать</th>
 						<th>доп. услуги</th>
-						<th>в общем</th>
-						<th></th>
-						<th></th>
+					<th>в общем</th>
+					<th></th>
+					<th></th>
 						</tr>';
 
 
@@ -632,12 +594,14 @@
 				// получаем % оплаты
 				$percent_payment = ($in_out_summ!=0)?round($value['payment_status']*100/$in_out_summ,2):'0.00';		
 				// собираем строку заказа
-				$html2 = '
-						<tr data-id="'.$value['id'].'">
-							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
+				
+				$html2 = '<tr data-id="'.$value['id'].'" >';
+				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
+				//'.$this->get_manager_name_Database_Html($value['manager_id']).'
+				$html2_body = '<td class="show_hide" rowspan="'.$rowspan.'"><span class="cabinett_row_hide"></span></td>
 							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.$order_num_1.'</a></td>
 							<td>'.$value['create_time'].'</td>
-							<td>'.$value['company'].'</td>
+							<td>'.$this->get_client_name_Database($value['client_id'],1).'</td>
 							<td class="invoice_num" contenteditable="true">'.$value['invoice_num'].'</td>
 							<td><input type="text" class="payment_date" readonly="readonly" value="'.$value['payment_date'].'"></td>
 							<td class="number_payment_list" contenteditable="true">'.$value['number_pyament_list'].'</td>
@@ -645,11 +609,17 @@
 							<td><span class="payment_status_span edit_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
 							<td><span>'.$in_out_summ.'</span> р.</td>
 							<td class="buch_status_select">'.$this->buch_status[$value['buch_status']].'</td>
-							<td class="select_global_status">'.$this->select_status($value['global_status'],$this->buch_status).'</td>
-						</tr>';
+							<td class="select_global_status">'.$this->select_status($value['global_status'],$this->order_status).'</td>';
+				$html3 = '</tr>';
 
-				$html1 .= $html2 . $html;
+				$html1 .= $html2 .$html2_body.$html3. $html;
+				// запрос по одной строке без подробностей
+				if($id_row){return $html2_body;}
 			}
+
+			
+
+
 			echo '
 			<table class="cabinet_general_content_row">
 							<tr>
@@ -669,7 +639,7 @@
 			echo $html1;
 			echo '</table>';
 		}
-
+		################ Предзаказ __ END
 
 		################ Заказы
 		Private Function orders_Template(){

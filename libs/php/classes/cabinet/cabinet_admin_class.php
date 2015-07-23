@@ -130,7 +130,7 @@
 
 		##########################################
 		################ Важно
-		Private Function important_Template(){
+		private function important_Template(){
 			echo 'Раздел в разработке =)';
 		}
 		## Важно __ запросы к базе
@@ -143,7 +143,7 @@
 
 		##########################################
 		################ Запросы
-		Private Function requests_Template($id_row = 0){
+		private function requests_Template($id_row = 0){
 		 	// для обсчёта суммы за тираж			
 			
 			include_once ('./libs/php/classes/rt_class.php');
@@ -161,13 +161,9 @@
 				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
 				FROM `".RT_LIST."`";
 			
-			if($id_row){
-			
+			if($id_row==1){
 				$query .=" WHERE `".RT_LIST."`.`id` = '".$id_row."'";
-			
-			}else{
-				
-				
+			}else{				
 				/////////////////////////
 				// фильтрация по статусам запросов
 				/////////////////////////
@@ -194,12 +190,16 @@
 					case 'no_worcked_men':
 						$query .= " WHERE `".RT_LIST."`.`status` = 'not_process' OR `".RT_LIST."`.`status` = 'new_query'";
 						break;
+
+					case 'in_work':
+						$query .= " WHERE `".RT_LIST."`.`status` = 'in_work' ";
+						break;
 					default:
 						break;
 				}
 			}
 
-			// echo $query.'<br><br><br><br>';
+			
 
 			// массви с переводом статусов запроса
 			$name_cirillic_status['new_query'] = 'новый запрос'; 
@@ -216,7 +216,10 @@
 					$zapros[] = $row;
 				}
 			}
-
+			// echo '<pre>';
+			// print_r($zapros);
+			// echo '</pre>';
+				
 			$general_tbl_row = '';
 			// собираем html строк-запросов 
 			$html = '';
@@ -299,10 +302,9 @@
 						break;
 				}
 				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
-				$general_tbl_row .= '<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">';
 				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
 				$general_tbl_row_body ='<td class="show_hide" rowspan="'.$rowspan.'"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> </td>
+							<td><a href="./?page=client_folder&client_id='.$value['client_id'].'&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> </td>
 							<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span>'.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
 							<td>'.$value['create_time'].'</td>
 							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
@@ -311,10 +313,11 @@
 							<td class="'.$value['status'].'_'.$this->user_access.'">'.$status_or_button.'</td>';
 				
 				// если запрос по строке, возвращаем строку
-				if($id_row){return $general_tbl_row_body;}
+				if($id_row!=0){return $general_tbl_row_body;}
 
-				$general_tbl_row .= $general_tbl_row_body;
-				$general_tbl_row .= '</tr>';
+				$general_tbl_row .= '<tr data-id="'.$value['id'].'" id="rt_list_id_'.$value['id'].'">
+									'.$general_tbl_row_body.'
+									</tr>';
 				
 				$general_tbl_row .= '<tr class="query_detail">';
 					//$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
@@ -388,8 +391,9 @@
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."'";
 					break;
 				case 'in_work':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'in_calculation'";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'on_calculation'";
 					break;
+
 				case 'denied':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct'";
 					break;
@@ -438,64 +442,13 @@
 			return $main_rows;
 		}
 
-		private function requests_replace_query_row_Section_AJAX(){
-			global $mysqli;
-			// получаем строку из os__rt_list
-			$query = "SELECT `".RT_LIST."`.*, 
-				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
-				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
-				
-				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
-				FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['os__rt_list_id']."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$zapros = array();
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$zapros[] = $row;
-				}
-			}
-			// для обсчёта суммы за тираж			
-			include_once ('./libs/php/classes/rt_class.php');
-			
-			// массви с переводом статусов запроса
-			$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
-			$name_cirillic_status['not_process'] = 'не обработан менеджером';
-			$name_cirillic_status['taken_into_operation'] = 'взят в обработку';
-			$name_cirillic_status['in_work'] = 'в работе';
-			$name_cirillic_status['history'] = 'история';
-			
-			foreach ($zapros as $key => $value) {
-				switch ($value['status']) {
-					case 'new_query':
-						$status_or_button = '<div class="give_to_all">отдать свободному</div>';
-						break;
-					default:
-						$status_or_button = $name_cirillic_status[$value['status']];
-						break;
-				}
-				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
-				$html = '<td class="show_hide" rowspan="'.$_POST['rowspan'].'"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> </td>
-							<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span>'.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
-							<td>'.$value['create_time'].'</td>
-							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
-							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
-							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td class="'.$value['status'].'_'.$this->user_access.'">'.$status_or_button.'</td>';
-
-			}
-			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-					
-			// echo $html;
-		}
-
 		################ Запросы __ END
 		##########################################
 
 
 		##########################################
 		## Предзаказ
-		Private Function paperwork_Template($id_row=0){
+		private function paperwork_Template($id_row=0){
 
 			global $mysqli;
 			
@@ -505,14 +458,8 @@
 			
 			$query = "SELECT 
 				`".CAB_ORDER_ROWS."`.*, 
-				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-				`".CLIENTS_TBL."`.`company`,
-				`".MANAGERS_TBL."`.`name`,
-				`".MANAGERS_TBL."`.`last_name`,
-				`".MANAGERS_TBL."`.`email` 
-				FROM `".CAB_ORDER_ROWS."`
-				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
-				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
+				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".CAB_ORDER_ROWS."`";
 			
 			if($id_row){
 				$query .=" WHERE `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
@@ -647,10 +594,11 @@
 				
 				$html2 = '<tr data-id="'.$value['id'].'" >';
 				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
+				//'.$this->get_manager_name_Database_Html($value['manager_id']).'
 				$html2_body = '<td class="show_hide" rowspan="'.$rowspan.'"><span class="cabinett_row_hide"></span></td>
 							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.$order_num_1.'</a></td>
-							<td>'.$value['create_time'].'</td>
-							<td>'.$value['company'].'</td>
+							<td>'.$value['create_time'].'<br>'.$this->get_manager_name_Database_Html($value['manager_id'],1).'</td>
+							<td>'.$this->get_client_name_Database($value['client_id'],1).'</td>
 							<td class="invoice_num" contenteditable="true">'.$value['invoice_num'].'</td>
 							<td><input type="text" class="payment_date" readonly="readonly" value="'.$value['payment_date'].'"></td>
 							<td class="number_payment_list" contenteditable="true">'.$value['number_pyament_list'].'</td>
@@ -688,9 +636,7 @@
 			echo $html1;
 			echo '</table>';
 		}
-		private function paperwork_replace_query_row_Section_AJAX(){
-
-		}
+		################ Предзаказ __ END
 
 		################ Заказы
 		Private Function orders_Template(){
@@ -1086,7 +1032,7 @@
 							<tr>
 								<th id="show_allArt"></th>
 								<th>Номер</th>
-								<th>Дата/время заведения</th>
+								<th>Дата/время заведения, Менеджер</th>
 								<th>Компания</th>						
 								<th class="invoice_num">Счёт</th>
 								<th>Дата опл-ты</th>
@@ -1343,40 +1289,7 @@
 			return $status_snab;
 		}
 
-		private function get_client_name_Database($id){
-			global $mysqli;		
-			//получаем название клиента
-			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$name = '';
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';
-				}
-			}else{
-				$name = '<div class="attach_the_client add" data-id="0">Прикрепить клиента</div>';
-			}
-			return $name;
-		}
-
-		private 	function get_manager_name_Database_Html($id){
-		    global $mysqli;
-		    $String = '<span class="attach_the_manager add" data-id="0">Прикрепить менеджера</span>';
-		   	$arr = array();
-		    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
-		    $result = $mysqli->query($query)or die($mysqli->error);
-		    if($result->num_rows>0){
-				foreach($result->fetch_assoc() as $key => $val){
-				   $arr[$key] = $val;
-				}
-		    }
-
-		    
-		    if(count($arr)){
-		    	$String = '<span class="attach_the_manager" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
-		    }
-		    return $String;
-		}
+		
 
 		//////////////////////////
 		//	оборачивает в оболочку warning_message

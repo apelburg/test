@@ -181,9 +181,60 @@
 		############################################
 		###				AJAX START               ###
 		############################################
+		//////////////////////////
+		//	paperwork START
+		//////////////////////////
+		private function change_payment_date_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `payment_date` =  '".$_POST['date']."' WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
+		private function change_payment_status_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `payment_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
+		private function change_invoce_num_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `invoice_num` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
+		private function number_payment_list_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `number_pyament_list` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
+		private function select_global_status_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
+		private function buch_status_select_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `buch_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
+		private function change_ttn_number_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  `ttn_number` =  '".$_POST['value']."', ttn_get = NOW() WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
 
-
+		private function change_delivery_tir_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  `delivery_tir` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
+		private function change_status_snab_AJAX(){
+			global $mysqli;
+			$query = "UPDATE `".CAB_ORDER_MAIN."` SET  `status_snab` =  '".$_POST['value']."' WHERE  `".CAB_ORDER_MAIN."`.`id` =".$_POST['row_id'].";";
+			$result = $mysqli->query($query) or die($mysqli->error);
+		}
+		//////////////////////////
+		//	paperwork END
+		//////////////////////////
 		
+
 		// выводит форму с выбором менеджеров 
 		public function get_a_list_of_managers_to_be_attached_to_the_request_AJAX(){
 			global $mysqli;
