@@ -2962,7 +2962,7 @@ var rtCalculator = {
 						   var input = tdsArr[j].getElementsByTagName('input')[0];
 						   if(input.type == 'checkbox' && input.name == 'masterBtn' && input.checked == true){
 						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
-										 idsObj[pos_id] = {}; 
+										 idsObj[pos_id] = []; 
 										 
 							}
 							else pos_id = false;
@@ -2994,7 +2994,8 @@ var rtCalculator = {
 				var tdsArr = trsArr[i].getElementsByTagName('td');   
 				for( var j= 0 ; j < tdsArr.length; j++){
 					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
-						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
+						// idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
+						idsObj[pos_id].push(trsArr[i].getAttribute('row_id'));
 						nothing = false;
 					}
 				}

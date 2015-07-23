@@ -1661,7 +1661,7 @@
 	}
 	
 
-	function add_items_for_specification($specification_num,$rows_id_str,$control_num,$client_id,$agreement_id,$agreement_date,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$date,$short_description,$address,$prepayment){
+	function add_items_for_specification($specification_num,$rows_id_str,$client_id,$agreement_id,$agreement_date,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$date,$short_description,$address,$prepayment){
 	    global $db;
 		
 
@@ -2165,4 +2165,37 @@
 		 
 	}
 	
+	function our_firm_acting_manegement_face($id){
+	    global $db;
+		$query = "SELECT*FROM `".OUR_FIRMS_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' AND `acting` =  '1'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		if(mysql_num_rows($result)>0){
+		    return array('position' => mysql_result($result,0,'position'),'position_in_padeg' => mysql_result($result,0,'position_in_padeg'),'name' => mysql_result($result,0,'name'),'name_in_padeg' => mysql_result($result,0,'name_in_padeg'),'basic_doc' => mysql_result($result,0,'basic_doc'));
+		}
+	}
+	
+/*	function get_client_requisites_acting_manegement_face($id){
+	    global $db;
+	//	$query = "SELECT*FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' AND `acting` =  '1'";
+		$query ="SELECT
+		`s`.*,
+		`b`.`position`,
+		`b`.`position_in_padeg`
+		FROM `".CLIENT_PERSON_REQ_TBL."` AS `s`
+		INNER JOIN
+		`".CLIENT_CONT_FACES_POST_TBL."` AS `b`
+		ON s.post_id = b.id
+		WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
+		";
+		
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		if(mysql_num_rows($result)>0){
+			while($item = mysql_fetch_assoc($result)){
+		    return array('position' => $item['position'],'position_in_padeg' => $item['position_in_padeg'],'name' => $item['name'],'name_in_padeg' => $item['name_in_padeg'],'basic_doc' => $item['basic_doc']);
+		    }
+		}
+	}
+	*/
 ?>
