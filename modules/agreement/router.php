@@ -8,7 +8,7 @@
    
 	//print_r($_GET);
 	//print_r($_SESSION);
-	//print_r($_SESSION['rows_for_specification']);
+	//print_r($_SESSION['data_for_specification']);
 	set_time_limit(0);
 	
 	$section  = (!empty($_POST['section']))? $_POST['section']: ((!empty($_GET['section']))? $_GET['section']: FALSE ) ;

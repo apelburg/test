@@ -80,6 +80,7 @@
 	define("INVOICES_TBL2","os__invoices_for_pay2"); // таблица счетов
 	
 	define("OUR_FIRMS_TBL","os__our_firms"); //
+	define("OUR_FIRMS_MANAGEMENT_TBL","os__our_firms_management"); // таблица руководителей наших фирм
 	define("OUR_AGREEMENTS_TBL","os__agreements"); // таблица типов договоров
 	define("GENERATED_AGREEMENTS_TBL","os__generated_agreements"); // таблица созданных договоров
 	define("GENERATED_SPECIFICATIONS_TBL","os__generated_specifications"); // таблица созданных договоров

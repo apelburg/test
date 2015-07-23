@@ -4,7 +4,6 @@
         <!-- hidden -->
         <input type="hidden" name="page" value="<?php echo $page; ?>">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <input type="hidden" name="conrtol_num" value="<?php echo $_GET['conrtol_num']; ?>">
         <input type="hidden" name="agreement_type" value="<?php echo $_GET['agreement_type']; ?>">
         <input type="hidden" name="address" value="<?php echo $_GET['address']; ?>">
         <input type="hidden" name="prepayment" value="<?php echo $_GET['prepayment']; ?>">

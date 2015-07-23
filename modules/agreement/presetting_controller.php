@@ -1,9 +1,9 @@
 <?php
 
-   $_SESSION['rows_for_specification'] = $_GET['ids'];
+   $_SESSION['data_for_specification'] = $_GET['ids'];
    
-   //echo $_SESSION['rows_for_specification'];
-   print_r($_GET);
-   //header('Location:?'.addOrReplaceGetOnURL('section=choice','data'));
+
+   //print_r($_GET);
+   header('Location:?'.addOrReplaceGetOnURL('section=choice','data&ids'));
 
 ?>

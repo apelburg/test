@@ -117,7 +117,7 @@
         <form method="GET">
         <!-- hidden -->
         <input type="hidden" name="page" value="<?php echo $page; ?>">
-        <input type="_hidden" name="client_id" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <input type="hidden" name="section" value="choice_2">
         <input id="hiddenSetDateField"  type="hidden" name="date" value="<?php echo date('d.m.Y'); ?>">
         <!-- -->

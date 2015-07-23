@@ -106,7 +106,7 @@ function get_gen_price_out($variable){
 		
 		// шапка таблицы вариантов запроса
 		$html .= '<tr>
-				<th>артикул</th>
+				<th>22артикул</th>
 				<th>номенклатура</th>
 				<th>тираж</th>
 				<th>цены:</th>
