@@ -1,6 +1,6 @@
 <?php
 	
-	class Cabinet_men_class{
+	class Cabinet_men_class extends Cabinet{
 
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
@@ -161,7 +161,7 @@
 						break;
 				}
 				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
-				$html = '<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
+				$html = '<td class="show_hide" rowspan="'.$_POST['rowspan'].'"><span class="cabinett_row_hide"></span></td>
 							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a></td>
 							<td>'.$this->get_client_name($value['client_id'],$value['status']).'</td>
 							<td>'.$value['create_time'].'</td>
@@ -493,7 +493,6 @@
 
 			global $mysqli;
 			
-
 			// простой запрос
 			$array_request = array();
 
@@ -508,7 +507,7 @@
 				FROM `".CAB_ORDER_ROWS."`
 				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
 				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'В оформлении'";
+			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared'";
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -582,9 +581,9 @@
 						<th>товар</th>
 						<th>печать</th>
 						<th>доп. услуги</th>
-					<th>в общем</th>
-					<th></th>
-					<th></th>
+						<th>в общем</th>
+						<th></th>
+						<th></th>
 						</tr>';
 
 
@@ -592,17 +591,17 @@
 				foreach ($main_rows as $key1 => $val1) {
 					//ОБСЧЁТ ВАРИАНТОВ
 					// получаем массив стоимости нанесения и доп услуг для данного варианта 
-					$dop_usl = $this->CABINET -> get_order_dop_uslugi($val1['id_dop_data']);
+					$dop_usl = $this-> get_order_dop_uslugi($val1['id_dop_data']);
 					// выборка только массива стоимости печати
-					$dop_usl_print = $this->CABINET->get_dop_uslugi_print_type($dop_usl);
+					$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
 					// выборка только массива стоимости доп услуг
-					$dop_usl_no_print = $this->CABINET -> get_dop_uslugi_no_print_type($dop_usl);
+					$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
 
 					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
 					// стоимость печати варианта
-					$calc_summ_dop_uslug = $this->CABINET -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
+					$calc_summ_dop_uslug = $this-> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 					// стоимость доп услуг варианта
-					$calc_summ_dop_uslug2 = $this->CABINET -> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
+					$calc_summ_dop_uslug2 = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
 					// стоимость товара для варианта
 					$price_out = $val1['price_out'] * $val1['quantity'];
 					// стоимость варианта на выходе
@@ -643,12 +642,12 @@
 							<td><input type="text" class="payment_date" readonly="readonly" value="'.$value['payment_date'].'"></td>
 							<td class="number_payment_list" contenteditable="true">'.$value['number_pyament_list'].'</td>
 							<td><span>'.$percent_payment.'</span> %</td>
-							<td><span class="payment_status_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
+							<td><span class="payment_status_span edit_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
 							<td><span>'.$in_out_summ.'</span> р.</td>
-							<td class="buch_status_select">'.$value['buch_status'].'</td>
-							<td class="select_global_status">'.$this->CABINET->select_global_status($value['global_status']).'</td>
-						</tr>
-				';
+							<td class="buch_status_select">'.$this->buch_status[$value['buch_status']].'</td>
+							<td class="select_global_status">'.$this->select_status($value['global_status'],$this->buch_status).'</td>
+						</tr>';
+
 				$html1 .= $html2 . $html;
 			}
 			echo '
@@ -664,7 +663,7 @@
 								<th>% оплаты</th>
 								<th>Оплачено</th>
 								<th>стоимость заказа</th>
-								<th>Стутус БУХ</th>
+								<th>стутус БУХ</th>
 								<th>Статус заказа.</th>
 							</tr>';
 			echo $html1;
