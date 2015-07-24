@@ -2070,19 +2070,6 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 .specification  .requisites_tbl .bold_font td{
   font-weight:bold;
 }
-
-#preloader_window_block{
-  background: #fff;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  z-index: 50;
-  opacity: 0.8;
-  background-image: url(../images/img_design/preloader.gif);
-  background-repeat: no-repeat;
-  background-position: 50%;
-}
    
 .agreement_list_tbl{
   width:100%;
@@ -2311,3 +2298,24 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
   border:1px solid #CCCCCC;
   width:200px;
 } 
+
+.dop_grey_small_info{
+  font-size: 10px;
+  color: #B8B7B7;
+}
+.dop__info{
+  font-size: 12px;
+}
+#preloader_window_block{
+  background: #fff;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  z-index: 50;
+  opacity: 0.8;
+  background-image: url(../images/img_design/preloader.gif);
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+

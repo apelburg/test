@@ -661,6 +661,8 @@
 			
 			return $out_put; 
 		}
+
+		// создание заказа из запроса
 		static function make_order($json){
 			// СОЗДАНИЕ ЗАКАЗА
 			global $mysqli;
@@ -678,8 +680,8 @@
 			//echo $query_num;
 
 		    // СОЗДАЁМ СТРОКУ ЗАКАЗА
-		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id` )
-				SELECT `manager_id`, `client_id`
+		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id`, `snab_id` )
+				SELECT `manager_id`, `client_id`, `snab_id`
 				FROM `".RT_LIST."` 
 				WHERE  `query_num` = '".$query_num."';
 				";

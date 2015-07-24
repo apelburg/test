@@ -79,11 +79,10 @@
 												'access'=>true,
 												'subsection'=>array( // 2
 													'no_worcked_men' => array('access'=>true),
-													'no_worcked_snab' => array('access'=>true),
 													'in_work' => array('access'=>true),
 													'send_to_snab' => array('access'=>true),
 													'calk_snab' => array('access'=>true),
-													'ready_KP' => array('access'=>true),
+													//'ready_KP' => array('access'=>true), // будем прикручивать на будущие версии
 													'denied' => array('access'=>true),
 													'all' => array('access'=>true),
 													'history' => array('access'=>true)
