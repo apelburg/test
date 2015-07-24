@@ -2175,6 +2175,57 @@
 		}
 	}
 	
+	function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
+	    global $db;
+		
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."'";
+		
+		if($group_by) $query .= "GROUP BY ".$group_by ;
+		else $query .= "ORDER BY id ";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result) > 0){
+		     return $result;
+		}
+		else return false;
+	
+	}
+	
+	function fetch_client_requisites_nikename($id){
+	    global $db;
+		$query = "SELECT company FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".$id."'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		
+		return 'company';//mysql_result($result,0,'company');
+	}
+	
+	function get_client_requisites($id){
+	   /* global $db;
+		$query = "SELECT*FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".$id."'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());*/
+		
+		return array(); //mysql_fetch_assoc($result);
+	}
+	function num_word_transfer($number){
+		global $num_word_transfer_arr;
+		global $num_word_transfer_razriad_arr;
+		
+		$number = strval($number);
+		for($i=0;$i<strlen($number);$i++) $number_arr[$i] = $number[$i]; // замена str_split(PHP5)
+		$number_arr = array_reverse($number_arr);
+		$counter = 0 ;
+		for( $i=0; $i<count($number_arr); $i++){
+			$index = $number_arr[$i];
+			$number_arr_in_word[]= $num_word_transfer_arr[$counter++][$index].' '.$num_word_transfer_razriad_arr[$i];
+			
+		}
+		return implode(' ',array_reverse($number_arr_in_word));
+		
+	}
+	
 /*	function get_client_requisites_acting_manegement_face($id){
 	    global $db;
 	//	$query = "SELECT*FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' AND `acting` =  '1'";

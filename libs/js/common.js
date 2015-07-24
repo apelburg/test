@@ -945,7 +945,24 @@
 		location.search = '?'+addOrReplaceGetOnURL('section=suppliers_list&filter_by_profies='+valuesArr.join(','),'search');
 	}
 	
-	
+	function agreement_section(element){
+	   var id = element.options[element.selectedIndex].value; 
+	   var tbl = document.getElementById('agreement_list_tbl');
+	   var arr = tbl.getElementsByTagName('tr');
+	   //alert(tr_list.length);
+	   for( var i=0 ; i < arr.length ; i++){
+		   if(arr[i].getAttribute('agreement_id')){
+			   if(arr[i].getAttribute('agreement_id') == id ){
+				   arr[i].hidden = false;
+				   var agreement_num = arr[i].getElementsByTagName('agreement_num');
+				   //if(agreement_num && agreement_num.length >0) document.getElementById('cup_agreement').innerHTML = agreement_num[1].innerHTML + 'Договор: ДС №'+agreement_num[0].innerHTML + ' от ' + agreement_num[2].innerHTML;
+				   
+			   }
+			   else arr[i].hidden = true;
+		   }
+	    }
+    }
+   
     function open_close_overflow_container(btn,container,inner_element,scroll_container,min_height){
 		if(open_close_overflow_container.on) return;
 		
@@ -1015,6 +1032,7 @@
 	$(document).on('click', '.html_modal_window_head_close,.cancel_bw', function(event) {
 		$('#bg_modal_window,.html_modal_window').remove();
 	});
+	
 	/*
 	//закрытие стандартного окна при ответе об успешном выполнении запроса 
 	//этот скрипт реализует отправку ajax запроса на текущую страницу при клике на любую зелёную кнопку форме
