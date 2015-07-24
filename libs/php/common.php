@@ -6,6 +6,13 @@
 		 RT::add_data_from_basket($_GET['client_data'],$_GET['manager_login']);
 		 exit;
 	}
+	if(isset($_GET['subquery_for_planner_window'])){
+	     include_once ROOT.'/libs/php/classes/client_class.php';
+	     echo Client::cont_faces_list($_GET['client_id']);
+	     exit;
+    }
+	
+	
     function getHelp($topic){
 	    $filename = ROOT.'/libs/help/'.$topic.'.txt';
 	    $fd = fopen($filename,"rb");
@@ -2224,6 +2231,78 @@
 		}
 		return implode(' ',array_reverse($number_arr_in_word));
 		
+	}
+	
+	function set_plan(){
+	    global $db;
+		global $user_id;
+		global $form_data;
+		extract($form_data);
+		
+		//echo'<pre>';print_r($form_data); echo'<pre>';
+		//exit;
+	   
+		$date_order = implode('',array_reverse(explode('.',$remind_date)));
+		$time_order = (strlen($time_table_date)<5)?  '0'.str_replace('.','',$time_table_date):str_replace('.','',$time_table_date);
+
+		$query = "INSERT INTO `".PLANNER."` SET 
+		                                   `write_datetime` = CURRENT_TIMESTAMP(),
+										   `exec_datetime` = CAST('".$remind_date." ".str_replace('.',':',$time_table_date).":00' AS DATETIME),
+										   `type` = '$plan_type',`status` = 'new',
+										   `manager_id` = '$user_id',`client_id` = '$client_id',
+										   `cont_face` = '$cont_face', `plan` = '$plan'";
+											
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		header('Location:'.$_SERVER['HTTP_REFERER']);
+	}
+	
+	function edit_plan(){
+	    global $db;
+		global $form_data;
+		extract($form_data);
+		 
+		
+		$date_order = implode('',array_reverse(explode('.',$remind_date)));
+		$time_order = (strlen($time_table_date)<5)?  '0'.str_replace('.','',$time_table_date):str_replace('.','',$time_table_date);
+		
+		$query = "UPDATE `".PLANNER."` SET `write_datetime` = CURRENT_TIMESTAMP(),
+										   `exec_datetime` = CAST('".$remind_date." ".str_replace('.',':',$time_table_date).":00' AS DATETIME),
+										   `type` = '$plan_type',`cont_face` = '$cont_face', `plan` = '$plan'
+										    WHERE `id` = '$id'";
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		header('Location:'.$_SERVER['HTTP_REFERER']);
+	}
+	
+	function set_plan_status($id,$status){
+	    global $db;
+		
+		$query = "UPDATE `".PLANNER."` SET `status` = '$status' WHERE `id` = '$id'";
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		
+		header('Location:?'.addOrReplaceGetOnURL('','plan_id&set_plan_status'));
+	}
+	
+	function set_result_for_plan($manager_id){
+	    global $db;
+		global $form_data;
+		extract($form_data,EXTR_PREFIX_ALL,"in");
+	
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/manager_class.php");
+	    $manager = new Manager($manager_id); 
+		
+		// проверяем пустое ли поле result если нет тогда оформляем как переписку
+		$query = "SELECT id FROM `".PLANNER."` WHERE `id` = '".$in_row_id."' AND `result` <> ''";
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		if($result && mysql_num_rows($result)>0) $in_result = '<div><span class="mini_cap">'.$manager->name.' '.$manager->last_name.'</span><div>'.$in_result.'</div></div>';
+		
+		
+		$status = ($in_event_type == 'встреча')?'on_approval':'done';
+		
+		$query = "UPDATE `".PLANNER."` SET `close_manager_id` = '".$manager_id."', `result` =   CONCAT(`result`,'".$in_result."'), `status` = '".$status."', `emotion_mark` = '".$in_emotion_mark."' WHERE `id` = '".$in_row_id."'";
+		//remind_date
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		//exit;
+		header('Location:?'.$_SERVER['QUERY_STRING']);
 	}
 	
 /*	function get_client_requisites_acting_manegement_face($id){

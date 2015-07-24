@@ -1033,6 +1033,717 @@
 		$('#bg_modal_window,.html_modal_window').remove();
 	});
 	
+   show_planner_window.in_process = false;
+   function show_planner_window(client_id){
+	    if(show_planner_window.in_process) return;
+	    else show_planner_window.in_process = true;
+		
+	   if(document.getElementById("QEFEF9740WE")) document.getElementById("QEFEF9740WE").parentNode.removeChild(document.getElementById("QEFEF9740WE"));
+	   
+		
+		//////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////    AJAX  ///////////////////////////////////////////
+		
+		var request = HTTP.newRequest();
+	    var url = '?page=clients&client_id=' + client_id + '&subquery_for_planner_window=1';
+		
+	    // производим запрос
+	    request.open("GET", url, true);
+	    request.send(null);
+		
+		request.onreadystatechange = function(){ // создаем обработчик события
+		   if(request.readyState == 4){ // проверяем состояние запроса если запрос == 4 значит ответ получен полностью
+			   if(request.status == 200){ // проверяем состояние ответа (код состояния HTTP) если все впорядке продолжаем 
+				     ///////////////////////////////////////////
+			         
+
+					 var request_response = request.responseText;
+					 //alert(request_response);
+					 var cont_faces_arr = request_response.split('{@}');
+					 // создаем всплывающее окно
+					 up_window_consructor.setWindowDimentions(330,800)
+					 var arr = up_window_consructor.windowBilder('QEFEF9740WE');
+					 
+					 ///////////////////////////////////////////////////////
+					 // содержимое сплывающего окна
+					 ///////////////////////////////////////////////////////
+					 
+					 //элемент форма
+					 var form = document.createElement("form");
+					 form.method = "POST";
+					 form.action = location.href;
+					
+					 // верхний div
+                     var div1 = document.createElement("div");
+					 div1.style.height ='140px';
+					 div1.style.border ='#000000 solid 0px';
+					 
+					 var div_float_left = document.createElement("div"); // плавающий div контейнер
+					 div_float_left.style.float ='left';
+					 div_float_left.style.margin ='15px 0px 0px 5px';
+					 //div_float_left.style.width ='200px';
+					 //div_float_left.style.border ='#000000 solid 1px';
+					 
+					 // тип записи
+					 var plan_types_arr = ['звонок','встреча','заявка'];
+					 var select_element = document.createElement("select");
+					 select_element.name ='form_data[plan_type]';
+					 select_element.style.width = "140px";
+					 select_element.style.border = "#CCCCCC solid 1px";
+					 for( var i=0; i < plan_types_arr.length ;i++){
+						 var option = document.createElement("option");
+						 option.value = plan_types_arr[i];
+						 option.innerHTML = plan_types_arr[i];
+						 select_element.appendChild(option);
+						 
+					 }
+					 var plantype_headline_div = document.createElement("div");
+					 plantype_headline_div.innerHTML = '&nbsp;Тип задачи';
+					 var plantype_select_div = document.createElement("div");
+					 plantype_select_div.appendChild(select_element);
+					 
+					 div_float_left.appendChild(plantype_headline_div);
+					 div_float_left.appendChild(plantype_select_div);
+					
+					 
+					 // контактные лица
+					 var select_element2 = document.createElement("select");
+					 select_element2.name ='form_data[cont_face]';
+					 select_element2.style.width = "140px";
+					 select_element2.style.border = "#CCCCCC solid 1px";
+					 for( var i=0; i < cont_faces_arr.length ;i++){
+						 var option = document.createElement("option");
+						 option.value = cont_faces_arr[i];
+						 option.innerHTML = cont_faces_arr[i];
+						 select_element2.appendChild(option);
+						 
+					 }
+					 var contfaces_headline_div = document.createElement("div");
+					 contfaces_headline_div.style.marginTop = "6px";
+					 contfaces_headline_div.innerHTML = '&nbsp;Контактные лица';
+					 var contfaces_select_div = document.createElement("div");
+					 contfaces_select_div.appendChild(select_element2);
+					 
+					 div_float_left.appendChild(contfaces_headline_div);
+					 div_float_left.appendChild(contfaces_select_div);
+					 
+					 
+					  // календарь
+					 var div_float_right2 = document.createElement("div"); // плавающий div контейнер
+					 div_float_right2.style.float ='right';
+					 div_float_right2.style.margin ='10px 0px 0px 0px';
+	                 div_float_right2.style.width ='250px';
+					 div_float_right2.style.border ='#000000 solid 0px';
+					 
+					 calendar_consturctor.setContextDay();
+                     var calendar = calendar_consturctor.calendarTableBilder('calendar_table');
+                     calendar[0].style.width = '180px';
+                     calendar[0].appendChild(calendar[1]);
+                     calendar[0].appendChild(calendar[2]);
+					 calendar[0].appendChild(calendar[3]);
+                     div_float_right2.appendChild(calendar[0]);
+					 
+					 // time table
+					 var div_float_right3 = document.createElement("div"); // плавающий div контейнер
+					 div_float_right3.style.float ='right';
+					 div_float_right3.style.margin ='10px 0px 0px 0px';
+	                 div_float_right3.style.width ='220px';
+					 div_float_right3.style.border ='#000000 solid 0px';
+					 				 
+					 var time_table = calendar_consturctor.timeTable('time_table');
+					 time_table[0].style.width = '180px';
+					 time_table[0].style.margin ='0px 0px 0px 0px';
+                     time_table[0].appendChild(time_table[1]);
+                     time_table[0].appendChild(time_table[2]);
+					 time_table[3].style.margin ='2px 0px 0px 0px';
+					 div_float_right3.appendChild(time_table[3]);
+                     div_float_right3.appendChild(time_table[0]);
+					 
+					 //кнопки ok? reset и отменить
+					 var div_float_right1 = document.createElement("div"); // плавающий div контейнер
+					 div_float_right1.style.float ='right';
+					 div_float_right1.style.margin ='10px 0px 0px 0px';
+	                 div_float_right1.style.width ='98px';
+					 div_float_right1.style.border ='#000000 solid 0px';
+					 
+					 //var button_ok = document.createElement("button"); 
+					 var button_ok = document.createElement("input"); 
+					 button_ok.type = 'submit';
+					 button_ok.name = 'set_plan';
+					 //button_ok.innerHTML = 'ok';
+					 button_ok.value = 'ok';
+					 button_ok.style.height = '30px';
+					 button_ok.style.width = '90px';
+					 button_ok.style.backgroundColor = "rgb(122, 189, 121)";
+					 button_ok.style.border = "#555 solid 1px";
+					 button_ok.style.borderRadius ='2px';
+					 button_ok.style.cursor = 'pointer';
+					 
+					 var button_ok_div = document.createElement("div");
+					 button_ok_div.style.marginBottom = '15px';
+					 button_ok_div.appendChild(button_ok);
+					 
+					 div_float_right1.appendChild(button_ok_div);
+					 
+					 
+					// var button_reset = document.createElement("button"); 
+					 var button_reset = document.createElement("input"); 
+					 button_reset.type = 'reset';
+					// button_reset.innerHTML = 'очистить';
+					 button_reset.value = 'очистить';
+					 button_reset.style.height = '30px';
+					 button_reset.style.width = '90px';
+					 button_reset.style.cursor = 'pointer';
+					 
+					 var button_reset_div = document.createElement("div");
+					 button_reset_div.style.marginBottom = '15px';
+					 button_reset_div.appendChild(button_reset);
+					 
+					 
+					 
+					 div_float_right1.appendChild(button_reset_div);
+					 
+					 
+					 //var button_escape = document.createElement("button"); 
+					 var button_escape = document.createElement("input"); 
+					 button_escape.type = 'button';
+					 //button_escape.innerHTML = 'отменить';
+					 button_escape.value = 'отменить';
+					 button_escape.style.height = '30px';
+					 button_escape.style.width = '90px'
+					 button_escape.style.cursor = 'pointer';
+					 button_escape.onclick = up_window_consructor.closeWindow;
+					 
+					 var button_escape_div = document.createElement("div");
+					 button_escape_div.appendChild(button_escape);
+					 
+					 div_float_right1.appendChild(button_escape_div);
+					 
+					 // объедняем(добавляем) элементы входящие в div1
+					 div1.appendChild(div_float_left);
+					 div1.appendChild(div_float_right1);
+					 div1.appendChild(div_float_right2);
+					 div1.appendChild(div_float_right3);
+					 
+					 
+					 
+					 // div с текстовым полем
+					 var div2 = document.createElement("div");
+					 div2.style.textAlign ='center';
+					 div2.style.border ='#000000 solid 0px';
+					 
+					 var textarea = document.createElement("textarea");
+					 textarea.name ='form_data[plan]';
+					 textarea.style.height ='92px';
+					 textarea.style.width ='744px';
+					 textarea.style.border ='#CCCCCC solid 1px';
+					 textarea.style.backgroundColor ='#F6F6F6';
+					 textarea.style.fontFamily ='Arial';
+					 div2.appendChild(textarea);
+					 
+					 // дополниетльное поле содержащее cilent_id
+					 
+					 var client_id_input = document.createElement("input"); 
+					 client_id_input.type = 'hidden';
+					 client_id_input.name ='form_data[client_id]';
+					 client_id_input.value = client_id;
+					 div2.appendChild(client_id_input);
+
+					 
+					 ///////////////////////////////////////////////////////
+					 // end содержимое сплывающего окна
+					 ///////////////////////////////////////////////////////
+					 
+					 // добавляем содержимое в таблицу в форму а затем в таблицу окна
+					 form.appendChild(div1);
+					 form.appendChild(div2);
+					 arr[2].childNodes[1].childNodes[1].childNodes[0].appendChild(form);
+					 
+					 // добавляем таблицу в окно
+					 arr[1].appendChild(arr[2]);
+					 document.body.appendChild(arr[0]);
+					 document.body.appendChild(arr[1]);
+					 
+		             show_planner_window.in_process = false;
+                     
+			    }
+			    else{
+				    alert("Частота запросов превысила допустимое значение\rдля данного интернет-соединения, попробуйте\rперезагрузить сайт, для этого нажмите F5");
+			    }
+		    }
+		}	
+   }
+   show_planner_window_for_editing.in_process = false;
+   function show_planner_window_for_editing(client_id,id){
+	   
+	    if(show_planner_window_for_editing.in_process) return;
+	    else show_planner_window_for_editing.in_process = true;
+		
+		if(!check_existence_element_by_ID("exec_date_input_" + id)) return;
+	    if(!check_existence_element_by_ID("type_" + id)) return;
+	    if(!check_existence_element_by_ID("cont_face_" + id)) return;
+	    if(!check_existence_element_by_ID("plan_" + id)) return;
+
+	    if(document.getElementById("2Q2EFEF9740WE")) document.getElementById("2Q2EFEF9740WE").parentNode.removeChild(document.getElementById("2Q2EFEF9740WE"));
+
+	   
+	    // снимаем данные с ряда
+		var preset_exec_date = document.getElementById("exec_date_input_" + id).value;
+	    var preset_type = document.getElementById("type_" + id).innerHTML;
+	    var preset_cont_face = document.getElementById("cont_face_" + id).innerHTML;
+	    var preset_plan = document.getElementById("plan_" + id).innerHTML;
+		
+		var preset_exec_time = preset_exec_date.slice(preset_exec_date.indexOf(" ")+1,preset_exec_date.indexOf(" ")+6);
+		preset_exec_time = preset_exec_time.replace(':','.');
+		var preset_exec_day =  preset_exec_date.slice(0,preset_exec_date.indexOf(" "));
+		preset_exec_day_arr = preset_exec_day.split('-'); 
+		for(var val in preset_exec_day_arr) preset_exec_day_arr[val] = parseInt(preset_exec_day_arr[val]);
+		preset_exec_day_arr[1]--;
+		//preset_exec_day_arr = new Array(2011,2,3); 
+		
+		//////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////    AJAX  ///////////////////////////////////////////
+		
+		var request = HTTP.newRequest();
+	    var url = '?page=clients&client_id=' + client_id + '&subquery_for_planner_window=1';
+		
+	    // производим запрос
+	    request.open("GET", url, true);
+	    request.send(null);
+		
+		request.onreadystatechange = function(){ // создаем обработчик события
+		   if(request.readyState == 4){ // проверяем состояние запроса если запрос == 4 значит ответ получен полностью
+			   if(request.status == 200){ // проверяем состояние ответа (код состояния HTTP) если все впорядке продолжаем 
+				     ///////////////////////////////////////////
+
+					
+					 var request_response = request.responseText;
+					 //alert(request_response);
+					 var cont_faces_arr = request_response.split('{@}');
+					 // создаем всплывающее окно
+					 up_window_consructor.setWindowDimentions(330,800)
+					 var arr = up_window_consructor.windowBilder('2Q2EFEF9740WE');
+					 
+					 ///////////////////////////////////////////////////////
+					 // содержимое сплывающего окна
+					 ///////////////////////////////////////////////////////
+					 
+					 //элемент форма
+					 var form = document.createElement("form");
+					 form.method = "POST";
+					 form.action = location.href;
+					 
+					 // верхний div
+                     var div1 = document.createElement("div");
+					 div1.style.height ='140px';
+					 div1.style.border ='#000000 solid 0px';
+					 
+					 var div_float_left = document.createElement("div"); // плавающий div контейнер
+					 div_float_left.style.float ='left';
+					 div_float_left.style.margin ='15px 0px 0px 5px';
+					 //div_float_left.style.width ='200px';
+					 //div_float_left.style.border ='#000000 solid 1px';
+					 
+					 // тип записи
+					 var plan_types_arr = ['звонок','встреча','заявка'];
+					 var select_element = document.createElement("select");
+					 select_element.name ='form_data[plan_type]';
+					 select_element.style.width = "140px";
+					 select_element.style.border = "#CCCCCC solid 1px";
+					 for( var i=0; i < plan_types_arr.length ;i++){
+						 var option = document.createElement("option");
+						 option.value = plan_types_arr[i];
+						 option.innerHTML = plan_types_arr[i];
+						 select_element.appendChild(option);
+						 
+						 ///////////////////////////////////////////
+						 
+						 if(plan_types_arr[i] == preset_type) option.selected = true;
+						 
+						 /////////////////////////////////////////////
+						 
+						 
+					 }
+					 var plantype_headline_div = document.createElement("div");
+					 plantype_headline_div.innerHTML = '&nbsp;Тип задачи';
+					 var plantype_select_div = document.createElement("div");
+					 plantype_select_div.appendChild(select_element);
+					 
+					 ///////////////////////////////////////////
+					 
+					 var id_input = document.createElement("input"); 
+					 id_input.type = 'hidden';
+					 id_input.name = 'form_data[id]';
+					 id_input.value = id;
+						 
+					 /////////////////////////////////////////////
+					 
+					 div_float_left.appendChild(plantype_headline_div);
+					 div_float_left.appendChild(plantype_select_div);
+					 div_float_left.appendChild(id_input);
+					
+					 
+					 // контактные лица
+					 var select_element2 = document.createElement("select");
+					 select_element2.name ='form_data[cont_face]';
+					 select_element2.style.width = "140px";
+					 select_element2.style.border = "#CCCCCC solid 1px";
+					 for( var i=0; i < cont_faces_arr.length ;i++){
+						 var option = document.createElement("option");
+						 option.value = cont_faces_arr[i];
+						 option.innerHTML = cont_faces_arr[i];
+						 select_element2.appendChild(option);
+						 
+						 ///////////////////////////////////////////
+						 
+						 if(cont_faces_arr[i] == preset_cont_face) option.selected = true;
+						 
+						 /////////////////////////////////////////////
+						 
+					 }
+					 var contfaces_headline_div = document.createElement("div");
+					 contfaces_headline_div.innerHTML = '&nbsp;Контактные лица';
+					 contfaces_headline_div.style.marginTop = "6px";
+					 var contfaces_select_div = document.createElement("div");
+					 contfaces_select_div.appendChild(select_element2);
+					 
+					 div_float_left.appendChild(contfaces_headline_div);
+					 div_float_left.appendChild(contfaces_select_div);
+					 
+					 
+					  // календарь
+					 var div_float_right2 = document.createElement("div"); // плавающий div контейнер
+					 div_float_right2.style.float ='right';
+					 div_float_right2.style.margin ='10px 0px 0px 0px';
+	                 div_float_right2.style.width ='250px';
+					 div_float_right2.style.border ='#000000 solid 0px';
+					 
+					 // calendar_consturctor.setContextDay();					 
+					 ///////////////////////////////////////////
+						 
+					 calendar_consturctor.setContextDay(preset_exec_day_arr,true);
+						 
+					 /////////////////////////////////////////////
+                     var calendar = calendar_consturctor.calendarTableBilder('calendar_table');
+                     calendar[0].style.width = '180px';
+                     calendar[0].appendChild(calendar[1]);
+                     calendar[0].appendChild(calendar[2]);
+					 calendar[0].appendChild(calendar[3]);
+                     div_float_right2.appendChild(calendar[0]);
+					 
+					 // time table
+					 var div_float_right3 = document.createElement("div"); // плавающий div контейнер
+					 div_float_right3.style.float ='right';
+					 div_float_right3.style.margin ='10px 0px 0px 0px';
+	                 div_float_right3.style.width ='220px';
+					 div_float_right3.style.border ='#000000 solid 0px';
+					 				 
+					 var time_table = calendar_consturctor.timeTable('time_table',preset_exec_time);
+					 time_table[0].style.width = '180px';
+					 time_table[0].style.margin ='0px 0px 0px 0px';
+                     time_table[0].appendChild(time_table[1]);
+                     time_table[0].appendChild(time_table[2]);
+					 time_table[3].style.margin ='2px 0px 0px 0px';
+					 div_float_right3.appendChild(time_table[3]);
+                     div_float_right3.appendChild(time_table[0]);
+					 
+					 //кнопки ok? reset и отменить
+					 var div_float_right1 = document.createElement("div"); // плавающий div контейнер
+					 div_float_right1.style.float ='right';
+					 div_float_right1.style.margin ='10px 0px 0px 0px';
+	                 div_float_right1.style.width ='98px';
+					 div_float_right1.style.border ='#000000 solid 0px';
+					 
+					 //var button_ok = document.createElement("button"); 
+					 var button_ok = document.createElement("input"); 
+					 button_ok.type = 'submit';
+					 button_ok.name = 'edit_plan';
+					 //button_ok.innerHTML = 'ok';
+					 button_ok.value = 'ok';
+					 button_ok.style.height = '30px';
+					 button_ok.style.width = '90px';
+					 button_ok.style.backgroundColor = "rgb(122, 189, 121)";
+					 button_ok.style.border = "#555 solid 1px";
+					 button_ok.style.borderRadius ='2px';
+					 button_ok.style.cursor = 'pointer';
+					 
+					 var button_ok_div = document.createElement("div");
+					 button_ok_div.style.marginBottom = '15px';
+					 button_ok_div.appendChild(button_ok);
+					 
+					 div_float_right1.appendChild(button_ok_div);
+					 
+					 
+					 ////////////////..
+ 
+					 var button_reset = document.createElement("input"); 
+					 button_reset.type = 'reset';
+					 button_reset.value = 'очистить';
+					 button_reset.style.height = '30px';
+					 button_reset.style.width = '90px';
+					 button_reset.style.cursor = 'pointer';
+					 
+					 var button_reset_div = document.createElement("div");
+					 button_reset_div.style.marginBottom = '15px';
+					 button_reset_div.appendChild(button_reset);
+					 
+					 
+					 
+					 div_float_right1.appendChild(button_reset_div);
+					 
+					 
+					 //var button_escape = document.createElement("button"); 
+					 var button_escape = document.createElement("input"); 
+					 button_escape.type = 'button';
+					 //button_escape.innerHTML = 'отменить';
+					 button_escape.value = 'отменить';
+					 button_escape.style.height = '30px';
+					 button_escape.style.width = '90px'
+					 button_escape.style.cursor = 'pointer';
+					 button_escape.onclick = up_window_consructor.closeWindow;
+					
+					 
+					 var button_escape_div = document.createElement("div");
+					 button_escape_div.appendChild(button_escape);
+					 
+					 div_float_right1.appendChild(button_escape_div);
+					 
+					 // объедняем(добавляем) элементы входящие в div1
+					 div1.appendChild(div_float_left);
+					 div1.appendChild(div_float_right1);
+					 div1.appendChild(div_float_right2);
+					 div1.appendChild(div_float_right3);
+					 
+					 
+					 
+					 // div с текстовым полем
+					 var div2 = document.createElement("div");
+					 div2.style.textAlign ='center';
+					 div2.style.border ='#000000 solid 0px';
+					 
+					 var textarea = document.createElement("textarea");
+					 textarea.name ='form_data[plan]';
+					 textarea.style.height ='92px';
+					 textarea.style.width ='744px';
+					 textarea.style.border ='#CCCCCC solid 1px';
+					 textarea.style.backgroundColor ='#F6F6F6';
+					 textarea.style.fontFamily ='Arial';
+					 div2.appendChild(textarea);
+					 
+					 ///////////////////////////////////////////
+						 
+					 textarea.value = preset_plan;
+						 
+					 /////////////////////////////////////////////
+					 
+					 // дополниетльное поле содержащее cilent_id
+					 
+					 var client_id_input = document.createElement("input"); 
+					 client_id_input.type = 'hidden';
+					 client_id_input.name ='form_data[client_id]';
+					 client_id_input.value = client_id;
+					 div2.appendChild(client_id_input);
+
+					 
+					 ///////////////////////////////////////////////////////
+					 // end содержимое сплывающего окна
+					 ///////////////////////////////////////////////////////
+					 
+					 // добавляем содержимое в таблицу в форму а затем в таблицу окна
+					 form.appendChild(div1);
+					 form.appendChild(div2);
+					 arr[2].childNodes[1].childNodes[1].childNodes[0].appendChild(form);
+					 
+					 // добавляем таблицу в окно
+					 arr[1].appendChild(arr[2]);
+					 document.body.appendChild(arr[0]);
+					 document.body.appendChild(arr[1]);
+		             show_planner_window_for_editing.in_process = false;
+
+			    }
+			    else{
+				    alert("Нет интернет-соединения с сервером, попробуйте\rперезагрузить сайт, для этого нажмите F5");
+			    }
+		    }
+		}	
+   }
+   
+   function set_plan_making_result(row_id,event_type){
+	   if(document.getElementById("QBRJF9740WE")) document.getElementById("QBRJF9740WE").parentNode.removeChild(document.getElementById("QBRJF9740WE"));
+	   
+	   // создаем всплывающее окно
+	   up_window_consructor.setWindowDimentions(290,800)
+	   var arr = up_window_consructor.windowBilder('QBRJF9740WE');
+	 
+	   ///////////////////////////////////////////////////////
+	   // содержимое сплывающего окна
+	   ///////////////////////////////////////////////////////
+	 
+	   //элемент форма
+	   var form = document.createElement("form");
+	   form.method = "POST";
+	   form.action = location;
+	 
+	   // верхний div
+	   var div1 = document.createElement("div");
+	   div1.style.height ='100px';
+	   div1.style.border ='#000000 solid 0px';
+	 
+	   var div_float_left = document.createElement("div"); // плавающий div контейнер
+	   div_float_left.style.float ='left';
+	   div_float_left.style.margin ='15px 0px 0px 5px';
+	   //div_float_left.style.border ='#000000 solid 1px';
+	   
+	   // скрытый input передающий тип (записи) события 
+	   var event_type_input = document.createElement("input");
+	   event_type_input.type = 'hidden';
+	   event_type_input.name = 'form_data[event_type]';
+	   event_type_input.value = event_type;
+	   div_float_left.appendChild(event_type_input);
+	   
+	   // Эмоциональная оценка
+	   var emotion_headline_div = document.createElement("div");
+	   emotion_headline_div.innerHTML = '&nbsp;Эмоциональная оценка';
+
+	   var plan_types_arr = [1,2,3,4,5];
+	   var emotion_btn_arr = [];
+	   var mark_input = document.createElement("input");
+	   mark_input.type = "hidden";
+	   mark_input.value = 1;
+	   mark_input.name ='form_data[emotion_mark]';
+	   var emotion_container = document.createElement("div");
+	   for( var i=0; i < plan_types_arr.length ;i++){
+		   var emotion_btn = document.createElement("div");
+		   emotion_btn.style.padding = '5px 25px';
+		   emotion_btn.style.fontSize = '15px';
+		   emotion_btn.style.float = 'left';
+		   emotion_btn.style.cursor = 'pointer';
+	       emotion_btn.style.backgroundColor = (plan_types_arr[i]==1)?"rgb(255, 174, 0)":"rgb(122, 189, 121)";
+	       emotion_btn.style.border = "#555 solid 1px";
+	       emotion_btn.style.borderRadius ='3px';
+		   emotion_btn.setAttribute('value',plan_types_arr[i]);
+           emotion_btn.onclick = function(){
+			   mark_input.value = this.getAttribute('value');
+			   for(var btn in emotion_btn_arr) emotion_btn_arr[btn].style.backgroundColor = "rgb(122, 189, 121)"; 
+			   this.style.backgroundColor = "rgb(255, 174, 0)";
+		   }
+		   emotion_btn.innerHTML = plan_types_arr[i];
+		   emotion_btn_arr.push(emotion_btn);
+		   emotion_container.appendChild(emotion_btn);
+		 
+	   }
+	 
+	   div_float_left.appendChild(emotion_headline_div);
+	   div_float_left.appendChild(emotion_container);
+	   div_float_left.appendChild(mark_input);
+	   
+	
+	   //кнопки ok reset и отменить
+	   var div_float_right1 = document.createElement("div"); // плавающий div контейнер
+	   div_float_right1.style.float ='right';
+	   div_float_right1.style.margin ='10px 0px 5px 0px';
+	   div_float_right1.style.width ='98px';
+	   div_float_right1.style.border ='#000000 solid 0px';
+	   
+	   //var button_ok = document.createElement("button"); 
+	   var button_ok = document.createElement("input"); 
+	   button_ok.type = 'submit';
+	   button_ok.name = 'set_result_for_plan';
+	   //button_ok.innerHTML = 'ok';
+	   button_ok.value = 'ok';
+	   button_ok.style.height = '30px';
+	   button_ok.style.width = '90px';
+	   button_ok.style.backgroundColor = "rgb(122, 189, 121)";
+	   button_ok.style.border = "#555 solid 1px";
+	   button_ok.style.borderRadius ='2px';
+	   button_ok.style.cursor = 'pointer';
+		 
+	   var button_ok_div = document.createElement("div");
+	   button_ok_div.style.marginBottom = '15px';
+	   button_ok_div.appendChild(button_ok);
+	 
+	   div_float_right1.appendChild(button_ok_div);
+	 
+	 
+	   // var button_reset = document.createElement("button"); 
+	   var button_reset = document.createElement("input"); 
+	   button_reset.type = 'reset';
+	   // button_reset.innerHTML = 'очистить';
+	   button_reset.value = 'очистить';
+	   button_reset.style.height = '30px';
+	   button_reset.style.width = '90px';
+	   button_reset.style.cursor = 'pointer';
+	 
+	   var button_reset_div = document.createElement("div");
+	   button_reset_div.style.marginBottom = '15px';
+	   button_reset_div.appendChild(button_reset);
+	 
+	 
+	 
+	 div_float_right1.appendChild(button_reset_div);
+		 
+		 
+	 //var button_escape = document.createElement("button"); 
+	 var button_escape = document.createElement("input"); 
+	 button_escape.type = 'button';
+	 //button_escape.innerHTML = 'отменить';
+	 button_escape.value = 'отменить';
+	 button_escape.style.height = '30px';
+	 button_escape.style.width = '90px'
+	 button_escape.style.cursor = 'pointer';
+	 button_escape.onclick = up_window_consructor.closeWindow;
+	 
+	 var button_escape_div = document.createElement("div");
+	 button_escape_div.appendChild(button_escape);
+	 
+	 div_float_right1.appendChild(button_escape_div);
+	 
+	   div_float_right1.appendChild(button_escape_div);
+	 
+	   // объедняем(добавляем) элементы входящие в div1
+	   div1.appendChild(div_float_left);
+	   div1.appendChild(div_float_right1);
+	 
+	 
+	 
+	   // div с текстовым полем
+	   var div2 = document.createElement("div");
+	   div2.style.textAlign ='center';
+	   div2.style.border ='#000000 solid 0px';
+	 
+	   var textarea = document.createElement("textarea");
+	   textarea.name ='form_data[result]';
+	   textarea.style.height ='67px';
+	   textarea.style.width ='744px';
+	   textarea.style.border ='#CCCCCC solid 1px';
+	   div2.appendChild(textarea);
+	 
+	   // дополниетльное поле содержащее row_id
+	 
+	   var row_id_input = document.createElement("input"); 
+	   row_id_input.type = 'hidden';
+	   row_id_input.name ='form_data[row_id]';
+	   row_id_input.value = row_id;
+	   div2.appendChild(row_id_input);
+
+	 
+	   ///////////////////////////////////////////////////////
+	   // end содержимое сплывающего окна
+	   ///////////////////////////////////////////////////////
+	 
+	   // добавляем содержимое в таблицу в форму а затем в таблицу окна
+	   form.appendChild(div1);
+	   form.appendChild(div2);
+	   arr[2].childNodes[1].childNodes[1].childNodes[0].appendChild(form);
+	 
+	   // добавляем таблицу в окно
+	   arr[1].appendChild(arr[2]);
+	   document.body.appendChild(arr[0]);
+	   document.body.appendChild(arr[1]);
+
+   }
+   
+	
 	/*
 	//закрытие стандартного окна при ответе об успешном выполнении запроса 
 	//этот скрипт реализует отправку ajax запроса на текущую страницу при клике на любую зелёную кнопку форме
