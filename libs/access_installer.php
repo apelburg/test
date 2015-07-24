@@ -97,13 +97,21 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
+													'in_work' => array('access'=>true),
 													'start' => array('access'=>true),
-													'purchase' => array('access'=>true),
-													'design' => array('access'=>true),
 													'production' => array('access'=>true),
-													'ready_for_shipment' => array('access'=>true),
-													'paused' => array('access'=>true),
-													'all' => array('access'=>true)
+													'my_orders_diz' => array('access'=>true),
+													'all_orders_diz' => array('access'=>true),
+													'not accepted' => array('access'=>true),
+													'issue' => array('access'=>true),
+													'paused' => array('access'=>true)
+													// 'start' => array('access'=>true),
+													// 'purchase' => array('access'=>true),
+													// 'design' => array('access'=>true),
+													// 'production' => array('access'=>true),
+													// 'ready_for_shipment' => array('access'=>true),
+													// 'paused' => array('access'=>true),
+													// 'all' => array('access'=>true)
 													)
 												),
 											'for_shipping'=> array(

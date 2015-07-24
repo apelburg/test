@@ -192,3 +192,11 @@ tr.cat_8 td {
 .cabinet_general_content_row tr th{
 
 }
+
+#cabinet_general_content  #general_panel_orders_tbl th{
+	background-color: #fff;
+  border-right: 1px solid #BDBDBD;
+  border-bottom: none;
+  color: #767676;
+  padding: 5px;
+}

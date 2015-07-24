@@ -116,7 +116,7 @@
 					break;
 
 				case '4':					
-					$text = 'производства<br>';
+					$text = 'производство';// УСЛУГИ
 					echo $this->wrap_text_in_warning_message($text);
 					break;
 
@@ -133,7 +133,7 @@
 					break;
 
 				case '6':
-					$text = 'водитель';
+					$text = 'водитель';// УСЛУГИ
 					echo $this->wrap_text_in_warning_message($text);
 					break;
 
@@ -155,7 +155,7 @@
 					break;
 
 				case '9':
-					$text = 'дизайнер';
+					$text = 'дизайнер';// УСЛУГИ
 					echo $this->wrap_text_in_warning_message($text);
 					break;
 

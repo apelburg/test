@@ -23,3 +23,4 @@ textarea{ min-height: 70px}
 
 #test_before::after{content: "изменить";	float: right;	color: red;	padding: 5px 10px;}
 #test_before:hover::before:hover{background: #000}
+
