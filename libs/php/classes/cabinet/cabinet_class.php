@@ -28,7 +28,7 @@
 
     	function __consturct(){
 		}
-
+		
 
 		// подсчет суммы доп услуг или печати
 		// на вход подаётся результат работы get_dop_uslugi_print_type() 
@@ -128,6 +128,8 @@
 			return $arr;
 		}
 
+
+
 		// выбираем данные о доп услугах для заказа
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			global $mysqli;
@@ -175,7 +177,58 @@
 			return $name;
 		}
 
+		// выводит имя клиента в заказе, по ссылке в url добавляется id клиента
+		protected function get_client_name_link_Database($id){
+			global $mysqli;		
+			//получаем название клиента
+			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$name = 'Клиент не прикреплён';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name = '<a data-id="'.$row['id'].'" '.((!isset($_GET['client_id']) || (isset($_GET['client_id']) && $_GET['client_id']!=$row['id']))?'href="'.$this->change_one_get_URL('client_id').$row['id'].'"':'').'>'.$this->str_reduce($row['company'],50).'</a>';
+				}
+			}
+			return $name;
+		}
+
+		// обрезаем строку по количеству символов ...
+		private function str_reduce($string,$num){
+			// $num - ограничение по количеству символов
+			if(mb_strlen($string, 'utf-8')>$num){
+				// убираем html 
+				// $string = strip_tags($str);
+				// обрезаем
+				$string = mb_substr($string, 0, $num);
+				// убедимся, что текст не заканчивается восклицательным знаком, запятой, точкой или тире
+				$string = rtrim($string, "!,.-");
+				// находим последний пробел, устраняем его и ставим троеточие
+				$string = substr($string, 0, strrpos($string, ' '));
+				$string = $string.'...';
+			}
+			return $string;
+		}
+
+		// производим подмену одного из значений GET в URL
+		private function change_one_get_URL($name){
+			$f = 0;
+			$str = '';
+
+			foreach ($_GET as $key => $value) {
+				if($key!=$name){
+					if($f == 0){$str .= '?';}else{$str .= '&';}
+					$str .= $key.'='.$value; 
+					$f++;
+				}
+			}
+			if($f == 0){$str .= '?';}else{$str .= '&';}
+			$str .= $name.'='; 
+			return $str;
+		}
+
 		
+
+		// получаем имя менеджера
 		protected 	function get_manager_name_Database_Html($id,$no_edit=0){
 		    global $mysqli;
 		    $String = '<span'.(($no_edit==0)?' class="attach_the_manager add"':' class="dop_grey_small_info"').' data-id="0">Прикрепить менеджера</span>';

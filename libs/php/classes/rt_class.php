@@ -703,8 +703,8 @@
 			$query1 = '';//запрос копирования услуг
 			foreach ($data_obj['ids'] as $key => $value) {
 				// ЗАВОДИМ ПОЗИЦИИ К НОВОМУ ЗАКАЗУ
-				$query = "INSERT INTO `".CAB_ORDER_MAIN."`  (`master_btn`, `order_num`,`type`,`art`,`art_id`,`name` )
-					SELECT `master_btn`,`query_num`,`type`,`art`,`art_id`,`name`
+				$query = "INSERT INTO `".CAB_ORDER_MAIN."`  (`master_btn`, `order_num`,`type`,`art`,`art_id`,`name`,`dop_info_no_cat` )
+					SELECT `master_btn`,`query_num`,`type`,`art`,`art_id`,`name`,`dop_info_no_cat`
 					FROM `".RT_MAIN_ROWS."` 
 					WHERE  `query_num` = '".$query_num."' 
 					AND `id` = '".$key."';

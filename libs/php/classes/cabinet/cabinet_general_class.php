@@ -500,6 +500,7 @@
 		//////////////////////////
 		//	оборачивает в оболочку warning_message
 		//////////////////////////
+		// отключается при post запросе, важно для AJAX
 		private function wrap_text_in_warning_message($text){
 			$html = '<div class="warning_message"><div>';	
 			$html .= $text;

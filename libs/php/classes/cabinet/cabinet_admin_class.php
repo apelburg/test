@@ -428,7 +428,7 @@
 					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
 					".$where."
 					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
-				// echo  $query.'<br><br>';
+
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -641,11 +641,12 @@
 		##########################################
 		## Заказы
 		Private Function orders_Template($id_row=0){
+			$where = 0;
 			$html = '';
 			$table_head_html = '
 				<table id="general_panel_orders_tbl">
 				<tr>
-					<th>Артикул/номенклатура/печать</th>
+					<th colspan="2">Артикул/номенклатура/печать</th>
 					<th>тираж<br>запас</th>
 					<th>поставщик товара и резерв</th>
 					<th>подрядчик печати</th>
@@ -667,9 +668,15 @@
 				FROM `".CAB_ORDER_ROWS."`";
 			
 			if($id_row){
-				$query .=" WHERE `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
+				$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
+				$where = 1;
 			}else{
 				// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = ''";
+			}
+
+			if(isset($_GET['client_id'])){
+				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
+				$where = 1;
 			}
 			
 			// echo $query;
@@ -682,28 +689,124 @@
 				}
 			}
 
+			$table_order_row = '';			
 			foreach ($main_rows_id as $key => $value) {
-				$table_head_html .= '
-					<tr>
-						<td colspan="4">
-							№ <a href="">'.Cabinet::show_order_num($value['order_num']).'</a> <-(<a href="">'.$value['query_num'].'</a>)
-							'.$this->get_client_name_Database($value['client_id'],1).'
+				// запрашиваем информацию по позициям
+				$table_order_positions_rows = $this->table_order_positions_rows_Html($value);
+
+				// формируем строку с информацией о заказе
+				$table_order_row .= '
+					<tr class="order_head_row">
+						<td colspan="5" class="orders_info">
+							<span class="greyText">заказа: </span> <a href="">'.Cabinet::show_order_num($value['order_num']).'</a> <span class="greyText"> &larr; (<a href="" class="greyText">'.$value['query_num'].'</a>)</span>
+							'.$this->get_client_name_link_Database($value['client_id']).'
+							<span class="greyText">счёт№:'.$value['number_pyament_list'].'</span>
 						</td>
-						<td></td>
-						<td colspan="2"></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-					</tr>					
-				';
+						<td><span class="show_the_full_information">'.$value['payment_status'].'</span> р.</td>
+						<td colspan="2">
+							<span class="greyText">оплачен: </span>'.$value['payment_date'].'
+							<span class="greyText">в размере: </span> ???
+						</td>
+						<td>???</td>
+						<td>???</td>
+						<td><span class="greyText">заказа: </span></td>
+						<td>'.$this->order_status[$value['global_status']].'</td>
+					</tr>';
+				// включаем вывод позиций 
+				$table_order_row .= $table_order_positions_rows;
 			}
 
+			
 
-			$table_head_html .= '</table>';
-			$html = $table_head_html;
+			$html = $table_head_html.$table_order_row.'</table>';
 			echo $html;
 		}
+
+		// возвращает html строки позиций
+		private function table_order_positions_rows_Html($order_arr){
+			$positions_rows = $this->positions_rows_Database($order_arr['id']);
+			$html = '';
+			// echo '<pre>';
+			// print_r($positions_rows);
+			// echo '</pre>';
+			
+			$n = 1;
+			// формируем строки позиций
+			foreach ($positions_rows as $key => $value) {
+				$html .= '<tr>';
+				// порядковый номер позиции в заказе
+				$html .= '<td><span class="orders_info_punct">'.$n++.'п</span></td>';
+				// описание позиции
+				$html .= '<td>';
+				$html .= $value['art'].'  '.$value['name'];
+				
+				// добавляем доп описание
+				// для каталога и НЕкаталога способы хранения и получения данной информации различны
+				if(trim($value['art'])=='cat'){
+					$html .= $this->get_dop_information_text_no_cat();
+				}else{
+					$html .= '';
+				}				
+				$html .= '</td>';
+				$html .= '<td></td>';
+				$html .= '<td></td>';
+				$html .= '<td></td>';
+				$html .= '<td></td>';
+				$html .= '<td></td>';
+				$html .= '<td></td>';
+				$html .= '<td></td>';
+				$html .= '<td></td>';
+
+				// получаем статусы участников заказа в две колонки: отдел - статус
+				$html .= $this->position_status_list_Html($value);
+				$html .= '<tr>';
+			}				
+			return $html;
+		}
+		
+		private function get_dop_information_text_no_cat(){
+
+		}
+		// статусы позиций
+		private function position_status_list_Html($cab_order_main_row){
+			$status_list = array();
+			// снабжение
+			if(trim($cab_order_main_row['status_snab'])!=''){
+				$status_list['снабжение'] = $cab_order_main_row['status_snab'];	
+			}
+			// склад
+			if(trim($cab_order_main_row['status_sklad'])!=''){
+				$status_list['склад'] = $cab_order_main_row['status_sklad'];	
+			}
+
+			$html1 = '<td>';
+			$html2 = '<td>';
+			foreach ($status_list as $key => $value) {
+				$html1 .= '<div class="otdel_name">'.$key.'</div>';
+				$html2 .= '<div class="otdel_status">'.$value.'</div>';
+			}
+			$html1 .= '</td>';
+			$html2 .= '</td>';	
+
+			return $html1.$html2;
+		}
+		// запрос строк позиций из базы
+		private function positions_rows_Database($order_id){
+			$arr = array();
+			global $mysqli;
+			$query = "SELECT * FROM `".CAB_ORDER_DOP_DATA."` INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_id."'";
+			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
+			// echo $query.'<br>';
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+			return $arr;
+		}
+
+
 		## Заказы __ END
 		##########################################
 
@@ -750,7 +853,6 @@
 			}else{
 				$status_snab;
 			}
-
 			return $status_snab;
 		}
 
