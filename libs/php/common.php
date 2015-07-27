@@ -12,6 +12,22 @@
 	     exit;
     }
 	
+	function get_content($path){
+	     $fd = fopen($path,"rb");
+		 if( filesize($path) > 0 ) $content = fread($fd,filesize($path));
+		 else $content = '';
+		 fclose($fd);
+	     return $content;
+	}
+	function put_content($path,$content){
+	     //echo $path;
+		 // echo '<br>';
+		 // echo $page_content;
+	     $fd = fopen($path,"wb");
+		 fwrite($fd,$content);
+		 fclose($fd);
+	}
+	
 	
     function getHelp($topic){
 	    $filename = ROOT.'/libs/help/'.$topic.'.txt';
@@ -2182,23 +2198,6 @@
 		}
 	}
 	
-	function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
-	    global $db;
-		
-		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."'";
-		
-		if($group_by) $query .= "GROUP BY ".$group_by ;
-		else $query .= "ORDER BY id ";
-		
-		$result = mysql_query($query,$db) or die(mysql_error());
-		
-		if(mysql_num_rows($result) > 0){
-		     return $result;
-		}
-		else return false;
-	
-	}
-	
 	function fetch_client_requisites_nikename($id){
 	    global $db;
 		$query = "SELECT company FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".$id."'";
@@ -2414,7 +2413,161 @@
 		else $name = '&nbsp;';
 		return $name;	
 	}
+	function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
+	    global $db;
+		
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."'";
+		
+		if($group_by) $query .= "GROUP BY ".$group_by ;
+		else $query .= "ORDER BY id ";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result) > 0){
+		     return $result;
+		}
+		else return false;
 	
+	}
+	
+	function fetch_specification($client_id,$agreement_id,$specification_num){
+	    global $db;
+		
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."' AND specification_num = '".$specification_num."' ORDER BY id";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+
+		if(mysql_num_rows($result) > 0) return $result;
+		else return false;
+	
+	}
+	
+	function fetch_specification_common_details($client_id,$agreement_id,$specification_num){
+	    global $db;
+		
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."' AND specification_num = '".$specification_num."' GROUP BY specification_num";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result) > 0){
+		     return mysql_fetch_assoc($result);
+		}
+		else return false;
+	
+	}
+	function fetch_specification_num_list_for_agreement($agreement_id){
+	    global $db;
+		
+		$query = "SELECT specification_num FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' GROUP BY  specification_num";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result) > 0){
+		     while($item = mysql_fetch_assoc($result)){
+			     $arr[] = $item['specification_num'];
+			 }
+		     return $arr;
+		}
+		else return array();
+	
+	}
+	function agregate_specification_rows($data){
+	    global $db;
+		
+		for($i = 0 ; $i < count($data) ; $i++)
+		{
+		    $name = ''; $summ = 0;
+		    for($j = 0 ; $j < count($data[$i]) ; $j++)
+			{
+			      $id = $data[$i][$j];
+				  $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."`
+				            WHERE id='".$id."'";
+				  $result = mysql_query($query,$db) or die(mysql_error());
+				  
+				  $name .= mysql_result($result,0,'name').'<br>';
+				  if(!isset($quantity)) $quantity = (int)mysql_result($result,0,'quantity');
+				  $summ += (float)mysql_result($result,0,'summ');
+				  
+				  if($j > 0)
+				  {
+					  $query = "DELETE FROM `".GENERATED_SPECIFICATIONS_TBL."`
+								WHERE id='".$id."'";
+					  $result = mysql_query($query,$db) or die(mysql_error());
+				  }
+			
+			}
+			
+			$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."`
+			          SET 
+					  name='".$name."',  
+					  price='".$summ/$quantity."', 
+					  summ='".$summ."'
+				      WHERE id='".$data[$i][0]."'";
+			$result = mysql_query($query,$db) or die(mysql_error());
+			
+			unset($quantity);
+		
+		}
+		    
+	}
+	
+	 function update_specification($row_id,$field_name,$field_val){
+	    global $db;
+		
+		$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET 
+				  ".$field_name." ='".$field_val."'
+				  WHERE id='".$row_id."'";
+						  
+		mysql_query($query,$db) or die(mysql_error());
+		    
+	}
+	
+	function set_new_num_for_specification($path,$client_id,$agreement_id,$specification_num,$new_specification_num){
+	    global $db;
+
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."`
+				            WHERE client_id='".$client_id."' AND agreement_id='".$agreement_id."' AND specification_num='".$new_specification_num."'";
+		$result = mysql_query($query,$db) or die(mysql_error());
+		if(mysql_num_rows($result)>0) return 2;
+
+		$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET 
+				   specification_num='".$new_specification_num."'
+				  WHERE client_id='".$client_id."' AND agreement_id='".$agreement_id."' AND  specification_num='".$specification_num."'";
+						  
+		mysql_query($query,$db) or die(mysql_error());
+		
+		$path = str_replace('-','/',$path);
+		rename($path.'specifications/'.$specification_num.'.tpl',$path.'specifications/'.$new_specification_num.'.tpl');
+		    
+	}
+	
+	function update_specification_common_fields($row_id,$field_name,$field_val){
+	    global $db;
+		$query = "SELECT client_id,agreement_id,specification_num FROM `".GENERATED_SPECIFICATIONS_TBL."`
+				  WHERE id='".$row_id."'";
+		$result = mysql_query($query,$db) or die(mysql_error());
+		$specification_num = mysql_result($result,0,'specification_num');
+		$client_id = mysql_result($result,0,'client_id');
+		$agreement_id = mysql_result($result,0,'agreement_id');
+		
+		$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET 
+				  ".$field_name." ='".$field_val."'
+				  WHERE specification_num='".$specification_num."' AND client_id='".$client_id."' AND agreement_id='".$agreement_id."'";
+						  
+		mysql_query($query,$db) or die(mysql_error());
+		    
+	}
+	
+	function update_agreement_finally_sheet($row_id,$field_name,$field_val){
+	    global $db;
+		
+		$query = "UPDATE `".GENERATED_AGREEMENTS_TBL."` SET 
+				  ".$field_name." ='".$field_val."'
+				  WHERE id='".$row_id."'";
+						  
+		mysql_query($query,$db) or die(mysql_error());
+		    
+	}
 /*	function get_client_requisites_acting_manegement_face($id){
 	    global $db;
 	//	$query = "SELECT*FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' AND `acting` =  '1'";

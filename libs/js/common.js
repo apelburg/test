@@ -1679,6 +1679,41 @@
 		}	
    }
    
+    function print_agreement(){
+	   //
+
+	   var step = 2;
+	   var counter = 1;
+	   var timer = setInterval(up,25);
+	   
+	   function up(){
+	       document.getElementById('agreement_blank').style.marginTop = -step*counter + 'px';
+		   document.getElementById('agreement_tools_plank').style.marginTop = -step*counter + 'px';
+		   counter++;
+		   if(counter >= 25){
+			   document.getElementById('agreement_tools_plank').style.display = 'none';
+			   clearInterval(timer);
+			   setTimeout(window.print,400);
+			   setTimeout(down,800);
+		   }
+	   }
+	   function down(){
+		   document.getElementById('agreement_tools_plank').style.display = 'block';
+		   
+		   var down_timer = setInterval(set_down,25);
+		   function set_down(){
+	
+			   document.getElementById('agreement_blank').style.marginTop = -step*counter + 'px'; 
+			   document.getElementById('agreement_tools_plank').style.marginTop = -step*counter + 'px';
+			   counter--;
+			   if(counter <= 0){
+				   clearInterval(down_timer);
+			   }
+		   }
+	   }
+	   
+   }
+   
    function set_plan_making_result(row_id,event_type){
 	   if(document.getElementById("QBRJF9740WE")) document.getElementById("QBRJF9740WE").parentNode.removeChild(document.getElementById("QBRJF9740WE"));
 	   

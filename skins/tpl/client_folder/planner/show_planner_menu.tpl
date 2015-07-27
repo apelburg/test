@@ -13,7 +13,7 @@
   cursor:pointer;
 }
 </style>
-<table class="planner_menu" style="margin:10px 0px 0px 0px;width:100%;" cellpadding="0" cellspacing="0">
+<table class="planner_menu" style="margin:0px;width:100%;" cellpadding="0" cellspacing="0">
   <tr>
      <td height="26" width="200" class="add_button">
          <a href="#" onclick="show_planner_window(<?php echo $client_id; ?>);return false;">+ Добавить новый план</a>
@@ -32,6 +32,8 @@
      </td>
   </tr>
 </table>
+<?php if($page_navigation!=''){ ?>
 <div style="text-align:center;margin:8px 0px 8px 0px;"><span class="page_nav_block"><?php echo $page_navigation; ?></span></div>
+<?php } ?>
 <?php echo $palnner_content; ?>
 <div style="text-align:center;margin:8px 0px 8px 0px;"><span class="page_nav_block"><?php echo $page_navigation; ?></span></div>

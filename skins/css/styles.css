@@ -2343,7 +2343,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 }
 
 .plans_table{
-    margin-top:2px;
+    margin-top:0px;
     border-collapse:collapse;
 }
 .plans_table th{
