@@ -16,7 +16,7 @@
 	if($result)
 	{
         
-		$tpl = '../../skins/tpl/admin/order_manager/agreement/specification_edit_row.tpl';
+		$tpl = './skins/tpl/agreement/specification_edit_row.tpl';
 	    $fd = fopen($tpl,'r');
 	    $tpl = fread($fd,filesize($tpl));
 	    fclose($fd);
@@ -33,7 +33,7 @@
 		$rows = ob_get_contents();
 	    ob_get_clean();
 		
-		include '../../skins/tpl/admin/order_manager/agreement/specification_edit_tbl.tpl';
+		include './skins/tpl/agreement/specification_edit_tbl.tpl';
 	}
 	else $rows = 'ошибка получения данных specification_editor_controller.php';
 

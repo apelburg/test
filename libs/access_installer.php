@@ -41,6 +41,7 @@
     $ACCESS_SHABLON[1] = array(
 	                    'admin'=> array('access'=> true),
 						'agreement'=> array('access'=> true),
+						'planner'=> array('access'=> true),
     					'option'=> array('access'=> true),
 				        'clients'=> array(
 										'access'=> true,
@@ -53,6 +54,8 @@
 										'section'=> array( // 1
 										    'rt'=> array('access'=>true),
 											'business_offers'=> array('access'=>true),
+											'agreements'=> array('access'=>true),
+											'planner'=> array('access'=>true),
 											'order_art_edit'=> array('access'=>true),
 											'order_tbl'=> array(
 												'access'=>true,

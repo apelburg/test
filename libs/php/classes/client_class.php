@@ -340,6 +340,24 @@ class Client {
 		
 		return $array;
 	}
+	
+	static function cont_faces_list($id){
+	    global $mysqli;
+		$query = "SELECT*FROM `".CLIENT_CONT_FACES_TBL."` WHERE `client_id` = '".$id."' ORDER BY `id`";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+		   $counter = 0;
+		   while($row = $result->fetch_assoc()){
+		      if($row['set_main']!='') $items[0] = $row['name'];
+			  else $items[++$counter] = $row['name'];
+			  
+		   }
+		   ksort($items);
+		   $str = implode('{@}',$items);
+		}
+		else  $str = 'не контактов{@}';
+		return $str;
+	}
 
 	static function relate_managers($id){
 		global $mysqli;

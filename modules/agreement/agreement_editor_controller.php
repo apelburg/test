@@ -2,7 +2,8 @@
 
     // переделывать
 	//$client_firm_acting_manegement_face = get_client_requisites_acting_manegement_face($agreement['client_requisit_id']);
-
+    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+	
     if(!isset($_GET['our_firm_id']))
 	{
 	   //echo 'не определен параметр: our_firm_id';
@@ -98,12 +99,12 @@
 			//exit;
 			
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
-	        $addresses_arr = Agreement::add_items_for_specification($spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
+	        $specification_num = Agreement::add_items_for_specification($spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
 			//$specification_num = add_items_for_specification($spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
-			//echo $specification_num;
-			
-			unset($_SESSION['data_for_specification']);  
-			header('Location:?'.addOrReplaceGetOnURL('open=specification&specification_num='.$specification_num,'short_description&conrtol_num')); 
+			echo $specification_num;
+
+			//unset($_SESSION['data_for_specification']);  
+			//header('Location:?'.addOrReplaceGetOnURL('open=specification&specification_num='.$specification_num,'short_description&conrtol_num')); 
 			exit;    
 		}
 		
@@ -125,8 +126,8 @@
 		
 		    if($_GET['open'] == 'all')
 			{
-				$specifications = fetch_specifications($client_id,$agreement_id);
-				while($row = mysql_fetch_assoc($specifications))
+				$specifications =  Agreement::fetch_specifications($client_id,$agreement_id);
+				while($row = $specifications->fetch_assoc())
 				{
 					if(!isset($specifications_arr[$row['specification_num']])) $specifications_arr[$row['specification_num']]= array();
 					array_push($specifications_arr[$row['specification_num']],$row);
@@ -139,8 +140,8 @@
 			}
 			else if($_GET['open'] == 'specification')
 			{
-			    $specification = fetch_specification($client_id,$agreement_id,(int)$_GET['specification_num']);
-				while($row = mysql_fetch_assoc($specification))
+			    $specification =  Agreement::fetch_specification($client_id,$agreement_id,(int)$_GET['specification_num']);
+				while($row = $specification->fetch_assoc())
 				{
 					$specifications_arr[$row['specification_num']][] = $row;				
 				}
@@ -195,7 +196,7 @@
 				$our_requisit_id = fetchOneValFromGeneratedAgreementTbl(array('retrieve'=>'our_requisit_id','coll'=>'id','val'=>$agreement_id));
 	$client_requisit_id = fetchOneValFromGeneratedAgreementTbl(array('retrieve'=>'client_requisit_id','coll'=>'id','val'=>$agreement_id));
 				
-				$file_name = 'data/agreements/'.$client_id.'/'.$agreement_year_folder.'/'.$_GET['agreement_type'].'/'.$agreement['our_requisit_id'].'_'.$agreement['client_requisit_id'].'/specifications/'.$key.'.tpl';
+				$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.$agreement_year_folder.'/'.$_GET['agreement_type'].'/'.$agreement['our_requisit_id'].'_'.$agreement['client_requisit_id'].'/specifications/'.$key.'.tpl';
 				
 				$fd = fopen($file_name,"r");
 				$content = fread($fd,filesize($file_name));
@@ -216,7 +217,7 @@
 				
 				$production_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $specifications_arr[$key][0][\'item_production_term\']; ?>&nbsp;</span>';
 				
-				$prepayment_term = '<?php include (\'./agreement/agreements_templates/\'.$specifications_arr[$key][0][\'prepayment\'].\'_prepaiment_conditions.tpl\'); ?>';
+				$prepayment_term = '<?php include ($_SERVER[\'DOCUMENT_ROOT\'].\'/os/modules/agreement/agreements_templates/\'.$specifications_arr[$key][0][\'prepayment\'].\'_prepaiment_conditions.tpl\'); ?>';
 				
 				$delivery_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="makets_delivery_term" file_link="1"><?php echo $specifications_arr[$key][0][\'makets_delivery_term\']; ?>&nbsp;</span>';
 				
@@ -224,7 +225,7 @@
 				    $delivery_adderss = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="address" file_link="1"><?php echo $specifications_arr[$key][0][\'address\']; ?>&nbsp;</span>';
 				}
 				else{
-					$delivery_adderss_tpl_path = ($specifications_arr[$key][0]['address'] == 'samo_vivoz')? './agreement/agreements_templates/samo_vivoz.tpl':'./agreement/agreements_templates/nasha_dostavka.tpl';
+					$delivery_adderss_tpl_path = ($specifications_arr[$key][0]['address'] == 'samo_vivoz')? $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/samo_vivoz.tpl':$_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/nasha_dostavka.tpl';
 					$fd = fopen($delivery_adderss_tpl_path,'rb');
 					$delivery_adderss_string = fread($fd,filesize($delivery_adderss_tpl_path));
 					fclose($fd);
@@ -382,7 +383,7 @@
 
 	   if((boolean)$agreement['standart'] && !(boolean)$agreement['existent']){
 		
-	     $file_name = 'data/agreements/'.$client_id.'/'.$agreement_year_folder.'/'.$_GET['agreement_type'].'/'.$agreement['our_requisit_id'].'_'.$agreement['client_requisit_id'].'/agreement.tpl';
+	     $file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.$agreement_year_folder.'/'.$_GET['agreement_type'].'/'.$agreement['our_requisit_id'].'_'.$agreement['client_requisit_id'].'/agreement.tpl';
 	     $fd = fopen($file_name,"r");
 	     $content = fread($fd,filesize($file_name));
 	     fclose($fd);
@@ -540,7 +541,7 @@
 
 		 
 				
-		  $tpl_name = '../../skins/tpl/admin/order_manager/agreement/upload.tpl';
+		  $tpl_name = './skins/tpl/agreement/upload.tpl';
 		  $fd = fopen($tpl_name,'r');
 		  $tpl = fread($fd,filesize($tpl_name));
 		  fclose($fd);
@@ -561,7 +562,7 @@
 	$agreement_content = ob_get_contents();
 	ob_get_clean();
 	
-	include('../../skins/tpl/admin/order_manager/agreement/agreement.tpl');
+	include('./skins/tpl/agreement/agreement.tpl');
    
 
 ?>

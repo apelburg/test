@@ -38,7 +38,8 @@
 			<li>Каталожные</li>
             <li>Не принятые</li>
             <li>2 п</li>
-            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=<?php  echo $query_num; ?>&client_id=1894">Коммерческие предложения</a></li>
+            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=<?php  echo $query_num; ?>&client_id=<?php  echo $client_id; ?>" style="color:#551A8B;">Коммерческие предложения</a></li>
+            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=agreements&client_id=<?php  echo $client_id; ?>" style="color:#551A8B;">Договоры</a></li>
 		</ul>
 	</div>
  </div>    

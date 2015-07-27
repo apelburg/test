@@ -6,6 +6,29 @@
 		 RT::add_data_from_basket($_GET['client_data'],$_GET['manager_login']);
 		 exit;
 	}
+	if(isset($_GET['subquery_for_planner_window'])){
+	     include_once ROOT.'/libs/php/classes/client_class.php';
+	     echo Client::cont_faces_list($_GET['client_id']);
+	     exit;
+    }
+	
+	function get_content($path){
+	     $fd = fopen($path,"rb");
+		 if( filesize($path) > 0 ) $content = fread($fd,filesize($path));
+		 else $content = '';
+		 fclose($fd);
+	     return $content;
+	}
+	function put_content($path,$content){
+	     //echo $path;
+		 // echo '<br>';
+		 // echo $page_content;
+	     $fd = fopen($path,"wb");
+		 fwrite($fd,$content);
+		 fclose($fd);
+	}
+	
+	
     function getHelp($topic){
 	    $filename = ROOT.'/libs/help/'.$topic.'.txt';
 	    $fd = fopen($filename,"rb");
@@ -2175,6 +2198,376 @@
 		}
 	}
 	
+	function fetch_client_requisites_nikename($id){
+	    global $db;
+		$query = "SELECT company FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".$id."'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		
+		return 'company';//mysql_result($result,0,'company');
+	}
+	
+	function get_client_requisites($id){
+	   /* global $db;
+		$query = "SELECT*FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".$id."'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());*/
+		
+		return array(); //mysql_fetch_assoc($result);
+	}
+	function num_word_transfer($number){
+		global $num_word_transfer_arr;
+		global $num_word_transfer_razriad_arr;
+		
+		$number = strval($number);
+		for($i=0;$i<strlen($number);$i++) $number_arr[$i] = $number[$i]; // замена str_split(PHP5)
+		$number_arr = array_reverse($number_arr);
+		$counter = 0 ;
+		for( $i=0; $i<count($number_arr); $i++){
+			$index = $number_arr[$i];
+			$number_arr_in_word[]= $num_word_transfer_arr[$counter++][$index].' '.$num_word_transfer_razriad_arr[$i];
+			
+		}
+		return implode(' ',array_reverse($number_arr_in_word));
+		
+	}
+	
+	function set_plan(){
+	    global $db;
+		global $user_id;
+		global $form_data;
+		extract($form_data);
+		
+		//echo'<pre>';print_r($form_data); echo'<pre>';
+		//exit;
+	   
+		$date_order = implode('',array_reverse(explode('.',$remind_date)));
+		$time_order = (strlen($time_table_date)<5)?  '0'.str_replace('.','',$time_table_date):str_replace('.','',$time_table_date);
+
+		$query = "INSERT INTO `".PLANNER."` SET 
+		                                   `write_datetime` = CURRENT_TIMESTAMP(),
+										   `exec_datetime` = CAST('".$remind_date." ".str_replace('.',':',$time_table_date).":00' AS DATETIME),
+										   `type` = '$plan_type',`status` = 'new',
+										   `manager_id` = '$user_id',`client_id` = '$client_id',
+										   `cont_face` = '$cont_face', `plan` = '$plan'";
+											
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		header('Location:'.$_SERVER['HTTP_REFERER']);
+	}
+	
+	function edit_plan(){
+	    global $db;
+		global $form_data;
+		extract($form_data);
+		 
+		
+		$date_order = implode('',array_reverse(explode('.',$remind_date)));
+		$time_order = (strlen($time_table_date)<5)?  '0'.str_replace('.','',$time_table_date):str_replace('.','',$time_table_date);
+		
+		$query = "UPDATE `".PLANNER."` SET `write_datetime` = CURRENT_TIMESTAMP(),
+										   `exec_datetime` = CAST('".$remind_date." ".str_replace('.',':',$time_table_date).":00' AS DATETIME),
+										   `type` = '$plan_type',`cont_face` = '$cont_face', `plan` = '$plan'
+										    WHERE `id` = '$id'";
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		header('Location:'.$_SERVER['HTTP_REFERER']);
+	}
+	
+	function set_plan_status($id,$status){
+	    global $db;
+		
+		$query = "UPDATE `".PLANNER."` SET `status` = '$status' WHERE `id` = '$id'";
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		
+		header('Location:?'.addOrReplaceGetOnURL('','plan_id&set_plan_status'));
+	}
+	
+	function set_result_for_plan($manager_id){
+	    global $db;
+		global $form_data;
+		extract($form_data,EXTR_PREFIX_ALL,"in");
+
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/manager_class.php");
+	    $manager = new Manager($manager_id); 
+		
+		// проверяем пустое ли поле result если нет тогда оформляем как переписку
+		$query = "SELECT id FROM `".PLANNER."` WHERE `id` = '".$in_row_id."' AND `result` <> ''";
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		if($result && mysql_num_rows($result)>0) $in_result = '<div><span class="mini_cap">'.$manager->name.' '.$manager->last_name.'</span><div>'.$in_result.'</div></div>';
+		
+		
+		$status = ($in_event_type == 'встреча')?'on_approval':'done';
+		
+		$query = "UPDATE `".PLANNER."` SET `close_manager_id` = '".$manager_id."', `result` =   CONCAT(`result`,'".$in_result."'), `status` = '".$status."', `emotion_mark` = '".$in_emotion_mark."' WHERE `id` = '".$in_row_id."'";
+		//remind_date
+	    $result = mysql_query($query,$db) or die(mysql_error());
+		//exit;
+		header('Location:?'.$_SERVER['QUERY_STRING']);
+	}
+	
+	function get_clients_ids_for_user($user_id){
+	    global $db;
+		
+		$ids_arr = array();
+		// если $user_id==0 то те которые никому не пренадлежат
+		if($user_id!=0) $query = "SELECT*FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$user_id."'";
+		else $query = "SELECT id AS client_id FROM `".CLIENTS_TBL."` WHERE `id` NOT IN(SELECT client_id FROM `".RELATE_CLIENT_MANAGER_TBL."` )";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result)>0){
+	       while($item = mysql_fetch_assoc($result)) $ids_arr[] = $item['client_id'];
+        }
+		return $ids_arr;
+	}
+	   function get_clients_list_for_user($user_id,$order = array ('id',''),$limit_str = '',$full_data_flag=false){
+	    global $db;
+		
+		$flag_none_clients = FALSE;
+		
+		if($user_id!=0) $query_prev = "SELECT*FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$user_id."'";
+		else $query_prev = "SELECT id AS client_id FROM `".CLIENTS_TBL."` WHERE `id` NOT IN(SELECT client_id FROM `".RELATE_CLIENT_MANAGER_TBL."` )";
+		
+		$result_prev = mysql_query($query_prev,$db);
+		if(!$result_prev) echo(mysql_error());
+		if(mysql_num_rows($result_prev)>0){
+		// создаем строку содержащую список id клиентов
+		$in_string = '';
+	    while($item = mysql_fetch_assoc($result_prev)) $in_string .= $item['client_id'].',';
+	    $in_string = trim($in_string,",");
+		//echo $in_string;
+		
+		
+		// если передан параметр time_change сверяем список клиентов датами изменеий в расчетной таблице
+		if($order[0] == 'time_change'){
+			if($in_string != ''){
+			   $query = "SELECT `client_id` FROM `".CALCULATE_TBL."` WHERE  `manager_id` = '".$user_id."' AND `client_id` IN (".$in_string.") ORDER BY `".$order[0]."`"; //
+			   $result = mysql_query($query,$db);
+			   $in_string = '';
+			   while($item = mysql_fetch_assoc($result)) $id_arr[]= $item['client_id'];
+               //print_r($id_arr);
+			   krsort($id_arr);
+			   reset($id_arr);
+			   $id_arr = array_unique($id_arr);
+			   if($limit_str != '') $id_arr = array_slice($id_arr, intval(substr($limit_str,strpos($limit_str,'LIMIT')+ 6)),intval(substr($limit_str,strpos($limit_str,',')+2)));
+			   // echo '<br>';
+			   //print_r($id_arr);
+			   if(isset($id_arr)){
+			   foreach($id_arr as $id){
+				   $query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id`  = '".$id."'"; //
+				   $result = mysql_query($query,$db);
+				   if(!$result) echo(mysql_error());
+				   $item = mysql_fetch_assoc($result);
+				   $client_id_arr[] = array('id' => $item['id'],'name' => $item['name'],'company' => $item['company']);
+			   }
+ 
+			}
+			else $flag_none_clients = TRUE;
+			}
+		}
+		//elseif($order[0] == 'search'){
+		  // $query = "SELECT*FROM ".RELATE_CLIENT_MANAGER_TBL." rl INNER JOIN ".CLIENTS_TBL." c ON rl.client_id = c.id  WHERE rl.manager_id = '".$user_id."' AND c.company LIKE '%".cor_data_for_SQL($order[1])."%' ".$limit_str;	
+		elseif($order[0] == 'search'){
+		   $query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id` IN (".$in_string.")  AND `company` LIKE '%".cor_data_for_SQL($order[1])."%' ORDER BY `company` ".$limit_str;
+
+		    $result = mysql_query($query,$db);
+		    if(!$result) echo(mysql_error());
+		    if(mysql_num_rows($result)>0){
+				 if($full_data_flag) while($item = mysql_fetch_assoc($result)) $client_id_arr[] = array($item['id'],$item['name'],$item['company'],$item['cont_face1'],$item['phone_cont_face1'],$item['email_cont_face1'],$item['dop_info']);
+				 else while($item = mysql_fetch_assoc($result)) $client_id_arr[] = array('id' => $item['id'],'name' => $item['name'],'company' => $item['company']);
+		    }
+		    else $flag_none_clients = TRUE;
+		}			
+		// производим выборку с помощью оператора IN
+		else{ 
+			if($in_string != ''){
+				if((isset($_GET['show_clients']) && $_GET['show_clients']=="all_my") || $_SESSION['access']['access'] != 5 || !isset($_GET['page'])){
+			   		$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id` IN (".$in_string.") ORDER BY `".$order[0]."` ".$order[1]." ".$limit_str; 
+				}else{
+					$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id` IN (".$in_string.") AND`favorite` = 1 ORDER BY `".$order[0]."` ".$order[1]." ".$limit_str; 
+				}
+			   $result = mysql_query($query,$db);
+			   if(!$result) echo(mysql_error());
+			   if(mysql_num_rows($result)>0){
+					if($full_data_flag) while($item = mysql_fetch_assoc($result)) $client_id_arr[] = array($item['id'],$item['name'],$item['company'],$item['cont_face1'],$item['phone_cont_face1'],$item['email_cont_face1'],$item['dop_info']);
+					else while($item = mysql_fetch_assoc($result)) $client_id_arr[] = array('id' => $item['id'],'name' => $item['name'],'company' => $item['company']);
+			   }
+			   else $flag_none_clients = TRUE;
+			}
+			else $flag_none_clients = TRUE;
+		}
+		}
+		else $flag_none_clients = TRUE;
+		
+		if($flag_none_clients) $client_id_arr[] = array('id' => '','name' => 'нет клиентов','company' => 'нет клиентов');
+		
+		return $client_id_arr;
+	}
+	function get_client_name($id){
+	    global $db;
+		$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id` = '".$id."'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		if(mysql_num_rows($result) > 0 ){
+		   $name = mysql_result($result,0,'company');
+		}
+		else $name = '&nbsp;';
+		return $name;	
+	}
+	function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
+	    global $db;
+		
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."'";
+		
+		if($group_by) $query .= "GROUP BY ".$group_by ;
+		else $query .= "ORDER BY id ";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result) > 0){
+		     return $result;
+		}
+		else return false;
+	
+	}
+	
+	function fetch_specification($client_id,$agreement_id,$specification_num){
+	    global $db;
+		
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."' AND specification_num = '".$specification_num."' ORDER BY id";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+
+		if(mysql_num_rows($result) > 0) return $result;
+		else return false;
+	
+	}
+	
+	function fetch_specification_common_details($client_id,$agreement_id,$specification_num){
+	    global $db;
+		
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."' AND specification_num = '".$specification_num."' GROUP BY specification_num";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result) > 0){
+		     return mysql_fetch_assoc($result);
+		}
+		else return false;
+	
+	}
+	function fetch_specification_num_list_for_agreement($agreement_id){
+	    global $db;
+		
+		$query = "SELECT specification_num FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' GROUP BY  specification_num";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result) > 0){
+		     while($item = mysql_fetch_assoc($result)){
+			     $arr[] = $item['specification_num'];
+			 }
+		     return $arr;
+		}
+		else return array();
+	
+	}
+	function agregate_specification_rows($data){
+	    global $db;
+		
+		for($i = 0 ; $i < count($data) ; $i++)
+		{
+		    $name = ''; $summ = 0;
+		    for($j = 0 ; $j < count($data[$i]) ; $j++)
+			{
+			      $id = $data[$i][$j];
+				  $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."`
+				            WHERE id='".$id."'";
+				  $result = mysql_query($query,$db) or die(mysql_error());
+				  
+				  $name .= mysql_result($result,0,'name').'<br>';
+				  if(!isset($quantity)) $quantity = (int)mysql_result($result,0,'quantity');
+				  $summ += (float)mysql_result($result,0,'summ');
+				  
+				  if($j > 0)
+				  {
+					  $query = "DELETE FROM `".GENERATED_SPECIFICATIONS_TBL."`
+								WHERE id='".$id."'";
+					  $result = mysql_query($query,$db) or die(mysql_error());
+				  }
+			
+			}
+			
+			$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."`
+			          SET 
+					  name='".$name."',  
+					  price='".$summ/$quantity."', 
+					  summ='".$summ."'
+				      WHERE id='".$data[$i][0]."'";
+			$result = mysql_query($query,$db) or die(mysql_error());
+			
+			unset($quantity);
+		
+		}
+		    
+	}
+	
+	 function update_specification($row_id,$field_name,$field_val){
+	    global $db;
+		
+		$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET 
+				  ".$field_name." ='".$field_val."'
+				  WHERE id='".$row_id."'";
+						  
+		mysql_query($query,$db) or die(mysql_error());
+		    
+	}
+	
+	function set_new_num_for_specification($path,$client_id,$agreement_id,$specification_num,$new_specification_num){
+	    global $db;
+
+		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."`
+				            WHERE client_id='".$client_id."' AND agreement_id='".$agreement_id."' AND specification_num='".$new_specification_num."'";
+		$result = mysql_query($query,$db) or die(mysql_error());
+		if(mysql_num_rows($result)>0) return 2;
+
+		$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET 
+				   specification_num='".$new_specification_num."'
+				  WHERE client_id='".$client_id."' AND agreement_id='".$agreement_id."' AND  specification_num='".$specification_num."'";
+						  
+		mysql_query($query,$db) or die(mysql_error());
+		
+		$path = str_replace('-','/',$path);
+		rename($path.'specifications/'.$specification_num.'.tpl',$path.'specifications/'.$new_specification_num.'.tpl');
+		    
+	}
+	
+	function update_specification_common_fields($row_id,$field_name,$field_val){
+	    global $db;
+		$query = "SELECT client_id,agreement_id,specification_num FROM `".GENERATED_SPECIFICATIONS_TBL."`
+				  WHERE id='".$row_id."'";
+		$result = mysql_query($query,$db) or die(mysql_error());
+		$specification_num = mysql_result($result,0,'specification_num');
+		$client_id = mysql_result($result,0,'client_id');
+		$agreement_id = mysql_result($result,0,'agreement_id');
+		
+		$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET 
+				  ".$field_name." ='".$field_val."'
+				  WHERE specification_num='".$specification_num."' AND client_id='".$client_id."' AND agreement_id='".$agreement_id."'";
+						  
+		mysql_query($query,$db) or die(mysql_error());
+		    
+	}
+	
+	function update_agreement_finally_sheet($row_id,$field_name,$field_val){
+	    global $db;
+		
+		$query = "UPDATE `".GENERATED_AGREEMENTS_TBL."` SET 
+				  ".$field_name." ='".$field_val."'
+				  WHERE id='".$row_id."'";
+						  
+		mysql_query($query,$db) or die(mysql_error());
+		    
+	}
 /*	function get_client_requisites_acting_manegement_face($id){
 	    global $db;
 	//	$query = "SELECT*FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' AND `acting` =  '1'";
