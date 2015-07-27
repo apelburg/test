@@ -2286,7 +2286,7 @@
 	    global $db;
 		global $form_data;
 		extract($form_data,EXTR_PREFIX_ALL,"in");
-	
+
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/manager_class.php");
 	    $manager = new Manager($manager_id); 
 		

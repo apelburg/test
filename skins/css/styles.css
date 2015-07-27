@@ -2392,3 +2392,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 .plans_table .result_in_plans{
    background-color:#EEE;
 }
+.planner_window{
+   font-family: Verdana, Arial, Helvetica, sans-serif;
+   font-size: 12px;
+}

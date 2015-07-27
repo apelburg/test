@@ -15,7 +15,7 @@
    <td onclick="<?php echo $onclick; ?>" id="type_<?php echo $pl_id; ?>"><?php echo $pl_type; ?></td>
    <td onclick="<?php echo $onclick; ?>" id="cont_face_<?php echo $pl_id; ?>"><?php echo $pl_cont_face; ?></td>
    <td colspan="3" onclick="<?php echo $onclick; ?>" id="plan_<?php echo $pl_id; ?>"><?php echo $pl_plan; ?></td>
-   <td><?php echo $done_button; ?></td>
+   <td><?php echo @$done_button; ?></td>
 </tr>
 
 <!--?<?php echo addOrReplaceGetOnURL('plan_id='.$pl_id.'&set_plan_status=done') ?>"-->

@@ -6,7 +6,7 @@
       <div class="time_in_format"><?php echo $write_time_in_format; ?></div>
    </td>
    <td>
-      <div class="date_in_format"><?php echo $author; ?></div>
+      <div class="date_in_format"><?php echo @$author; ?></div>
    </td>
    <td>
       <div class="date_in_format"><?php echo $exec_date_in_format; ?></div>

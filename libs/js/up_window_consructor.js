@@ -59,14 +59,14 @@ var up_window_consructor = {
 		div.style.overflow = 'auto';
 		div.style.height = (height- 2*borderSize) + 'px';
 		td2_2.appendChild(div);
-		td1_1.style.background ='url(../../skins/tpl/admin/order_manager/img/up_win_left_top_edge.gif) no-repeat bottom right';
-		td1_2.style.background ='url(../../skins/tpl/admin/order_manager/img/up_win_top_edge.gif) repeat-x bottom';
-		td1_3.style.background ='url(../../skins/tpl/admin/order_manager/img/up_win_right_top_edge.gif) no-repeat bottom left';
-		td2_1.style.background ='url(../../skins/tpl/admin/order_manager/img/up_win_left_edge.gif) repeat-y right';
-		td2_3.style.background ='url(../../skins/tpl/admin/order_manager/img/up_win_right_edge.gif) repeat-y left';
-		td3_1.style.background ='url(../../skins/tpl/admin/order_manager/img/up_win_left_bottom_edge.gif) no-repeat top right';
-		td3_2.style.background ='url(../../skins/tpl/admin/order_manager/img/up_win_bottom_edge.gif) repeat-x top';
-		td3_3.style.background ='url(../../skins/tpl/admin/order_manager/img/up_win_right_bottom_edge.gif) no-repeat top left';
+		td1_1.style.background ='url(./skins/images/img_design/up_win_left_top_edge.gif) no-repeat bottom right';
+		td1_2.style.background ='url(./skins/images/img_design/up_win_top_edge.gif) repeat-x bottom';
+		td1_3.style.background ='url(./skins/images/img_design/up_win_right_top_edge.gif) no-repeat bottom left';
+		td2_1.style.background ='url(./skins/images/img_design/up_win_left_edge.gif) repeat-y right';
+		td2_3.style.background ='url(./skins/images/img_design/up_win_right_edge.gif) repeat-y left';
+		td3_1.style.background ='url(./skins/images/img_design/up_win_left_bottom_edge.gif) no-repeat top right';
+		td3_2.style.background ='url(./skins/images/img_design/up_win_bottom_edge.gif) repeat-x top';
+		td3_3.style.background ='url(./skins/images/img_design/up_win_right_bottom_edge.gif) no-repeat top left';
 			
 			
 		tr1.appendChild(td1_1);

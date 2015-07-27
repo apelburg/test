@@ -1128,6 +1128,7 @@
 					 arr[2].childNodes[1].childNodes[1].childNodes[0].appendChild(table_for_items);
 					 
 					 arr[1].appendChild(arr[2]);
+					 arr[1].className = 'planner_window';
 					 document.body.appendChild(arr[0]);
 					 document.body.appendChild(arr[1]);
 
@@ -1369,6 +1370,7 @@
 					 
 					 // добавляем таблицу в окно
 					 arr[1].appendChild(arr[2]);
+					 arr[1].className = 'planner_window';
 					 document.body.appendChild(arr[0]);
 					 document.body.appendChild(arr[1]);
 					 
@@ -1664,6 +1666,7 @@
 					 
 					 // добавляем таблицу в окно
 					 arr[1].appendChild(arr[2]);
+					 arr[1].className = 'planner_window';
 					 document.body.appendChild(arr[0]);
 					 document.body.appendChild(arr[1]);
 		             show_planner_window_for_editing.in_process = false;
@@ -1846,6 +1849,7 @@
 	 
 	   // добавляем таблицу в окно
 	   arr[1].appendChild(arr[2]);
+	   arr[1].className = 'planner_window';
 	   document.body.appendChild(arr[0]);
 	   document.body.appendChild(arr[1]);
 
