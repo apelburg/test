@@ -1033,6 +1033,114 @@
 		$('#bg_modal_window,.html_modal_window').remove();
 	});
 	
+	function show_client_list_by_manager_for_planner(manager_id){
+		
+		//////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////    AJAX  ///////////////////////////////////////////
+		
+		var request = HTTP.newRequest();
+		var url = '?page=planner&manager_id=' + manager_id + '&show_client_list_by_manager=1';
+		
+	    // производим запрос
+	    request.open("GET", url, true);
+	    request.send(null);
+		
+		request.onreadystatechange = function(){ // создаем обработчик события
+		   if(request.readyState == 4){ // проверяем состояние запроса если запрос == 4 значит ответ получен полностью
+			   if(request.status == 200){ // проверяем состояние ответа (код состояния HTTP) если все впорядке продолжаем 
+				     ///////////////////////////////////////////
+			         
+
+					 var request_response = request.responseText;
+					 //alert(request_response);
+					 var common_arr = request_response.split('{@#@#@}');
+					 var items_arr = common_arr[0].split('{@}');
+					 var items2_arr = common_arr[1].split('{@}');
+					 
+					 
+					 up_window_consructor.setWindowDimentions(500,900);
+					 var arr = up_window_consructor.windowBilder('JFEIWERF8e0r8qFHDKI94u9r8');
+					 
+					 // строим таблицу
+					 var cols_num = 3;
+					 var rows_num = (items_arr.length%cols_num != 0 )? parseInt(items_arr.length/cols_num)+ 1 : parseInt(items_arr.length/cols_num);
+					 var table_for_items = document.createElement("table");	
+					 table_for_items.style.width ='100%';
+					 table_for_items.style.height ='100%';
+					 table_for_items.style.borderCollapse ='collapse';
+					 table_for_items.style.border ='#000000 solid 0px';
+					 	
+					 
+					 //alert(items_arr.length + ' _ ' + rows_num);
+					 var counter = 0;
+					 for(var i = 0 ; i < rows_num ; i++){	 
+						  /*
+
+						   */
+						   var tr_for_items = document.createElement("tr");
+						   for(var j = 0 ; j < cols_num ; j++){
+							   
+							    var a = document.createElement("a");
+							   // вставляем полученный пукт в ссылку
+							   var index = i + rows_num*j;
+							   
+							   a.innerHTML = (items2_arr[index])? items2_arr[index]:'';
+							   a.setAttribute('value',items_arr[index])
+							   a.style.cursor = 'pointer';
+							   a.style.margin = '0px 5px 0px 5px';
+							   a.onclick = function(){
+								   show_planner_window(this.getAttribute('value'));
+								   arr[0].parentNode.removeChild(arr[0]);
+								   arr[1].parentNode.removeChild(arr[1]);
+							   }
+								   
+							   
+							   
+							   
+							   var td_for_items = document.createElement("td");
+					           if(j != cols_num-1){
+								     td_for_items.style.borderRight ='#999999 solid 1px';
+									 td_for_items.style.width = (100/cols_num) + '%';
+							   }
+							   td_for_items.style.borderBottom ='#AAAAAA dotted 1px';
+					           
+							   td_for_items.style.height ='22px';
+							   td_for_items.appendChild(a);
+						       tr_for_items.appendChild(td_for_items);
+						 
+						   }
+						   
+						   
+						   table_for_items.appendChild(tr_for_items);
+					 }
+					 // последний пустой ряд
+					 var tr_for_items = document.createElement("tr");
+					 for(var j = 0 ; j < cols_num ; j++){		   
+						   var td_for_items = document.createElement("td");
+						   if(j != cols_num-1){ 
+						       td_for_items.style.borderRight ='#999999 solid 1px';
+						       td_for_items.style.width = (100/cols_num)+ '%';
+						   }
+						   tr_for_items.appendChild(td_for_items);		   
+					 }
+					 table_for_items.appendChild(tr_for_items);
+					 
+					 arr[2].childNodes[1].childNodes[1].childNodes[0].appendChild(table_for_items);
+					 
+					 arr[1].appendChild(arr[2]);
+					 document.body.appendChild(arr[0]);
+					 document.body.appendChild(arr[1]);
+
+					 
+		           
+
+			    }
+			    else{
+				    alert("Частота запросов превысила допустимое значение\rдля данного интернет-соединения, попробуйте\rперезагрузить сайт, для этого нажмите F5");
+			    }
+		    }
+		}	
+   }
    show_planner_window.in_process = false;
    function show_planner_window(client_id){
 	    if(show_planner_window.in_process) return;

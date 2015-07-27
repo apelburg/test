@@ -41,6 +41,7 @@
     $ACCESS_SHABLON[1] = array(
 	                    'admin'=> array('access'=> true),
 						'agreement'=> array('access'=> true),
+						'planner'=> array('access'=> true),
     					'option'=> array('access'=> true),
 				        'clients'=> array(
 										'access'=> true,

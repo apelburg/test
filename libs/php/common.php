@@ -2305,6 +2305,116 @@
 		header('Location:?'.$_SERVER['QUERY_STRING']);
 	}
 	
+	function get_clients_ids_for_user($user_id){
+	    global $db;
+		
+		$ids_arr = array();
+		// если $user_id==0 то те которые никому не пренадлежат
+		if($user_id!=0) $query = "SELECT*FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$user_id."'";
+		else $query = "SELECT id AS client_id FROM `".CLIENTS_TBL."` WHERE `id` NOT IN(SELECT client_id FROM `".RELATE_CLIENT_MANAGER_TBL."` )";
+		
+		$result = mysql_query($query,$db) or die(mysql_error());
+		
+		if(mysql_num_rows($result)>0){
+	       while($item = mysql_fetch_assoc($result)) $ids_arr[] = $item['client_id'];
+        }
+		return $ids_arr;
+	}
+	   function get_clients_list_for_user($user_id,$order = array ('id',''),$limit_str = '',$full_data_flag=false){
+	    global $db;
+		
+		$flag_none_clients = FALSE;
+		
+		if($user_id!=0) $query_prev = "SELECT*FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$user_id."'";
+		else $query_prev = "SELECT id AS client_id FROM `".CLIENTS_TBL."` WHERE `id` NOT IN(SELECT client_id FROM `".RELATE_CLIENT_MANAGER_TBL."` )";
+		
+		$result_prev = mysql_query($query_prev,$db);
+		if(!$result_prev) echo(mysql_error());
+		if(mysql_num_rows($result_prev)>0){
+		// создаем строку содержащую список id клиентов
+		$in_string = '';
+	    while($item = mysql_fetch_assoc($result_prev)) $in_string .= $item['client_id'].',';
+	    $in_string = trim($in_string,",");
+		//echo $in_string;
+		
+		
+		// если передан параметр time_change сверяем список клиентов датами изменеий в расчетной таблице
+		if($order[0] == 'time_change'){
+			if($in_string != ''){
+			   $query = "SELECT `client_id` FROM `".CALCULATE_TBL."` WHERE  `manager_id` = '".$user_id."' AND `client_id` IN (".$in_string.") ORDER BY `".$order[0]."`"; //
+			   $result = mysql_query($query,$db);
+			   $in_string = '';
+			   while($item = mysql_fetch_assoc($result)) $id_arr[]= $item['client_id'];
+               //print_r($id_arr);
+			   krsort($id_arr);
+			   reset($id_arr);
+			   $id_arr = array_unique($id_arr);
+			   if($limit_str != '') $id_arr = array_slice($id_arr, intval(substr($limit_str,strpos($limit_str,'LIMIT')+ 6)),intval(substr($limit_str,strpos($limit_str,',')+2)));
+			   // echo '<br>';
+			   //print_r($id_arr);
+			   if(isset($id_arr)){
+			   foreach($id_arr as $id){
+				   $query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id`  = '".$id."'"; //
+				   $result = mysql_query($query,$db);
+				   if(!$result) echo(mysql_error());
+				   $item = mysql_fetch_assoc($result);
+				   $client_id_arr[] = array('id' => $item['id'],'name' => $item['name'],'company' => $item['company']);
+			   }
+ 
+			}
+			else $flag_none_clients = TRUE;
+			}
+		}
+		//elseif($order[0] == 'search'){
+		  // $query = "SELECT*FROM ".RELATE_CLIENT_MANAGER_TBL." rl INNER JOIN ".CLIENTS_TBL." c ON rl.client_id = c.id  WHERE rl.manager_id = '".$user_id."' AND c.company LIKE '%".cor_data_for_SQL($order[1])."%' ".$limit_str;	
+		elseif($order[0] == 'search'){
+		   $query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id` IN (".$in_string.")  AND `company` LIKE '%".cor_data_for_SQL($order[1])."%' ORDER BY `company` ".$limit_str;
+
+		    $result = mysql_query($query,$db);
+		    if(!$result) echo(mysql_error());
+		    if(mysql_num_rows($result)>0){
+				 if($full_data_flag) while($item = mysql_fetch_assoc($result)) $client_id_arr[] = array($item['id'],$item['name'],$item['company'],$item['cont_face1'],$item['phone_cont_face1'],$item['email_cont_face1'],$item['dop_info']);
+				 else while($item = mysql_fetch_assoc($result)) $client_id_arr[] = array('id' => $item['id'],'name' => $item['name'],'company' => $item['company']);
+		    }
+		    else $flag_none_clients = TRUE;
+		}			
+		// производим выборку с помощью оператора IN
+		else{ 
+			if($in_string != ''){
+				if((isset($_GET['show_clients']) && $_GET['show_clients']=="all_my") || $_SESSION['access']['access'] != 5 || !isset($_GET['page'])){
+			   		$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id` IN (".$in_string.") ORDER BY `".$order[0]."` ".$order[1]." ".$limit_str; 
+				}else{
+					$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id` IN (".$in_string.") AND`favorite` = 1 ORDER BY `".$order[0]."` ".$order[1]." ".$limit_str; 
+				}
+			   $result = mysql_query($query,$db);
+			   if(!$result) echo(mysql_error());
+			   if(mysql_num_rows($result)>0){
+					if($full_data_flag) while($item = mysql_fetch_assoc($result)) $client_id_arr[] = array($item['id'],$item['name'],$item['company'],$item['cont_face1'],$item['phone_cont_face1'],$item['email_cont_face1'],$item['dop_info']);
+					else while($item = mysql_fetch_assoc($result)) $client_id_arr[] = array('id' => $item['id'],'name' => $item['name'],'company' => $item['company']);
+			   }
+			   else $flag_none_clients = TRUE;
+			}
+			else $flag_none_clients = TRUE;
+		}
+		}
+		else $flag_none_clients = TRUE;
+		
+		if($flag_none_clients) $client_id_arr[] = array('id' => '','name' => 'нет клиентов','company' => 'нет клиентов');
+		
+		return $client_id_arr;
+	}
+	function get_client_name($id){
+	    global $db;
+		$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `id` = '".$id."'";
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		if(mysql_num_rows($result) > 0 ){
+		   $name = mysql_result($result,0,'company');
+		}
+		else $name = '&nbsp;';
+		return $name;	
+	}
+	
 /*	function get_client_requisites_acting_manegement_face($id){
 	    global $db;
 	//	$query = "SELECT*FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' AND `acting` =  '1'";

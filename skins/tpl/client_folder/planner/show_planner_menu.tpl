@@ -1,6 +1,6 @@
 <script type="text/javascript" src="libs/js/calendar_consturctor.js"></script>
 <style type="text/css">
-#menu_subsub_level_td_<?php echo $razdel;?>{ background:bottom repeat-x url(../../skins/tpl/admin/order_manager/img/bg_menu_third_level_on.png);}
+#menu_subsub_level_td_<?php echo $razdel;?>{ background:bottom repeat-x url(./skins/images/img_design/bg_menu_third_level_on.png);}
 #calendar_table td{ 
   background-color:#ECECEC; 
   border:0px solid #333333;

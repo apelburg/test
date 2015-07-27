@@ -17,9 +17,9 @@
 	
 	$planner_display = '<div class="quick_button_circle">
 							<div class="quick_button_circle__circle" style="background-image: url(./skins/images/img_design/button_circle_2.png); border-color:red">
-								<div class="quick_button_circle__alert">12</div>
+								<!--<div class="quick_button_circle__alert">12</div>-->
 							</div>
-							<div class="quick_button_circle__text">Планировщик</div>
+							<div class="quick_button_circle__text"><a href="?page=planner">Планировщик</a></div>
 						</div>'; 
 
 ?>
