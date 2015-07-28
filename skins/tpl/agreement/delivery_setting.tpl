@@ -1,3 +1,4 @@
+<style> .main_menu_tbl{ display:none; } </style>
 <div class="agreement_setting_window" style="margin-top:150px;">
     <div style="width:650px;padding:30px 30px 70px 30px;margin:auto;border:1px solid #CCCCCC;box-shadow: 0 0 8px -1px #555555;-moz-box-shadow: 0 0 8px -1px #555555;-webkit-box-shadow: 0 0 8px -1px #555555;">
         <form method="GET">

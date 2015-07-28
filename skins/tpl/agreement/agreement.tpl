@@ -3,6 +3,7 @@
  cursor:pointer;
  background-color: #E6DCC8;
 }
+.main_menu_tbl{ display:none; }
 </style>
 <div class="agreement">
      <div class="cap" id="agreement_tools_plank">

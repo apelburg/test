@@ -1,6 +1,6 @@
 <script type="text/javascript" src="libs/js/calendar.js"></script>
 <style>
-
+.main_menu_tbl{ display:none; }
 .calendarLaunchButtonContainer{
    position:relative;
 }
