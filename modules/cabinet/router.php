@@ -9,7 +9,8 @@
 	include './libs/php/classes/comments_class.php';
 	$comments = new Comments_for_query_class;
 	
-	
+	include './libs/php/classes/os_form_class.php';
+
 	include './libs/php/classes/rt_position_no_catalog_class.php';
 	include './libs/php/classes/cabinet/cabinet_class.php';		
 	include './libs/php/classes/cabinet/cabinet_general_class.php';		

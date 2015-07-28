@@ -28,7 +28,18 @@
 
     	function __consturct(){
 		}
-		
+		// определяем поставщика
+		protected function get_supplier_name($article){
+			$html = '';
+			global $suppliers_names_by_prefix_for_get_name;		   
+			$prefix = substr($article,0,2);
+			if(isset($suppliers_names_by_prefix_for_get_name[$prefix])){	
+				$html = $suppliers_names_by_prefix_for_get_name[$prefix];
+			}else{
+				$html = '<span class="greyText">не требуется</span>';
+			}
+			return $html;
+		}
 
 		// подсчет суммы доп услуг или печати
 		// на вход подаётся результат работы get_dop_uslugi_print_type() 

@@ -646,7 +646,7 @@
 			$table_head_html = '
 				<table id="general_panel_orders_tbl">
 				<tr>
-					<th colspan="2">Артикул/номенклатура/печать</th>
+					<th colspan="3">Артикул/номенклатура/печать</th>
 					<th>тираж<br>запас</th>
 					<th>поставщик товара и резерв</th>
 					<th>подрядчик печати</th>
@@ -689,16 +689,23 @@
 				}
 			}
 
-			$table_order_row = '';			
+			$table_order_row = '';		
+			// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
+			// error_reporting(E_ALL);
+			//include '../os_form_class.php';
+			// создаем экземпляр класса форм
+			$this->FORM = new Forms();
 			foreach ($main_rows_id as $key => $value) {
 				// запрашиваем информацию по позициям
-				$table_order_positions_rows = $this->table_order_positions_rows_Html($value);
+				$positions_arr = $this->table_order_positions_rows_Html($value);
+				$table_order_positions_rows = $positions_arr['html'];
 
 				// формируем строку с информацией о заказе
 				$table_order_row .= '
 					<tr class="order_head_row">
+						<td class="show_hide" rowspan="'.$positions_arr['rowspan'].'"><span class="cabinett_row_hide_orders"></span></td>
 						<td colspan="5" class="orders_info">
-							<span class="greyText">заказа: </span> <a href="">'.Cabinet::show_order_num($value['order_num']).'</a> <span class="greyText"> &larr; (<a href="" class="greyText">'.$value['query_num'].'</a>)</span>
+							<span class="greyText">№: </span><a href="#">'.Cabinet::show_order_num($value['order_num']).'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$value['client_id'].'&query_num='.$value['query_num'].'" target="_blank" class="greyText">'.$value['query_num'].'</a>)</span>
 							'.$this->get_client_name_link_Database($value['client_id']).'
 							<span class="greyText">счёт№:'.$value['number_pyament_list'].'</span>
 						</td>
@@ -721,6 +728,8 @@
 			$html = $table_head_html.$table_order_row.'</table>';
 			echo $html;
 		}
+		
+
 
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html($order_arr){
@@ -731,41 +740,135 @@
 			// echo '</pre>';
 			
 			$n = 1;
-			// формируем строки позиций
+			// формируем строки позиций			
 			foreach ($positions_rows as $key => $value) {
-				$html .= '<tr>';
+				$html .= '<tr class="positions_rows row__'.$n.'" data-id="'.$value['id'].'">';
 				// порядковый номер позиции в заказе
 				$html .= '<td><span class="orders_info_punct">'.$n++.'п</span></td>';
 				// описание позиции
 				$html .= '<td>';
-				$html .= $value['art'].'  '.$value['name'];
-				
+				$html .= '<span class="art_and_name">'.$value['art'].'  '.$value['name'].'</span>';
+				// echo '<pre>';
+				// print_r($value);
+				// echo '</pre>';
+					
 				// добавляем доп описание
 				// для каталога и НЕкаталога способы хранения и получения данной информации различны
-				if(trim($value['art'])=='cat'){
-					$html .= $this->get_dop_information_text_no_cat();
-				}else{
+				
+
+				if(trim($value['type'])!='cat' && trim($value['type'])!=''){
+					// доп инфо по некаталогу берём из json 
+					$html .= $this->decode_json_no_cat_to_html($value);
+				}else if(trim($value['type'])!=''){
+					// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
 					$html .= '';
 				}				
 				$html .= '</td>';
+				// тираж, запас, печатать/непечатать запас
+				$html .= '<td>
+						<div class="quantity">'.$value['quantity'].'</div> 
+						<div class="zapas">'.(($value['zapas']!=0 && trim($value['zapas'])!='')?'+'.$value['zapas']:'').'</div>
+						<div class="print_z">'.(($value['print_z']==0)?'НПЗ':'ПЗ').'</div>
+						</td>';
+				// поставщик товара и номер резерва для каталожной продукции 
+				$html .= '<td>
+						<div class="supplier">'.$this->get_supplier_name($value['art']).'</div>
+						<div class="number_rezerv">'.$value['number_rezerv'].'</div>
+						</td>';
+				// подрядчк печати 
+				// что если их несколько????? где мы их указываем ???? 
+				$html .= '<td>что если их несколько????? где мы их указываем ???? </td>';
+				// сумма за позицию включая стоимость услуг ???!!!
 				$html .= '<td></td>';
+				// всплывающее окно тех и доп инфо
+				// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
+				// думаю есть смысл хранения в json 
+				// обязательные поля:
+				// {"comments":" ","technical_info":" ","maket":" "}
+				$html .= $this->grt_dop_teh_info($value);
+				
+				// дата утверждения макета
+				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
 				$html .= '<td></td>';
-				$html .= '<td></td>';
-				$html .= '<td></td>';
-				$html .= '<td></td>';
-				$html .= '<td></td>';
-				$html .= '<td></td>';
-				$html .= '<td></td>';
+				// срок ДС --- что тут должно быть????
+				$html .= '<td>что тут должно быть????</td>';
+				// дата сдачи
+				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
+				// или откуда она вычисляется.... ведь её не может не быть
+				$html .= '<td>08.09.2015</td>';
 
 				// получаем статусы участников заказа в две колонки: отдел - статус
 				$html .= $this->position_status_list_Html($value);
-				$html .= '<tr>';
-			}				
+				$html .= '</tr>';			
+			}		
+
+			$arr['html'] = $html;
+			$arr['rowspan'] = $n;	
+			return $arr;
+		}
+
+		// всплывающее окно тех и доп инфо
+		private function grt_dop_teh_info($value){
+			// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
+			// думаю есть смысл хранения в json 
+			// обязательные поля:
+			// {"comments":" ","technical_info":" ","maket":" "}
+
+			// если есть информация
+			$no_empty_class = (trim($value['dop_teh_info'])!='')?' no_empty':'';
+
+			$html = '<td>
+					<div class="dop_teh_info '.$no_empty_class.'">доп/тех инфо</div>
+					<div class="dop_teh_info_window_content"></div>
+				</td>';
+
 			return $html;
 		}
 		
-		private function get_dop_information_text_no_cat(){
+		// декодируем поле json для некаталога в читабельный вид
+		private function decode_json_no_cat_to_html($arr){
+			// список разрешённых для вывода в письмо полей
+			$send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
 
+
+			
+			// получаем json с описанием продукта
+			$dop_info_no_cat = ($arr['no_cat_json']!='')?json_decode($arr['no_cat_json']):array();
+			
+			
+			$html = '';
+			// если у нас есть описание заявленного типа товара
+			if(isset($this->FORM->form_type[$arr['type']])){
+				$names = $this->FORM->form_type[$arr['type']]; // массив описания хранится в классе форм
+				$html .= '<div class="get_top_funcional_byttun_for_user_Html table">';
+				foreach ($dop_info_no_cat as $key => $value) {
+					if(!isset($send_info_enabled[$key])){continue;}
+					$html .= '
+						<div class="row">
+							<div class="cell" >'.$names[$key]['name'].'</div>
+							<div class="cell">'.$value.'</div>
+						</div>
+					';
+				}
+				$html .= '</div>';
+				// echo '<pre>';
+				// print_r($arr);
+				// echo '</pre>';
+				return $html;
+			}else{// в случае исключения выводим массив, дабы было видно куда копать
+				echo '<pre>';
+				print_r($arr);
+				echo '</pre>';
+			}
+		} 
+
+
+		// вывод описания по позиции НЕ_каталог
+		private function get_dop_information_text_cat_Html($position){
+			// echo '<pre>';
+			// print_r($position);
+			// echo '</pre>';
+				
 		}
 		// статусы позиций
 		private function position_status_list_Html($cab_order_main_row){
