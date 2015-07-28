@@ -7,7 +7,7 @@
     $date_arr = explode('-',$agreement['date']);
 	$agreement_year_folder = $date_arr[0];
 	
-	$path = 'data/agreements/'.$client_id.'/'.$agreement_year_folder.'/'.$_GET['agreement_type'].'/'.$agreement['our_requisit_id'].'_'.$agreement['client_requisit_id'].'/agreement.tpl';
+	$path = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.$agreement_year_folder.'/'.$_GET['agreement_type'].'/'.$agreement['our_requisit_id'].'_'.$agreement['client_requisit_id'].'/agreement.tpl';
 	
     if(isset($_POST['submit_ok']))
 	{
@@ -21,7 +21,7 @@
 
 ?>
 
-<?php include ('../../skins/tpl/admin/order_manager/agreement/tinymse_js_block.html'); ?>
+<?php include ('./skins/tpl/agreement/tinymse_js_block.html');  ?>
 <div style="margin:auto;width:1200px;">
     <div style="margin:10px 20px;">
         <button type="button" onclick="location = '/admin/order_manager/?<?php echo addOrReplaceGetOnURL('section=agreement_editor'); ?>';" style="cursor:pointer;">назад</button>

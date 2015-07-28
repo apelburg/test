@@ -50,8 +50,16 @@
 						 }
 					
 						 $summ_out = $dop_data['quantity']*$dop_data['price_out'];
+						 $name= (($main_data['art']!='')? 'арт.'.$main_data['art']:'')." ".$main_data['name'];
 						 
-						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id[0]."'";
+						 // $price = ($dop_data['discount'] != 0 )? round((($summ_out/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round($summ_out/$dop_data['quantity'],2) ;
+						 $price = ($dop_data['discount'] != 0 )? round(($dop_data['price_out']/100)*(100 + $dop_data['discount']),2) :  $dop_data['price_out'] ;
+						 
+				         // записываем ряд
+						 Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price);
+						 
+						 
+						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id[0]."' ORDER BY glob_type";
 						 // echo $query."\r\n";
 						 $result3 = $mysqli->query($query3)or die($mysqli->error);
 						 if($result3->num_rows>0){
@@ -59,11 +67,17 @@
 						     while($uslugi_data = $result3->fetch_assoc()){
 					            // 3). uslugi_data
 								 if($uslugi_data['glob_type'] == 'print' && !(!!$expel["print"])){
-								    $uslugi_summ_out += $uslugi_data['quantity']*$uslugi_data['price_out'];
+                                    $name = Agreement::convert_print($uslugi_data['print_details']);
+									// записываем ряд
+									Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
 								    $uslugi_summ_out += $uslugi_data['quantity']*$uslugi_data['price_out'];
-								 }
+								 }/**/
+								 
+								  
+						       
+						 
 							 }
 						 }
 				    }
@@ -76,36 +90,11 @@
 				// 2. в каком-то формате записывать данные о нанесениях и допуслугах
 				
 				// echo "<br>".(($summ_out+$uslugi_summ_out)/$dop_data['quantity'])*$dop_data['quantity']." -> $summ_out +$uslugi_summ_out / ".$dop_data['quantity']."<br>";
-				$price = ($dop_data['discount'] != 0 )? round(((($summ_out+$uslugi_summ_out)/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round(($summ_out+$uslugi_summ_out)/$dop_data['quantity'],2) ;
+				// $price = ($dop_data['discount'] != 0 )? round(((($summ_out+$uslugi_summ_out)/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round(($summ_out+$uslugi_summ_out)/$dop_data['quantity'],2) ;
+				
+				
 						
-				$query4 = "INSERT INTO `".GENERATED_SPECIFICATIONS_TBL."` SET 
-							  client_id='".$client_id."',
-							  agreement_id='".$agreement_id."',
-							  our_chief='".$our_firm_acting_manegement_face['name']."',
-							  our_chief_in_padeg='".$our_firm_acting_manegement_face['name_in_padeg']."',
-							  our_chief_position='".$our_firm_acting_manegement_face['position']."',
-							  our_chief_position_in_padeg='".$our_firm_acting_manegement_face['position_in_padeg']."',
-							  our_basic_doc='".$our_firm_acting_manegement_face['basic_doc']."',
-							  client_chief='".$client_firm_acting_manegement_face['name']."',
-							  client_chief_in_padeg='".$client_firm_acting_manegement_face['name_in_padeg']."',
-							  client_chief_position='".$client_firm_acting_manegement_face['position']."',
-							  client_chief_position_in_padeg='".$client_firm_acting_manegement_face['position_in_padeg']."',
-							  client_basic_doc='".$client_firm_acting_manegement_face['basic_doc']."',
-							  specification_num='".$specification_num."',
-							  short_description='".$short_description."',
-							  address='".$address."',
-							  prepayment='".$prepayment."',
-							  date = '$date',
-							  name='".(($main_data['art']!='')? 'арт.'.$main_data['art']:'')." ".$main_data['name']."',
-							  makets_delivery_term='5 (пяти)',
-							  item_production_term='10 (десять)',
-							  quantity='".$dop_data['quantity']."',
-							  price='".$price."',
-							  summ='".$dop_data['quantity']*$price."'
-							  ";
-							  
-				// echo $query4;		  
-				  $result4 = $mysqli->query($query4)or die($mysqli->error);
+				
 			}	
 				
 		//exit;
@@ -199,6 +188,62 @@
 			else return false;
 	
 	    }
+		function insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$quantity,$price){
+			global $mysqli;
+			
+			$query = "INSERT INTO `".GENERATED_SPECIFICATIONS_TBL."` SET 
+						  client_id='".$client_id."',
+						  agreement_id='".$agreement_id."',
+						  our_chief='".$our_firm_acting_manegement_face['name']."',
+						  our_chief_in_padeg='".$our_firm_acting_manegement_face['name_in_padeg']."',
+						  our_chief_position='".$our_firm_acting_manegement_face['position']."',
+						  our_chief_position_in_padeg='".$our_firm_acting_manegement_face['position_in_padeg']."',
+						  our_basic_doc='".$our_firm_acting_manegement_face['basic_doc']."',
+						  client_chief='".$client_firm_acting_manegement_face['name']."',
+						  client_chief_in_padeg='".$client_firm_acting_manegement_face['name_in_padeg']."',
+						  client_chief_position='".$client_firm_acting_manegement_face['position']."',
+						  client_chief_position_in_padeg='".$client_firm_acting_manegement_face['position_in_padeg']."',
+						  client_basic_doc='".$client_firm_acting_manegement_face['basic_doc']."',
+						  specification_num='".$specification_num."',
+						  short_description='".$short_description."',
+						  address='".$address."',
+						  prepayment='".$prepayment."',
+						  date = '$date',
+						  name='".$name."',
+						  makets_delivery_term='5 (пяти)',
+						  item_production_term='10 (десять)',
+						  quantity='".$quantity."',
+						  price='".$price."',
+						  summ='".$quantity*$price."'
+						  ";
+						  
+			// echo $query4;		  
+			  $result = $mysqli->query($query)or die($mysqli->error);
+		
+		}
+		function convert_print($print_details){
+		    $print_details = json_decode($print_details);
+			$out_put = array();
+			$out_put[] = $print_details->print_type;
+			$out_put[] = 'место нанесения - '.$print_details->place_type;
+		    if(isset($print_details->coeffs)){
+			    foreach($print_details->coeffs as $target -> $data){
+				
+				}
+			}
+			
+			$print_details->additions; 
+			$print_details->coeffs;
+			$print_details->sizes; 
+			$print_details->YPriceParam; 
+			
+			 
+		    return implode(', ',$out_put);
+			
+			/*{"dop_params":{"YPriceParam":[{"id":0,"coeff":1}],"sizes":[{"id":"1","coeff":"1.00"}],"coeffs":{"price":{"48 hours":[{"value":2,"id":"7"}]}},
+			"additions":{"summ":{"smena_kraski":[{"value":300,"id":"1","multi":"7"}]}}},
+			"place_id":"0","print_id":"13","lackOfQuantInPrice":true,"minQuantInPrice":50,"lackOfQuantOutPrice":true,"minQuantOutPrice":50,"place_type":"Стандартно","print_type":"Шелкография по текстилю"}*/
+		}
 		function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
 			global $mysqli;
 			

@@ -130,7 +130,7 @@
 	        var request = HTTP.newRequest();
 	  
 			var url = this.url;
-		    alert(pair);
+		    // alert(pair);
 			// производим запрос
 			request.open("POST", url); 
 			request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
@@ -145,7 +145,7 @@
 					   // обрабатываем ответ сервера
 						
 						var request_response = request.responseText;
-						alert(request_response);
+						// alert(request_response);
 						tableDataManager.stop_processing_timer();
 						// выводим замечание об ощибке если есть
 						//if(request_response != '') 
