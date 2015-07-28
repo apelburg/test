@@ -680,8 +680,8 @@
 			//echo $query_num;
 
 		    // СОЗДАЁМ СТРОКУ ЗАКАЗА
-		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id`, `snab_id` )
-				SELECT `manager_id`, `client_id`, `snab_id`
+		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id`, `snab_id`, `query_num` )
+				SELECT `manager_id`, `client_id`, `snab_id`, `query_num`
 				FROM `".RT_LIST."` 
 				WHERE  `query_num` = '".$query_num."';
 				";
