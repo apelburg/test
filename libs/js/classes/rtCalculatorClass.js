@@ -3067,6 +3067,58 @@ var rtCalculator = {
 
 	}
 	,
+	setSvetoforStatusIn:function(e){
+
+		e = e || window.event;
+		var element = e.target;
+		
+        var status = element.getAttribute('status');
+		// обходим РТ чтобы 
+		// 1. определить какие Мастер Кнопки были нажаты 
+		
+		var tbl = document.getElementById('rt_tbl_body');
+		var trsArr = tbl.getElementsByTagName('tr');
+		var nothing = true;
+		var idsArr = [];
+		
+		// обходим ряды таблицы
+		for( var i= 0 ; i < trsArr.length; i++){
+			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
+			if(trsArr[i].getAttribute('pos_id')){
+				var pos_id = trsArr[i].getAttribute('pos_id');
+				
+				var tdsArr = trsArr[i].getElementsByTagName('TD');
+				
+				for(var j =0; j < tdsArr.length; j++){
+					if(tdsArr[j].getAttribute('type')){
+						var type = tdsArr[j].getAttribute('type');
+						
+						if(type == 'master_btn'){ 
+						    var input = tdsArr[j].getElementsByTagName('input')[0];
+						    if(input.type == 'checkbox' && input.name == 'masterBtn' && input.checked == true){
+						 
+							   idsArr.push(pos_id); 
+							   nothing = false;
+		 
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if(nothing){
+			alert('не возможно применить ярлык,\rвы не выбрали ни одной позиции');
+			return;
+		}
+
+	    show_processing_timer();
+		//location = "?page=client_folder&set_svetofor_status=" + status + "&ids=" +JSON.stringify(idsArr);
+		location = '?' + addOrReplaceGetOnURL('set_svetofor_status='+status + "&ids=" +JSON.stringify(idsArr));
+		//alert('?' + addOrReplaceGetOnURL('set_svetofor_status='+status + "&ids=" +JSON.stringify(idsArr)));
+	
+	}
+	,
 	send_ajax:function(url,callback){
 		
 		

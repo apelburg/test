@@ -78,31 +78,30 @@
 		div.style.left = "-3px";
 		div.style.display = "block";
 		
+		
+		 var innerDiv = document.createElement('div');
+		innerDiv.className = "cup";
+		innerDiv.appendChild(document.createTextNode('Применить ярлык:'));
+		div.appendChild(innerDiv);
+		
+		
 		var innerDiv = document.createElement('div');
-		innerDiv.className = "link1";
+		innerDiv.className = "link2";
 		var a = document.createElement('a');
+		a.setAttribute('status','red');
 		a.href = '#';
 		a.appendChild(document.createTextNode('Нет в наличии'));
-		
-		var span = document.createElement('span');
-		span.className = "notWork";
-		span.appendChild(document.createTextNode('x'));
-		a.appendChild(span);
-		
+		a.onclick = rtCalculator.setSvetoforStatusIn;
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
 		var innerDiv = document.createElement('div');
-		innerDiv.className = "link1";
+		innerDiv.className = "link2";
 		var a = document.createElement('a');
+		a.setAttribute('status','red');
 		a.href = '#';
+		a.onclick = rtCalculator.setSvetoforStatusIn;
 		a.appendChild(document.createTextNode('Отказано'));
-		
-		var span = document.createElement('span');
-		span.className = "notWork";
-		span.appendChild(document.createTextNode('x'));
-		a.appendChild(span);
-		
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
@@ -122,16 +121,10 @@
 		var a = document.createElement('a');
 		a.href = '#';
 		a.appendChild(document.createTextNode('Дату сдачи'));
-		
-		var span = document.createElement('span');
-		span.className = "notWork";
-		span.appendChild(document.createTextNode('x'));
-		a.appendChild(span);
-		
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
-		var innerDiv = document.createElement('div');
+		/*var innerDiv = document.createElement('div');
 		innerDiv.className = "link2";
 		var a = document.createElement('a');
 		a.href = '#';
@@ -143,7 +136,7 @@
 		a.appendChild(span);
 		
 		innerDiv.appendChild(a);
-		div.appendChild(innerDiv);
+		div.appendChild(innerDiv);*/
 		
 		
 		var innerDiv = document.createElement('div');

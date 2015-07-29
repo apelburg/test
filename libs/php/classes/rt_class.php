@@ -26,10 +26,17 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
-		static function change_svetofor($id,$val){
+		static function change_all_svetofors($idsArr,$val){
+		    global $mysqli;   //print_r($data); 
+			echo '<pre>'; print_r($idsArr); echo '</pre>';
+	      	$query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = '".$val."'  WHERE `row_id` IN('".implode("','",$idsArr)."')";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);
+		}
+		static function change_svetofor($idsArr,$val){
 		    global $mysqli;   //print_r($data); 
 	   
-			$query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = '".$val."'  WHERE `id` = '".$id."'";
+			$query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = '".$val."'  WHERE `id` IN('".implode("','",$idsArr)."')";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
