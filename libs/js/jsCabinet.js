@@ -72,13 +72,46 @@ $(document).ready(function() {
 
 
 
-// свернуть/развернуть строку запроса
+// свернуть/развернуть строку ЗАПРОСА
 $(document).on('click','#cabinet_general_content .cabinett_row_hide',function() {	
 	if($(this).hasClass('show')){
 		$(this).parent().attr('rowspan','2').parent().next().show();
 		$(this).removeClass('show');
 	}else{
 		$(this).parent().attr('rowspan','1').parent().next().hide();
+		$(this).addClass('show');
+	}	
+});
+
+// свернуть/развернуть строку ЗАКАЗА
+$(document).on('click','#cabinet_general_content .cabinett_row_hide_orders',function() {	
+	if($(this).hasClass('show')){
+		// запоминаем значение rowspan
+		var rowspan = Number($(this).parent().attr('data-rowspan'));
+
+		$(this).parent().attr('rowspan',rowspan);
+
+		// скрываем все строки
+		obj = $(this).parent().parent().next('tr');
+		for (var i = 0; i < rowspan-1; i++) {
+			obj.show();
+			obj = obj.next('tr');
+		};
+
+		$(this).removeClass('show');
+	}else{
+		// запоминаем значение rowspan
+		var rowspan = Number($(this).parent().attr('rowspan'));
+		// ставим rowspan 1, сохраняем заначение в тег
+		$(this).parent().attr('rowspan','1').attr('data-rowspan',rowspan);
+		// скрываем все строки
+		obj = $(this).parent().parent().next('tr');
+		for (var i = 0; i < rowspan-1; i++) {
+			obj.hide();
+			obj = obj.next('tr');
+			console.log(obj.next('tr').html());
+		};
+
 		$(this).addClass('show');
 	}	
 });

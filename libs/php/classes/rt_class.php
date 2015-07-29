@@ -680,8 +680,8 @@
 			//echo $query_num;
 
 		    // СОЗДАЁМ СТРОКУ ЗАКАЗА
-		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id`, `snab_id` )
-				SELECT `manager_id`, `client_id`, `snab_id`
+		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id`, `snab_id`, `query_num` )
+				SELECT `manager_id`, `client_id`, `snab_id`, `query_num`
 				FROM `".RT_LIST."` 
 				WHERE  `query_num` = '".$query_num."';
 				";
@@ -703,7 +703,9 @@
 			$query1 = '';//запрос копирования услуг
 			foreach ($data_obj['ids'] as $key => $value) {
 				// ЗАВОДИМ ПОЗИЦИИ К НОВОМУ ЗАКАЗУ
-				$query = "INSERT INTO `".CAB_ORDER_MAIN."`  (`master_btn`, `order_num`,`type`,`art`,`art_id`,`name` )
+
+				//`dop_info_no_cat` не копируем т.к. это общая информация обовсех вариантах
+				$query = "INSERT INTO `".CAB_ORDER_MAIN."`  (`master_btn`, `order_num`,`type`,`art`,`art_id`,`name`)
 					SELECT `master_btn`,`query_num`,`type`,`art`,`art_id`,`name`
 					FROM `".RT_MAIN_ROWS."` 
 					WHERE  `query_num` = '".$query_num."' 
@@ -721,11 +723,11 @@
 
 				// КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
 				$query = "INSERT INTO `" . CAB_ORDER_DOP_DATA . "`  (
-					`row_id`,`expel`,`quantity`,`price_in`,`price_out`,`discount`,`tirage_json`,
-					`print_z`,`standart`,`shipping_time`,`shipping_date`
+					`row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
+					`print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`
 					)
-					SELECT `row_id`,`expel`,`quantity`,`price_in`,`price_out`,`discount`,`tirage_json`,
-					`print_z`,`standart`,`shipping_time`,`shipping_date`
+					SELECT `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
+					`print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`
 					FROM `".RT_DOP_DATA."` 
 					WHERE  `id` = '".$key_dop_data."'
 				";

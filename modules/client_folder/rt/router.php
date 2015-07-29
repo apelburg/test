@@ -64,8 +64,14 @@
 		 */
 		 exit;
 	}
-	if(isset($_GET['makeSpecAndPreorder'])){
-		 
+
+	if(isset($_GET['makeSpecAndPreorder'])){		 
+		 // RT::make_specification($_GET['make_order']);
+		 RT::make_order($_GET['make_order']);
+		 exit;
+	}
+	// создание предзаказа
+	if(isset($_GET['make_order'])){
 		 //RT::make_specification($_GET['make_order']);
 		 RT::make_order($_GET['make_order']);
 		 exit;

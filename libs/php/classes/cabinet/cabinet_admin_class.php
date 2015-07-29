@@ -428,7 +428,7 @@
 					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
 					".$where."
 					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
-				// echo  $query.'<br><br>';
+
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -641,11 +641,12 @@
 		##########################################
 		## Заказы
 		Private Function orders_Template($id_row=0){
+			$where = 0;
 			$html = '';
 			$table_head_html = '
 				<table id="general_panel_orders_tbl">
 				<tr>
-					<th>Артикул/номенклатура/печать</th>
+					<th colspan="3">Артикул/номенклатура/печать</th>
 					<th>тираж<br>запас</th>
 					<th>поставщик товара и резерв</th>
 					<th>подрядчик печати</th>
@@ -667,9 +668,15 @@
 				FROM `".CAB_ORDER_ROWS."`";
 			
 			if($id_row){
-				$query .=" WHERE `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
+				$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
+				$where = 1;
 			}else{
 				// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = ''";
+			}
+
+			if(isset($_GET['client_id'])){
+				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
+				$where = 1;
 			}
 			
 			// echo $query;
@@ -682,28 +689,227 @@
 				}
 			}
 
+			$table_order_row = '';		
+			// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
+			// error_reporting(E_ALL);
+			//include '../os_form_class.php';
+			// создаем экземпляр класса форм
+			$this->FORM = new Forms();
 			foreach ($main_rows_id as $key => $value) {
-				$table_head_html .= '
-					<tr>
-						<td colspan="4">
-							№ <a href="">'.Cabinet::show_order_num($value['order_num']).'</a> <-(<a href="">'.$value['query_num'].'</a>)
-							'.$this->get_client_name_Database($value['client_id'],1).'
+				// запрашиваем информацию по позициям
+				$positions_arr = $this->table_order_positions_rows_Html($value);
+				$table_order_positions_rows = $positions_arr['html'];
+
+				// формируем строку с информацией о заказе
+				$table_order_row .= '
+					<tr class="order_head_row">
+						<td class="show_hide" rowspan="'.$positions_arr['rowspan'].'"><span class="cabinett_row_hide_orders"></span></td>
+						<td colspan="5" class="orders_info">
+							<span class="greyText">№: </span><a href="#">'.Cabinet::show_order_num($value['order_num']).'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$value['client_id'].'&query_num='.$value['query_num'].'" target="_blank" class="greyText">'.$value['query_num'].'</a>)</span>
+							'.$this->get_client_name_link_Database($value['client_id']).'
+							<span class="greyText">счёт№:'.$value['number_pyament_list'].'</span>
 						</td>
-						<td></td>
-						<td colspan="2"></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-					</tr>					
-				';
+						<td><span class="show_the_full_information">'.$value['payment_status'].'</span> р.</td>
+						<td colspan="2">
+							<span class="greyText">оплачен: </span>'.$value['payment_date'].'
+							<span class="greyText">в размере: </span> ???
+						</td>
+						<td>???</td>
+						<td>???</td>
+						<td><span class="greyText">заказа: </span></td>
+						<td>'.$this->order_status[$value['global_status']].'</td>
+					</tr>';
+				// включаем вывод позиций 
+				$table_order_row .= $table_order_positions_rows;
 			}
 
+			
 
-			$table_head_html .= '</table>';
-			$html = $table_head_html;
+			$html = $table_head_html.$table_order_row.'</table>';
 			echo $html;
 		}
+		
+
+
+		// возвращает html строки позиций
+		private function table_order_positions_rows_Html($order_arr){
+			$positions_rows = $this->positions_rows_Database($order_arr['id']);
+			$html = '';
+			// echo '<pre>';
+			// print_r($positions_rows);
+			// echo '</pre>';
+			
+			$n = 1;
+			// формируем строки позиций			
+			foreach ($positions_rows as $key => $value) {
+				$html .= '<tr class="positions_rows row__'.$n.'" data-id="'.$value['id'].'">';
+				// порядковый номер позиции в заказе
+				$html .= '<td><span class="orders_info_punct">'.$n++.'п</span></td>';
+				// описание позиции
+				$html .= '<td>';
+				$html .= '<span class="art_and_name">'.$value['art'].'  '.$value['name'].'</span>';
+				// echo '<pre>';
+				// print_r($value);
+				// echo '</pre>';
+					
+				// добавляем доп описание
+				// для каталога и НЕкаталога способы хранения и получения данной информации различны
+				
+
+				if(trim($value['type'])!='cat' && trim($value['type'])!=''){
+					// доп инфо по некаталогу берём из json 
+					$html .= $this->decode_json_no_cat_to_html($value);
+				}else if(trim($value['type'])!=''){
+					// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
+					$html .= '';
+				}				
+				$html .= '</td>';
+				// тираж, запас, печатать/непечатать запас
+				$html .= '<td>
+						<div class="quantity">'.$value['quantity'].'</div> 
+						<div class="zapas">'.(($value['zapas']!=0 && trim($value['zapas'])!='')?'+'.$value['zapas']:'').'</div>
+						<div class="print_z">'.(($value['print_z']==0)?'НПЗ':'ПЗ').'</div>
+						</td>';
+				// поставщик товара и номер резерва для каталожной продукции 
+				$html .= '<td>
+						<div class="supplier">'.$this->get_supplier_name($value['art']).'</div>
+						<div class="number_rezerv">'.$value['number_rezerv'].'</div>
+						</td>';
+				// подрядчк печати 
+				// что если их несколько????? где мы их указываем ???? 
+				$html .= '<td>что если их несколько????? где мы их указываем ???? </td>';
+				// сумма за позицию включая стоимость услуг ???!!!
+				$html .= '<td></td>';
+				// всплывающее окно тех и доп инфо
+				// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
+				// думаю есть смысл хранения в json 
+				// обязательные поля:
+				// {"comments":" ","technical_info":" ","maket":" "}
+				$html .= $this->grt_dop_teh_info($value);
+				
+				// дата утверждения макета
+				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
+				$html .= '<td></td>';
+				// срок ДС --- что тут должно быть????
+				$html .= '<td>что тут должно быть????</td>';
+				// дата сдачи
+				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
+				// или откуда она вычисляется.... ведь её не может не быть
+				$html .= '<td>08.09.2015</td>';
+
+				// получаем статусы участников заказа в две колонки: отдел - статус
+				$html .= $this->position_status_list_Html($value);
+				$html .= '</tr>';			
+			}		
+
+			$arr['html'] = $html;
+			$arr['rowspan'] = $n;	
+			return $arr;
+		}
+
+		// всплывающее окно тех и доп инфо
+		private function grt_dop_teh_info($value){
+			// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
+			// думаю есть смысл хранения в json 
+			// обязательные поля:
+			// {"comments":" ","technical_info":" ","maket":" "}
+
+			// если есть информация
+			$no_empty_class = (trim($value['dop_teh_info'])!='')?' no_empty':'';
+
+			$html = '<td>
+					<div class="dop_teh_info '.$no_empty_class.'">доп/тех инфо</div>
+					<div class="dop_teh_info_window_content"></div>
+				</td>';
+
+			return $html;
+		}
+		
+		// декодируем поле json для некаталога в читабельный вид
+		private function decode_json_no_cat_to_html($arr){
+			// список разрешённых для вывода в письмо полей
+			$send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
+
+
+			
+			// получаем json с описанием продукта
+			$dop_info_no_cat = ($arr['no_cat_json']!='')?json_decode($arr['no_cat_json']):array();
+			
+			
+			$html = '';
+			// если у нас есть описание заявленного типа товара
+			if(isset($this->FORM->form_type[$arr['type']])){
+				$names = $this->FORM->form_type[$arr['type']]; // массив описания хранится в классе форм
+				$html .= '<div class="get_top_funcional_byttun_for_user_Html table">';
+				foreach ($dop_info_no_cat as $key => $value) {
+					if(!isset($send_info_enabled[$key])){continue;}
+					$html .= '
+						<div class="row">
+							<div class="cell" >'.$names[$key]['name'].'</div>
+							<div class="cell">'.$value.'</div>
+						</div>
+					';
+				}
+				$html .= '</div>';
+				// echo '<pre>';
+				// print_r($arr);
+				// echo '</pre>';
+				return $html;
+			}else{// в случае исключения выводим массив, дабы было видно куда копать
+				echo '<pre>';
+				print_r($arr);
+				echo '</pre>';
+			}
+		} 
+
+
+		// вывод описания по позиции НЕ_каталог
+		private function get_dop_information_text_cat_Html($position){
+			// echo '<pre>';
+			// print_r($position);
+			// echo '</pre>';
+				
+		}
+		// статусы позиций
+		private function position_status_list_Html($cab_order_main_row){
+			$status_list = array();
+			// снабжение
+			if(trim($cab_order_main_row['status_snab'])!=''){
+				$status_list['снабжение'] = $cab_order_main_row['status_snab'];	
+			}
+			// склад
+			if(trim($cab_order_main_row['status_sklad'])!=''){
+				$status_list['склад'] = $cab_order_main_row['status_sklad'];	
+			}
+
+			$html1 = '<td>';
+			$html2 = '<td>';
+			foreach ($status_list as $key => $value) {
+				$html1 .= '<div class="otdel_name">'.$key.'</div>';
+				$html2 .= '<div class="otdel_status">'.$value.'</div>';
+			}
+			$html1 .= '</td>';
+			$html2 .= '</td>';	
+
+			return $html1.$html2;
+		}
+		// запрос строк позиций из базы
+		private function positions_rows_Database($order_id){
+			$arr = array();
+			global $mysqli;
+			$query = "SELECT * FROM `".CAB_ORDER_DOP_DATA."` INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_id."'";
+			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
+			// echo $query.'<br>';
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+			return $arr;
+		}
+
+
 		## Заказы __ END
 		##########################################
 
@@ -750,7 +956,6 @@
 			}else{
 				$status_snab;
 			}
-
 			return $status_snab;
 		}
 
