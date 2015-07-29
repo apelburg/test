@@ -64,6 +64,7 @@
 																	'row_status' => $row['row_status'],
 																	'glob_status' => $row['glob_status'],
 																	'quantity' => $row['dop_t_quantity'],
+																	'discount' => $row['dop_t_discount'],
 																	'price_in' => $row['dop_t_price_in'],
 																	'price_out' => $row['dop_t_price_out']);
 		    }
@@ -194,13 +195,14 @@
 				 }
 				 
 				 // подсчет сумм ряду
+				 $price_out = ($dop_row['discount'] != 0 )? (($dop_row['price_out']/100)*(100 + $dop_row['discount'])) : $dop_row['price_out'] ;
 				 // 1. подсчитываем входящую сумму
 				 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
 				 $in_summ = $price_in_summ;
 				 if(!(!!$expel["print"]))$in_summ += $print_in_summ;
 				 if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
 				 // 2. подсчитываем исходящую сумму 
-				 $price_out_summ =  $dop_row['quantity']*$dop_row['price_out'];
+				 $price_out_summ =  $dop_row['quantity']*$price_out;
 				 $out_summ =  $price_out_summ;
 				 if(!(!!$expel["print"]))$out_summ += $print_out_summ;
 				 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
@@ -239,7 +241,7 @@
 				 $svetofor_tr_display = ($row['svetofor_display']==1 && $dop_row['row_status']=='red')?'hidden':'';
 				 $currency = 'р';
 				 $quantity_dim = 'шт';
-				 $nacenka = '&nbsp;0%';
+				 $discount = $dop_row['discount'].'%';
 				 $srock_sdachi = 'одинак.?';
 				 
 				 $expel_class_main = ($expel['main']=='1')?' red_cell':'';
@@ -254,9 +256,9 @@
 				 $svetofor = '<img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status.'.png" onclick="rtCalculator.svetofor_display_relay(this,true);" class="svetofor_btn">';
 			     $svetofor_td_attrs = 'svetofor_btn';
 				 $currency = $print_btn = $dop_uslugi_btn = '';
-				 $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
+				 $price_out = $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
-				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $nacenka = $srock_sdachi = $print_exists_flag ='';
+				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $srock_sdachi = $print_exists_flag ='';
 				 
 				  
 			 }
@@ -316,8 +318,8 @@
 						   <td width="90" type="price_in_summ" connected_vals="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
 						  
 						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left hidden">'.$currency.'</td>
-						   <td width="40" class="center">'.$nacenka.'</td>
-						   <td width="90" type="price_out" editable="true" connected_vals="art_price" c_stat="1" class="out right">'.$dop_row['price_out'].'</td>
+						   <td width="40" class="center" onclick="return show_discount_window(this,'.$dop_key.','.$client_id.');">'.$discount.'</td>
+						   <td width="90" type="price_out" editable="true" connected_vals="art_price" c_stat="1" class="out right">'.$price_out.'</td>
 						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >'.$currency.'</td>
 						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
 						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left r_border hidden">'.$currency.'</td>
@@ -361,9 +363,7 @@
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
 				  <td width="270" class="right">
-				      '.RT::calcualte_query_summ($query_num).'
-				      &nbsp;<a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
-					  прибыль ???? р подробно?
+				      <a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
@@ -405,7 +405,7 @@
 	              <td class="hidden"></td>
 				  <td class="hidden"></td>
 				  <td class="hidden"></td>
-				  <td class="right">Счет №45384? оплата 70%?</td>
+				  <td class="right"></td>
 				  <td class="hidden">dop_details</td>
 				  <td></td>
 				  <td></td>

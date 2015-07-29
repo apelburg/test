@@ -26,6 +26,13 @@
 
 	$query_num = (!empty($_GET['query_num']))? $_GET['query_num']:FALSE;
 	
+	if(isset($_POST['set_discount'])){
+	     print_r($_POST['form_data'])."<br>";
+	     set_discount($_POST['form_data']);
+		 header('Location:'.$_SERVER['HTTP_REFERER']);
+	     exit;
+    }
+	
 	////////////////////////  AJAX  //////////////////////// 
 	if(isset($_GET['save_rt_changes'])){
 	     //print_r(json_decode($_GET['save_rt_changes']));
@@ -175,6 +182,7 @@
 
 	}
 	/////////////////////  END  AJAX  ////////////////////// 
+	
 	
 	
 	

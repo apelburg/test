@@ -3103,6 +3103,12 @@ var rtCalculator = {
 	,
 	nextTag:function(node){ 
 	   var node = node.nextSibling; 
-	   return (node && node.nodeType!=1) ? nextTag(node) : node; 
-	} 
+	   return (node && node.nodeType!=1) ? this.nextTag(node) : node; 
+	}
+	,
+	certainTd:function(node,type){ 
+	   if(node==null)return false;
+	   var node = node.nextSibling; 
+	   return (node && node.nodeName=='TD' && node.getAttribute('type')  && node.getAttribute('type')==type) ? node : this.certainTd(node,type); 
+	}
 }
