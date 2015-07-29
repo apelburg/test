@@ -171,7 +171,7 @@
 		innerDiv.className = "link2";
 		var a = document.createElement('a');
 		a.href = '#';
-		a.onclick = rtCalculator.makeSpecAndPreorder;
+		a.onclick = rtCalculator.makeSpecAndPreorder2;
 		a.appendChild(document.createTextNode('Спецификацию/Предзаказ'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);

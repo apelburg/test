@@ -126,7 +126,7 @@
 		 
 		 //array_unshift($row['dop_data'],array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0));
 		 
-		 // здесь мы определяем значение для атрибута rowspan тегов td которые будут выводится единой ячейкой для всей товарной позиции
+		 // здесь мы определяем значение для атрибута rowspan тегов td которые будут выводится единой ячейкой для всей расчетов товарной позиции
 		 $svetofor_display_relay_status = 'on';
 		 $row_span = count($row['dop_data']);
 		 if($row['svetofor_display']==1){
@@ -295,7 +295,7 @@
 			 
 			 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge ':'').(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos ':'').(($counter!=0)?$svetofor_tr_display:'').'">';
+		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge ':'').(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos ':'').(($counter!=0)?$svetofor_tr_display:'').(($row_span==0)?'hidden':'').'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="glob_counter" class="top glob_counter" width="30" oncontextmenu="openCloseMenu(event,\'contextmenuNew\',{\'pos_id\':\''.$key.'\',\'control_num\':\''.'4'.'\'});">'.$glob_counter.'</td>':'';
 			 
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="master_btn" class="top master_btn noselect" width="35">   

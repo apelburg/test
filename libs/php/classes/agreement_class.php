@@ -25,10 +25,17 @@
 			
 			$rows_data_arr = json_decode($rows_data);
 			// echo $specification_num.'<pre>'; print_r($rows_data_arr); echo '</pre>';//
+			// exit;
 			
-			foreach($rows_data_arr as $main_id => $dop_id){
+			foreach($rows_data_arr as $data_arr){
+			
+				if(count($data_arr)==0) continue;
+				
 			    $summ_out = 0;
                 $uslugi_summ_out = 0;
+				
+				$main_id = $data_arr->pos_id;
+				$dop_id = $data_arr->row_id;
 				 
 				$query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$main_id."'";
 				// echo $query."\r\n";
@@ -37,7 +44,7 @@
 				    // 1). main_data
 				    $main_data = $result->fetch_assoc();
 					
-					$query2="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_id[0]."'";
+					$query2="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_id."'";
 					// echo $query."\r\n";
 					$result2 = $mysqli->query($query2)or die($mysqli->error);
 					if($result2->num_rows>0){
@@ -59,7 +66,7 @@
 						 Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date);
 						 
 						 
-						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id[0]."' ORDER BY glob_type";
+						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
 						 // echo $query."\r\n";
 						 $result3 = $mysqli->query($query3)or die($mysqli->error);
 						 if($result3->num_rows>0){
