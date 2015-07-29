@@ -7,7 +7,8 @@
 	// ** БЕЗОПАСНОСТЬ **
 
 	include './libs/php/classes/comments_class.php';
-	$comments = new Comments_for_query_class;
+	new Comments_for_query_class;
+	new Comments_for_order_class;
 	
 	include './libs/php/classes/os_form_class.php';
 

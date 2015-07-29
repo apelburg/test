@@ -209,7 +209,7 @@
 			$name_cirillic_status['in_work'] = 'в работе';
 			$name_cirillic_status['history'] = 'история';
 
-
+			$query .= ' ORDER BY `id` DESC';
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$zapros = array();
 			if($result->num_rows > 0){
@@ -465,6 +465,8 @@
 				$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'being_prepared' OR `".CAB_ORDER_ROWS."`.`global_status` = 'requeried_expense'";
 			}
 			
+
+			$query .= ' ORDER BY `id` DESC';
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -704,10 +706,14 @@
 				$table_order_row .= '
 					<tr class="order_head_row">
 						<td class="show_hide" rowspan="'.$positions_arr['rowspan'].'"><span class="cabinett_row_hide_orders"></span></td>
-						<td colspan="5" class="orders_info">
+						<td colspan="4" class="orders_info">
 							<span class="greyText">№: </span><a href="#">'.Cabinet::show_order_num($value['order_num']).'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$value['client_id'].'&query_num='.$value['query_num'].'" target="_blank" class="greyText">'.$value['query_num'].'</a>)</span>
 							'.$this->get_client_name_link_Database($value['client_id']).'
 							<span class="greyText">счёт№:'.$value['number_pyament_list'].'</span>
+						</td>
+						<td>
+							<!--// комментарии -->
+							<span data-cab_list_order_num="'.$value['order_num'].'" data-cab_list_query_num="'.$value['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($value['order_num']).'"></span>	
 						</td>
 						<td><span class="show_the_full_information">'.$value['payment_status'].'</span> р.</td>
 						<td colspan="2">
@@ -747,29 +753,30 @@
 				$html .= '<td><span class="orders_info_punct">'.$n++.'п</span></td>';
 				// описание позиции
 				$html .= '<td>';
+				// комментарии
+				//$html .= '<span data-cab_list_order_num="'.$order_arr['order_num'].'" data-cab_list_query_num="'.$order_arr['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($value['order_num']).'"></span>';	
+				// наименование товара
 				$html .= '<span class="art_and_name">'.$value['art'].'  '.$value['name'].'</span>';
-				// echo '<pre>';
-				// print_r($value);
-				// echo '</pre>';
 					
 				// добавляем доп описание
 				// для каталога и НЕкаталога способы хранения и получения данной информации различны
-				
-
 				if(trim($value['type'])!='cat' && trim($value['type'])!=''){
 					// доп инфо по некаталогу берём из json 
 					$html .= $this->decode_json_no_cat_to_html($value);
 				}else if(trim($value['type'])!=''){
 					// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
 					$html .= '';
-				}				
+				}
+
+
 				$html .= '</td>';
 				// тираж, запас, печатать/непечатать запас
-				$html .= '<td>
-						<div class="quantity">'.$value['quantity'].'</div> 
-						<div class="zapas">'.(($value['zapas']!=0 && trim($value['zapas'])!='')?'+'.$value['zapas']:'').'</div>
-						<div class="print_z">'.(($value['print_z']==0)?'НПЗ':'ПЗ').'</div>
-						</td>';
+				$html .= '<td>';
+				$html .= '<div class="quantity">'.$value['quantity'].'</div>';
+				$html .= '<div class="zapas">'.(($value['zapas']!=0 && trim($value['zapas'])!='')?'+'.$value['zapas']:'').'</div>';
+				$html .= '<div class="print_z">'.(($value['print_z']==0)?'НПЗ':'ПЗ').'</div>';
+				$html .= '</td>';
+				
 				// поставщик товара и номер резерва для каталожной продукции 
 				$html .= '<td>
 						<div class="supplier">'.$this->get_supplier_name($value['art']).'</div>
