@@ -214,16 +214,16 @@ class Comments_for_order_class extends Comments_for_query_class{
 	private function add_new_comment_for_order_AJAX(){
 			$this->save_order_comment_Database();
 			$html = '<div class="comment table">';
-					$html .= '<div class="row">';
-						$html .= '<div class="cell user_name_comments">';
+				$html .= '<div class="row">';
+					$html .= '<div class="cell user_name_comments">';
 						$html .= '<div class="user_name">'.$_POST['name'].'</div>';
 						$html .= '<div class="create_time_message">'.date('d.m.Y H:i:s').'</div>';
-						$html .= '</div>';
-						$html .= '<div class="cell comment_text">';
-						$html .= '<div class="create_time_message">'.$_POST['comment_text'].'</div>';
-						$html .= '</div>';
 					$html .= '</div>';
-				$html .= '</div>';			
+					$html .= '<div class="cell comment_text">';
+						$html .= '<div class="create_time_message">'.$_POST['comment_text'].'</div>';
+					$html .= '</div>';
+				$html .= '</div>';
+			$html .= '</div>';			
 			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 		}
 	
@@ -241,7 +241,11 @@ class Comments_for_order_class extends Comments_for_query_class{
 
 
 	private function get_comment_for_order_AJAX(){
-		$html = $this->get_comment_for_order();
+		$html = '';	
+		$html .= '<div class="add_new_comment">';
+			$html .= '<div id="add_comments_of_query" data-query_num="'.$_POST['query_num'].'">переписка по запросу</div>';
+		$html .= '</div>';
+		$html .= $this->get_comment_for_order();
 		$html .= $this->get_the_comment_for_order_form();
 		echo '{"response":"OK","html":"'.base64_encode($html).'"}';		
 	}
@@ -255,9 +259,6 @@ class Comments_for_order_class extends Comments_for_query_class{
 	protected function get_comment_for_order(){
 		global $mysqli;
 		$html = '';	
-		$html .= '<div class="add_new_comment">';
-		$html .= '<div id="add_comments_of_query" data-query_num="'.$_POST['query_num'].'">переписка по запросу</div>';
-		$html .= '</div>';
 		$comments = array();
 		$query = "SELECT `".CAB_LIST_COMMENTS."`.*, 
 		DATE_FORMAT(`".CAB_LIST_COMMENTS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
@@ -275,16 +276,17 @@ class Comments_for_order_class extends Comments_for_query_class{
 			$html .= '<div class="comment table">';
 				$html .= '<div class="row">';
 					$html .= '<div class="cell user_name_comments">';
-					$html .= '<div class="user_name">'.$value['user_name'].'</div>';
-					$html .= '<div class="create_time_message">'.$value['create_time'].'</div>';
+						$html .= '<div class="user_name">'.$value['user_name'].'</div>';
+						$html .= '<div class="create_time_message">'.$value['create_time'].'</div>';
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
-					$html .= '<div class="create_time_message">'.$value['comment_text'].'</div>';
+						$html .= '<div class="create_time_message">'.$value['comment_text'].'</div>';
 					$html .= '</div>';
 				$html .= '</div>';
 			$html .= '</div>';
-		$html .= '</div>';
+		
 		}
+		$html .= '</div>';
 		return $html;
 	}
 
@@ -384,22 +386,22 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 	}
 
 	private function add_new_comment_for_position_AJAX(){
-			$this->save_order_comment_Database();
+			$this->save_position_comment_Database();
 			$html = '<div class="comment table">';
-					$html .= '<div class="row">';
-						$html .= '<div class="cell user_name_comments">';
+				$html .= '<div class="row">';
+					$html .= '<div class="cell user_name_comments">';
 						$html .= '<div class="user_name">'.$_POST['name'].'</div>';
 						$html .= '<div class="create_time_message">'.date('d.m.Y H:i:s').'</div>';
-						$html .= '</div>';
-						$html .= '<div class="cell comment_text">';
-						$html .= '<div class="create_time_message">'.$_POST['comment_text'].'</div>';
-						$html .= '</div>';
 					$html .= '</div>';
-				$html .= '</div>';			
+					$html .= '<div class="cell comment_text">';
+						$html .= '<div class="create_time_message">'.$_POST['comment_text'].'</div>';
+					$html .= '</div>';
+				$html .= '</div>';
+			$html .= '</div>';			
 			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 		}
 	
-	private function save_order_position_Database(){
+	private function save_position_comment_Database(){
 		global $mysqli;
 		$query ="INSERT INTO `".CAB_DOP_DATA_LIST_COMMENTS."` SET
 	             `user_id` = '".(int)$_POST['id']."',
@@ -416,6 +418,13 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 		$html = $this->get_comment_for_position();
 		$html .= $this->get_the_comment_for_position_form();
 		echo '{"response":"OK","html":"'.base64_encode($html).'"}';		
+	}
+
+	// вывод комментариев позиции для сторонних классов
+	public function get_comment_for_position_without_Out(){
+		$html = $this->get_comment_for_position();
+		$html .= $this->get_the_comment_for_position_form();
+		return $html;
 	}
 
 	private function get_comment_for_query_without_form_AJAX(){
@@ -441,7 +450,7 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 		$comments = array();
 		$query = "SELECT `".CAB_DOP_DATA_LIST_COMMENTS."`.*, 
 		DATE_FORMAT(`".CAB_DOP_DATA_LIST_COMMENTS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
-		 FROM `".CAB_DOP_DATA_LIST_COMMENTS."`  WHERE `position_id` = '".(int)$_POST['order_num']."'";
+		 FROM `".CAB_DOP_DATA_LIST_COMMENTS."`  WHERE `position_id` = '".(int)$_POST['position_id']."'";
 		$result = $mysqli->query($query)or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
@@ -455,15 +464,14 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 			$html .= '<div class="comment table">';
 				$html .= '<div class="row">';
 					$html .= '<div class="cell user_name_comments">';
-					$html .= '<div class="user_name">'.$value['user_name'].'</div>';
-					$html .= '<div class="create_time_message">'.$value['create_time'].'</div>';
+						$html .= '<div class="user_name">'.$value['user_name'].'</div>';
+						$html .= '<div class="create_time_message">'.$value['create_time'].'</div>';
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
-					$html .= '<div class="create_time_message">'.$value['comment_text'].'</div>';
+						$html .= '<div class="create_time_message">'.$value['comment_text'].'</div>';
 					$html .= '</div>';
 				$html .= '</div>';
 			$html .= '</div>';
-		$html .= '</div>';
 		}
 		return $html;
 	}
@@ -478,27 +486,23 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 
 
 		$html = '';
-		$html .= '<div class="add_new_comment">';
 		$html .= '<form>';
-		$html .= '<div class="comment table">';
-			$html .= '<div class="row">';
-				$html .= '<div class="cell user_name_comments">';
-					$html .= '<div class="user_name" data-id="'.$_SESSION['access']['user_id'].'">'. $this->user_name .'</div>';
-					
+			$html .= '<div class="comment table">';
+				$html .= '<div class="row">';
+					$html .= '<div class="cell user_name_comments">';
+						$html .= '<div class="user_name" data-id="'.$_SESSION['access']['user_id'].'">'. $this->user_name .'</div>';
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
-					$html .= '<textarea name="comment_text"></textarea>';
-					$html .= '</div>';
+						$html .= '<textarea name="comment_text"></textarea>';
+						$html .= '<input name="name" type="hidden" value="'.$this->user_name .'"></input>';
+						$html .= '<input name="AJAX" type="hidden" value="add_new_comment_for_position"></input>';
+						$html .= '<input name="id" type="hidden" value="'.$this->user_id.'"></input>';
+						$html .= '<input name="position_id" type="hidden" value="'.$_POST['position_id'].'"></input>';
+					$html .= '</div>';						
 				$html .= '</div>';
-			$html .= '</div>';
-			
-			$html .= '<input name="name" type="hidden" value="'.$this->user_name .'"></input>';
-			$html .= '<input name="AJAX" type="hidden" value="add_new_comment_for_order"></input>';
-			$html .= '<input name="id" type="hidden" value="'.$this->user_id.'"></input>';
-			$html .= '<input name="position_id" type="hidden" value="'.$_POST['position_id'].'"></input>';
+			$html .= '</div>';	
 			$html .= '<button id="add_new_comment_button">Отправить</button>';
 		$html .= '</form>';
-		$html .= '</div>';
 		return $html;
 	}
 

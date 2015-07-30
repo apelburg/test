@@ -459,6 +459,34 @@ function replace_query_row_obj(obj){
 	},'json');
 }
 
+//////////////////////////
+//	ДОП/ТЕХ ИНФО
+//////////////////////////
+$(document).on('click', '.dop_teh_info', function(event) {
+	var query_num = Number($(this).attr('data-quewy_num'));
+	var order_num = Number($(this).attr('data-order_num'));
+	var order_num_user = Number($(this).attr('data-order_num_user'));
+	var position_id = Number($(this).attr('data-id'));
+	var position_item = Number($(this).attr('data-position_item'));
+	var title = 'Заказ ' + order_num_user
+				+' / позиция ' + position_item +' / '
+				+ $(this).parent().parent().find('.art_and_name').html()
+				+' - техническая дополнительная информация';
+
+	$.post('', {
+		AJAX: 'get_dop_tex_info',
+		query_num:query_num,
+		order_num:order_num,
+		position_id:position_id
+	}, function(data, textStatus, xhr) {
+		if(data['response']=="OK"){			
+			show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
+		}else{
+			alert('Что-то пошло не так');	
+		}
+	},'json');
+});
+
 
 
 

@@ -95,9 +95,11 @@
 			// если в этом классе существует такой метод - выполняем его
 			if(method_exists($this, $method_template)){
 				$this->$method_template();
+				
 			}else{
 				echo 'метод '.$method_template.' не предусмотрен';
 			}
+
 		}
 
 
@@ -108,13 +110,21 @@
 
 		private function replace_query_row_AJAX(){
 			$method = $_GET['section'].'_Template';
-
 			// echo $method;
 			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
 			if(method_exists($this, $method)){
 				echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
 				exit;
 			}							
+		}
+
+		private function get_dop_tex_info_AJAX(){
+			// подгружаем комментарии для позиции 
+			global $PositionComments;
+			$html = $PositionComments -> get_comment_for_position_without_Out();
+
+			// Вывод
+			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 		}
 
 		
@@ -699,16 +709,24 @@
 			// создаем экземпляр класса форм
 			$this->FORM = new Forms();
 			foreach ($main_rows_id as $key => $value) {
+				// запоминаем обрабатываемые номеразаказа и запроса
+				// номер запроса
+				$this->query_num = $value['query_num'];
+				// номер заказа
+				$this->order_num = $value['order_num'];
+				// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
+				$this->order_num_for_User = Cabinet::show_order_num($value['order_num']);
+
 				// запрашиваем информацию по позициям
 				$positions_arr = $this->table_order_positions_rows_Html($value);
 				$table_order_positions_rows = $positions_arr['html'];
-
+				
 				// формируем строку с информацией о заказе
 				$table_order_row .= '
 					<tr class="order_head_row">
 						<td class="show_hide" rowspan="'.$positions_arr['rowspan'].'"><span class="cabinett_row_hide_orders"></span></td>
 						<td colspan="4" class="orders_info">
-							<span class="greyText">№: </span><a href="#">'.Cabinet::show_order_num($value['order_num']).'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$value['client_id'].'&query_num='.$value['query_num'].'" target="_blank" class="greyText">'.$value['query_num'].'</a>)</span>
+							<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$value['client_id'].'&query_num='.$value['query_num'].'" target="_blank" class="greyText">'.$value['query_num'].'</a>)</span>
 							'.$this->get_client_name_link_Database($value['client_id']).'
 							<span class="greyText">счёт№:'.$value['number_pyament_list'].'</span>
 						</td>
@@ -739,13 +757,7 @@
 
 
 		// возвращает html строки позиций
-		private function table_order_positions_rows_Html($order_arr){
-			// запоминаем обрабатываемые номеразаказа и запроса
-			// номер запроса
-			$this->query_num = $order_arr['query_num'];
-			// номер заказа
-			$this->order_num = $order_arr['order_num'];
-			
+		private function table_order_positions_rows_Html($order_arr){			
 			$positions_rows = $this->positions_rows_Database($order_arr['id']);
 			$html = '';
 			// echo '<pre>';
@@ -755,6 +767,7 @@
 			$n = 1;
 			// формируем строки позиций			
 			foreach ($positions_rows as $key => $value) {
+				$this->position_item = $n;
 				$html .= '<tr class="positions_rows row__'.$n.'" data-id="'.$value['id'].'">';
 				// порядковый номер позиции в заказе
 				$html .= '<td><span class="orders_info_punct">'.$n++.'п</span></td>';
@@ -799,7 +812,7 @@
 				// думаю есть смысл хранения в json 
 				// обязательные поля:
 				// {"comments":" ","technical_info":" ","maket":" "}
-				$html .= $this->grt_dop_teh_info($value,$order_arr['query_num'],$order_arr['order_num']);
+				$html .= $this->grt_dop_teh_info($value);
 				
 				// дата утверждения макета
 				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
@@ -832,7 +845,7 @@
 			$no_empty_class = (trim($value['dop_teh_info'])!='')?' no_empty':'';
 
 			$html = '<td>
-					<div class="dop_teh_info '.$no_empty_class.'" data-id="'.$value['id'].'">доп/тех инфо</div>
+					<div class="dop_teh_info '.$no_empty_class.'" data-id="'.$value['id'].'" data-query_num="'.$this->query_num.'" data-position_item="'.$this->position_item.'" data-order_num="'.$this->order_num.'" data-order_num_User="'.$this->order_num_for_User.'"  >доп/тех инфо</div>
 					<div class="dop_teh_info_window_content"></div>
 				</td>';
 

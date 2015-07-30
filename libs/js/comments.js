@@ -12,6 +12,20 @@ $(document).on('click', '.icon_comment_show', function(event) {
 	},'json');
 });
 
+$(document).on('click', '#add_comments_of_query', function(event) {
+	var query_num = $(this).attr('data-query_num');
+	$(this).animate({
+		height: 68},
+		'fast').addClass('loading').html('');
+	var obj = $(this);
+	$.post('', {
+		AJAX: 'get_comment_for_query_without_form',
+		query_num:query_num
+	}, function(data, textStatus, xhr) {
+		obj.replaceWith('<div class="history_query">'+Base64.decode(data['html']));
+	},'json');
+});
+
 //////////////////////////
 //	КОММЕНТАРИИ К ЗАКАЗАМ
 //////////////////////////
@@ -27,17 +41,17 @@ $(document).on('click', '.icon_comment_order_show', function(event) {
 	},'json');
 });
 
-$(document).on('click', '#add_comments_of_query', function(event) {
-	var query_num = $(this).attr('data-query_num');
+$(document).on('click', '#add_comments_of_order', function(event) {
+	var order_num = $(this).attr('data-order_num');
 	$(this).animate({
 		height: 68},
 		'fast').addClass('loading').html('');
 	var obj = $(this);
 	$.post('', {
-		AJAX: 'get_comment_for_query_without_form',
-		query_num:query_num
+		AJAX: 'get_comment_for_order_without_form',
+		order_num:order_num
 	}, function(data, textStatus, xhr) {
-		obj.replaceWith('<div class="history_query">'+Base64.decode(data['html']));
+		obj.replaceWith('<div class="history_order">'+Base64.decode(data['html']));
 	},'json');
 });
 

@@ -29,11 +29,11 @@
 .icon_comment_order_show.white{
 	background-position-y: -67px;
 }
-.history_query .add_new_comment{
+.history_query {
 	background-color: #f1f1f1;
 	margin-bottom: 15px;
 }
-.history_order .add_new_comment{
+.history_order {
 	background-color: #f3f5a9;
 	margin-bottom: 15px;
 }
@@ -54,19 +54,23 @@
   	width: 170px;
 }
 #add_new_comment_button{ float: right;}
-#add_comments_of_query{
+#add_comments_of_query,
+#add_comments_of_order{
 	border: 1px solid #e8e8e8;
     color: #e8e8e8;
     text-align: center;
     padding: 5px;
     margin: 0 auto;
     cursor: pointer;
+    margin-bottom: 10px;
 }
-#add_comments_of_query:hover{
+#add_comments_of_query:hover,
+#add_comments_of_order:hover{
 	background-color: #e8e8e8;
 	color: #000
 }
-#add_comments_of_query.loading{
+#add_comments_of_query.loading,
+#add_comments_of_order.loading{
 	background-image: url(../images/img_design/preloader.gif);
 	background-repeat: no-repeat;
 	background-position: 50%;
