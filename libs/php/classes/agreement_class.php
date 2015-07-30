@@ -195,7 +195,7 @@
 			else return false;
 	
 	    }
-		function insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$quantity,$price,$date){
+		static function insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$quantity,$price,$date){
 			global $mysqli;
 			
 			$query = "INSERT INTO `".GENERATED_SPECIFICATIONS_TBL."` SET 
@@ -228,7 +228,7 @@
 			  $result = $mysqli->query($query)or die($mysqli->error);
 		
 		}
-		function convert_print($print_details){
+		static function convert_print($print_details){
 		
 		    global $mysqli;
 			
@@ -350,7 +350,7 @@
 			//exit; 
 		    return implode(', ',$out_put);
 		}
-		function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
+		static function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
 			global $mysqli;
 			
 			$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."'";
