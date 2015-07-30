@@ -1,4 +1,12 @@
 <?php
+/*
+  Классы наследуют друг друга по очередности работы с ними
+  класс работы с запросами не наследует ничего
+  класс работы с заказами подрузомевает доступ (по необходимости по отдельному запросу из формы) к истории переписки по запросу
+  класс работы с позициями подрузомевает доступ к комментариям заказа и запроса
+*/
+
+
 // класс комментариев к запросу
 class Comments_for_query_class{
 	// id пользователя
@@ -413,17 +421,48 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 		return  $mysqli->insert_id;
 	}
 
-
+	// вывод комментариев позиции
+	// Комментарии по позиции показаны
 	private function get_comment_for_position_AJAX(){
 		$html = $this->get_comment_for_position();
 		$html .= $this->get_the_comment_for_position_form();
 		echo '{"response":"OK","html":"'.base64_encode($html).'"}';		
 	}
 
-	// вывод комментариев позиции для сторонних классов
-	public function get_comment_for_position_without_Out(){
-		$html = $this->get_comment_for_position();
+
+
+	// вывод комментариев позиции для сторонних классов 
+	// Комментарии по позиции показаны
+	public function get_comment_for_position_without_Out_Open(){		
+		$html = '';	
+		$html .= $this->get_comment_for_position();
 		$html .= $this->get_the_comment_for_position_form();
+		return $html;
+	}
+
+	// вывод комментариев позиции для сторонних классов 
+	// Комментарии по позиции скрыты
+	public function get_comment_for_position_without_Out(){		
+		$html = '';	
+		// показываем кнопку если по запросу есть комменты
+		if(self::check_the_empty_query_coment_Database($_POST['query_num'])){
+			$html .= '<div class="add_new_comment">';
+			$html .= '<div id="add_comments_of_query" data-query_num="'.$_POST['query_num'].'">переписка по запросу</div>';
+			$html .= '</div>';
+		}
+		// показываем кнопку если по заказу есть комменты
+		$exists = self::check_the_empty_order_coment_Database($_POST['order_num']);
+		if($exists){
+			$html .= '<div class="add_new_comment">';
+			$html .= '<div id="add_comments_of_order" data-order_num="'.$_POST['order_num'].'">переписка по заказу</div>';
+			$html .= '</div>';			
+		}
+		// подсвечиваем, если по позиции уже есть комменты
+		$exists = self::check_the_empty_order_coment_Database($_POST['order_num']);
+		$no_empty = ($exists)?' no_empty':'';
+		$html .= '<div class="add_new_comment">';
+		$html .= '<div id="add_comments_of_position" class="'.$no_empty.'" data-position_id="'.$_POST['position_id'].'">переписка по позиции</div>';
+		$html .= '</div>';
 		return $html;
 	}
 
@@ -440,13 +479,6 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 	protected function get_comment_for_position(){
 		global $mysqli;
 		$html = '';	
-		$html .= '<div class="add_new_comment">';
-		$html .= '<div id="add_comments_of_query" data-query_num="'.$_POST['query_num'].'">переписка по запросу</div>';
-		$html .= '</div>';
-
-		$html .= '<div class="add_new_comment">';
-		$html .= '<div id="add_comments_of_order" data-order_num="'.$_POST['order_num'].'">переписка по заказу</div>';
-		$html .= '</div>';
 		$comments = array();
 		$query = "SELECT `".CAB_DOP_DATA_LIST_COMMENTS."`.*, 
 		DATE_FORMAT(`".CAB_DOP_DATA_LIST_COMMENTS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`

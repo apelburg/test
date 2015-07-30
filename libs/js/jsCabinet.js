@@ -460,14 +460,61 @@ function replace_query_row_obj(obj){
 }
 
 //////////////////////////
+//	НАЗНАЧЕНИЕ ПОСТАВЩИКА 	
+//////////////////////////
+$(document).on('click', '.change_supplier', function(event) {
+	$(this).attr('id', 'chose_supplier_id');
+	chose_supplier($(this));
+});
+
+function chose_supplier(obj){
+	$.post('', {
+		AJAX:'chose_supplier',
+		id_dop_data: $('#chose_supplier_id').attr('data-id_dop_data'),
+		already_chosen: $('#chose_supplier_id').attr('data-id'),
+		suppliers_name:$('#chose_supplier_id').html()
+	}, function(data, textStatus, xhr) {
+		show_dialog_and_send_POST_window(data,'Выбирите поставщика',$(window).height()/100*90);
+	});
+}
+
+$(document).on('click', '#chose_supplier_tbl tr td', function(event) {
+	if($(this).hasClass('checked')){
+		$(this).removeClass('checked');
+	}else{
+		$(this).addClass('checked');
+	}
+
+	var arr_id = new Array();
+	var arr_name = new Array();
+	$('#chose_supplier_tbl tr td.checked').each(function(index, el) {
+		arr_id.push($(this).attr('data-id'));
+		arr_name.push($(this).html());
+	});
+
+	var str_id = arr_id.join(',');
+	var str_name = arr_name.join(', ');
+	console.log(str_id);
+
+	$('#chose_supplier_tbl').parent().find('input[name="dop_data_id"]').val($('#chose_supplier_id').parent().attr('data-id'));
+	$('#chose_supplier_tbl').parent().find('input[name="suppliers_id"]').val(str_id);
+	$('#chose_supplier_tbl').parent().find('input[name="suppliers_name"]').val(str_name);
+
+	$('#chose_supplier_id').html(str_name);
+	$('#chose_supplier_id').attr('data-id',str_id);
+
+});
+
+//////////////////////////
 //	ДОП/ТЕХ ИНФО
 //////////////////////////
 $(document).on('click', '.dop_teh_info', function(event) {
-	var query_num = Number($(this).attr('data-quewy_num'));
+	var query_num = Number($(this).attr('data-query_num'));
 	var order_num = Number($(this).attr('data-order_num'));
-	var order_num_user = Number($(this).attr('data-order_num_user'));
+	var order_num_user = $(this).attr('data-order_num_user');
 	var position_id = Number($(this).attr('data-id'));
 	var position_item = Number($(this).attr('data-position_item'));
+	var id_dop_data = $(this).attr('data-id_dop_data');
 	var title = 'Заказ ' + order_num_user
 				+' / позиция ' + position_item +' / '
 				+ $(this).parent().parent().find('.art_and_name').html()
@@ -477,7 +524,8 @@ $(document).on('click', '.dop_teh_info', function(event) {
 		AJAX: 'get_dop_tex_info',
 		query_num:query_num,
 		order_num:order_num,
-		position_id:position_id
+		position_id:position_id,
+		id_dop_data:id_dop_data
 	}, function(data, textStatus, xhr) {
 		if(data['response']=="OK"){			
 			show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
@@ -486,6 +534,7 @@ $(document).on('click', '.dop_teh_info', function(event) {
 		}
 	},'json');
 });
+
 
 
 

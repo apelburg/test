@@ -724,10 +724,10 @@
 				// КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
 				$query = "INSERT INTO `" . CAB_ORDER_DOP_DATA . "`  (
 					`row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
-					`print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`
+					`print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
 					)
 					SELECT `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
-					`print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`
+					`print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
 					FROM `".RT_DOP_DATA."` 
 					WHERE  `id` = '".$key_dop_data."'
 				";

@@ -248,6 +248,7 @@ tr.cat_8 td {
 }
 .dop_teh_info.no_empty{
 	background-color: #e8e8e8;
+	color: #6d6e72;
 }
 .dop_teh_info:hover{
 	background: #fff;
@@ -264,4 +265,19 @@ tr.cat_8 td {
     margin-top: -18px;
     position: relative;
     margin: 0;
+}
+
+#chose_supplier_tbl tr td{
+  padding: 2px 5px; /*cursor: default;*/
+  cursor: pointer;
+}
+#chose_supplier_tbl tr td:hover{  color: #FFF;
+  background-color: #92b73e; }
+
+#chose_supplier_tbl tr td.checked{  background-color: #007036;color: #FFF;}
+.green_inform_block{
+	background-color: #92B73E;
+	color: #000;
+	font-size: 12px;
+	padding: 0 0 0 5px;
 }

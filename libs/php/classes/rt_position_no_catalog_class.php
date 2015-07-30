@@ -135,6 +135,9 @@ class Position_no_catalog{
 		if(isset($_POST['AJAX'])){
 			$this->_AJAX_();
 		}
+		if(isset($_GET['AJAX'])){
+			$this->_AJAX_();
+		}
 	}
 
 

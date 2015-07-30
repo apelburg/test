@@ -22,7 +22,7 @@ $(document).on('click', '#add_comments_of_query', function(event) {
 		AJAX: 'get_comment_for_query_without_form',
 		query_num:query_num
 	}, function(data, textStatus, xhr) {
-		obj.replaceWith('<div class="history_query">'+Base64.decode(data['html']));
+		obj.replaceWith('<div class="history_query">'+Base64.decode(data['html'])+'</div>');
 	},'json');
 });
 
@@ -51,7 +51,25 @@ $(document).on('click', '#add_comments_of_order', function(event) {
 		AJAX: 'get_comment_for_order_without_form',
 		order_num:order_num
 	}, function(data, textStatus, xhr) {
-		obj.replaceWith('<div class="history_order">'+Base64.decode(data['html']));
+		obj.replaceWith('<div class="history_order">'+Base64.decode(data['html'])+'</div>');
+	},'json');
+});
+
+//////////////////////////
+//	КОММЕНТАРИИ К ПОЗИЦИЯМ
+//////////////////////////
+
+$(document).on('click', '#add_comments_of_position', function(event) {
+	var position_id = $(this).attr('data-position_id');
+	$(this).animate({
+		height: 68},
+		'fast').addClass('loading').html('');
+	var obj = $(this);
+	$.post('', {
+		AJAX: 'get_comment_for_position',
+		position_id:position_id
+	}, function(data, textStatus, xhr) {
+		obj.replaceWith(Base64.decode(data['html']));
 	},'json');
 });
 

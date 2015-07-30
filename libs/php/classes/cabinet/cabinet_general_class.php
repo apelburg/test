@@ -475,6 +475,59 @@
 			echo '</pre>';
 		}
 
+		//////////////////////////
+		//	ORDERS start
+		//////////////////////////
+		// выбор поставщика
+		private function chose_supplier_AJAX(){
+
+			// запоминаем id уже выбранных поставщиков
+			$already_chosen_arr = explode(',', $_POST['already_chosen']);
+
+			$suppliers_arr = Supplier::get_all_suppliers_Database_Array();
+			$html = '<form>';
+			$html .='<table id="chose_supplier_tbl">';
+
+			$n=0;
+			for ($i=1; $i < count($suppliers_arr); $i++) {
+				$html .= '<tr>';
+			    for ($j=1; $j<=3; $j++) {
+			    	$checked = '';
+			    	foreach ($already_chosen_arr as $key => $id) {
+			    		if($suppliers_arr[$i]['id']==trim($id)){
+			    			$checked = 'class="checked"';
+			    		}
+			    	}
+			    	$html .= (isset($suppliers_arr[$i]['nickName']))?'<td '.$checked.' data-id="'.$suppliers_arr[$i]['id'].'">'.$suppliers_arr[$i]['nickName']."</td>":"<td></td>";
+			    	$i++;
+			    }
+
+			    $html .= '</tr>';
+			}
+			$html .= '</table>';
+			$html .= '<input type="hidden" name="AJAX" value="change_supliers_info_dop_data">';
+			$html .= '<input type="hidden" name="id_dop_data" value="'.$_POST['id_dop_data'].'">';
+			$html .= '<input type="hidden" name="suppliers_id" value="'.$_POST['already_chosen'].'">';
+			$html .= '<input type="hidden" name="suppliers_name" value="'.$_POST['suppliers_name'].'">';
+			$html .= '</form>';
+			echo $html;
+			exit;	
+		}
+		private function change_supliers_info_dop_data_AJAX(){
+			$this->change_supliers_info_dop_data_Database();
+		}
+		// редактируем информацию об поставщиках для некаталожного варианта расчёта
+		public function change_supliers_info_dop_data_Database(){
+			global $mysqli;
+			$query ="UPDATE `".CAB_ORDER_DOP_DATA."` SET
+			             `suppliers_id` = '".$_POST['suppliers_id']."',
+			             `suppliers_name` = '".$_POST['suppliers_name']."' 
+			             WHERE `id` =  '".$_POST['id_dop_data']."';
+			             ";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			
+			echo '{"response":"OK","name":"chose_supplier_end"}';
+		}
 
 		############################################
 		###				 AJAX END                ###

@@ -55,7 +55,8 @@
 }
 #add_new_comment_button{ float: right;}
 #add_comments_of_query,
-#add_comments_of_order{
+#add_comments_of_order,
+#add_comments_of_position{
 	border: 1px solid #e8e8e8;
     color: #e8e8e8;
     text-align: center;
@@ -65,12 +66,22 @@
     margin-bottom: 10px;
 }
 #add_comments_of_query:hover,
-#add_comments_of_order:hover{
+#add_comments_of_order:hover,
+#add_comments_of_position:hover{
 	background-color: #e8e8e8;
 	color: #000
 }
+
+#add_comments_of_query.no_empty,
+#add_comments_of_order.no_empty,
+#add_comments_of_position.no_empty{
+	background-color: #f1f1f1;
+    color: #8A8A8A;
+}
+
 #add_comments_of_query.loading,
-#add_comments_of_order.loading{
+#add_comments_of_order.loading,
+#add_comments_of_position.loading{
 	background-image: url(../images/img_design/preloader.gif);
 	background-repeat: no-repeat;
 	background-position: 50%;

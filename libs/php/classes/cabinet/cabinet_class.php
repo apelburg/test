@@ -158,6 +158,7 @@
 					$arr[] = $row;
 				}
 			}
+			// $arr[] = $query;
 			//echo $query;
 			return $arr;
 		}
