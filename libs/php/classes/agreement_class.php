@@ -25,10 +25,17 @@
 			
 			$rows_data_arr = json_decode($rows_data);
 			// echo $specification_num.'<pre>'; print_r($rows_data_arr); echo '</pre>';//
+			// exit;
 			
-			foreach($rows_data_arr as $main_id => $dop_id){
+			foreach($rows_data_arr as $data_arr){
+			
+				if(count($data_arr)==0) continue;
+				
 			    $summ_out = 0;
                 $uslugi_summ_out = 0;
+				
+				$main_id = $data_arr->pos_id;
+				$dop_id = $data_arr->row_id;
 				 
 				$query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$main_id."'";
 				// echo $query."\r\n";
@@ -37,7 +44,7 @@
 				    // 1). main_data
 				    $main_data = $result->fetch_assoc();
 					
-					$query2="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_id[0]."'";
+					$query2="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_id."'";
 					// echo $query."\r\n";
 					$result2 = $mysqli->query($query2)or die($mysqli->error);
 					if($result2->num_rows>0){
@@ -56,10 +63,10 @@
 						 $price = ($dop_data['discount'] != 0 )? round(($dop_data['price_out']/100)*(100 + $dop_data['discount']),2) :  $dop_data['price_out'] ;
 						 
 				         // записываем ряд
-						 Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price);
+						 Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date);
 						 
 						 
-						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id[0]."' ORDER BY glob_type";
+						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
 						 // echo $query."\r\n";
 						 $result3 = $mysqli->query($query3)or die($mysqli->error);
 						 if($result3->num_rows>0){
@@ -69,7 +76,7 @@
 								 if($uslugi_data['glob_type'] == 'print' && !(!!$expel["print"])){
                                     $name = Agreement::convert_print($uslugi_data['print_details']);
 									// записываем ряд
-									Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
+									Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
 								    $uslugi_summ_out += $uslugi_data['quantity']*$uslugi_data['price_out'];
@@ -188,7 +195,7 @@
 			else return false;
 	
 	    }
-		function insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$quantity,$price){
+		static function insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$quantity,$price,$date){
 			global $mysqli;
 			
 			$query = "INSERT INTO `".GENERATED_SPECIFICATIONS_TBL."` SET 
@@ -208,7 +215,7 @@
 						  short_description='".$short_description."',
 						  address='".$address."',
 						  prepayment='".$prepayment."',
-						  date = '$date',
+						  date = '".$date."',
 						  name='".$name."',
 						  makets_delivery_term='5 (пяти)',
 						  item_production_term='10 (десять)',
@@ -221,30 +228,129 @@
 			  $result = $mysqli->query($query)or die($mysqli->error);
 		
 		}
-		function convert_print($print_details){
+		static function convert_print($print_details){
+		
+		    global $mysqli;
+			
 		    $print_details = json_decode($print_details);
+			echo '<pre>'; print_r($print_details); echo '</pre>';
 			$out_put = array();
 			$out_put[] = $print_details->print_type;
-			$out_put[] = 'место нанесения - '.$print_details->place_type;
-		    if(isset($print_details->coeffs)){
-			    foreach($print_details->coeffs as $target -> $data){
-				
+			$out_put[] = 'место нанесения: '.$print_details->place_type;
+			
+			if(isset($print_details->dop_params->YPriceParam)){
+			    foreach($print_details->dop_params->YPriceParam as $index => $details){
+				    if($details->id!=0) $idsArr[] = $details->id;	
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_Y_PRICE_PARAMS."` WHERE id IN('".implode("','",$idsArr)."') ORDER BY percentage";
+					echo $query;
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+					    $row = $result->fetch_assoc();
+					    $type = $row['param_type'];
+					    $prefix = $type.': ';
+						$result->data_seek(0);
+						while($row = $result->fetch_assoc()) {
+						   //$tail = ($target==$row['price'])?'%':'руб.';
+						   echo '<pre>'; print_r($row); echo '</pre>';
+						   $tail = ($row['percentage']>1)?' - увелич. на '.$row['percentage'].'%':'';
+						   $out_put[] = $prefix.$row['value'].$tail;
+						   $prefix='';
+						}
+					}
+					unset($idsArr); 
+					unset($details);
+					unset($dop_details); 
 				}
 			}
-			
-			$print_details->additions; 
-			$print_details->coeffs;
-			$print_details->sizes; 
-			$print_details->YPriceParam; 
-			
-			 
+			if(isset($print_details->dop_params->sizes)){
+			    foreach($print_details->dop_params->sizes as $index => $details){
+				         echo '<pre>22'; print_r($details); echo '</pre>';
+				    if($details->id!=0) $idsArr[] = $details->id;	
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE id IN('".implode("','",$idsArr)."')";
+					echo $query;
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+
+						$prefix = 'Размер нанесния: ';
+						while($row = $result->fetch_assoc()) {
+						   // echo '<pre>'; print_r($row); echo '</pre>';
+						   $out_put[] = $prefix.$row['size'].' увелич. на '.$row['percentage'].'%';
+						   $prefix='';
+						}
+					}
+					unset($idsArr);
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+		    if(isset($print_details->dop_params->coeffs)){
+			    foreach($print_details->dop_params->coeffs as $target => $data){
+					foreach($data as $type => $val){
+					    foreach($val as $index => $details){
+					        //    echo '<pre>'; print_r($details); echo '</pre>';
+							if($details->id!=0){
+								$idsArr[] = $details->id;
+								$dop_details[$details->id]['multi'] = (isset($details->multi) && $details->multi>1)?' '.$details->multi.' раза':'';
+							}
+						}
+					}
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_COEFFS."` WHERE id IN('".implode("','",$idsArr)."')";
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+						$prefix='Коэффициэнты: ';
+						while($row = $result->fetch_assoc()) {
+						   //$tail = ($target==$row['price'])?'%':'руб.';
+						   $multi = ($row['multi']>1)? ' '.$row['multi'].' раза ':'';
+						   $out_put[] = $prefix.$row['title'].' увелич. на '.$row['percentage'].'%'.$dop_details[$row['id']]['multi'];
+						   $prefix='';
+						}
+					}
+					unset($idsArr); 
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+			if(isset($print_details->dop_params->additions)){
+			    foreach($print_details->dop_params->additions as $target => $data){
+					foreach($data as $type => $val){
+					    foreach($val as $index => $details){
+					        //    echo '<pre>'; print_r($details); echo '</pre>';
+				            if($details->id!=0){
+							    $idsArr[] = $details->id;
+							    $dop_details[$details->id]['multi'] = (isset($details->multi) && $details->multi>1)?' '.$details->multi.' раза по ':'';
+							}
+						}
+					}
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_ADDITIONS."` WHERE id IN('".implode("','",$idsArr)."')";
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+						$prefix='Надбавки:';
+						while($row = $result->fetch_assoc()) {
+						   // echo '<pre>'; print_r($row); echo '</pre>';
+						   $out_put[] = $prefix.$row['title'].' +'.$dop_details[$row['id']]['multi'].''.$row['value'].'руб.';
+						   $prefix='';
+						}
+					}
+					unset($idsArr); 
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+	
+			//echo '<pre>'; print_r($out_put); echo '</pre>';//
+			//echo implode(', ',$out_put);
+			//exit; 
 		    return implode(', ',$out_put);
-			
-			/*{"dop_params":{"YPriceParam":[{"id":0,"coeff":1}],"sizes":[{"id":"1","coeff":"1.00"}],"coeffs":{"price":{"48 hours":[{"value":2,"id":"7"}]}},
-			"additions":{"summ":{"smena_kraski":[{"value":300,"id":"1","multi":"7"}]}}},
-			"place_id":"0","print_id":"13","lackOfQuantInPrice":true,"minQuantInPrice":50,"lackOfQuantOutPrice":true,"minQuantOutPrice":50,"place_type":"Стандартно","print_type":"Шелкография по текстилю"}*/
 		}
-		function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
+		static function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
 			global $mysqli;
 			
 			$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."'";

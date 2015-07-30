@@ -7,7 +7,7 @@
 	include './libs/php/classes/client_class.php';
 
 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
-	$data_arr = Client::get_requisites($client_id);
+	$data_arr = Client::requisites($client_id);
 	
 	$client_requisites=''; 
 	

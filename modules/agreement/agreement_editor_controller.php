@@ -3,6 +3,7 @@
     // переделывать
 	//$client_firm_acting_manegement_face = get_client_requisites_acting_manegement_face($agreement['client_requisit_id']);
     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
 	
     if(!isset($_GET['our_firm_id']))
 	{
@@ -120,7 +121,8 @@
 	    $agreement_expire_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';
 		
 		$our_firm = fetch_our_certain_firm_data($agreement['our_requisit_id']);
-	    $client_firm = get_client_requisites($agreement['client_requisit_id']);
+	    //$client_firm = get_client_requisites($agreement['client_requisit_id']);
+		$client_firm =  Client::get_requisites($agreement['client_requisit_id']);
 		
 		if(isset($_GET['open']))
 		{

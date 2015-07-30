@@ -229,11 +229,13 @@
 			   }
 			   //$multi_dim_arr[$row['main_id']]['uslugi_id'][] = $row['uslugi_id'];
 			   if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
+			   
+			   
 			       $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']] = array(
 																	'expel' => $row['expel'],
 																	'quantity' => $row['dop_t_quantity'],
 																	'price_in' => $row['dop_t_price_in'],
-																	'price_out' => $row['dop_t_price_out']);
+																	'price_out' => ($row['dop_t_discount'] != 0 )? (($row['dop_t_price_out']/100)*(100 + $row['dop_t_discount'])) : $row['dop_t_price_out']);
 		    }
 			if(isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) && !empty($row['uslugi_id'])){
 			    $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['dop_uslugi'][$row['uslugi_t_glob_type']][$row['uslugi_id']] = array(

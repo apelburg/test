@@ -232,19 +232,6 @@ class Client {
 			include('./skins/tpl/clients/client_folder/client_card/edit_requsits_show_person.tpl');
 		}
 	}
-	static function get_requisites($client_id){
-	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИАЦИЙ (АНДРЕЙ)
-		global $mysqli;
-		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".$client_id."'";
-		$requisites = array();
-		$result = $mysqli->query($query) or die($mysqli->error);				
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$requisites[] = $row;
-			}
-		}
-		return $requisites;
-	}
 	static function get_reiting($id,$rate){
 		$arr[0] = array('5','0');
 		$arr[1] = array('5','5');
@@ -309,6 +296,7 @@ class Client {
 		return $contact;
 	}
 	static function requisites($id) {
+	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИАЦИЙ (АНДРЕЙ)
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -320,6 +308,13 @@ class Client {
 			return $array;
 		}
 		return $array;
+	}
+	static function get_requisites($client_id){
+	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИАЦИЙ (АНДРЕЙ)
+		global $mysqli;
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$client_id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);					
+		return $result->fetch_assoc();
 	}
 	static function cont_faces($id){
 		global $mysqli;

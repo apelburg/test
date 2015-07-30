@@ -3001,31 +3001,36 @@ var rtCalculator = {
 				}
 			}
 		}
+		//console.log('--');
+		//console.log(idsObj);
 		
 		// проверяем сколько зеленых кнопок светофора были нажаты и  в итоге были учтены
 		var more_then_one = false;
 		var less_then_one = false;
+		var counter1 = 0;
 		for(var index in idsObj){
-			var counter = 0;
+            var counter2 = 0;
 			for(var index2 in idsObj[index]){
-				counter++;
+				counter1++;
+				counter2++;
 			}
-			if(counter>1) more_then_one = true;
-			if(counter==0) less_then_one = true;
+			
+			if(counter1==0) less_then_one = true;
+			if(counter2>1) more_then_one = true;
 		}
 		
 		//var conrtol_num = getControlNum();
         //console.log(JSON.stringify(idsObj));
 		//console.log(JSON.stringify(dopInfObj));
 	    //return;
-        
+		
 		if(nothing || more_then_one || less_then_one){
 			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной позиции');
 			if(more_then_one){
 				var alertStrObj ={};
 				var alertStrArr =[];
 				for(var pos in idsObj){
-					alertStrObj[dopInfObj[pos]['glob_counter']] = dopInfObj[pos]['glob_counter']+'). '+dopInfObj[pos]['name']+'\r';
+					if(idsObj[pos].length >1) alertStrObj[dopInfObj[pos]['glob_counter']] = dopInfObj[pos]['glob_counter']+'). '+dopInfObj[pos]['name']+'\r';
 				}
 				for(var i in alertStrObj){
 					alertStrArr.push(alertStrObj[i]);
@@ -3067,6 +3072,222 @@ var rtCalculator = {
 
 	}
 	,
+	makeSpecAndPreorder2:function(e){
+
+		e = e || window.event;
+		var element = e.target;
+        
+		// обходим РТ чтобы 
+		// 1. определить какие Мастер Кнопки были нажаты 
+		// 2. если Мастер Кнопка нажата проверяем светофор - должна быть нажата только одна зеленая кнопка (если больше или ни одна прерываемся)
+		
+		var tbl = document.getElementById('rt_tbl_body');
+		var trsArr = tbl.getElementsByTagName('tr');
+		var nothing = true;
+		var pos_id = false;
+		var idsObj = {};
+		var idsArr = [];
+		var dopInfObj = {};
+		var indexCounter = 0;
+		
+		// обходим ряды таблицы
+		for( var i= 0 ; i < trsArr.length; i++){
+			var flag ;
+			
+			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
+			if(trsArr[i].getAttribute('pos_id')){
+				pos_id = trsArr[i].getAttribute('pos_id');
+				
+				/*// работаем с рядом - ищем мастер кнопку 
+				var inputs = trsArr[i].getElementsByTagName('input');
+				for( var j= 0 ; j < inputs.length; j++){
+					if(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn' && inputs[j].checked == true){
+						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
+								 idsObj[pos_id] = {}; 
+				    }
+					else pos_id = false;
+				}*/
+				
+				var tdsArr = trsArr[i].getElementsByTagName('TD');
+				
+				for(var j =0; j < tdsArr.length; j++){
+					if(tdsArr[j].getAttribute('type')){
+						var type = tdsArr[j].getAttribute('type');
+						
+						if(type == 'master_btn'){ 
+						   var input = tdsArr[j].getElementsByTagName('input')[0];
+						   if(input.type == 'checkbox' && input.name == 'masterBtn' && input.checked == true){
+						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
+										 idsObj[pos_id] = []; 
+										 
+							}
+							else pos_id = false;
+						}
+						if(type == 'name'){ 
+						   var article = tdsArr[j].getElementsByTagName('DIV')[0].getElementsByTagName('A')[0].innerHTML;
+						   var name = tdsArr[j].getElementsByTagName('DIV')[tdsArr[j].getElementsByTagName('DIV').length-1].innerHTML;
+						   if(typeof dopInfObj[pos_id] ==='undefined') dopInfObj[pos_id]= {};
+						   dopInfObj[pos_id]['name'] = article+' '+name;
+						}
+						if(type == 'glob_counter'){ 
+						   var glob_counter = tdsArr[j].innerHTML;
+						   if(typeof dopInfObj[pos_id] ==='undefined') dopInfObj[pos_id]= {};
+						   dopInfObj[pos_id]['glob_counter'] = glob_counter;
+						}/**/
+						
+					}
+				}
+				
+				
+				
+				
+			}
+			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие до нового ряда позици на нажатие зеленой кнопки
+			// светофора (позиции для отправки в КП)
+			if(pos_id!==false){
+				idsArr[indexCounter] = [];
+				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
+				// работаем с рядом - ищем светофор 
+				var tdsArr = trsArr[i].getElementsByTagName('td');   
+				for( var j= 0 ; j < tdsArr.length; j++){
+					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
+						// idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
+						idsObj[pos_id].push(trsArr[i].getAttribute('row_id'));
+						//idsArr[indexCounter].push({'"'+pos_id+'":'row_id'));
+						//var val = {};
+						//val[pos_id] = trsArr[i].getAttribute('row_id');
+						//idsArr[indexCounter].push({pos_id:trsArr[i].getAttribute('row_id')});
+						idsArr[indexCounter] = {pos_id:pos_id,row_id:trsArr[i].getAttribute('row_id')};
+						indexCounter++;
+						nothing = false;
+					}
+				}
+			}
+			
+		}
+		//console.log('--');
+		//console.log(idsArr);
+		
+		// проверяем сколько зеленых кнопок светофора были нажаты и  в итоге были учтены
+		var more_then_one = false;
+		var less_then_one = false;
+		var counter1 = 0;
+		for(var index in idsObj){
+            var counter2 = 0;
+			for(var index2 in idsObj[index]){
+				counter1++;
+				counter2++;
+			}
+			
+			if(counter1==0) less_then_one = true;
+			if(counter2>1) more_then_one = true;
+		}
+		
+		//var conrtol_num = getControlNum();
+        //console.log(JSON.stringify(idsObj));
+		//console.log(JSON.stringify(dopInfObj));
+	    //return;
+		
+		if(nothing || more_then_one || less_then_one){
+			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной позиции');
+			if(more_then_one){
+				var alertStrObj ={};
+				var alertStrArr =[];
+				for(var pos in idsObj){
+					if(idsObj[pos].length >1) alertStrObj[dopInfObj[pos]['glob_counter']] = dopInfObj[pos]['glob_counter']+'). '+dopInfObj[pos]['name']+'\r';
+				}
+				for(var i in alertStrObj){
+					alertStrArr.push(alertStrObj[i]);
+				}
+				alert('не возможно создать заказ,\rвыбрано более одного варианта расчета в рядах:\r\n'+alertStrArr.join(''));
+			}
+			if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
+			return;
+		}
+		
+	    show_processing_timer();
+		var tbl = document.getElementById('rt_tbl_body');
+		var client_id = tbl.getAttribute('client_id');
+		var query_num = tbl.getAttribute('query_num');
+		if(client_id==''){
+		   alert('не удалось определить клинета');
+		   return;
+		}
+		if(query_num==''){
+		   alert('не удалось номер заявки');
+		   return;
+		}
+		
+
+		location = "?page=agreement&section=presetting&client_id=" + client_id + "&ids=" +JSON.stringify(idsArr)+'&query_num='+query_num;
+		
+		
+	    // формируем url для AJAX запроса
+		/*var url = OS_HOST+'?' + addOrReplaceGetOnURL('makeSpecAndPreorder={"ids":'+JSON.stringify(idsObj)+',"client_id":"'+client_id+'","query_num":"'+query_num+'"}');
+		// AJAX запрос
+		make_ajax_request(url,callback);
+		//alert(last_val);
+		function callback(response){ 
+		   
+		    / *if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;* /
+		    console.log(response); 
+			close_processing_timer(); closeAllMenuWindows();
+		}	*/  
+
+	}
+	,
+	setSvetoforStatusIn:function(e){
+
+		e = e || window.event;
+		var element = e.target;
+		
+        var status = element.getAttribute('status');
+		// обходим РТ чтобы 
+		// 1. определить какие Мастер Кнопки были нажаты 
+		
+		var tbl = document.getElementById('rt_tbl_body');
+		var trsArr = tbl.getElementsByTagName('tr');
+		var nothing = true;
+		var idsArr = [];
+		
+		// обходим ряды таблицы
+		for( var i= 0 ; i < trsArr.length; i++){
+			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
+			if(trsArr[i].getAttribute('pos_id')){
+				var pos_id = trsArr[i].getAttribute('pos_id');
+				
+				var tdsArr = trsArr[i].getElementsByTagName('TD');
+				
+				for(var j =0; j < tdsArr.length; j++){
+					if(tdsArr[j].getAttribute('type')){
+						var type = tdsArr[j].getAttribute('type');
+						
+						if(type == 'master_btn'){ 
+						    var input = tdsArr[j].getElementsByTagName('input')[0];
+						    if(input.type == 'checkbox' && input.name == 'masterBtn' && input.checked == true){
+						 
+							   idsArr.push(pos_id); 
+							   nothing = false;
+		 
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if(nothing){
+			alert('не возможно применить ярлык,\rвы не выбрали ни одной позиции');
+			return;
+		}
+
+	    show_processing_timer();
+		//location = "?page=client_folder&set_svetofor_status=" + status + "&ids=" +JSON.stringify(idsArr);
+		location = '?' + addOrReplaceGetOnURL('set_svetofor_status='+status + "&ids=" +JSON.stringify(idsArr));
+		//alert('?' + addOrReplaceGetOnURL('set_svetofor_status='+status + "&ids=" +JSON.stringify(idsArr)));
+	
+	}
+	,
 	send_ajax:function(url,callback){
 		
 		
@@ -3103,6 +3324,12 @@ var rtCalculator = {
 	,
 	nextTag:function(node){ 
 	   var node = node.nextSibling; 
-	   return (node && node.nodeType!=1) ? nextTag(node) : node; 
-	} 
+	   return (node && node.nodeType!=1) ? this.nextTag(node) : node; 
+	}
+	,
+	certainTd:function(node,type){ 
+	   if(node==null)return false;
+	   var node = node.nextSibling; 
+	   return (node && node.nodeName=='TD' && node.getAttribute('type')  && node.getAttribute('type')==type) ? node : this.certainTd(node,type); 
+	}
 }
