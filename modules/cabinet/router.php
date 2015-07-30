@@ -9,7 +9,8 @@
 	include './libs/php/classes/comments_class.php';
 	new Comments_for_query_class;
 	new Comments_for_order_class;
-	
+	new Comments_for_order_dop_data_class;
+
 	include './libs/php/classes/os_form_class.php';
 
 	include './libs/php/classes/rt_position_no_catalog_class.php';

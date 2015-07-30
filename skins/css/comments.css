@@ -29,7 +29,14 @@
 .icon_comment_order_show.white{
 	background-position-y: -67px;
 }
-
+.history_query .add_new_comment{
+	background-color: #f1f1f1;
+	margin-bottom: 15px;
+}
+.history_order .add_new_comment{
+	background-color: #f3f5a9;
+	margin-bottom: 15px;
+}
 .add_new_comment textarea{
 	width: 100%;
 	min-height:  150px;

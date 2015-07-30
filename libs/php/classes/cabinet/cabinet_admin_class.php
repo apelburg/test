@@ -681,6 +681,7 @@
 				$where = 1;
 			}
 			
+			$query .= ' ORDER BY `id` DESC';
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
@@ -718,7 +719,7 @@
 						<td><span class="show_the_full_information">'.$value['payment_status'].'</span> р.</td>
 						<td colspan="2">
 							<span class="greyText">оплачен: </span>'.$value['payment_date'].'
-							<span class="greyText">в размере: </span> ???
+							<span class="greyText">в размере: </span> '.$value['payment_status'].'
 						</td>
 						<td>???</td>
 						<td>???</td>
@@ -739,6 +740,12 @@
 
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html($order_arr){
+			// запоминаем обрабатываемые номеразаказа и запроса
+			// номер запроса
+			$this->query_num = $order_arr['query_num'];
+			// номер заказа
+			$this->order_num = $order_arr['order_num'];
+			
 			$positions_rows = $this->positions_rows_Database($order_arr['id']);
 			$html = '';
 			// echo '<pre>';
@@ -774,7 +781,7 @@
 				$html .= '<td>';
 				$html .= '<div class="quantity">'.$value['quantity'].'</div>';
 				$html .= '<div class="zapas">'.(($value['zapas']!=0 && trim($value['zapas'])!='')?'+'.$value['zapas']:'').'</div>';
-				$html .= '<div class="print_z">'.(($value['print_z']==0)?'НПЗ':'ПЗ').'</div>';
+				$html .= '<div class="print_z">'.(($value['zapas']!=0 && trim($value['zapas'])!='')?(($value['print_z']==0)?'НПЗ':'ПЗ'):'').'</div>';
 				$html .= '</td>';
 				
 				// поставщик товара и номер резерва для каталожной продукции 
@@ -792,7 +799,7 @@
 				// думаю есть смысл хранения в json 
 				// обязательные поля:
 				// {"comments":" ","technical_info":" ","maket":" "}
-				$html .= $this->grt_dop_teh_info($value);
+				$html .= $this->grt_dop_teh_info($value,$order_arr['query_num'],$order_arr['order_num']);
 				
 				// дата утверждения макета
 				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
@@ -825,7 +832,7 @@
 			$no_empty_class = (trim($value['dop_teh_info'])!='')?' no_empty':'';
 
 			$html = '<td>
-					<div class="dop_teh_info '.$no_empty_class.'">доп/тех инфо</div>
+					<div class="dop_teh_info '.$no_empty_class.'" data-id="'.$value['id'].'">доп/тех инфо</div>
 					<div class="dop_teh_info_window_content"></div>
 				</td>';
 
@@ -904,9 +911,12 @@
 		private function positions_rows_Database($order_id){
 			$arr = array();
 			global $mysqli;
-			$query = "SELECT * FROM `".CAB_ORDER_DOP_DATA."` INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_id."'";
+			$query = "SELECT *, `".CAB_ORDER_DOP_DATA."`.`id` AS `dop_data_id` 
+			FROM `".CAB_ORDER_DOP_DATA."` 
+			INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
+			WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_id."'";
 			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
-			// echo $query.'<br>';
+			//echo $query.'<br>';
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){

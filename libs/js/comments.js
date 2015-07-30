@@ -34,10 +34,10 @@ $(document).on('click', '#add_comments_of_query', function(event) {
 		'fast').addClass('loading').html('');
 	var obj = $(this);
 	$.post('', {
-		AJAX: 'get_comment_fo_query_without_form',
+		AJAX: 'get_comment_for_query_without_form',
 		query_num:query_num
 	}, function(data, textStatus, xhr) {
-		obj.replaceWith('<div class="history">'+Base64.decode(data['html']));
+		obj.replaceWith('<div class="history_query">'+Base64.decode(data['html']));
 	},'json');
 });
 

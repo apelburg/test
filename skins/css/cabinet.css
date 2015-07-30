@@ -253,10 +253,9 @@ tr.cat_8 td {
 	background: #fff;
 	cursor: pointer;
 }
-/*#cabinet_general_content #general_panel_orders_tbl tr.positions_rows td:nth-of-type(2){
-	padding-right: 55px;	
+#cabinet_general_content #general_panel_orders_tbl tr.positions_rows td{
+	border: 1px solid #e8e8e8;
 }
-*/
 #cabinet_general_content #general_panel_orders_tbl tr.order_head_row td:nth-of-type(3){
 	padding: 0;	
 }
