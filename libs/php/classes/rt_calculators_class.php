@@ -360,9 +360,9 @@
 									   `price_in` = '".$details_obj->price_in."',
 									   `price_out` ='".$details_obj->price_out."',
 									   `print_details` ='".$print_details."'"; 
-				 //echo $query;
-				 $mysqli->query($query)or die($mysqli->error);
-				 //echo 1;
+				//echo $query;
+				$mysqli->query($query)or die($mysqli->error);
+				//echo 1;
 			}
 			else if(isset($details_obj->dop_uslugi_id) && $details_obj->dop_uslugi_id !=0){
 			   $query="UPDATE `".RT_DOP_USLUGI."` SET

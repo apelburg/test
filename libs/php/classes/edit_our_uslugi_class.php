@@ -3,23 +3,15 @@
 
 
  class Our_uslugi{
- 	// глобальные массивы
-	private $POST;
-	private $GET;
-	private $SESSION;
-
 	// id юзера
 	private $user_id;
 
 	// допуски пользователя
 	private $user_access;
 	
-	function __construct($get,$post,$session){
-		$this->GET = $get;
-		$this->POST = $post;
-		$this->SESSION = $session;
+	function __construct(){
 
-		$this->user_id = $session['access']['user_id'];
+		$this->user_id = $_SESSION['access']['user_id'];
 
 		$this->user_access = $this->get_user_access_Database_Int($this->user_id);
 
@@ -35,54 +27,141 @@
 		скорее всего за счёт экономии памяти на ссылках на переменные
 	*/
 
-	// функции AJAX
+
 	private function _AJAX_(){
-		
-		// получаем контент по услуге и статусам
-		if($this->POST['AJAX'] == 'get_edit_content_for_usluga'){
-			// блок редактирования цен, имени и типа услуги
-			echo $this->get_chenge_form_uslugi_Html();
-			// блок редактирования статусов
-			echo $this->get_status_uslugi_Html($_POST['id']);
+			$method_AJAX = $_POST['AJAX'].'_AJAX';
+			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+			if(method_exists($this, $method_AJAX)){
+				$this->$method_AJAX();
+				exit;
+			}					
+		}
+	
+	// получаем контент по услуге и статусам
+	private function get_edit_content_for_usluga_AJAX(){
+		// блок редактирования цен, имени и типа услуги
+		echo $this->get_chenge_form_uslugi_Html();
+		// блок редактирования статусов
+		echo $this->get_status_uslugi_Html($_POST['id']);
+		// блок редактирования доп полей, необходимых для заполнения
+		echo $this->get_dop_input_uslugi_Html();
+	}
+
+	// создаем новое поле доп поле
+	// private function add_new_dop_input_AJAX(){
+	// 	// echo $this->add_new_dop_input_Html();
+	// }
+
+	// удаляем дополнительное поле из услуги
+	private function delete_dop_input_from_services_AJAX(){
+		global $mysqli;
+		// считываем из бызы данную услуги 
+		$usluga = $this->get_usluga_Database_Array($_POST['usl_id']);
+		// ищем и вырезаем id с запятой
+		$str = str_replace(','.trim($_POST['id_dop_imput']), '', $usluga['uslugi_dop_inputs_id']);
+		// ищем и вырезаем id без запятой
+		$str = str_replace(trim($_POST['id_dop_imput']), '', $str);
+		// переписываем
+		$query = "UPDATE `".OUR_USLUGI_LIST."` SET 
+			`uslugi_dop_inputs_id` = '".$str."'
+		 WHERE `id`='".$_POST['usl_id']."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+
+		echo '{"response":"OK","function":"alerting","html":"Поле успешно откреплено!"}';
+	}
+
+	// форма добавления нового поля
+	private function get_add_new_dop_input_form_AJAX(){
+		$html = ''; // $Html .= '';
+		$html .= '<form>';
+		$html .= '<div>';
+
+		$html .= '<input type="text" name="name_ru" value="Новое поле">';
+		$html .= '<input type="hidden" name="AJAX" value="add_new_dop_input">';
+		$html .= '<input type="hidden" name="usl_id" value="'.$_POST['usl_id'].'">';
+		$html .= '</div>';
+		$html .= '</form>';
+		echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+	}
+
+	// добавление нового поля
+	private function add_new_dop_input_AJAX(){
+		// принимаем кириллическое значение
+		$this->name_ru = trim($_POST['name_ru']);
+		// запоминаем транслитерацию
+		$this->name_en = $this->GetInTranslit(trim($_POST['name_ru']));
+		// проверяем по базе на совпадение обоих полей
+		global  $mysqli;
+		$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."` WHERE `name_en` = '".$this->name_en."'";
+		// echo $query.'<br>';
+		// обрабатываем запрос
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$count = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$input_id = $row['id'];
+				$count++;
+			}
+		}
+		// если соответствие найдено сообщаем пользователю об этом
+		if($count>0){
+			echo '{"response":"OK","function":"add_new_dop_inputs","dop_inputs_id":"'.$input_id.'","name_ru":"'.$this->name_ru.'"}';
+			//echo '{"response":"show_new_window","html":"'.base64_encode('Поле с таким именем уже существует<br>').'"}';
 			exit;
 		}
+		// если соответствий не найдено заводим новое поле
+		$query ="INSERT INTO `".CAB_DOP_USLUGI_DOP_INPUTS."` SET
+		             `name_en` = '".$this->name_en."',
+		             `name_ru` = '".$this->name_ru."'";
 
-		// создаем новый статус в услуге
-		if($this->POST['AJAX'] == 'add_new_status'){
-			echo $this->add_new_status_Html();
-			exit;
-		}
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		// получаем id добавленного поля
+		$new_id = $mysqli->insert_id;
+		// считываем из бызы данную услуги 
+		$usluga = $this->get_usluga_Database_Array($_POST['usl_id']);
+		// получаем прикреплённые поля и разбиваем в массив
+		$inputs_arr = explode(",", trim($usluga['uslugi_dop_inputs_id']));
+		// добавляем в массив новый id
+		$inputs_arr[] = $new_id;
+		// перезаписываем 
+		$query = "UPDATE `".OUR_USLUGI_LIST."` SET 
+			`uslugi_dop_inputs_id` = '".implode(",", $inputs_arr)."'
+		 WHERE `id`='".$_POST['usl_id']."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
-		// сохраняем контент по услуге
-		if($this->POST['AJAX'] == 'save_edit_usluga'){
-			echo $this->save_change_usluga();
-			exit;
-		}
+		echo '{"response":"OK","function":"add_new_dop_inputs","dop_inputs_id":"'.$new_id.'","name_ru":"'.$this->name_ru.'"}';
 
-		// удаляем статус
-		if($this->POST['AJAX'] == 'delete_status_uslugi'){
-			echo $this->delete_status_uslugi_Database();
-			exit;
-		} 
+	}
 
-		// редактируем статусы
-		if($this->POST['AJAX'] == 'edit_name_status'){
-			echo $this->edit_name_status_Database();
-			exit;
-		}
 
-		// удаление услуги
-		if($this->POST['AJAX'] == 'del_uslugu'){
-			echo $this->del_uslugu_Database();
-			exit;
-		}
 
-		// добавляем новую услугу
-		if($this->POST['AJAX'] == 'add_new_usluga'){
-			echo  $this->add_new_usluga_Database();
-			exit;
-		}
+	//GetInTranslit
 
+	// создаем новый статус в услуге
+	private function add_new_status_AJAX(){
+		echo $this->add_new_status_Html();
+	}
+
+	// сохраняем контент по услуге
+	private function save_edit_usluga_AJAX(){
+		echo $this->save_change_usluga();
+	}
+	// удаляем статус
+	private function delete_status_uslugi_AJAX(){
+		echo $this->delete_status_uslugi_Database();
+	}
+	// редактируем статусы
+	private function edit_name_status_AJAX(){
+		echo $this->edit_name_status_Database();
+	}
+	// удаление услуги
+	private function del_uslugu_AJAX(){
+		echo $this->del_uslugu_Database();
+	}
+
+	// добавление услуги
+	private function add_new_usluga_AJAX(){
+		echo  $this->add_new_usluga_Database();
 	}
 
 	private function add_new_usluga_Database(){
@@ -93,11 +172,11 @@
 		// цены пока что оставляем
 		$query = "UPDATE `".OUR_USLUGI_LIST."` SET 
 			`for_how` = ''
-		 WHERE `id`='".$this->POST['parent_id']."'";
+		 WHERE `id`='".$_POST['parent_id']."'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
 		// если этота услуга принадлежит к разделу нанесения 
-		if($this->POST['parent_id']==6){
+		if($_POST['parent_id']==6){
 			// - пишем пустую строку
 			$for_how = '';
 			// - выводим её с иконкой калькулятора
@@ -115,7 +194,7 @@
 
 		// 2 - добавляем услугу 
 		$query ="INSERT INTO `".OUR_USLUGI_LIST."` SET
-		             `parent_id` = '".$this->POST['parent_id']."',
+		             `parent_id` = '".$_POST['parent_id']."',
 		             `name` = 'Новая услуга',
 		             `price_in` = '0.00',
 		             `price_out` = '0.00',
@@ -128,7 +207,7 @@
 		
 
 		$html = '
-		<div data-id="'.$mysqli->insert_id.'" data-parent_id="'.$this->POST['parent_id'].'" class="lili '.$class.'" style="padding-left:'.($this->POST['padding_left']+30).'px;background-position-x:'.($this->POST['bg_x']+30).'px" data-bg_x="'.($this->POST['bg_x']+30).'">
+		<div data-id="'.$mysqli->insert_id.'" data-parent_id="'.$_POST['parent_id'].'" class="lili '.$class.'" style="padding-left:'.($_POST['padding_left']+30).'px;background-position-x:'.($_POST['bg_x']+30).'px" data-bg_x="'.($_POST['bg_x']+30).'">
 			<span class="name_text">Новая услуга</span>
 			'.$buttons.'
 		</div>';
@@ -137,7 +216,7 @@
 
 	private function del_uslugu_Database(){
 		global $mysqli;
-		$query = "DELETE FROM `".OUR_USLUGI_LIST."` WHERE `id`='".$this->POST['id']."'";
+		$query = "DELETE FROM `".OUR_USLUGI_LIST."` WHERE `id`='".$_POST['id']."'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 		$return_json = '{"response":"OK"}'; 
 		return $return_json; 
@@ -147,8 +226,8 @@
 		global $mysqli;
 
 		$query = "UPDATE `".USLUGI_STATUS_LIST."` SET 
-			`name` = '".$this->POST['name']."'
-		 WHERE `id`='".$this->POST['id']."'";
+			`name` = '".$_POST['name']."'
+		 WHERE `id`='".$_POST['id']."'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 		$return_json = '{"response":"OK"}'; 
 		return $return_json; 
@@ -157,7 +236,7 @@
 	private function delete_status_uslugi_Database(){
 		global $mysqli;
 
-		$query = "DELETE FROM `".USLUGI_STATUS_LIST."` WHERE `id`='".$this->POST['id']."'";
+		$query = "DELETE FROM `".USLUGI_STATUS_LIST."` WHERE `id`='".$_POST['id']."'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 		$return_json = '{"response":"OK"}'; 
 		return $return_json; 
@@ -167,7 +246,7 @@
 	private function add_new_status_Html(){
 		global $mysqli;
 		$query ="INSERT INTO `".USLUGI_STATUS_LIST."` SET
-		             `parent_id` = '".$this->POST['id']."',
+		             `parent_id` = '".$_POST['id']."',
 		             `name` = 'Новый статус для услуги'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
@@ -179,12 +258,12 @@
 	// сохранение изменённых данных в услуге
 	private function save_change_usluga(){
 		global $mysqli;
-		$id = $this->POST['id']; 
-		unset($this->POST['id'],$this->POST['AJAX']);
+		$id = $_POST['id']; 
+		unset($_POST['id'],$_POST['AJAX']);
 
 		$query = "UPDATE `".OUR_USLUGI_LIST."` SET ";		
 		$n=0;
-		foreach ($this->POST as $key => $value) {
+		foreach ($_POST as $key => $value) {
 			$query .= ($n>0)?', ':'';
 			$query .= "`".$key."` = '".$value."'";
 			$n++;
@@ -194,7 +273,7 @@
 		$result = $mysqli->query($query) or die($mysqli->error);
 		// echo $query;
 		// echo '<pre>';
-		// print_r($this->POST);
+		// print_r($_POST);
 		// echo '</pre>';
 		echo '{"response":"OK","message":"Изменения успешно сохранены"}';
 
@@ -286,7 +365,7 @@
 
 
 		// получаем полную информацию из базы по одной услуге
-		$usluga = $this->get_usluga_Database_Array($this->POST['id']);
+		$usluga = $this->get_usluga_Database_Array($_POST['id']);
 
 
 
@@ -295,7 +374,7 @@
 		// наименовнаие услуги
 		$html .= '<div class="name_input">Наименование</div>';
 		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['name'].'" name="name"></div>';
-		if($this->POST['id'] != 6 && $this->POST['parent_id'] != 6){
+		if($_POST['id'] != 6 && $_POST['parent_id'] != 6){
 			// тип услуги
 			$html .= '<div class="name_input">Тип</div>';
 			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['type'].'" name="type"></div>';
@@ -325,8 +404,8 @@
 		// Цена исходящая
 		$html .= '<div class="name_input">Описание услуги</div>';
 		$html .= '<div class="edit_info"><textarea name="note">'.$usluga['note'].'</textarea></div>';
-		// скрытое поле ID
 
+		// скрытое поле ID
 		$html .= '<div class="edit_info"><input type="hidden" name="AJAX" value="save_edit_usluga"></div>';
 		$html .= '<div class="edit_info"><input type="hidden" name="id" value="'.$usluga['id'].'"></div>';
 
@@ -334,6 +413,8 @@
 		$html .= '<div id="response_message"></div>';
 		$html .= '<div id="hidden_button"><input type="button" id="save_usluga" value="Сохранить"></div>';
 		$html .= '</div>';
+
+
 		return $html;
 	}
 
@@ -374,6 +455,28 @@
 		return $html;
 	}
 
+	public function get_dop_input_uslugi_Html(){
+		global $mysqli;
+		$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."` WHERE id IN (".(($this->uslugi_dop_inputs_id=='')?0:$this->uslugi_dop_inputs_id).") ORDER BY `id` ASC";
+		// echo $query.'<br>';
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$inputs = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$inputs[] = $row;
+			}
+		}
+
+		$html = '<br><strong>Доп. поля</strong>';
+		$html .= '<div id="dop_inputs_listing">';
+		foreach ($inputs as $value) {
+			$html .= '<div class="dop_inputs"  data-id="'.$value['id'].'"><span>'.$value['name_ru'].'</span><span class="button_del_dop_inputs status_del" data-id="'.$value['id'].'">X</span></div>';
+		}
+		$html .= '</div>';
+		$html.= '<div><input type="button" id="add_new_dop_input" value="Добавить +"></div>';
+		return $html;
+	}
+
 	// получаем полную информацию по услуге
 	private function get_usluga_Database_Array($id){
 		global $mysqli;
@@ -386,6 +489,7 @@
 				$arr = $row;				
 			}	
 		}
+		$this->uslugi_dop_inputs_id = $arr['uslugi_dop_inputs_id'];
 		return  $arr;
 	}
 
@@ -410,6 +514,57 @@
 				}	
 		}
 		return  array_unique(array_merge ($arr, $arr2));
+	}
+
+
+	// ТРАНСЛИТЕРАЦИЯ
+	public function GetInTranslit($string) {
+		$replace=array(
+			"'"=>"",
+			"`"=>"",
+			"а"=>"a","А"=>"a",
+			"б"=>"b","Б"=>"b",
+			"в"=>"v","В"=>"v",
+			"г"=>"g","Г"=>"g",
+			"д"=>"d","Д"=>"d",
+			"е"=>"e","Е"=>"e",
+			"ж"=>"zh","Ж"=>"zh",
+			"з"=>"z","З"=>"z",
+			"и"=>"i","И"=>"i",
+			"й"=>"y","Й"=>"y",
+			"к"=>"k","К"=>"k",
+			"л"=>"l","Л"=>"l",
+			"м"=>"m","М"=>"m",
+			"н"=>"n","Н"=>"n",
+			"о"=>"o","О"=>"o",
+			"п"=>"p","П"=>"p",
+			"р"=>"r","Р"=>"r",
+			"с"=>"s","С"=>"s",
+			"т"=>"t","Т"=>"t",
+			"у"=>"u","У"=>"u",
+			"ф"=>"f","Ф"=>"f",
+			"х"=>"h","Х"=>"h",
+			"ц"=>"c","Ц"=>"c",
+			"ч"=>"ch","Ч"=>"ch",
+			"ш"=>"sh","Ш"=>"sh",
+			"щ"=>"sch","Щ"=>"sch",
+			"ъ"=>"","Ъ"=>"",
+			"ы"=>"y","Ы"=>"y",
+			"ь"=>"","Ь"=>"",
+			"э"=>"e","Э"=>"e",
+			"ю"=>"yu","Ю"=>"yu",
+			"я"=>"ya","Я"=>"ya",
+			"і"=>"i","І"=>"i",
+			"ї"=>"yi","Ї"=>"yi",
+			"є"=>"e","Є"=>"e"
+		);
+
+		$text = iconv("UTF-8","UTF-8//IGNORE",strtr($string,$replace));
+		// Удаляем знаки припенания 
+		$text = preg_replace("|[^\d\w ]+|i","",$text); 
+		// меняем пробелы на _
+		$text = str_replace(" ", "_", trim($text)); 
+		return $text;
 	}
 
 }

@@ -38,7 +38,7 @@ $array_request = array();
 		* , 
 		DATE_FORMAT(`create_time`,'%d.%m.%Y %H:%i')  AS `create_time`
 		FROM `".CAB_ORDER_ROWS."`
-		WHERE `order_num` = '".(int)$order_num."' AND `id` = '".$order_id."'";
+		WHERE `order_num` = '".(int)$order_num."' or `id` = '".$order_id."'";
 	
 	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);

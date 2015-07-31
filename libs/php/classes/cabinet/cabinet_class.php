@@ -26,6 +26,17 @@
 			'ogruzochnye_accepted' => 'огрузочные приняты (подписанные)'
     	);
 
+    	// массви с переводом статусов запроса
+		protected $name_cirillic_status = array(
+			'new_query' => 'новый запрос',
+			'not_process' => 'не обработан менеджером',
+			'taken_into_operation' => 'взят в обработку',
+			'in_work' => 'в работе',
+			'history' => 'история'
+		);
+			
+
+
     	function __consturct(){
 		}
 		// определяем поставщика
