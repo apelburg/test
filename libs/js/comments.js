@@ -1,3 +1,7 @@
+//////////////////////////
+//	КОММЕНТАРИИ К ЗАПРОСАМ
+//////////////////////////
+
 $(document).on('click', '.icon_comment_show', function(event) {
 	var query_num = $(this).attr('data-rt_list_query_num');
 	$.post('', {
@@ -8,9 +12,72 @@ $(document).on('click', '.icon_comment_show', function(event) {
 	},'json');
 });
 
+$(document).on('click', '#add_comments_of_query', function(event) {
+	var query_num = $(this).attr('data-query_num');
+	$(this).animate({
+		height: 68},
+		'fast').addClass('loading').html('');
+	var obj = $(this);
+	$.post('', {
+		AJAX: 'get_comment_for_query_without_form',
+		query_num:query_num
+	}, function(data, textStatus, xhr) {
+		obj.replaceWith('<div class="history_query">'+Base64.decode(data['html'])+'</div>');
+	},'json');
+});
+
+//////////////////////////
+//	КОММЕНТАРИИ К ЗАКАЗАМ
+//////////////////////////
+$(document).on('click', '.icon_comment_order_show', function(event) {
+	var query_num = $(this).attr('data-cab_list_query_num');
+	var order_num = $(this).attr('data-cab_list_order_num');
+	$.post('', {
+		AJAX: 'get_comment_for_order',
+		query_num:query_num,
+		order_num:order_num
+	}, function(data, textStatus, xhr) {
+		show_dialog_comments(Base64.decode(data['html']),'Комментарии к заказу',800)
+	},'json');
+});
+
+$(document).on('click', '#add_comments_of_order', function(event) {
+	var order_num = $(this).attr('data-order_num');
+	$(this).animate({
+		height: 68},
+		'fast').addClass('loading').html('');
+	var obj = $(this);
+	$.post('', {
+		AJAX: 'get_comment_for_order_without_form',
+		order_num:order_num
+	}, function(data, textStatus, xhr) {
+		obj.replaceWith('<div class="history_order">'+Base64.decode(data['html'])+'</div>');
+	},'json');
+});
+
+//////////////////////////
+//	КОММЕНТАРИИ К ПОЗИЦИЯМ
+//////////////////////////
+
+$(document).on('click', '#add_comments_of_position', function(event) {
+	var position_id = $(this).attr('data-position_id');
+	$(this).animate({
+		height: 68},
+		'fast').addClass('loading').html('');
+	var obj = $(this);
+	$.post('', {
+		AJAX: 'get_comment_for_position',
+		position_id:position_id
+	}, function(data, textStatus, xhr) {
+		obj.replaceWith(Base64.decode(data['html']));
+	},'json');
+});
+
+//////////////////////////
+//	ОБЩИЕ ФУНКЦИИ
+//////////////////////////
 
 $(document).on('click', '#add_new_comment_button', function(event) {
-
 	event.preventDefault();
 	var obj = $(this);
 	var serialize = $(this).parent().serialize();
@@ -49,3 +116,5 @@ function show_dialog_comments(html,title,height){
           buttons: buttons          
         });
 }
+
+

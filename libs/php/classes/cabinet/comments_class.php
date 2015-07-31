@@ -31,6 +31,7 @@ class Cabinet_admin_class{
 		}	
 	}
 
+
 	private function add_new_comment_for_query_AJAX(){
 			$this->save_query_comment_Database();
 			$html = '<div class="comment table">';

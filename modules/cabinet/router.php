@@ -7,10 +7,13 @@
 	// ** БЕЗОПАСНОСТЬ **
 
 	include './libs/php/classes/comments_class.php';
-	$comments = new Comments_for_query_class;
-	
-	include './libs/php/classes/os_form_class.php';
+	new Comments_for_query_class;
+	new Comments_for_order_class;
+	$PositionComments = new Comments_for_order_dop_data_class;
 
+
+	include './libs/php/classes/os_form_class.php';
+	include_once './libs/php/classes/supplier_class.php';
 	include './libs/php/classes/rt_position_no_catalog_class.php';
 	include './libs/php/classes/cabinet/cabinet_class.php';		
 	include './libs/php/classes/cabinet/cabinet_general_class.php';		
