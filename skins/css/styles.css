@@ -2400,3 +2400,16 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
    font-family: Verdana, Arial, Helvetica, sans-serif;
    font-size:12px;
 }
+#calendar_table td{ 
+  background-color:#ECECEC; 
+  border:0px solid #333333;
+}
+#time_table td{ 
+  background-color:#ECECEC; 
+  border:0px solid #333333;
+}
+
+.rtCalendarContextWindow,.rtCalendarContextWindow a, .rtCalendarContextWindow td, .rtCalendarContextWindow th{
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 13px;
+}

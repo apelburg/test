@@ -72,6 +72,7 @@
 		// building menu
 		var div = document.createElement('div');
 		div.className = "contextWindow";
+		div.setAttribute('type','windowContainer');
 		//div.id = "quickContextExtraWindow";
 		div.style.width = "220px";
 		div.style.top =  "19px";
@@ -120,6 +121,7 @@
 		innerDiv.className = "link2";
 		var a = document.createElement('a');
 		a.href = '#';
+		a.onclick = openExtraContextWindow2;
 		a.appendChild(document.createTextNode('Дату сдачи'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
@@ -1065,7 +1067,7 @@
 			// a.setAttribute('id',id);
 			a.setAttribute('control_num',control_num);
 			a.appendChild(document.createTextNode(innerDivsArr[i][0]));
-			// if(innerDivsArr[i][1]) a.onclick = openExtraContextWindow;
+			if(innerDivsArr[i][1]) a.onclick = openExtraContextWindow;
 			// else{
 				var span = document.createElement('span');
 		        span.className = "notWork";
@@ -1336,6 +1338,130 @@
 		return false;
 		
 	}
+	
+	openExtraContextWindow2.lastWindow = null;
+	openExtraContextWindow2.lastElement = null;
+	function openExtraContextWindow2(e){
+		e = e || window.event;
+		
+		var element = e.target;
+		
+		var idsArr = rtCalculator.get_active_main_rows();
+		if(!idsArr){
+			alert('Вы не выбрали позиции');
+			return;
+		}
+		
+		if(openExtraContextWindow2.lastElement === element ) return false;
+		
+		var mainWindowContainer = retriveWindowContainer(element);
+		if(!mainWindowContainer){ alert('"windowContainer" not defined'); return false; }
+		
+		if(openExtraContextWindow2.lastWindow){
+			openExtraContextWindow2.lastWindow.parentNode.removeChild(openExtraContextWindow2.lastWindow);
+			openExtraContextWindow2.lastWindow = null;
+		}
+
+		var type = element.getAttribute('type');
+		var action = element.getAttribute('action');
+		//var id = (element.getAttribute('id'))?element.getAttribute('id'):'';
+
+		
+		mainWindowContainer.appendChild(buildExtraContextWindow(getY(element,mainWindowContainer),action,type));
+		//calendar.calendarLaunchBtnContainer = document.getElementById("callCalendarButton");
+		//calendar.show();
+		
+		function buildExtraContextWindow(top,action,type){
+			var div = document.createElement('div');
+			div.className = "contextWindow rtCalendarContextWindow";
+			div.id = "quickContextExtraWindow";
+			div.style.width = "425px";
+			div.style.top = (top - 36) + "px";//
+			div.style.left = "160px";
+			div.style.display = "block";
+
+			
+			var div_float_right1 = document.createElement("div"); // плавающий div контейнер
+			div_float_right1.style.float ='left';
+			div_float_right1.style.margin ='10px 10px 0px 10px';
+			div_float_right1.style.width ='190px';
+			div_float_right1.style.border ='#000000 solid 0px';
+			
+		    /*var cup = document.createElement('div');
+			cup.className = "cup";
+			cup.appendChild(document.createTextNode('Выберите дату:'));*/
+			calendar_consturctor.setContextDay();
+			var calendar = calendar_consturctor.calendarTableBilder('calendar_table');
+			calendar[0].style.width = '180px';
+			calendar[0].appendChild(calendar[1]);
+			calendar[0].appendChild(calendar[2]);
+			calendar[0].appendChild(calendar[3]);
+			div_float_right1.appendChild(calendar[0]);
+			div.appendChild(div_float_right1);
+			
+			var div_float_right2 = document.createElement("div"); // плавающий div контейнер
+			div_float_right2.style.float ='left';
+		    div_float_right2.style.margin ='10px 0px 0px 0px';
+			div_float_right2.style.width ='180px';
+			div_float_right2.style.border ='#000000 solid 0px';
+			var time_table = calendar_consturctor.timeTable('time_table');
+			time_table[0].style.width = '180px';
+			time_table[0].style.margin ='0px 0px 0px 0px';
+			time_table[0].appendChild(time_table[1]);
+			time_table[0].appendChild(time_table[2]);
+			time_table[3].style.margin ='2px 0px 0px 0px';
+			 
+			div_float_right2.appendChild(time_table[3]);
+			div_float_right2.appendChild(time_table[0]);
+			div.appendChild(div_float_right2);
+			 
+			var clear_div = document.createElement('div'); 
+		    clear_div.style.clear ='both';
+			var button_div = document.createElement('div'); 
+			button_div.style.textAlign ='center';
+			button_div.style.margin ='10px 0px 0px 0px';
+			button_div.style.border ='#000000 solid 0px';
+			var button_ok = document.createElement("input"); 
+			button_ok.type = 'submit';
+			button_ok.name = 'set_plan';
+			//button_ok.innerHTML = 'ok';
+			button_ok.onclick = function(){ location = location.search + '&set_order_deadline=&date='+calendar[3].value+'&time='+time_table[2].value+'&ids='+JSON.stringify(idsArr);}
+			button_ok.value = 'ok';
+			button_ok.style.height = '30px';
+			button_ok.style.width = '90px';
+			button_ok.style.backgroundColor = "rgb(122, 189, 121)";
+			button_ok.style.border = "#555 solid 1px";
+			button_ok.style.borderRadius ='2px';
+			button_ok.style.cursor = 'pointer';
+			 
+			 
+			div.appendChild(clear_div);
+			button_div.appendChild(button_ok);
+		    div.appendChild(button_div);
+			
+			openExtraContextWindow2.lastWindow = div;
+			return div;
+	    }
+		function retriveWindowContainer(e){
+			while(e && e != document.body){
+				 if(e.getAttribute && e.getAttribute('type') == 'windowContainer') return e;
+				 e = e.parentNode;
+			}
+			return false;
+	    }
+		function getY(e,mainWindowContainer){
+			var y = 0;
+			while(e != mainWindowContainer){
+				 y += e.offsetTop;
+				 e = e.offsetParent;
+			}
+			return y;
+	    }
+		openExtraContextWindow2.lastElement = element;
+		return false;
+		
+	}
+	
 	function copyRow(e){
 		
 		e = e || window.event;
