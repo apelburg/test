@@ -29,7 +29,7 @@
 		 
 		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn , main_tbl.svetofor_display AS svetofor_display ,
 		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel,
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel, dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
 						  
 						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out
@@ -61,6 +61,8 @@
 			 if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
 			     $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']] = array(
 																	'expel' => $row['expel'],
+																	'shipping_date' => $row['shipping_date'],
+																	'shipping_time' => $row['shipping_time'],
 																	'row_status' => $row['row_status'],
 																	'glob_status' => $row['glob_status'],
 																	'quantity' => $row['dop_t_quantity'],
@@ -242,7 +244,7 @@
 				 $currency = 'р';
 				 $quantity_dim = 'шт';
 				 $discount = $dop_row['discount'].'%';
-				 $srock_sdachi = 'одинак.?';
+				 $srock_sdachi = $dop_row['shipping_date'];
 				 
 				 $expel_class_main = ($expel['main']=='1')?' red_cell':'';
 				 $expel_class_print = ($expel['print']=='1')?' red_cell':'';

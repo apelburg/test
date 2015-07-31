@@ -37,7 +37,11 @@
 		 header('Location:?'.addOrReplaceGetOnURL('','set_svetofor_status&ids'));
 		 exit;
     }
-	
+	if(isset($_GET['set_order_deadline'])){
+	     RT::set_order_deadline($_GET['ids'],$_GET['date'],$_GET['time']);
+		 header('Location:?'.addOrReplaceGetOnURL('','set_order_deadline&ids&date&time'));
+		 exit;
+    }
 	////////////////////////  AJAX  //////////////////////// 
 	if(isset($_GET['save_rt_changes'])){
 	     //print_r(json_decode($_GET['save_rt_changes']));

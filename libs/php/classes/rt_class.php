@@ -49,6 +49,14 @@
 			$mysqli->query($query)or die($mysqli->error);
 			return 1;
 		}
+		static function set_order_deadline($ids,$date,$time){
+		    global $mysqli; 
+
+			$time = str_replace('.',':',$time).':00';
+		    $query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."',`shipping_time` = '".$time."'  WHERE `row_id` IN('".implode("','",json_decode($ids))."')";
+		     //echo $query."\r\n";exit;
+			$mysqli->query($query)or die($mysqli->error);
+		}
 		static function fetch_query_create_time($query_num){
 		    global $mysqli; 
 			$query = "SELECT create_time FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";

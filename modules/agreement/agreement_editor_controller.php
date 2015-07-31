@@ -1,5 +1,5 @@
 <?php
-
+    // echo '<br><br><br><br><br><br><br><br><br><br><br><br>'.'1';
     // переделывать
 	//$client_firm_acting_manegement_face = get_client_requisites_acting_manegement_face($agreement['client_requisit_id']);
     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
@@ -83,6 +83,7 @@
 	{
 	    if((isset($_GET['agreement_type']) && $_GET['agreement_type'] == 'long_term') && isset($_SESSION['data_for_specification']) && !isset($_GET['open']))
 		{  
+		echo '<br><br><br><br><br><br><br><br><br><br><br><br>'.'3';
 		    /*
 			if(!isset($_GET['short_description']))
 			{
@@ -92,18 +93,18 @@
 			*/
 			$agreement = fetch_agreement_content($agreement_id);
 			$our_firm_acting_manegement_face = our_firm_acting_manegement_face($agreement['our_requisit_id']);
-			//$client_firm_acting_manegement_face = get_client_requisites_acting_manegement_face($agreement['client_requisit_id']);
-			$client_firm_acting_manegement_face = array('position' => 'position','position_in_padeg' => 'position_in_padeg','name' => 'name','name_in_padeg' => 'name_in_padeg','basic_doc' =>'basic_doc');
+			$client_firm_acting_manegement_face = get_client_requisites_acting_manegement_face($agreement['client_requisit_id']);
+			echo '<pre>'; print_r($client_firm_acting_manegement_face); echo '</pre>';
+			//$client_firm_acting_manegement_face = array('position' => 'position','position_in_padeg' => 'position_in_padeg','name' => 'name','name_in_padeg' => 'name_in_padeg','basic_doc' =>'basic_doc');
             $spec_num = (!empty($_GET['existent_agreement_spec_num']))? $_GET['existent_agreement_spec_num']: false;
 			
 			//echo $_SESSION['data_for_specification'];
 			//exit;
-			
+			exit; 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
 	        $specification_num = Agreement::add_items_for_specification($spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
-			//$specification_num = add_items_for_specification($spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
-			//echo $specification_num;
-
+	
+			 
 			//unset($_SESSION['data_for_specification']);  
 			//  
 			header('Location:?'.addOrReplaceGetOnURL('open=specification&specification_num='.$specification_num,'short_description&conrtol_num')); 

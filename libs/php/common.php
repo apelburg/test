@@ -1657,7 +1657,28 @@
 		mysql_query("UNLOCK TABLES") or die(mysql_error());
 		
 	}
-	
+	function get_client_requisites_acting_manegement_face($id){
+	    global $db;
+	//	$query = "SELECT*FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' AND `acting` =  '1'";
+		$query ="SELECT
+`s`.*,
+`b`.`position`,
+`b`.`position_in_padeg`
+FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` AS `s`
+INNER JOIN
+`".CLIENT_CONT_FACES_POST_TBL."` AS `b`
+ON s.post_id = b.id
+WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
+";
+		
+	    $result = mysql_query($query,$db);
+		if(!$result) echo(mysql_error());
+		if(mysql_num_rows($result)>0){
+			while($item = mysql_fetch_assoc($result)){
+		    return array('position' => $item['position'],'position_in_padeg' => $item['position_in_padeg'],'name' => $item['name'],'name_in_padeg' => $item['name_in_padeg'],'basic_doc' => $item['basic_doc']);
+		    }
+		}
+	}
 	function fetch_client_agreements_by_type($type,$client_id){
 	    global $db;
 	    $query = "SELECT*FROM `".GENERATED_AGREEMENTS_TBL."` WHERE client_id='$client_id' AND type='$type'";

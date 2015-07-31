@@ -2,14 +2,6 @@
 <script type="text/javascript" src="./libs/js/classes/calendar_consturctor.js"></script>
 <style type="text/css">
 #menu_for_planner_td_<?php echo $razdel;?>{ background:bottom repeat-x url(./skins/images/img_design/bg_menu_third_level_on.png);}
-#calendar_table td{ 
-  background-color:#ECECEC; 
-  border:0px solid #333333;
-}
-#time_table td{ 
-  background-color:#ECECEC; 
-  border:0px solid #333333;
-}
 .planner_rows{ 
   cursor:pointer;
 }

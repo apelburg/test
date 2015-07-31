@@ -278,7 +278,8 @@
 						$prefix = 'Размер нанесния: ';
 						while($row = $result->fetch_assoc()) {
 						   // echo '<pre>'; print_r($row); echo '</pre>';
-						   $out_put[] = $prefix.$row['size'].' увелич. на '.$row['percentage'].'%';
+						   $tail = ($row['percentage']>1)?' - увелич. на '.$row['percentage'].'%':'';
+						   $out_put[] = $prefix.$row['size'].$tail;
 						   $prefix='';
 						}
 					}
