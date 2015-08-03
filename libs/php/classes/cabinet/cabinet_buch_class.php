@@ -136,14 +136,7 @@
 			}
 			// для обсчёта суммы за тираж			
 			include_once ('./libs/php/classes/rt_class.php');
-			
-			// массви с переводом статусов запроса
-			$name_cirillic_status['new_query'] = 'новый запрос'; // видит только админ
-			$name_cirillic_status['not_process'] = 'не обработан менеджером';
-			$name_cirillic_status['taken_into_operation'] = 'взят в обработку';
-			$name_cirillic_status['in_work'] = 'в работе';
-			$name_cirillic_status['history'] = 'история';
-			
+						
 			foreach ($zapros as $key => $value) {
 				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
 				$html = '<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
@@ -153,7 +146,7 @@
 							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
 							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
 							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td class="'.$value['status'].'_'.$this->user_access.'">'.$name_cirillic_status[$value['status']].'</td>';
+							<td class="'.$value['status'].'_'.$this->user_access.'">'.$this->name_cirillic_status[$value['status']].'</td>';
 
 			}
 			echo '{"response":"OK","html":"'.base64_encode($html).'"}';

@@ -1,3 +1,5 @@
+<script type="text/javascript" src="./libs/js/classes/Base64Class.js"></script>
+
 <style type="text/css">
 table#tbl_edit_usl{
 	border-collapse: collapse;
@@ -149,7 +151,66 @@ table#tbl_edit_usl{
 </style>
 
 <script type="text/javascript">
-	
+//////////////////////////
+//	вызов кокна добавления доп поля
+//////////////////////////
+$(document).on('click', '#add_new_dop_input', function(event) {
+	$.post('', {
+		AJAX: 'get_add_new_dop_input_form',
+		usl_id:$('#tbl_edit_usl .lili.checked').attr('data-id')
+	}, function(data, textStatus, xhr) {
+		if(data['response']=="OK"){
+			show_dialog_and_send_POST_window(Base64.decode(data['html']),'title');
+		}else{
+			alert('что-то пошло не так');
+		}
+	},'json');
+});
+// добавление dop_inputs
+function add_new_dop_inputs(data){
+	// если такой элемент уже есть в списке доп полей - выводим предупреждение и выходим
+	var $alredy_exists = 0;
+	$('#dop_inputs_listing .dop_inputs').each(function(index, el) {
+		//console.log($(this).attr('data-id')+'   '+Number(data['dop_inputs_id']));
+		
+		if(Number($(this).attr('data-id'))==Number(data['dop_inputs_id'])){
+			$alredy_exists = 1;
+			return 1;
+		}
+	});
+	if($alredy_exists == 0){
+		$('#dop_inputs_listing').append('<div class="dop_inputs"  data-id="'+data['dop_inputs_id']+'"><span>'+data['name_ru']+'</span><span class="button_del_dop_inputs status_del" data-id="'+data['dop_inputs_id']+'">X</span></div>');
+	}else{
+		alert('Данное поле уже содержится в списке по этой услуге');
+	}
+}
+function alerting(data){
+	alert(data['html']);
+}
+// удаление dop_inputs из услуги
+$(document).on('click', '.button_del_dop_inputs.status_del', function(event) {
+	var id_dop_imput = $(this).attr('data-id');
+	$(this).parent().remove();
+	$.post('', {
+		AJAX:'delete_dop_input_from_services',
+		id_dop_imput:id_dop_imput,
+		usl_id: $('#tbl_edit_usl .lili.checked').attr('data-id')
+	}, function(data, textStatus, xhr) {
+		// управление js из php
+		if(data['function'] !== undefined){
+			window[data['function']](data);
+		}
+
+		if(data['response']!="OK"){
+			alert('Что-то пошло не так');
+		}
+	},'json');
+	/* Act on the event */
+});
+
+//////////////////////////
+//	выбор услуги
+//////////////////////////
 $(document).on('click', '#tbl_edit_usl .lili', function(event) {
 	$('.lili').removeClass('checked');
 	$(this).addClass('checked');
@@ -339,6 +400,61 @@ $(document).on('change', '#edit_block_usluga input[name="for_how"]', function(ev
 	}
 });
 
+
+//////////////////////////////////////////////////////
+//	General function for generate dialog windo START
+//////////////////////////////////////////////////////
+// показать окно
+function show_dialog_and_send_POST_window(html,title,height){
+	height_window = height || 'auto';
+	title = title || '*** Название окна ***';
+	var buttons = new Array();
+	buttons.push({
+	    text: 'OK',
+	    click: function() {
+	    	var serialize = $('#dialog_gen_window_form form').serialize();
+	    	
+	    	$('#general_form_for_create_product .pad:hidden').remove();
+		    $.post('', serialize, function(data, textStatus, xhr) {
+		    	// если из PHP было передано название какой либо функции
+		    	// выполняем её
+		    	if(data['function'] !== undefined){
+		    		window[data['function']](data);
+		    	}
+
+				if(data['response']=='show_new_window'){
+					title = data['title'];// для генерации окна всегда должен передаваться title
+					show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
+				}else{
+					// подчищаем за собой
+					$('#dialog_gen_window_form').html('');
+					$('#dialog_gen_window_form').dialog( "destroy" );
+					// тут можно расположить какие либо действия в зависимости от ответа
+					// с сервера					
+				}
+			},'json');				    	
+	    }
+	});
+
+	if($('#dialog_gen_window_form').length==0){
+		$('body').append('<div id="dialog_gen_window_form"></div>');
+	}
+	$('#dialog_gen_window_form').html(html);
+	$('#dialog_gen_window_form').dialog({
+          width: '1000',
+          height: height_window,
+          modal: true,
+          title : title,
+          autoOpen : true,
+          buttons: buttons          
+        });
+
+}
+
+
+//////////////////////////////////////////////////////
+//	General function for generate dialog windo END
+//////////////////////////////////////////////////////
 </script>
 
 <table id="tbl_edit_usl">

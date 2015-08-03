@@ -786,22 +786,20 @@
 						$arr_dop_uslugi[] = $row;
 					}
 				}
-				// echo '<pre>';
-				// print_r($arr_dop_uslugi);
-				// echo '</pre>';
 				
-				foreach ($arr_dop_uslugi as $k12 => $v12) {
+				foreach ($arr_dop_uslugi as $v12) {
 					$query1 .= "INSERT INTO `".CAB_DOP_USLUGI."` SET
-						`dop_row_id` =  '".$dop_data_row_id."', 
-						`uslugi_id` = '".$v12['uslugi_id']."',
-						`glob_type` = '".$v12['glob_type']."',
-						`type` = '".$v12['type']."',
-						`quantity` = '".$v12['quantity']."',
-						`price_in` = '".$v12['price_in']."',
-						`price_out` = '".$v12['price_out']."',
-						`for_how` = '".$v12['for_how']."';";
-				}	
-				
+					`dop_row_id` =  '".$dop_data_row_id."',
+					`uslugi_id` = '".$usluga['uslugi_id']."',
+					`glob_type` = '".$usluga['glob_type']."',
+					`type` = '".$usluga['type']."',
+					`quantity` = '".$usluga['quantity']."',
+					`price_in` = '".$usluga['price_in']."',
+					`price_out` = '".$usluga['price_out']."',
+					`for_how` = '".$usluga['for_how']."',
+					`print_details` = `".$usluga['print_details']."`;";
+				}
+
 			}
 
 			if($query1!=''){// в случае наличия доп услуг
