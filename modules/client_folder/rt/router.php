@@ -5,6 +5,11 @@
 	// если нет $ACCESS['client_folder']['section']['rt']['access'] или она равна FALSE прерываем работу скирпта 
 	if(!@$ACCESS['client_folder']['section']['rt']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
+	
+	save_way_back(array('section=agreement_editor','section=agreements','section=business_offers','section=planner'),'?page=cabinet&client_id='.$client_id);
+	$quick_button_back = get_link_back();
+	
+	
 	include ROOT.'/libs/php/classes/rt_class.php';
 
 	// класс работы с формами

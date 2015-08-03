@@ -2,7 +2,7 @@
     <tr>
         <td class="quick_button">
             <div id="quick_button_back">
-                <a href="javascript:history.go(-1)"></a>
+                <?php echo $quick_button_back; ?>
             </div>
             <?php echo $quick_button; ?>  
         </td>

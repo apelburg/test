@@ -6,6 +6,13 @@
 	if(!@$ACCESS['client_folder']['section']['business_offers']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 	
+	// чтобы не гонялись между собой - section= business_offers,planner
+	save_way_back(array('section=agreements','section=business_offers','section=planner'),'?page=cabinet&client_id='.$client_id);
+	$quick_button_back = get_link_back();
+	
+	// шаблон поиска
+	include ROOT.'/skins/tpl/common/quick_bar.tpl';
+	
 	include 'business_offers_controller.php';
 
 	// шаблон страницы
