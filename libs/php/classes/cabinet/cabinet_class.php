@@ -1,6 +1,9 @@
 <?php
     class Cabinet{
-    	// глобальные статусы заказа
+    	// допуски пользователя
+    	protected $user_access = 0;
+
+		// глобальные статусы заказа
     	// могут меняться кириллические формулировки в зависимости от уровня доступа
     	// содержится в базе в `os__cab_orders_list` в global_status
     	protected $order_status = array(
@@ -39,6 +42,195 @@
 
     	function __consturct(){
 		}
+
+
+		// редактирование поля ТЗ к услуге
+		protected function save_tz_info_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`tz` =  '".$_POST['text']."' 
+				WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
+		// сохранение dop_inputs, поля хранятся в json 
+		protected function save_dop_inputs_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`print_details_dop` =  '".$_POST['Json']."' 
+				WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
+
+		// сохранение поля резерв
+		protected function save_rezerv_info_AJAX(){
+			global $mysqli;
+
+			$query = "UPDATE  `".CAB_ORDER_DOP_DATA."`  SET  
+				`number_rezerv` =  '".$_POST['text']."' 
+				WHERE  `id` ='".$_POST['cab_dop_data_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+
+		}
+
+
+		protected function get_dop_inputs_for_services_AJAX(){
+			// для вызова AJAX
+			if(isset($_POST['uslugi_id'])){
+				$html = $this->get_dop_inputs_for_services($_POST['uslugi_id'],$_POST['dop_usluga_id']);
+			}else{
+				return 'Укажите id услуги';
+			}
+			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+		}
+
+		// ролучаем dop_inputs
+		protected function get_dop_inputs_for_services($id, $dop_usluga_id){
+			global $mysqli;
+			
+			// запрашиваем информацию по ТЗ и , если нужно
+			if(!isset($this->Service)){ // если нам ничего не известно по строке из CAB_DOP_USLUGI
+				$query = "SELECT * FROM ".CAB_DOP_USLUGI." WHERE `id` = '".$dop_usluga_id."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$this->Service = array();
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->Service = $row;
+						;
+					}
+				}
+			}
+			
+			// если у нас есть информация в поле $this->Service['print_details'] - декодируем её в читабельный вид
+			if(trim($this->Service['print_details'])!=''){
+				include_once './libs/php/classes/agreement_class.php';
+				$this->Service['print_details_read'] = '<div><span>Данные из калькулятора:</span><br><div class="calculator_info">'.Agreement::convert_print($this->Service['print_details']) .'</div></div>';
+			}else{
+				$this->Service['print_details_read'] = '';
+			}
+
+			// получаем id полей для этой услуги
+			$query = "SELECT `uslugi_dop_inputs_id` FROM ".OUR_USLUGI_LIST." WHERE `id` = '".$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$this->iputs_id_Str = '0';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$this->iputs_id_Str = $row['uslugi_dop_inputs_id'];
+				}
+			}
+
+
+
+			//////////////////////////
+			//	СЛЕДУЮЩИЕ 2 запроса нужно сократить до одного
+			//////////////////////////
+			// запрашиваем список полей предназначенных для этой услуги
+			$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."` WHERE `id` IN (".$this->iputs_id_Str.")";
+			$this->iputs_arr = array();
+			if(trim($this->iputs_id_Str)!=''){
+				$result = $mysqli->query($query) or die($mysqli->error);				
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->iputs_arr[] = $row;
+					}
+				}
+			}
+
+			// получаем список всех полей
+			$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."`";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$iputs_all_arr = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$iputs_all_arr[] = $row;
+				}
+			}
+
+			// получаем  json
+			$this->print_details_dop_Json = (trim($this->Service['print_details_dop'])=="")?'{}':$this->Service['print_details_dop'];
+			// декодируем json  в массив
+			$this->print_details_dop = json_decode($this->print_details_dop_Json, true);
+
+
+			// перебор полей указанных в услуге
+			$html = '';
+			// добавляем скрытую json строку для обработке в JS
+			$html = '<div id="dop_input_json">'.$this->print_details_dop_Json.'</div>';
+					// 	ob_start();
+			 	// echo '<pre>';
+			 	// print_r($this->print_details_dop);
+			 	// echo '</pre>';
+			    	
+			 	// $content = ob_get_contents();
+			 	// ob_get_clean();
+			 	// $html .=$content;
+			 	// 		ob_start();
+			 	// echo '<pre>';
+			 	// print_r($iputs_all_arr);
+			 	// echo '</pre>';
+			    	
+			 	// $content = ob_get_contents();
+			 	// ob_get_clean();
+			 	// $html .=$content;
+			// добавляем информацию из калькулятора.... если есть
+			$html .= $this->Service['print_details_read'];
+			foreach ($this->iputs_arr as $key => $input) {
+				//echo $input['name_ru'];
+				$html .= $input['name_ru'].'<br>';
+				if($input['type']=="text"){
+						if(isset($this->print_details_dop[$input['name_en']])){
+							$text = $this->print_details_dop[$input['name_en']];
+						}else{
+							$text = '';
+						}
+						
+						// определяем допуски на редактирование доп полей
+						if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 11){
+								$html .= $text;
+								$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'"></div>';
+							}else{
+								$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'" '.((trim($text)=='')?'':'disabled').'></div>';
+							}
+						
+				}else{
+						$html .= 'данный тип поля пока что не предусмотрен';
+				}
+				// удаляем $this->print_details_dop[$input['name_en']]
+				unset($this->print_details_dop[$input['name_en']]);				
+			}
+
+			
+			//перебираем оставшиеся значения из json .... они могут остаться, 
+			// если админы что-то наменяли и открепили доп поля от услуги 
+			foreach ($iputs_all_arr as $key => $input) {
+				if(isset($this->print_details_dop[$input['name_en']])){
+					$html .= $input['name_ru'].' * <span class="delete_dop_input_for_admin">(было удалено Админом из списка обязательных полей для услуги)</span><br>';
+					if($input['type']=="text"){
+							$text = isset($this->print_details_dop[$input['name_en']])?$this->print_details_dop[$input['name_en']]:'';
+							
+							// определяем допуски на редактирование доп полей
+							if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 11){
+								$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'"></div>';
+							}else{
+								$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'" '.(($text=='')?'':'disabled').'></div>';
+							}
+							
+					}else{
+							$html .= 'данный тип поля пока что не предусмотрен';
+					}	
+				}
+			}
+			$html .='ТЗ <span class="greyText"> / (комментарий к услуге)</span><br><textarea class="save_tz" name="tz">'.$this->Service['tz'].'</textarea>';
+
+			return $html;
+		}
+
+
+
 		// определяем поставщика
 		protected function get_supplier_name($article){
 			$html = '';
@@ -156,7 +348,7 @@
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			global $mysqli;
 
-			$query = "SELECT `".CAB_DOP_USLUGI."`.*,`os__our_uslugi`.`name` 
+			$query = "SELECT `".CAB_DOP_USLUGI."`.*,`os__our_uslugi`.`name`
 			FROM `".CAB_DOP_USLUGI."` 
 			LEFT JOIN  `os__our_uslugi` ON  `os__our_uslugi`.`id` = `".CAB_DOP_USLUGI."`.`uslugi_id` 
 			WHERE `".CAB_DOP_USLUGI."`.`dop_row_id` = '".$dop_row_id."'";
@@ -341,5 +533,20 @@
 			return $main_rows;
 		}
 
+
+		// получаем информацию из cab_dop_data
+		protected function get_cab_dop_data_position_Database($id){
+			global $mysqli;
+				$arr = array();
+		    $query="SELECT `number_rezerv` FROM `".CAB_ORDER_DOP_DATA."`  WHERE `id` = '".(int)$id."'";
+		    $result = $mysqli->query($query)or die($mysqli->error);
+		    $str = '';
+		    if($result->num_rows>0){
+				foreach($result->fetch_assoc() as $key => $val){
+				   $str = $val;
+				}
+		    }
+		    return $str;
+		}
 
    	}

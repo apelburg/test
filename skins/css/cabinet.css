@@ -1,3 +1,4 @@
+input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif;color:#3a3938;outline:none}
 #cabinet_general_content{
 	float: left;
 	width: 100%
@@ -279,5 +280,109 @@ tr.cat_8 td {
 	background-color: #92B73E;
 	color: #000;
 	font-size: 12px;
-	padding: 0 0 0 5px;
+	padding: 2px 5px;
+}
+
+.tz_text_edit{
+  background: url('../images/img_design/tz_text_edit.png') no-repeat; 
+  float: right; 
+  margin:auto;
+    width: 30px;
+  height: 30px;
+  background-position: 0px 2px;
+  border: 1px solid #fff;
+}
+.tz_text_see{
+  background: url('../images/img_design/tz_text_edit.png') no-repeat; 
+  float: right; 
+  margin:auto;
+    width: 30px;
+  height: 30px;
+  background-position: 0px 2px;
+  border: 1px solid #fff;
+}
+.tz_text_new{
+  background: url('../images/img_design/tz_text_new.png') no-repeat; 
+  float: right; 
+  margin:auto;
+    width: 30px;
+  height: 30px;
+  background-position: 0px 2px;
+  border: 1px solid #fff;
+}
+#dialog_gen_window_form .container_form{
+	padding: 5px;
+}
+#services_listing{
+	width: 100%
+}
+#services_listing tr th{
+	padding: 5px;
+	text-align: left;
+	color: #757575;
+}
+#services_listing tr td{ 
+vertical-align: top;    
+	border: 1px solid #E6E6E6; 
+	padding: 5px;
+}
+#services_listing .title_dop_inputs_info{
+	padding: 5px;
+	color: #f4f4f4;
+	font-weight: bold;
+}
+#services_listing{
+	border-collapse: collapse;
+}
+#services_listing_each{
+    width: 200px;
+}
+#services_listing_each ul{
+	padding: 0;
+    margin: 0;
+    width: 200px;
+}
+#services_listing_each ul li{
+	list-style: none;
+}
+
+.lili{
+	padding-left: 26px;
+    /*height: 25px;*/
+    line-height: 25px;
+    cursor: pointer;
+}
+.lili:hover{
+	background-color: #f1f1f1;
+}
+.lili.checked,.lili:active{
+	background-color: #BABABA;
+}
+.lili.for_all {
+    background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+    background-repeat: no-repeat;
+    background-position-y: 3px;
+}
+.lili.for_one {
+    background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+    background-repeat: no-repeat;
+    background-position-y: -21px;
+}
+#services_listing tr td .save_tz{ min-height: 150px;}
+#services_listing tr td input[type="text"],
+#services_listing tr td textarea{
+	width: 90%;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+.calculator_info{
+	font-size: 10px; color: grey;
+	padding: 15px 0;
+}
+#dop_input_json{
+	display: none;
+}
+.delete_dop_input_for_admin{
+	font-size: 11px;
+	color: #F5A8A8;
 }

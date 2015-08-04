@@ -57,17 +57,28 @@
 		global $mysqli;
 		// считываем из бызы данную услуги 
 		$usluga = $this->get_usluga_Database_Array($_POST['usl_id']);
-		// ищем и вырезаем id с запятой
-		$str = str_replace(','.trim($_POST['id_dop_imput']), '', $usluga['uslugi_dop_inputs_id']);
-		// ищем и вырезаем id без запятой
-		$str = str_replace(trim($_POST['id_dop_imput']), '', $str);
+		// получаем массив id прикреплённых dop_inputs
+		$id_arr = explode(',', $usluga['uslugi_dop_inputs_id']);
+		// echo 'Удаляем '.$_POST['id_dop_imput'];
+		// удаляем элемент с данным id
+		while (($i = array_search(trim($_POST['id_dop_imput']), $id_arr)) !== false) {
+			unset($id_arr[$i]);
+		} 
+		
+		// echo '<pre>';
+		// print_r($id_arr);
+		// echo '</pre>';
+			
+		// вновь собираем строку id
+		$str = implode(',', $id_arr);
+		// echo $usluga['uslugi_dop_inputs_id'].'   -   '.$str;
 		// переписываем
 		$query = "UPDATE `".OUR_USLUGI_LIST."` SET 
 			`uslugi_dop_inputs_id` = '".$str."'
 		 WHERE `id`='".$_POST['usl_id']."'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
-		echo '{"response":"OK","function":"alerting","html":"Поле успешно откреплено!"}';
+		//echo '{"response":"OK","function":"alerting","html":"Поле успешно откреплено!"}';
 	}
 
 	// форма добавления нового поля
@@ -90,7 +101,7 @@
 		$this->name_ru = trim($_POST['name_ru']);
 		// запоминаем транслитерацию
 		$this->name_en = $this->GetInTranslit(trim($_POST['name_ru']));
-		// проверяем по базе на совпадение обоих полей
+		// проверяем по базе на совпадение поля name_en
 		global  $mysqli;
 		$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."` WHERE `name_en` = '".$this->name_en."'";
 		// echo $query.'<br>';
@@ -99,30 +110,39 @@
 		$count = 0;
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				$input_id = $row['id'];
+				$new_id = $row['id'];
 				$count++;
 			}
-		}
-		// если соответствие найдено сообщаем пользователю об этом
-		if($count>0){
-			echo '{"response":"OK","function":"add_new_dop_inputs","dop_inputs_id":"'.$input_id.'","name_ru":"'.$this->name_ru.'"}';
-			//echo '{"response":"show_new_window","html":"'.base64_encode('Поле с таким именем уже существует<br>').'"}';
-			exit;
-		}
-		// если соответствий не найдено заводим новое поле
-		$query ="INSERT INTO `".CAB_DOP_USLUGI_DOP_INPUTS."` SET
+		}else{
+			// если соответствий не найдено заводим новое поле
+			$query ="INSERT INTO `".CAB_DOP_USLUGI_DOP_INPUTS."` SET
 		             `name_en` = '".$this->name_en."',
 		             `name_ru` = '".$this->name_ru."'";
 
-		$result = $mysqli->multi_query($query) or die($mysqli->error);
-		// получаем id добавленного поля
-		$new_id = $mysqli->insert_id;
+			$result = $mysqli->multi_query($query) or die($mysqli->error);
+			// получаем id добавленного поля
+			$new_id = $mysqli->insert_id;
+		}
+		
 		// считываем из бызы данную услуги 
 		$usluga = $this->get_usluga_Database_Array($_POST['usl_id']);
-		// получаем прикреплённые поля и разбиваем в массив
-		$inputs_arr = explode(",", trim($usluga['uslugi_dop_inputs_id']));
+		// echo '<pre>';
+		// print_r($usluga);
+		// echo '</pre>';
+		
+		// если уже есть прикрепленные поля
+		if(trim($usluga['uslugi_dop_inputs_id'])!=""){
+			// получаем прикреплённые поля и разбиваем в массив
+			$inputs_arr = explode(",", trim($usluga['uslugi_dop_inputs_id']));
+		}
 		// добавляем в массив новый id
 		$inputs_arr[] = $new_id;
+
+
+		// echo '<pre>';
+		// print_r($inputs_arr);
+		// echo '</pre>';
+			
 		// перезаписываем 
 		$query = "UPDATE `".OUR_USLUGI_LIST."` SET 
 			`uslugi_dop_inputs_id` = '".implode(",", $inputs_arr)."'
@@ -130,6 +150,9 @@
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
 		echo '{"response":"OK","function":"add_new_dop_inputs","dop_inputs_id":"'.$new_id.'","name_ru":"'.$this->name_ru.'"}';
+	}
+
+	private function additing_new_input(){
 
 	}
 

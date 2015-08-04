@@ -234,6 +234,16 @@
 		//	paperwork END
 		//////////////////////////
 		
+	// 	// сохраняет TZ по услуге
+	// 	private function save_tz_text_AJAX(){
+	// 		global $mysqli;
+	// 		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".$_POST['tz']."' WHERE `id`='".$_POST['rt_dop_uslugi_id']."';
+	// ";
+	// 		$result = $mysqli->query($query) or die($mysqli->error);
+
+	// 		echo '{"response":"OK" , "name":"save_tz_text_AJAX","increment_id":"'.$_POST['increment_id'].'"}';
+	// 	}
+
 
 		// выводит форму с выбором менеджеров 
 		public function get_a_list_of_managers_to_be_attached_to_the_request_AJAX(){

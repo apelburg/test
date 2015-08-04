@@ -61,6 +61,38 @@
 						 
 						 // $price = ($dop_data['discount'] != 0 )? round((($summ_out/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round($summ_out/$dop_data['quantity'],2) ;
 						 $price = ($dop_data['discount'] != 0 )? round(($dop_data['price_out']/100)*(100 + $dop_data['discount']),2) :  $dop_data['price_out'] ;
+						 // прежде чем записать ряд в спецификацию сверим совпадает ли количество в позиции и в услугах
+						 // для этого делаем дополнительный запрос к таблице RT_DOP_USLUGI, далее после добавления ряда 
+						 // будет такойже запрос к таблице RT_DOP_USLUGI но уже чтобы добавить доп услуги в спцификацию
+						 $query2_dop="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
+						 // echo $query."\r\n";
+						 $result2_dop = $mysqli->query($query2_dop)or die($mysqli->error);
+						 if($result2_dop->num_rows>0){
+						     while($uslugi_data = $result2_dop->fetch_assoc()){
+							     if($uslugi_data['glob_type']=='print' && ($uslugi_data['quantity']!=$dop_data['quantity'])){
+									 $reload['flag'] = true;
+									 //echo $dop_data['quantity'];
+									 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+									 $json_out =  rtCalculators::change_quantity_and_calculators($dop_data['quantity'],$dop_data['id']);
+									 $json_out_obj =  json_decode($json_out);
+									 
+									 // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
+									 // сбрасываем количество тиража и нанесения до 1шт.
+									 if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
+										 rtCalculators::change_quantity_and_calculators(1,$dop_data['id']);
+										 
+										 $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$dop_data['id']."'";
+										 $result = $mysqli->query($query)or die($mysqli->error);
+									 }
+									 
+			
+								 } /**/
+							 }
+						 }
+						 if(isset($reload['flag']) && $reload['flag'] == true){
+							 header('Location:'.HOST.'/?'.$_SERVER['QUERY_STRING']);
+							 exit;
+						 }
 						 
 				         // записываем ряд
 						 Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date);
@@ -164,6 +196,7 @@
 			
 			// записываем файл
 			$file_name = $full_dir_name.'/'.$specification_num.'.tpl';
+			//echo $file_name;
 			//$file_name = $dir_name_full.'/com_pred_1_1.doc';
 			if(file_exists($file_name)){
 				echo 'файл с таким именем уже существует (2)';
@@ -233,7 +266,7 @@
 		    global $mysqli;
 			
 		    $print_details = json_decode($print_details);
-			echo '<pre>'; print_r($print_details); echo '</pre>';
+			//echo '<pre>'; print_r($print_details); echo '</pre>';
 			$out_put = array();
 			$out_put[] = $print_details->print_type;
 			$out_put[] = 'место нанесения: '.$print_details->place_type;
@@ -266,12 +299,12 @@
 			}
 			if(isset($print_details->dop_params->sizes)){
 			    foreach($print_details->dop_params->sizes as $index => $details){
-				         echo '<pre>22'; print_r($details); echo '</pre>';
+				         // echo '<pre>22'; print_r($details); echo '</pre>';
 				    if($details->id!=0) $idsArr[] = $details->id;	
 				}
 				if(isset($idsArr)){
 					$query = "SELECT * FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE id IN('".implode("','",$idsArr)."')";
-					echo $query;
+					// echo $query;
 					$result = $mysqli->query($query)or die($mysqli->error);
 					if($result->num_rows > 0){
 
