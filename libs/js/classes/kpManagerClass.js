@@ -63,7 +63,7 @@
 			make_ajax_request(url,call_back);
 			function call_back(response){
 				
-				//alert(response);
+				// alert(response);
 			    var response_obj = JSON.parse(response);
 				kpManager.details = response_obj;
                 if(kpManager.details.message_tpls) for(var prop in kpManager.details.message_tpls)kpManager.details.message_tpls[prop] = Base64.decode(kpManager.details.message_tpls[prop]);

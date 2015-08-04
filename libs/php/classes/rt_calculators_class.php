@@ -569,7 +569,8 @@
 				if(self::$outOfLimit)  $json_str .= ',"outOfLimit":'.json_encode(self::$outOfLimitDetails);
 				if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
 				$json_str .=  '}';
-				echo $json_str;
+				// используется в том числе при перерасчете нанесения при загрузке старницы в РТ
+				return $json_str;
 			}
 		}
 		static function change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam){

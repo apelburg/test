@@ -144,7 +144,7 @@
 		// echo $_GET['quantity'];
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 		
-		rtCalculators::change_quantity_and_calculators($_GET['quantity'],$_GET['id']);
+		echo rtCalculators::change_quantity_and_calculators($_GET['quantity'],$_GET['id']);
 		exit;
 	}
 	if(isset($_GET['distribute_print'])){

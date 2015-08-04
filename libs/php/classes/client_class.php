@@ -309,10 +309,10 @@ class Client {
 		}
 		return $array;
 	}
-	static function get_requisites($client_id){
+	static function get_requisites($requisit_id){
 	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИАЦИЙ (АНДРЕЙ)
 		global $mysqli;
-		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$client_id."'";
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".(int)$requisit_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);					
 		return $result->fetch_assoc();
 	}

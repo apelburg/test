@@ -163,6 +163,27 @@
 				 if(isset($dop_row['dop_uslugi']['print'])){ // если $dop_row['dop_uslugi']['print'] есть выводим данные о нанесениях 
 					 $summ_in = $summ_out = array();
 					 foreach($dop_row['dop_uslugi']['print'] as $extra_data){
+					     // если количество в расчете нанесения не равно количеству в колонке тираж товара 
+						 // необходимо присвоить нанесениям такое же количество и пересчитать их
+						//$extra_data['quantity'] = 250;
+					    if($extra_data['quantity']!=$dop_row['quantity']){
+						     $reload['flag'] = true;
+						     //echo $dop_row['quantity'];
+						     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+		                     $json_out =  rtCalculators::change_quantity_and_calculators($dop_row['quantity'],$dop_key);
+							 $json_out_obj =  json_decode($json_out);
+							 
+							 // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
+							 // сбрасываем количество тиража и нанесения до 1шт.
+							 if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
+							     rtCalculators::change_quantity_and_calculators(1,$dop_key);
+								 
+								 $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$dop_key."'";
+			                     $result = $mysqli->query($query)or die($mysqli->error);
+							 }
+							 
+	
+						 } /**/
 						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
 						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 					 }
@@ -196,7 +217,7 @@
 					 if($test_data) $extra_open_data =($counter==0)? 0:'0';
 				 }
 				 
-				 // подсчет сумм ряду
+				 // подсчет сумм в ряду
 				 $price_out = ($dop_row['discount'] != 0 )? (($dop_row['price_out']/100)*(100 + $dop_row['discount'])) : $dop_row['price_out'] ;
 				 // 1. подсчитываем входящую сумму
 				 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
@@ -351,6 +372,11 @@
 		     $counter++;
 		 }
 	 }
+	 if(isset($reload['flag']) && $reload['flag'] == true){
+	     header('Location:'.HOST.'/?'.$_SERVER['QUERY_STRING']);
+	     exit;
+	 }
+	 
 	 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;" border="0">
 	          <tr class="w_border cap">
 			      <td width="30"></td>
