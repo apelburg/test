@@ -1706,9 +1706,9 @@
 `s`.*,
 `b`.`position`,
 `b`.`position_in_padeg`
-FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` AS `s`
+FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` AS `s`
 INNER JOIN
-`".CLIENT_CONT_FACES_POST_TBL."` AS `b`
+`".CLIENT_PERSON_REQ_TBL."` AS `b`
 ON s.post_id = b.id
 WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 ";
@@ -1743,7 +1743,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		    echo 'не удается получить содержимое договора';
 			exit;
 		} 
-		else return mysql_fetch_array($result);
+		else return mysql_fetch_assoc($result);
 	}
 	
 

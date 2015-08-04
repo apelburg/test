@@ -296,7 +296,6 @@ class Client {
 		return $contact;
 	}
 	static function requisites($id) {
-	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИАЦИЙ (АНДРЕЙ)
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -309,10 +308,9 @@ class Client {
 		}
 		return $array;
 	}
-	static function get_requisites($client_id){
-	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИАЦИЙ (АНДРЕЙ)
+	static function get_requisites($requisit_id){
 		global $mysqli;
-		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$client_id."'";
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".(int)$requisit_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);					
 		$array = array();
 		if($result->num_rows > 0){
@@ -322,6 +320,14 @@ class Client {
 		}
 		return $array;
 	}
+	static function fetch_requisites($requisit_id){
+	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИКАЦИЙ (АНДРЕЙ)
+		global $mysqli;
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$client_id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);     
+		return $result->fetch_assoc();
+	}
+	
 	static function cont_faces($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_CONT_FACES_TBL."` WHERE `client_id` = '".(int)$id."'";
