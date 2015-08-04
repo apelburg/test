@@ -187,20 +187,33 @@
   #requesites_form table tr td:nth-of-type(2) img:hover{ border:1px solid #DBDBDB;}
 </style>
 <div id="requesites_form">
+	<?php
+	
+// echo '***  '.$requisites.' *** 654654654';
+// 				echo '<pre>';
+// 				print_r($requisites);
+// 				echo '</pre>';
+	?>
 	<form>
 		<table>
+
 			<?php
-				foreach ($requisites as $key => $value) {
-					echo "<tr>
-							<td>
-								".++$key.". <a class=\"show_requesit\" href=\"#\" data-id=\"".$value['id']."\" title=\"".$client['company']."\">".$value['company']."</a>
-							</td>
-							<td>
-								<img title=\"Редактор реквизитов\" class=\"edit_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/edit.png\" >
-								<img title=\"Редактор реквизитов\" class=\"delete_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/delete.png\" >
-							</td>
-						</tr>";
-				}
+				if (count($requisites)>0) {
+					foreach ($requisites as $key => $value) {
+						echo "<tr>
+								<td>
+									".++$key.". <a class=\"show_requesit\" href=\"#\" data-id=\"".$value['id']."\" title=\"".$client['company']."\">".$value['company']."</a>
+								</td>
+								<td>
+									<img title=\"Редактор реквизитов\" class=\"edit_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/edit.png\" >
+									<img title=\"Редактор реквизитов\" class=\"delete_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/delete.png\" >
+								</td>
+							</tr>";
+					}
+				}else{
+					// реквизитов не заведено
+				}					
+				
 			?>
 		</table>
 	</form>
