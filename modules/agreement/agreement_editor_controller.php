@@ -125,7 +125,7 @@
 	    // $client_firm = get_client_requisites($agreement['client_requisit_id']);
 	    // echo '<pre>'; print_r($client_firm); echo '</pre>';
 		
-		$client_firm =  Client::get_requisites($agreement['client_requisit_id']);
+		$client_firm =  Client::fetch_requisites($agreement['client_requisit_id']);
 		// echo '<pre>'; print_r($agreement); echo '</pre>';
 		// echo '<pre>'.$agreement['client_requisit_id']; print_r($client_firm); echo '</pre>';
 		// exit; 
