@@ -314,7 +314,13 @@ class Client {
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".(int)$requisit_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);					
-		return $result->fetch_assoc();
+		$array = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$array[] = $row;
+			}
+		}
+		return $array;
 	}
 	static function cont_faces($id){
 		global $mysqli;
