@@ -244,7 +244,7 @@
 				 $currency = 'р';
 				 $quantity_dim = 'шт';
 				 $discount = $dop_row['discount'].'%';
-				 $srock_sdachi = $dop_row['shipping_date'];
+				 $srock_sdachi = implode('.',array_reverse(explode('-',$dop_row['shipping_date'])));
 				 
 				 $expel_class_main = ($expel['main']=='1')?' red_cell':'';
 				 $expel_class_print = ($expel['print']=='1')?' red_cell':'';
@@ -337,7 +337,7 @@
 						   <td width="15" connected_vals="total_summ" c_stat="0" class="currency hidden r_border '.$expel_class_main.'">'.$currency.'</td>
 						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$out_summ_format.'</td>
 						   <td width="15" connected_vals="total_summ" c_stat="1" class="currency r_border left '.$expel_class_main.'">'.$currency.'</td>
-						   <td width="55" class="grey r_border center">'.$srock_sdachi.'</td>
+						   <td width="70" class="grey r_border center">'.$srock_sdachi.'</td>
 						   <td width="80" type="delta" class="right">'.$delta_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
 						   <td width="80" type="margin" class="right">'.$margin_format.'</td>
@@ -393,7 +393,7 @@
 				  <td width="15" connected_vals="total_summ" c_stat="0" class="hidden r_border"></td>
 				  <td width="100" connected_vals="total_summ" c_stat="1" class="pointer center">итого<br><span class="small">исходящая</span></td>
 				  <td width="15" connected_vals="total_summ" c_stat="1" class="r_border"></td>
-				  <td width="55" class="center grey r_border">срок сдачи</td>
+				  <td width="70" class="center grey r_border">срок сдачи</td>
 				  <td width="80" class="center">delta</td>
 				  <td width="10"></td>
 				  <td width="80"  class="center">маржина-<br>льность</td>
@@ -433,7 +433,7 @@
 				  <td width="15" connected_vals="total_summ" c_stat="0" class="left hidden r_border">р</td>
 				  <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="right">'.number_format(@$total['out_summ'],'2','.','').'</td>
 				  <td width="15" connected_vals="total_summ" c_stat="1" class="left r_border">р</td>
-				  <td width="55" class="grey r_border"></td>
+				  <td width="70" class="grey r_border"></td>
 				  <td width="80" type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>
 				  <td width="80" type="margin" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>

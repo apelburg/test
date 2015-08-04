@@ -2757,6 +2757,19 @@ var rtCalculator = {
 		return (idsArr.length>0)? idsArr : false ;
 	}
 	,
+	get_positions_num_in_query:function(){ 
+
+		var counter=0;
+		var tbl = document.getElementById('rt_tbl_body');
+		var trsArr = tbl.getElementsByTagName('tr');
+		// обходим ряды таблицы
+		for( var i= 0 ; i < trsArr.length; i++){
+			// если это ряд позиции
+			if(trsArr[i].getAttribute('pos_id')) counter++;
+		}
+		return counter;
+	}
+	,
 	copy_rows:function(e){ 
 		
 		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)

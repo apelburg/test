@@ -1345,11 +1345,28 @@
 		e = e || window.event;
 		
 		var element = e.target;
-		
+		var positions_num =  rtCalculator.get_positions_num_in_query();
+		if(positions_num==0){
+			alert('В заявке отсутствуют позиции');
+			return;
+		}
 		var idsArr = rtCalculator.get_active_main_rows();
 		if(!idsArr){
 			alert('Вы не выбрали позиции');
-			return;
+			closeAllMenuWindows();
+		    return;
+		}
+		if(idsArr.length==positions_num){ 
+		    if(!confirm('Новая дата будет установлена на все позиции заказа')){
+				closeAllMenuWindows();
+				return;
+			}
+		}
+		else{ 
+		    if(!confirm('Новая дата будет установлена на '+idsArr.length+ ' позицию(ий) заказа')){
+				closeAllMenuWindows();
+				return;
+			}
 		}
 		
 		if(openExtraContextWindow2.lastElement === element ) return false;

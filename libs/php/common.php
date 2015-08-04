@@ -86,6 +86,48 @@
 		return mysql_real_escape_string($data);
 	}
 	
+	function save_way_back($exeptions,$default=HOST){
+	    global $page;
+		global $section;
+		// Сфера применения, пример: мы можем зайти в РТ с нескольких "внешних" страниц на которые на надо вернуться,
+		// после работы в РТ, при этом в РТ есть внутренние разделы такие как карточка клиента, КП, Договоры и д.р.
+		// после посещения которых нам надо чтобы у нас осталась ссылка на страницу с которой мы зашли изначально
+		// для реализации этой задачи, функция запоминает все страницы с которых был осуществлен переход, кроме тех
+		// которые передаются в функцию в виде исключений в (пределение того какие страницы надо исключить происходит по 
+		// $_GET параметрам page или section)
+		
+		// при входе на страницу функция запоминает обратный путь, по $_SERVER['HTTP_REFERER']
+		// при этом делает это выборочно, что позволяет сделать ссылки возвращающие на "нужные" страницы
+		// (в отличие от javascript:history.go(-1) которая возвращает на только что посещенную страницу)
+		
+		
+		// форматируем переданный аргумент если это был не массив
+	    if(!is_array($exeptions)) $exeptions = array((string)$exeptions);
+		
+	    foreach($exeptions as $exeption){
+		    // если найдено совпадение в URL, значит это страница которую запоминать не нужно
+		    if(isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'],$exeption)!== false) return;
+		}
+		// сохраняем URL
+		// в соответсвии с тем имеет URL ли страницы параметры page или section
+		// для дальнейшей идентификации сохраняем с использованием этих параметров
+		// если страница была "открыта с нуля" и не имеет параметра $_SERVER['HTTP_REFERER']
+		// устанавливается дефолтный URL
+	    if($section) $_SESSION['go_back'][$page][$section]['link'] = (isset($_SERVER['HTTP_REFERER']))? $_SERVER['HTTP_REFERER']:$default;
+		else $_SESSION['go_back'][$page]['link'] = (isset($_SERVER['HTTP_REFERER']))? $_SERVER['HTTP_REFERER']:$default;//'?'.$_SERVER['QUERY_STRING'];
+	}
+	
+	function get_link_back(){
+	    global $page;
+		global $section;
+		
+	    if($section){
+		    $href = (isset($_SESSION['go_back'][$page][$section]['link']))? $_SESSION['go_back'][$page][$section]['link']:$_SERVER['HTTP_REFERER'];
+	    }
+		else $href = (isset($_SESSION['go_back'][$page]['link']))? $_SESSION['go_back'][$page]['link']:$_SERVER['HTTP_REFERER'];
+		return '<a href="'.$href.'"></a>';
+	}
+	
 	function identify_supplier_by_prefix($article){// 
 	   global $suppliers_data_by_prefix;					   
 	   $prefix = substr($article,0,2);
