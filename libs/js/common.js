@@ -219,6 +219,20 @@
 		}
 	}
 	
+	function drop_radio_buttons(element,attr,attr_value){ 
+	   var inputs_arr = document.getElementsByTagName('input');
+	   for(var i=0;i<inputs_arr.length;i++){
+		   if(inputs_arr[i].type == 'radio'){
+			   if(attr)
+			   {
+				 if(inputs_arr[i].getAttribute(attr) && inputs_arr[i].getAttribute(attr)==attr_value)  inputs_arr[i].checked=false; 
+			   }
+			   else inputs_arr[i].checked=false;
+		   }
+	   }
+	   element.checked=true;
+   }
+	
 	function print_r(val/* array or object */){
 		var str = scan(val);
 		var win = window.open(null,'print_r','width=300,height=800',true);

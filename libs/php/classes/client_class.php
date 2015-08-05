@@ -308,9 +308,9 @@ class Client {
 		}
 		return $array;
 	}
-	static function get_requisites($requisit_id){
+	static function get_requisites($client_id){
 		global $mysqli;
-		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".(int)$requisit_id."'";
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$client_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);					
 		$array = array();
 		if($result->num_rows > 0){
@@ -323,7 +323,7 @@ class Client {
 	static function fetch_requisites($requisit_id){
 	    // Я ИСПОЛЬЗУЮ ПРИ СОЗДАНИИ СПЕЦИФИКАЦИЙ (АНДРЕЙ)
 		global $mysqli;
-		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `client_id` = '".(int)$client_id."'";
+		$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".(int)$requisit_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);     
 		return $result->fetch_assoc();
 	}
@@ -621,6 +621,25 @@ class Client {
 			//return $array;
 		}
 		return $array;
+	}
+	static function requisites_acting_manegement_face_details($requisite_id){
+		global $mysqli;
+
+		$query ="SELECT
+				    mng.*
+					FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` AS req
+					INNER JOIN
+					`".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` AS mng
+					ON req.id = mng.requisites_id
+					WHERE req.id = '".$requisite_id."'";
+
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($item = $result->fetch_assoc()){
+		    return array('position' => $item['position'],'position_in_padeg' => $item['position_in_padeg'],'name' => $item['name'],'name_in_padeg' => $item['name_in_padeg'],'basic_doc' => $item['basic_doc']);
+		    }
+		}
+	
 	}
 
 	
