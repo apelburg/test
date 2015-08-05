@@ -116,6 +116,7 @@
         <hr>
         <form method="GET">
         <!-- hidden -->
+        <input type="hidden" name="query_num" value="<?php echo $_GET['query_num']; ?>">
         <input type="hidden" name="page" value="<?php echo $page; ?>">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <input type="hidden" name="section" value="choice_2">

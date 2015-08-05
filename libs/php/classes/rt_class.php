@@ -678,14 +678,12 @@
 		}
 
 		// создание заказа из запроса
-		static function make_order($json){
+		static function make_order($rows_data,$client_id,$query_num){
 			// СОЗДАНИЕ ЗАКАЗА
 			global $mysqli;
 
-		    $data_obj = json_decode($json,true);
+		    $data_arr = json_decode($rows_data,true);
 		    $user_id = $_SESSION['access']['user_id'];
-		    $query_num = $data_obj['query_num'];
-		    $client_id = $data_obj['client_id'];
 
 		    // определяем номер заказа
 			$query = "SELECT MAX(order_num) max FROM `".CAB_ORDER_ROWS."`"; 								
@@ -716,7 +714,7 @@
 			// перебираем принятые данные по позициям
 
 			$query1 = '';//запрос копирования услуг
-			foreach ($data_obj['ids'] as $key => $value) {
+			foreach ($data_arr as $value) {
 				// ЗАВОДИМ ПОЗИЦИИ К НОВОМУ ЗАКАЗУ
 
 				//`dop_info_no_cat` не копируем т.к. это общая информация обовсех вариантах
@@ -724,7 +722,7 @@
 					SELECT `master_btn`,`query_num`,`type`,`art`,`art_id`,`name`
 					FROM `".RT_MAIN_ROWS."` 
 					WHERE  `query_num` = '".$query_num."' 
-					AND `id` = '".$key."';
+					AND `id` = '".$value['pos_id']."';
 				";
 				// выполняем запрос
 				$result = $mysqli->query($query) or die($mysqli->error);
@@ -733,9 +731,6 @@
         		// echo $query;
 
         		// выбираем id строки расчёта
-				$key_dop_data_arr = array_keys($value);
-				$key_dop_data = $key_dop_data_arr[0]; // id строки расчёта
-
 				// КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
 				$query = "INSERT INTO `" . CAB_ORDER_DOP_DATA . "`  (
 					`row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
@@ -744,7 +739,7 @@
 					SELECT `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
 					`print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
 					FROM `".RT_DOP_DATA."` 
-					WHERE  `id` = '".$key_dop_data."'
+					WHERE  `id` = '".$value['row_id']."'
 				";
 				$result = $mysqli->query($query) or die($mysqli->error);
         		$dop_data_row_id = $mysqli->insert_id; // id нового расчёта... он же номер
@@ -776,7 +771,7 @@
 
 				
 				$query = "SELECT * FROM `".RT_DOP_USLUGI."` 
-					WHERE  `dop_row_id` = '".$key_dop_data."'
+					WHERE  `dop_row_id` = '".$value['row_id']."'
 				";
 				$arr_dop_uslugi = array();
 				$result = $mysqli->query($query) or die($mysqli->error);

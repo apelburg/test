@@ -70,6 +70,45 @@
 									  ";
 		 			       $result4 = $mysqli->query($query4)or die($mysqli->error);
 						   $dop_row_id = $mysqli->insert_id; 
+						   
+						   
+						   // прежде чем записать ряд в таблицу сверим совпадает ли количество в расчете и в услугах
+						   // для этого делаем дополнительный запрос к таблице RT_DOP_USLUGI, далее после добавления ряда 
+						   // будет такойже запрос к таблице RT_DOP_USLUGI но уже чтобы добавить доп услуги в спецификацию
+						   $query3_dop="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
+						   // echo $query."\r\n";
+						   $result3_dop = $mysqli->query($query3_dop)or die($mysqli->error);
+						   if($result3_dop->num_rows>0){
+						       while($uslugi_data = $result2_dop->fetch_assoc()){
+							     if($uslugi_data['glob_type']=='print' && ($uslugi_data['quantity']!=$dop_data['quantity'])){
+									 $reload['flag'] = true;
+									 //echo $dop_data['quantity'];
+									 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+									 $json_out =  rtCalculators::change_quantity_and_calculators($dop_data['quantity'],$dop_data['id']);
+									 $json_out_obj =  json_decode($json_out);
+									 
+									 // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
+									 // сбрасываем количество тиража и нанесения до 1шт.
+									 if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
+										 rtCalculators::change_quantity_and_calculators(1,$dop_data['id']);
+										 
+										 $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$dop_data['id']."'";
+										 $result = $mysqli->query($query)or die($mysqli->error);
+									 }
+									 
+			
+								 } /**/
+							 }
+						 }
+						 if(isset($reload['flag']) && $reload['flag'] == true){
+							 header('Location:'.HOST.'/?'.$_SERVER['QUERY_STRING']);
+							 exit;
+						 }
+						   
+						   
+						   
+						   
+						   
 						   // Вставляем ряд в таблицу KP_DOP_USLUGI
 					       $query5="SELECT*FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$row3['id']."'";//echo $query;
 						   $result5 = $mysqli->query($query5)or die($mysqli->error);
