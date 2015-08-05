@@ -166,8 +166,7 @@
 			}
 			$date_arr = explode('.',$date);
 			$date = $date_arr[2].'-'.$date_arr[1].'-'.$date_arr[0];
-			
-			
+		
 			$rows_data_arr = json_decode($rows_data);
 			// echo $specification_num.'<pre>'; print_r($rows_data_arr); echo '</pre>';//
 			// exit;
@@ -206,9 +205,9 @@
 						 
 						 // $price = ($dop_data['discount'] != 0 )? round((($summ_out/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round($summ_out/$dop_data['quantity'],2) ;
 						 $price = ($dop_data['discount'] != 0 )? round(($dop_data['price_out']/100)*(100 + $dop_data['discount']),2) :  $dop_data['price_out'] ;
-						 // прежде чем записать ряд в спецификацию сверим совпадает ли количество в позиции и в услугах
+						 // прежде чем записать ряд в спецификацию сверим совпадает ли количество в расчете и в услугах
 						 // для этого делаем дополнительный запрос к таблице RT_DOP_USLUGI, далее после добавления ряда 
-						 // будет такойже запрос к таблице RT_DOP_USLUGI но уже чтобы добавить доп услуги в спцификацию
+						 // будет такойже запрос к таблице RT_DOP_USLUGI но уже чтобы добавить доп услуги в спецификацию
 						 $query2_dop="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
 						 // echo $query."\r\n";
 						 $result2_dop = $mysqli->query($query2_dop)or die($mysqli->error);
@@ -262,23 +261,10 @@
 								  
 						       
 						 
-							 }
-						 }
+						    }
+					    }
 				    }
 				}
-
-				// echo '<pre>'; print_r($expel); echo '</pre>';
-				// здесь как-то в учу надо собирать данные о нанесениях и о доп услугах
-				// 1. брать суммму всех нанесений и допуслуг
-				// складывать вместе с суммой стоимости ариткула и делить на количество артикулов
-				// 2. в каком-то формате записывать данные о нанесениях и допуслугах
-				
-				// echo "<br>".(($summ_out+$uslugi_summ_out)/$dop_data['quantity'])*$dop_data['quantity']." -> $summ_out +$uslugi_summ_out / ".$dop_data['quantity']."<br>";
-				// $price = ($dop_data['discount'] != 0 )? round(((($summ_out+$uslugi_summ_out)/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round(($summ_out+$uslugi_summ_out)/$dop_data['quantity'],2) ;
-				
-				
-						
-				
 			}	
 				
 		//exit;
@@ -356,6 +342,10 @@
 			$fd = fopen($file_name,'w');
 			$write_result = fwrite($fd,$file_content); //\r\n
 			fclose($fd);
+			
+			// создаем предзаказ
+			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+			RT::make_order($rows_data,$client_id,$_GET['query_num']);
 			
 			return $specification_num;
 

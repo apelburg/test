@@ -3,6 +3,7 @@
     <div style="width:650px;padding:30px 30px 70px 30px;margin:auto;border:1px solid #CCCCCC;box-shadow: 0 0 8px -1px #555555;-moz-box-shadow: 0 0 8px -1px #555555;-webkit-box-shadow: 0 0 8px -1px #555555;">
         <form method="GET">
         <!-- hidden -->
+        <input type="hidden" name="query_num" value="<?php echo $_GET['query_num']; ?>">
         <input type="hidden" name="page" value="<?php echo $page; ?>">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <input type="hidden" name="agreement_type" value="<?php echo $_GET['agreement_type']; ?>">
