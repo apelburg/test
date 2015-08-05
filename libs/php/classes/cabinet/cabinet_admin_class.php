@@ -367,7 +367,7 @@
 						####
 						# $this->name_cirillic_status  -  содержится в родительском классе
 						###
-						$status_or_button = $this->name_cirillic_status[$zapros['status']];
+						$status_or_button = (isset($this->name_cirillic_status[$zapros['status']])?$this->name_cirillic_status[$zapros['status']]:'статус не предусмотрен!!!!'.$zapros['status']);
 						break;
 				}
 
