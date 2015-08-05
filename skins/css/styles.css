@@ -2300,7 +2300,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 } 
 
 .dop_grey_small_info{
-  font-size: 10px;
+  font-size: 11px;
   color: #B8B7B7;
 }
 .dop__info{
@@ -2312,7 +2312,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
   width: 100%;
   height: 100%;
   top: 0;
-  z-index: 50;
+  z-index: 101;
   opacity: 0.8;
   background-image: url(../images/img_design/preloader.gif);
   background-repeat: no-repeat;

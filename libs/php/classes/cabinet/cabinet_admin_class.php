@@ -123,36 +123,75 @@
 			$html = '';
 			// подгружаем форму по резерву
 			$html .= '<div class="container_form">';
-			$html .= '<div class="green_inform_block">информация для снабжения</div>';
-			
-			ob_start();	
-			echo '<pre>';
-			print_r($_POST);
-			echo '</pre>';
-			$html .= ob_get_contents();
-			ob_get_clean();
+			$html .= '<div class="green_inform_block">Информация для снабжения</div>';
+			$html .= 'Резерв<br>';
+			$html .= '<input type="text" class="rezerv_info_input" name="rezerv_info" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value="'.$this->get_cab_dop_data_position_Database($_POST['id_dop_data']).'">';
 			$html .= '</div>';
 
+			#######################################
+
+			// подгружаем таблицу услуг
 			$html .= '<div class="container_form">';
-			$html .= '<div class="green_inform_block">услуги</div>';
-			
-			$html .= 'тут выгружаем список услуг';
-			ob_start();	
-			echo '<pre>';
-			print_r($this -> get_order_dop_uslugi($_POST['id_dop_data']));
-			echo '</pre>';
-			$html .= ob_get_contents();
-			ob_get_clean();
-			
+			$html .= '<div class="green_inform_block">Услуги</div>';		
+					
+			$this->uslugi = $this->get_order_dop_uslugi($_POST['id_dop_data']); 
+
+			if(count($this->uslugi)){ // если услуги прикреплены
+
+				$html .= '<table id="services_listing"><tr>';
+				$html .= '<tr><th>Название услуги</th><th>Информация для зополнения</th></tr>';
+				$html .= '<td id="services_listing_each"><ul>';
+				
+				// ob_start();
+			 // 	echo '<pre>';
+			 // 	print_r($this->uslugi);
+			 // 	echo '</pre>';
+			    	
+			 // 	$content = ob_get_contents();
+			 // 	ob_get_clean();
+			 // 	$html .=$content;
+					
+				// перебираем услуги и вы
+				$first_right_content = '';// контент по первой услуге
+				$n = 0; // порядковый номер
+				foreach ($this->uslugi as $usluga) {	
+					$this->Service = $usluga; // по сути строка из CAB_DOP_USLUGI			
+					$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
+					if($n == 0){
+						// запоминаем тз по первой услуге
+						$first_right_content .= $this->get_dop_inputs_for_services($usluga['uslugi_id'],$usluga['id']);						
+					}
+					$n++;
+				}
+				$html .= '</ul></td>';
+				// $html .= '<td id="content_dop_inputs_and_tz"><span class="title_dop_inputs_info">Выберите услугу</span></td>';
+				$html .= '<td id="content_dop_inputs_and_tz">'.$first_right_content.'</td>';
+
+				$html .= '</table>';
+			}else{
+				$html .= 'услуги не прикреплены.... и это оооочень странно. Обратитесь к Админу.';
+			}
+
 			$html .= '</div>';
+
+			################################################
 
 			// подгружаем комментарии для позиции 
 			global $PositionComments;
+			$html .= '<div class="container_form">';
+			$html .= '<div class="green_inform_block">Переписка</div>';
+			$html .= '</div>';
+			$html .= '<div class="container_form">';
+			
 			$html .= $PositionComments -> get_comment_for_position_without_Out();
+			$html .= '</div>';
+			
 
 			// Вывод
 			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 		}
+
+
 
 		
 		############################################

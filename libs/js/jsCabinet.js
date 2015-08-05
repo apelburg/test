@@ -1,3 +1,16 @@
+// показать загрузку траницы
+function window_preload_add(){
+	if(!$('#preloader_window_block').length){
+		var object = $('<div/>').attr('id','preloader_window_block'); object.appendTo('body')
+	}	
+}
+// скрыть загрузку страницы
+function window_preload_del(){
+	if($('#preloader_window_block').length){
+		$('#preloader_window_block').remove();
+	}	
+}
+
 // показать / скрыть каталожные позиции 
 $(document).on('click', '.click_me_and_show_catalog', function(event) {
 	$(this).parent().parent().find('tr.cat_8').toggle('fast');
@@ -535,7 +548,140 @@ $(document).on('click', '.dop_teh_info', function(event) {
 	},'json');
 });
 
+// редактирование dop_inputs
+$(document).on('click', '#services_listing_each .lili', function(event) {
+	console.log($(this).attr('data-uslugi_id'));
+	var uslugi_id = $(this).attr('data-uslugi_id');
+	var dop_usluga_id = $(this).attr('data-dop_usluga_id');
+	$('#services_listing_each .lili').removeClass('checked');
+	$(this).addClass('checked');
+	window_preload_add();
+	
+	$.post('', {
+		AJAX:'get_dop_inputs_for_services',
+		uslugi_id: uslugi_id,
+		dop_usluga_id: dop_usluga_id
+	}, function(data, textStatus, xhr) {
+		window_preload_del();
+		if(data['response']=="OK"){
+			console.log(Base64.decode(data['html']));
+			$('#content_dop_inputs_and_tz').html(Base64.decode(data['html']));
+		}else{
+			alert('Что-то плошло не так...');
+		}
+	},'json');
+});
+
+// редактирование поля резерв в доп тех инфо
+$(document).on('keyup','#dialog_gen_window_form .rezerv_info_input', function(event) {
+	
+	var cab_dop_data_id = $(this).attr('data-cab_dop_data_id');
+
+	$.post('', {
+		AJAX:'save_rezerv_info',
+		cab_dop_data_id: cab_dop_data_id,
+		text : $(this).val()
+	}, function(data, textStatus, xhr) {
+		if(data['response']!="OK"){
+			alert('Что-то пошло не так');
+		}
+	},'json');
+	check_loading_ajax();
+});
+
+// редактирование поля ТЗ по услуге к позиции заказа
+$(document).on('keyup','#dialog_gen_window_form .save_tz', function(event) {
+	
+	var cab_dop_usluga_id = $('#services_listing_each .lili.checked').attr('data-dop_usluga_id');
+
+	$.post('', {
+		AJAX:'save_tz_info',
+		cab_dop_usluga_id: cab_dop_usluga_id,
+		text : $(this).val()
+	}, function(data, textStatus, xhr) {
+		if(data['response']!="OK"){
+			alert('Что-то пошло не так');
+		}
+	},'json');
+	check_loading_ajax();
+});
+
+// редактирование dop_inputs
+$(document).on('keyup','#dialog_gen_window_form .dop_inputs', function(event) {
+	var name_en = $(this).attr('name');
+	var val = $(this).val();
+	
+	var Json = $('#dop_input_json').html();
+	var json_object = JSON.parse(Json);
+
+	json_object[name_en] = val;
+	if(val.trim()==""){
+		delete json_object[name_en];
+	}
+
+	Json = JSON.stringify(json_object);
+
+	$('#dop_input_json').html(Json)
+	var cab_dop_usluga_id = $('#services_listing_each .lili.checked').attr('data-dop_usluga_id');
+	console.log(cab_dop_usluga_id);
+	$.post('', {
+		AJAX:'save_dop_inputs',
+		cab_dop_usluga_id: cab_dop_usluga_id,
+		Json : Json
+	}, function(data, textStatus, xhr) {
+		if(data['response']!="OK"){
+			alert('Что-то пошло не так');
+		}
+	},'json');
+	check_loading_ajax();
+});
 
 
 
-
+///////////////////////////////////////////////
+//	статус сохранения отредактированного поля
+///////////////////////////////////////////////
+function check_loading_ajax(){
+		window.l++;
+		console.log(jQuery.active);
+		if(jQuery.active>0){
+			if($('#alert_saving_status').length==0){
+				$('body').append('<div style="'
+					+'position:fixed;'
+					+'float:left;'
+					+'font-family: arial,sans-serif;'
+					+'left:50%; '
+					+'z-index:110; '
+					+'top:100px; '
+					+'margin-left:-100px; '
+					+'background-color:#F9EDBE;'
+					+'border:1px solid #F0C36D; '
+					+'padding:7px 15px; '
+					+'font-size:12px" id="alert_saving_status"><div id="ll">Данные сохраняются...</div><div id="lll" style="text-align:center"></div><div id="lll1"><div id="lll2" style="width:0%;background: #F0C36D; height:5px; border:0"></div></div></div>');	
+				$('#alert_saving_status').stop(true, true).fadeIn('fast');
+			}else{
+				$('#alert_saving_status').fadeIn('fast');			
+			}
+			var p = jQuery.active;
+			var q = window.l / 100;
+			var per = Math.ceil((100-p/q));
+			$('#lll').html(per +' %');
+			$('#lll2').width(per+'%');
+			setTimeout(check_loading_ajax, 300);
+			return false;
+		}else{
+			
+			$('#ll').html('Данные успешно сохранены.')
+			$('#lll').html('100 %');
+			$('#lll2').width('100%');		
+			$('#alert_saving_status').delay(1000).animate({opacity:0},700,function(){$(this).remove()});
+			
+			//setTimeout($('#alert_saving_status').fadeOut('fast').remove(), 3000)	
+			window.l = 0;
+			return true;	
+		}
+	};
+	$(document).ready(function(){
+	window.l = 0;
+	window.onbeforeunload = function () {return ((check_loading_ajax()==false) ? "Измененные данные не сохранены. Закрыть страницу?" : null);}
+	});

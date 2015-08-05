@@ -797,6 +797,7 @@
 					`price_in` = '".$usluga['price_in']."',
 					`price_out` = '".$usluga['price_out']."',
 					`for_how` = '".$usluga['for_how']."',
+					`tz` = '".$usluga['tz']."',
 					`print_details` = `".$usluga['print_details']."`;";
 				}
 

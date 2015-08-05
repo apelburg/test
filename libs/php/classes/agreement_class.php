@@ -411,7 +411,7 @@
 		    global $mysqli;
 			
 		    $print_details = json_decode($print_details);
-			echo '<pre>'; print_r($print_details); echo '</pre>';
+			//echo '<pre>'; print_r($print_details); echo '</pre>';
 			$out_put = array();
 			$out_put[] = $print_details->print_type;
 			$out_put[] = 'место нанесения: '.$print_details->place_type;
@@ -444,12 +444,12 @@
 			}
 			if(isset($print_details->dop_params->sizes)){
 			    foreach($print_details->dop_params->sizes as $index => $details){
-				         echo '<pre>22'; print_r($details); echo '</pre>';
+				         // echo '<pre>22'; print_r($details); echo '</pre>';
 				    if($details->id!=0) $idsArr[] = $details->id;	
 				}
 				if(isset($idsArr)){
 					$query = "SELECT * FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE id IN('".implode("','",$idsArr)."')";
-					echo $query;
+					// echo $query;
 					$result = $mysqli->query($query)or die($mysqli->error);
 					if($result->num_rows > 0){
 
