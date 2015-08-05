@@ -2124,7 +2124,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 	    $result = mysql_query($query,$db);
 		if(!$result) echo(mysql_error());
 		
-		return 'company';//mysql_result($result,0,'company');
+		return mysql_result($result,0,'company');
 	}
 	
 	function get_client_requisites($id){

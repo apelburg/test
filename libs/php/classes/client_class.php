@@ -327,6 +327,14 @@ class Client {
 		$result = $mysqli->query($query) or die($mysqli->error);     
 		return $result->fetch_assoc();
 	}
+	static function fetch_client_requisites_nikename($id){
+	    // Я ИСПОЛЬЗУЮ ПРИ ОТБРАЖЕНИИ СПЕЦИФИКАЦИЙ (АНДРЕЙ)
+		global $mysqli;
+		$query = "SELECT company FROM `".CLIENT_REQUISITES_TBL."` WHERE `id` = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error); 
+		$row = $result->fetch_assoc();    
+		return $row['company'];
+	}
 	
 	static function cont_faces($id){
 		global $mysqli;

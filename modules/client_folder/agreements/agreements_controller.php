@@ -1,5 +1,6 @@
 <?php 
-
+    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+	
     if(isset($_GET['update_specification_short_description_ajax']))
 	{
 	    echo $_GET['id'].' '.$_GET['field_name'].' '.$_GET['field_val'];
@@ -34,7 +35,7 @@
 				 $date_arr = explode('-',$agreement['date']);
 				 $date = $date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0];  		 
 				
-				 $option .= '<option value="'.$agreement['id'].'">'.fetch_our_requisites_nikename($agreement['our_requisit_id']).' - '.fetch_client_requisites_nikename($agreement['client_requisit_id']).' - '.$date_arr[0].' г. '.(((bool)$agreement['basic'])?' [основной]':'').'</option>';
+				 $option .= '<option value="'.$agreement['id'].'">'.fetch_our_requisites_nikename($agreement['our_requisit_id']).' - '.Client::fetch_client_requisites_nikename($agreement['client_requisit_id']).' - '.$date_arr[0].' г. '.(((bool)$agreement['basic'])?' [основной]':'').'</option>';
 				 
 				 $expire_date_arr = explode('-',$agreement['expire_date']);
 				 $expire_date = $expire_date_arr[2].' '.$month_day_name_arr[(int)$expire_date_arr[1]].' '.$expire_date_arr[0];
@@ -100,7 +101,7 @@
 				 foreach($array as $key => $item)
 				 {
 					 list($our_req_id,$client_req_id)= explode('_',$item);
-					 $option .= '<option value="'.$our_req_id.'_'.$client_req_id.'">'.fetch_our_requisites_nikename($our_req_id).' - '.fetch_client_requisites_nikename($client_req_id).'</option>';
+					 $option .= '<option value="'.$our_req_id.'_'.$client_req_id.'">'.fetch_our_requisites_nikename($our_req_id).' - '.Client::fetch_client_requisites_nikename($client_req_id).'</option>';
 				 } 
 				   
 				 $cup_agreement = '';

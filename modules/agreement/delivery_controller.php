@@ -3,7 +3,9 @@
    
 	if(isset($_GET['agreement_id']))
 	{
-	    $data = fetch_agreement_content($agreement_id);
+	    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+		
+		$data = Agreement::fetch_agreement_content($agreement_id);
 		$requisit_id = $data['client_requisit_id'];
 
 	}
