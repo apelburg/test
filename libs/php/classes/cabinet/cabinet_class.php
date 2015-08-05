@@ -537,7 +537,7 @@
 		// получаем информацию из cab_dop_data
 		protected function get_cab_dop_data_position_Database($id){
 			global $mysqli;
-				$arr = array();
+			$arr = array();
 		    $query="SELECT `number_rezerv` FROM `".CAB_ORDER_DOP_DATA."`  WHERE `id` = '".(int)$id."'";
 		    $result = $mysqli->query($query)or die($mysqli->error);
 		    $str = '';
@@ -548,5 +548,186 @@
 		    }
 		    return $str;
 		}
+
+		// детализация позиции по прикреплённым услугам
+		protected function get_a_detailed_article_on_the_price_of_positions_AJAX(){
+			$html = '';
+			 	
+			// собираем Object по заказу
+			$this->Positions_arr = $this->positions_rows_Database($_POST['order_id']);
+			foreach ($this->Positions_arr as $key => $value) {
+				$this->Positions_arr[$key]['SERVICES'] = $this->get_order_dop_uslugi($value['id_dop_data']);	 								
+			}
+
+			// собираем HTML
+			$html .= $this->get_a_detailed_article_on_the_price_of_positions_Html();
+
+			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+		}
+
+		protected function get_a_detailed_article_on_the_price_of_positions_Html(){
+			$html = '';
+
+
+
+			// собираем шапку таблицы
+			$html .= '<table id="a_detailed_article_on_the_price_of_positions">';
+			$html .= '<tr>';
+			$html .= '<td colspan="8">Рассчитанная стоимость заказа</td><td colspan="5" class="postfaktum">Фактическая входящая стоимость</td><td></td>';
+			$html .= '</tr>';
+
+			$html .= '<tr>';
+				// рассчитано ранее
+				$html .= '<th>п</th>';
+				$html .= '<th>Артикул/номенклатура</th>';
+				$html .= '<th>перечень товаров и услуг</th>';
+				$html .= '<th>тираж</th>';
+				$html .= '<th>$ входящая</th>';
+				$html .= '<th>%</th>';
+				$html .= '<th>$ исходящая</th>';
+				$html .= '<th>прибыль</th>';
+				// то, что получилось по факту
+				$html .= '<th class="postfaktum"></th>';
+				$html .= '<th class="postfaktum">перечень товаров и услуг</th>';
+				$html .= '<th class="postfaktum">тираж</th>';
+				$html .= '<th class="postfaktum">$ входащая</th>';
+				$html .= '<th class="postfaktum"></th>';
+				$html .= '<th>комментарии СНАБ</th>';
+			$html .= '</tr>';
+
+
+			//////////////////////////////////////////////////////////
+			//	объявляем переменные для подсчёта итого по заказу   //
+			//////////////////////////////////////////////////////////
+			$this->GlobItogo_price_in = 0;	// входящая за заказ
+			$this->GlobItogo_price_out = 0; // исходящая за заказ
+			$this->GlobItogo_price_pribl = 0; // прибыль за заказ
+
+
+			//////////////////////////////////
+			//	перебор заказа по позициям  //
+			//////////////////////////////////
+			foreach ($this->Positions_arr as $key => $position) {
+				// считаем тираж для товара по позиции
+				$this->PosGenTirage = $position['quantity']+$position['zapas'];
+
+
+				//////////////////////////////////////////////////////////
+				//	объявляем переменные для подсчёта итого по позиции  //
+				//////////////////////////////////////////////////////////
+				// сразу же записываем в них цены за тираж по товару
+				$this->PositionItogo_price_in = $this->PosGenTirage*$position['price_in'];	// входящая  по позиции то, что было рассчитано клиенту
+				$this->PositionItogo_price_in_postfaktum = $this->PosGenTirage*$position['price_in'];	// входящая  по позиции по факту то, что получилось
+				$this->PositionItogo_price_out = $this->PosGenTirage*$position['price_out']; // исходящая по позиции
+				$this->PositionItogo_price_pribl = $this->PositionItogo_price_out - $this->PositionItogo_price_in; // прибыль по позиции
+
+
+
+				$html .= '<tr>';
+					// рассчитано ранее
+					$rowspan = count($position['SERVICES'])+1;
+					$html .= '<td rowspan="'.$rowspan.'">'.($key+1).'</td>';
+					$html .= '<td rowspan="'.$rowspan.'">'.$position['name'].'</td>';
+					$html .= '<td>товар</td>';
+					$html .= '<td><span>'.$this->PosGenTirage.'</span></td>';
+					$html .= '<td><span>'.$this->PositionItogo_price_in.'</span>р</td>';
+					$html .= '<td></td>';
+					$html .= '<td><span>'.$this->PositionItogo_price_out.'</span>р</td>';
+					$html .= '<td><span>'.$this->PositionItogo_price_pribl.'</span>р</td>';
+					// то, что получилось по факту
+					$html .= '<td class="postfaktum"></td>';
+					$html .= '<td class="postfaktum"></td>';
+					$html .= '<td class="postfaktum"></td>';
+					$html .= '<td class="postfaktum"></td>';
+					$html .= '<td class="postfaktum"></td>';
+					$html .= '<td></td>';
+				$html .= '</tr>';
+
+
+
+				foreach ($position['SERVICES'] as $count => $service) {
+					$html .= '<tr>';
+						// рассчитано ранее
+						$html .= '<td>название услуги № '.($count+1).'</td>';
+						$html .= '<td></td>';
+						$html .= '<td></td>';
+						$html .= '<td></td>';
+						$html .= '<td></td>';
+						$html .= '<td></td>';
+						// то, что получилось по факту
+						$html .= '<td class="postfaktum"></td>';
+						$html .= '<td class="postfaktum"></td>';
+						$html .= '<td class="postfaktum"></td>';
+						$html .= '<td class="postfaktum"></td>';
+						$html .= '<td class="postfaktum"></td>';
+						$html .= '<td></td>';
+					$html .= '</tr>';
+				}
+				// итого по позиции
+				$html .= '<tr class="itogo_for_position">';
+					$html .= '<td></td>';
+					$html .= '<td>Итого по позиции</td>';
+					$html .= '<td></td>';
+					$html .= '<td></td>';
+					// $ входащая итого
+					$html .= '<td><span>'.$this->PositionItogo_price_in.'</span>р</td>';
+
+					$html .= '<td></td>';
+					// исходящая итого
+					$html .= '<td><span>'.$this->PositionItogo_price_out.'</span>р</td>';
+					// прибыль итого
+					$html .= '<td><span>'.$this->PositionItogo_price_pribl.'</span>р</td>';
+
+					// заплатили по факту //// фходащая по факту
+					$html .= '<td colspan="5"  style="background-color:#C7C7C7;
+"><span>'.$this->PositionItogo_price_in_postfaktum.'</span>р</td>';
+					$html .= '<td></td>';
+				$html .= '</tr>';
+
+				//////////////////////////
+				//	обсчитываем ИТОГО за заказ
+				//////////////////////////
+				$this->GlobItogo_price_in += $this->PositionItogo_price_in_postfaktum;	// входящая за заказ
+				$this->GlobItogo_price_out += $this->PositionItogo_price_out; // исходящая за заказ
+				$this->GlobItogo_price_pribl += $this->PositionItogo_price_pribl; // прибыль за заказ
+			}
+			$html .= '<table>';
+
+			ob_start();
+			echo '<pre>';
+			print_r($this->Positions_arr);
+			echo '</pre>';
+			    	
+			$content = ob_get_contents();
+			ob_get_clean();
+			$html .=$content;
+			return $html;
+		}
+
+
+
+		// запрос строк позиций из базы
+		protected function positions_rows_Database($order_id){
+			$arr = array();
+			global $mysqli;
+			$query = "SELECT *, `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data` 
+			FROM `".CAB_ORDER_DOP_DATA."` 
+			INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
+			WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_id."'";
+			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
+			//echo $query.'<br>';
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+			return $arr;
+		}
+
+
+
+
+
 
    	}

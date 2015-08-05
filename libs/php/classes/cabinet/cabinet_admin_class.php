@@ -873,11 +873,11 @@
 
 				//ОБСЧЁТ ВАРИАНТОВ
 				// получаем массив стоимости нанесения и доп услуг для данного варианта 
-				$dop_usl = $this-> get_order_dop_uslugi($value['id_dop_data']);
+				$dop_usl = $this->get_order_dop_uslugi($value['id_dop_data']);
 				// выборка только массива стоимости печати
 				$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
 				// выборка только массива стоимости доп услуг
-				$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
+				$dop_usl_no_print = $this->get_dop_uslugi_no_print_type($dop_usl);
 
 
 				// стоимость товара
@@ -929,8 +929,9 @@
 						</td>';
 				// подрядчк печати 
 				$html .= '<td class="change_supplier"  data-id="'.$value['suppliers_id'].'" data-id_dop_data="'.$value['id_dop_data'].'">'.$value['suppliers_name'].'</td>';
-				// сумма за позицию включая стоимость услуг ???!!!
-				$html .= '<td>'.$this->Price_for_the_position.'</td>';
+				// сумма за позицию включая стоимость услуг 
+
+				$html .= '<td data-order_id="'.$this->Order['id'].'" data-id="'.$value['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-cab_dop_data_id="'.$value['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';
 				// всплывающее окно тех и доп инфо
 				// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
 				// думаю есть смысл хранения в json 
@@ -946,7 +947,7 @@
 				// дата сдачи
 				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
 				// или откуда она вычисляется.... ведь её не может не быть
-				$html .= '<td>08.09.2015</td>';
+				$html .= '<td>08.09.2015 !!!</td>';
 
 				// получаем статусы участников заказа в две колонки: отдел - статус
 				$html .= $this->position_status_list_Html($value);
@@ -1025,24 +1026,7 @@
 
 			return $html1.$html2;
 		}
-		// запрос строк позиций из базы
-		private function positions_rows_Database($order_id){
-			$arr = array();
-			global $mysqli;
-			$query = "SELECT *, `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data` 
-			FROM `".CAB_ORDER_DOP_DATA."` 
-			INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
-			WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_id."'";
-			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
-			//echo $query.'<br>';
-			$result = $mysqli->query($query) or die($mysqli->error);
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$arr[] = $row;
-				}
-			}
-			return $arr;
-		}
+		
 
 
 		//////////////////////////
