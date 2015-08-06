@@ -809,7 +809,7 @@
 						<td>???</td>
 						<td>???</td>
 						<td><span class="greyText">заказа: </span></td>
-						<td>'.$this->order_status[$this->Order['global_status']].'</td>
+						<td>'.(isset($this->order_status[$this->Order['global_status']])?$this->order_status[$this->Order['global_status']]:$this->Order['global_status']).'</td>
 					</tr>';
 				// включаем вывод позиций 
 				$table_order_row .= $table_order_positions_rows;
@@ -854,6 +854,10 @@
 				
 			";
 		}
+
+
+
+
 		# доп тех инфо END		
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html(){		
@@ -881,11 +885,13 @@
 
 
 				// стоимость товара
-				$this->Price_for_the_goods = $value['price_out'] * $value['quantity'];
+				$this->Price_for_the_goods = $value['price_out'] * ($value['quantity']+$value['zapas']);
 				// стоимость услуг печати
-				$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
+				// $this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
+				$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print);
 				// стоимость услуг не относящихся к печати
-				$this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
+				// $this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
+				$this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print);
 				// общаяя цена позиции включает в себя стоимость услуг и товара
 				$this->Price_for_the_position = $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing;
 				
