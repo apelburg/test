@@ -887,7 +887,7 @@ function recalculate_a_detailed_article_on_the_price_of_positions(){
 		$('#itogo_order .order_price_in').html(Order_price_in);// стоимость входящая
 		$('#itogo_order .order_price_out').html(Order_price_out);// стоимость исходящая
 		$('#itogo_order .order_price_pribl').html(Order_price_pribl);// прибыль
-		$('#itogo_order .Order_price_in_postfactum').html(Order_price_in_postfactum);// стоимость входащаяя постфактум
+		$('#itogo_order .order_price_in_postfactum').html(Order_price_in_postfactum);// стоимость входащаяя постфактум
 		$('#itogo_order .added_postfactum_class .minus span').html(Order_price_in - Order_price_in_postfactum); // разница постфактум
 
 		// при наличии в расчёте непредусмотренных услуг подсвечиваем Итого заказа
