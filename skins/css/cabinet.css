@@ -396,6 +396,19 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 	border-collapse: collapse;    
 	width: 100%;
 }
+#a_detailed_article_on_the_price_of_positions td,
+#a_detailed_article_on_the_price_of_positions th{
+	padding: 3px 5px;
+}
+#a_detailed_article_on_the_price_of_positions #itogo_order td{
+	background-color: #C8D890;
+	font-weight: bold;
+}
+#a_detailed_article_on_the_price_of_positions #itogo_order td div.minus{
+	color: red;
+	font-weight: normal;
+	font-size: 12px;
+}
 #a_detailed_article_on_the_price_of_positions td.postfaktum{
 	background-color: #E7E7E7;
 }
@@ -412,6 +425,7 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 #a_detailed_article_on_the_price_of_positions tr.itogo_for_position td.postfaktum{	
 	background: #C7C7C7;
 }
+
 #a_detailed_article_on_the_price_of_positions th:nth-of-type(2),
 #a_detailed_article_on_the_price_of_positions th:nth-of-type(10){
 	width: 350px;
@@ -419,6 +433,8 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 .postfaktum_non_calculate{
 	display: none;
 }
+#a_detailed_article_on_the_price_of_positions td.postfaktum.added_postfactum,
+#a_detailed_article_on_the_price_of_positions #itogo_order td.added_postfactum_class,
 #a_detailed_article_on_the_price_of_positions th.added_postfactum_class,
 #a_detailed_article_on_the_price_of_positions td.added_postfactum_class,
 #a_detailed_article_on_the_price_of_positions td .added_postfactum_class{
@@ -426,4 +442,20 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 }
 #a_detailed_article_on_the_price_of_positions tr.itogo_for_position_probel td{
 	height: 30px;
+}
+
+.on_of{
+	cursor: pointer;
+	padding: 0px 3px;
+    background-color: #A9CA37;
+    font-weight: bold;
+    font-size: 17px;
+    color: #6F5B5B;
+}
+.on_of.minus{
+	padding: 0px 7px;
+    background-color: #D2E493;
+    font-weight: bold;
+    font-size: 17px;
+    color: #6F5B5B;
 }

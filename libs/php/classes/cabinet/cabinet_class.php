@@ -43,6 +43,15 @@
     	function __consturct(){
 		}
 
+		// включение отключение услуги
+		protected function change_service_on_of_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`on_of` =  '".(int)$_POST['val']."' 
+				WHERE  `id` ='".$_POST['id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
 
 		// редактирование поля ТЗ к услуге
 		protected function save_tz_info_AJAX(){
@@ -584,11 +593,11 @@
 
 			// собираем шапку таблицы
 			$html .= '<table id="a_detailed_article_on_the_price_of_positions">';
-			$html .= '<tr>';
-			$html .= '<td colspan="8">Рассчитанная стоимость заказа</td><td colspan="5" class="postfaktum">Фактическая входящая стоимость</td><td></td>';
+			$html .= '<tr class="no_calc">';
+			$html .= '<td></td><td colspan="7">Рассчитанная стоимость заказа</td><td class="postfaktum"></td><td colspan="4" class="postfaktum">Фактическая входящая стоимость</td><td></td>';
 			$html .= '</tr>';
 
-			$html .= '<tr>';
+			$html .= '<tr class="no_calc">';
 				// рассчитано ранее
 				$html .= '<th>п</th>';
 				$html .= '<th>Артикул/номенклатура</th>';
@@ -635,23 +644,23 @@
 				$this->PositionItogo_price_pribl = $this->PositionItogo_price_out - $this->PositionItogo_price_in; // прибыль по позиции
 				$this->PositionItogo_price_percent = $this->get_percent_Int($this->PositionItogo_price_in,$this->PositionItogo_price_out);
 
-
-				$html .= '<tr>';
+				// строка стоимости и описания товара
+				$html .= '<tr class="tovar_provided">';
 					// рассчитано ранее
 					$rowspan = count($position['SERVICES'])+1;
 					$html .= '<td rowspan="'.$rowspan.'">'.($key+1).'</td>';
 					$html .= '<td rowspan="'.$rowspan.'">'.$position['name'].'</td>';
 					$html .= '<td>товар</td>';
 					$html .= '<td><span>'.$this->PosGenTirage.'</span>шт</td>';
-					$html .= '<td><span>'.$this->PositionItogo_price_in.'</span>р</td>';
+					$html .= '<td><span class="service_price_in">'.$this->PositionItogo_price_in.'</span>р</td>';
 					$html .= '<td><span>'.$this->PositionItogo_price_percent.'</span>%</td>';
-					$html .= '<td><span>'.$this->PositionItogo_price_out.'</span>р</td>';
-					$html .= '<td><span>'.$this->PositionItogo_price_pribl.'</span>р</td>';
+					$html .= '<td><span class="service_price_out">'.$this->PositionItogo_price_out.'</span>р</td>';
+					$html .= '<td><span class="service_price_pribl">'.$this->PositionItogo_price_pribl.'</span>р</td>';
 					// то, что получилось по факту
 					$html .= '<td class="postfaktum"></td>';
 					$html .= '<td class="postfaktum">'.$position['name'].'</td>';
 					$html .= '<td class="postfaktum"><span>'.$this->PosGenTirage.'</span>шт</td>';
-					$html .= '<td class="postfaktum">'.$this->PositionItogo_price_in.'</span>р</td>';
+					$html .= '<td class="postfaktum"><span class="service_price_in_postfactum">'.$this->PositionItogo_price_in.'</span>р</td>';
 					$html .= '<td class="postfaktum"></td>';
 					$html .= '<td></td>';
 				$html .= '</tr>';
@@ -659,37 +668,44 @@
 
 
 				$html_added = ''; // услуги добавленные в заказ
-				$added_postfactum_class = ''; // класс подсветки цен при появлении услуг добавленных в заказ
+				$added_postfactum_class = 'td_shine'; // класс подсветки цен при появлении услуг добавленных в заказ
 				// перебираем прикреплённые услуги
 				foreach ($position['SERVICES'] as $count => $service) {
 					//////////////////////////////////////////////////////////
 					//	объявляем переменные для подсчёта стоимости услуги  //
 					//////////////////////////////////////////////////////////
-					$this->Service_price_in = $service['price_in'];// входящая  по услуге то, что было рассчитано клиенту
+					$this->Service_price_in = ($service['for_how']=='for_one')?$service['price_in']*$service['quantity']:$service['price_in'];// входящая  по услуге то, что было рассчитано клиенту
 					$this->Service_price_out = $this->calc_summ_dop_uslug(array($service)); // исходящая по услуге
 					$this->Service_price_pribl = $this->Service_price_out - $this->Service_price_in; // прибыль по услуге
 					$this->Service_tir = ($service['for_how']=='for_one')?'<span>'.$service['quantity'].'</span>шт':'<span>  -  </span>'; // тираж по услуге
 					$this->Service_Name = $this->Services_list[$service['uslugi_id']]['name']; // название услуги
 					$this->Service_percent = $this->get_percent_Int($this->Service_price_in,$this->Service_price_out);
 
+					$this->Service_swhitch_On_Of = ((int)$service['on_of'] == 1)?'<span  data-id="'.$service['id'].'" class="on_of">+</span>':'<span  data-id="'.$service['id'].'" class="on_of minus">-</span>';
+
+
 					switch ((int)$service['author_id_added_services']) {
 							case 0: // для услуг добавленных из запроса
-								$html .= '<tr data-id="'.$service['id'].'">';
+								$html .= '<tr class="provided '.(($service['on_of'] == 0)?'no_calc':'').'" data-id="'.$service['id'].'">';
 									// рассчитано ранее
 									$html .= '<td>'.$this->Service_Name.'</td>';
 									$html .= '<td>'.$this->Service_tir.'</td>';
-									$html .= '<td><span>'.$this->Service_price_in.'</span>р</td>';
+									$html .= '<td><span class="service_price_in">'.$this->Service_price_in.'</span>р</td>';
 									$html .= '<td><span>'.$this->Service_percent.'</span>%</td>';
-									$html .= '<td><span>'.$this->Service_price_out.'</span>р</td>';
-									$html .= '<td><span>'.$this->Service_price_pribl.'</span>р</td>';
+									$html .= '<td><span class="service_price_out">'.$this->Service_price_out.'</span>р</td>';
+									$html .= '<td><span class="service_price_pribl">'.$this->Service_price_pribl.'</span>р</td>';
 									// то, что получилось по факту
 									$html .= '<td class="postfaktum"></td>';
 									$html .= '<td class="postfaktum">'.$this->Service_Name.'</td>';
 									$html .= '<td class="postfaktum">'.$this->Service_tir.'</td>';
-									$html .= '<td class="postfaktum"><span>'.$this->Service_price_in.'</span>р</td>';
-									$html .= '<td class="postfaktum">+</td>';
+									$html .= '<td class="postfaktum"><span  class="service_price_in_postfactum">'.$this->Service_price_in.'</span>р</td>';
+									$html .= '<td class="postfaktum">'.$this->Service_swhitch_On_Of.'</td>';
 									$html .= '<td></td>';
 								$html .= '</tr>';
+
+								// если в просчёте не учавствует - continue
+								if($service['on_of'] == 0){continue;}
+
 								//////////////////////////////////////////////////
 								//	добавляем стоимость услуги к цене за позицию
 								//////////////////////////////////////////////////
@@ -700,31 +716,36 @@
 								break;
 							
 							default:// если указан id того, кто добавил услугу, то услуга была добавлена в заказ
-								$html_added .= '<tr>';
+								$html_added .= '<tr class="not_provided '.(($service['on_of'] == 0)?'no_calc':'').'" data-id="'.$service['id'].'">';
 									// рассчитано ранее
 									$html_added .= '<td></td>';
 									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
+									$html_added .= '<td><span class="postfaktum_non_calculate service_price_in">0</span></td>';
 									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
-									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
-									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
-									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
+									$html_added .= '<td><span class="postfaktum_non_calculate service_price_out">0</span></td>';
+									$html_added .= '<td><span class="postfaktum_non_calculate service_price_pribl">0</span></td>';
 									// то, что получилось по факту
 									$html_added .= '<td class="postfaktum"></td>';
 									$html_added .= '<td class="postfaktum added_postfactum">'.$this->Service_Name.'</td>';
 									$html_added .= '<td class="postfaktum added_postfactum">'.$this->Service_tir.'</td>';
-									$html_added .= '<td class="postfaktum added_postfactum"><span>'.$this->Service_price_in.'</span>р</td>';
-									$html_added .= '<td class="postfaktum">+</td>';
+									$html_added .= '<td class="postfaktum added_postfactum"><span  class="service_price_in_postfactum">'.$this->Service_price_in.'</span>р</td>';
+									$html_added .= '<td class="postfaktum">'.$this->Service_swhitch_On_Of.'</td>';
 									$html_added .= '<td></td>';
 								$html_added .= '</tr>';
+								// если в просчёте не учавствует - continue
+								if($service['on_of'] == 0){continue;}
+
+								// добавляем класс подсветки цены
+								$added_postfactum_class = 'added_postfactum_class td_shine';
+								$this->GlobAdded_postfactum_class = $added_postfactum_class;
+
 								//////////////////////////////////////////////////
 								//	добавляем стоимость услуги к цене за позицию
 								//////////////////////////////////////////////////
 								$this->PositionItogo_price_in_postfaktum += $this->Service_price_in;	// входящая  по позиции по факту то, что получилось
 								$this->PositionItogo_price_out += $this->Service_price_out; // исходящая по позиции
 								$this->PositionItogo_price_pribl += $this->Service_price_pribl; // прибыль по позиции
-								// добавляем класс подсветки цены
-								$added_postfactum_class = 'added_postfactum_class';
-								$this->GlobAdded_postfactum_class = $added_postfactum_class;
+								
 								break;
 						}						
 				}
@@ -738,18 +759,18 @@
 					$html .= '<td></td>';
 					$html .= '<td></td>';
 					// $ входащая итого
-					$html .= '<td class="'.$added_postfactum_class.'"><span>'.$this->PositionItogo_price_in.'</span>р</td>';
+					$html .= '<td class="'.$added_postfactum_class.'"><span class="position_price_in">'.$this->PositionItogo_price_in.'</span>р</td>';
 
 					$html .= '<td></td>';
 					// исходящая итого
-					$html .= '<td><span>'.$this->PositionItogo_price_out.'</span>р</td>';
+					$html .= '<td><span  class="position_price_out">'.$this->PositionItogo_price_out.'</span>р</td>';
 					// прибыль итого
-					$html .= '<td class="'.$added_postfactum_class.'"><span>'.$this->PositionItogo_price_pribl.'</span>р</td>';
+					$html .= '<td class="'.$added_postfactum_class.'"><span class="position_price_pribl">'.$this->PositionItogo_price_pribl.'</span>р</td>';
 					$html .= '<td colspan="3"  style="background-color:#C7C7C7;text-align:right;
 "></td>';
 					// заплатили по факту //// фходащая по факту
 					$html .= '<td style="background-color:#C7C7C7;
-"><span class="'.$added_postfactum_class.'"><span>'.$this->PositionItogo_price_in_postfaktum.'</span>р</span></td>';
+"><span class="'.$added_postfactum_class.'"><span  class="position_price_in_postfaktum">'.$this->PositionItogo_price_in_postfaktum.'</span>р</span></td>';
 					$html .= '<td style="background-color:#C7C7C7;text-align:right;
 "></td>';
 					$html .= '<td></td>';
@@ -763,30 +784,36 @@
 				$this->GlobItogo_price_pribl += $this->PositionItogo_price_pribl; // прибыль за заказ
 				$this->GlobItogo_price_in_postfaktum += $this->PositionItogo_price_in_postfaktum; // входящая по факту
 			}
+
+			// если имеем разницу в постфактум выводим её
+			$this->GlobItogo_price_in_difference = $this->GlobItogo_price_in-$this->GlobItogo_price_in_postfaktum;
+			// собираем html разницы фактической и предусмотренной в расчёте стоимости
+			$this->GlobItogo_price_in_difference_Html = ($this->GlobItogo_price_in_difference!=0)?$this->GlobItogo_price_in_difference:'';
+
 			// добавляем строку пробел
-			$html .= '<tr class="itogo_for_position_probel">';
+			$html .= '<tr class="itogo_for_position_probel no_calc">';
 				$html .= '<td colspan="15"></td>';					
 			$html .= '</tr>';
 			// добавляем ИТОГО по заказу
-			$html .= '<tr class="itogo_for_position">';
+			$html .= '<tr class="itogo_for_position no_calc" id="itogo_order">';
 					$html .= '<td></td>';
 					$html .= '<td>Итого по заказу</td>';
 					$html .= '<td></td>';
 					$html .= '<td></td>';
 					// $ входащая итого
-					$html .= '<td class="'.$this->GlobAdded_postfactum_class.'"><span>'.$this->GlobItogo_price_in.'</span>р</td>';
+					$html .= '<td class="'.$this->GlobAdded_postfactum_class.'"><span class="order_price_in">'.$this->GlobItogo_price_in.'</span>р</td>';
 
 					$html .= '<td></td>';
 					// исходящая итого
-					$html .= '<td><span>'.$this->GlobItogo_price_out.'</span>р</td>';
+					$html .= '<td><span  class="order_price_out">'.$this->GlobItogo_price_out.'</span>р</td>';
 					// прибыль итого
-					$html .= '<td class="'.$this->GlobAdded_postfactum_class.'"><span>'.$this->GlobItogo_price_pribl.'</span>р</td>';
-					$html .= '<td colspan="3"  style="background-color:#C7C7C7;text-align:right;
+					$html .= '<td class="'.$this->GlobAdded_postfactum_class.'"><span  class="order_price_pribl">'.$this->GlobItogo_price_pribl.'</span>р<div class="minus"><span>'.$this->GlobItogo_price_in_difference_Html.'</span>р</div></td>';
+					$html .= '<td colspan="3"  style="background-color:#B1C370;text-align:right;
 "></td>';
 					// заплатили по факту //// фходащая по факту
-					$html .= '<td style="background-color:#C7C7C7;
-"><span class="'.$this->GlobAdded_postfactum_class.'"><span>'.$this->GlobItogo_price_in_postfaktum.'</span>р</span></td>';
-					$html .= '<td style="background-color:#C7C7C7;text-align:right;
+					$html .= '<td style="background-color:#B1C370;
+"><span class="'.$this->GlobAdded_postfactum_class.'"><span  class="order_price_in_postfactum">'.$this->GlobItogo_price_in_postfaktum.'</span>р</span></td>';
+					$html .= '<td style="background-color:#B1C370;text-align:right;
 "></td>';
 					$html .= '<td></td>';
 				$html .= '</tr>';

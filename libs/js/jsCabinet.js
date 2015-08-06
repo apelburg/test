@@ -719,3 +719,196 @@ $(document).on('click', '#general_panel_orders_tbl tr td.price_for_the_position'
 		}
 	},'json');
 });
+
+// включение/отключение услуг
+$(document).on('click', '#a_detailed_article_on_the_price_of_positions .on_of', function(event) {
+	var id = $(this).attr('data-id');
+	var obj = $(this);
+	var val = 0;
+
+	if ($(this).hasClass('minus')) {
+		val = 1;
+		$(this).removeClass('minus').html('+');
+		$(this).parent().parent().removeClass('no_calc');
+	}else{
+		val = 0;
+		$(this).addClass('minus').html('-');
+		$(this).parent().parent().addClass('no_calc');
+	}
+
+	recalculate_a_detailed_article_on_the_price_of_positions(); // пересчитываем таблицу
+	$.post('', {
+		AJAX: 'change_service_on_of',
+		id: id,
+		val: val
+	}, function(data, textStatus, xhr) {
+		if(data['function'] !== undefined){ // на всякий
+			window[data['function']](data);
+		}
+		if(data['response'] == "OK"){
+			
+		}else{
+			alert('Что-то пошло не так');
+		}
+	},'json');
+});
+
+///////////////////////////////////////////
+//	пересчёт окна финансовые расчёты
+//////////////////////////////////////////
+function recalculate_a_detailed_article_on_the_price_of_positions(){
+	if ($('#a_detailed_article_on_the_price_of_positions tr').length) {
+		///////////////////////////////////////////////////////
+		//	объявляем переменные по стоимости заказа
+		///////////////////////////////////////////////////////
+		var Order_price_in = 0; // стоимость входящая
+		var Order_price_out = 0; // стоимость исходящая
+		var Order_price_pribl = 0; // прибыль 
+		var Order_price_in_postfactum = 0; // стоимость входащаяя постфактум
+
+		///////////////////////////////////////////////////////
+		//	объявляем переменные по стоимости позиции
+		///////////////////////////////////////////////////////
+		var Position_price_in = 0; // стоимость входящая
+		var Position_price_out = 0; // стоимость исходящая
+		var Position_price_pribl = 0; // прибыль 
+		var Position_price_in_postfactum = 0; // стоимость входащаяя постфактум
+
+		///////////////////////////////////////////////////////
+		//	объявляем переменные по стоимости товаров и услуг
+		///////////////////////////////////////////////////////
+		var Service_price_in = 0; // стоимость входящая
+		var Service_price_out = 0; // стоимость исходящая
+		var Service_price_pribl = 0; // прибыль 
+		var Service_price_in_postfactum = 0; // стоимость входащаяя постфактум
+
+		//////////////////////////////////////////////////////////
+		//	флаги подсветки непредусмотренных потерь по стоимости
+		///////////////////////////////////////////////////////////
+		var order_not_provided = 0; 
+		var position_not_provided = 0;
+		var service_not_provided = 0;
+
+		$('#a_detailed_article_on_the_price_of_positions tr').each(function(index, el) {
+			// перебираем все строки, которые относятся к товарам и услугам, а так же к ИТОГО по позициям
+			if(!$(this).hasClass('no_calc')){
+				if (!$(this).hasClass('itogo_for_position')){
+
+
+					service_not_provided = 0;
+					///////////////////////////////////////
+					//	перебираем строки товаров и услуг
+					////////////////////////////////////////
+					
+					Service_price_in = Number($(this).find('.service_price_in').html()); // стоимость входящая
+					Service_price_out = Number($(this).find('.service_price_out').html()); // стоимость исходящая
+					Service_price_pribl = Number($(this).find('.service_price_pribl').html()); // прибыль 
+					Service_price_in_postfactum = Number($(this).find('.service_price_in_postfactum').html()); // стоимость входащаяя постфактум
+					// console.log(index);
+					// console.log(Service_price_in);
+					// console.log(Service_price_out);
+					// console.log(Service_price_pribl);
+					// console.log(Service_price_in_postfactum);
+					// console.log('-------------------');
+					////////////////////////////////////////////////////////////////
+					//	суммируем стоимость услуги или товара к стоимости позиции
+					////////////////////////////////////////////////////////////////
+					Position_price_in += Service_price_in; // стоимость входящая
+					Position_price_out += Service_price_out; // стоимость исходящая
+					Position_price_pribl += Service_price_pribl; // прибыль 
+					Position_price_in_postfactum += Service_price_in_postfactum; // стоимость входащаяя постфактум
+
+
+					// НЕ предусмотренная услуга
+					if ($(this).hasClass('not_provided')) {
+						// устанавливаем флаги
+						order_not_provided = 1;
+						position_not_provided = 1;
+						service_not_provided = 1;
+					}
+				}
+				
+				// если достигли итоговой стоимости по позиции - добавляем стоимость позиции к стоимости заказа и 
+				//обнуляем переменные содержащие стоимость позиции для общёта следующих позиции
+				if ($(this).hasClass('itogo_for_position')){
+					///////////////////////////////////////////
+					//	суммируем стоимость позиции к заказу
+					///////////////////////////////////////////
+					Order_price_in += Position_price_in; // стоимость входящая
+					Order_price_out += Position_price_out; // стоимость исходящая
+					Order_price_pribl += Position_price_pribl; // прибыль 
+					Order_price_in_postfactum += Position_price_in_postfactum; // стоимость входащаяя постфактум
+					console.log(Position_price_in);
+					console.log(Position_price_out);
+					console.log(Position_price_pribl);
+					console.log(Position_price_in_postfactum);
+					console.log($(this).find('.position_price_in_postfaktum').length);
+					console.log('-------------------');
+
+					//////////////////////////
+					// правим стоимость позиции	
+					//////////////////////////
+					$(this).find('.position_price_in').html(Position_price_in);// стоимость входящая
+					$(this).find('.position_price_out').html(Position_price_out);// стоимость исходящая
+					$(this).find('.position_price_pribl').html(Position_price_pribl);// прибыль 
+					$(this).find('.position_price_in_postfaktum').html(Position_price_in_postfactum);// стоимость входащаяя постфактум
+
+					//////////////////////////
+					//	обнуляем переменные со стоимостью позиции
+					//////////////////////////
+					Position_price_in = 0; // стоимость входящая
+					Position_price_out = 0; // стоимость исходящая
+					Position_price_pribl = 0; // прибыль 
+					Position_price_in_postfactum = 0; // стоимость входащаяя постфактум
+
+					// при наличии в расчёте непредусмотренных услуг подсвечиваем Итого позиции
+					// в противном случае убираем подсветку
+					if(position_not_provided){
+						$(this).find('.td_shine').each(function(index, el) {
+							if(!$(this).hasClass('added_postfactum_class')){
+								$(this).addClass('added_postfactum_class');
+							}				
+						});
+					}else{
+						$(this).find('.added_postfactum_class').removeClass('added_postfactum_class');
+					}
+					// обнуляем флаг позиции 
+					position_not_provided = 0;
+
+
+
+				}
+
+
+			}
+		});
+
+		// правим стоимость заказа
+		$('#itogo_order .order_price_in').html(Order_price_in);// стоимость входящая
+		$('#itogo_order .order_price_out').html(Order_price_out);// стоимость исходящая
+		$('#itogo_order .order_price_pribl').html(Order_price_pribl);// прибыль
+		$('#itogo_order .Order_price_in_postfactum').html(Order_price_in_postfactum);// стоимость входащаяя постфактум
+		$('#itogo_order .added_postfactum_class .minus span').html(Order_price_in - Order_price_in_postfactum); // разница постфактум
+
+		// при наличии в расчёте непредусмотренных услуг подсвечиваем Итого заказа
+		// в противном случае убираем подсветку
+		if(order_not_provided){
+			$('#itogo_order .td_shine').each(function(index, el) {
+				if(!$(this).hasClass('added_postfactum_class')){
+					$(this).addClass('added_postfactum_class');
+				}				
+			});
+		}else{
+			$('#itogo_order .added_postfactum_class').removeClass('added_postfactum_class');
+		}
+		//////////////////////////
+		//	определяем разницу постфактум
+		//////////////////////////
+		if(Order_price_in_postfactum != Order_price_in){
+			$('#itogo_order .minus').html('<span>'+(Order_price_in - Order_price_in_postfactum)+'</span>р');
+		}else{
+			$('#itogo_order .minus').html('');
+		}
+
+	}
+}
