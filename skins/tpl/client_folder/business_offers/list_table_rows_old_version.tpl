@@ -13,19 +13,8 @@
                  <td><a href='#' onclick="alert('старая версия КП не имеет опции отправки по почте');">письмо</a></td>
              </tr>
          </table>
-  
-       <!--<a href='?page=clients&razdel=show_client_folder&sub_razdel=com_offer&client_id=<?php  echo $client_id; ?>&preview=<?php  echo urlencode($file); ?>'>открыть</a> /-->
-       <!--<a href='<?php  echo $dir_name."/".$file; ?>'>скачать</a> /-->
-        <!--<a href='#' onclick='rename_file("<?php  echo $file; ?>");return false;'>переименовать</a> / /-->
    </td>
-   <td class="<?php  echo $comment_style; ?>">
-       <div managed="text" file_name="<?php echo $file; ?>" file_exicution="change_kp_comment_old_version" when_done="set_color">
-           <?php  echo $comment; ?>
-       </div>
-        <!--<a href='#' onclick='change_file_comment("<?php  echo $file; ?>");return false;' style='text-decoration:none;' title="добавить комментарий">+</a>&nbsp;
-        <a href='#' onclick='delete_file_comment("<?php  echo $file; ?>");return false;' style='text-decoration:none;' title="удалить комментарий">-</a>-->
-        
-   </td>
+   <td class="<?php  echo $comment_style; ?>" managed="text" file_name="<?php  echo $file; ?>" when_done="clear_class" bg_text="добавьте свой комментарий"><?php  echo $comment; ?></td>
    <td class="left grey">
       ----
    </td>

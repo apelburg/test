@@ -22,7 +22,6 @@
 	/////////////////////////////////// AJAX //////////////////////////////////////
 	if(isset($_GET['update_specification_ajax']))
 	{
-	    
 		$field_val = $_POST['field_val'];
 		$field_val = strip_tags($field_val, '<br><br />');
 		$field_val = str_replace("'",'`',$field_val);
@@ -50,8 +49,7 @@
 	
 	if(isset($_GET['update_agreement_finally_sheet_ajax']))
 	{
-	
-	    $field_val = strip_tags($_POST['field_val']);
+		$field_val = strip_tags($_POST['field_val']);
 		$field_val = str_replace("'",'`',$field_val);
 		
 		update_agreement_finally_sheet($_POST['id'],$_POST['field_name'],$field_val);

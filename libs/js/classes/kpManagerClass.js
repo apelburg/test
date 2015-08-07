@@ -55,7 +55,7 @@
 		}
 		,
 		sendKpByMail:function (id){
-		    
+		   
 			kpManager.kp_id = id;
 			//alert(id+" "+client_id+" "+manager_id);
 			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search+'&send_kp_by_mail='+kpManager.kp_id;
@@ -63,8 +63,13 @@
 			make_ajax_request(url,call_back);
 			function call_back(response){
 				
-				// alert(response);
-			    var response_obj = JSON.parse(response);
+				try { 
+				   var response_obj = JSON.parse(response);
+				}
+                catch (e) { 
+				    alert('kpManager.sendKpByMail() ошибка JSON.parse(response)');
+				}
+
 				kpManager.details = response_obj;
                 if(kpManager.details.message_tpls) for(var prop in kpManager.details.message_tpls)kpManager.details.message_tpls[prop] = Base64.decode(kpManager.details.message_tpls[prop]);
 				
@@ -112,8 +117,13 @@
 			make_ajax_post_request(url,pairs,call_back);
 			function call_back(response){
 				 //alert(response);
+	 			 try { 
+				     var response = JSON.parse(response);
+				 }
+                 catch (e) { 
+				     alert('kpManager.sendKpByMailFinalStep() ошибка JSON.parse(response)');
+				 }
 				 
-				 response = JSON.parse(response);
 				 var div = document.createElement('div');
 				 div.id = "mailResponseDialog";
 				 div.style.textAlign = "center";
@@ -121,10 +131,27 @@
 				 div.innerHTML = response[1];
 				 document.body.appendChild(div);
 				 
+				 
 				 // если отправка прошла удачно удаляем окно редактирования сообщения и обнуляем значение kpManager.current_message_tpl
 				 if(response[0]){
 					 $("#mailSendDialog").remove();
 					 kpManager.current_message_tpl =false;
+					 
+					 // вписываем дату отправки 
+					 var tdsArr = document.getElementById('kp_list_tbl').getElementsByTagName('TD');
+					 
+					 for(var i = 0; i < tdsArr.length;i++){
+						  
+						  //GetDate(), GetDay(), GetMonth(), GetYear()
+						 if(tdsArr[i].hasAttribute('send_time_type') && tdsArr[i].getAttribute('send_time_type') == kpManager.kp_id){
+							 var date = new Date();
+							 var day = date.getDate().toString();
+							 if(day.length ==1 ) day = '0'+day;
+							 var month = (date.getMonth()+1).toString();
+							 if(month.length ==1 ) month = '0'+month;
+							 tdsArr[i].innerHTML = day + '.' + month + '.' + date.getFullYear(); 
+						 }
+					 }
 				 }
 				 
 				 $("#mailResponseDialog").dialog({autoOpen:false ,title:"Результат отправки письма",width: 1200,close: function() {this.remove();}});

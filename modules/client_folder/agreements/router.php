@@ -14,6 +14,8 @@
 	include 'agreements_controller.php';
     // шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';
+	
+	include ROOT.'/skins/tpl/client_folder/rt/client_details_bar.tpl';
 	// шаблон страницы
 	include ROOT.'/skins/tpl/client_folder/agreements/show.tpl';
 

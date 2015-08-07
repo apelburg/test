@@ -77,7 +77,13 @@
 			edit_field.style.cursor = 'default';
 			edit_field.style.fontSize = 'inherit';
 			edit_field.style.fontFamily = 'inherit';
-	        edit_field.innerHTML = element.innerHTML;
+			
+			var edit_field_text = element.innerHTML;
+			if(element.hasAttribute('bg_text')){
+				if(element.getAttribute('bg_text') == element.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')) edit_field_text = ''; 
+			}
+			
+	        edit_field.innerHTML = edit_field_text;
 			edit_field.addEventListener('click',function(e){e.stopPropagation();},false);
 			
 			// close button
@@ -111,26 +117,31 @@
 			edit_field.style.border = '#00FF00 solid 1px';
 			var new_data = edit_field.innerHTML;
 			//alert(new_data);
-            
 			element.innerHTML = new_data;
 			//tableDataManager.element = null;
 			tableDataManager.container = null;
 			tableDataManager.edit_field = null;
 			
-			var bd_row_id = element.getAttribute('bd_row_id');
-			var bd_field = element.getAttribute('bd_field');
+			var bd_row_id = (element.hasAttribute('bd_row_id'))? element.getAttribute('bd_row_id'):false;
+			var bd_field = (element.hasAttribute('bd_field'))? element.getAttribute('bd_field'):false;
+			var file_name = (element.hasAttribute('file_name'))? element.getAttribute('file_name'):false;
 			//alert(edit_field.innerHTML);
 			
 			//////////////////////////////////////////////////////////////////////////////////////////
 			/////////////////////////////////////    AJAX  ///////////////////////////////////////////		
 			
 			var regexp = /%20/g; // Регулярное выражение соответствующее закодированному пробелу
-	        var pair = "&id=" + bd_row_id + "&field_name=" + bd_field + "&field_val=" + encodeURIComponent(new_data).replace(regexp,"+");
-	       //alert(itog_pairs); 
+	        var pair = "field_val=" + encodeURIComponent(new_data).replace(regexp,"+");
+			if(bd_row_id) pair += "&id=" + bd_row_id;
+			if(bd_field)  pair += "&field_name=" + bd_field;
+			if(file_name) pair += "&file_name=" + file_name;
+			 
+	        //alert(pair); 
+		    
 	        var request = HTTP.newRequest();
 	  
 			var url = this.url;
-		    // alert(pair);
+		    // alert(url);
 			// производим запрос
 			request.open("POST", url); 
 			request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
@@ -151,6 +162,16 @@
 						//if(request_response != '') 
 				
 					   //alert("AJAX запрос выполнен");
+					    
+					   if(element.hasAttribute('when_done')){
+						   if(element.getAttribute('when_done')=='clear_class') element.className = '';
+					   }
+					   if(element.hasAttribute('bg_text')){
+						   if(new_data.replace(/^\s\s*/, '').replace(/\s\s*$/, '') == ''){
+								element.innerHTML = element.getAttribute('bg_text');
+								element.className = 'italic grey';
+						   }
+					   }
 					 
 					}
 					else{

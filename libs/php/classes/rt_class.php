@@ -771,37 +771,55 @@
 
 				
 				$query = "SELECT * FROM `".RT_DOP_USLUGI."` 
-					WHERE  `dop_row_id` = '".$value['row_id']."'
-				";
+					WHERE  `dop_row_id` = '".$value['row_id']."'";
 				$arr_dop_uslugi = array();
 				$result = $mysqli->query($query) or die($mysqli->error);
-
+				
 				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+			
+						 $query2 = "INSERT INTO `".CAB_DOP_USLUGI."` SET
+						`dop_row_id` =  '".$dop_data_row_id."',
+						`uslugi_id` = '".$row['uslugi_id']."',
+						`glob_type` = '".$row['glob_type']."',
+						`type` = '".$row['type']."',
+						`quantity` = '".$row['quantity']."',
+						`price_in` = '".$row['price_in']."',
+						`price_out` = '".$row['price_out']."',
+						`for_how` = '".$row['for_how']."',
+						`tz` = '".$row['tz']."',
+						`print_details` = '".$row['print_details']."';";
+						$mysqli->query($query2) or die($mysqli->error);	
+					}
+				}
+
+				/*if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 						$arr_dop_uslugi[] = $row;
 					}
-				}
 				
-				foreach ($arr_dop_uslugi as $v12) {
-					$query1 .= "INSERT INTO `".CAB_DOP_USLUGI."` SET
-					`dop_row_id` =  '".$dop_data_row_id."',
-					`uslugi_id` = '".$usluga['uslugi_id']."',
-					`glob_type` = '".$usluga['glob_type']."',
-					`type` = '".$usluga['type']."',
-					`quantity` = '".$usluga['quantity']."',
-					`price_in` = '".$usluga['price_in']."',
-					`price_out` = '".$usluga['price_out']."',
-					`for_how` = '".$usluga['for_how']."',
-					`tz` = '".$usluga['tz']."',
-					`print_details` = `".$usluga['print_details']."`;";
-				}
+				    $query1 =''; 
+					foreach ($arr_dop_uslugi as $usluga) {
+						$query1 .= "INSERT INTO `".CAB_DOP_USLUGI."` SET
+						`dop_row_id` =  '".$dop_data_row_id."',
+						`uslugi_id` = '".$usluga['uslugi_id']."',
+						`glob_type` = '".$usluga['glob_type']."',
+						`type` = '".$usluga['type']."',
+						`quantity` = '".$usluga['quantity']."',
+						`price_in` = '".$usluga['price_in']."',
+						`price_out` = '".$usluga['price_out']."',
+						`for_how` = '".$usluga['for_how']."',
+						`tz` = '".$usluga['tz']."',
+						`print_details` = '".$usluga['print_details']."';";
+					}
+				}*/
 
 			}
-
+/*
 			if($query1!=''){// в случае наличия доп услуг
 					$result = $mysqli->multi_query($query1) or die($mysqli->error);	
 				}
-			return 1;
+			return 1;*/
 		}  
     }
 
