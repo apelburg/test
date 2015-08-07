@@ -326,8 +326,9 @@ function change_attache_manager(data){
 //	General function for generate dialog windo START
 //////////////////////////////////////////////////////
 // показать окно
-function show_dialog_and_send_POST_window(html,title,height){
+function show_dialog_and_send_POST_window(html,title,height,width){
 	height_window = height || 'auto';
+	width = width || '1000';
 	title = title || '*** Название окна ***';
 	var buttons = new Array();
 	buttons.push({
@@ -362,7 +363,7 @@ function show_dialog_and_send_POST_window(html,title,height){
 	}
 	$('#dialog_gen_window_form').html(html);
 	$('#dialog_gen_window_form').dialog({
-          width: '1000',
+          width: width,
           height: height_window,
           modal: true,
           title : title,
@@ -685,3 +686,36 @@ function check_loading_ajax(){
 	window.l = 0;
 	window.onbeforeunload = function () {return ((check_loading_ajax()==false) ? "Измененные данные не сохранены. Закрыть страницу?" : null);}
 	});
+
+
+////////////////////////////////
+//	детализация по списку услуг
+////////////////////////////////
+
+$(document).on('click', '#general_panel_orders_tbl tr td.price_for_the_position', function(event) {
+	var dop_data_id = $(this).attr('data-cab_dop_data_id');
+	var id = $(this).attr('data-id');
+	var order_num_user = $(this).attr('data-order_num_user');
+	var order_num = $(this).attr('data-order_num');
+	var order_id = $(this).attr('data-order_id');
+
+
+	$.post('', {
+		AJAX: 'get_a_detailed_article_on_the_price_of_positions',
+		dop_data_id: dop_data_id,
+		id:id,
+		order_num:order_num,
+		order_id:order_id
+	}, function(data, textStatus, xhr) {
+		if(data['function'] !== undefined){ // на всякий
+			window[data['function']](data);
+		}
+
+		if(data['response'] == "OK"){
+			title = 'Заказ № '+order_num_user+' - финансовые расчёты';
+			show_dialog_and_send_POST_window(Base64.decode(data['html']),title,$(window).height(),$(window).width());
+		}else{
+			alert('Что-то пошло не так');
+		}
+	},'json');
+});

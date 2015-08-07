@@ -386,3 +386,44 @@ vertical-align: top;
 	font-size: 11px;
 	color: #F5A8A8;
 }
+
+table#general_panel_orders_tbl tr td.price_for_the_position:hover,
+table#general_panel_orders_tbl tr td.change_supplier:hover{
+	background-color: #BBCE91;cursor: pointer;
+}
+
+#a_detailed_article_on_the_price_of_positions{
+	border-collapse: collapse;    
+	width: 100%;
+}
+#a_detailed_article_on_the_price_of_positions td.postfaktum{
+	background-color: #E7E7E7;
+}
+
+#a_detailed_article_on_the_price_of_positions th{
+	background-color: #C7C7C7;
+    font-weight: normal;
+    font-size: 11px;
+    text-align: left;
+}
+#a_detailed_article_on_the_price_of_positions .itogo_for_position td{	
+	background-color: #E7E7E7;
+}
+#a_detailed_article_on_the_price_of_positions tr.itogo_for_position td.postfaktum{	
+	background: #C7C7C7;
+}
+#a_detailed_article_on_the_price_of_positions th:nth-of-type(2),
+#a_detailed_article_on_the_price_of_positions th:nth-of-type(10){
+	width: 350px;
+}
+.postfaktum_non_calculate{
+	display: none;
+}
+#a_detailed_article_on_the_price_of_positions th.added_postfactum_class,
+#a_detailed_article_on_the_price_of_positions td.added_postfactum_class,
+#a_detailed_article_on_the_price_of_positions td .added_postfactum_class{
+	background-color: #FFE1B5;
+}
+#a_detailed_article_on_the_price_of_positions tr.itogo_for_position_probel td{
+	height: 30px;
+}
