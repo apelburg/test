@@ -87,7 +87,9 @@
 		$html .= '<form>';
 		$html .= '<div>';
 
-		$html .= '<input type="text" name="name_ru" value="Новое поле">';
+		$html .= '<input type="text" name="name_ru" value="Новое поле"><br>';
+		// $html .= '<input type="checkbox" name="disabled_editing" id="disabled_editing"><label for="disabled_editing" checked>Запретить редактирование после заполнения</label><br>';
+		// $html .= '<input type="checkbox" name="required_fields" id="required_fields"><label for="required_fields" checked>Не разрешать запуск заказа при незаполненном поле</label>';
 		$html .= '<input type="hidden" name="AJAX" value="add_new_dop_input">';
 		$html .= '<input type="hidden" name="usl_id" value="'.$_POST['usl_id'].'">';
 		$html .= '</div>';
