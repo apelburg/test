@@ -34,6 +34,49 @@
 		       $dop_data = (array)$dop_data;
 		       if(count($dop_data)==0) continue;
 			   
+			   
+			   // прежде чем данные в таблицы КП сверим совпадают ли количество в расчетах и в услугах
+			   // может получиться что они не совпадают ( было что-то не досохранено в РТ)
+			   // для этого делаем предварительные запросы к таблицам RT_DOP_DATA и RT_DOP_USLUGI
+			   foreach($dop_data as $dop_key => $dop_val){
+			        // RT_DOP_DATA
+			        $query_dop1 ="SELECT*FROM `".RT_DOP_DATA."` WHERE id = '".$dop_key."'";//echo $query;
+				    $result_dop1 = $mysqli->query($query_dop1)or die($mysqli->error);
+					
+				    if($result_dop1->num_rows>0){
+						 $row_dop1=$result_dop1->fetch_assoc();
+		                 //RT_DOP_USLUGI
+					     $query_dop2="SELECT*FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$row_dop1['id']."'";//echo $query;
+						 $result_dop2 = $mysqli->query($query_dop2)or die($mysqli->error);
+						 if($result_dop2->num_rows>0){
+						      while($row_dop2=$result_dop2->fetch_assoc()){
+								  if($row_dop2['glob_type']=='print' && ($row_dop2['quantity']!=$row_dop1['quantity'])){
+								       $reload['flag'] = true;
+									   //echo $dop_data['quantity'];
+									   include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+									   $json_out =  rtCalculators::change_quantity_and_calculators($row_dop1['quantity'],$row_dop1['id']);
+									   $json_out_obj =  json_decode($json_out);
+									 
+									   // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
+									   // сбрасываем количество тиража и нанесения до 1шт.
+									   if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
+										   rtCalculators::change_quantity_and_calculators(1,$row_dop1['id']);
+										 
+										   $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$row_dop1['id']."'";
+										   $result = $mysqli->query($query)or die($mysqli->error);
+									   }
+						           }
+							  }
+						 }
+			        }
+			   }
+			   
+			   if(isset($reload['flag']) && $reload['flag'] == true){
+				   header('Location:'.HOST.'/?'.$_SERVER['QUERY_STRING']);
+				   exit;
+			   }
+			   
+			   
 			   // Вставляем ряд в таблицу KP_MAIN_ROWS
                $query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE id = '".$key."'";//echo $query;
 
@@ -72,43 +115,6 @@
 						   $dop_row_id = $mysqli->insert_id; 
 						   
 						   
-						   // прежде чем записать ряд в таблицу сверим совпадает ли количество в расчете и в услугах
-						   // для этого делаем дополнительный запрос к таблице RT_DOP_USLUGI, далее после добавления ряда 
-						   // будет такойже запрос к таблице RT_DOP_USLUGI но уже чтобы добавить доп услуги в спецификацию
-						   $query3_dop="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
-						   // echo $query."\r\n";
-						   $result3_dop = $mysqli->query($query3_dop)or die($mysqli->error);
-						   if($result3_dop->num_rows>0){
-						       while($uslugi_data = $result2_dop->fetch_assoc()){
-							     if($uslugi_data['glob_type']=='print' && ($uslugi_data['quantity']!=$dop_data['quantity'])){
-									 $reload['flag'] = true;
-									 //echo $dop_data['quantity'];
-									 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
-									 $json_out =  rtCalculators::change_quantity_and_calculators($dop_data['quantity'],$dop_data['id']);
-									 $json_out_obj =  json_decode($json_out);
-									 
-									 // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
-									 // сбрасываем количество тиража и нанесения до 1шт.
-									 if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
-										 rtCalculators::change_quantity_and_calculators(1,$dop_data['id']);
-										 
-										 $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$dop_data['id']."'";
-										 $result = $mysqli->query($query)or die($mysqli->error);
-									 }
-									 
-			
-								 } /**/
-							 }
-						 }
-						 if(isset($reload['flag']) && $reload['flag'] == true){
-							 header('Location:'.HOST.'/?'.$_SERVER['QUERY_STRING']);
-							 exit;
-						 }
-						   
-						   
-						   
-						   
-						   
 						   // Вставляем ряд в таблицу KP_DOP_USLUGI
 					       $query5="SELECT*FROM `".RT_DOP_USLUGI."` WHERE dop_row_id = '".$row3['id']."'";//echo $query;
 						   $result5 = $mysqli->query($query5)or die($mysqli->error);
@@ -144,16 +150,17 @@
 	   }*/
 	   static function delete($kp_id){
 	       global $mysqli;
-		   $arr=array();
-		   // !!! $conrtol_num
-		   // выбираем из базы строки выбранные для создания КП
-		   $query="DELETE FROM `".COM_PRED_ROWS."` WHERE kp_id = '".(int)$kp_id."'";
+
+           $query="DELETE list, main_rows, dop_data, uslugi
+				                 FROM `".KP_LIST."` list
+                                 INNER JOIN `".KP_MAIN_ROWS."` main_rows
+								 ON list.id = main_rows.kp_id 
+								 RIGHT JOIN `".KP_DOP_DATA."` dop_data 
+								 ON main_rows.id = dop_data.row_id
+								 RIGHT JOIN `".KP_DOP_USLUGI."` uslugi 
+								 ON dop_data.id = uslugi.dop_row_id 
+								 WHERE list.id = '".$kp_id."'";
 		   $result = $mysqli->query($query)or die($mysqli->error);
-		   if(!$result) return;
-		   
-		   $query="DELETE FROM `".COM_PRED_LIST."` WHERE id = '".(int)$kp_id."'";
-		   $result = $mysqli->query($query)or die($mysqli->error);
-		   if(!$result) return;
 	   }
 	   static function delete_old_version($file,$client_id,$id){
 		
@@ -191,7 +198,7 @@
 	   static function change_comment($id,$comment){
 	       global $mysqli;
 		   
-		   $query="UPDATE `".COM_PRED_LIST."` SET comment ='".$comment."'  WHERE id = '".(int)$id."'";
+		   $query="UPDATE `".KP_LIST."` SET comment ='".$comment."'  WHERE id = '".(int)$id."'";
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if(!$result) return;
 	   }
@@ -199,7 +206,7 @@
 			global $client_id;
 			
 			//echo $file_name.$file_comment;
-			$prefix = '../admin/order_manager/';
+			$prefix = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/';
 			
 			
 			
@@ -344,7 +351,7 @@
 	   static function save_mail_send_time($kp_id){
 	        global $mysqli;
 			 
-			$query="UPDATE `".COM_PRED_LIST."` SET 	`send_time` = NOW() WHERE `id` = '".$kp_id."'";
+			$query="UPDATE `".KP_LIST."` SET 	`send_time` = NOW() WHERE `id` = '".$kp_id."'";
 			$result = $mysqli->query($query)or die($mysqli->error);
 				//$row=$result->fetch_assoc();
 
@@ -1071,8 +1078,12 @@
 		        ob_start();
 		        while($row=$result->fetch_assoc()){ //
 				     $client_id = $row['client_id'] ;
-				     $send_time = substr($row['send_time'],0,10);
-					 $send_time = ($send_time!='0000-00-00')? $send_time:'не отправленно';
+					 if($row['send_time']!='0000-00-00 00:00:00'){
+					     $send_time_arr = explode("-",substr($row['send_time'],0,10));
+					     $send_time = implode(".",array_reverse($send_time_arr));
+					 }
+					 else $send_time = 'не отправленно';
+					 
 					 $date_arr = explode("-",substr($row['create_time'],0,10));
 					 $date = implode(".",array_reverse($date_arr));
 					 $query_num = $row['query_num'] ;
@@ -1160,7 +1171,7 @@
 					 
 					 list($date,$file) = $file_data;
 					 $file = trim(iconv("windows-1251", "UTF-8", $file));
-					 $comment = (isset($comments_arr[md5($file)]))? $comments_arr[md5($file)] : 'добавьте свой комментарий' ;
+					 $comment = (isset($comments_arr[md5($file)]) && trim($comments_arr[md5($file)])!='' )? $comments_arr[md5($file)] : 'добавьте свой комментарий' ;
 					 $comment_style = (trim($comment) == 'добавьте свой комментарий')? 'italic grey' : '' ;
 					 //$file = trim($file);
 					 eval(' ?>'.$rows_template.'<?php ');

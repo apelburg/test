@@ -159,7 +159,7 @@
 		a.appendChild(document.createTextNode('Коммерческое предложение'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
-		
+		/*
 		var innerDiv = document.createElement('div');
 		innerDiv.className = "link2";
 		var a = document.createElement('a');
@@ -167,7 +167,7 @@
 		a.onclick = makeOrder;
 		a.appendChild(document.createTextNode('Окончательный заказ'));
 		innerDiv.appendChild(a);
-		div.appendChild(innerDiv);
+		div.appendChild(innerDiv);*/
 		
 		var innerDiv = document.createElement('div');
 		innerDiv.className = "link2";
@@ -1556,9 +1556,8 @@
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_com_offer={"ids":'+JSON.stringify(idsObj)+',"client_id":"'+client_id+'","query_num":"'+query_num+'"}');
 		// AJAX запрос
 		make_ajax_request(url,callback);
-		//alert(last_val);
 		function callback(response){ 
-		   
+		    //alert(response);
 		    if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
 		    /*console.log(response);*/ 
 			close_processing_timer(); closeAllMenuWindows();

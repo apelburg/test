@@ -1,9 +1,10 @@
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/Base64Class.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/kpManagerClass.js"></script>
+<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/tableDataManager.js"></script>
 <script type="text/javascript">
-   tableDataManager.url = '?page=clients&section=client_folder&subsection=calculate_table&client_id=<?php echo $client_id; ?>';
+   tableDataManager.url = '?page=client_folder&section=business_offers&change_comment=1&client_id=<?php echo $client_id; ?>';
 </script>
-<table class="clients_common_output_table"  tbl="managed">
+<table id="kp_list_tbl" class="clients_common_output_table"  tbl="managed">
     <tr class="header">
         <td style="width:  7px;border:none;">&nbsp;</td>
         <td style="width:90px;border-left:none;">Дата созадания</td>

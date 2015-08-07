@@ -17,16 +17,12 @@
        <!--<a href='<?php  //echo $dir_name."/".$file; ?>'>скачать</a> /-->
         <!--<a href='#' onclick='rename_file("<?php  //echo $file; ?>");return false;'>переименовать</a> / /-->
    </td>
-   <td class="<?php  echo $comment_style; ?>">
-       <div managed="text" action="change_comment" bd_row_id="<?php echo $row['id']; ?>" bd_field="comment" when_done="set_color">
-           <?php  echo $comment; ?>
-       </div>
-   </td>
-   <td class="left">
+   <td class="<?php  echo $comment_style; ?>" managed="text" action="change_comment" bd_row_id="<?php echo $row['id']; ?>" bd_field="comment" when_done="clear_class" bg_text="добавьте свой комментарий"><?php  echo $comment; ?></td>
+   <td class="left" send_time_type="<?php echo $row['id']; ?>">
       <?php  echo $send_time; ?>
    </td>
    <td class="center italic grey">
-     <a href="?page=clients&section=client_folder&subsection=business_offers&client_id=<?php  echo $client_id; ?>&delete_com_offer=<?php  echo urlencode($row['id']); ?>" onclick='if(confirm(" Внимание! КП будет удалено!\r\n Вы действительно хотите удалить КП?")){ return true;} else{ return false;}'>DEL</a>
+     <a href="?<?php  echo addOrReplaceGetOnURL('delete_com_offer='.urlencode($row['id'])); ?>" onclick='if(confirm(" Внимание! КП будет удалено!\r\n Вы действительно хотите удалить КП?")){ return true;} else{ return false;}'>DEL</a>
    </td>
    <td class="flank_cell">&nbsp;</td>
 </tr>

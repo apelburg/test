@@ -70,10 +70,9 @@
 	if(isset($_GET['make_com_offer'])){
 		 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/com_pred_class.php");
 		 
-		 //echo 
-		 Com_pred::save_to_tbl($_GET['make_com_offer']);
+		 echo  Com_pred::save_to_tbl($_GET['make_com_offer']);
 
-		 /* старый вариант создания коммерческого предложени
+		 /* старый вариант создания коммерческого предложения
 		 echo make_com_offer($id_arr,(int)$_GET['stock'],$_GET['order_num']/ *string* /,$_GET['client_manager_id']/ *string* /,(int)$_GET['conrtol_num']);
 		 */
 		 exit;
@@ -214,6 +213,7 @@
 	
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';
+	
 	include ROOT.'/skins/tpl/client_folder/rt/client_details_bar.tpl';
 	include ROOT.'/skins/tpl/client_folder/rt/options_bar.tpl';
 

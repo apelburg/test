@@ -12,7 +12,8 @@
 	
 	 if(isset($_GET['update_tr_field_ajax']))
 	 {
-	     update_tr_field(intval($_POST['id']),$_POST['field_name'],$_POST['field_val']);
+	      echo('update_tr_field_ajax');
+		 update_tr_field(intval($_POST['id']),$_POST['field_name'],$_POST['field_val']);
 		 exit;//cor_data_for_SQL($_POST['field_name']),cor_data_for_SQL($_POST['field_val'])
 	 }
 	
@@ -59,10 +60,6 @@
 		 $file_name = $_POST['file_name'];
 		 $file_comment = urldecode($_POST['change_kp_comment_old_version']);
 		 Com_pred::change_comment_old_version($file_name,$file_comment);
-		 exit;
-	 }
-	 if(isset($_POST['change_comment'])){
-	     Com_pred::change_comment($_POST['id'],$_POST['field_val']);
 		 exit;
 	 }
 

@@ -60,7 +60,7 @@
 		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
 
         // вызываем класс выполняющий отправку сообщения
-		include(ROOT."/libs/php/classes/mail_class.php");
+		include_once(ROOT."/libs/php/classes/mail_class.php");
 		$mail = new Mail();
 		$mail->add_bcc('box1@yandex.ru');
 		$mail->add_cc('e-project1@mail.ru');
@@ -85,6 +85,11 @@
 	    exit;
 	}
 	
+	if(isset($_GET['change_comment'])){
+	     if(isset($_POST['id'])) Com_pred::change_comment($_POST['id'],$_POST['field_val']);
+		 if(isset($_POST['file_name'])) Com_pred::change_comment_old_version($_POST['file_name'],$_POST['field_val']);
+		 exit;
+	 }
 	
 	
 	///////////////////////////////////////  END AJAX  /////////////////////////////////////////////////
@@ -124,7 +129,8 @@
 	
 	
 	 if(isset($_GET['delete_com_offer'])){
-	     if($_GET['old_version']) Com_pred::delete_old_version($_GET['delete_com_offer'],intval($_GET['client_id']),$_GET['id']/* must be string*/);
+	 echo 11;
+	     if(isset($_GET['old_version'])) Com_pred::delete_old_version($_GET['delete_com_offer'],intval($_GET['client_id']),$_GET['id']/* must be string*/);
 		 else Com_pred::delete($_GET['delete_com_offer']);
 		 
 		 header('Location:?'.addOrReplaceGetOnURL('client_id='.$client_id,'delete_com_offer&old_version&id'));
@@ -135,6 +141,8 @@
 	
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';
+	
+	include ROOT.'/skins/tpl/client_folder/rt/client_details_bar.tpl';
 	
 	include 'business_offers_controller.php';
 
