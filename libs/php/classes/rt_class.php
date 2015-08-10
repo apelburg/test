@@ -787,11 +787,17 @@
 						`price_in` = '".$row['price_in']."',
 						`price_out` = '".$row['price_out']."',
 						`for_how` = '".$row['for_how']."',
-						`tz` = '".$row['tz']."',
+						`tz` = '".$row['tz']."',				
+						`performer` = '".$row['performer']."',
 						`print_details` = '".$row['print_details']."';";
 						$mysqli->query($query2) or die($mysqli->error);	
 					}
 				}
+				/*		
+						пока не знаю нужно ли копировать id создателя услуги из запроса в заказ.
+						пока что не копируем
+						`author_id_added_services` = '".$row['creator_id']."',		
+				*/
 
 				/*if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){

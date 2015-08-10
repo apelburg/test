@@ -500,3 +500,27 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
     font-size: 17px;
     color: #6F5B5B;
 }
+.date_of_delivery_of_the_order,.approval_date{
+	width: 65px
+}
+
+.otdel_status .performer_status{
+	
+}
+.otdel_status .service_name{
+	font-size: 10px;
+    color: #5D5D5D;
+}
+#general_panel_orders_tbl .orders_status_td_tbl{
+	padding: 0;
+	vertical-align: top;
+}
+#cabinet_general_content  #general_panel_orders_tbl .orders_status_td_tbl table{
+	height: 100%;
+}
+#cabinet_general_content  #general_panel_orders_tbl .orders_status_td_tbl table tr td{
+	border:none;
+}
+#cabinet_general_content  #general_panel_orders_tbl .orders_status_td_tbl table tr td:nth-of-type(1){
+	border-right: 1px solid #e8e8e8;	
+}

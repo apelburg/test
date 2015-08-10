@@ -1,5 +1,20 @@
 <?php
     class Cabinet{
+
+
+    	// исполнитель услуг по правам
+    	protected $performer = array(
+			'1' => 'Админ',
+			'2' => 'Бухгалтерия',
+			'4' => 'Производство',
+			'5' => 'Менеджер',
+			'6' => 'Водитель',
+			'7' => 'Склад',
+			'8' => 'Снабжение',
+			'9' => 'Дизайнер' 
+		);
+
+
     	// допуски пользователя
     	protected $user_access = 0;
 
@@ -11,8 +26,8 @@
 			'request_expense'=>'Запрошен счёт',
 			'requeried_expense'=>'Перевыставить счёт',
 			'waiting_for_payment' => 'ждём оплаты', // сервисный
-			// 'in_work'=>'В работе',
-			'in_operation'=>'В работу',
+			'in_work'=>'В работе',
+			'in_operation'=>'Зупуск в работу',
 			'ready_for_shipment'=>'Готов к отгрузке',
 			'shipped'=>'Отгружен',
 			'paused'=>'Приостановлен',		
@@ -39,13 +54,20 @@
 			'in_work' => 'в работе',
 			'history' => 'история'
 		);
+
+		// статусы склад
+		protected $statuslist_sklad = array(
+			'no_goods' => 'товара НЕТ', 
+			'goods_in_stock' => 'товар на складе', 
+			'goods_shipped' => 'отгружен', 
+			);
 			
 
 
     	function __consturct(){
 		}
 
-		private function replace_query_row_AJAX(){
+		protected function replace_query_row_AJAX(){
 			$method = $_GET['section'].'_Template';
 			// echo $method;
 			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
@@ -107,9 +129,149 @@
 			$html .= '<input type="hidden" name="author_name_added_services" value="'.Manager::get_snab_name_for_query_String($_SESSION['access']['user_id']).'">';
 			$html .= '<input type="hidden" name="author_id_added_services" value="'.$_SESSION['access']['user_id'].'">';
 			$html .= '</form>';
-
 			echo '{"response":"show_new_window","title":"Шаг 2: Заполните необходимые поля", "html":"'.base64_encode($html).'"}';
 		}
+
+
+		// контент для окна доп/тех инфо
+		protected function get_dop_tex_info_AJAX(){
+			$html = '';
+			// подгружаем форму по резерву
+			$html .= '<div class="container_form">';
+			$html .= '<div class="green_inform_block">Информация для снабжения</div>';
+			$html .= 'Резерв<br>';
+			$html .= '<input type="text" class="rezerv_info_input" name="rezerv_info" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value="'.$this->get_cab_dop_data_position_Database($_POST['id_dop_data']).'">';
+			$html .= '</div>';
+
+			#######################################
+
+			// подгружаем таблицу услуг
+			$html .= '<div class="container_form">';
+			$html .= '<div class="green_inform_block">Услуги</div>';		
+					
+			$this->uslugi = $this->get_order_dop_uslugi($_POST['id_dop_data']); 
+
+			if(count($this->uslugi)){ // если услуги прикреплены
+
+				$html .= '<table id="services_listing"><tr>';
+				$html .= '<tr><th>Название услуги</th><th>Информация для зополнения</th></tr>';
+				$html .= '<td id="services_listing_each"><ul>';
+				
+				// перебираем услуги и вы
+				$first_right_content = '';// контент по первой услуге
+				$n = 0; // порядковый номер
+				foreach ($this->uslugi as $usluga) {
+					$no_active = ($usluga['on_of']=='0')?' no_active':'';	
+					$this->Service = $usluga; // по сути строка из CAB_DOP_USLUGI			
+					$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').''.$no_active.'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
+					if($n == 0){
+						// запоминаем тз по первой услуге
+						$first_right_content .= $this->get_dop_inputs_for_services($usluga['uslugi_id'],$usluga['id']);						
+					}
+					$n++;
+				}
+				$html .= '</ul></td>';
+				// $html .= '<td id="content_dop_inputs_and_tz"><span class="title_dop_inputs_info">Выберите услугу</span></td>';
+				$html .= '<td id="content_dop_inputs_and_tz">'.$first_right_content.'</td>';
+
+				$html .= '</table>';
+			}else{
+				$html .= 'услуги не прикреплены.... и это оооочень странно. Обратитесь к Админу.';
+			}
+
+			$html .= '</div>';
+
+			################################################
+
+			// подгружаем комментарии для позиции 
+			global $PositionComments;
+			$html .= '<div class="container_form">';
+			$html .= '<div class="green_inform_block">Переписка</div>';
+			$html .= '</div>';
+			$html .= '<div class="container_form">';
+			
+			$html .= $PositionComments -> get_comment_for_position_without_Out();
+			$html .= '</div>';
+			
+
+			// Вывод
+			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+		}
+		// вывод кнопки доп/тех инфо, с подсветкой в случае наличия в ней сообщиений в переписке по позиции
+		protected function grt_dop_teh_info($value){
+			// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
+			// думаю есть смысл хранения в json 
+			// обязательные поля:
+			// {"comments":" ","technical_info":" ","maket":" "} ???? 
+
+			// если есть информация
+			$no_empty_class = (Comments_for_order_dop_data_class::check_the_empty_position_coment_Database($value['id']))?' no_empty':'';
+
+			$html = '<td>
+					<div class="dop_teh_info '.$no_empty_class.'" data-id_dop_data="'.$this->id_dop_data.'" data-id="'.$value['id'].'" data-query_num="'.$this->query_num.'" data-position_item="'.$this->position_item.'" data-order_num="'.$this->order_num.'" data-order_num_User="'.$this->order_num_for_User.'"  >доп/тех инфо</div>
+					<div class="dop_teh_info_window_content"></div>
+				</td>';
+
+			return $html;
+		}	
+
+		// общет стоимости позиции
+		protected function GET_PRICE_for_position($value){
+			////////////////////////////////////
+			//	Расчёт стоимости позиций START  
+			////////////////////////////////////
+
+			//ОБСЧЁТ ВАРИАНТОВ
+			// получаем массив стоимости нанесения и доп услуг для данного варианта 
+			$dop_usl = $this-> get_order_dop_uslugi($value['id_dop_data']);
+
+			// выборка только массива стоимости печати
+			$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
+			// выборка только массива стоимости доп услуг
+			$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
+
+
+			// стоимость товара
+			$this->Price_for_the_goods = $value['price_out'] * $value['quantity'];
+			// стоимость услуг печати
+			$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
+			// стоимость услуг не относящихся к печати
+			$this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
+			// общаяя цена позиции включает в себя стоимость услуг и товара
+			$this->Price_for_the_position = $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing;
+					
+
+			////////////////////////////////////
+			//	Расчёт стоимости позиций END
+			////////////////////////////////////
+		}			
+		
+
+		protected function show_cirilic_name_status_snab($status_snab){
+			if(substr_count($status_snab, '_pause')){
+				$status_snab = 'На паузе';
+			}
+			// echo '<pre>';
+			// print_r($this->POSITION_NO_CATALOG->status_snab);
+			// echo '</pre>';
+						
+			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
+				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
+			}else{
+				$status_snab;
+			}
+			return $status_snab;
+		}
+
+		//	оборачивает в оболочку warning_message
+		protected function wrap_text_in_warning_message($text){
+			$html = '<div class="warning_message"><div>';	
+			$html .= $text;
+			$html .= '</div></div>';
+
+			return $html;
+		}
+		
 
 		// получаем пустую форму с dop_inputs для прикрепляемой услуги
 		protected function get_empty_dop_inputs_form($id){
@@ -553,7 +715,7 @@
 
 		// выбираем данные о стоимости печати 
 		//на вход подаётся массив из get_dop_uslugi($dop_row_id); 
-		public function get_dop_uslugi_print_type($arr){
+		protected function get_dop_uslugi_print_type($arr){
 			$arr_new = array();
 			foreach ($arr as $key => $val) {
 				if($val['glob_type']=='print'){
@@ -562,22 +724,28 @@
 			}
 			return $arr_new;
 		}
-		public function select_global_status($real_val,$status_arr){
-			
-			$html = '<select>';
-			foreach ($status_arr as $key => $value) {
-				$is_checked = ($key==$real_val)?'selected="selected"':'';
-				$html .= ' <option '.$is_checked.' value="'.$key.'">'.$value.'</option>';
-			}	
-			$html .= '</select>';
+
+		protected function select_global_status($real_val,$status_arr){	
+			// если это менеджер и реальный статус в работу, то мы выводим кнопку запуска в работу,
+			// в остальных случаях - как обычно
+			if($real_val == 'in_operation' && $this->user_access == 1){
+				$html = '<input type="button" name="'.$real_val.'" class="'.$real_val.'" value="'.$status_arr[$real_val].'">';
+			}else{
+				$html = '<select>';
+				foreach ($status_arr as $key => $value) {
+					$is_checked = ($key==$real_val)?'selected="selected"':'';
+					$html .= ' <option '.$is_checked.' value="'.$key.'">'.$value.'</option>';
+				}	
+				$html .= '</select>';
+			}
 			return $html;
 		}
 
 		
-		public function select_status($real_val,$status_arr){
+		protected function select_status($real_val,$status_arr){
 			
 			$html = '<select><option value="">...</option>';
-			foreach ($status_arr as $key => $value) {
+			foreach ($status_arr as $key => $value){
 				$is_checked = ($real_val==$key)?'selected="selected"':'';
 				$html .= ' <option '.$is_checked.' value="'.$key.'">'.$value.'</option>';
 			}	
@@ -587,8 +755,8 @@
 
 		
 		public function get_gen_status($variable,$type){
-			$start_status = $variable[0]['status_'.$type];
 
+			$start_status = $variable[0]['status_'.$type];
 			foreach ($variable as $key => $value) {
 				if($start_status!=$value['status_'.$type] ){
 					$start_status = '';
@@ -634,7 +802,7 @@
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			global $mysqli;
 
-			$query = "SELECT `".CAB_DOP_USLUGI."`.*,`os__our_uslugi`.`name`
+			$query = "SELECT `".CAB_DOP_USLUGI."`.*,`os__our_uslugi`.`name`,`os__our_uslugi`.`performer`
 			FROM `".CAB_DOP_USLUGI."` 
 			LEFT JOIN  `os__our_uslugi` ON  `os__our_uslugi`.`id` = `".CAB_DOP_USLUGI."`.`uslugi_id` 
 			WHERE `".CAB_DOP_USLUGI."`.`dop_row_id` = '".$dop_row_id."'";
@@ -642,9 +810,17 @@
 			//$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$arr = array();
+
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$arr[] = $row;
+
+
+
+					$this->Position_status_list[$this->performer[$row['performer']]][] = array(
+						'performer_status' => $row['performer_status'], 
+						'service_name' => $row['name']
+						);
 				}
 			}
 			// $arr[] = $query;
@@ -1126,6 +1302,39 @@
 			$percent = round((($price_out-$price_in)*100/$per),2);
 			return $percent;
 		}
+
+		// правим дату сдачи заказа
+		protected function change_date_of_delivery_of_the_order_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
+				`date_of_delivery_of_the_order` =  '".$_POST['date']."' 
+				WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
+		// правим дату утверждения макета
+		protected function change_approval_date_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
+				`approval_date` =  '".$_POST['date']."' 
+				WHERE  `id` ='".$_POST['row_id']."';";
+
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
+
+		// правим срок по дс
+		protected function change_deadline_value_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
+				`deadline` =  '".$_POST['value']."' 
+				WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
 
 		// запрос строк позиций из базы
 		protected function positions_rows_Database($order_id){

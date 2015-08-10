@@ -1,6 +1,6 @@
 <?php
 	
-	class Cabinet_snab_class{
+	class Cabinet_snab_class extends Cabinet{
 
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(

@@ -215,7 +215,8 @@ class Position_general_Class{
 		             `uslugi_id` = '".$id_uslugi."',
 					 `glob_type` = 'extra',
 					 `price_in` = '".$usluga['price_in']."',
-					 `price_out` = '".$usluga['price_out']."',
+					 `price_out` = '".$usluga['price_out']."',					 
+					 `performer` = '".$usluga['performer']."',
 					 `price_out_snab` = '".$usluga['price_out']."',
 					 `for_how` = '".$usluga['for_how']."',
 					 `creator_id` = '". $this->user_id."',
@@ -232,6 +233,7 @@ class Position_general_Class{
 		$NEW_usl[0]['price_out'] = $usluga['price_out'];
 		$NEW_usl[0]['price_out_snab'] = $usluga['price_out'];
 		$NEW_usl[0]['for_how'] = $usluga['for_how'];
+		$NEW_usl[0]['performer'] = $usluga['performer'];
 		$NEW_usl[0]['quantity'] = $quantity;
 		$NEW_usl[0]['creator_id'] = $this->user_id;
 		// $NEW_usl[0]['print_details'] = $usluga['print_details'];

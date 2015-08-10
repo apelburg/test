@@ -46,11 +46,102 @@ $(document).ready(function() {
 	 	format:'d.m.Y',
 	 	
 	});
+
+
+	// дата сдачи заказа
+	$('.date_of_delivery_of_the_order').datetimepicker({
+		minDate:new Date(),
+		// disabledDates:['07.05.2015'],
+		timepicker:false,
+	 	dayOfWeekStart: 1,
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		closeOnDateSelect:true,
+		onChangeDateTime: function(dp,$input){// событие выбора даты
+			// получение данных для отправки на сервер
+			var row_id = $input.parent().parent().attr('data-id');
+			var date = $input.val();
+
+			//alert($input.attr('class'));
+			$.post('', {
+				AJAX: 'change_date_of_delivery_of_the_order',
+				row_id: row_id,
+				date: date
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+
+			},'json');
+		},
+	 	format:'d.m.Y',	 	
+	});
+
+
+
+
+
+	
+
+	// дата утверждения макета
+	$('.approval_date').datetimepicker({
+		minDate:new Date(),
+		// disabledDates:['07.05.2015'],
+		timepicker:false,
+	 	dayOfWeekStart: 1,
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		closeOnDateSelect:true,
+		onChangeDateTime: function(dp,$input){// событие выбора даты
+			// получение данных для отправки на сервер
+			var row_id = $input.parent().parent().attr('data-id');
+			var date = $input.val();
+
+			//alert($input.attr('class'));
+			$.post('', {
+				AJAX: 'change_approval_date',
+				row_id: row_id,
+				date: date
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+
+			},'json');
+		},
+	 	format:'d.m.Y',	 	
+	});
 });
 
 
+// стандартный обработчик ответа AJAX
+function standard_response_handler(data){
+	if(data['function'] !== undefined){ // вызов функции... если требуется
+		window[data['function']](data);
+	}
+	if(data['response'] != "OK"){ // вывод при ошибке
+		console.log(data);
+	}
+}
+
+// редактирование срока по ДС
+$(document).on('keyup', '.deadline', function(event) {
+	var value = $(this).html();
+	var row_id = $(this).parent().attr('data-id');
+	$.post('', {
+		AJAX:'change_deadline_value',
+		row_id:row_id,
+		value:value
+
+	}, function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+	});
+	check_loading_ajax();
+});
 // сохраняем поле ОПЛАЧЕНО
-	$(document).on('change','.buch_status_select select',function(){
+$(document).on('change','.buch_status_select select',function(){
 		// записываем id строки услуги
 		var row_id = $(this).parent().parent().attr('data-id');
 		var value = $(this).val();

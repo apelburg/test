@@ -2,26 +2,26 @@
 	
 	class Cabinet_buch_class extends Cabinet{
 
-		private $order_status2 = array(
-			'being_prepared'=>'В оформлении',
-			'request_expense'=>'Запрошен счёт',
-			'in_work'=>'В работе',
-			'ready_for_shipment'=>'Готов к отгрузке',
-			'shipped'=>'Отгружен',
-			'paused'=>'Приостановлен',		
-			'cancelled'=>'Аннулирован'
-			);
+		// private $order_status2 = array(
+		// 	'being_prepared'=>'В оформлении',
+		// 	'request_expense'=>'Запрошен счёт',
+		// 	'in_work'=>'В работе',
+		// 	'ready_for_shipment'=>'Готов к отгрузке',
+		// 	'shipped'=>'Отгружен',
+		// 	'paused'=>'Приостановлен',		
+		// 	'cancelled'=>'Аннулирован'
+		// 	);
 
-		private $buch_status2 = array(
-    		'score_exhibited' => 'счёт выставлен',
-			'payment' => 'оплачен',//дата в таблицу
-			'partially_paid' => 'частично оплачен',//дата в таблицу			
-			'prihodnik_on_bail' => 'приходник на залог',
-			'cancelled'=>'Аннулирован',		
-			'returns_client_collateral' => 'возврат залога клиенту',
-			'refund_in_a_row' => 'возврат денег по счёту',
-			'ogruzochnye_accepted' => 'огрузочные приняты (подписанные)'
-    	);
+		// private $buch_status2 = array(
+  //   		'score_exhibited' => 'счёт выставлен',
+		// 	'payment' => 'оплачен',//дата в таблицу
+		// 	'partially_paid' => 'частично оплачен',//дата в таблицу			
+		// 	'prihodnik_on_bail' => 'приходник на залог',
+		// 	'cancelled'=>'Аннулирован',		
+		// 	'returns_client_collateral' => 'возврат залога клиенту',
+		// 	'refund_in_a_row' => 'возврат денег по счёту',
+		// 	'ogruzochnye_accepted' => 'огрузочные приняты (подписанные)'
+  //   	);
 
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
@@ -117,42 +117,7 @@
 		############################################
 		###				AJAX START               ###
 		############################################
-		// возвращает html строки запроса в json 
-		// private function replace_query_row_AJAX(){
-		// 	global $mysqli;
-		// 	// получаем строку из os__rt_list
-		// 	$query = "SELECT `".RT_LIST."`.*, 
-		// 		(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
-		// 		SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
-				
-		// 		DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
-		// 		FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['os__rt_list_id']."'";
-		// 	$result = $mysqli->query($query) or die($mysqli->error);
-		// 	$zapros = array();
-		// 	if($result->num_rows > 0){
-		// 		while($row = $result->fetch_assoc()){
-		// 			$zapros[] = $row;
-		// 		}
-		// 	}
-		// 	// для обсчёта суммы за тираж			
-		// 	include_once ('./libs/php/classes/rt_class.php');
-						
-		// 	foreach ($zapros as $key => $value) {
-		// 		$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
-		// 		$html = '<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
-		// 					<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> </td>
-		// 					<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span></td>
-		// 					<td>'.$value['create_time'].''.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
-		// 					<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
-		// 					<td>'.$this->get_client_name_Database($value['client_id']).'</td>
-		// 					<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-		// 					<td class="'.$value['status'].'_'.$this->user_access.'">'.$this->name_cirillic_status[$value['status']].'</td>';
-
-		// 	}
-		// 	echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-					
-		// 	// echo $html;
-		// }
+		
 
 
 		############################################
@@ -172,7 +137,7 @@
 
 		##########################################
 		################ Важно
-		Private Function important_Template(){
+		private function important_Template(){
 			echo 'Раздел в разработке =)';
 		}
 
@@ -182,7 +147,7 @@
 
 		##########################################
 		## Предзаказ
-		private function paperwork_Template($id_row=0){
+		protected function paperwork_Template($id_row=0){
 
 			global $mysqli;
 			
@@ -203,11 +168,11 @@
 			
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
+			$position_arr_id = array();
 			
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$main_rows_id[] = $row;
+					$position_arr_id[] = $row;
 				}
 			}
 
@@ -215,9 +180,9 @@
 			
 			// собираем html строк-запросов
 			$html1 = '';
-			if(count($main_rows_id)==0){return 1;}
+			if(count($position_arr_id)==0){return 1;}
 
-			foreach ($main_rows_id as $key => $value) {
+			foreach ($position_arr_id as $key => $value) {
 				//if(!isset($value2)){continue;} // !!!!!!!!!!!!!!!!!
 				$order_num_1 = Cabinet::show_order_num($value['order_num']);
 				$invoice_num = $value['invoice_num'];
@@ -244,12 +209,12 @@
 			                
 				";
 
-				$main_rows = array();
+				$position_arr = array();
 				$result = $mysqli->query($query) or die($mysqli->error);
-				$main_rows_id = array();
+				$position_arr_id = array();
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
-						$main_rows[] = $row;
+						$position_arr[] = $row;
 					}
 				}
 
@@ -280,8 +245,8 @@
 						</tr>';
 
 
-				$in_out_summ = 0; // общая стоимость заказа
-				foreach ($main_rows as $key1 => $val1) {
+				$this->Price_of_position = 0; // общая стоимость заказа
+				foreach ($position_arr as $key1 => $val1) {
 					//ОБСЧЁТ ВАРИАНТОВ
 					// получаем массив стоимости нанесения и доп услуг для данного варианта 
 					$dop_usl = $this-> get_order_dop_uslugi($val1['id_dop_data']);
@@ -312,7 +277,7 @@
 					<td></td>
 					<td></td>
 							</tr>';
-					$in_out_summ +=$in_out; // прибавим к общей стоимости
+					$this->Price_of_position +=$in_out; // прибавим к общей стоимости
 				}
 
 				$html .= '</table>';
@@ -323,7 +288,7 @@
 				###############################
 
 				// получаем % оплаты
-				$percent_payment = ($in_out_summ!=0)?round($value['payment_status']*100/$in_out_summ,2):'0.00';		
+				$percent_payment = ($this->Price_of_position!=0)?round($value['payment_status']*100/$this->Price_of_position,2):'0.00';		
 				// собираем строку заказа
 				
 				$html2 = '<tr data-id="'.$value['id'].'" >';
@@ -338,7 +303,7 @@
 							<td class="number_payment_list" contenteditable="true">'.$value['number_pyament_list'].'</td>
 							<td><span>'.$percent_payment.'</span> %</td>
 							<td><span class="payment_status_span edit_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
-							<td><span>'.$in_out_summ.'</span> р.</td>
+							<td><span>'.$this->Price_of_position.'</span> р.</td>
 							<td class="buch_status_select">'.$this->select_status($value['buch_status'],$this->buch_status).'</td>
 							<td class="select_global_status">'.$this->order_status[$value['global_status']].'</td>';
 				$html3 = '</tr>';
@@ -411,11 +376,11 @@
 			}
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
+			$position_arr_id = array();
 			
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$main_rows_id[] = $row;
+					$position_arr_id[] = $row;
 				}
 			}
 
@@ -425,14 +390,14 @@
 
 			// собираем html строк-запросов
 			$html1 = '';
-			if(count($main_rows_id)==0){return 1;}
+			if(count($position_arr_id)==0){return 1;}
 
-			foreach ($main_rows_id as $key => $value) {
+			foreach ($position_arr_id as $key => $value) {
 				//if(!isset($value2)){continue;}
 				$order_num_1 = Cabinet::show_order_num($value['order_num']);
 				$invoice_num = $value['invoice_num'];
 
-				//$main_rows = $this->get_main_rows_Database($value['id']);
+				$position_arr = $this->orders_Template_get_position_arr_Database($value['id']);
 
 				// СОБИРАЕМ ТАБЛИЦУ
 				###############################
@@ -463,42 +428,45 @@
 						</tr>';
 
 
-				$in_out_summ = 0; // общая стоимость заказа
-				$num_position = count($main_rows);$r=0;
-				foreach ($main_rows as $key1 => $val1) {
-					//ОБСЧЁТ ВАРИАНТОВ
-					// получаем массив стоимости нанесения и доп услуг для данного варианта 
-					$dop_usl = $this->get_order_dop_uslugi($val1['id_dop_data']);
-					// выборка только массива стоимости печати
-					$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
-					// выборка только массива стоимости доп услуг
-					$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
+				$this->Price_of_position = 0; // общая стоимость заказа
+				$num_position = count($position_arr);$r=0;
+				foreach ($position_arr as $key1 => $position) {
+					////////////////////////////////////
+					//	Расчёт стоимости позиций START  
+					////////////////////////////////////
+					/*
+						!!!!!!!!    ОПИСАНИЕ    !!!!!!!!!
 
-					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
-					// стоимость печати варианта
-					$calc_summ_dop_uslug = $this-> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
-					// стоимость доп услуг варианта
-					$calc_summ_dop_uslug2 = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
-					// стоимость товара для варианта
-					$price_out = $val1['price_out'] * $val1['quantity'];
-					// стоимость варианта на выходе
-					$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
+						стоимость товара
+						$this->Price_for_the_goods;	// $price_out
+						стоимость услуг печати
+						$this->Price_of_printing;
+						стоимость услуг не относящихся к печати
+						$this->Price_of_no_printing;
+						общаяя цена позиции включает в себя стоимость услуг и товара
+						$this->Price_for_the_position;
+					*/
+					$this->GET_PRICE_for_position($position);				
+					
+					////////////////////////////////////
+					//	Расчёт стоимости позиций END
+					////////////////////////////////////
 
 
-					$html .= '<tr  data-id="'.$val1['id'].'">
-					<td> '.$val1['id_dop_data'].'<!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
-					<td>'.$val1['name'].'</td>
-					<td>'.($val1['quantity']+$val1['zapas']).'</td>
+					$html .= '<tr  data-id="'.$position['id'].'">
+					<td> '.$position['id_dop_data'].'<!--'.$position['id_dop_data'].'|-->  '.$position['art'].'</td>
+					<td>'.$position['name'].'</td>
+					<td>'.($position['quantity']+$position['zapas']).'</td>
 					<td></td>
-					<td><span>'.$price_out.'</span> р.</td>
-					<td><span>'.$calc_summ_dop_uslug.'</span> р.</td>
-					<td><span>'.$calc_summ_dop_uslug2.'</span> р.</td>
-					<td><span>'.$in_out.'</span> р.</td>
-					<td class="status_snab">'.$this->select_status(8,$val1['status_snab']).'</td>
-					<td>'.$val1['status_sklad'].'</td>
-					<td>'.$val1['status_men'].'</td>
+					<td><span>'.$this->Price_for_the_goods.'</span> р.</td>
+					<td><span>'.$this->Price_of_printing.'</span> р.</td>
+					<td><span>'.$this->Price_of_no_printing.'</span> р.</td>
+					<td><span>'.$this->Price_for_the_position.'</span> р.</td>
+					<td class="status_snab">'.$position['status_snab'].'</td>
+					<td>'.$position['status_sklad'].'</td>
+					<td>'.$position['status_men'].'</td>
 							</tr>';
-					$in_out_summ +=$in_out; // прибавим к общей стоимости
+					$this->Price_of_position += $this->Price_for_the_position; // прибавим к общей стоимости
 					$r++;
 				}
 				$html .= '</table>';
@@ -509,7 +477,7 @@
 				###############################
 
 				// получаем % оплаты
-				$percent_payment = round($value['payment_status']*100/$in_out_summ,2);		
+				$percent_payment = ($this->Price_of_position!=0)?round($value['payment_status']*100/$this->Price_of_position,2):0;		
 				// собираем строку заказа
 				$html2 = '
 						<tr data-id="'.$value['id'].'">
@@ -518,7 +486,7 @@
 							<td>'.$value['company'].'</td>
 							<td></td>
 							<td>'.$value['payment_date'].'</td>
-							<td class="select_global_status">'.$value['global_status'].'</td>
+							<td class="select_global_status">'.$this->order_status[$value['global_status']].'</td>
 						</tr>
 				';
 				$html1 .= $html2 . $html;
@@ -537,7 +505,7 @@
 			echo '</table>';
 		}
 		## Заказы __ запросы к базе		
-		private function orders_Template_get_main_rows_Database($id){
+		private function orders_Template_get_position_arr_Database($id){
 			global $mysqli;
 			$query = "
 				SELECT 
@@ -548,7 +516,7 @@
 					`".CAB_ORDER_DOP_DATA."`.`zapas`,	
 					DATE_FORMAT(`".CAB_ORDER_MAIN."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 					`".CAB_ORDER_MAIN."`.*,
-					`".CAB_ORDER_MAIN."`.`id` AS `main_rows_id`,
+					`".CAB_ORDER_MAIN."`.`id` AS `position_arr_id`,
 					`".CAB_ORDER_ROWS."`.`id` AS `request_id`,
 					`".CAB_ORDER_ROWS."`.`global_status`,
 					`".CAB_ORDER_ROWS."`.`payment_status`,
@@ -556,25 +524,24 @@
 					FROM `".CAB_ORDER_MAIN."` 
 					INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`
 					LEFT JOIN `".CAB_ORDER_ROWS."` ON `".CAB_ORDER_ROWS."`.`id` = `".CAB_ORDER_MAIN."`.`order_num`
-					WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`order_num` = '".$value['id']."'
+					WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`order_num` = '".$id."'
 					ORDER BY `".CAB_ORDER_MAIN."`.`id` ASC
 			                
 				";
 
-			$main_rows = array();
+			$position_arr = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$main_rows[] = $row;
+					$position_arr[] = $row;
 				}
 			}
-			return $main_rows;
+			return $position_arr;
 		}
 		################ Заказы __ END
 		
 		## На отгрузку
-		Private Function for_shipping_Template(){
+		protected function for_shipping_Template($id_row = 0){
 			global $mysqli;
 			$array_request = array();
 
@@ -591,43 +558,48 @@
 				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
 			// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` NOT LIKE '%Отгружен%' AND `".CAB_ORDER_ROWS."`.`global_status` NOT LIKE '%Аннулирован%'";
 			$subsection = (isset($_GET['subsection']))?$_GET['subsection']:'';
-			switch ($subsection) {
-				case 'ready_for_shipment':
-					# code...Приостановлен
-					$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'Готов к отгрузке'";
-					break;
-					
-				case 'otgrugen':
-					# code...Приостановлен
-					$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'Отгружен'";
-					break;
-					
 
-				default:
-					# code...
-					break;
+			if($id_row){
+				$query .=" WHERE `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
+			}else{
+				switch ($subsection) {
+					case 'ready_for_shipment':
+						# code...Приостановлен
+						$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'ready_for_shipment'";
+						break;
+						
+					case 'otgrugen':
+						# code...Приостановлен
+						$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'shipped'";
+						break;
+						
+
+					default:
+						# code...
+						break;
+				}
 			}
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
+			$position_arr_id = array();
 			
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$main_rows_id[] = $row;
+					$position_arr_id[] = $row;
 				}
 			}
 
 			// echo '<pre>';
-			// print_r($zapros);
+			// print_r($position_arr_id);
 			// echo '</pre>';
 
 			// собираем html строк-запросов
 			$html1 = '';
-			if(count($main_rows_id)==0){return 1;}
+			if(count($position_arr_id)==0){return 1;}
 
-			foreach ($main_rows_id as $key => $value) {
+			foreach ($position_arr_id as $key => $value) {
 				//if(!isset($value2)){continue;}
-				$order_num_1 = Cabinet::show_order_num($value['order_num']);
+				$order_num_1 = self::show_order_num($value['order_num']);
 				$invoice_num = $value['invoice_num'];
 
 
@@ -653,12 +625,12 @@
 				";
 				// echo $query.'<br><br><br>';
 
-				$main_rows = array();
+				$position_arr = array();
 				$result = $mysqli->query($query) or die($mysqli->error);
-				$main_rows_id = array();
+				$position_arr_id = array();
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
-						$main_rows[] = $row;
+						$position_arr[] = $row;
 					}
 				}
 
@@ -690,45 +662,44 @@
 							<th></th>
 						</tr>';
 
+				$this->Price_of_position = 0; // общая стоимость заказа
+				foreach ($position_arr as $key1 => $position) {
+					////////////////////////////////////
+					//	Расчёт стоимости позиций START  
+					////////////////////////////////////
+					/*
+						!!!!!!!!    ОПИСАНИЕ    !!!!!!!!!
 
-				$in_out_summ = 0; // общая стоимость заказа
-			// 		echo '<pre>';
-			// print_r($main_rows);
-			// echo '</pre>';
-				foreach ($main_rows as $key1 => $val1) {
-					//ОБСЧЁТ ВАРИАНТОВ
-					// получаем массив стоимости нанесения и доп услуг для данного варианта 
-					$dop_usl = $this -> get_order_dop_uslugi($val1['id_dop_data']);
-					// выборка только массива стоимости печати
-					$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
-					// выборка только массива стоимости доп услуг
-					$dop_usl_no_print = $this -> get_dop_uslugi_no_print_type($dop_usl);
+						стоимость товара
+						$this->Price_for_the_goods;
+						стоимость услуг печати
+						$this->Price_of_printing;
+						стоимость услуг не относящихся к печати
+						$this->Price_of_no_printing;
+						общаяя цена позиции включает в себя стоимость услуг и товара
+						$this->Price_for_the_position;
+					*/
+					$this->GET_PRICE_for_position($position);				
+					
+					////////////////////////////////////
+					//	Расчёт стоимости позиций END
+					////////////////////////////////////
 
-					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
-					// стоимость печати варианта
-					$calc_summ_dop_uslug = $this -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
-					// стоимость доп услуг варианта
-					$calc_summ_dop_uslug2 = $this -> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
-					// стоимость товара для варианта
-					$price_out = $val1['price_out'] * $val1['quantity'];
-					// стоимость варианта на выходе
-					$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
-
-					$html .= '<tr  data-id="'.$val1['id'].'">
-					<td> <!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
-					<td>'.$val1['name'].'</td>
-					<td class="change_ttn_number"  contenteditable="true">'.$val1['ttn_number'].'</td>
-					<td><span class="change_delivery_tir" contenteditable="true">'.$val1['delivery_tir'].'</span>шт.</td>
-					<td>'.($val1['quantity']+$val1['zapas']).'</td>
+					$html .= '<tr  data-id="'.$position['id'].'">
+					<td> <!--'.$position['id_dop_data'].'|-->  '.$position['art'].'</td>
+					<td>'.$position['name'].'</td>
+					<td class="change_ttn_number"  contenteditable="true">'.$position['ttn_number'].'</td>
+					<td><span class="change_delivery_tir" contenteditable="true">'.$position['delivery_tir'].'</span>шт.</td>
+					<td>'.($position['quantity']+$position['zapas']).'</td>
 					<td></td>
-					<td><span>'.$price_out.'</span> р.</td>
-					<td><span>'.$calc_summ_dop_uslug.'</span> р.</td>
-					<td><span>'.$calc_summ_dop_uslug2.'</span> р.</td>
-					<td><span>'.$in_out.'</span> р.</td>
+					<td><span>'.$this->Price_for_the_goods.'</span> р.</td>
+					<td><span>'.$this->Price_of_printing.'</span> р.</td>
+					<td><span>'.$this->Price_of_no_printing.'</span> р.</td>
+					<td><span>'.$this->Price_for_the_position.'</span> р.</td>
 					<td></td>
 					<td></td>
-							</tr>';
-					$in_out_summ +=$in_out; // прибавим к общей стоимости
+					</tr>';
+					$this->Price_of_position += $this->Price_for_the_position; // прибавим к общей стоимости
 				}
 				$html .= '</table>';
 
@@ -740,11 +711,10 @@
 				###############################
 
 				// получаем % оплаты
-				$percent_payment = round($value['payment_status']*100/$in_out_summ,2);		
+				$percent_payment = round($value['payment_status']*100/$this->Price_of_position,2);		
 				// собираем строку заказа
-				$html2 = '
-						<tr data-id="'.$value['id'].'">
-							<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
+				$html2 = '<tr data-id="'.$value['id'].'">';
+				$html2_body = '<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
 							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.$order_num_1.'</a></td>
 							<td>'.$value['create_time'].'</td>
 							<td>'.$value['company'].'</td>
@@ -753,12 +723,14 @@
 							<td class="number_payment_list" contenteditable="true">'.$value['number_pyament_list'].'</td>
 							<td><span>'.$percent_payment.'</span> %</td>
 							<td><span class="payment_status_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
-							<td><span>'.$in_out_summ.'</span> р.</td>
-							<td class="buch_status_select">'.$CABINET->select_status(2,$value['buch_status']).'</td>
-							<td class="select_global_status">'.$CABINET->select_global_status($value['global_status']).'</td>
-						</tr>
-				';
-				$html1 .= $html2 . $html;
+							<td><span>'.$this->Price_of_position.'</span> р.</td>
+							<td class="buch_status_select">'.$this->select_status($value['buch_status'], $this->buch_status).'</td>
+							<td class="select_global_status">'.$this->order_status[$value['global_status']].'</td>';
+				$html3 =	'</tr>';
+				$html1 .= $html2 .$html2_body . $html3 . $html;
+
+				// запрос по одной строке без подробностей
+				if($id_row){return $html2_body;}
 			}
 			echo '
 			<table class="cabinet_general_content_row">
@@ -801,11 +773,11 @@
 			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'Откружен' OR `".CAB_ORDER_ROWS."`.`buch_status` = 'огрузочные приняты (подписанные)'";
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
+			$position_arr_id = array();
 			
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$main_rows_id[] = $row;
+					$position_arr_id[] = $row;
 				}
 			}
 
@@ -815,9 +787,9 @@
 
 			// собираем html строк-запросов
 			$html1 = '';
-			if(count($main_rows_id)==0){return 1;}
+			if(count($position_arr_id)==0){return 1;}
 
-			foreach ($main_rows_id as $key => $value) {
+			foreach ($position_arr_id as $key => $value) {
 				if(!isset($value2)){continue;}
 					$order_num_1 = Cabinet::show_order_num($value['order_num']);
 					$invoice_num = $value['invoice_num'];
@@ -844,12 +816,12 @@
 				                
 					";
 
-					$main_rows = array();
+					$position_arr = array();
 					$result = $mysqli->query($query) or die($mysqli->error);
-					$main_rows_id = array();
+					$position_arr_id = array();
 					if($result->num_rows > 0){
 						while($row = $result->fetch_assoc()){
-							$main_rows[] = $row;
+							$position_arr[] = $row;
 						}
 					}
 
@@ -880,8 +852,8 @@
 							</tr>';
 
 
-					$in_out_summ = 0; // общая стоимость заказа
-					foreach ($main_rows as $key1 => $val1) {
+					$this->Price_of_position = 0; // общая стоимость заказа
+					foreach ($position_arr as $key1 => $val1) {
 						//ОБСЧЁТ ВАРИАНТОВ
 						// получаем массив стоимости нанесения и доп услуг для данного варианта 
 						$dop_usl = $CABINET -> get_order_dop_uslugi($val1['id_dop_data']);
@@ -912,7 +884,7 @@
 						<td></td>
 						<td></td>
 								</tr>';
-						$in_out_summ +=$in_out; // прибавим к общей стоимости
+						$this->Price_of_position +=$in_out; // прибавим к общей стоимости
 					}
 					$html .= '</table>';
 					$html .= '</td>';
@@ -922,7 +894,7 @@
 					###############################
 
 					// получаем % оплаты
-					$percent_payment = round($value['payment_status']*100/$in_out_summ,2);		
+					$percent_payment = round($value['payment_status']*100/$this->Price_of_position,2);		
 					// собираем строку заказа
 					$html2 = '
 							<tr data-id="'.$value['id'].'">
@@ -935,7 +907,7 @@
 								<td class="number_payment_list" contenteditable="true">'.$value['number_pyament_list'].'</td>
 								<td><span>'.$percent_payment.'</span> %</td>
 								<td><span class="payment_status_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
-								<td><span>'.$in_out_summ.'</span> р.</td>
+								<td><span>'.$this->Price_of_position.'</span> р.</td>
 								<td class="buch_status_select">'.$CABINET->select_status(2,$value['buch_status']).'</td>
 								<td class="select_global_status">'.$CABINET->select_global_status($value['global_status']).'</td>
 							</tr>
@@ -982,108 +954,8 @@
 		##                           END                           ##
 		#############################################################
 
-
-
-
-		#################################################
-		##                   START                     ##
-		##      методы для работы с базой данных       ##
-		#################################################
-
-		function get_all_orders_Database_Array(){
-			global $mysqli;
-			$arr = array();
-			$query = '';
-
-		}
-
-		#################################################
-		##      методы для работы с базой данных       ##
-		##                    END                      ##
-		#################################################
-		
-		//////////////////////////
-		//	service method
-		//////////////////////////
-		private function show_cirilic_name_status_snab($status_snab){
-			if(substr_count($status_snab, '_pause')){
-				$status_snab = 'На паузе';
-			}
-			// echo '<pre>';
-			// print_r($this->POSITION_NO_CATALOG->status_snab);
-			// echo '</pre>';
-						
-			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
-				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
-			}else{
-				$status_snab;
-			}
-
-			return $status_snab;
-		}
-
-		// private function get_client_name_Database($id){
-		// 	global $mysqli;		
-		// 	//получаем название клиента
-		// 	$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
-		// 	$result = $mysqli->query($query) or die($mysqli->error);
-		// 	$name = '';
-		// 	if($result->num_rows > 0){
-		// 		while($row = $result->fetch_assoc()){
-		// 			$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';
-		// 		}
-		// 	}else{
-		// 		$name = '<div class="attach_the_client add" data-id="0">Прикрепить клиента</div>';
-		// 	}
-		// 	return $name;
-		// }
-
-		// private 	function get_manager_name_Database_Html($id){
-		//     global $mysqli;
-		//     $String = '<span class="attach_the_manager add" data-id="0">Прикрепить менеджера</span>';
-		//    	$arr = array();
-		//     $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
-		//     $result = $mysqli->query($query)or die($mysqli->error);
-		//     if($result->num_rows>0){
-		// 		foreach($result->fetch_assoc() as $key => $val){
-		// 		   $arr[$key] = $val;
-		// 		}
-		//     }
-
-		    
-		//     if(count($arr)){
-		//     	$String = '<span class="attach_the_manager" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
-		//     }
-		//     return $String;
-		// }
-
-		//////////////////////////
-		//	оборачивает в оболочку warning_message
-		//////////////////////////
-		private function wrap_text_in_warning_message($text){
-			$html = '<div class="warning_message"><div>';	
-			$html .= $text;
-			$html .= '</div></div>';
-
-			return $html;
-		}
-
-
-
-		//////////////////////////
-		//	комментарии к запросу
-		//////////////////////////
-		private function get_comment_for_query_Database(){
-			global $mysqli;
-			$query = "";
-		}
-
-
-
-
-
 		function __destruct(){}
-	}
+}
 
 
 ?>
