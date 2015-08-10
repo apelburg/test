@@ -1554,6 +1554,9 @@ margin-left: -350px;z-index: 999;}
 .letterEditWindowTbl input[type="checkbox"]{float:left; display:block;}
 .letterEditWindowTbl .attachedKpFileName { margin:2px 0 0 0}
 .letterEditWindowTbl .mailSendBtn{  font-size:14px;padding:6px 90px;margin-top:6px;cursor:pointer;}
+.letterEditWindowTbl .selectRow{  height:20px;padding:15px 15px;background-color:#FFFFFF;cursor:pointer;}
+.letterEditWindowTbl .selectRow:hover{  background-color:#9dbe8e;}
+
 
  #content_general{}
 .add_del_curator{ float: left; margin-left: 10px;  margin-bottom: 5px;  cursor: default;  font-size: 15px;  background-color: #A6CC8B;color: #fff; padding: 2px 7px;}
