@@ -44,6 +44,286 @@
 		}
 
 
+
+		// получение формы выбора услуги для заказа
+		protected function get_uslugi_list_Database_Html_steep_1_AJAX(){ // шаг 0: выбираем услугу
+			$html = '<form>';
+			$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
+			$html .= $this->get_uslugi_list_Database_Html();
+			$html .= '<input type="hidden" name="id_uslugi" value="">';
+			$html .= '<input type="hidden" name="service_name" value="">';
+			$html .= '<input type="hidden" name="id_dop_data" value="'.$_POST['id_dop_data'].'">';
+			// $html .= '<input type="hidden" name="quantity" value="">';
+			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga_form_steep_2">';
+			$html .= '</form>';
+			echo $html;
+		}
+
+		// вывод формы дополнительных фопросов по добавляемой услуге
+		// шаг 1: заполняем тираж, и доп поля (если назначены)
+		protected function add_new_usluga_form_steep_2_AJAX(){ 
+			$html = 'Услуга <strong>'.$_POST['service_name'].'</strong>';
+			
+			$html .= '<form>';
+			// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+			unset($_POST['AJAX']);
+			// перебираем остальные значения для передачи их далее
+			foreach ($_POST as $key => $value) {
+				$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+			}
+			
+			// добавляем новые поля по необходимости
+			$html .= '<div>';
+			$html .= 'Введите тираж:<br>';
+			$html .= '<input type="text" name="quantity" value="">';
+			$html .= '</div>';
+
+			//$html .= $this->get_dop_inputs_for_services($_POST['id_uslugi'], $_POST['id_dop_data'])
+
+			$html .= $this->get_empty_dop_inputs_form($_POST['id_uslugi']);
+
+			$html .= '<div>';
+			$html .= 'Введите ТЗ / комментарии к услуге:<br>';
+			$html .= '<textarea name="tz"></textarea>';
+			$html .= '</div>';
+
+
+			// передаём название метода, который будет обрабатывать данную форму
+			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga_form_steep_3">';
+			// чтобы узнать имя пользователя подключам класс Managers
+			include_once './libs/php/classes/manager_class.php';
+			$html .= '<input type="hidden" name="author_name_added_services" value="'.Manager::get_snab_name_for_query_String($_SESSION['access']['user_id']).'">';
+			$html .= '<input type="hidden" name="author_id_added_services" value="'.$_SESSION['access']['user_id'].'">';
+			$html .= '</form>';
+
+			echo '{"response":"show_new_window","title":"Шаг 2: Заполните необходимые поля", "html":"'.base64_encode($html).'"}';
+		}
+
+		// получаем пустую форму с dop_inputs для прикрепляемой услуги
+		protected function get_empty_dop_inputs_form($id){
+			global $mysqli;
+			// получаем id полей для этой услуги
+			$query = "SELECT `name`,`uslugi_dop_inputs_id`,`price_in`,`price_out`,`for_how` FROM ".OUR_USLUGI_LIST." WHERE `id` = '".$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$this->iputs_id_Str = '0';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$this->iputs_id_Str = $row['uslugi_dop_inputs_id'];
+					$this->AddedServiceName = $row['name'];
+					$this->Service = $row;
+				}
+			}
+
+			// получаем массив dop_inputs
+			$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."` WHERE `id` IN (".$this->iputs_id_Str.")";
+			$this->iputs_arr = array();
+			if(trim($this->iputs_id_Str)!=''){
+				$result = $mysqli->query($query) or die($mysqli->error);				
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->iputs_arr[] = $row;
+					}
+				}
+			}
+			$html = '';
+
+
+			// добавляем поля dop_inputs
+			foreach ($this->iputs_arr as $key => $input) {
+				//echo $input['name_ru'];
+				$html .= $input['name_ru'].'<br>';
+				if($input['type']=="text"){
+					$html .= '<div><input type="'.$input['type'].'" name="dop_inputs['.$input['name_en'].']" placeholder="" value=""></div>';
+				}
+			}
+			// добавляем скрытые поля 
+			$html .= '<input type="hidden" value="'.$this->Service['price_in'].'"  name="price_in">';
+			$html .= '<input type="hidden" value="'.$this->Service['price_out'].'"  name="price_out">'; // для услуг добавленных в заказ исходащая цена = 0, т.е. их сибистоимость вычитается из маржинальности
+			$html .= '<input type="hidden" value="'.$this->Service['for_how'].'"  name="for_how">';
+
+
+			return $html;
+		}
+
+		protected function add_new_usluga_form_steep_3_AJAX(){ 
+			$this->TZ = $_POST['tz'];
+			unset($_POST['tz']);
+			unset($_POST['AJAX']);// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+
+			global $mysqli;
+			$html = '';
+			// СОБИРАЕМ СКРЫТУЮ ФОРМУ
+			$html .= '<form>';
+
+			// перебираем POST массив для передачи их далее
+			$f = 0;
+			foreach ($_POST as $key => $value) {
+				if($key!='dop_inputs'){
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}else if(!$f){
+					foreach ($_POST['dop_inputs'] as $key1 => $value) {
+						$html .= '<input type="hidden" name="dop_inputs['.$key1.']" value="'.$value.'">';
+						// $html .= '<tr><td>'.$iputs_all_arr[$key]['name_ru'].':</td><td>'.$value.'</td></tr>';
+					}
+					$f++;	
+				}else{
+
+				}
+			}
+
+			
+			// ВЫВОДИМ ВВЕДЁННУЮ ИНФОРМАЦИЮ ДЛЯ ПРОВЕРКИ
+			$html .= '<table id="check_input_iformation">';
+			$html .= '<tr><td>Услуга:</td><td>'.$_POST['service_name'].'</td></tr>';
+			$html .= '<tr><td>Тираж:</td><td>'.$_POST['quantity'].'</td></tr>';
+			$this->Service_price_in = ($_POST['for_how'] == "for_one")?$_POST['quantity']*$_POST['price_in']:$_POST['price_in'];
+			// $this->Service_price_out = ($_POST['for_how'] == "for_one")?$_POST['quantity']*$_POST['price_out']:$_POST['price_in'];
+			$this->Service_price_out = 0; // для услуг добавленных в заказ показываем исходащую цену = 0, т.е. их сибистоимость вычитается из маржинальности
+			
+			
+			$html .= '<tr><td>$ входящая:</td><td><span>'.(($this->user_access==1 || $this->user_access==8)?'<input type="text" name="price_in" value="'.$this->Service_price_in.'">':$this->Service_price_in).'</span>р.</td></tr>';
+			
+
+			$html .= '<tr><td>$ исходащая:</td><td><span>'.$this->Service_price_out.'</span>р</td></tr>';
+			if(isset($_POST['dop_inputs']) && count($_POST['dop_inputs'])){// если есть доп поля
+				// для представления пользователю информациии по доп полям в читабельном виде
+				// получаем список всех полей dop_inputs
+				$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."`";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$iputs_all_arr = array();
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$iputs_all_arr[$row['name_en']] = $row;
+					}
+				}
+
+				$html .= '<tr><td colspan="2" style="text-align:center">Дополнительные поля</td></tr>';
+				foreach ($_POST['dop_inputs'] as $key => $value) {
+					$html .= '<tr><td>'.$iputs_all_arr[$key]['name_ru'].':</td><td>'.$value.'</td></tr>';
+				}				
+			}
+
+			$html .= '<table>';
+			$html .= '<div>';
+			$html .= 'Введите ТЗ / комментарии к услуге:<br>';
+			$html .= '<textarea name="tz">'.$this->TZ.'</textarea>';
+			$html .= '</div>';
+
+			// передаём название метода, который будет обрабатывать данную форму
+			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga_end">';
+
+			$html .= '</form>';
+
+			echo '{"response":"show_new_window","title":"Шаг 3: Проверка введённых данных","html":"'.base64_encode($html).'"}';
+			
+		}
+
+		protected function add_new_usluga_end_AJAX(){
+			
+
+
+
+			global $mysqli;
+			// ob_start();
+			// echo '<pre>';
+			// print_r($_POST['dop_inputs']);
+			// echo '</pre>';
+			    	
+			// $content = ob_get_contents();
+			// ob_get_clean();
+			// $html =$content;
+			// echo $html;
+			$query ="INSERT INTO `".CAB_DOP_USLUGI."` SET ";
+			$query .= "`dop_row_id` = '".$_POST['id_dop_data']."',";
+			$query .= "`uslugi_id` = '".$_POST['id_uslugi']."',";
+			$query .= "`glob_type` = 'extra',";
+			$query .= "`quantity` = '".$_POST['quantity']."',";
+			$query .= "`price_in` = '".$_POST['price_in']."',";
+			$query .= "`price_out` = '".$_POST['price_out']."',";
+			$query .= "`for_how` = '".$_POST['for_how']."',";
+			$query .= "`tz` = '".$_POST['tz']."',";
+			// собираем JSON по доп полям
+			if(isset($_POST['dop_inputs']) && count($_POST['dop_inputs'])){
+				$query .= "`print_details_dop` = '".json_encode($_POST['dop_inputs'])."',";
+			}
+
+			$query .= "`author_name_added_services` = '".$_POST['author_name_added_services']."',";
+			$query .= "`author_id_added_services` = '".$_POST['author_id_added_services']."',";			
+			$query .= "`change_log` = 'Добавил ".$_POST['author_name_added_services']." ".date("d.m.Y H:m:s")."'";
+
+
+
+			$result = $mysqli->query($query) or die($mysqli->error);
+			// запоминаем новый id
+			$insert_id = $mysqli->insert_id;
+
+			// собираем HTML
+			$html = '<tr class="not_provided" data-id="'.$insert_id.'">
+					<td></td>
+					<td><span class="postfaktum_non_calculate">0</span></td>
+					<td><span class="postfaktum_non_calculate service_price_in">0</span></td>
+					<td><span class="postfaktum_non_calculate">0</span></td>
+					<td><span class="postfaktum_non_calculate service_price_out">0</span></td>
+					<td><span class="postfaktum_non_calculate service_price_pribl">0</span></td>
+					<td class="postfaktum"></td><td class="postfaktum added_postfactum">'.$_POST['service_name'].'</td>
+					<td class="postfaktum added_postfactum"><span>'.(($_POST['for_how'] == 'for_one')?$_POST['quantity']:'  -  ').'</span></td>
+					<td class="postfaktum added_postfactum"><span class="service_price_in_postfactum">'.(($_POST['for_how'] == 'for_one')?$_POST['quantity']*$_POST['price_in']:$_POST['price_in']).'</span>р</td>
+					<td class="postfaktum"><span data-id="'.$insert_id.'" class="on_of">+</span></td><td></td></tr>';
+			
+			echo '{"response":"OK","function":"add_new_usluga_end","html":"'.base64_encode($html).'"}';
+		}
+
+
+		protected function get_uslugi_list_Database_Html($id=0,$pad=30){	
+			global $mysqli;
+			$html = '';
+			
+			$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$price = '<div class="echo_price_uslug"><span></span><span></span></div>';
+					if($row['id']!=6 && $row['parent_id']!=6){// исключаем нанесение apelburg
+						# Это услуги НЕ из КАЛЬКУЛЯТОРА
+						// запрос на детей
+						$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+						
+						$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+						
+						// присваиваем конечным услугам класс may_bee_checked
+						$html.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+					}else{
+						# Это услуги из КАЛЬКУЛЯТОРА
+						// запрос на детей
+						$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+
+						$price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+						// присваиваем конечным услугам класс may_bee_checked
+						$html.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+					}
+				}
+			}
+			return $html;
+		}
+
+
+		// // форма добавления услуги 
+		// protected function get_uslugi_list_Database_Html_AJAX(){
+		// 	include_once './libs/php/classes/rt_position_catalog_class.php';
+		// 	include_once './libs/php/classes/rt_position_gen_class.php';
+		// 	new Position_general_Class();			
+		// }
+
+		// включение отключение услуги
+		protected function change_service_on_of_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`on_of` =  '".(int)$_POST['val']."' 
+				WHERE  `id` ='".$_POST['id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
 		// редактирование поля ТЗ к услуге
 		protected function save_tz_info_AJAX(){
 			global $mysqli;
@@ -86,7 +366,7 @@
 				return 'Укажите id услуги';
 			}
 			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-		}
+		}		
 
 		// ролучаем dop_inputs
 		protected function get_dop_inputs_for_services($id, $dop_usluga_id){
@@ -100,7 +380,6 @@
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 						$this->Service = $row;
-						;
 					}
 				}
 			}
@@ -126,7 +405,7 @@
 
 
 			//////////////////////////
-			//	СЛЕДУЮЩИЕ 2 запроса нужно сократить до одного
+			//	СЛЕДУЮЩИЕ 2 запроса В БЛИЖАЙШЕМ БУДУЩЕМ нужно сократить до одного !!!!!!!!!!!!
 			//////////////////////////
 			// запрашиваем список полей предназначенных для этой услуги
 			$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."` WHERE `id` IN (".$this->iputs_id_Str.")";
@@ -584,11 +863,11 @@
 
 			// собираем шапку таблицы
 			$html .= '<table id="a_detailed_article_on_the_price_of_positions">';
-			$html .= '<tr>';
-			$html .= '<td colspan="8">Рассчитанная стоимость заказа</td><td colspan="5" class="postfaktum">Фактическая входящая стоимость</td><td></td>';
+			$html .= '<tr class="no_calc">';
+			$html .= '<td></td><td colspan="7">Рассчитанная стоимость заказа</td><td class="postfaktum"></td><td colspan="4" class="postfaktum">Фактическая входящая стоимость</td><td></td>';
 			$html .= '</tr>';
 
-			$html .= '<tr>';
+			$html .= '<tr class="no_calc">';
 				// рассчитано ранее
 				$html .= '<th>п</th>';
 				$html .= '<th>Артикул/номенклатура</th>';
@@ -619,7 +898,7 @@
 			//////////////////////////////////
 			//	перебор заказа по позициям  //
 			//////////////////////////////////
-
+			$this->GlobAdded_postfactum_class  = 'td_shine'; // класс подсветки цен при появлении услуг добавленных в заказ
 			foreach ($this->Positions_arr as $key => $position) {
 				// считаем тираж для товара по позиции
 				$this->PosGenTirage = $position['quantity']+$position['zapas'];
@@ -635,23 +914,23 @@
 				$this->PositionItogo_price_pribl = $this->PositionItogo_price_out - $this->PositionItogo_price_in; // прибыль по позиции
 				$this->PositionItogo_price_percent = $this->get_percent_Int($this->PositionItogo_price_in,$this->PositionItogo_price_out);
 
-
-				$html .= '<tr>';
+				// строка стоимости и описания товара
+				$html .= '<tr class="tovar_provided" id="tovar_provided_'.($key+1).'">';
 					// рассчитано ранее
 					$rowspan = count($position['SERVICES'])+1;
 					$html .= '<td rowspan="'.$rowspan.'">'.($key+1).'</td>';
 					$html .= '<td rowspan="'.$rowspan.'">'.$position['name'].'</td>';
 					$html .= '<td>товар</td>';
 					$html .= '<td><span>'.$this->PosGenTirage.'</span>шт</td>';
-					$html .= '<td><span>'.$this->PositionItogo_price_in.'</span>р</td>';
+					$html .= '<td><span class="service_price_in">'.$this->PositionItogo_price_in.'</span>р</td>';
 					$html .= '<td><span>'.$this->PositionItogo_price_percent.'</span>%</td>';
-					$html .= '<td><span>'.$this->PositionItogo_price_out.'</span>р</td>';
-					$html .= '<td><span>'.$this->PositionItogo_price_pribl.'</span>р</td>';
+					$html .= '<td><span class="service_price_out">'.$this->PositionItogo_price_out.'</span>р</td>';
+					$html .= '<td><span class="service_price_pribl">'.$this->PositionItogo_price_pribl.'</span>р</td>';
 					// то, что получилось по факту
 					$html .= '<td class="postfaktum"></td>';
 					$html .= '<td class="postfaktum">'.$position['name'].'</td>';
 					$html .= '<td class="postfaktum"><span>'.$this->PosGenTirage.'</span>шт</td>';
-					$html .= '<td class="postfaktum">'.$this->PositionItogo_price_in.'</span>р</td>';
+					$html .= '<td class="postfaktum"><span class="service_price_in_postfactum">'.$this->PositionItogo_price_in.'</span>р</td>';
 					$html .= '<td class="postfaktum"></td>';
 					$html .= '<td></td>';
 				$html .= '</tr>';
@@ -659,37 +938,44 @@
 
 
 				$html_added = ''; // услуги добавленные в заказ
-				$added_postfactum_class = ''; // класс подсветки цен при появлении услуг добавленных в заказ
+				$added_postfactum_class = 'td_shine'; // класс подсветки цен при появлении услуг добавленных в заказ
 				// перебираем прикреплённые услуги
 				foreach ($position['SERVICES'] as $count => $service) {
 					//////////////////////////////////////////////////////////
 					//	объявляем переменные для подсчёта стоимости услуги  //
 					//////////////////////////////////////////////////////////
-					$this->Service_price_in = $service['price_in'];// входящая  по услуге то, что было рассчитано клиенту
+					$this->Service_price_in = ($service['for_how']=='for_one')?$service['price_in']*$service['quantity']:$service['price_in'];// входящая  по услуге то, что было рассчитано клиенту
 					$this->Service_price_out = $this->calc_summ_dop_uslug(array($service)); // исходящая по услуге
 					$this->Service_price_pribl = $this->Service_price_out - $this->Service_price_in; // прибыль по услуге
 					$this->Service_tir = ($service['for_how']=='for_one')?'<span>'.$service['quantity'].'</span>шт':'<span>  -  </span>'; // тираж по услуге
 					$this->Service_Name = $this->Services_list[$service['uslugi_id']]['name']; // название услуги
 					$this->Service_percent = $this->get_percent_Int($this->Service_price_in,$this->Service_price_out);
 
+					$this->Service_swhitch_On_Of = ((int)$service['on_of'] == 1)?'<span  data-id="'.$service['id'].'" class="on_of">+</span>':'<span  data-id="'.$service['id'].'" class="on_of minus">-</span>';
+
+
 					switch ((int)$service['author_id_added_services']) {
 							case 0: // для услуг добавленных из запроса
-								$html .= '<tr data-id="'.$service['id'].'">';
+								$html .= '<tr class="provided '.(($service['on_of'] == 0)?'no_calc':'').'" data-id="'.$service['id'].'">';
 									// рассчитано ранее
 									$html .= '<td>'.$this->Service_Name.'</td>';
 									$html .= '<td>'.$this->Service_tir.'</td>';
-									$html .= '<td><span>'.$this->Service_price_in.'</span>р</td>';
+									$html .= '<td><span class="service_price_in">'.$this->Service_price_in.'</span>р</td>';
 									$html .= '<td><span>'.$this->Service_percent.'</span>%</td>';
-									$html .= '<td><span>'.$this->Service_price_out.'</span>р</td>';
-									$html .= '<td><span>'.$this->Service_price_pribl.'</span>р</td>';
+									$html .= '<td><span class="service_price_out">'.$this->Service_price_out.'</span>р</td>';
+									$html .= '<td><span class="service_price_pribl">'.$this->Service_price_pribl.'</span>р</td>';
 									// то, что получилось по факту
 									$html .= '<td class="postfaktum"></td>';
 									$html .= '<td class="postfaktum">'.$this->Service_Name.'</td>';
 									$html .= '<td class="postfaktum">'.$this->Service_tir.'</td>';
-									$html .= '<td class="postfaktum"><span>'.$this->Service_price_in.'</span>р</td>';
-									$html .= '<td class="postfaktum">+</td>';
+									$html .= '<td class="postfaktum"><span  class="service_price_in_postfactum">'.$this->Service_price_in.'</span>р</td>';
+									$html .= '<td class="postfaktum">'.$this->Service_swhitch_On_Of.'</td>';
 									$html .= '<td></td>';
 								$html .= '</tr>';
+
+								// если в просчёте не учавствует - continue
+								if($service['on_of'] == 0){continue;}
+
 								//////////////////////////////////////////////////
 								//	добавляем стоимость услуги к цене за позицию
 								//////////////////////////////////////////////////
@@ -700,36 +986,48 @@
 								break;
 							
 							default:// если указан id того, кто добавил услугу, то услуга была добавлена в заказ
-								$html_added .= '<tr>';
+								$html_added .= '<tr class="not_provided '.(($service['on_of'] == 0)?'no_calc':'').'" data-id="'.$service['id'].'">';
 									// рассчитано ранее
 									$html_added .= '<td></td>';
 									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
+									$html_added .= '<td><span class="postfaktum_non_calculate service_price_in">0</span></td>';
 									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
-									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
-									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
-									$html_added .= '<td><span class="postfaktum_non_calculate">0</span></td>';
+									$html_added .= '<td><span class="postfaktum_non_calculate service_price_out">0</span></td>';
+									$html_added .= '<td><span class="postfaktum_non_calculate service_price_pribl">0</span></td>';
 									// то, что получилось по факту
 									$html_added .= '<td class="postfaktum"></td>';
 									$html_added .= '<td class="postfaktum added_postfactum">'.$this->Service_Name.'</td>';
 									$html_added .= '<td class="postfaktum added_postfactum">'.$this->Service_tir.'</td>';
-									$html_added .= '<td class="postfaktum added_postfactum"><span>'.$this->Service_price_in.'</span>р</td>';
-									$html_added .= '<td class="postfaktum">+</td>';
+									$html_added .= '<td class="postfaktum added_postfactum"><span  class="service_price_in_postfactum">'.$this->Service_price_in.'</span>р</td>';
+									$html_added .= '<td class="postfaktum">'.$this->Service_swhitch_On_Of.'</td>';
 									$html_added .= '<td></td>';
 								$html_added .= '</tr>';
+								// если в просчёте не учавствует - continue
+								if($service['on_of'] == 0){continue;}
+
+								// добавляем класс подсветки цены
+								$this->GlobAdded_postfactum_class = 'added_postfactum_class td_shine';
+								$added_postfactum_class = 'added_postfactum_class td_shine';
+								
 								//////////////////////////////////////////////////
 								//	добавляем стоимость услуги к цене за позицию
 								//////////////////////////////////////////////////
 								$this->PositionItogo_price_in_postfaktum += $this->Service_price_in;	// входящая  по позиции по факту то, что получилось
 								$this->PositionItogo_price_out += $this->Service_price_out; // исходящая по позиции
 								$this->PositionItogo_price_pribl += $this->Service_price_pribl; // прибыль по позиции
-								// добавляем класс подсветки цены
-								$added_postfactum_class = 'added_postfactum_class';
-								$this->GlobAdded_postfactum_class = $added_postfactum_class;
+								
 								break;
 						}						
 				}
 				// добавляем услуги добавленные в заказ
 				$html .= $html_added;
+				// строка с кнопкой добавления услуги
+				// добавляем строку пробел
+				$html .= '<tr class="itogo_for_position_probel no_calc">';
+					$html .= '<td colspan="8"></td>';
+					$html .= '<td colspan="5" class="postfaktum"><input type="button" data-rowspan_id="tovar_provided_'.($key+1).'" data-id_dop_data="'.$position['id_dop_data'].'" class="add_service" name="add_service" value="Добавить"></td>';			
+					$html .= '<td colspan="2"></td>';		
+				$html .= '</tr>';
 
 				// итого по позиции
 				$html .= '<tr class="itogo_for_position">';
@@ -738,18 +1036,18 @@
 					$html .= '<td></td>';
 					$html .= '<td></td>';
 					// $ входащая итого
-					$html .= '<td class="'.$added_postfactum_class.'"><span>'.$this->PositionItogo_price_in.'</span>р</td>';
+					$html .= '<td class="'.$added_postfactum_class.'"><span class="position_price_in">'.$this->PositionItogo_price_in.'</span>р</td>';
 
 					$html .= '<td></td>';
 					// исходящая итого
-					$html .= '<td><span>'.$this->PositionItogo_price_out.'</span>р</td>';
+					$html .= '<td><span  class="position_price_out">'.$this->PositionItogo_price_out.'</span>р</td>';
 					// прибыль итого
-					$html .= '<td class="'.$added_postfactum_class.'"><span>'.$this->PositionItogo_price_pribl.'</span>р</td>';
+					$html .= '<td class="'.$added_postfactum_class.'"><span class="position_price_pribl">'.$this->PositionItogo_price_pribl.'</span>р</td>';
 					$html .= '<td colspan="3"  style="background-color:#C7C7C7;text-align:right;
 "></td>';
 					// заплатили по факту //// фходащая по факту
 					$html .= '<td style="background-color:#C7C7C7;
-"><span class="'.$added_postfactum_class.'"><span>'.$this->PositionItogo_price_in_postfaktum.'</span>р</span></td>';
+"><span class="'.$added_postfactum_class.'"><span  class="position_price_in_postfaktum">'.$this->PositionItogo_price_in_postfaktum.'</span>р</span></td>';
 					$html .= '<td style="background-color:#C7C7C7;text-align:right;
 "></td>';
 					$html .= '<td></td>';
@@ -763,30 +1061,36 @@
 				$this->GlobItogo_price_pribl += $this->PositionItogo_price_pribl; // прибыль за заказ
 				$this->GlobItogo_price_in_postfaktum += $this->PositionItogo_price_in_postfaktum; // входящая по факту
 			}
+
+			// если имеем разницу в постфактум выводим её
+			$this->GlobItogo_price_in_difference = $this->GlobItogo_price_in-$this->GlobItogo_price_in_postfaktum;
+			// собираем html разницы фактической и предусмотренной в расчёте стоимости
+			$this->GlobItogo_price_in_difference_Html = ($this->GlobItogo_price_in_difference!=0)?'<span>'.$this->GlobItogo_price_in_difference.'</span>р':'';
+
 			// добавляем строку пробел
-			$html .= '<tr class="itogo_for_position_probel">';
+			$html .= '<tr class="itogo_for_position_probel no_calc">';
 				$html .= '<td colspan="15"></td>';					
 			$html .= '</tr>';
 			// добавляем ИТОГО по заказу
-			$html .= '<tr class="itogo_for_position">';
+			$html .= '<tr class="itogo_for_position no_calc" id="itogo_order">';
 					$html .= '<td></td>';
 					$html .= '<td>Итого по заказу</td>';
 					$html .= '<td></td>';
 					$html .= '<td></td>';
 					// $ входащая итого
-					$html .= '<td class="'.$this->GlobAdded_postfactum_class.'"><span>'.$this->GlobItogo_price_in.'</span>р</td>';
+					$html .= '<td class="'.$this->GlobAdded_postfactum_class.'"><span class="order_price_in">'.$this->GlobItogo_price_in.'</span>р</td>';
 
 					$html .= '<td></td>';
 					// исходящая итого
-					$html .= '<td><span>'.$this->GlobItogo_price_out.'</span>р</td>';
+					$html .= '<td><span  class="order_price_out">'.$this->GlobItogo_price_out.'</span>р</td>';
 					// прибыль итого
-					$html .= '<td class="'.$this->GlobAdded_postfactum_class.'"><span>'.$this->GlobItogo_price_pribl.'</span>р</td>';
-					$html .= '<td colspan="3"  style="background-color:#C7C7C7;text-align:right;
+					$html .= '<td class="'.$this->GlobAdded_postfactum_class.'"><span  class="order_price_pribl">'.$this->GlobItogo_price_pribl.'</span>р<div class="minus">'.$this->GlobItogo_price_in_difference_Html.'</div></td>';
+					$html .= '<td colspan="3"  style="background-color:#B1C370;text-align:right;
 "></td>';
 					// заплатили по факту //// фходащая по факту
-					$html .= '<td style="background-color:#C7C7C7;
-"><span class="'.$this->GlobAdded_postfactum_class.'"><span>'.$this->GlobItogo_price_in_postfaktum.'</span>р</span></td>';
-					$html .= '<td style="background-color:#C7C7C7;text-align:right;
+					$html .= '<td style="background-color:#B1C370;
+"><span class="'.$this->GlobAdded_postfactum_class.'"><span  class="order_price_in_postfactum">'.$this->GlobItogo_price_in_postfaktum.'</span>р</span></td>';
+					$html .= '<td style="background-color:#B1C370;text-align:right;
 "></td>';
 					$html .= '<td></td>';
 				$html .= '</tr>';
