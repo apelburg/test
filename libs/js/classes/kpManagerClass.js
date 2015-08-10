@@ -14,15 +14,25 @@
 				
 				
 				//инициализируем и навешиваем  поля с данными которые будут отправлены на сервер
-				kpManager.contfaceSelect = document.createElement('select');
-				var options_arr = new Array();
-				for( var i = 0 ; i < kpManager.details.client_mails.length ; i++ ){//.length
-					options_arr[i] = '<option value="'+kpManager.details.client_mails[i].mail+'">'+kpManager.details.client_mails[i].person+' '+kpManager.details.client_mails[i].mail+'</option>';
-				}
-				kpManager.contfaceSelect.innerHTML = options_arr.join("\r\n");
-				document.getElementById('mailSelectTo').appendChild(kpManager.contfaceSelect);
 				
 				
+				// поле Кому
+				kpManager.mailSelectTo = document.createElement('div');
+				kpManager.mailSelectTo.className = 'mailSubject';
+				kpManager.mailSelectTo.onclick = function(){ kpManager.bildSelect(this,'client_mails');}
+				kpManager.mailSelectTo.innerHTML = '';
+				kpManager.mailSelectTo.contentEditable = "true";
+				document.getElementById('mailSelectTo').appendChild(kpManager.mailSelectTo);
+				
+				// поле От кого
+				kpManager.mailSelectFrom = document.createElement('div');
+				kpManager.mailSelectFrom.className = 'mailSubject';
+				kpManager.mailSelectFrom.onclick = function(){ kpManager.bildSelect(this,'manager_mails');}
+				kpManager.mailSelectFrom.innerHTML = '';
+				kpManager.mailSelectFrom.contentEditable = "true";
+				document.getElementById('mailSelectFrom').appendChild(kpManager.mailSelectFrom);
+				
+				/*
 				kpManager.managerMailsSelect = document.createElement('select');
 				var options_arr = new Array();
 				for( var i = 0 ; i < kpManager.details.manager_mails.length ; i++ ){//.length
@@ -30,6 +40,7 @@
 				}
 				kpManager.managerMailsSelect.innerHTML = options_arr.join("\r\n");
 				document.getElementById('mailSelectFrom').appendChild(kpManager.managerMailsSelect);
+				*/
 				
 				// поле темы письма
 				kpManager.mailSubject = document.createElement('div');
@@ -52,6 +63,49 @@
 				
 				$("#mailSendDialog").dialog({autoOpen: false,title: "Отправить коммерческое предложение",modal:true,width: 900,close: function() {this.remove();$("#mailResponseDialog").remove();kpManager.current_message_tpl =false;}});
 				$("#mailSendDialog").dialog("open");/**/
+		}
+		,
+		bildSelect:function (element,sourse){
+			if(kpManager.bildSelectInProcess) return;
+			kpManager.bildSelectInProcess = true;
+			// alert(1);
+			
+			kpManager.bildSelect.container = document.createElement('div');
+			kpManager.bildSelect.container.contentEditable = "false";
+			kpManager.bildSelect.container.style.position = 'absolute';
+			kpManager.bildSelect.container.style.backgroundColor='#FFFFFF';
+			kpManager.bildSelect.container.style.zIndex='100';
+			kpManager.bildSelect.container.style.top = '20px';
+			
+			var arr = kpManager.details[sourse];
+			for( var i = 0 ; i < arr.length ; i++ ){//.length
+				 var div = document.createElement('div');
+				 div.className = 'selectRow';
+				 div.onclick = function(){ kpManager.addValueToSelect(sourse,element,this); }
+				 if(sourse=='client_mails') div.innerHTML = '<div style="float:left; width:300px; border:#FF0000 solid 0px;"><span>' + arr[i].mail+'</span></div><div style="float:left; width:300px;">'+ arr[i].person+'</div>';
+				 if(sourse=='manager_mails') div.innerHTML = '<div style="float:left; width:300px; border:#FF0000 solid 0px;"><span>' + arr[i]+'</span></div>';
+				 kpManager.bildSelect.container.appendChild(div);
+			}
+			element.style.position = 'relative';
+			element.appendChild(kpManager.bildSelect.container);
+		}
+		,
+		addValueToSelect:function (sourse,target,row){
+            window.event.stopPropagation();
+			var value = row.getElementsByTagName("SPAN")[0].innerHTML;
+			kpManager.bildSelect.container.parentNode.removeChild(kpManager.bildSelect.container);
+			
+			// здесь надо будет делать проверку адресов на валидность
+			if(sourse=='manager_mails'){
+				// поле "От" может быть только один адрес
+				target.innerHTML = value;
+			}
+			else{
+				if(target.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')=='') target.innerHTML = value;
+				else target.innerHTML = target.innerHTML+', '+value;
+			}
+	
+			kpManager.bildSelectInProcess = false;
 		}
 		,
 		sendKpByMail:function (id){
@@ -101,13 +155,31 @@
 				    }
 				}
 			}
+		
+			if(kpManager.mailSelectTo.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
+			    alert('незаполнено поле Кому');
+				return;
+			}
+			if(kpManager.mailSelectFrom.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
+			    alert('незаполнено поле От');
+				return;
+			}
+			if(kpManager.mailSubject.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
+			    alert('незаполнено поле Тема');
+				return;
+			}
+			if(message.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
+			    alert('Вы не написали сообщение');
+				return;
+			}
+			
 
 			var pairs = 'send_kp_by_mail_final_step=';
 		    pairs += '{';
 			
 			pairs += '"kp_id":"'+kpManager.kp_id+'",';
-			pairs += '"to":"'+kpManager.contfaceSelect.options[kpManager.contfaceSelect.selectedIndex].value+'",';
-			pairs += '"from":"andrey@apelburg.ru",';
+			pairs += '"to":"'+kpManager.mailSelectTo.innerHTML+'",';
+			pairs += '"from":"'+kpManager.mailSelectFrom.innerHTML+'",';
 			pairs += '"subject":"'+kpManager.mailSubject.innerHTML+'",';
 			pairs += '"message":"'+message+'"';
 			if(attached_files_arr.length) pairs += ',"attached_files":["'+attached_files_arr.join('","')+'"]';
@@ -116,7 +188,8 @@
 			
 			make_ajax_post_request(url,pairs,call_back);
 			function call_back(response){
-				 //alert(response);
+				 alert(response);
+				 return;
 	 			 try { 
 				     var response = JSON.parse(response);
 				 }
