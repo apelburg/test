@@ -118,41 +118,43 @@
 		###				AJAX START               ###
 		############################################
 		// возвращает html строки запроса в json 
-		private function replace_query_row_AJAX(){
-			global $mysqli;
-			// получаем строку из os__rt_list
-			$query = "SELECT `".RT_LIST."`.*, 
-				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
-				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
+		// private function replace_query_row_AJAX(){
+		// 	global $mysqli;
+		// 	// получаем строку из os__rt_list
+		// 	$query = "SELECT `".RT_LIST."`.*, 
+		// 		(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
+		// 		SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
 				
-				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
-				FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['os__rt_list_id']."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$zapros = array();
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$zapros[] = $row;
-				}
-			}
-			// для обсчёта суммы за тираж			
-			include_once ('./libs/php/classes/rt_class.php');
+		// 		DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+		// 		FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['os__rt_list_id']."'";
+		// 	$result = $mysqli->query($query) or die($mysqli->error);
+		// 	$zapros = array();
+		// 	if($result->num_rows > 0){
+		// 		while($row = $result->fetch_assoc()){
+		// 			$zapros[] = $row;
+		// 		}
+		// 	}
+		// 	// для обсчёта суммы за тираж			
+		// 	include_once ('./libs/php/classes/rt_class.php');
 						
-			foreach ($zapros as $key => $value) {
-				$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
-				$html = '<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> </td>
-							<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span></td>
-							<td>'.$value['create_time'].''.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
-							<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
-							<td>'.$this->get_client_name_Database($value['client_id']).'</td>
-							<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
-							<td class="'.$value['status'].'_'.$this->user_access.'">'.$this->name_cirillic_status[$value['status']].'</td>';
+		// 	foreach ($zapros as $key => $value) {
+		// 		$overdue = (($value['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
+		// 		$html = '<td class="show_hide" rowspan="2"><span class="cabinett_row_hide"></span></td>
+		// 					<td><a href="./?page=client_folder&query_num='.$value['query_num'].'">'.$value['query_num'].'</a> </td>
+		// 					<td><span data-sec="'.$value['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$value['time_attach_manager'].'</span></td>
+		// 					<td>'.$value['create_time'].''.$this->get_manager_name_Database_Html($value['manager_id']).'</td>
+		// 					<td><span data-rt_list_query_num="'.$value['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($value['query_num']).'"></span></td>
+		// 					<td>'.$this->get_client_name_Database($value['client_id']).'</td>
+		// 					<td>'.RT::calcualte_query_summ($value['query_num']).'</td>
+		// 					<td class="'.$value['status'].'_'.$this->user_access.'">'.$this->name_cirillic_status[$value['status']].'</td>';
 
-			}
-			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+		// 	}
+		// 	echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 					
-			// echo $html;
-		}
+		// 	// echo $html;
+		// }
+
+
 		############################################
 		###				AJAX END                 ###
 		############################################
@@ -371,7 +373,7 @@
 		################ Предзаказ __ END
 
 		################ Заказы
-		Private Function orders_Template(){
+		private function orders_Template(){
 
 			global $mysqli;
 			// простой запрос
@@ -1020,40 +1022,40 @@
 			return $status_snab;
 		}
 
-		private function get_client_name_Database($id){
-			global $mysqli;		
-			//получаем название клиента
-			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$name = '';
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';
-				}
-			}else{
-				$name = '<div class="attach_the_client add" data-id="0">Прикрепить клиента</div>';
-			}
-			return $name;
-		}
+		// private function get_client_name_Database($id){
+		// 	global $mysqli;		
+		// 	//получаем название клиента
+		// 	$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+		// 	$result = $mysqli->query($query) or die($mysqli->error);
+		// 	$name = '';
+		// 	if($result->num_rows > 0){
+		// 		while($row = $result->fetch_assoc()){
+		// 			$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';
+		// 		}
+		// 	}else{
+		// 		$name = '<div class="attach_the_client add" data-id="0">Прикрепить клиента</div>';
+		// 	}
+		// 	return $name;
+		// }
 
-		private 	function get_manager_name_Database_Html($id){
-		    global $mysqli;
-		    $String = '<span class="attach_the_manager add" data-id="0">Прикрепить менеджера</span>';
-		   	$arr = array();
-		    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
-		    $result = $mysqli->query($query)or die($mysqli->error);
-		    if($result->num_rows>0){
-				foreach($result->fetch_assoc() as $key => $val){
-				   $arr[$key] = $val;
-				}
-		    }
+		// private 	function get_manager_name_Database_Html($id){
+		//     global $mysqli;
+		//     $String = '<span class="attach_the_manager add" data-id="0">Прикрепить менеджера</span>';
+		//    	$arr = array();
+		//     $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
+		//     $result = $mysqli->query($query)or die($mysqli->error);
+		//     if($result->num_rows>0){
+		// 		foreach($result->fetch_assoc() as $key => $val){
+		// 		   $arr[$key] = $val;
+		// 		}
+		//     }
 
 		    
-		    if(count($arr)){
-		    	$String = '<span class="attach_the_manager" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
-		    }
-		    return $String;
-		}
+		//     if(count($arr)){
+		//     	$String = '<span class="attach_the_manager" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+		//     }
+		//     return $String;
+		// }
 
 		//////////////////////////
 		//	оборачивает в оболочку warning_message

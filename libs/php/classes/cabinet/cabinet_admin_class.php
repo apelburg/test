@@ -109,15 +109,7 @@
 		###				AJAX START               ###
 		############################################
 
-		private function replace_query_row_AJAX(){
-			$method = $_GET['section'].'_Template';
-			// echo $method;
-			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-			if(method_exists($this, $method)){
-				echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
-				exit;
-			}							
-		}
+	
 
 		private function get_dop_tex_info_AJAX(){
 			$html = '';
@@ -154,9 +146,10 @@
 				// перебираем услуги и вы
 				$first_right_content = '';// контент по первой услуге
 				$n = 0; // порядковый номер
-				foreach ($this->uslugi as $usluga) {	
+				foreach ($this->uslugi as $usluga) {
+					$no_active = ($usluga['on_of']=='0')?' no_active':'';	
 					$this->Service = $usluga; // по сути строка из CAB_DOP_USLUGI			
-					$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
+					$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').''.$no_active.'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
 					if($n == 0){
 						// запоминаем тз по первой услуге
 						$first_right_content .= $this->get_dop_inputs_for_services($usluga['uslugi_id'],$usluga['id']);						

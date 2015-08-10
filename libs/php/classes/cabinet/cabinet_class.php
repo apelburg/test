@@ -11,7 +11,8 @@
 			'request_expense'=>'Запрошен счёт',
 			'requeried_expense'=>'Перевыставить счёт',
 			'waiting_for_payment' => 'ждём оплаты', // сервисный
-			'in_work'=>'В работе',
+			// 'in_work'=>'В работе',
+			'in_operation'=>'В работу',
 			'ready_for_shipment'=>'Готов к отгрузке',
 			'shipped'=>'Отгружен',
 			'paused'=>'Приостановлен',		
@@ -19,6 +20,7 @@
 			);
 
     	protected $buch_status = array(
+    		'is_pending' => 'ожидает обработки',
     		'score_exhibited' => 'счёт выставлен',
 			'payment' => 'оплачен',//дата в таблицу
 			'partially_paid' => 'частично оплачен',//дата в таблицу			
@@ -41,6 +43,16 @@
 
 
     	function __consturct(){
+		}
+
+		private function replace_query_row_AJAX(){
+			$method = $_GET['section'].'_Template';
+			// echo $method;
+			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+			if(method_exists($this, $method)){
+				echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
+				exit;
+			}							
 		}
 
 
@@ -948,7 +960,7 @@
 					$this->Service_price_out = $this->calc_summ_dop_uslug(array($service)); // исходящая по услуге
 					$this->Service_price_pribl = $this->Service_price_out - $this->Service_price_in; // прибыль по услуге
 					$this->Service_tir = ($service['for_how']=='for_one')?'<span>'.$service['quantity'].'</span>шт':'<span>  -  </span>'; // тираж по услуге
-					$this->Service_Name = $this->Services_list[$service['uslugi_id']]['name']; // название услуги
+					$this->Service_Name = (isset($service['uslugi_id']))?$this->Services_list[$service['uslugi_id']]['name']:$service['uslugi_id']; // название услуги
 					$this->Service_percent = $this->get_percent_Int($this->Service_price_in,$this->Service_price_out);
 
 					$this->Service_swhitch_On_Of = ((int)$service['on_of'] == 1)?'<span  data-id="'.$service['id'].'" class="on_of">+</span>':'<span  data-id="'.$service['id'].'" class="on_of minus">-</span>';

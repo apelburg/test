@@ -598,28 +598,38 @@ $(document).on('click', '.dop_teh_info', function(event) {
 	},'json');
 });
 
-// редактирование dop_inputs
+// редактирование/ЗАПОЛНЕНИЕ dop_inputs
 $(document).on('click', '#services_listing_each .lili', function(event) {
-	console.log($(this).attr('data-uslugi_id'));
-	var uslugi_id = $(this).attr('data-uslugi_id');
-	var dop_usluga_id = $(this).attr('data-dop_usluga_id');
-	$('#services_listing_each .lili').removeClass('checked');
-	$(this).addClass('checked');
-	window_preload_add();
-	
-	$.post('', {
-		AJAX:'get_dop_inputs_for_services',
-		uslugi_id: uslugi_id,
-		dop_usluga_id: dop_usluga_id
-	}, function(data, textStatus, xhr) {
-		window_preload_del();
-		if(data['response']=="OK"){
-			console.log(Base64.decode(data['html']));
-			$('#content_dop_inputs_and_tz').html(Base64.decode(data['html']));
-		}else{
-			alert('Что-то плошло не так...');
-		}
-	},'json');
+	if(!$(this).hasClass('no_active')){
+		console.log($(this).attr('data-uslugi_id'));
+		var uslugi_id = $(this).attr('data-uslugi_id');
+		var dop_usluga_id = $(this).attr('data-dop_usluga_id');
+		$('#services_listing_each .lili').removeClass('checked');
+		$(this).addClass('checked');
+		window_preload_add();
+		
+		$.post('', {
+			AJAX:'get_dop_inputs_for_services',
+			uslugi_id: uslugi_id,
+			dop_usluga_id: dop_usluga_id
+		}, function(data, textStatus, xhr) {
+			window_preload_del();
+			if(data['response']=="OK"){
+				console.log(Base64.decode(data['html']));
+				$('#content_dop_inputs_and_tz').html(Base64.decode(data['html']));
+			}else{
+				alert('Что-то плошло не так...');
+			}
+		},'json');
+	}else{
+		console.log($(this).attr('data-uslugi_id'));
+		var uslugi_id = $(this).attr('data-uslugi_id');
+		var dop_usluga_id = $(this).attr('data-dop_usluga_id');
+		$('#services_listing_each .lili').removeClass('checked');
+		$(this).addClass('checked');
+
+		$('#content_dop_inputs_and_tz').html('Услуга была отключена из работы<br> для её редактирования необходимо снова включить её в финансовой детализации');
+	}
 });
 
 // редактирование поля резерв в доп тех инфо
