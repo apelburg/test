@@ -56,14 +56,19 @@
 	}
 	
 	if(isset($_POST['send_kp_by_mail_final_step'])){
-	    //var_dump(json_decode($_POST['send_kp_by_mail_final_step']));exit;
-		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
+	     //echo $_POST['send_kp_by_mail_final_step'];
+		
+		if(($mail_details =json_decode($_POST['send_kp_by_mail_final_step'])) === NULL){
+		     echo '[0,"Ошибка №109345 - конвертация данных"]';
+			 exit;
+		} 
+		// var_dump($mail_details); exit;
 
         // вызываем класс выполняющий отправку сообщения
 		include_once(ROOT."/libs/php/classes/mail_class.php");
 		$mail = new Mail();
-		$mail->add_bcc('box1@yandex.ru');
-		$mail->add_cc('e-project1@mail.ru');
+		// $mail->add_bcc('box1@yandex.ru');
+		// $mail->add_cc('e-project1@mail.ru');
 		if($mail_details->attached_files){
 		    foreach($mail_details->attached_files as $file) $mail->attach_file($_SERVER['DOCUMENT_ROOT'].$file);
 		}

@@ -157,15 +157,15 @@
 			}
 		
 			if(kpManager.mailSelectTo.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
-			    alert('незаполнено поле Кому');
+			    alert('не заполнено поле Кому');
 				return;
 			}
 			if(kpManager.mailSelectFrom.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
-			    alert('незаполнено поле От');
+			    alert('не заполнено поле От');
 				return;
 			}
 			if(kpManager.mailSubject.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
-			    alert('незаполнено поле Тема');
+			    alert('не заполнено поле Тема');
 				return;
 			}
 			if(message.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
@@ -184,17 +184,17 @@
 			pairs += '"message":"'+message+'"';
 			if(attached_files_arr.length) pairs += ',"attached_files":["'+attached_files_arr.join('","')+'"]';
 			pairs += '}';
-		
+		    //alert(pairs);
 			
 			make_ajax_post_request(url,pairs,call_back);
 			function call_back(response){
-				 alert(response);
-				 return;
+				 //alert(response);
+				 //return;
 	 			 try { 
 				     var response = JSON.parse(response);
 				 }
                  catch (e) { 
-				     alert('kpManager.sendKpByMailFinalStep() ошибка JSON.parse(response)');
+					 var response =  [0,'Oшибка JS - kpManager.sendKpByMailFinalStep(), JSON.parse(response)'];
 				 }
 				 
 				 var div = document.createElement('div');
@@ -214,8 +214,6 @@
 					 var tdsArr = document.getElementById('kp_list_tbl').getElementsByTagName('TD');
 					 
 					 for(var i = 0; i < tdsArr.length;i++){
-						  
-						  //GetDate(), GetDay(), GetMonth(), GetYear()
 						 if(tdsArr[i].hasAttribute('send_time_type') && tdsArr[i].getAttribute('send_time_type') == kpManager.kp_id){
 							 var date = new Date();
 							 var day = date.getDate().toString();
