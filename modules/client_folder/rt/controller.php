@@ -266,6 +266,7 @@
 				 $quantity_dim = 'шт';
 				 $discount = $dop_row['discount'].'%';
 				 $srock_sdachi = implode('.',array_reverse(explode('-',$dop_row['shipping_date'])));
+				 if($srock_sdachi=='00.00.0000') $srock_sdachi='';
 				 
 				 $expel_class_main = ($expel['main']=='1')?' red_cell':'';
 				 $expel_class_print = ($expel['print']=='1')?' red_cell':'';

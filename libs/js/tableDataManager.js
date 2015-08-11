@@ -220,7 +220,7 @@
 			
 				
 				var img = new Image();
-				img.src = '../../admin/order_manager/libs/js/img/loading.gif';
+				img.src ='http://'+ location.host+location.pathname+'skins/images/img_design/loading_midl.gif';
 				
 				timer_container.appendChild(img);
 				tableDataManager.element.appendChild(timer_container);

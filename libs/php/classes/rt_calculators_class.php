@@ -355,6 +355,8 @@
 			if(!isset($details_obj->dop_uslugi_id) || $details_obj->dop_uslugi_id ==0){
 			    $query="INSERT INTO `".RT_DOP_USLUGI."` SET
 				                       `dop_row_id` ='".$details_obj->dop_data_row_id."',
+									   `uslugi_id` ='".$details_obj->print_details->print_id."',
+									   `performer` ='".self::get_performer_id($details_obj->print_details->print_id)."',
 									   `glob_type` ='print',
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = '".$details_obj->price_in."',
@@ -367,6 +369,8 @@
 			else if(isset($details_obj->dop_uslugi_id) && $details_obj->dop_uslugi_id !=0){
 			   $query="UPDATE `".RT_DOP_USLUGI."` SET
 				                       `dop_row_id` ='".$details_obj->dop_data_row_id."',
+									   `uslugi_id` ='".$details_obj->print_details->print_id."',
+									   `performer` ='".self::get_performer_id($details_obj->print_details->print_id)."',
 									   `glob_type` ='print',
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = '".$details_obj->price_in."',
@@ -377,6 +381,15 @@
 				 $mysqli->query($query)or die($mysqli->error);
 			
 			}
+		}
+		static function get_performer_id($usluga_id){
+		    global $mysqli;  
+			
+			$query="SELECT performer FROM `".OUR_USLUGI_LIST."` WHERE `id` = '".$usluga_id."'";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);/**/
+			$row = $result->fetch_assoc();
+			return $row['performer'];
 		}
 		static function delete_prints_for_row($dop_row_id,$usluga_id,$all){
 		    global $mysqli;  

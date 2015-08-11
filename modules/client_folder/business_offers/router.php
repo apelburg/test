@@ -20,13 +20,17 @@
 		
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/manager_class.php");
 		$manager = new Manager($user_id);
-		// include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+		
+		
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+		$client_mails = Client::cont_faces_data_for_mail($client_id);
 
 	    $kp_id = $_GET['send_kp_by_mail'];
 		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$user_id);
+		
         //$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		
-		$main_window_tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
+		$main_window_tpl_name = ROOT.'/skins/tpl/client_folder/business_offers/send_mail_window.tpl';
 		$fd = fopen($main_window_tpl_name,'r');
 		$main_window_tpl = fread($fd,filesize($main_window_tpl_name));
 	    fclose($fd);
@@ -35,7 +39,8 @@
 		$main_window_tpl = base64_encode($main_window_tpl); 
 		
 		
-		$message_tpl_filenames = array('recalculation','new_kp_new_client','new_kp',);
+		// $message_tpl_filenames = array('recalculation','new_kp_new_client','new_kp');
+		$message_tpl_filenames = array('new_kp_new_client');
 		foreach($message_tpl_filenames as $tpl_filename){
 			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
 			$fd = fopen($tpl_path,'r');
@@ -47,7 +52,7 @@
 		
 		echo '{
 		       "kp_filename":"'.$kp_filename.'",
-		       "client_mails":[{"person":"менеджер - Наталья","mail":"premier22@yandex.ru"},{"person":"директор - Елена","mail":"premier_22@yandex.ru"}],
+		       "client_mails":'.json_encode($client_mails).',
 			   "manager_mails":["'.$manager->email.'","'.$manager->email_2.'"],
 			   "main_window_tpl":"'.$main_window_tpl.'",';
 		if(isset($message_tpls)) echo '"message_tpls":{'.implode(',',$message_tpls).'}';
@@ -56,14 +61,19 @@
 	}
 	
 	if(isset($_POST['send_kp_by_mail_final_step'])){
-	    //var_dump(json_decode($_POST['send_kp_by_mail_final_step']));exit;
-		$mail_details =json_decode($_POST['send_kp_by_mail_final_step']);
+	     //echo $_POST['send_kp_by_mail_final_step'];
+		
+		if(($mail_details =json_decode($_POST['send_kp_by_mail_final_step'])) === NULL){
+		     echo '[0,"Ошибка №109345 - конвертация данных"]';
+			 exit;
+		} 
+		// var_dump($mail_details); exit;
 
         // вызываем класс выполняющий отправку сообщения
 		include_once(ROOT."/libs/php/classes/mail_class.php");
 		$mail = new Mail();
-		$mail->add_bcc('box1@yandex.ru');
-		$mail->add_cc('e-project1@mail.ru');
+		// $mail->add_bcc('box1@yandex.ru');
+		// $mail->add_cc('e-project1@mail.ru');
 		if($mail_details->attached_files){
 		    foreach($mail_details->attached_files as $file) $mail->attach_file($_SERVER['DOCUMENT_ROOT'].$file);
 		}
