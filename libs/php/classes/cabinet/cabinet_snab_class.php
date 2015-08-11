@@ -966,6 +966,7 @@
 			echo $html1;
 			echo '</table>';
 		}
+		
 		## Закрытые
 		Private Function closed_Template(){
 			global $mysqli;
@@ -1169,45 +1170,8 @@
 		##                           END                           ##
 		#############################################################
 
-
-
-
-		#################################################
-		##                   START                     ##
-		##      методы для работы с базой данных       ##
-		#################################################
-
-		function get_all_orders_Database_Array(){
-			global $mysqli;
-			$arr = array();
-			$query = '';
-
-		}
-
-		#################################################
-		##      методы для работы с базой данных       ##
-		##                    END                      ##
-		#################################################
 		
-		//////////////////////////
-		//	service method
-		//////////////////////////
-		private function show_cirilic_name_status_snab($status_snab){
-			if(substr_count($status_snab, '_pause')){
-				$status_snab = 'На паузе';
-			}
-			// echo '<pre>';
-			// print_r($this->POSITION_NO_CATALOG->status_snab);
-			// echo '</pre>';
-						
-			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
-				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
-			}else{
-				$status_snab;
-			}
-
-			return $status_snab;
-		}
+		
 
 		function __destruct(){}
 	}
