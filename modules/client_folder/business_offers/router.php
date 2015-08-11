@@ -30,7 +30,7 @@
 		
         //$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		
-		$main_window_tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
+		$main_window_tpl_name = ROOT.'/skins/tpl/client_folder/business_offers/send_mail_window.tpl';
 		$fd = fopen($main_window_tpl_name,'r');
 		$main_window_tpl = fread($fd,filesize($main_window_tpl_name));
 	    fclose($fd);
@@ -39,7 +39,8 @@
 		$main_window_tpl = base64_encode($main_window_tpl); 
 		
 		
-		$message_tpl_filenames = array('recalculation','new_kp_new_client','new_kp',);
+		// $message_tpl_filenames = array('recalculation','new_kp_new_client','new_kp');
+		$message_tpl_filenames = array('new_kp_new_client');
 		foreach($message_tpl_filenames as $tpl_filename){
 			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
 			$fd = fopen($tpl_path,'r');

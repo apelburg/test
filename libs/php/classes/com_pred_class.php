@@ -663,65 +663,11 @@
 				  <td width="10" class="left">р</td>
 				  <td stretch_column></td>
                   <td></td>';        
-		/*
-		 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;" border="1">
-				  <tr class="cap">
-					  <td width="30"></td>
-					  <td width="80"></td>
-					  <td class="hidden"></td>
-					  <td class="hidden">тип</td>
-					  <td width="300" class="right">
-						  &nbsp;<a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
-						  прибыль ???? р подробно?
-					  </td>
-					  <td class="hidden">draft</td>
-					  <td width="50" class="r_border">тираж</td>
-					  <td width="90" connected_vals="art_price" c_stat="1" class="right pointer">$ товара<br><span class="small">входящая штука</span></td>
-					  <td width="15" connected_vals="art_price" c_stat="1"></td>
-					  <td width="90" connected_vals="art_price" c_stat="0" class="right hidden pointer">$ товара<br><span class="small">входящая тираж</span></td>
-					  <td width="15" connected_vals="art_price" c_stat="0" class="hidden"></td>
-					  <td width="90" connected_vals="art_price" c_stat="1" class="right pointer">$ товара<br><span class="small">исходящая штука</span></td>
-					  <td width="15" connected_vals="art_price" c_stat="1"class="r_border"></td>
-					  <td width="90" connected_vals="art_price" c_stat="0" class="right pointer hidden">$ товара<br><span class="small">исходящая тираж</span></td>
-					  <td width="15" connected_vals="art_price" c_stat="0" class="r_border hidden"></td>';
-			   $rt.= '<td width="80" connected_vals="print" c_stat="0" class="pointer hidden">$ печать<br><span class="small">входящая тираж</span></td> 	  
-					  <td width="80" connected_vals="print" c_stat="1" class="pointer">$ печать<br><span class="small">исходящая тираж</span></td>';
-			   $rt.= '<td width="80"  connected_vals="uslugi" c_stat="0" class="pointer r_border hidden">$ доп. услуги<br><span class="small">входящая тираж</span></td> 
-					  <td width="80"  connected_vals="uslugi" c_stat="1" class="out pointer r_border">$ доп. услуги<br><span class="small">исходящая тираж</span></td>
-					  <td width="100" connected_vals="total_summ" c_stat="0" class="pointer hidden center">итого<br><span class="small">входящая</span></td>
-					  <td width="100" connected_vals="total_summ" c_stat="1" class="pointer center">итого<br><span class="small">исходящая</span></td>
-					  <td width="100" class="center">delta</td>
-					  <td width="100"  class="center">маржина-<br>льность</td>
-					  <td stretch_column>&nbsp;</td>';              
-			$rt.= '</tr>
-				   <tr row_id="total_row" class="grey bottom_border">
-					  <td width="30" height="18"></td>
-					  <td width="80"></td>
-					  <td class="hidden"></td>
-					  <td class="hidden"></td>
-					  <td class="right">Счет №45384? оплата 70%?</td>
-					  <td class="r_border"></td>  
-					  <td connected_vals="art_price" c_stat="1"></td>
-					  <td width="15" connected_vals="art_price" c_stat="1"></td>
-					  <td type="price_in_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format($total['price_in_summ'],'2','.','').'</td>
-					  <td width="15" connected_vals="art_price" c_stat="0" class="hidden">р</td>
-					  <td connected_vals="art_price" c_stat="1"></td>
-					  <td width="15" connected_vals="art_price" c_stat="1" class="r_border"></td>
-					  <td type="price_out_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format($total['price_out_summ'],'2','.','').'</td>
-					  <td width="15" connected_vals="art_price" c_stat="0" class="r_border hidden">р</td>';
-			   $rt.= '<td type="print_in_summ" connected_vals="print" c_stat="0" class="hidden">'.number_format($total['print_in_summ'],'2','.','').'р</td> 		  
-					  <td type="print_out_summ" connected_vals="print" c_stat="1">'.number_format($total['print_out_summ'],'2','.','').'р</td>';
-			   $rt.= '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0"  class="r_border hidden">'.number_format($total['dop_uslugi_in_summ'],'2','.','').'р</td> 
-					  <td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1" class="out r_border">'.number_format($total['dop_uslugi_out_summ'],'2','.','').'р</td>
-					  <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="right hidden">'.number_format($total['in_summ'],'2','.','').'</td>
-					  <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="right">'.number_format($total['out_summ'],'2','.','').'</td>
-					  <td width="100" type="delta" class="right">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
-					  <td width="100" type="margin" class="right">'.number_format(($total['out_summ']-$total['in_summ']),'2','.','').'</td>
-					  <td stretch_column>&nbsp;</td>';  */            
+	  
 		   $rt.= '</tr>
 				  </table>
 				  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
-				  <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" border="1">'.implode('',$tbl_rows).'</table>
+				  <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" border="0">'.implode('',$tbl_rows).'</table>
 				  </div>';
 
 		   return $rt;	
