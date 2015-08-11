@@ -3,6 +3,18 @@
 
 
  class Our_uslugi{
+ 	// исполнитель услуг по правам
+    protected $performer = array(
+		'1' => 'Админ',
+		'2' => 'Бухгалтерия',
+		'4' => 'Производство',
+		'5' => 'Менеджер',
+		'6' => 'Водитель',
+		'7' => 'Склад',
+		'8' => 'Снабжение',
+		'9' => 'Дизайнер' 
+	);
+	
 	// id юзера
 	private $user_id;
 
@@ -371,6 +383,26 @@
 		return $arr;
 	}
 
+	private function select_performer_AJAX(){
+		global $mysqli;
+		$query = "UPDATE  `".OUR_USLUGI_LIST."`  SET  
+			`performer` =  '".(int)$_POST['val']."' 
+			WHERE  `id` ='".$_POST['usl_id']."';";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+	}
+
+	// форма выбора исполнителя услуги
+	private function select_performer($real_val){	
+		$html = '<select class="select_performer">';
+			foreach ($this->performer as $key => $value) {
+				$is_checked = ($key==$real_val)?'selected="selected"':'';
+				$html .= ' <option '.$is_checked.' value="'.$key.'">'.$value.'</option>';
+			}	
+		$html .= '</select>';
+		
+		return $html;
+	}
 
 
 	public function get_chenge_form_uslugi_Html(){
@@ -426,6 +458,10 @@
 		$html .= '<div class="name_input">Шаблон ТЗ для менеджера</div>';
 		$html .= '<div class="edit_info"><textarea name="tz">'.$usluga['tz'].'</textarea></div>';
 		}
+		// исполнитель
+		$html .= '<div class="name_input">Выберите отдел ответственный за выставление статусов по услуге</div>';
+		$html .= '<div class="edit_info">'.$this->select_performer($usluga['performer']).'</div>';
+
 		// Цена исходящая
 		$html .= '<div class="name_input">Описание услуги</div>';
 		$html .= '<div class="edit_info"><textarea name="note">'.$usluga['note'].'</textarea></div>';

@@ -8,6 +8,7 @@
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
 			'important' => 'Важно',
+			'in_processed'=>'обрабатывается',
 			'no_worcked_snab' => 'Не обработанные СНАБ',		
 			'no_worcked_men' => 'Не обработанные МЕН',
 			'in_work' => 'В работе',
@@ -108,89 +109,6 @@
 		############################################
 		###				AJAX START               ###
 		############################################
-
-		private function replace_query_row_AJAX(){
-			$method = $_GET['section'].'_Template';
-			// echo $method;
-			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-			if(method_exists($this, $method)){
-				echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
-				exit;
-			}							
-		}
-
-		private function get_dop_tex_info_AJAX(){
-			$html = '';
-			// подгружаем форму по резерву
-			$html .= '<div class="container_form">';
-			$html .= '<div class="green_inform_block">Информация для снабжения</div>';
-			$html .= 'Резерв<br>';
-			$html .= '<input type="text" class="rezerv_info_input" name="rezerv_info" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value="'.$this->get_cab_dop_data_position_Database($_POST['id_dop_data']).'">';
-			$html .= '</div>';
-
-			#######################################
-
-			// подгружаем таблицу услуг
-			$html .= '<div class="container_form">';
-			$html .= '<div class="green_inform_block">Услуги</div>';		
-					
-			$this->uslugi = $this->get_order_dop_uslugi($_POST['id_dop_data']); 
-
-			if(count($this->uslugi)){ // если услуги прикреплены
-
-				$html .= '<table id="services_listing"><tr>';
-				$html .= '<tr><th>Название услуги</th><th>Информация для зополнения</th></tr>';
-				$html .= '<td id="services_listing_each"><ul>';
-				
-				// ob_start();
-			 // 	echo '<pre>';
-			 // 	print_r($this->uslugi);
-			 // 	echo '</pre>';
-			    	
-			 // 	$content = ob_get_contents();
-			 // 	ob_get_clean();
-			 // 	$html .=$content;
-					
-				// перебираем услуги и вы
-				$first_right_content = '';// контент по первой услуге
-				$n = 0; // порядковый номер
-				foreach ($this->uslugi as $usluga) {	
-					$this->Service = $usluga; // по сути строка из CAB_DOP_USLUGI			
-					$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
-					if($n == 0){
-						// запоминаем тз по первой услуге
-						$first_right_content .= $this->get_dop_inputs_for_services($usluga['uslugi_id'],$usluga['id']);						
-					}
-					$n++;
-				}
-				$html .= '</ul></td>';
-				// $html .= '<td id="content_dop_inputs_and_tz"><span class="title_dop_inputs_info">Выберите услугу</span></td>';
-				$html .= '<td id="content_dop_inputs_and_tz">'.$first_right_content.'</td>';
-
-				$html .= '</table>';
-			}else{
-				$html .= 'услуги не прикреплены.... и это оооочень странно. Обратитесь к Админу.';
-			}
-
-			$html .= '</div>';
-
-			################################################
-
-			// подгружаем комментарии для позиции 
-			global $PositionComments;
-			$html .= '<div class="container_form">';
-			$html .= '<div class="green_inform_block">Переписка</div>';
-			$html .= '</div>';
-			$html .= '<div class="container_form">';
-			
-			$html .= $PositionComments -> get_comment_for_position_without_Out();
-			$html .= '</div>';
-			
-
-			// Вывод
-			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-		}
-
 
 
 		
@@ -539,11 +457,11 @@
 			$query .= ' ORDER BY `id` DESC';
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$predzakaz_arr = array();
+			$Order = array();
 			
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$predzakaz_arr[] = $row;
+					$Order[] = $row;
 				}
 			}
 
@@ -551,9 +469,9 @@
 			
 			// собираем html строк-предзаказов
 			$html1 = '';
-			if(count($predzakaz_arr)==0){return 1;}
+			if(count($Order)==0){return 1;}
 
-			foreach ($predzakaz_arr as $predzakaz) {
+			foreach ($Order as $predzakaz) {
 				//if(!isset($predzakaz2)){continue;} // !!!!!!!!!!!!!!!!!
 				$order_num_1 = Cabinet::show_order_num($predzakaz['order_num']);
 				$invoice_num = $predzakaz['invoice_num'];
@@ -580,9 +498,8 @@
 			                
 				";
 
-				$position_arr = array();
 				$result = $mysqli->query($query) or die($mysqli->error);
-				$predzakaz_arr = array();
+				$position_arr = array();
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 						$position_arr[] = $row;
@@ -618,6 +535,8 @@
 
 				$this->Price_of_position = 0; // общая стоимость заказа
 				foreach ($position_arr as $position) {
+					
+					
 					////////////////////////////////////
 					//	Расчёт стоимости позиций START  
 					////////////////////////////////////
@@ -790,7 +709,7 @@
 				
 				// формируем строку с информацией о заказе
 				$table_order_row .= '
-					<tr class="order_head_row">
+					<tr class="order_head_row" data-id="'.$this->Order['id'].'">
 						<td class="show_hide" rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders"></span></td>
 						<td colspan="4" class="orders_info">
 							<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
@@ -806,10 +725,10 @@
 							<span class="greyText">оплачен: </span>'.$this->Order['payment_date'].'
 							<span class="greyText">в размере: </span> '.$this->Order['payment_status'].' р.
 						</td>
-						<td>???</td>
-						<td>???</td>
+						<td contenteditable="true" class="deadline">'.$this->Order['deadline'].'</td>
+						<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>
 						<td><span class="greyText">заказа: </span></td>
-						<td>'.(isset($this->order_status[$this->Order['global_status']])?$this->order_status[$this->Order['global_status']]:$this->Order['global_status']).'</td>
+						<td>'.(isset($this->order_status[$this->Order['global_status']])?$this->select_global_status($this->Order['global_status'],$this->order_status):$this->Order['global_status']).'</td>
 					</tr>';
 				// включаем вывод позиций 
 				$table_order_row .= $table_order_positions_rows;
@@ -820,101 +739,57 @@
 			$html = $table_head_html.$table_order_row.'</table>';
 			echo $html;
 		}
-		# доп тех инфо START
-		// всплывающее окно тех и доп инфо
-		private function grt_dop_teh_info($value){
-			// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
-			// думаю есть смысл хранения в json 
-			// обязательные поля:
-			// {"comments":" ","technical_info":" ","maket":" "} ???? 
 
-			// если есть информация
-			$no_empty_class = (trim($value['dop_teh_info'])!='' || Comments_for_order_dop_data_class::check_the_empty_position_coment_Database($value['id']))?' no_empty':'';
-
-			$html = '<td>
-					<div class="dop_teh_info '.$no_empty_class.'" data-id_dop_data="'.$this->id_dop_data.'" data-id="'.$value['id'].'" data-query_num="'.$this->query_num.'" data-position_item="'.$this->position_item.'" data-order_num="'.$this->order_num.'" data-order_num_User="'.$this->order_num_for_User.'"  >доп/тех инфо</div>
-					<div class="dop_teh_info_window_content"></div>
-				</td>';
-
-			return $html;
-		}
-		// возвращает html строки услуги для доп тех инфо
-		private function get_services_listing_Html(){	
-
-		}
-		// запрос по услугам
-		private function get_services_listing_Database($services_arr){
-			foreach ($services_arr as $service) {
-				# code...
-			}
-
-
-			global $mysqli;
-			$query = "SELECT * FROM 
-				
-			";
-		}
-
-
-
-
-		# доп тех инфо END		
+		
 		// возвращает html строки позиций
-		private function table_order_positions_rows_Html(){		
-			
-			
+		private function table_order_positions_rows_Html(){			
 			// получаем массив позиций заказа
 			$positions_rows = $this->positions_rows_Database($this->Order['id']);
 			$html = '';	
 
 			$this->position_item = 1;// порядковый номер позиции
 			// формируем строки позиций	(перебор позиций)		
-			foreach ($positions_rows as $key => $value) {
-				$this->id_dop_data = $value['id_dop_data'];
+			foreach ($positions_rows as $key => $position) {
+				$this->Position_status_list = array(); // в переменную заложим все статусы
+
+				$this->id_dop_data = $position['id_dop_data'];
 				////////////////////////////////////
 				//	Расчёт стоимости позиций START  
 				////////////////////////////////////
+					/*
+						!!!!!!!!    ОПИСАНИЕ    !!!!!!!!!
 
-				//ОБСЧЁТ ВАРИАНТОВ
-				// получаем массив стоимости нанесения и доп услуг для данного варианта 
-				$dop_usl = $this->get_order_dop_uslugi($value['id_dop_data']);
-				// выборка только массива стоимости печати
-				$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
-				// выборка только массива стоимости доп услуг
-				$dop_usl_no_print = $this->get_dop_uslugi_no_print_type($dop_usl);
-
-
-				// стоимость товара
-				$this->Price_for_the_goods = $value['price_out'] * ($value['quantity']+$value['zapas']);
-				// стоимость услуг печати
-				// $this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
-				$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print);
-				// стоимость услуг не относящихся к печати
-				// $this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
-				$this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print);
-				// общаяя цена позиции включает в себя стоимость услуг и товара
-				$this->Price_for_the_position = $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing;
+						стоимость товара
+						$this->Price_for_the_goods;	// $price_out
+						стоимость услуг печати
+						$this->Price_of_printing;
+						стоимость услуг не относящихся к печати
+						$this->Price_of_no_printing;
+						общаяя цена позиции включает в себя стоимость услуг и товара
+						$this->Price_for_the_position;
+					*/
 				
-
+				$this->GET_PRICE_for_position($position);				
+					
 				////////////////////////////////////
-				//	Расчёт стоимости позиций START
-				////////////////////////////////////
+				//	Расчёт стоимости позиций END
+				////////////////////////////////////			
 				
-				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$value['id'].'">';
+				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'">';
 				// порядковый номер позиции в заказе
 				$html .= '<td><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
 				// описание позиции
 				$html .= '<td>';
 				// комментарии
 				// наименование товара
-				$html .= '<span class="art_and_name">'.$value['art'].'  '.$value['name'].'</span>';
+				$html .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
 					
 				// добавляем доп описание
 				// для каталога и НЕкаталога способы хранения и получения данной информации различны
-				if(trim($value['type'])!='cat' && trim($value['type'])!=''){
+				if(trim($position['type'])!='cat' && trim($position['type'])!=''){
 					// доп инфо по некаталогу берём из json 
-					$html .= $this->decode_json_no_cat_to_html($value);
-				}else if(trim($value['type'])!=''){
+					$html .= $this->decode_json_no_cat_to_html($position);
+				}else if(trim($position['type'])!=''){
 					// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
 					$html .= '';
 				}
@@ -923,51 +798,56 @@
 				$html .= '</td>';
 				// тираж, запас, печатать/непечатать запас
 				$html .= '<td>';
-				$html .= '<div class="quantity">'.$value['quantity'].'</div>';
-				$html .= '<div class="zapas">'.(($value['zapas']!=0 && trim($value['zapas'])!='')?'+'.$value['zapas']:'').'</div>';
-				$html .= '<div class="print_z">'.(($value['zapas']!=0 && trim($value['zapas'])!='')?(($value['print_z']==0)?'НПЗ':'ПЗ'):'').'</div>';
+				$html .= '<div class="quantity">'.$position['quantity'].'</div>';
+				$html .= '<div class="zapas">'.(($position['zapas']!=0 && trim($position['zapas'])!='')?'+'.$position['zapas']:'').'</div>';
+				$html .= '<div class="print_z">'.(($position['zapas']!=0 && trim($position['zapas'])!='')?(($position['print_z']==0)?'НПЗ':'ПЗ'):'').'</div>';
 				$html .= '</td>';
 				
 				// поставщик товара и номер резерва для каталожной продукции 
 				$html .= '<td>
-						<div class="supplier">'.$this->get_supplier_name($value['art']).'</div>
-						<div class="number_rezerv">'.$value['number_rezerv'].'</div>
+						<div class="supplier">'.$this->get_supplier_name($position['art']).'</div>
+						<div class="number_rezerv">'.$position['number_rezerv'].'</div>
 						</td>';
 				// подрядчк печати 
-				$html .= '<td class="change_supplier"  data-id="'.$value['suppliers_id'].'" data-id_dop_data="'.$value['id_dop_data'].'">'.$value['suppliers_name'].'</td>';
+				$html .= '<td class="change_supplier"  data-id="'.$position['suppliers_id'].'" data-id_dop_data="'.$position['id_dop_data'].'">'.$position['suppliers_name'].'</td>';
 				// сумма за позицию включая стоимость услуг 
 
-				$html .= '<td data-order_id="'.$this->Order['id'].'" data-id="'.$value['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-cab_dop_data_id="'.$value['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';
+				$html .= '<td data-order_id="'.$this->Order['id'].'" data-id="'.$position['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-cab_dop_data_id="'.$position['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';
 				// всплывающее окно тех и доп инфо
 				// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
 				// думаю есть смысл хранения в json 
 				// обязательные поля:
 				// {"comments":" ","technical_info":" ","maket":" "}
-				$html .= $this->grt_dop_teh_info($value);
+				$html .= $this->grt_dop_teh_info($position);
 				
 				// дата утверждения макета
-				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
-				$html .= '<td></td>';
-				// срок ДС --- что тут должно быть????
-				$html .= '<td>что тут должно быть????</td>';
+				$this->Position_approval_date = $position['approval_date'];
+				$html .= '<td><input type="text" class="approval_date" value="'.$this->Position_approval_date.'"></td>';
+
+				$html .= '<td><!--// срок по ДС по позиции --></td>';
+
 				// дата сдачи
-				// где, когда и кто её проставляет, и кто и когда это может исправить???? 
-				// или откуда она вычисляется.... ведь её не может не быть
-				$html .= '<td>08.09.2015 !!!</td>';
+				// тут м.б. должна быть дата сдачи позиции ... но вроде как мы все позиции по умолчанию сдаём в срок по заказу, а если нет, то отгружаем частично по факту готовности, а следовательно нам нет необходимости вставлять для позиций редактируемое поле с датой сдачи
+				$html .= '<td><!--// дата сдачи по позиции --></td>';
+
 
 				// получаем статусы участников заказа в две колонки: отдел - статус
-				$html .= $this->position_status_list_Html($value);
+				$html .= $this->position_status_list_Html($position);
 				$html .= '</tr>';	
 
 				// добавляем стоимость позиции к стоимости заказа
 				$this->price_order += $this->Price_for_the_position;
 				$this->position_item++;
-			}		
-
-			
+			}				
 			return $html;
 		}		
-		// декодируем поле json для некаталога в читабельный вид
+
+
+		
+		/*
+			декодируем поле json для некаталога в читабельный вид
+			получаем из json описания некаталожного товара всю содержащуюся там информацию
+		*/
 		private function decode_json_no_cat_to_html($arr){
 			// список разрешённых для вывода в письмо полей
 			$send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
@@ -1003,34 +883,73 @@
 				echo '</pre>';
 			}
 		}
-		// вывод описания по позиции НЕ_каталог
+
+		// вывод описания по позиции каталог
 		private function get_dop_information_text_cat_Html($position){
 			// echo '<pre>';
 			// print_r($position);
 			// echo '</pre>';
 		}
+
 		// статусы позиций
 		private function position_status_list_Html($cab_order_main_row){
-			$status_list = array();
+			
+			if($this->Order['global_status'] == 'in_operation'){
+				 return '<td><span class="greyText">Подразделения</span></td><td><span>Ожидают запуска заказа</span></td>';
+			}else{				
+				$buttons_service_start = '<input type="button" class="start_in_work" value="в работу">';
+			}
+			// получаем статусы по позиции
+			// $status_list = array();
 			// снабжение
 			if(trim($cab_order_main_row['status_snab'])!=''){
-				$status_list['снабжение'] = $cab_order_main_row['status_snab'];	
+				$this->Position_status_list['снабжение'][] = array( 'performer_status'=> $this->menu_name_arr[ $cab_order_main_row['status_snab'] ] , 'service_name' => '  ');	
+			}else{
+				$this->Position_status_list['снабжение'][] = array( 'performer_status'=>$cab_order_main_row[ 'status_snab' ] , 'service_name' => 'позиция');	
 			}
 			// склад
 			if(trim($cab_order_main_row['status_sklad'])!=''){
-				$status_list['склад'] = $cab_order_main_row['status_sklad'];	
+				$this->Position_status_list['склад'][] = array('performer_status'=> $this->statuslist_sklad[ $cab_order_main_row['status_sklad'] ], 'service_name' => ' ');	
+			}else{
+				$this->Position_status_list['склад'][] = array('performer_status'=> 'ожидает товар', 'service_name' => 'позиция');	
 			}
 
-			$html1 = '<td>';
-			$html2 = '<td>';
-			foreach ($status_list as $key => $value) {
-				$html1 .= '<div class="otdel_name">'.$key.'</div>';
-				$html2 .= '<div class="otdel_status">'.$value.'</div>';
-			}
-			$html1 .= '</td>';
-			$html2 .= '</td>';	
+			
+			// foreach ($this->Position_status_list as $key => $value) {
+			// 	# code...
+			// }
 
-			return $html1.$html2;
+			// собираем вывод
+			$html = '<td colspan="2"  class="orders_status_td_tbl">';
+			$html .= '<table>';
+			foreach ($this->Position_status_list as $performer => $performer_status_arr) {
+				$html .= '<tr>';
+				$html .= '<td>';
+				$html .= '<div class="otdel_name">'.$performer.'</div>';
+				$html .= '</td>';
+				$html .= '<td>';
+
+				foreach ($performer_status_arr as $key => $value) {
+					$html .= '<div class="otdel_status">
+								<div class="service_name">'.$value['service_name'].'</div>
+								<div class="performer_status">'.(($value['performer_status']!='')?$value['performer_status']:$buttons_service_start).'</div>
+							</div>';
+									
+				}
+
+				$html .= '</td>';
+				$html .= '</tr>';
+			}						
+			$html .= '</table>';
+			$html .= '</td>';	
+			// echo '<pre>';
+			// print_r($this->Position_status_list);
+			// echo '</pre>';
+			return $html;
+		
+			
+				
+
 		}
 		
 
@@ -1064,83 +983,7 @@
 		##                           END                           ##
 		#############################################################
 
-
-
-
-		#################################################
-		##                   START                     ##
-		##      методы для работы с базой данных       ##
-		#################################################
-		function get_all_orders_Database_Array(){// for DELETE 
-			return 1;
-
-		}
-		#################################################
-		##      методы для работы с базой данных       ##
-		##                    END                      ##
-		#################################################
 		
-
-		##################################################
-		#######		 	SERVICE methods START		######
-		##################################################		
-		// общет стоимости позиции
-		private function GET_PRICE_for_position($value){
-			////////////////////////////////////
-			//	Расчёт стоимости позиций START  
-			////////////////////////////////////
-
-			//ОБСЧЁТ ВАРИАНТОВ
-			// получаем массив стоимости нанесения и доп услуг для данного варианта 
-			$dop_usl = $this-> get_order_dop_uslugi($value['id_dop_data']);
-			// выборка только массива стоимости печати
-			$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
-			// выборка только массива стоимости доп услуг
-			$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
-
-
-			// стоимость товара
-			$this->Price_for_the_goods = $value['price_out'] * $value['quantity'];
-			// стоимость услуг печати
-			$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
-			// стоимость услуг не относящихся к печати
-			$this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
-			// общаяя цена позиции включает в себя стоимость услуг и товара
-			$this->Price_for_the_position = $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing;
-					
-
-			////////////////////////////////////
-			//	Расчёт стоимости позиций END
-			////////////////////////////////////
-		}
-
-		private function show_cirilic_name_status_snab($status_snab){
-			if(substr_count($status_snab, '_pause')){
-				$status_snab = 'На паузе';
-			}
-			// echo '<pre>';
-			// print_r($this->POSITION_NO_CATALOG->status_snab);
-			// echo '</pre>';
-						
-			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
-				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
-			}else{
-				$status_snab;
-			}
-			return $status_snab;
-		}
-
-		//	оборачивает в оболочку warning_message
-		private function wrap_text_in_warning_message($text){
-			$html = '<div class="warning_message"><div>';	
-			$html .= $text;
-			$html .= '</div></div>';
-
-			return $html;
-		}
-		##################################################
-		#######		 	SERVICE methods END		######
-		##################################################
 		
 		function __destruct(){}
 }

@@ -151,6 +151,28 @@ table#tbl_edit_usl{
 </style>
 
 <script type="text/javascript">
+// стандартный обработчик ответа AJAX
+function standard_response_handler(data){
+	if(data['function'] !== undefined){ // вызов функции... если требуется
+		window[data['function']](data);
+	}
+	if(data['response'] != "OK"){ // вывод при ошибке
+		console.log(data);
+	}
+}
+// выбор исполнителя услуги // select_performer 
+$(document).on('change', '.select_performer', function(event) {
+	var val = $(this).val();
+	$.post('', {
+		AJAX : 'select_performer',
+		val:val,
+		usl_id:$('#tbl_edit_usl .lili.checked').attr('data-id')
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+
 //////////////////////////
 //	вызов кокна добавления доп поля
 //////////////////////////
