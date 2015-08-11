@@ -373,7 +373,24 @@ class Client {
 		else  $str = 'не контактов{@}';
 		return $str;
 	}
-
+    static function cont_faces_data_for_mail($id){
+		global $mysqli;
+		// Я ИСПОЛЬЗУЮ ПРИ ОТПРАВКЕ КП (АНДРЕЙ)
+		$query = "SELECT tbl_1.position position, tbl_1.name name, tbl_1.last_name last_name, tbl_1.surname surname, tbl_2.contact email FROM `".CLIENT_CONT_FACES_TBL."` tbl_1
+						  LEFT JOIN `".CONT_FACES_CONTACT_INFO_TBL."` tbl_2 
+						  ON  tbl_1.id =  tbl_2.parent_id
+						  WHERE tbl_1.client_id = '".(int)$id."' AND tbl_2.type='email'";
+									  
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$array = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$array[] = $row;
+			}
+		}
+		return $array;
+	}
+	
 	static function relate_managers($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".MANAGERS_TBL."` INNER JOIN `".RELATE_CLIENT_MANAGER_TBL."` ON `".RELATE_CLIENT_MANAGER_TBL."`.`manager_id` = `".MANAGERS_TBL."`.`id` WHERE `".RELATE_CLIENT_MANAGER_TBL."`.`client_id` = '".(int)$id."'";

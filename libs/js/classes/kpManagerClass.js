@@ -76,14 +76,22 @@
 			kpManager.bildSelect.container.style.backgroundColor='#FFFFFF';
 			kpManager.bildSelect.container.style.zIndex='100';
 			kpManager.bildSelect.container.style.top = '20px';
+			kpManager.bildSelect.container.style.left = '-1px';
 			
 			var arr = kpManager.details[sourse];
 			for( var i = 0 ; i < arr.length ; i++ ){//.length
 				 var div = document.createElement('div');
 				 div.className = 'selectRow';
 				 div.onclick = function(){ kpManager.addValueToSelect(sourse,element,this); }
-				 if(sourse=='client_mails') div.innerHTML = '<div style="float:left; width:300px; border:#FF0000 solid 0px;"><span>' + arr[i].mail+'</span></div><div style="float:left; width:300px;">'+ arr[i].person+'</div>';
+				 if(sourse=='client_mails') div.innerHTML = '<div style="float:left; width:270px; border:#FF0000 solid 0px;"><span>' + arr[i].email+'</span></div><div style="float:left; width:200px;">'+ arr[i].position+'</div><div style="float:left; width:250px;">'+ arr[i].name+' '+ arr[i].last_name+ ' '+ arr[i].surname+'</div>';
 				 if(sourse=='manager_mails') div.innerHTML = '<div style="float:left; width:300px; border:#FF0000 solid 0px;"><span>' + arr[i]+'</span></div>';
+				 kpManager.bildSelect.container.appendChild(div);
+			}
+			
+			if(sourse=='client_mails'){
+				 var div = document.createElement('div');
+				 div.className = 'linkRow';
+				 div.innerHTML = '<div style="float:left; width:500px; border:#FF0000 solid 0px;"><a href="?' + addOrReplaceGetOnURL('page=clients&section=client_folder&subsection=client_card_table','query_num')+'" target="_blank">добавить контакты в карточку клиента</a></div><div class="closeBtn" onclick="kpManager.closeSelect();">&#215;</div>'; //"
 				 kpManager.bildSelect.container.appendChild(div);
 			}
 			element.style.position = 'relative';
@@ -108,15 +116,23 @@
 			kpManager.bildSelectInProcess = false;
 		}
 		,
+		closeSelect:function (sourse,target,row){
+            window.event.stopPropagation();
+			
+			kpManager.bildSelect.container.parentNode.removeChild(kpManager.bildSelect.container);
+			kpManager.bildSelectInProcess = false;
+		}
+		,
 		sendKpByMail:function (id){
-		   
+		    show_processing_timer();
 			kpManager.kp_id = id;
 			//alert(id+" "+client_id+" "+manager_id);
 			var url = location.protocol +'//'+ location.hostname+location.pathname+location.search+'&send_kp_by_mail='+kpManager.kp_id;
 			
 			make_ajax_request(url,call_back);
 			function call_back(response){
-				
+			    //alert (response);
+				close_processing_timer();
 				try { 
 				   var response_obj = JSON.parse(response);
 				}
@@ -136,7 +152,7 @@
 	
 		},
 		sendKpByMailFinalStep:function (){
-			
+			// show_processing_timer(); открывается ниже чем само окрно отправки КП
 	        // подготавливаем к отправке текст сообщения
 		    var  message = kpManager.textarea.innerHTML;
 			message = encodeURIComponent(message);
@@ -190,6 +206,7 @@
 			function call_back(response){
 				 //alert(response);
 				 //return;
+				 //close_processing_timer(); открывается ниже чем само окрно отправки КП
 	 			 try { 
 				     var response = JSON.parse(response);
 				 }

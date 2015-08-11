@@ -20,10 +20,14 @@
 		
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/manager_class.php");
 		$manager = new Manager($user_id);
-		// include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+		
+		
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+		$client_mails = Client::cont_faces_data_for_mail($client_id);
 
 	    $kp_id = $_GET['send_kp_by_mail'];
 		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$user_id);
+		
         //$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		
 		$main_window_tpl_name = ROOT.'/skins/tpl/clients/client_folder/business_offers/send_mail_window.tpl';
@@ -47,7 +51,7 @@
 		
 		echo '{
 		       "kp_filename":"'.$kp_filename.'",
-		       "client_mails":[{"person":"менеджер - Наталья","mail":"premier22@yandex.ru"},{"person":"директор - Елена","mail":"premier_22@yandex.ru"}],
+		       "client_mails":'.json_encode($client_mails).',
 			   "manager_mails":["'.$manager->email.'","'.$manager->email_2.'"],
 			   "main_window_tpl":"'.$main_window_tpl.'",';
 		if(isset($message_tpls)) echo '"message_tpls":{'.implode(',',$message_tpls).'}';
