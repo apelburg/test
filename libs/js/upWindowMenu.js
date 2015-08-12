@@ -911,7 +911,12 @@
 					
 					var request_response = request.responseText;
 				    // alert(request_response);
-					building_menu(request_response,target.getAttribute('sourse'),target.getAttribute('row_id'));
+					var dop_data = {};
+					if(target.getAttribute('sourse')) dop_data.sourse = target.getAttribute('sourse');
+					if(target.getAttribute('row_id')) dop_data.row_id = target.getAttribute('row_id');
+					if(target.getAttribute('query_num')) dop_data.query_num = target.getAttribute('query_num');
+					
+					building_menu(request_response,dop_data);
 			
 				   //alert("AJAX запрос выполнен");
 				 
@@ -926,7 +931,7 @@
 		
 		e.stopPropagation();
 		
-	    function building_menu(data,sourse,row_id){
+	    function building_menu(data,dop_data){
 			var data_arr = data.split('{@}');
 			
 			relate_container = target.parentNode;
@@ -954,8 +959,9 @@
 				var a = document.createElement('a');
 				a.style.color = "#000";
 				a.setAttribute('manager_id',details_arr[0]);
-				a.setAttribute('sourse',sourse);
-				a.setAttribute('row_id',row_id);
+				if(dop_data.sourse) a.setAttribute('sourse',dop_data.sourse);
+				if(dop_data.row_id) a.setAttribute('row_id',dop_data.row_id);
+				if(dop_data.query_num) a.setAttribute('query_num',dop_data.query_num);
 				a.onclick = set_manager;
 				a.appendChild(document.createTextNode(details_arr[1]));
 				innerDiv.appendChild(a);
@@ -979,9 +985,11 @@
 			var manager_id = target.getAttribute('manager_id');
 			//alert(target.getAttribute('sourse')+' '+target.getAttribute('row_id'));
 			var row_id = (target.getAttribute('row_id'))? target.getAttribute('row_id') : false;
+			var query_num = (target.getAttribute('query_num'))? target.getAttribute('query_num') : false;
 			var sourse = target.getAttribute('sourse');
 			
-			openCloseMenu.lastElement.innerHTML = target.innerHTML;
+			if(sourse=='kp')  openCloseMenu.lastElement.innerHTML = target.innerHTML;
+			if(sourse=='rt')  openCloseMenu.lastElement.innerHTML = 'Контактное лицо: '+target.innerHTML;
 			//openCloseMenu.lastElement.innerHTML = 'контакт: ' + target.innerHTML;
 			//document.getElementById('row_' + row_id).setAttribute('client_manager_id',manager_id);
 			
@@ -991,7 +999,8 @@
 		    var request = HTTP.newRequest();
 	        //var url = "?page=clients&set_manager_for_order=" + manager_id + "&row_id=" + row_id + "&control_num=" + document.getElementById('calculate_tbl').getAttribute('control_num');
 			if(sourse=='kp')  var url = "?page=client_folder&section=business_offers&set_recipient=" + manager_id + "&row_id=" + row_id;
-	    
+	        if(sourse=='rt')  var url = "?page=client_folder&set_cont_face=" + manager_id + "&query_num=" + query_num;
+
 			// производим запрос
 			request.open("GET", url, true);
 			request.send(null);
@@ -1003,7 +1012,9 @@
 					   // обрабатываем ответ сервера
 						
 						var request_response = request.responseText;
-						alert(request_response);
+						//alert(request_response);
+						
+						
 
 					}
 					else{

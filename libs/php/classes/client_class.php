@@ -335,7 +335,15 @@ class Client {
 		$row = $result->fetch_assoc();    
 		return $row['company'];
 	}
-	
+	static function get_cont_face_details($id){
+		global $mysqli;
+		$query = "SELECT position, name, last_name, surname FROM `".CLIENT_CONT_FACES_TBL."` WHERE id ='".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+		    return $result->fetch_assoc();
+		}
+		else return false;
+	}
 	static function cont_faces($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".CLIENT_CONT_FACES_TBL."` WHERE `client_id` = '".(int)$id."'";
@@ -407,7 +415,23 @@ class Client {
 		}
 		return $array;
 	}
+	static  function get_cont_faces_ajax($client_id){
+	    global $mysqli;
+		
+		$cont_faces_arr = array();
+		
+		$query = "SELECT*FROM `".CLIENT_CONT_FACES_TBL."` WHERE `client_id` = '".$client_id."'";
+		//echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0)
+		{
+		    while($item = $result->fetch_assoc()) $cont_faces_arr[] = $item['id'].'{;}'.$item['name'].' '.$item['last_name'].' '.$item['surname'];				
+		}
+		
 	
+		return implode('{@}',$cont_faces_arr);
+
+	}
 	static function relate_managers($id){
 		global $mysqli;
 		$query = "SELECT * FROM `".MANAGERS_TBL."` INNER JOIN `".RELATE_CLIENT_MANAGER_TBL."` ON `".RELATE_CLIENT_MANAGER_TBL."`.`manager_id` = `".MANAGERS_TBL."`.`id` WHERE `".RELATE_CLIENT_MANAGER_TBL."`.`client_id` = '".(int)$id."'";

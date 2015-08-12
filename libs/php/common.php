@@ -1654,24 +1654,6 @@
 
 	}
 	
-	function get_client_cont_faces_ajax($client_id){
-	    global $db;
-		
-		$cont_faces_arr = array();
-		
-		$query = "SELECT*FROM `".CLIENT_CONT_FACES_TBL."` WHERE `client_id` = '".$client_id."'";
-		$result = mysql_query($query,$db);
-		if(!$result) echo(mysql_error());
-		if(mysql_num_rows($result)>0)
-		{
-		    while($item = mysql_fetch_assoc($result)) $cont_faces_arr[] = $item['id'].'{;}'.$item['name'];				
-		}
-		
-	
-		return implode('{@}',$cont_faces_arr);
-
-	}
-	
 	function set_manager_for_order_ajax($id,$manager_id,$control_num){
 	    global $db; 
 	

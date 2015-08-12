@@ -76,12 +76,21 @@
 			$data['id'] = $row['client_face_id'];
 			
 			if($data['id']!=0){
-				$query = "SELECT position, name, last_name, surname FROM `".CLIENT_CONT_FACES_TBL."` WHERE id ='".$row['client_face_id']."'";
+			    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+			    $data['details'] = Client::get_cont_face_details($data['id']);
+					 
+				/*$query = "SELECT position, name, last_name, surname FROM `".CLIENT_CONT_FACES_TBL."` WHERE id ='".$row['client_face_id']."'";
 				$result = $mysqli->query($query) or die($mysqli->error);
-				$data['details'] = $result->fetch_assoc();
+				$data['details'] = $result->fetch_assoc();*/
 			}
 			
 			return $data;
+		}
+		static function set_cont_face($cont_face_id,$query_num){
+		    global $mysqli;
+			   
+			$query = "UPDATE `".RT_LIST."` SET `client_face_id` = '".$cont_face_id."' WHERE `query_num` = '".$query_num."'"; 
+            $mysqli->query($query) or die($mysqli->error);
 		}
 		static function save_copied_rows_to_buffer($data,$control_num){
 		    global $mysqli;   

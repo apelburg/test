@@ -135,7 +135,7 @@
 			
 			make_ajax_request(url,call_back);
 			function call_back(response){
-			    alert (response);
+			    // alert (response);
 				close_processing_timer();
 				try { 
 				   var response_obj = JSON.parse(response);

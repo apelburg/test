@@ -162,7 +162,11 @@
 		exit;
 	}
 
+	if(isset($_GET['set_cont_face'])){
 
+		RT::set_cont_face($_GET['set_cont_face'],$_GET['query_num']);
+		exit;
+	}
 
 	if(isset($_POST['AJAX'])){
 		
@@ -202,15 +206,14 @@
 			$FORM->insert_new_options_in_the_Database();
 			exit;
 		}
-
 	}
 	/////////////////////  END  AJAX  ////////////////////// 
 	
 	
 	$cont_face_data = RT::fetch_query_client_face($query_num);
-	print_r($cont_face_data);
+	//print_r($cont_face_data);
 
-	$cont_face = '<div class="client_details_select" sourse="rt" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">Контактное лицо: '.(($cont_face_data['id']==0)?'не установлено':$row['recipient']).'</div>';
+	$cont_face = '<div class="client_details_select" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">Контактное лицо: '.(($cont_face_data['id']==0)?'не установлено':$cont_face_data['details']['name'].' '.$cont_face_data['details']['last_name'].' '.$cont_face_data['details']['surname']).'</div>';
 	
 	$create_time = RT::fetch_query_create_time($query_num);
 	

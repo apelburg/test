@@ -389,7 +389,7 @@
 	    static function set_recipient($recipient,$row_id){
             global $mysqli;
 			 
-			$query="UPDATE `".KP_LIST."` SET `recipient` ='".$recipient."' WHERE `id` = '".$row_id."'";
+			$query="UPDATE `".KP_LIST."` SET `recipient_id` ='".$recipient."' WHERE `id` = '".$row_id."'";
 			$mysqli->query($query)or die($mysqli->error);
 	   }
 	   static function open_in_tbl($kp_id){
@@ -1176,7 +1176,10 @@
 					 }
 					 else $send_time = 'не отправленно';
 					 
-					 $recipient = '<div class="client_details_select" sourse="kp" row_id="'.$row['id'].'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">'.(($row['recipient']=='')?'не установлен':$row['recipient']).'</div>';
+					 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+					 $cont_face_data = Client::get_cont_face_details($row['recipient_id']);
+					 
+					 $recipient = '<div class="client_details_select" sourse="kp" row_id="'.$row['id'].'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">'.(($row['recipient_id']==0)?'не установлен':$cont_face_data['name']).'</div>';
 					 //$recipient = $row['recipient'];контакт: 
 					 $date_arr = explode("-",substr($row['create_time'],0,10));
 					 $date = implode(".",array_reverse($date_arr));
