@@ -535,3 +535,6 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 	display: block;
 }
 
+.performer_status select{
+	width: 100px
+}

@@ -298,6 +298,11 @@
 		$id = $_POST['id']; 
 		unset($_POST['id'],$_POST['AJAX']);
 
+		// обрабатываем logotip_on
+		if(!isset($_POST['logotip_on'])){
+			$_POST['logotip_on'] = '';
+		}
+
 		$query = "UPDATE `".OUR_USLUGI_LIST."` SET ";		
 		$n=0;
 		foreach ($_POST as $key => $value) {
@@ -429,46 +434,74 @@
 
 		// $html .= '<div></div>';
 		// наименовнаие услуги
+		$html .= '<div class="separation_container">';
 		$html .= '<div class="name_input">Наименование</div>';
 		$html .= '<div class="edit_info"><input type="text" value="'.$usluga['name'].'" name="name"></div>';
+		$html .= '</div>';
+
 		if($_POST['id'] != 6 && $_POST['parent_id'] != 6){
 			// тип услуги
+			$html .= '<div class="separation_container">';
 			$html .= '<div class="name_input">Тип</div>';
 			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['type'].'" name="type"></div>';
+			$html .= '</div>';
+
 			// Цена входящая
+			$html .= '<div class="separation_container">';
 			$html .= '<div class="name_input">Цена входащя</div>';
 			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_in'].'" data-real="'.$usluga['price_in'].'" name="price_in"> руб.</div>';
+			$html .= '</div>';
+
 			// Цена исходящая
+			$html .= '<div class="separation_container">';
 			$html .= '<div class="name_input">Цена исходащая</div>';
 			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_out'].'" data-real="'.$usluga['price_out'].'" name="price_out"> руб.</div>';
+			$html .= '</div>';
 
 			// Разрешить редактировать входящую цену
+			$html .= '<div class="separation_container">';
 			$html .= '<div class="name_input">Разрешить редактировать входящую цену</div>';
 			$html .= '<div class="edit_info"><input type="radio" id="edit_pr_in1" name="edit_pr_in" value="0" '.(($usluga['edit_pr_in']=="0")?'checked':'').'><label for="edit_pr_in1"><span>Запретить</span></label></div>';
 			$html .= '<div class="edit_info"><input type="radio" id="edit_pr_in2" name="edit_pr_in" value="1" '.(($usluga['edit_pr_in']=="1")?'checked':'').'><label for="edit_pr_in2"><span>Разрешить</span></label></div>';
-			
+			$html .= '</div>';
 
 			// Как считаем
+			$html .= '<div class="separation_container">';
 			$html .= '<div class="name_input">Как считаем</div>';
 			$html .= '<div class="edit_info"><input type="radio" id="for_how1" name="for_how" value="" '.(($usluga['for_how']=="")?'checked':'').'><label for="for_how1"><span class="icon_style folder">папка</span></label></div>';
 			$html .= '<div class="edit_info"><input type="radio" id="for_how2" name="for_how" value="for_one" '.(($usluga['for_how']=="for_one")?'checked':'').'><label for="for_how2"><span class="icon_style for_one">на единицу товара</span></label></div>';
 			$html .= '<div class="edit_info"><input type="radio" id="for_how3" name="for_how" value="for_all" '.(($usluga['for_how']=="for_all")?'checked':'').'><label for="for_how3"><span class="icon_style for_all">на тираж</span></label></div>';
-			
+			$html .= '</div>';
+
 			// Цена исходящая
-		$html .= '<div class="name_input">Шаблон ТЗ для менеджера</div>';
-		$html .= '<div class="edit_info"><textarea name="tz">'.$usluga['tz'].'</textarea></div>';
+			$html .= '<div class="separation_container">';
+			$html .= '<div class="name_input">Шаблон ТЗ для менеджера</div>';
+			$html .= '<div class="edit_info"><textarea name="tz">'.$usluga['tz'].'</textarea></div>';
+			$html .= '</div>';
 		}
 		// исполнитель
+		$html .= '<div class="separation_container">';
 		$html .= '<div class="name_input">Выберите отдел ответственный за выставление статусов по услуге</div>';
 		$html .= '<div class="edit_info">'.$this->select_performer($usluga['performer']).'</div>';
+		$html .= '</div>';
+
+
+		// включение/отключение поля logotip
+		$html .= '<div class="separation_container">';
+		// $html .= '<div class="name_input"></div>';
+		$html .= '<div class="edit_info"><input type="checkbox" name="logotip_on" id="logotip_on" '.(($usluga['logotip_on']=="on")?'checked':'').'>'.$usluga['logotip_on'].'<label for="logotip_on">Включить/отключить поле Логотип</label></div>';
+		$html .= '</div>';
 
 		// Цена исходящая
+		$html .= '<div class="separation_container">';
 		$html .= '<div class="name_input">Описание услуги</div>';
 		$html .= '<div class="edit_info"><textarea name="note">'.$usluga['note'].'</textarea></div>';
+		$html .= '</div>';
 
 		// скрытое поле ID
-		$html .= '<div class="edit_info"><input type="hidden" name="AJAX" value="save_edit_usluga"></div>';
-		$html .= '<div class="edit_info"><input type="hidden" name="id" value="'.$usluga['id'].'"></div>';
+		$html .= '<div class="edit_info hidden_form_input"><input type="hidden" name="AJAX" value="save_edit_usluga"></div>';
+		$html .= '<div class="edit_info hidden_form_input"><input type="hidden" name="id" value="'.$usluga['id'].'"></div>';
+		
 
 		$html .= '</form>';
 		$html .= '<div id="response_message"></div>';
@@ -489,7 +522,8 @@
 		// получаем id по которым будем выбирать статусы для услуги
 		$id_s = implode(",",$this->get_id_parent_Database_Array($id,array()));
 		global $mysqli;
-		$html = '<div id="status_list">';
+		$html = '<div class="separation_container">';
+		$html .= '<div id="status_list">';
 		$html .= '<strong>Список статусов по разделам:</strong><br>';
 		$query = "SELECT * FROM `".USLUGI_STATUS_LIST."` WHERE `parent_id` IN (".$id_s.") ORDER BY `parent_id` ASC";
 		// echo $query.'<br>';
@@ -511,6 +545,7 @@
 		}
 		$html.= '</div>';
 		$html.= '<div><input type="button" id="add_new_status" value="Добавить +"></div>';
+		$html.= '</div>';
 		
 
 		return $html;
@@ -527,14 +562,15 @@
 				$inputs[] = $row;
 			}
 		}
-
-		$html = '<br><strong>Доп. поля</strong>';
+		$html = '<div class="separation_container">';
+		$html .= '<br><strong>Доп. поля</strong>';
 		$html .= '<div id="dop_inputs_listing">';
 		foreach ($inputs as $value) {
 			$html .= '<div class="dop_inputs"  data-id="'.$value['id'].'"><span>'.$value['name_ru'].'</span><span class="button_del_dop_inputs status_del" data-id="'.$value['id'].'">X</span></div>';
 		}
 		$html .= '</div>';
 		$html.= '<div><input type="button" id="add_new_dop_input" value="Добавить +"></div>';
+		$html.= '</div>';
 		return $html;
 	}
 

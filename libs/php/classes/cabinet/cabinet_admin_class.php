@@ -81,16 +81,7 @@
 
 			//$this->FORM = new Forms;
 		}
-
-
-		private function _AJAX_($name){
-			$method_AJAX = $name.'_AJAX';
-			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-			if(method_exists($this, $method_AJAX)){
-				$this->$method_AJAX();
-				exit;
-			}					
-		}
+			
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){

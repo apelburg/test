@@ -1,10 +1,7 @@
 <?php
 	
 	class Cabinet_sklad_class extends Cabinet{
-		// разрешить показ сообщений
-		// private $allow_messages = false;
-
-
+		
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
 			'important' => 'Важно',
@@ -45,7 +42,6 @@
 			'otgrugen' => 'Отгруженные'													
 		); 
 
-
 		// название подраздела кабинета
 		private $sub_subsection;
 
@@ -56,13 +52,7 @@
 
 			$this->user_id = $_SESSION['access']['user_id'];
 			$this->user_access = $user_access;
-
-			//echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; left:0">this->Cabinet_snab_class </div>';
 			
-			// экземпляр класса продукции НЕ каталог
-			// $this->POSITION_NO_CATALOG = new Position_no_catalog();
-
-
 			## данные POST
 			if(isset($_POST['AJAX'])){
 				$this->_AJAX_($_POST['AJAX']);
@@ -73,16 +63,6 @@
 				$this->_AJAX_($_GET['AJAX']);
 			}
 
-		}
-
-
-		private function _AJAX_($name){
-			$method_AJAX = $name.'_AJAX';
-			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-			if(method_exists($this, $method_AJAX)){
-				$this->$method_AJAX();
-				exit;
-			}					
 		}
 
 		// стадратный метод для вывода шаблона
@@ -96,8 +76,6 @@
 				echo 'метод '.$method_template.' не предусмотрен';
 			}
 		}
-
-
 
 		
 		//////////////////////////
@@ -158,10 +136,8 @@
 
 			$table_order_row = '';		
 			// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
-			// error_reporting(E_ALL);
-			//include '../os_form_class.php';
 			// создаем экземпляр класса форм
-			$this->FORM = new Forms();
+			// $this->FORM = new Forms();
 
 			// ПЕРЕБОР ЗАКАЗОВ
 			foreach ($this->Order_arr as $this->Order) {
@@ -181,19 +157,6 @@
 				$table_order_positions_rows = $this->table_order_positions_rows_Html();
 				
 				// формируем строку с информацией о заказе
-				/*
-					<tr>
-						<th colspan="3">Артикул/номенклатура/печать</th>
-						<th>тираж</th>
-						<th>логотип</th>
-						<th>поставщик товара</th>
-						<th>№ резерва</th>
-						<th>подрядчик печати</th>
-						<th>дата отгрузки</th>
-						<th>статус товара</th>
-						<th>статус заказа</th>
-					</tr>
-				*/
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
 					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">
 											<span class="cabinett_row_hide_orders"></span>
@@ -211,13 +174,11 @@
 									</td>';
 					$table_order_row .= '<td><strong>'.$this->Order['date_of_delivery_of_the_order'].'</strong></td>';
 					$table_order_row .= '<td><span class="greyText">заказа: </span></td>';
-					$table_order_row .= '<td>'.$this->order_status[$this->Order['global_status']].'</td>';
+					$table_order_row .= '<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
 				$table_order_row .= '</tr>';
 				// включаем вывод позиций 
 				$table_order_row .= $table_order_positions_rows;
-			}
-
-			
+			}		
 
 			$html = $table_head_html.$table_order_row.'</table>';
 			echo $html;
@@ -236,27 +197,8 @@
 				$this->Position_status_list = array(); // в переменную заложим все статусы
 
 				$this->id_dop_data = $position['id_dop_data'];
-				////////////////////////////////////
-				//	Расчёт стоимости позиций START  
-				////////////////////////////////////
-					/*
-						!!!!!!!!    ОПИСАНИЕ    !!!!!!!!!
 
-						стоимость товара
-						$this->Price_for_the_goods;	// $price_out
-						стоимость услуг печати
-						$this->Price_of_printing;
-						стоимость услуг не относящихся к печати
-						$this->Price_of_no_printing;
-						общаяя цена позиции включает в себя стоимость услуг и товара
-						$this->Price_for_the_position;
-					*/
-				
-				$this->GET_PRICE_for_position($position);				
-					
-				////////////////////////////////////
-				//	Расчёт стоимости позиций END
-				////////////////////////////////////			
+				$this->logotip = $this->get_content_logotip($this->id_dop_data);
 				
 				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'">';
 				// // порядковый номер позиции в заказе
@@ -266,18 +208,7 @@
 				
 				// наименование товара
 				$html .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
-					
-				// добавляем доп описание
-				// для каталога и НЕкаталога способы хранения и получения данной информации различны
-				if(trim($position['type'])!='cat' && trim($position['type'])!=''){
-					// доп инфо по некаталогу берём из json 
-					$html .= $this->decode_json_no_cat_to_html($position);
-				}else if(trim($position['type'])!=''){
-					// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
-					$html .= '';
-				}
-
-
+			
 				$html .= '</td>';
 				// тираж
 				$html .= '<td>';
@@ -286,7 +217,7 @@
 
 
 				// логотип
-				$html .= '<td><span class="greyText">  -  </span></td>';
+				$html .= '<td><span class="greyText">'.$this->logotip.'</span></td>';
 				
 				// поставщик товара  
 				$html .= '<td>
@@ -309,46 +240,14 @@
 
 				// статус товара
 				$html .= '<td>
-							<div>'.$this->decoder_statuslist_sklad($position['status_sklad']).'</div>
+							<div>'.$this->decoder_statuslist_sklad($position['status_sklad'],$position['id']).'</div>
 						</td>';
 				// статус снабжение
 				$html .= '<td>
-							<div>'.$this->decoder_statuslist_snab($position['status_snab'],$position['date_delivery_product']).'</div>
+							<div>'.$this->decoder_statuslist_snab($position['status_snab'],$position['date_delivery_product'],0,$position['id']).'</div>
 						</td>';
 
-
-
-
-
-				// // подрядчк печати 
-				// $html .= '<td class="change_supplier"  data-id="'.$position['suppliers_id'].'" data-id_dop_data="'.$position['id_dop_data'].'">'.$position['suppliers_name'].'</td>';
-				// // сумма за позицию включая стоимость услуг 
-
-				// $html .= '<td data-order_id="'.$this->Order['id'].'" data-id="'.$position['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-cab_dop_data_id="'.$position['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';
-				// // всплывающее окно тех и доп инфо
-				// // т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
-				// // думаю есть смысл хранения в json 
-				// // обязательные поля:
-				// // {"comments":" ","technical_info":" ","maket":" "}
-				// $html .= $this->grt_dop_teh_info($position);
-				
-				// // дата утверждения макета
-				// $this->Position_approval_date = $position['approval_date'];
-				// $html .= '<td><input type="text" class="approval_date" value="'.$this->Position_approval_date.'"></td>';
-
-				// $html .= '<td><!--// срок по ДС по позиции --></td>';
-
-				// // дата сдачи
-				// // тут м.б. должна быть дата сдачи позиции ... но вроде как мы все позиции по умолчанию сдаём в срок по заказу, а если нет, то отгружаем частично по факту готовности, а следовательно нам нет необходимости вставлять для позиций редактируемое поле с датой сдачи
-				// $html .= '<td><!--// дата сдачи по позиции --></td>';
-
-
-				// // получаем статусы участников заказа в две колонки: отдел - статус
-				// $html .= $this->position_status_list_Html($position);
 				$html .= '</tr>';	
-
-				// добавляем стоимость позиции к стоимости заказа
-				$this->price_order += $this->Price_for_the_position;
 				$this->position_item++;
 			}				
 			return $html;
@@ -356,70 +255,6 @@
 
 
 		
-		
-
-		
-
-		// статусы позиций
-		private function position_status_list_Html($cab_order_main_row){
-			
-			if($this->Order['global_status'] == 'in_operation'){
-				 return '<td><span class="greyText">Подразделения</span></td><td><span>Ожидают запуска заказа</span></td>';
-			}else{				
-				$buttons_service_start = '<input type="button" class="start_in_work" value="в работу">';
-			}
-			// получаем статусы по позиции
-			// $status_list = array();
-			// снабжение
-			if(trim($cab_order_main_row['status_snab'])!=''){
-				$this->Position_status_list['снабжение'][] = array( 'performer_status'=> $this->menu_name_arr[ $cab_order_main_row['status_snab'] ] , 'service_name' => '  ');	
-			}else{
-				$this->Position_status_list['снабжение'][] = array( 'performer_status'=>$cab_order_main_row[ 'status_snab' ] , 'service_name' => 'позиция');	
-			}
-			// склад
-			if(trim($cab_order_main_row['status_sklad'])!=''){
-				$this->Position_status_list['склад'][] = array('performer_status'=> $this->statuslist_sklad[ $cab_order_main_row['status_sklad'] ], 'service_name' => ' ');	
-			}else{
-				$this->Position_status_list['склад'][] = array('performer_status'=> 'ожидает товар', 'service_name' => 'позиция');	
-			}
-
-			
-			// foreach ($this->Position_status_list as $key => $value) {
-			// 	# code...
-			// }
-
-			// собираем вывод
-			$html = '<td colspan="2"  class="orders_status_td_tbl">';
-			$html .= '<table>';
-			foreach ($this->Position_status_list as $performer => $performer_status_arr) {
-				$html .= '<tr>';
-				$html .= '<td>';
-				$html .= '<div class="otdel_name">'.$performer.'</div>';
-				$html .= '</td>';
-				$html .= '<td>';
-
-				foreach ($performer_status_arr as $key => $value) {
-					$html .= '<div class="otdel_status">
-								<div class="service_name">'.$value['service_name'].'</div>
-								<div class="performer_status">'.(($value['performer_status']!='')?$value['performer_status']:$buttons_service_start).'</div>
-							</div>';
-									
-				}
-
-				$html .= '</td>';
-				$html .= '</tr>';
-			}						
-			$html .= '</table>';
-			$html .= '</td>';	
-			// echo '<pre>';
-			// print_r($this->Position_status_list);
-			// echo '</pre>';
-			return $html;
-		
-			
-				
-
-		}
 		
 
 

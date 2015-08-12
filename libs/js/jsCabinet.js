@@ -93,7 +93,7 @@ $(document).ready(function() {
 		closeOnDateSelect:true,
 		onChangeDateTime: function(dp,$input){// событие выбора даты
 			// получение данных для отправки на сервер
-			var row_id = $input.parent().parent().attr('data-id');
+			var row_id = $input.parent().attr('data-id');
 			var date = $input.val();
 
 			//alert($input.attr('class'));
@@ -107,11 +107,6 @@ $(document).ready(function() {
 		},
 	 	format:'d.m.Y',	 	
 	});
-
-
-
-
-
 	
 
 	// дата утверждения макета
@@ -161,6 +156,23 @@ $(document).on('change', '.choose_statuslist_order_and_paperwork', function(even
 		replace_query_row_obj(obj);
 	},'json');
 });
+
+// Изменение глобального статуса ЗАКАЗА / ПРЕДЗАКАЗА
+$(document).on('change', '.choose_statuslist_sklad', function(event) {
+	var row_id = $(this).attr('data-id'); //main_rows_id
+	var value = $(this).val();
+	// отправляем запрос
+	$.post('', {
+		AJAX:'choose_statuslist_sklad',
+		row_id:row_id,
+		value:value
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+
+
 // запуск в работу заказа
 $(document).on('click', '.in_operation', function(event) {
 	var row_id = $(this).parent().parent().attr('data-id'); //main_rows_id
@@ -836,6 +848,23 @@ $(document).on('keyup','#dialog_gen_window_form .save_tz', function(event) {
 
 	$.post('', {
 		AJAX:'save_tz_info',
+		cab_dop_usluga_id: cab_dop_usluga_id,
+		text : $(this).val()
+	}, function(data, textStatus, xhr) {
+		if(data['response']!="OK"){
+			alert('Что-то пошло не так');
+		}
+	},'json');
+	check_loading_ajax();
+});
+
+// редактирование поля ТЗ по услуге к позиции заказа
+$(document).on('keyup','#dialog_gen_window_form .save_logotip', function(event) {
+	
+	var cab_dop_usluga_id = $('#services_listing_each .lili.checked').attr('data-dop_usluga_id');
+
+	$.post('', {
+		AJAX:'save_logotip_info',
 		cab_dop_usluga_id: cab_dop_usluga_id,
 		text : $(this).val()
 	}, function(data, textStatus, xhr) {
