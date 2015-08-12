@@ -1,0 +1,158 @@
+
+table#tbl_edit_usl{
+	border-collapse: collapse;
+}
+.edit_info input[type="text"],#status_list input[type="text"]{
+	min-width: 250px;
+}
+.edit_info textarea{
+	min-width: 450px;
+	min-height: 150px;
+}
+#tbl_edit_usl tr th{
+	border:1px solid #d4d4d4;
+	padding: 5px 15px 5px 15px;
+	text-align: left;
+	vertical-align: top;
+}
+#tbl_edit_usl tr td{
+	vertical-align: top;
+	border:1px solid #d4d4d4;
+	padding: 5px
+}
+#tbl_edit_usl tr td#tbl_edit_usl_content{
+	min-width: 750px
+}
+#tbl_edit_usl .lili{
+	padding: 6px 5px 2px 5px;
+	cursor: default;
+}
+#tbl_edit_usl .lili:hover{
+	background-color: #f0f0f0;
+}
+#tbl_edit_usl .lili.checked{
+	background-color: #BABABA;
+}
+#tbl_edit_usl .lili.checked:hover{
+	background-color: #BABABA;
+}
+#tbl_edit_usl .lili.f_open{
+	background-image: url('../images/img_design/open-closed-folder.png');
+	background-repeat: no-repeat;
+	background-position-y: -21px;
+}
+
+#tbl_edit_usl .lili.for_one{
+	background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+	background-repeat: no-repeat;
+	background-position-y: -21px;
+}
+
+#tbl_edit_usl .lili.for_all{
+	background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+	background-repeat: no-repeat;
+	background-position-y: 3px;
+}
+#tbl_edit_usl .lili.f_close{
+	background-image: url('../images/img_design/open-closed-folder.png');
+	background-repeat: no-repeat;
+	background-position-y: 3px;
+}
+#tbl_edit_usl .lili.calc_icon{
+	background-image: url('../images/img_design/calc_icon.png');
+	background-repeat: no-repeat;
+	background-position-y: 3px;
+}
+
+#tbl_edit_usl .lili span.button{
+	padding: 2px 5px 0 5px;
+	margin-left: 5px;
+	margin-top: -4px;
+	float: right;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	color: grey;
+}
+#tbl_edit_usl tr td#tbl_edit_usl_content {
+	padding-left: 30px;
+	padding-right: 30px;
+}
+
+#tbl_edit_usl_content.loading{
+	background-image: url(../images/img_design/preloader.gif);
+	background-repeat: no-repeat;
+	background-position: 50%;
+}
+#tbl_edit_usl_content div{
+	padding: 5px;
+}
+#tbl_edit_usl_content div input{
+	/*float: left;*/
+}
+#tbl_edit_usl_content .gname{
+	padding-top: 18px;
+}
+#tbl_edit_usl_content .status_del{
+	padding: 2px 5px 0 5px;
+	margin-left: 5px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	color: grey;
+	position: relative;
+	padding-top: 0px;
+	cursor: default;
+}
+.icon_style{
+	padding-left: 27px;
+	height: 15px;
+}
+.icon_style.folder{
+	background-image: url('../images/img_design/open-closed-folder.png');
+	background-repeat: no-repeat;
+	background-position-y: -26px;
+}
+.icon_style.for_one{
+	background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+	background-repeat: no-repeat;
+	background-position-y: -26px;
+}
+.icon_style.calc_icon{
+	background-image: url('../images/img_design/calc_icon.png');
+	background-repeat: no-repeat;
+	background-position-y: -1px;
+}
+.icon_style.for_all{
+	background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+	background-repeat: no-repeat;
+	background-position-y: -1px;
+}
+.name_input{
+	font-weight: bold;
+}
+#hidden_button,#response_message{ 
+	display: none;	
+}
+#response_message.green{background-color: #78C05A;}
+#response_message.red{background-color: #DF9F9F;}
+
+#status_list .preload{
+	background-image: url(../images/img_design/spiffygif_32x32.gif);
+	background-repeat: no-repeat;
+	background-position: 0 50%;
+	background-position-x: 75px;
+	/* background-color: #DD3; */
+	min-height: 23px;
+}
+.status_name.saved,.status_name.save_status_name{
+	background-color: #ddd;
+}
+
+#tbl_edit_usl_content .separation_container{
+	background-color: #F9F9F9;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ECECEC;
+}
+.hidden_form_input{
+	display: none
+}

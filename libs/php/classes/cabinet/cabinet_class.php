@@ -14,6 +14,9 @@
 			'9' => 'Дизайнер' 
 		);
 
+    	////////////////////////////////////////////////////////////////
+    	//	 СТАТУСЫ ПОДРАЗДЕЛЕНИЙ ПО ПОЗИЦИЯМ, ЗАКАЗУ И ПРЕДЗАКАЗУ   //
+    	////////////////////////////////////////////////////////////////
     	// допуски пользователя
     	protected $user_access = 0;
 
@@ -66,24 +69,12 @@
 			'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ' // -> статус предзаказа =  'shipped'
     	);
 
-    	// массив следствий статусов заказа из статусов бухгалтерии
-    	protected $consequences_of_status_buch = array(
-    		'is_pending' => 'being_prepared', // предзаказ ожидает обработки
-    		'score_exhibited' => 'waiting_for_payment', // счёт выставлен
-    		'payment' => 'in_operation', // оплачен
-    		'partially_paid' => 'in_operation', // чатично оплачен
-    		'collateral_received' => 'in_operation', // принят залог
-    		'letter_of_guarantee' => 'in_operation', // гарантийное 
-    		'ogruzochnye_accepted' => 'shipped'// отгрузочные приняты
-    	);
-
-
-
+    	
 		// статусы склад
 		protected $statuslist_sklad = array(
 			'no_goods' => 'нет в наличии', 
-			'waiting' => 'ожидаем',
-			'goods_in_stock' => 'на складе', 
+			// 'waiting' => 'ожидаем',
+			'goods_in_stock' => 'принято на склад', // ->
 			'sended_on_outsource' => 'отправлено на оутсорсинг',
 			'checked_and_packed'  => 'проверено и упаковано',
 			'goods_shipped_for_client' => 'отгружен клиенту'
@@ -95,7 +86,9 @@
 			'maquette_adopted' => 'Макет принят',
 			'not_adopted' => 'Не принят',
 			'waits_union' => 'Ожидает объединения',
+			'products_capitalized_warehouse' => 'Продукция оприходована складом',// сервисный статус, вытекает из статуса склада - принято на склад
 			'waits_union' => 'Ожидает счет от поставщика',
+			'on_outsource' => 'Продукция уехала на аутсорсинг',
 			'waits_the_bill_of_supplier' => 'Ожидаем отправку постащика',
 			'products_bought' => 'Продукция выкуплена',
 			'waits_products' => 'Продукция ожидается:',
@@ -104,8 +97,43 @@
 			'question' => 'Вопрос'
 		);
 
+		//////////////////////////
+		//	СЛЕДСТВИЯ СТАТУСОВ  //
+		//////////////////////////
+		/*
+			следствия нужны для переключения статусов других подразделений при изменении какого-либо статуса			
+		*/
+
+		// МАССИВ СЛЕДСТВИЙ статусов заказа из статусов бухгалтерии
+    	protected $CONSEQUENCES_of_status_buch = array(
+    		'is_pending' => 'being_prepared', // предзаказ ожидает обработки
+    		'score_exhibited' => 'waiting_for_payment', // счёт выставлен
+    		'payment' => 'in_operation', // оплачен
+    		'partially_paid' => 'in_operation', // чатично оплачен
+    		'collateral_received' => 'in_operation', // принят залог
+    		'letter_of_guarantee' => 'in_operation', // гарантийное 
+    		'ogruzochnye_accepted' => 'shipped'// отгрузочные приняты
+    	);
+
+    	// следствия склад
+    	protected $CONSEQUENCES_of_status_sklad = array(
+    		'sended_on_outsource' => 'on_outsource',// принято на склад
+    		'goods_in_stock' => 'products_capitalized_warehouse'// принято на склад
+    	);
+
+
+
 
     	function __consturct(){
+		}
+
+		protected function _AJAX_($name){
+			$method_AJAX = $name.'_AJAX';
+			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+			if(method_exists($this, $method_AJAX)){
+				$this->$method_AJAX();
+				exit;
+			}					
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +141,7 @@
 		/////////////////////////////////////////////////////////////////////////////////////
 
 		// вывод статусов склада с возможностью их редактирования (опционально по флагу $enable_selection)
-		protected function decoder_statuslist_sklad($real_val, $enable_selection = 0){
+		protected function decoder_statuslist_sklad($real_val, $main_rows_id, $enable_selection = 0){
 			/*
 				$real_val - реальное значение поля в базе
 				 
@@ -128,7 +156,7 @@
 			// проверяем на разрешение смены статуса снабжения
 			if($this->user_access == 7 || $this->user_access == 1){ // на будущеее, пока работаем по параметру
 			// if($enable_selection){
-				$html .= '<select class="choose_statuslist_sklad">';
+				$html .= '<select class="choose_statuslist_sklad" data-id="'.$main_rows_id.'">';
 					foreach ($this->statuslist_sklad as $name_en => $name_ru) {
 						$is_checked = ($name_en == $real_val)?'selected="selected"':'';
 						$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
@@ -156,7 +184,6 @@
 			$html = '';
 			// проверяем на разрешение смены статуса снабжения
 			if($this->user_access == 8 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
-			// if($enable_selection){
 				$html .= '<select  data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
 					if($real_val == 'in_processed'){$html .= '<option value="in_processed" selected="selected">в обработке</option>';}
 					foreach ($this->statuslist_snab as $name_en => $name_ru) {
@@ -173,7 +200,7 @@
 					$html .='<span class="greyText">'.(isset($this->statuslist_snab[$real_val])?$this->statuslist_snab[$real_val]:$real_val).'</span>';
 				}
 				// добавляем div c ожидаемой датой поставки
-				$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='')?'show':'').'">'.$date_delivery_product.'</div>';
+				$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'">'.$date_delivery_product.'</div>';
 			}
 			
 
@@ -214,9 +241,6 @@
 
 				$enable_selection - разрешение на вывод редактируемого списка, по умолчанию запрещено
 			*/
-
-			
-
 			$html = '';
 			// определяем рабочий массив статусов для работы (ЗАКАЗ или ПРЕДЗАКАЗ)
 			if (array_key_exists($real_val, $this->paperwork_status)) { // ищем ключ
@@ -227,7 +251,7 @@
 				return $real_val.' (статус не известен)';// статус не известен
 			}
 
-			// проверяем на разрешение смены статуса снабжения
+			// проверяем на разрешение смены статуса
 			if($this->user_access == 2 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
 				if($real_val == 'in_operation' && $this->user_access == 1){
 					$html = '<input type="button" name="'.$real_val.'" class="'.$real_val.'" value="'.$status_arr[$real_val].'">';
@@ -240,8 +264,7 @@
 					$html .= '</select>';
 				}
 			}else{
-				$html .='<span class="greyText">'.(isset($this->buch_status[$real_val])?$this->buch_status[$real_val]:$real_val).'</span>';
-				
+				$html .='<span class="greyText">'.(isset($status_arr[$real_val])?$status_arr[$real_val]:$real_val).'</span>';
 			}
 			// возвращаем
 			return $html;
@@ -250,7 +273,7 @@
 		// ВЫВОД ВСЕХ СТАТУСОВ ПО ПОЗИЦИЯМ
 		protected function position_status_list_Html($cab_order_main_row){			
 			if($this->Order['global_status'] == 'in_operation'){
-				 return '<td><span class="greyText">Подразделения</span></td><td><span>Ожидают запуска заказа</span></td>';
+				 return '<td style="min-width: 80px;"><span class="greyText">Отделы<!-- // раньше было Подразделения, слишком длинно пришлось поменять --></span></td><td><span>Ожидают запуска заказа</span></td>';
 			}else{				
 				$buttons_service_start = '<input type="button" class="start_in_work" value="в работу">';
 			}
@@ -262,7 +285,7 @@
 
 			// выодим статус снабжения
 			$html .= '<tr>';
-				$html .= '<td>';
+				$html .= '<td style="min-width: 80px;">';
 				$html .= '<div class="otdel_name">Снабжение</div>';
 				$html .= '</td>';
 				$html .= '<td>';				
@@ -279,7 +302,7 @@
 				$html .= '</td>';
 				$html .= '<td>';				
 					$html .= '<div class="otdel_status">
-								<div class="performer_status">'.$this->decoder_statuslist_sklad($cab_order_main_row['status_sklad']).'</div>
+								<div class="performer_status">'.$this->decoder_statuslist_sklad($cab_order_main_row['status_sklad'], $cab_order_main_row['id']).'</div>
 							</div>';									
 				$html .= '</td>';
 			$html .= '</tr>';
@@ -334,16 +357,31 @@
 			global $mysqli;
 			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `buch_status` =  '".$_POST['value']."' ";
 			// если есть следствия влияющие на статус заказа
-			if(isset($this->consequences_of_status_buch[trim($_POST['value'])])){
+			if(isset($this->CONSEQUENCES_of_status_buch[trim($_POST['value'])])){
 				// меняем статус ПРЕДЗАКАЗА / ЗАКАЗА
-				$query .= " , `global_status` =  '".$this->consequences_of_status_buch[trim($_POST['value'])]."'";
-				} 
+				$query .= " , `global_status` =  '".$this->CONSEQUENCES_of_status_buch[trim($_POST['value'])]."'";
+			} 
 
 			$query .= "WHERE  `id` ='".$_POST['row_id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo '{"response":"OK"}';
 		}
 
+
+		// смена статуса склада
+		protected function choose_statuslist_sklad_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
+				`status_sklad` =  '".$_POST['value']."' ";
+			// если есть следствия на статус снаба
+			if(isset($this->CONSEQUENCES_of_status_sklad[trim($_POST['value'])])){
+				$query .= " , `status_snab` =  '".$this->CONSEQUENCES_of_status_sklad[trim($_POST['value'])]."'";
+			}
+
+			$query .= " WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
 
 		// редактирование ожидаемой даты поставки товара на склад
 		protected function change_waits_products_div_input_AJAX(){
@@ -554,6 +592,23 @@
 
 			return $html;
 		}	
+
+		// получаем контент для поля логотип
+		protected function get_content_logotip($id_dop_data){
+			// для полуяения поля логотип запрашиваем услуги
+			$this->Services = $this-> get_order_dop_uslugi($id_dop_data);
+			// перебираем поля и собираем контент по полю логотип
+			$html = '';$n = 0;
+			foreach ($this->Services as $num => $service) {
+				if($service['logotip'] != ''){
+					if($n){$html .= ', ';}
+					$html .= $service['logotip'];
+					$n++;
+				}
+			}
+			if($html == ''){$html = '  -  ';}
+			return $html;
+		}
 
 		// общет стоимости позиции
 		protected function GET_PRICE_for_position($value){
@@ -848,6 +903,16 @@
 			echo '{"response":"OK"}';
 		}
 
+		// редактирование поля логотип к услуге
+		protected function save_logotip_info_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`logotip` =  '".$_POST['text']."' 
+				WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
 		// сохранение dop_inputs, поля хранятся в json 
 		protected function save_dop_inputs_AJAX(){
 			global $mysqli;
@@ -906,13 +971,14 @@
 				$this->Service['print_details_read'] = '';
 			}
 
-			// получаем id полей для этой услуги
-			$query = "SELECT `uslugi_dop_inputs_id` FROM ".OUR_USLUGI_LIST." WHERE `id` = '".$id."'";
+			// получаем инфу и настройки по данной услуге
+			$query = "SELECT * FROM ".OUR_USLUGI_LIST." WHERE `id` = '".$id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$this->iputs_id_Str = '0';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$this->iputs_id_Str = $row['uslugi_dop_inputs_id'];
+					$this->Service_logotip_on = $row['logotip_on'];
 				}
 			}
 
@@ -1017,7 +1083,21 @@
 					}	
 				}
 			}
-			$html .='ТЗ <span class="greyText"> / (комментарий к услуге)</span><br><textarea class="save_tz" name="tz">'.$this->Service['tz'].'</textarea>';
+				// ob_start();
+			 // 	echo '<pre>';
+			 // 	print_r($this->Service);
+			 // 	echo '</pre>';
+			    	
+			 // 	$content = ob_get_contents();
+			 // 	ob_get_clean();
+			 // 	$html .=$content;
+			
+			// подключаем поле логотип, если оно включено в админке или уже что-то содержит
+			if($this->Service['logotip']!='' || trim($this->Service_logotip_on)=="on"){
+				$html .='<div>Логотип<br><textarea class="save_logotip" name="logotip">'.$this->Service['logotip'].'</textarea></div>';
+			}
+
+			$html .='<div>ТЗ <span class="greyText"> / (комментарий к услуге)</span><br><textarea class="save_tz" name="tz">'.$this->Service['tz'].'</textarea></div>';
 
 			return $html;
 		}

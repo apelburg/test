@@ -2,27 +2,6 @@
 	
 	class Cabinet_buch_class extends Cabinet{
 
-		// private $order_status2 = array(
-		// 	'being_prepared'=>'В оформлении',
-		// 	'request_expense'=>'Запрошен счёт',
-		// 	'in_work'=>'В работе',
-		// 	'ready_for_shipment'=>'Готов к отгрузке',
-		// 	'shipped'=>'Отгружен',
-		// 	'paused'=>'Приостановлен',		
-		// 	'cancelled'=>'Аннулирован'
-		// 	);
-
-		// private $buch_status2 = array(
-  //   		'score_exhibited' => 'счёт выставлен',
-		// 	'payment' => 'оплачен',//дата в таблицу
-		// 	'partially_paid' => 'частично оплачен',//дата в таблицу			
-		// 	'prihodnik_on_bail' => 'приходник на залог',
-		// 	'cancelled'=>'Аннулирован',		
-		// 	'returns_client_collateral' => 'возврат залога клиенту',
-		// 	'refund_in_a_row' => 'возврат денег по счёту',
-		// 	'ogruzochnye_accepted' => 'огрузочные приняты (подписанные)'
-  //   	);
-
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
 		'important' => 'Важно',
@@ -90,15 +69,6 @@
 			
 		}
 
-
-		private function _AJAX_($name){
-			$method_AJAX = $name.'_AJAX';
-			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-			if(method_exists($this, $method_AJAX)){
-				$this->$method_AJAX();
-				exit;
-			}					
-		}
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){
