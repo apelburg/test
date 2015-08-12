@@ -207,7 +207,10 @@
 	/////////////////////  END  AJAX  ////////////////////// 
 	
 	
-	
+	$cont_face_data = RT::fetch_query_client_face($query_num);
+	print_r($cont_face_data);
+
+	$cont_face = '<div class="client_details_select" sourse="rt" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">Контактное лицо: '.(($cont_face_data['id']==0)?'не установлено':$row['recipient']).'</div>';
 	
 	$create_time = RT::fetch_query_create_time($query_num);
 	

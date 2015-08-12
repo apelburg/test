@@ -40,7 +40,7 @@
 		
 		
 		// $message_tpl_filenames = array('recalculation','new_kp_new_client','new_kp');
-		$message_tpl_filenames = array('new_kp_new_client');
+		$message_tpl_filenames = array('empty','new_kp_new_client');
 		foreach($message_tpl_filenames as $tpl_filename){
 			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
 			$fd = fopen($tpl_path,'r');
@@ -64,16 +64,19 @@
 	     //echo $_POST['send_kp_by_mail_final_step'];
 		
 		if(($mail_details =json_decode($_POST['send_kp_by_mail_final_step'])) === NULL){
+		     // echo $_POST['send_kp_by_mail_final_step'];
 		     echo '[0,"Ошибка №109345 - конвертация данных"]';
 			 exit;
-		} 
+		}
+
 		// var_dump($mail_details); exit;
 
         // вызываем класс выполняющий отправку сообщения
 		include_once(ROOT."/libs/php/classes/mail_class.php");
 		$mail = new Mail();
-		// $mail->add_bcc('box1@yandex.ru');
-		// $mail->add_cc('e-project1@mail.ru');
+		// ставим в копию того отчьего адреса отправляется письмо
+		$mail->add_cc($mail_details->from);
+		// $mail->add_bcc('e-project1@mail.ru');
 		if($mail_details->attached_files){
 		    foreach($mail_details->attached_files as $file) $mail->attach_file($_SERVER['DOCUMENT_ROOT'].$file);
 		}
@@ -98,6 +101,11 @@
 	if(isset($_GET['change_comment'])){
 	     if(isset($_POST['id'])) Com_pred::change_comment($_POST['id'],$_POST['field_val']);
 		 if(isset($_POST['file_name'])) Com_pred::change_comment_old_version($_POST['file_name'],$_POST['field_val']);
+		 exit;
+	 }
+	 if(isset($_GET['set_recipient'])){
+	     // print_r($_GET);
+		 Com_pred::set_recipient($_GET['set_recipient'],$_GET['row_id']);
 		 exit;
 	 }
 	
