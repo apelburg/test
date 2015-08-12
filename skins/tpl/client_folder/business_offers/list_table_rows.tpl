@@ -3,7 +3,9 @@
      <td class="center without_padding"><?php  echo $date; ?></td>
      <td class="center without_padding"><?php  echo $query_num; ?></td>
      <td class="left"><?php  //echo $com_pred_data['description']; ?></td>
-     <td class="left"><?php  //echo $com_pred_data['manager']; ?></td>
+     <td class="left">
+         <?php  echo $recipient; ?>
+     </td>
      <td class="without_padding_all">
          <table class="options_tbl">
              <tr>

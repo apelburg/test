@@ -14,6 +14,7 @@
   <tr>
     <td class='fieldName'>Шаблон:</td>
     <td>
+       <div class='mailSendWindow_tplBtn' type="empty" onclick="kpManager.setMessageTpl('empty');">Пустой бланк</div>
        <div class='mailSendWindow_tplBtn' type="new_kp_new_client" onclick="kpManager.setMessageTpl('new_kp_new_client');">Новое КП / новый клиент</div><!--<div class='mailSendWindow_tplBtn' type="recalculation" onclick="kpManager.setMessageTpl('recalculation');">Перерасчет КП</div>
        
        <div class='mailSendWindow_tplBtn' type="new_kp" onclick="kpManager.setMessageTpl('new_kp');">Новое КП / постоянный клиент</div>-->

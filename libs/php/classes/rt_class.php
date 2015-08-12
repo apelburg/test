@@ -67,6 +67,22 @@
 			$create_time_arr2 = explode('-',$create_time_arr[0]);
 			return $create_time_arr2[2].'.'.$create_time_arr2[1].'.'.$create_time_arr2[0].' '.$create_time_arr[1];
 		}
+		static function fetch_query_client_face($query_num){
+		    global $mysqli; 
+			
+			$query = "SELECT client_face_id FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$row = $result->fetch_assoc();
+			$data['id'] = $row['client_face_id'];
+			
+			if($data['id']!=0){
+				$query = "SELECT position, name, last_name, surname FROM `".CLIENT_CONT_FACES_TBL."` WHERE id ='".$row['client_face_id']."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$data['details'] = $result->fetch_assoc();
+			}
+			
+			return $data;
+		}
 		static function save_copied_rows_to_buffer($data,$control_num){
 		    global $mysqli;   
 			RT::save_to_buffer($data,'copied_rows');

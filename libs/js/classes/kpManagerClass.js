@@ -17,20 +17,24 @@
 				
 				
 				// поле Кому
-				kpManager.mailSelectTo = document.createElement('div');
-				kpManager.mailSelectTo.className = 'mailSubject';
-				kpManager.mailSelectTo.onclick = function(){ kpManager.bildSelect(this,'client_mails');}
+			    kpManager.listBox = document.createElement('div');
+				kpManager.mailSelectTo = document.createElement('INPUT');
+				kpManager.mailSelectTo.className = 'inputField';
+				kpManager.mailSelectTo.onclick = function(){ kpManager.bildSelect(this,kpManager.listBox,'client_mails');}
 				kpManager.mailSelectTo.innerHTML = '';
 				kpManager.mailSelectTo.contentEditable = "true";
 				document.getElementById('mailSelectTo').appendChild(kpManager.mailSelectTo);
+				document.getElementById('mailSelectTo').appendChild(kpManager.listBox);
 				
 				// поле От кого
-				kpManager.mailSelectFrom = document.createElement('div');
-				kpManager.mailSelectFrom.className = 'mailSubject';
-				kpManager.mailSelectFrom.onclick = function(){ kpManager.bildSelect(this,'manager_mails');}
+				kpManager.listBox2 = document.createElement('div');
+				kpManager.mailSelectFrom = document.createElement('INPUT');
+				kpManager.mailSelectFrom.className = 'inputField';
+				kpManager.mailSelectFrom.onclick = function(){ kpManager.bildSelect(this,kpManager.listBox2,'manager_mails');}
 				kpManager.mailSelectFrom.innerHTML = '';
 				kpManager.mailSelectFrom.contentEditable = "true";
 				document.getElementById('mailSelectFrom').appendChild(kpManager.mailSelectFrom);
+				document.getElementById('mailSelectFrom').appendChild(kpManager.listBox2);
 				
 				/*
 				kpManager.managerMailsSelect = document.createElement('select');
@@ -65,7 +69,7 @@
 				$("#mailSendDialog").dialog("open");/**/
 		}
 		,
-		bildSelect:function (element,sourse){
+		bildSelect:function (element,listBox,sourse){
 			if(kpManager.bildSelectInProcess) return;
 			kpManager.bildSelectInProcess = true;
 			// alert(1);
@@ -75,7 +79,7 @@
 			kpManager.bildSelect.container.style.position = 'absolute';
 			kpManager.bildSelect.container.style.backgroundColor='#FFFFFF';
 			kpManager.bildSelect.container.style.zIndex='100';
-			kpManager.bildSelect.container.style.top = '20px';
+			kpManager.bildSelect.container.style.top = '0px';
 			kpManager.bildSelect.container.style.left = '-1px';
 			
 			var arr = kpManager.details[sourse];
@@ -94,8 +98,8 @@
 				 div.innerHTML = '<div style="float:left; width:500px; border:#FF0000 solid 0px;"><a href="?' + addOrReplaceGetOnURL('page=clients&section=client_folder&subsection=client_card_table','query_num')+'" target="_blank">добавить контакты в карточку клиента</a></div><div class="closeBtn" onclick="kpManager.closeSelect();">&#215;</div>'; //"
 				 kpManager.bildSelect.container.appendChild(div);
 			}
-			element.style.position = 'relative';
-			element.appendChild(kpManager.bildSelect.container);
+			listBox.style.position = 'relative';
+			listBox.appendChild(kpManager.bildSelect.container);
 		}
 		,
 		addValueToSelect:function (sourse,target,row){
@@ -106,11 +110,11 @@
 			// здесь надо будет делать проверку адресов на валидность
 			if(sourse=='manager_mails'){
 				// поле "От" может быть только один адрес
-				target.innerHTML = value;
+				target.value = value;
 			}
 			else{
-				if(target.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')=='') target.innerHTML = value;
-				else target.innerHTML = target.innerHTML+', '+value;
+				if(target.value.replace(/^\s\s*/, '').replace(/\s\s*$/, '')=='') target.value = value;
+				else target.value = target.value+', '+value;
 			}
 	
 			kpManager.bildSelectInProcess = false;
@@ -131,7 +135,7 @@
 			
 			make_ajax_request(url,call_back);
 			function call_back(response){
-			    //alert (response);
+			    alert (response);
 				close_processing_timer();
 				try { 
 				   var response_obj = JSON.parse(response);
@@ -172,11 +176,11 @@
 				}
 			}
 		
-			if(kpManager.mailSelectTo.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
+			if(kpManager.mailSelectTo.value.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
 			    alert('не заполнено поле Кому');
 				return;
 			}
-			if(kpManager.mailSelectFrom.innerHTML.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
+			if(kpManager.mailSelectFrom.value.replace(/^\s\s*/, '').replace(/\s\s*$/, '')==''){
 			    alert('не заполнено поле От');
 				return;
 			}
@@ -194,8 +198,8 @@
 		    pairs += '{';
 			
 			pairs += '"kp_id":"'+kpManager.kp_id+'",';
-			pairs += '"to":"'+kpManager.mailSelectTo.innerHTML+'",';
-			pairs += '"from":"'+kpManager.mailSelectFrom.innerHTML+'",';
+			pairs += '"to":"'+kpManager.mailSelectTo.value+'",';
+			pairs += '"from":"'+kpManager.mailSelectFrom.value+'",';
 			pairs += '"subject":"'+kpManager.mailSubject.innerHTML+'",';
 			pairs += '"message":"'+message+'"';
 			if(attached_files_arr.length) pairs += ',"attached_files":["'+attached_files_arr.join('","')+'"]';

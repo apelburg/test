@@ -332,8 +332,8 @@
 				}
 			}
 			
-			$filename = '/Пробный_ПДФ_в_кириллицe_'.$client_id.'_'.$kp_id.'_'.date('Ymd_His').'.pdf';
-			//$filename = '/probe_file_in_latin_'.$client_id.'_'.date('Ymd_His').'.pdf';
+			//$filename = '/Пробный_ПДФ_в_кириллицe_'.$client_id.'_'.$kp_id.'_'.date('Ymd_His').'.pdf';
+			$filename = '/Презентация_'.$client_id.'_'.date('Ymd_His').'.pdf';
 			$filename_utf = iconv("UTF-8","windows-1251", $filename);
 			$save_to = $document_root.$dirname.$filename_utf;
 			
@@ -385,6 +385,12 @@
 			$mpdf->Output($filename,'D');
 			//$mpdf->Output();
             exit;
+	   }
+	    static function set_recipient($recipient,$row_id){
+            global $mysqli;
+			 
+			$query="UPDATE `".KP_LIST."` SET `recipient` ='".$recipient."' WHERE `id` = '".$row_id."'";
+			$mysqli->query($query)or die($mysqli->error);
 	   }
 	   static function open_in_tbl($kp_id){
 	       $arr=self::fetch_kp_rows($kp_id);
@@ -1170,6 +1176,8 @@
 					 }
 					 else $send_time = 'не отправленно';
 					 
+					 $recipient = '<div class="client_details_select" sourse="kp" row_id="'.$row['id'].'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">'.(($row['recipient']=='')?'не установлен':$row['recipient']).'</div>';
+					 //$recipient = $row['recipient'];контакт: 
 					 $date_arr = explode("-",substr($row['create_time'],0,10));
 					 $date = implode(".",array_reverse($date_arr));
 					 $query_num = $row['query_num'] ;

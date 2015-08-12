@@ -911,7 +911,7 @@
 					
 					var request_response = request.responseText;
 				    // alert(request_response);
-					building_menu(request_response);
+					building_menu(request_response,target.getAttribute('sourse'),target.getAttribute('row_id'));
 			
 				   //alert("AJAX запрос выполнен");
 				 
@@ -926,7 +926,7 @@
 		
 		e.stopPropagation();
 		
-	    function building_menu(data){
+	    function building_menu(data,sourse,row_id){
 			var data_arr = data.split('{@}');
 			
 			relate_container = target.parentNode;
@@ -954,6 +954,8 @@
 				var a = document.createElement('a');
 				a.style.color = "#000";
 				a.setAttribute('manager_id',details_arr[0]);
+				a.setAttribute('sourse',sourse);
+				a.setAttribute('row_id',row_id);
 				a.onclick = set_manager;
 				a.appendChild(document.createTextNode(details_arr[1]));
 				innerDiv.appendChild(a);
@@ -975,16 +977,20 @@
 			
 			
 			var manager_id = target.getAttribute('manager_id');
-			var row_id = openCloseMenu.lastElement.getAttribute('row_id');
+			//alert(target.getAttribute('sourse')+' '+target.getAttribute('row_id'));
+			var row_id = (target.getAttribute('row_id'))? target.getAttribute('row_id') : false;
+			var sourse = target.getAttribute('sourse');
 			
-			openCloseMenu.lastElement.innerHTML = 'контакт: ' + target.innerHTML;
-			document.getElementById('row_' + row_id).setAttribute('client_manager_id',manager_id);
+			openCloseMenu.lastElement.innerHTML = target.innerHTML;
+			//openCloseMenu.lastElement.innerHTML = 'контакт: ' + target.innerHTML;
+			//document.getElementById('row_' + row_id).setAttribute('client_manager_id',manager_id);
 			
 			//////////////////////////////////////////////////////////////////////////////////////////
 		    /////////////////////////////////////    AJAX  ///////////////////////////////////////////
 		
 		    var request = HTTP.newRequest();
-	        var url = "?page=clients&set_manager_for_order=" + manager_id + "&row_id=" + row_id + "&control_num=" + document.getElementById('calculate_tbl').getAttribute('control_num');
+	        //var url = "?page=clients&set_manager_for_order=" + manager_id + "&row_id=" + row_id + "&control_num=" + document.getElementById('calculate_tbl').getAttribute('control_num');
+			if(sourse=='kp')  var url = "?page=client_folder&section=business_offers&set_recipient=" + manager_id + "&row_id=" + row_id;
 	    
 			// производим запрос
 			request.open("GET", url, true);
@@ -997,7 +1003,7 @@
 					   // обрабатываем ответ сервера
 						
 						var request_response = request.responseText;
-						//alert(request_response);
+						alert(request_response);
 
 					}
 					else{

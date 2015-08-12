@@ -1550,6 +1550,7 @@ margin-left: -350px;z-index: 999;}
 .letterEditWindowTbl { border-collapse:collapse; font-size:12px;}
 .letterEditWindowTbl td{border: 0px solid grey;text-align:left; vertical-align:top;padding:2px;}
 .letterEditWindowTbl td.fieldName{border: 0px solid grey;text-align:right;vertical-align:middle;}
+.letterEditWindowTbl .inputField{width:752px; height:20px;padding:3px 0 0 8px;border:1px solid #ccc;text-align:left;}
 .letterEditWindowTbl .mailSubject{height:20px;padding:3px 0 0 8px;border:1px solid #ccc;text-align:left;}
 .letterEditWindowTbl .mailSendWindow_tplBtn{float:left; border:1px solid #ccc;text-align:center; background-color:#AAA;padding:6px 20px; margin:5px 20px 5px 0px; cursor:pointer;}
 .letterEditWindowTbl .mailSendWindow_tplBtn:hover{ background-color:#9dbe8e;}
