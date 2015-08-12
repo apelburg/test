@@ -140,6 +140,15 @@
 				case '7':
 					$text = 'склад';
 					echo $this->wrap_text_in_warning_message($text);
+					include_once 'cabinet_sklad_class.php';
+					// создаём экземпляр класса
+					$this->CLASS = new Cabinet_sklad_class($this->user_access);
+					// запускаем роутер шаблонов
+					$this->CLASS->__subsection_router__();
+					// получаем из класса снабжения формулировки для меню, понятные для снаба
+					$this->menu_name_arr = $this->CLASS->menu_name_arr;
+
+
 					break;
 
 				case '8':
@@ -209,11 +218,7 @@
 			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
 		}
-		private function buch_status_select_AJAX(){
-			global $mysqli;
-			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `buch_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
-			$result = $mysqli->query($query) or die($mysqli->error);
-		}
+		
 		private function change_ttn_number_AJAX(){
 			global $mysqli;
 			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  `ttn_number` =  '".$_POST['value']."', ttn_get = NOW() WHERE  `id` ='".$_POST['row_id']."';";

@@ -434,7 +434,7 @@
 		//////////////////////////
 		//	Section - Предзаказ
 		//////////////////////////
-		private function paperwork_Template($id_row=0){
+		protected function paperwork_Template($id_row=0){
 
 			global $mysqli;
 			
@@ -597,8 +597,8 @@
 							<td><span>'.$percent_payment.'</span> %</td>
 							<td><span class="payment_status_span edit_span"  contenteditable="true">'.$predzakaz['payment_status'].'</span>р</td>
 							<td><span>'.$this->Price_of_position.'</span> р.</td>
-							<td class="buch_status_select">'.$this->select_status($predzakaz['buch_status'],$this->buch_status).'</td>
-							<td class="select_global_status">'.$this->select_status($predzakaz['global_status'],$this->order_status).'</td>';
+							<td class="buch_status_select">'.$this->decoder_statuslist_buch($predzakaz['buch_status']).'</td>
+							<td class="select_global_status">'.$this->decoder_statuslist_order_and_paperwork($predzakaz['global_status']).'</td>';
 				$html3 = '</tr>';
 
 				$html1 .= $html2 .$html2_body.$html3. $html;
@@ -633,7 +633,7 @@
 		//////////////////////////
 		//	Section - Заказы
 		//////////////////////////
-		private function orders_Template($id_row=0){
+		protected function orders_Template($id_row=0){
 			$where = 0;
 			$html = '';
 			$table_head_html = '
@@ -671,6 +671,9 @@
 				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
 				$where = 1;
 			}
+
+			// // отфильтровываем по статусам ПРЕДЗАКАЗЫ от заказов, выводим только заказы
+			// $query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` = '".implode(",", array_keys($this->order_status))."'";
 			
 			$query .= ' ORDER BY `id` DESC';
 			// echo $query;
@@ -708,9 +711,9 @@
 				$table_order_positions_rows = $this->table_order_positions_rows_Html();
 				
 				// формируем строку с информацией о заказе
-				$table_order_row .= '
-					<tr class="order_head_row" data-id="'.$this->Order['id'].'">
-						<td class="show_hide" rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders"></span></td>
+				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
+				
+				$table_order_row2_body = '<td class="show_hide" rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders"></span></td>
 						<td colspan="4" class="orders_info">
 							<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
 							'.$this->get_client_name_link_Database($this->Order['client_id']).'
@@ -728,10 +731,13 @@
 						<td contenteditable="true" class="deadline">'.$this->Order['deadline'].'</td>
 						<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>
 						<td><span class="greyText">заказа: </span></td>
-						<td>'.(isset($this->order_status[$this->Order['global_status']])?$this->select_global_status($this->Order['global_status'],$this->order_status):$this->Order['global_status']).'</td>
-					</tr>';
+						<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+				$table_order_row2 = '</tr>';
 				// включаем вывод позиций 
-				$table_order_row .= $table_order_positions_rows;
+				$table_order_row .= $table_order_row2_body.$table_order_row2.$table_order_positions_rows;
+
+				// запрос по одной строке без подробностей
+				if($id_row){return $table_order_row2_body;}
 			}
 
 			
@@ -844,113 +850,16 @@
 
 
 		
-		/*
-			декодируем поле json для некаталога в читабельный вид
-			получаем из json описания некаталожного товара всю содержащуюся там информацию
-		*/
-		private function decode_json_no_cat_to_html($arr){
-			// список разрешённых для вывода в письмо полей
-			$send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
-
-
-			
-			// получаем json с описанием продукта
-			$dop_info_no_cat = ($arr['no_cat_json']!='')?json_decode($arr['no_cat_json']):array();
-			
-			
-			$html = '';
-			// если у нас есть описание заявленного типа товара
-			if(isset($this->FORM->form_type[$arr['type']])){
-				$names = $this->FORM->form_type[$arr['type']]; // массив описания хранится в классе форм
-				$html .= '<div class="get_top_funcional_byttun_for_user_Html table">';
-				foreach ($dop_info_no_cat as $key => $value) {
-					if(!isset($send_info_enabled[$key])){continue;}
-					$html .= '
-						<div class="row">
-							<div class="cell" >'.$names[$key]['name'].'</div>
-							<div class="cell">'.$value.'</div>
-						</div>
-					';
-				}
-				$html .= '</div>';
-				// echo '<pre>';
-				// print_r($arr);
-				// echo '</pre>';
-				return $html;
-			}else{// в случае исключения выводим массив, дабы было видно куда копать
-				echo '<pre>';
-				print_r($arr);
-				echo '</pre>';
-			}
-		}
-
-		// вывод описания по позиции каталог
-		private function get_dop_information_text_cat_Html($position){
-			// echo '<pre>';
-			// print_r($position);
-			// echo '</pre>';
-		}
-
-		// статусы позиций
-		private function position_status_list_Html($cab_order_main_row){
-			
-			if($this->Order['global_status'] == 'in_operation'){
-				 return '<td><span class="greyText">Подразделения</span></td><td><span>Ожидают запуска заказа</span></td>';
-			}else{				
-				$buttons_service_start = '<input type="button" class="start_in_work" value="в работу">';
-			}
-			// получаем статусы по позиции
-			// $status_list = array();
-			// снабжение
-			if(trim($cab_order_main_row['status_snab'])!=''){
-				$this->Position_status_list['снабжение'][] = array( 'performer_status'=> $this->menu_name_arr[ $cab_order_main_row['status_snab'] ] , 'service_name' => '  ');	
-			}else{
-				$this->Position_status_list['снабжение'][] = array( 'performer_status'=>$cab_order_main_row[ 'status_snab' ] , 'service_name' => 'позиция');	
-			}
-			// склад
-			if(trim($cab_order_main_row['status_sklad'])!=''){
-				$this->Position_status_list['склад'][] = array('performer_status'=> $this->statuslist_sklad[ $cab_order_main_row['status_sklad'] ], 'service_name' => ' ');	
-			}else{
-				$this->Position_status_list['склад'][] = array('performer_status'=> 'ожидает товар', 'service_name' => 'позиция');	
-			}
-
-			
-			// foreach ($this->Position_status_list as $key => $value) {
-			// 	# code...
-			// }
-
-			// собираем вывод
-			$html = '<td colspan="2"  class="orders_status_td_tbl">';
-			$html .= '<table>';
-			foreach ($this->Position_status_list as $performer => $performer_status_arr) {
-				$html .= '<tr>';
-				$html .= '<td>';
-				$html .= '<div class="otdel_name">'.$performer.'</div>';
-				$html .= '</td>';
-				$html .= '<td>';
-
-				foreach ($performer_status_arr as $key => $value) {
-					$html .= '<div class="otdel_status">
-								<div class="service_name">'.$value['service_name'].'</div>
-								<div class="performer_status">'.(($value['performer_status']!='')?$value['performer_status']:$buttons_service_start).'</div>
-							</div>';
-									
-				}
-
-				$html .= '</td>';
-				$html .= '</tr>';
-			}						
-			$html .= '</table>';
-			$html .= '</td>';	
-			// echo '<pre>';
-			// print_r($this->Position_status_list);
-			// echo '</pre>';
-			return $html;
 		
-			
-				
 
-		}
+		// // вывод описания по позиции каталог
+		// private function get_dop_information_text_cat_Html($position){
+		// 	// echo '<pre>';
+		// 	// print_r($position);
+		// 	// echo '</pre>';
+		// }
+
+		
 		
 
 

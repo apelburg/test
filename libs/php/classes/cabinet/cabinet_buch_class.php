@@ -304,8 +304,8 @@
 							<td><span>'.$percent_payment.'</span> %</td>
 							<td><span class="payment_status_span edit_span"  contenteditable="true">'.$value['payment_status'].'</span>р</td>
 							<td><span>'.$this->Price_of_position.'</span> р.</td>
-							<td class="buch_status_select">'.$this->select_status($value['buch_status'],$this->buch_status).'</td>
-							<td class="select_global_status">'.$this->order_status[$value['global_status']].'</td>';
+							<td class="buch_status_select">'.$this->decoder_statuslist_buch($value['buch_status']).'</td>
+							<td class="select_global_status">'.$this->decoder_statuslist_order_and_paperwork($value['global_status']).'</td>';
 				$html3 = '</tr>';
 
 				$html1 .= $html2 .$html2_body.$html3. $html;

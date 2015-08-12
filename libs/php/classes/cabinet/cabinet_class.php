@@ -14,39 +14,10 @@
 			'9' => 'Дизайнер' 
 		);
 
-
     	// допуски пользователя
     	protected $user_access = 0;
 
-		// глобальные статусы заказа
-    	// могут меняться кириллические формулировки в зависимости от уровня доступа
-    	// содержится в базе в `os__cab_orders_list` в global_status
-    	protected $order_status = array(
-			'being_prepared'=>'В оформлении',
-			'request_expense'=>'Запрошен счёт',
-			'requeried_expense'=>'Перевыставить счёт',
-			'waiting_for_payment' => 'ждём оплаты', // сервисный
-			'in_work'=>'В работе',
-			'in_operation'=>'Зупуск в работу',
-			'ready_for_shipment'=>'Готов к отгрузке',
-			'shipped'=>'Отгружен',
-			'paused'=>'Приостановлен',		
-			'cancelled'=>'Аннулирован'
-			);
-
-    	protected $buch_status = array(
-    		'is_pending' => 'ожидает обработки',
-    		'score_exhibited' => 'счёт выставлен',
-			'payment' => 'оплачен',//дата в таблицу
-			'partially_paid' => 'частично оплачен',//дата в таблицу			
-			'prihodnik_on_bail' => 'приходник на залог',
-			'cancelled'=>'Аннулирован',		
-			'returns_client_collateral' => 'возврат залога клиенту',
-			'refund_in_a_row' => 'возврат денег по счёту',
-			'ogruzochnye_accepted' => 'огрузочные приняты (подписанные)'
-    	);
-
-    	// массви с переводом статусов запроса
+    	// статусы запроса
 		protected $name_cirillic_status = array(
 			'new_query' => 'новый запрос',
 			'not_process' => 'не обработан менеджером',
@@ -55,17 +26,346 @@
 			'history' => 'история'
 		);
 
+		// глобальные статусы ПРЕДЗАКАЗА(заказа)
+    	// содержится в базе в `os__cab_orders_list` в global_status
+    	protected $paperwork_status = array(
+    		// ПРЕДЗАКАЗ
+			'being_prepared'=>'В оформлении',
+			'request_expense'=>'Запрошен счёт',
+			'requeried_expense'=>'Перевыставить счёт',
+			'waiting_for_payment' => 'ждём оплаты', // сервисный
+			'paused_paperwork'=>'Предзаказ приостановлен',		
+			'cancelled_paperwork'=>'Предзаказ аннулирован'
+			);
+
+    	// глобальные статусы ЗАКАЗА
+    	// содержится в базе в `os__cab_orders_list` в global_status
+    	protected $order_status = array(
+			// ЗАКАЗ
+			'in_operation'=>'Запуск в работу', // нельзя выбрать
+			'in_work'=>'В работе',
+			'ready_for_shipment'=>'Готов к отгрузке',
+			'shipped'=>'Отгружен',
+			'paused'=>'Заказ приостановлен',		
+			'cancelled'=>'Заказ аннулирован'
+			);
+
+		// статусы бухгалтерии
+    	protected $buch_status = array(
+    		'is_pending' => 'предзаказ ожидает обработки', //-> статус предзаказа = being_prepared (в обработке)
+    		'score_exhibited' => 'счёт выставлен ', //-> статус предзаказа = waiting_for_payment (ожидает оплаты)
+			'payment' => 'оплачен',//дата в таблицу // -> перевод в заказ
+			'partially_paid' => 'частично оплачен',//дата в таблицу	// -> перевод в заказ	
+			'collateral_received' => 'залог принят', //  -> перевод в заказ = in_operation
+			'bail_refunded' => 'залог возвращен', 
+			'prihodnik_on_bail_ofr_samples' => 'залог за образцы ???', 
+			'letter_of_guarantee' => 'гарантийное письмо', // -> перевод в заказ = in_operation
+			// 'cancelled'=>'Аннулирован',	//-> статус предзаказа =  cancelled_paperwork
+			'returns_client_collateral' => 'возврат залога клиенту', 
+			'refund_in_a_row' => 'возврат денег по счёту', 
+			'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ' // -> статус предзаказа =  'shipped'
+    	);
+
+    	// массив следствий статусов заказа из статусов бухгалтерии
+    	protected $consequences_of_status_buch = array(
+    		'is_pending' => 'being_prepared', // предзаказ ожидает обработки
+    		'score_exhibited' => 'waiting_for_payment', // счёт выставлен
+    		'payment' => 'in_operation', // оплачен
+    		'partially_paid' => 'in_operation', // чатично оплачен
+    		'collateral_received' => 'in_operation', // принят залог
+    		'letter_of_guarantee' => 'in_operation', // гарантийное 
+    		'ogruzochnye_accepted' => 'shipped'// отгрузочные приняты
+    	);
+
+
+
 		// статусы склад
 		protected $statuslist_sklad = array(
-			'no_goods' => 'товара НЕТ', 
-			'goods_in_stock' => 'товар на складе', 
-			'goods_shipped' => 'отгружен', 
-			);
+			'no_goods' => 'нет в наличии', 
+			'waiting' => 'ожидаем',
+			'goods_in_stock' => 'на складе', 
+			'sended_on_outsource' => 'отправлено на оутсорсинг',
+			'checked_and_packed'  => 'проверено и упаковано',
+			'goods_shipped_for_client' => 'отгружен клиенту'
+		);
 			
+		// статусы снабжение
+		protected $statuslist_snab = array(
+			'adopted' => 'Принят',
+			'maquette_adopted' => 'Макет принят',
+			'not_adopted' => 'Не принят',
+			'waits_union' => 'Ожидает объединения',
+			'waits_union' => 'Ожидает счет от поставщика',
+			'waits_the_bill_of_supplier' => 'Ожидаем отправку постащика',
+			'products_bought' => 'Продукция выкуплена',
+			'waits_products' => 'Продукция ожидается:',
+			'in_production' => 'В Производстве',
+			'ready_for_shipment' => 'Готов к отгрузке',
+			'question' => 'Вопрос'
+		);
 
 
     	function __consturct(){
 		}
+
+		/////////////////////////////////////////////////////////////////////////////////////
+		//	-----  START  ----- 	ДЕКОДЕРЫ СТАТУСОВ ПОДРАЗДЕЛЕНИЙ 	-----  START  -----
+		/////////////////////////////////////////////////////////////////////////////////////
+
+		// вывод статусов склада с возможностью их редактирования (опционально по флагу $enable_selection)
+		protected function decoder_statuslist_sklad($real_val, $enable_selection = 0){
+			/*
+				$real_val - реальное значение поля в базе
+				 
+				$enable_selection - разрешение на вывод редактируемого списка, по умолчанию запрещено
+
+
+				в случае со складом статус по умолчанию имеется в массиве рабочих статусов и исключения для него писать не нужно
+			*/
+
+			$html = '';
+			
+			// проверяем на разрешение смены статуса снабжения
+			if($this->user_access == 7 || $this->user_access == 1){ // на будущеее, пока работаем по параметру
+			// if($enable_selection){
+				$html .= '<select class="choose_statuslist_sklad">';
+					foreach ($this->statuslist_sklad as $name_en => $name_ru) {
+						$is_checked = ($name_en == $real_val)?'selected="selected"':'';
+						$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
+					}
+				$html .= '</select>';
+			}else{
+				$html .='<span class="greyText">'.(isset($this->statuslist_sklad[$real_val])?$this->statuslist_sklad[$real_val]:$real_val).'</span>';
+				
+			}
+			// возвращаем
+			return $html;
+		}
+
+		// вывод статусов снабжения с возможностью выбора статуса
+		protected function decoder_statuslist_snab($real_val, $date_delivery_product = '', $enable_selection = 0,$main_rows_id){
+			/*
+				$real_val - реальное значение поля в базе
+
+				$date_delivery_product - дата ожидаемой поставки продукции на склад
+				заводится при выборе статуса продукция ожидается
+
+				$enable_selection - разрешение на вывод редактируемого списка, по умолчанию запрещено
+			*/
+
+			$html = '';
+			// проверяем на разрешение смены статуса снабжения
+			if($this->user_access == 8 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
+			// if($enable_selection){
+				$html .= '<select  data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
+					if($real_val == 'in_processed'){$html .= '<option value="in_processed" selected="selected">в обработке</option>';}
+					foreach ($this->statuslist_snab as $name_en => $name_ru) {
+						$is_checked = ($name_en == $real_val)?'selected="selected"':'';
+						$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
+					}
+				$html .= '</select>';
+				// добавляем div с iput для редактирования ожидаемой даты поставки
+			$html .= '<div data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='')?'show':'').'"><input typwe="text" value="'.$date_delivery_product.'"></div>';
+			}else{
+				if($real_val == 'in_processed'){// если статус in_processed, то его не декодировать в кириллицу с помощью стандартного массива, поэтому пишем исключение
+					$html .='<span class="greyText">в обработке</span>';
+				}else{
+					$html .='<span class="greyText">'.(isset($this->statuslist_snab[$real_val])?$this->statuslist_snab[$real_val]:$real_val).'</span>';
+				}
+				// добавляем div c ожидаемой датой поставки
+				$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='')?'show':'').'">'.$date_delivery_product.'</div>';
+			}
+			
+
+			// возвращаем
+			return $html;
+		}
+
+		// вывод статусов бухгалтерии с возможностью выбора статуса
+		protected function decoder_statuslist_buch($real_val, $enable_selection = 0){
+			/*
+				$real_val - реальное значение поля в базе
+
+				$enable_selection - разрешение на вывод редактируемого списка, по умолчанию запрещено
+			*/
+
+			$html = '';			
+			// проверяем на разрешение смены статуса снабжения
+			if($this->user_access == 2 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
+			// if($enable_selection){
+				$html .= '<select class="choose_statuslist_buch">';
+					foreach ($this->buch_status as $name_en => $name_ru) {
+						$is_checked = ($name_en == $real_val)?'selected="selected"':'';
+						$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
+					}
+				$html .= '</select>';
+			}else{
+				$html .='<span class="greyText">'.(isset($this->buch_status[$real_val])?$this->buch_status[$real_val]:$real_val).'</span>';
+				
+			}
+			// возвращаем
+			return $html;
+		}
+
+		// вывод статусов заказа/предзаказа с возможностью выбора статуса
+		protected function decoder_statuslist_order_and_paperwork($real_val, $enable_selection = 0){
+			/*
+				$real_val - реальное значение поля в базе
+
+				$enable_selection - разрешение на вывод редактируемого списка, по умолчанию запрещено
+			*/
+
+			
+
+			$html = '';
+			// определяем рабочий массив статусов для работы (ЗАКАЗ или ПРЕДЗАКАЗ)
+			if (array_key_exists($real_val, $this->paperwork_status)) { // ищем ключ
+				$status_arr = $this->paperwork_status;
+			}else if (array_key_exists($real_val, $this->order_status)){
+				$status_arr = $this->order_status;
+			}else{
+				return $real_val.' (статус не известен)';// статус не известен
+			}
+
+			// проверяем на разрешение смены статуса снабжения
+			if($this->user_access == 2 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
+				if($real_val == 'in_operation' && $this->user_access == 1){
+					$html = '<input type="button" name="'.$real_val.'" class="'.$real_val.'" value="'.$status_arr[$real_val].'">';
+				}else{
+					$html .= '<select class="choose_statuslist_order_and_paperwork">';
+						foreach ($status_arr as $name_en => $name_ru) {
+							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
+							$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
+						}
+					$html .= '</select>';
+				}
+			}else{
+				$html .='<span class="greyText">'.(isset($this->buch_status[$real_val])?$this->buch_status[$real_val]:$real_val).'</span>';
+				
+			}
+			// возвращаем
+			return $html;
+		}
+
+		// ВЫВОД ВСЕХ СТАТУСОВ ПО ПОЗИЦИЯМ
+		protected function position_status_list_Html($cab_order_main_row){			
+			if($this->Order['global_status'] == 'in_operation'){
+				 return '<td><span class="greyText">Подразделения</span></td><td><span>Ожидают запуска заказа</span></td>';
+			}else{				
+				$buttons_service_start = '<input type="button" class="start_in_work" value="в работу">';
+			}
+
+			// собираем вывод
+			$html = '<td colspan="2"  class="orders_status_td_tbl">';
+			$html .= '<table>';
+
+
+			// выодим статус снабжения
+			$html .= '<tr>';
+				$html .= '<td>';
+				$html .= '<div class="otdel_name">Снабжение</div>';
+				$html .= '</td>';
+				$html .= '<td>';				
+					$html .= '<div class="otdel_status">
+								<div class="performer_status">'.$this->decoder_statuslist_snab($cab_order_main_row['status_snab'],$cab_order_main_row['date_delivery_product'],0,$cab_order_main_row['id']).'</div>
+							</div>';									
+				$html .= '</td>';
+			$html .= '</tr>';
+
+			//выводис статус склад
+			$html .= '<tr>';
+				$html .= '<td>';
+				$html .= '<div class="otdel_name">Cклад</div>';
+				$html .= '</td>';
+				$html .= '<td>';				
+					$html .= '<div class="otdel_status">
+								<div class="performer_status">'.$this->decoder_statuslist_sklad($cab_order_main_row['status_sklad']).'</div>
+							</div>';									
+				$html .= '</td>';
+			$html .= '</tr>';
+
+			
+
+			// выводим стутусы услуг
+			foreach ($this->Position_status_list as $performer => $performer_status_arr) {
+				$html .= '<tr>';
+				$html .= '<td>';
+				$html .= '<div class="otdel_name">'.$performer.'</div>';
+				$html .= '</td>';
+				$html .= '<td>';
+
+				foreach ($performer_status_arr as $key => $value) {
+					$html .= '<div class="otdel_status">
+								<div class="service_name">'.$value['service_name'].'</div>
+								<div class="performer_status">'.(($value['performer_status']!='')?$value['performer_status']:$buttons_service_start).'</div>
+							</div>';
+									
+				}
+
+				$html .= '</td>';
+				$html .= '</tr>';
+			}						
+			$html .= '</table>';
+			$html .= '</td>';	
+			// echo '<pre>';
+			// print_r($this->Position_status_list);
+			// echo '</pre>';
+			return $html;
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////
+		//   -----  END  -----     ДЕКОДЕРЫ СТАТУСОВ ПОДРАЗДЕЛЕНИЙ 	    -----  END  -----
+		///////////////////////////////////////////////////////////////////////////////////
+
+		// смена глобального статуса ЗАКАЗА
+		protected function choose_statuslist_order_and_paperwork_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['value']."' ";
+			$query .= "WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
+
+
+
+		// смена статуса бухгалтерии
+		protected function buch_status_select_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `buch_status` =  '".$_POST['value']."' ";
+			// если есть следствия влияющие на статус заказа
+			if(isset($this->consequences_of_status_buch[trim($_POST['value'])])){
+				// меняем статус ПРЕДЗАКАЗА / ЗАКАЗА
+				$query .= " , `global_status` =  '".$this->consequences_of_status_buch[trim($_POST['value'])]."'";
+				} 
+
+			$query .= "WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
+
+		// редактирование ожидаемой даты поставки товара на склад
+		protected function change_waits_products_div_input_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
+				`date_delivery_product` =  '".$_POST['date']."' 
+				WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
+		// смена статуса снабжения
+		protected function change_status_snab_AJAX(){
+			global $mysqli;
+			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
+				`status_snab` =  '".$_POST['val']."',
+				`approval_date` =  '' 
+				WHERE  `id` ='".$_POST['row_id']."';";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			echo '{"response":"OK"}';
+		}
+
 
 		protected function replace_query_row_AJAX(){
 			$method = $_GET['section'].'_Template';
@@ -91,6 +391,46 @@
 			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga_form_steep_2">';
 			$html .= '</form>';
 			echo $html;
+		}
+
+		/*
+			декодируем поле json для некаталога в читабельный вид
+			получаем из json описания некаталожного товара всю содержащуюся там информацию
+		*/
+		protected function decode_json_no_cat_to_html($arr){// из cabinet_admin_class.php
+			// список разрешённых для вывода в письмо полей
+			$send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
+
+
+			
+			// получаем json с описанием продукта
+			$dop_info_no_cat = ($arr['no_cat_json']!='')?json_decode($arr['no_cat_json']):array();
+			
+			
+			$html = '';
+			// если у нас есть описание заявленного типа товара
+			if(isset($this->FORM->form_type[$arr['type']])){
+				$names = $this->FORM->form_type[$arr['type']]; // массив описания хранится в классе форм
+				$html .= '<div class="get_top_funcional_byttun_for_user_Html table">';
+				foreach ($dop_info_no_cat as $key => $value) {
+					if(!isset($send_info_enabled[$key])){continue;}
+					$html .= '
+						<div class="row">
+							<div class="cell" >'.$names[$key]['name'].'</div>
+							<div class="cell">'.$value.'</div>
+						</div>
+					';
+				}
+				$html .= '</div>';
+				// echo '<pre>';
+				// print_r($arr);
+				// echo '</pre>';
+				return $html;
+			}else{// в случае исключения выводим массив, дабы было видно куда копать
+				echo '<pre>';
+				print_r($arr);
+				echo '</pre>';
+			}
 		}
 
 		// вывод формы дополнительных фопросов по добавляемой услуге
@@ -725,21 +1065,7 @@
 			return $arr_new;
 		}
 
-		protected function select_global_status($real_val,$status_arr){	
-			// если это менеджер и реальный статус в работу, то мы выводим кнопку запуска в работу,
-			// в остальных случаях - как обычно
-			if($real_val == 'in_operation' && $this->user_access == 1){
-				$html = '<input type="button" name="'.$real_val.'" class="'.$real_val.'" value="'.$status_arr[$real_val].'">';
-			}else{
-				$html = '<select>';
-				foreach ($status_arr as $key => $value) {
-					$is_checked = ($key==$real_val)?'selected="selected"':'';
-					$html .= ' <option '.$is_checked.' value="'.$key.'">'.$value.'</option>';
-				}	
-				$html .= '</select>';
-			}
-			return $html;
-		}
+		
 
 		
 		protected function select_status($real_val,$status_arr){
@@ -921,6 +1247,28 @@
 		    	$String = '<span'.(($no_edit==0)?' class="attach_the_manager"':' class="dop_grey_small_info"').' data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
 		    }
 		    return $String;
+		}
+
+		// получаем имя сотрудника по id, если он указан
+		protected 	function get_name_employee_Database_Html($id){
+			if(isset($id) && trim($id)!=''){
+			    global $mysqli;
+			    $String = '<span'.(($no_edit==0)?' class="attach_the_manager add"':' class="dop_grey_small_info"').' data-id="0">Прикрепить менеджера</span>';
+			   	$arr = array();
+			    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
+			    $result = $mysqli->query($query)or die($mysqli->error);
+			    if($result->num_rows>0){
+					foreach($result->fetch_assoc() as $key => $val){
+					   $arr[$key] = $val;
+					}
+			    }		    
+			    if(count($arr)){
+			    	$String = '<span data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+			    }
+			    return $String;
+			}else{
+				return 'не указан';
+			}
 		}
 
 
@@ -1336,7 +1684,7 @@
 		}
 
 
-		// запрос строк позиций из базы
+		// запрос строк позиций по заказу
 		protected function positions_rows_Database($order_id){
 			$arr = array();
 			global $mysqli;
@@ -1354,10 +1702,4 @@
 			}
 			return $arr;
 		}
-
-
-
-
-
-
    	}

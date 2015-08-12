@@ -524,3 +524,14 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 #cabinet_general_content  #general_panel_orders_tbl .orders_status_td_tbl table tr td:nth-of-type(1){
 	border-right: 1px solid #e8e8e8;	
 }
+.waits_products_div{
+	display: none;
+	padding-top: 5px;
+}
+.waits_products_div input{
+	width: 65px;
+}
+.waits_products_div.show{
+	display: block;
+}
+

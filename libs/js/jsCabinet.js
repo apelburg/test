@@ -78,6 +78,36 @@ $(document).ready(function() {
 	 	format:'d.m.Y',	 	
 	});
 
+	// ожидаемая дата прихода продукции на склад
+
+	$('.waits_products_div input').datetimepicker({
+		minDate:new Date(),
+		// disabledDates:['07.05.2015'],
+		timepicker:false,
+	 	dayOfWeekStart: 1,
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		closeOnDateSelect:true,
+		onChangeDateTime: function(dp,$input){// событие выбора даты
+			// получение данных для отправки на сервер
+			var row_id = $input.parent().parent().attr('data-id');
+			var date = $input.val();
+
+			//alert($input.attr('class'));
+			$.post('', {
+				AJAX: 'change_waits_products_div_input',
+				row_id: row_id, // cab_main_rows_id
+				date: date // введённое значение
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			},'json');
+		},
+	 	format:'d.m.Y',	 	
+	});
+
 
 
 
@@ -113,6 +143,65 @@ $(document).ready(function() {
 		},
 	 	format:'d.m.Y',	 	
 	});
+});
+
+
+// Изменение глобального статуса ЗАКАЗА / ПРЕДЗАКАЗА
+$(document).on('change', '.choose_statuslist_order_and_paperwork', function(event) {
+	var row_id = $(this).parent().parent().attr('data-id'); //main_rows_id
+	var value = $(this).val();
+	var obj = $(this).parent().parent();
+	// отправляем запрос
+	$.post('', {
+		AJAX:'choose_statuslist_order_and_paperwork',
+		row_id:row_id,
+		value:value
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+		replace_query_row_obj(obj);
+	},'json');
+});
+// запуск в работу заказа
+$(document).on('click', '.in_operation', function(event) {
+	var row_id = $(this).parent().parent().attr('data-id'); //main_rows_id
+	var obj = $(this).parent().parent();
+	// отправляем запрос
+	$.post('', {
+		AJAX:'choose_statuslist_order_and_paperwork',
+		row_id:row_id,
+		value:'in_work'
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+		replace_query_row_obj(obj);
+	},'json');
+});
+
+
+
+// меняем статус снабжения к позиции
+/*
+	СНАБЖЕНИЕ РАБОТАЕТ ПО ПОЗИЦИЯМ
+*/
+$(document).on('change', '.choose_statuslist_snab', function(event) {
+	var row_id = $(this).attr('data-id'); //main_rows_id
+	var value = $(this).val();
+	
+	// пишем исключение показа и скрытия ожидаемой даты поставки в зависимости от выбранного статуса
+	if( value == "waits_products"){
+		$(this).parent().find('.waits_products_div').show('fast');
+	}else{
+		$(this).parent().find('.waits_products_div').hide('fast');
+		$(this).parent().parent().find('.waits_products_div input').val('');
+	}
+
+	// отправляем запрос
+	$.post('', {
+		AJAX:'change_status_snab',
+		row_id:row_id,
+		value:value
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
 });
 
 

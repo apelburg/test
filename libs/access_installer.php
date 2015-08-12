@@ -196,69 +196,7 @@
 											)
 										)
 				       );
-	// Снабжение
-	$ACCESS_SHABLON[8] = array(
-						'client_folder'=> array(
-										'access'=> true,
-										'show___foo___'=> false,
-										'section'=> array( // 1
-										    'rt'=> array('access'=>true),
-											'business_offers'=> array('access'=>true),
-											'order_art_edit'=> array('access'=>true),
-											'order_tbl'=> array(
-												'access'=>true,
-												'ttn_see'=> array('access'=>false),												
-												'change_status_glob'=> array('access'=>false),
-												'change_status_uslug'=> array('access'=>false),
-												'change_status_men'=> array('access'=>false),
-												'change_status_snab'=> array('access'=>true)
-												)
-											)	
-										),	
-				       'cabinet'=> array(
-										'access'=> true,
-										'section'=> array( // 1
-											'important'=> array(
-												'access'=>true,
-												'subsection'=>array( // 2
-													'all' => array('access'=>true)
-													)
-												),
-											'requests'=> array(
-												'access'=>true,
-												'subsection'=>array( // 2
-													'no_worcked_snab' => array('access'=>true),
-													'in_work' => array('access'=>true),
-													'calk_snab' => array('access'=>true),
-													'denied' => array('access'=>true),
-													'paused' => array('access'=>true),
-													'all' => array('access'=>true),
-													'history' => array('access'=>true)
-													)
-												),
-											'orders'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'start' => array('access'=>true),
-													'purchase' => array('access'=>true),
-													'design' => array('access'=>true),
-													'production' => array('access'=>true),
-													'ready_for_shipment' => array('access'=>true),
-													'paused' => array('access'=>true),
-													'all' => array('access'=>true)
-													)
-												),
-											'closed'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												)
-											)
-											
-										)
-				       );
-		// Снабжение
+	// ПРО-ВО
 	$ACCESS_SHABLON[4] = array(
 				       'cabinet'=> array(
 										'access'=> true,
@@ -352,7 +290,116 @@
 										'full_suppliers_delete'=> false
 										),
 				       );
-					   
+	
+	// ДОСТАВКА
+	$ACCESS_SHABLON[6] = array(
+						'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( 
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  
+													// 'in_work' => array('access'=>true),
+													// 'paused' => array('access'=>true),
+													'all' => array('access'=>true)
+													)
+												)
+											)
+										));	
+
+	// СКЛАД
+	$ACCESS_SHABLON[7] = array(
+						'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( 
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													// 'in_work' => array('access'=>true),
+													// 'paused' => array('access'=>true),
+													'all' => array('access'=>true)
+													)
+												)
+											)
+										));	
+	// СНАБЖЕНИЕ
+	$ACCESS_SHABLON[8] = array(
+						'client_folder'=> array(
+										'access'=> true,
+										'show___foo___'=> false,
+										'section'=> array( // 1
+										    'rt'=> array('access'=>true),
+											'business_offers'=> array('access'=>true),
+											'order_art_edit'=> array('access'=>true),
+											'order_tbl'=> array(
+												'access'=>true,
+												'ttn_see'=> array('access'=>false),												
+												'change_status_glob'=> array('access'=>false),
+												'change_status_uslug'=> array('access'=>false),
+												'change_status_men'=> array('access'=>false),
+												'change_status_snab'=> array('access'=>true)
+												)
+											)	
+										),	
+				       'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( // 1
+											'important'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'all' => array('access'=>true)
+													)
+												),
+											'requests'=> array(
+												'access'=>true,
+												'subsection'=>array( // 2
+													'no_worcked_snab' => array('access'=>true),
+													'in_work' => array('access'=>true),
+													'calk_snab' => array('access'=>true),
+													'denied' => array('access'=>true),
+													'paused' => array('access'=>true),
+													'all' => array('access'=>true),
+													'history' => array('access'=>true)
+													)
+												),
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'start' => array('access'=>true),
+													'purchase' => array('access'=>true),
+													'design' => array('access'=>true),
+													'production' => array('access'=>true),
+													'ready_for_shipment' => array('access'=>true),
+													'paused' => array('access'=>true),
+													'all' => array('access'=>true)
+													)
+												),
+											'closed'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												)
+											)
+											
+										)
+				       );
+	
+	// ДИЗАЙН
+	$ACCESS_SHABLON[9] = array(
+						'cabinet'=> array(
+										'access'=> true,
+										'section'=> array( 
+											'orders'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'in_work' => array('access'=>true),
+													'paused' => array('access'=>true),
+													'all' => array('access'=>true)
+													)
+												)
+											)
+										));	
     //--------------------------------------------------------------------------\\
     //                  ЗАГРУЗКА ПРАВ ДАННОГО ПОЛЬЗОВАТЕЛЯ                      \\  
 	//--------------------------------------------------------------------------\\						   

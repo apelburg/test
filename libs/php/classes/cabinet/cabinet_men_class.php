@@ -119,16 +119,16 @@
 			echo '{"response":"OK"}';
 		}
 
-		private function replace_query_row_AJAX(){
-			$method = $_GET['section'].'_Template';
+		// private function replace_query_row_AJAX(){
+		// 	$method = $_GET['section'].'_Template';
 
-			// echo $method;
-			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-			if(method_exists($this, $method)){
-				echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
-				exit;
-			}							
-		}
+		// 	// echo $method;
+		// 	// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+		// 	if(method_exists($this, $method)){
+		// 		echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
+		// 		exit;
+		// 	}							
+		// }
 
 		// private function replace_query_row_AJAX(){
 		// 	global $mysqli;
@@ -1272,22 +1272,7 @@
 		##                    END                      ##
 		#################################################
 		
-		//////////////////////////
-		//	service method
-		//////////////////////////
-		private function show_cirilic_name_status_snab($status_snab){
-			if(substr_count($status_snab, '_pause')){
-				$status_snab = 'На паузе';
-			}
-						
-			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
-				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
-			}else{
-				$status_snab;
-			}
-			
-			return $status_snab;
-		}
+		
 
 		private function get_client_name($id,$status){
 			global $mysqli;		
