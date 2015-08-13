@@ -425,11 +425,19 @@ body{
   font-size:12px;
 }
 
-.query_theme{
+#query_theme_block .query_theme{
+  width:500px;
   border: none;
   background:none;
   color:#a3a3a3;
   padding:0px 0px 0px 4px; 
+}
+
+#query_theme_block .saved{
+  background:none;
+}
+#query_theme_block .save_status_name{
+  background:#000000;
 }
 .toggle_bar{
   border-collapse:collapse;

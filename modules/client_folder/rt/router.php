@@ -166,10 +166,14 @@
 		RT::set_cont_face($_GET['set_cont_face'],$_GET['query_num']);
 		exit;
 	}
-
+   
 	if(isset($_POST['AJAX'])){
-		
-
+			
+	    if($_POST['AJAX']=='edit_query_theme'){
+	        RT::save_theme($_POST['query_num'],$_POST['theme']);
+			echo '{"response":"OK"}';
+			exit;
+		}
 		if($_POST['AJAX']=='to_chose_the_type_product_form'){
 			// форма выбора типа продукта
 			echo $FORM->to_chose_the_type_product_form_Html();
@@ -216,7 +220,8 @@
 	
 	$create_time = RT::fetch_query_create_time($query_num);
 	$theme = RT::fetch_theme($query_num);
-	$theme_block = '<input class="query_theme" type="text" value="'.(($theme=='')?'Введите тему':$theme).'">';	
+	$theme_block = '<input id="query_theme_input" class="query_theme" query_num="'.$query_num.'" type="text" value="'.(($theme=='')?'Введите тему':htmlspecialchars($theme,ENT_QUOTES)).'">';	
+
 	
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';

@@ -1571,11 +1571,19 @@
 		} 
 		
 		show_processing_timer();
+		var query_theme = document.getElementById('query_theme_input').value;
 		var tbl = document.getElementById('rt_tbl_body');
 		var client_id = tbl.getAttribute('client_id');
 		var query_num = tbl.getAttribute('query_num');
+		
+		var make_com_offer_obj = {};
+		make_com_offer_obj.ids = idsObj;
+		make_com_offer_obj.client_id = client_id;
+		make_com_offer_obj.query_num = query_num;
+		make_com_offer_obj.query_theme = query_theme;
+		
 	    // формируем url для AJAX запроса
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_com_offer={"ids":'+JSON.stringify(idsObj)+',"client_id":"'+client_id+'","query_num":"'+query_num+'"}');
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_com_offer='+JSON.stringify(make_com_offer_obj));
 		// AJAX запрос
 		make_ajax_request(url,callback);
 		function callback(response){ 

@@ -425,7 +425,7 @@ class Client {
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0)
 		{
-		    while($item = $result->fetch_assoc()) $cont_faces_arr[] = $item['id'].'{;}'.$item['name'].' '.$item['last_name'].' '.$item['surname'];				
+		    while($item = $result->fetch_assoc()) $cont_faces_arr[] = $item['id'].'{;}'.$item['last_name'].' '.$item['name'].' '.$item['surname'];				
 		}
 		
 	

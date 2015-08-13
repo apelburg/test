@@ -27,7 +27,7 @@
 
 	    $kp_id = $_GET['send_kp_by_mail'];
 		$kp_filename = Com_pred::prepare_send_mail($kp_id,$client_id,$user_id);
-		
+		$theme = Com_pred::fetch_theme($kp_id);
         //$kp_filename = ROOT.'/data/com_offers/1894apelburg_1894_2015_56_01.pdf';
 		
 		$main_window_tpl_name = ROOT.'/skins/tpl/client_folder/business_offers/send_mail_window.tpl';
@@ -47,16 +47,16 @@
 			$tpl = fread($fd,filesize($tpl_path));
 			$tpl = str_replace('[MANAGER_DATA]',convert_bb_tags($manager->mail_signature),$tpl);
 			fclose($fd);
-			$message_tpls[] = '"'.$tpl_filename.'":"'.base64_encode($tpl).'"';
+			//$message_tpls[] = '"'.$tpl_filename.'":"'.base64_encode($tpl).'"';
+			$message_tpls[$tpl_filename] = base64_encode($tpl);
 		}
-		
-		echo '{
-		       "kp_filename":"'.$kp_filename.'",
-		       "client_mails":'.json_encode($client_mails).',
-			   "manager_mails":["'.$manager->email.'","'.$manager->email_2.'"],
-			   "main_window_tpl":"'.$main_window_tpl.'",';
-		if(isset($message_tpls)) echo '"message_tpls":{'.implode(',',$message_tpls).'}';
-		echo '}';
+        $obj["kp_filename"] = $kp_filename;
+		$obj["client_mails"] = $client_mails;
+		$obj["manager_mails"] = array($manager->email,$manager->email_2);
+		$obj["theme"] = $theme;
+		$obj["main_window_tpl"] = $main_window_tpl;
+		if(isset($message_tpls)) $obj["message_tpls"] = $message_tpls;
+		echo json_encode($obj);
 	    exit;
 	}
 	

@@ -75,6 +75,12 @@
 			$row = $result->fetch_assoc();
 			return $row['theme'];
 		}
+		static function save_theme($query_num,$theme){
+		    global $mysqli; 
+			
+			$query = "UPDATE`".RT_LIST."`SET theme = '".$mysqli->real_escape_string($theme)."' WHERE query_num ='".$query_num."'";
+			$mysqli->query($query) or die($mysqli->error);
+		}
 		static function fetch_query_client_face($query_num){
 		    global $mysqli; 
 			
