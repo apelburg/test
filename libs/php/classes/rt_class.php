@@ -702,9 +702,23 @@
 		// создание заказа из запроса
         static function make_order($rows_data,$client_id,$query_num,$specification_num,$agreement_id){
             global $mysqli;
-            $positions_arr = json_decode($rows_data,true);
+
+
+            // echo $rows_data.' - '.$client_id.' - '.$query_num.' - '.$specification_num.' - '.$agreement_id;
+            // = json_decode($rows_data,true);
             $user_id = $_SESSION['access']['user_id'];
 
+            // убиваем пустые позиции
+            foreach (json_decode($rows_data,true) as $key => $value) {
+            	if(!empty($value)){
+            		$positions_arr[] = $value;
+            	}
+            }
+            // echo $rows_data;
+            // echo '<pre>';
+            // print_r($positions_arr);
+            // echo '</pre>';
+            	
             /////////////////////////////
             //  СОЗДАНИЕ ЗАКАЗА -- START
             /////////////////////////////       
@@ -741,11 +755,15 @@
             //  СОЗДАНИЕ ЗАКАЗА -- START
             /////////////////////////////
 
-
+            // echo '<br>'.$order_num.'<br>';
             // перебираем принятые данные по позициям
 
             $query1 = '';//запрос копирования услуг
             foreach ($positions_arr as $position) {
+            	// if(empty($position)){echo 'пусто<br>';continue(2);}else{echo '<pre>';
+            	// print_r($position);
+            	// echo '</pre>';
+            	// 	}
                 // ЗАВОДИМ ПОЗИЦИИ К НОВОМУ ЗАКАЗУ
 
                 //`dop_info_no_cat` не копируем т.к. это общая информация обовсех вариантах
@@ -761,7 +779,7 @@
                 // id новой позиции
                 $main_row_id = $mysqli->insert_id;
 
-                // echo $query;
+                // echo $query.'<br>';
 
                 // выбираем id строки расчёта
                 // КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
@@ -775,10 +793,16 @@
                     WHERE  `id` = '".$position['row_id']."'
                 ";
                 $result = $mysqli->query($query) or die($mysqli->error);
+                
                 $dop_data_row_id = $mysqli->insert_id; // id нового расчёта... он же номер
 
+                // echo $dop_data_row_id.'<br>';
 
-                
+                // echo $query.'<br>';
+
+                // echo '$dop_data_row_id = '.$dop_data_row_id;
+
+
                 // правим row_id на полученный из созданной строки позиции
                 $query = "UPDATE  `".CAB_ORDER_DOP_DATA."` 
                         SET  `row_id` =  '".$main_row_id."' 
@@ -808,31 +832,39 @@
                     
                     $query = "SELECT * FROM `".RT_DOP_USLUGI."` 
                         WHERE  `dop_row_id` = '".$position['row_id']."'";
+
+                        // echo $position['row_id'].'<br><br><br><br>';
                     $arr_dop_uslugi = array();
                     $result = $mysqli->query($query) or die($mysqli->error);
                     
                     if($result->num_rows > 0){
+
+                    	// echo $row.'<br><br><br>';
                         while($row = $result->fetch_assoc()){
-                
-                            $query2 = "INSERT INTO `".CAB_DOP_USLUGI."` SET ";
-                            $query2 .="`dop_row_id` =  '".$dop_data_row_id."',";
-                            $query2 .="`uslugi_id` = '".$row['uslugi_id']."',";
-                            $query2 .="`glob_type` = '".$row['glob_type']."',";
-                            $query2 .="`type` = '".$row['type']."',";
-                            $query2 .="`quantity` = '".$row['quantity']."',";
-                            $query2 .="`price_in` = '".$row['price_in']."',";
-                            $query2 .="`price_out` = '".$row['price_out']."',";
-                            $query2 .="`for_how` = '".$row['for_how']."',";
-                            $query2 .="`tz` = '".$row['tz']."',";
-                            // подразделение исполнителя имеющего право на редактирование данных
-                            $query2 .="`performer` = '".$row['performer']."',";
-                            $query2 .="`print_details` = '".$row['print_details']."';";
-                            $mysqli->query($query2) or die($mysqli->error); 
+                			 $query2 = "INSERT INTO `".CAB_DOP_USLUGI."` SET
+						`dop_row_id` =  '".$dop_data_row_id."',
+						`date_ready` = '0000-00-00',
+						`date_send_out` = '0000-00-00',
+						`uslugi_id` = '".$row['uslugi_id']."',
+						`glob_type` = '".$row['glob_type']."',
+						`type` = '".$row['type']."',
+						`quantity` = '".$row['quantity']."',
+						`price_in` = '".$row['price_in']."',
+						`price_out` = '".$row['price_out']."',
+						`for_how` = '".$row['for_how']."',
+						`tz` = '".$row['tz']."',				
+						`performer` = '".$row['performer']."',
+						`print_details` = '".$row['print_details']."';";
+						// echo $query2.'<br><br>';exit;
+						$mysqli->query($query2) or die($mysqli->error);	
                         }
                     }
 
+
+                    
+
                 //////////////////////////////////////////////////////
-                //    КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ -- start  //
+                //    КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ -- end  //
                 //////////////////////////////////////////////////////
                 /*      
                         пока не знаю нужно ли копировать id создателя услуги из запроса в заказ.

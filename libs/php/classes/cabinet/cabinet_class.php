@@ -1344,7 +1344,7 @@
 					$arr[] = $row;
 
 
-					$er = $this->performer[ $row['performer_id']];
+					$er = $this->performer[ $row['performer']];
 					//echo '<br><br>* '.$er.' *<br><br>';
 					$this->Position_status_list[  $er  ][] = array(
 						'performer_status' => $row['performer_status'], 
