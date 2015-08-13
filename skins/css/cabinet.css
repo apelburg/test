@@ -223,6 +223,12 @@ tr.cat_8 td {
 	color: #6d6e72;
 	font-size: 10px;
 }
+#general_panel_orders_tbl .redText{
+	font-size: 12px;
+	color: red;
+	/*background-color: red;*/
+	padding: 3px;
+}
 .orders_info a{
 	color: #000;
 }
@@ -535,6 +541,6 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 	display: block;
 }
 
-.performer_status select{
-	width: 100px
+.performer_status select,.choose_statuslist_order_and_paperwork{
+	width: 150px
 }

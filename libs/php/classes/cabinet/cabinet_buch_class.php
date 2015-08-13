@@ -258,7 +258,8 @@
 				###############################
 
 				// получаем % оплаты
-				$percent_payment = ($this->Price_of_position!=0)?round($value['payment_status']*100/$this->Price_of_position,2):'0.00';		
+				$percent_payment = $this->calculation_percent_of_payment($this->Price_of_position,$value['payment_status']);
+				// $percent_payment = ($this->Price_of_position!=0)?round($value['payment_status']*100/$this->Price_of_position,2):'0.00';		
 				// собираем строку заказа
 				
 				$html2 = '<tr data-id="'.$value['id'].'" >';

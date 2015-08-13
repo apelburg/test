@@ -694,37 +694,46 @@
 		}
 
 		// создание заказа из запроса
-		static function make_order($rows_data,$client_id,$query_num){
-			// СОЗДАНИЕ ЗАКАЗА
+		static function make_order($rows_data,$client_id,$query_num,$specification_num,$agreement_id){
 			global $mysqli;
+			$data_arr = json_decode($rows_data,true);
+			$user_id = $_SESSION['access']['user_id'];
 
-		    $data_arr = json_decode($rows_data,true);
-		    $user_id = $_SESSION['access']['user_id'];
+			/////////////////////////////
+			//	СОЗДАНИЕ ЗАКАЗА -- START
+			/////////////////////////////	    
 
-		    // определяем номер заказа
-			$query = "SELECT MAX(order_num) max FROM `".CAB_ORDER_ROWS."`"; 								
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$order_num_data = $result->fetch_assoc();
-			$order_num = ($order_num_data['max']==0)? 00000:$order_num_data['max']+1;
-			//echo $query_num;
+			    // определяем номер заказа
+				$query = "SELECT MAX(order_num) max FROM `".CAB_ORDER_ROWS."`"; 								
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$order_num_data = $result->fetch_assoc();
+				$order_num = ($order_num_data['max']==0)? 00000:$order_num_data['max']+1;
+				//echo $query_num;
 
-		    // СОЗДАЁМ СТРОКУ ЗАКАЗА
-		    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id`, `snab_id`, `query_num` )
-				SELECT `manager_id`, `client_id`, `snab_id`, `query_num`
-				FROM `".RT_LIST."` 
-				WHERE  `query_num` = '".$query_num."';
-				";
-			// выполняем запрос
-			$result = $mysqli->query($query) or die($mysqli->error);
-			// получаем id нового заказа... он же номер
-        	$order_id = $mysqli->insert_id; 
-        	// пишем номер заказа в созданную строку
-        	$query = "UPDATE  `".CAB_ORDER_ROWS."` 
-						SET  `order_num` =  '".$order_num."' 
-						WHERE  `id` ='".$order_id."';";
-			// выполняем запрос
-			$result = $mysqli->query($query) or die($mysqli->error);
+			    // КОПИРУЕМ СТРОКУ ЗАКАЗА из таблицы запросов
+			    $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id`, `snab_id`, `query_num` )
+					SELECT `manager_id`, `client_id`, `snab_id`, `query_num`
+					FROM `".RT_LIST."` 
+					WHERE  `query_num` = '".$query_num."';
+					";
+				// выполняем запрос
+				$result = $mysqli->query($query) or die($mysqli->error);
+				// получаем id нового заказа... он же номер
+	        	$order_id = $mysqli->insert_id; 
+	        	// пишем номер заказа в созданную строку
+	        	$query = "UPDATE  `".CAB_ORDER_ROWS."` 
+							SET  `order_num` =  '".$order_num."' 
+							WHERE  `id` ='".$order_id."';";
+				// выполняем запрос
+				$result = $mysqli->query($query) or die($mysqli->error);
 
+				/*
+					на выходе имеем order_id - id строки заказа
+					и $order_num - номер заказа
+				*/
+			/////////////////////////////
+			//	СОЗДАНИЕ ЗАКАЗА -- START
+			/////////////////////////////
 
 
 			// перебираем принятые данные по позициям
@@ -794,18 +803,19 @@
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 			
-						 $query2 = "INSERT INTO `".CAB_DOP_USLUGI."` SET
-						`dop_row_id` =  '".$dop_data_row_id."',
-						`uslugi_id` = '".$row['uslugi_id']."',
-						`glob_type` = '".$row['glob_type']."',
-						`type` = '".$row['type']."',
-						`quantity` = '".$row['quantity']."',
-						`price_in` = '".$row['price_in']."',
-						`price_out` = '".$row['price_out']."',
-						`for_how` = '".$row['for_how']."',
-						`tz` = '".$row['tz']."',				
-						`performer` = '".$row['performer']."',
-						`print_details` = '".$row['print_details']."';";
+						$query2 = "INSERT INTO `".CAB_DOP_USLUGI."` SET ";
+						$query2 .="`dop_row_id` =  '".$dop_data_row_id."',";
+						$query2 .="`uslugi_id` = '".$row['uslugi_id']."',";
+						$query2 .="`glob_type` = '".$row['glob_type']."',";
+						$query2 .="`type` = '".$row['type']."',";
+						$query2 .="`quantity` = '".$row['quantity']."',";
+						$query2 .="`price_in` = '".$row['price_in']."',";
+						$query2 .="`price_out` = '".$row['price_out']."',";
+						$query2 .="`for_how` = '".$row['for_how']."',";
+						$query2 .="`tz` = '".$row['tz']."',";
+						// подразделение исполнителя имеющего право на редактирование данных
+						$query2 .="`performer` = '".$row['performer']."',";
+						$query2 .="`print_details` = '".$row['print_details']."';";
 						$mysqli->query($query2) or die($mysqli->error);	
 					}
 				}

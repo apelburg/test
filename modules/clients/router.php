@@ -104,9 +104,12 @@
 	
 	}
 	
+
+
 	$content = ob_get_contents();
 	ob_get_clean();
 
+	
 	include'./skins/tpl/clients/show.tpl';
 	
 	unset($content);
