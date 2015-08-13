@@ -1,6 +1,5 @@
 <?php
-    // удалить insert_copied_rows_old
-
+// удалить insert_copied_rows_old
     class RT{
 	    //public $val = NULL;
 	    function __consturct(){
@@ -51,7 +50,6 @@
 		}
 		static function set_order_deadline($ids,$date,$time){
 		    global $mysqli; 
-
 			$time = str_replace('.',':',$time).':00';
 		    $query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."',`shipping_time` = '".$time."'  WHERE `row_id` IN('".implode("','",json_decode($ids))."')";
 		     //echo $query."\r\n";exit;
@@ -67,6 +65,20 @@
 			$create_time_arr2 = explode('-',$create_time_arr[0]);
 			return $create_time_arr2[2].'.'.$create_time_arr2[1].'.'.$create_time_arr2[0].' '.$create_time_arr[1];
 		}
+		static function fetch_theme($query_num){
+		    global $mysqli; 
+			
+			$query = "SELECT theme FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$row = $result->fetch_assoc();
+			return $row['theme'];
+		}
+		static function save_theme($query_num,$theme){
+		    global $mysqli; 
+			
+			$query = "UPDATE`".RT_LIST."`SET theme = '".$mysqli->real_escape_string($theme)."' WHERE query_num ='".$query_num."'";
+			$mysqli->query($query) or die($mysqli->error);
+		}
 		static function fetch_query_client_face($query_num){
 		    global $mysqli; 
 			
@@ -76,12 +88,17 @@
 			$data['id'] = $row['client_face_id'];
 			
 			if($data['id']!=0){
-				$query = "SELECT position, name, last_name, surname FROM `".CLIENT_CONT_FACES_TBL."` WHERE id ='".$row['client_face_id']."'";
-				$result = $mysqli->query($query) or die($mysqli->error);
-				$data['details'] = $result->fetch_assoc();
+			    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+			    $data['details'] = Client::get_cont_face_details($data['id']);
 			}
 			
 			return $data;
+		}
+		static function set_cont_face($cont_face_id,$query_num){
+		    global $mysqli;
+			   
+			$query = "UPDATE `".RT_LIST."` SET `client_face_id` = '".$cont_face_id."' WHERE `query_num` = '".$query_num."'"; 
+            $mysqli->query($query) or die($mysqli->error);
 		}
 		static function save_copied_rows_to_buffer($data,$control_num){
 		    global $mysqli;   
@@ -195,9 +212,7 @@
 				$copied_row['query_num']= $query_num;
 				$copied_row['master_btn']= 0;
 				$copied_row['date_create']= date('Y-m-d H:i:s');
-
 				$query2="INSERT INTO `".RT_MAIN_ROWS."` VALUES ('".implode("','",$copied_row)."')";
-
 			    //  echo $query2."\r\n";
 				$mysqli->query($query2)or die($mysqli->error);
 				$row_id = $mysqli->insert_id;
@@ -371,7 +386,6 @@
 					// echo $query."\r\n";
 					$result = $mysqli->query($query)or die($mysqli->error);
 				}
-
 			}
 			return '[1]';
 		}
@@ -393,7 +407,6 @@
 				    }
 				}
 				// print_r($dopRowIdsArr);
-
 				// удаляем ряды из таблицы RT_DOP_USLUGI 
 				if(isset($dopRowIdsArr)){
 					$query="DELETE FROM `".RT_DOP_USLUGI."` 
@@ -404,7 +417,6 @@
 					// echo $query."\r\n";
 					$result = $mysqli->query($query)or die($mysqli->error);
 				}
-
 			}
 			return '[1]';
 		}
@@ -485,7 +497,6 @@
 		}
 		static function set_masterBtn_status($data_obj){
 		    global $mysqli;   //print_r($data); 
-
 			$query="UPDATE `".RT_MAIN_ROWS."` SET  `master_btn` = '".$data_obj->status."'  WHERE `id` IN('".str_replace(";","','",$data_obj->ids)."')";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
@@ -493,7 +504,6 @@
 		
 		static function add_data_from_basket($client,$manager_login){
 			global $mysqli;
-
 			//global $print_mode_names;
 			$user_id = $_SESSION['access']['user_id'];
 			
@@ -592,7 +602,6 @@
 		}
 		static function calcualte_query_summ($query_num){
 		    global $mysqli;   //print_r($data); 
-
 		    $query = "SELECT dop_data_tbl.id AS dop_data_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.expel AS expel,
 						  
 						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
@@ -634,7 +643,6 @@
 			 return  number_format($summ,'2','.','');
 		}
 		static function getArtRelatedPrintInfo($art_id){
-
 			$out_put = array();
 			// ищем типы нанесения присвоенные данному артикулу на прямую 
 			// возврашаемое значение: массив содержащий один элемент обозначающий (имитирующий)
@@ -657,7 +665,6 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);/**/
 			if($result->num_rows>0){
-
 			    while($row = $result->fetch_assoc()){
 				    if($row['print_id']!=0){
 				       $out_put[0][$row['print_id']] = '';		
@@ -692,8 +699,7 @@
 			
 			return $out_put; 
 		}
-
-// создание заказа из запроса
+		// создание заказа из запроса
         static function make_order($rows_data,$client_id,$query_num,$specification_num,$agreement_id){
             global $mysqli;
             $positions_arr = json_decode($rows_data,true);
@@ -863,5 +869,4 @@
             return 1;*/
         }  
     }
-
 ?>
