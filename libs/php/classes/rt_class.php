@@ -67,6 +67,14 @@
 			$create_time_arr2 = explode('-',$create_time_arr[0]);
 			return $create_time_arr2[2].'.'.$create_time_arr2[1].'.'.$create_time_arr2[0].' '.$create_time_arr[1];
 		}
+		static function fetch_theme($query_num){
+		    global $mysqli; 
+			
+			$query = "SELECT theme FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$row = $result->fetch_assoc();
+			return $row['theme'];
+		}
 		static function fetch_query_client_face($query_num){
 		    global $mysqli; 
 			
@@ -78,10 +86,6 @@
 			if($data['id']!=0){
 			    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
 			    $data['details'] = Client::get_cont_face_details($data['id']);
-					 
-				/*$query = "SELECT position, name, last_name, surname FROM `".CLIENT_CONT_FACES_TBL."` WHERE id ='".$row['client_face_id']."'";
-				$result = $mysqli->query($query) or die($mysqli->error);
-				$data['details'] = $result->fetch_assoc();*/
 			}
 			
 			return $data;
@@ -703,7 +707,7 @@
 		}
 
 		// создание заказа из запроса
-		static function make_order($rows_data,$client_id,$query_num){
+		static function make_order($rows_data,$client_id,$query_num,$specification_num,$agreement_id){
 			// СОЗДАНИЕ ЗАКАЗА
 			global $mysqli;
 

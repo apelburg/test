@@ -9,8 +9,8 @@
         <td style="width:  7px;border:none;">&nbsp;</td>
         <td style="width:90px;border-left:none;">Дата созадания</td>
         <td style="width:90px;">№ запроса</td>
-        <td style="width:300px;">Краткое описание</td>
-        <td style="width:180px;">Для контактного лица:</td>
+        <!-- <td style="width:300px;">Краткое описание</td>-->
+        <td style="width:350px;">Для контактного лица:</td>
         <td style="width:250px;">Действия</td>
         <td style="width:auto;">Комментарии</td>
         <td style="width:110px;">Дата отправки</td>

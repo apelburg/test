@@ -932,43 +932,48 @@
 		e.stopPropagation();
 		
 	    function building_menu(data,dop_data){
-			var data_arr = data.split('{@}');
+
+			if(data !='') var data_arr = data.split('{@}');
 			
 			relate_container = target.parentNode;
 			relate_container.style.position = 'relative';
-			//relate_container.style.border = '#FF0000 solid 1px';
-			//relate_container.style.width = '100%';
 			
-			// 
 			var container = document.createElement('div');
 			container.className = "contextWindow";
 			container.setAttribute('type','windowContainer');
 			container.style.position = 'absoute';
-			container.style.width = "170px";
-			container.style.top =  "17px";
+			container.style.width = "250px";
+			container.style.top =  "23px";
 			//container.style.bottom =  "20px";
-			container.style.left = "101px";
-			//container.style.right = "0px";
+			//container.style.left = "101px";
+			container.style.right = "0px";
 			container.style.display = "block";
-			
-			for(var i = 0 ; i < data_arr.length ; i++){
-				var details_arr = data_arr[i].split('{;}');
-				
+			if(data_arr && data_arr.length>0){
+				for(var i = 0 ; i < data_arr.length ; i++){
+					var details_arr = data_arr[i].split('{;}');
+					
+					var innerDiv = document.createElement('div');
+					innerDiv.className = "link1";
+					var a = document.createElement('a');
+					a.style.color = "#000";
+					a.setAttribute('manager_id',details_arr[0]);
+					if(dop_data.sourse) a.setAttribute('sourse',dop_data.sourse);
+					if(dop_data.row_id) a.setAttribute('row_id',dop_data.row_id);
+					if(dop_data.query_num) a.setAttribute('query_num',dop_data.query_num);
+					a.onclick = set_manager;
+					a.appendChild(document.createTextNode(details_arr[1]));
+					innerDiv.appendChild(a);
+					container.appendChild(innerDiv);		
+				}
+			}
+			else{
 				var innerDiv = document.createElement('div');
 				innerDiv.className = "link1";
 				var a = document.createElement('a');
-				a.style.color = "#000";
-				a.setAttribute('manager_id',details_arr[0]);
-				if(dop_data.sourse) a.setAttribute('sourse',dop_data.sourse);
-				if(dop_data.row_id) a.setAttribute('row_id',dop_data.row_id);
-				if(dop_data.query_num) a.setAttribute('query_num',dop_data.query_num);
-				a.onclick = set_manager;
-				a.appendChild(document.createTextNode(details_arr[1]));
+				a.innerHTML = "нет данных";
 				innerDiv.appendChild(a);
 				container.appendChild(innerDiv);
-				
 			}
-			
 			
 			relate_container.appendChild(container);
 			

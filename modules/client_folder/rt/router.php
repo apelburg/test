@@ -27,7 +27,6 @@
 
 	$quick_button = '<div class="quick_button_div" style="background:none"><a href="#" id="create_new_position" style="display: block;" class="button add">Добавить</a></div>';
 	
-	$theme = 'Откуда берется тема?';
 
 	$query_num = (!empty($_GET['query_num']))? $_GET['query_num']:FALSE;
 	
@@ -213,9 +212,11 @@
 	$cont_face_data = RT::fetch_query_client_face($query_num);
 	//print_r($cont_face_data);
 
-	$cont_face = '<div class="client_details_select" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">Контактное лицо: '.(($cont_face_data['id']==0)?'не установлено':$cont_face_data['details']['name'].' '.$cont_face_data['details']['last_name'].' '.$cont_face_data['details']['surname']).'</div>';
+	$cont_face = '<div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">Контактное лицо: '.(($cont_face_data['id']==0)?'не установлено':$cont_face_data['details']['last_name'].' '.$cont_face_data['details']['name'].' '.$cont_face_data['details']['surname']).'</div>';
 	
 	$create_time = RT::fetch_query_create_time($query_num);
+	$theme = RT::fetch_theme($query_num);
+	$theme_block = '<input class="query_theme" type="text" value="'.(($theme=='')?'Введите тему':$theme).'">';	
 	
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';

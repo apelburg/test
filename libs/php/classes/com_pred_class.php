@@ -1139,7 +1139,7 @@
 		    $rows = '';
 			if(!$certain_kp){// если не указан конкретный КП создаем полный список
 				$rows .= self::create_list_new_version($query_num);
-				$rows .= "<tr><td class='flank_cell'>&nbsp;</td><td colspan='8'>КП старого типа</td><td class='flank_cell'>&nbsp;</td></tr>";
+				$rows .= "<tr><td class='flank_cell'>&nbsp;</td><td colspan='7'>КП старого типа</td><td class='flank_cell'>&nbsp;</td></tr>";
 				$rows .= self::create_list_old_version($client_id);
             }
 			else{
@@ -1179,7 +1179,7 @@
 					 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
 					 $cont_face_data = Client::get_cont_face_details($row['recipient_id']);
 					 
-					 $recipient = '<div class="client_details_select" sourse="kp" row_id="'.$row['id'].'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">'.(($row['recipient_id']==0)?'не установлен':$cont_face_data['name']).'</div>';
+					 $recipient = '<div class="client_faces_select1" sourse="kp" row_id="'.$row['id'].'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">'.(($row['recipient_id']==0)?'не установлен':$cont_face_data['name'].' '.$cont_face_data['last_name'].' '.$cont_face_data['surname']).'</div>';
 					 //$recipient = $row['recipient'];контакт: 
 					 $date_arr = explode("-",substr($row['create_time'],0,10));
 					 $date = implode(".",array_reverse($date_arr));

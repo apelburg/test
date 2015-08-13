@@ -27,8 +27,9 @@
 			<li id="claim_number">Запрос №<?php  echo $query_num; ?></li>
 			<li id="claim_date"><span>от <?php echo $create_time; ?></span></li>
 			<!--<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	-->
-			<li id="art_name_topic"><span>Тема:</span> <?php echo $theme; ?></li>
+			<li id="art_name_topic"><span>Тема:</span> <?php echo $theme_block; ?></li>
             <li style="float:right"><span data-rt_list_query_num="<?php  echo $query_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($query_num); ?> "></span></li>
+            <li style="float:right"><?php  echo $cont_face; ?></li>
 		</ul>
 	</div>
 	<div id="options_bar" style="background-color:#92b73e;">
@@ -40,7 +41,6 @@
             <li>2 п</li>-->
             <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=<?php  echo $query_num; ?>&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Коммерческие предложения</a></li>
             <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=agreements&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Договоры</a></li>
-            <li><?php  echo $cont_face; ?></li>
 		</ul>
 	</div>
  </div>    

@@ -171,6 +171,8 @@
 			// echo $specification_num.'<pre>'; print_r($rows_data_arr); echo '</pre>';//
 			// exit;
 			
+			
+			$shipping = '0000-00-00 00:00:00';
 			foreach($rows_data_arr as $data_arr){
 			
 				if(count($data_arr)==0) continue;
@@ -203,6 +205,10 @@
 						 $summ_out = $dop_data['quantity']*$dop_data['price_out'];
 						 $name= (($main_data['art']!='')? 'арт.'.$main_data['art']:'')." ".$main_data['name'];
 						 
+						 //
+						 if($dop_data['shipping_date'].' '.$dop_data['shipping_time'] > $shipping) $shipping = $dop_data['shipping_date'].' '.$dop_data['shipping_time'];
+						 
+						   
 						 // $price = ($dop_data['discount'] != 0 )? round((($summ_out/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round($summ_out/$dop_data['quantity'],2) ;
 						 $price = ($dop_data['discount'] != 0 )? round(($dop_data['price_out']/100)*(100 + $dop_data['discount']),2) :  $dop_data['price_out'] ;
 						 // прежде чем записать ряд в спецификацию сверим совпадает ли количество в расчете и в услугах
@@ -239,7 +245,7 @@
 						 }
 						 
 				         // записываем ряд
-						 Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date);
+						 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date);
 						 
 						 
 						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
@@ -252,7 +258,7 @@
 								 if($uslugi_data['glob_type'] == 'print' && !(!!$expel["print"])){
                                     $name = Agreement::convert_print($uslugi_data['print_details']);
 									// записываем ряд
-									Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);
+									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
 								    $uslugi_summ_out += $uslugi_data['quantity']*$uslugi_data['price_out'];
@@ -266,8 +272,13 @@
 				    }
 				}
 			}	
-				
-		//exit;
+		    
+			if($shipping!='0000-00-00 00:00:00'){
+			    $query="UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET  `shipping_date_time` = '".$shipping."'  WHERE `id` IN('".implode("','", $specIdsArr)."')";
+				$mysqli->query($query)or die($mysqli->error);
+			}
+			// exit;	
+		
 			
 			// этап создания отдельного файла Спецификации и сохраниения его на диск
 			// проверяем существует ли папка данного клиента если нет создаем её
@@ -345,7 +356,7 @@
 			
 			// создаем предзаказ
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
-			RT::make_order($rows_data,$client_id,$_GET['query_num']);
+			RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id);
 			
 			return $specification_num;
 
@@ -394,6 +405,7 @@
 						  
 			// echo $query4;		  
 			  $result = $mysqli->query($query)or die($mysqli->error);
+			  return $mysqli->insert_id;
 		
 		}
 		static function convert_print($print_details){
