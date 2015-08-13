@@ -65,7 +65,7 @@
 
 	 if(isset($_GET['get_client_cont_faces']))
 	 {
-	     echo get_client_cont_faces_ajax($_GET['get_client_cont_faces']);
+	     echo Client::get_cont_faces_ajax($_GET['get_client_cont_faces']);
 		 exit;
 	 }
 	 

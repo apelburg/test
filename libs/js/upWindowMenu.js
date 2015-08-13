@@ -911,7 +911,12 @@
 					
 					var request_response = request.responseText;
 				    // alert(request_response);
-					building_menu(request_response,target.getAttribute('sourse'),target.getAttribute('row_id'));
+					var dop_data = {};
+					if(target.getAttribute('sourse')) dop_data.sourse = target.getAttribute('sourse');
+					if(target.getAttribute('row_id')) dop_data.row_id = target.getAttribute('row_id');
+					if(target.getAttribute('query_num')) dop_data.query_num = target.getAttribute('query_num');
+					
+					building_menu(request_response,dop_data);
 			
 				   //alert("AJAX запрос выполнен");
 				 
@@ -926,43 +931,49 @@
 		
 		e.stopPropagation();
 		
-	    function building_menu(data,sourse,row_id){
-			var data_arr = data.split('{@}');
+	    function building_menu(data,dop_data){
+
+			if(data !='') var data_arr = data.split('{@}');
 			
 			relate_container = target.parentNode;
 			relate_container.style.position = 'relative';
-			//relate_container.style.border = '#FF0000 solid 1px';
-			//relate_container.style.width = '100%';
 			
-			// 
 			var container = document.createElement('div');
 			container.className = "contextWindow";
 			container.setAttribute('type','windowContainer');
 			container.style.position = 'absoute';
-			container.style.width = "170px";
-			container.style.top =  "17px";
+			container.style.width = "250px";
+			container.style.top =  "23px";
 			//container.style.bottom =  "20px";
-			container.style.left = "101px";
-			//container.style.right = "0px";
+			//container.style.left = "101px";
+			container.style.right = "0px";
 			container.style.display = "block";
-			
-			for(var i = 0 ; i < data_arr.length ; i++){
-				var details_arr = data_arr[i].split('{;}');
-				
+			if(data_arr && data_arr.length>0){
+				for(var i = 0 ; i < data_arr.length ; i++){
+					var details_arr = data_arr[i].split('{;}');
+					
+					var innerDiv = document.createElement('div');
+					innerDiv.className = "link1";
+					var a = document.createElement('a');
+					a.style.color = "#000";
+					a.setAttribute('manager_id',details_arr[0]);
+					if(dop_data.sourse) a.setAttribute('sourse',dop_data.sourse);
+					if(dop_data.row_id) a.setAttribute('row_id',dop_data.row_id);
+					if(dop_data.query_num) a.setAttribute('query_num',dop_data.query_num);
+					a.onclick = set_manager;
+					a.appendChild(document.createTextNode(details_arr[1]));
+					innerDiv.appendChild(a);
+					container.appendChild(innerDiv);		
+				}
+			}
+			else{
 				var innerDiv = document.createElement('div');
 				innerDiv.className = "link1";
 				var a = document.createElement('a');
-				a.style.color = "#000";
-				a.setAttribute('manager_id',details_arr[0]);
-				a.setAttribute('sourse',sourse);
-				a.setAttribute('row_id',row_id);
-				a.onclick = set_manager;
-				a.appendChild(document.createTextNode(details_arr[1]));
+				a.innerHTML = "нет данных";
 				innerDiv.appendChild(a);
 				container.appendChild(innerDiv);
-				
 			}
-			
 			
 			relate_container.appendChild(container);
 			
@@ -979,9 +990,11 @@
 			var manager_id = target.getAttribute('manager_id');
 			//alert(target.getAttribute('sourse')+' '+target.getAttribute('row_id'));
 			var row_id = (target.getAttribute('row_id'))? target.getAttribute('row_id') : false;
+			var query_num = (target.getAttribute('query_num'))? target.getAttribute('query_num') : false;
 			var sourse = target.getAttribute('sourse');
 			
-			openCloseMenu.lastElement.innerHTML = target.innerHTML;
+			if(sourse=='kp')  openCloseMenu.lastElement.innerHTML = target.innerHTML;
+			if(sourse=='rt')  openCloseMenu.lastElement.innerHTML = 'Контактное лицо: '+target.innerHTML;
 			//openCloseMenu.lastElement.innerHTML = 'контакт: ' + target.innerHTML;
 			//document.getElementById('row_' + row_id).setAttribute('client_manager_id',manager_id);
 			
@@ -991,7 +1004,8 @@
 		    var request = HTTP.newRequest();
 	        //var url = "?page=clients&set_manager_for_order=" + manager_id + "&row_id=" + row_id + "&control_num=" + document.getElementById('calculate_tbl').getAttribute('control_num');
 			if(sourse=='kp')  var url = "?page=client_folder&section=business_offers&set_recipient=" + manager_id + "&row_id=" + row_id;
-	    
+	        if(sourse=='rt')  var url = "?page=client_folder&set_cont_face=" + manager_id + "&query_num=" + query_num;
+
 			// производим запрос
 			request.open("GET", url, true);
 			request.send(null);
@@ -1003,7 +1017,9 @@
 					   // обрабатываем ответ сервера
 						
 						var request_response = request.responseText;
-						alert(request_response);
+						//alert(request_response);
+						
+						
 
 					}
 					else{
@@ -1555,11 +1571,19 @@
 		} 
 		
 		show_processing_timer();
+		var query_theme = document.getElementById('query_theme_input').value;
 		var tbl = document.getElementById('rt_tbl_body');
 		var client_id = tbl.getAttribute('client_id');
 		var query_num = tbl.getAttribute('query_num');
+		
+		var make_com_offer_obj = {};
+		make_com_offer_obj.ids = idsObj;
+		make_com_offer_obj.client_id = client_id;
+		make_com_offer_obj.query_num = query_num;
+		make_com_offer_obj.query_theme = query_theme;
+		
 	    // формируем url для AJAX запроса
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_com_offer={"ids":'+JSON.stringify(idsObj)+',"client_id":"'+client_id+'","query_num":"'+query_num+'"}');
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('make_com_offer='+JSON.stringify(make_com_offer_obj));
 		// AJAX запрос
 		make_ajax_request(url,callback);
 		function callback(response){ 

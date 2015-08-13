@@ -425,6 +425,20 @@ body{
   font-size:12px;
 }
 
+#query_theme_block .query_theme{
+  width:500px;
+  border: none;
+  background:none;
+  color:#a3a3a3;
+  padding:0px 0px 0px 4px; 
+}
+
+#query_theme_block .saved{
+  background:none;
+}
+#query_theme_block .save_status_name{
+  background:#000000;
+}
 .toggle_bar{
   border-collapse:collapse;
 }
@@ -1222,11 +1236,18 @@ body{
   padding:2px 3px 2px 3px;
   border-left:none; 
 }
-.calculate_tbl .order_row .client_details .client_details_select{
+.client_faces_select1{
   cursor:pointer;
   padding-right:15px;
   background-image:url(../images/img_design/select_trigger.png);
   background-position:right 2px top 3px;
+  background-repeat:no-repeat;
+}
+.client_faces_select2{
+  cursor:pointer;
+  padding-right:15px;
+  background-image:url(../images/img_design/select_trigger_wh.png);
+  background-position:right 2px top 4px;
   background-repeat:no-repeat;
 }
 .calculate_tbl .itog_row .empty{

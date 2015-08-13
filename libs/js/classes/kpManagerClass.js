@@ -48,7 +48,7 @@
 				
 				// поле темы письма
 				kpManager.mailSubject = document.createElement('div');
-				kpManager.mailSubject.innerHTML = "Тема письма";
+				kpManager.mailSubject.innerHTML = kpManager.details.theme;
 				kpManager.mailSubject.className = 'mailSubject';
 				kpManager.mailSubject.contentEditable = "true";
 				document.getElementById('mailSubject').appendChild(kpManager.mailSubject);
@@ -87,7 +87,7 @@
 				 var div = document.createElement('div');
 				 div.className = 'selectRow';
 				 div.onclick = function(){ kpManager.addValueToSelect(sourse,element,this); }
-				 if(sourse=='client_mails') div.innerHTML = '<div style="float:left; width:270px; border:#FF0000 solid 0px;"><span>' + arr[i].email+'</span></div><div style="float:left; width:200px;">'+ arr[i].position+'</div><div style="float:left; width:250px;">'+ arr[i].name+' '+ arr[i].last_name+ ' '+ arr[i].surname+'</div>';
+				 if(sourse=='client_mails') div.innerHTML = '<div style="float:left; width:270px; border:#FF0000 solid 0px;"><span>' + arr[i].email+'</span></div><div style="float:left; width:200px;">'+ arr[i].position+'</div><div style="float:left; width:250px;">'+ arr[i].last_name+' '+ arr[i].name+ ' '+ arr[i].surname+'</div>';
 				 if(sourse=='manager_mails') div.innerHTML = '<div style="float:left; width:300px; border:#FF0000 solid 0px;"><span>' + arr[i]+'</span></div>';
 				 kpManager.bildSelect.container.appendChild(div);
 			}
@@ -135,7 +135,7 @@
 			
 			make_ajax_request(url,call_back);
 			function call_back(response){
-			    alert (response);
+			    // alert (response);
 				close_processing_timer();
 				try { 
 				   var response_obj = JSON.parse(response);
