@@ -125,8 +125,6 @@
 		 $kp_id = (int)$_GET['show_kp'];
 		 $rows = Com_pred::create_list($query_num,$client_id,array('type'=>'new','kp'=>$kp_id));
 		 $detailed_view = Com_pred::open_in_tbl($_GET['show_kp']); 
-		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
-		 $detailed_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'">сохранить на диск</a>';
 		 $create_list = FALSE;
 	}
 	if(isset($_GET['show_old_kp'])){
@@ -139,9 +137,10 @@
 	     $kp_id = (int)$_GET['show_kp_in_blank'];
 		 $rows = Com_pred::create_list($query_num,$client_id,array('type'=>'new','kp'=>$kp_id));
 		 $create_list = FALSE;
-		 $in_blank_view = Com_pred::open_in_blank($kp_id,$client_id,$user_id,true);
+		 $in_blank_view = '<div style="margin:20px 0 0 10px;"><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'" class="someABtn" >сохранить на диск</a></div>';
+		 $in_blank_view .= Com_pred::open_in_blank($kp_id,$client_id,$user_id,false,true);
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
-		 $in_blank_view .= '<br><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'">сохранить на диск</a>';
+		 
 	}
 	
 	
