@@ -183,8 +183,11 @@ $(document).on('click', '.button.status_del', function(event) {
 
 // РЕДАКТИРУЕМ НАЗВАНИЕ СТАТУСА
 $(document).on('keyup', '.status_name', function(event) {
+    // первым параметром перелаём название функции отвечающей за отправку запроса AJAX
+    // вторым параметром передаём объект к которому добавляется класс saved (класс подсветки)
     timing_save_input('save_status_name',$(this));  
 });
+
 function save_status_name(obj){// на вход принимает object input
     var id = obj.next().attr('data-id');
     $.post('', {
@@ -193,12 +196,15 @@ function save_status_name(obj){// на вход принимает object input
         name:obj.val()
     }, function(data, textStatus, xhr) {
         if(data['response']=="OK"){
+            // php возвращает json в виде {"response":"OK"}
+            // если ответ OK - снимаем класс saved
             obj.removeClass('saved');
         }else{
             console.log('Данные не были сохранены.');
         }
     },'json');
 }
+
 function timing_save_input(fancName,obj){
     //если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
     if(!obj.hasClass('saved')){

@@ -793,9 +793,13 @@ $(document).on('click', '.dop_teh_info', function(event) {
 // редактирование/ЗАПОЛНЕНИЕ dop_inputs
 $(document).on('click', '#services_listing_each .lili', function(event) {
 	if(!$(this).hasClass('no_active')){
-		console.log($(this).attr('data-uslugi_id'));
+		// console.log($(this).attr('data-uslugi_id'));
+		// id услуги
 		var uslugi_id = $(this).attr('data-uslugi_id');
+		// id строки 
 		var dop_usluga_id = $(this).attr('data-dop_usluga_id');
+		
+
 		$('#services_listing_each .lili').removeClass('checked');
 		$(this).addClass('checked');
 		window_preload_add();
@@ -1214,26 +1218,14 @@ $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', functio
 	var id = $(this).attr('data-id');
 	var service_name = $(this).find('.name_text').html();
 
+	// группа исполнителей допущенная к изменению статусов
+	var performer = $(this).attr('data-performer');
 	
-	//var id,dop_row_id,quantity;
-	// // для каталожной и некаталожной карточки продукции основные данные ищем по разному
-	// if($('#dialog_gen_window_form form input[name="type_product"]').val() != 'cat'){
-	// 	id = $(this).attr('data-id');
-	// 	dop_row_id = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked').attr('data-id');
-	// 	// получим тираж
-	// 	quantity = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked td:nth-of-type(3) span').html();
-	// }else{
-	// 	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
-	// 	id = $(this).attr('data-id');
-	// 	//console.log($(id_variant).attr('data-id'));
-	// 	dop_row_id = $('#variants_name .variant_name.checked ').attr('data-id');
-	// 	// получим тираж
-	// 	quantity = $(id_variant+' .tirage_var').val();
-	// }
-
 	// console.log(quantity);
 	// $('#dialog_gen_window_form form input[name="quantity"]').val(quantity);
 	$('#dialog_gen_window_form form input[name="id_uslugi"]').val(id);
+	$('#dialog_gen_window_form form input[name="performer"]').val(performer);
+
 	$('#dialog_gen_window_form form input[name="service_name"]').val(service_name);
 	// $('#dialog_gen_window_form form input[name="dop_row_id"]').val(dop_row_id);
 });

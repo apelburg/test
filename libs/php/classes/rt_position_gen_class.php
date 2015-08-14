@@ -161,27 +161,14 @@ class Position_general_Class{
 	/////////////////  AJAX METHODs  ///////////////// 
 
 
-	// private function add_new_usluga_AJAX(){
-	// 	// добавляет новую услугу
-	// 	global $type_product;
-	// 	// echo $type_product;
-	// 	switch ($type_product) {
-	// 		case 'cat':
-	// 			$this->POSITION_CATALOG->add_uslug_Database_Html($_POST['id_uslugi'], $_POST['dop_row_id'], $_POST['quantity']);
-	// 			break;			
-	// 		default:
-	// 			$this->POSITION_NO_CATALOG->add_uslug_Database_Html($_POST['id_uslugi'], $_POST['dop_row_id'], $_POST['quantity']);
-	// 			break;
-	// 	}
-	// }
-
 	private function save_tz_text_AJAX(){
 		global $mysqli;
 		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".$_POST['tz']."' WHERE `id`='".$_POST['rt_dop_uslugi_id']."';
 ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 
-		echo '{"response":"OK" , "name":"save_tz_text_AJAX","increment_id":"'.$_POST['increment_id'].'"}';
+		// echo '{"response":"OK" , "name":"save_tz_text_AJAX","increment_id":"'.$_POST['increment_id'].'"}';
+		echo '{"response":"OK" , "name":"save_tz_text_AJAX"}';
 	}
 	// добавить доп услугу для варианта
 	public function add_new_usluga_AJAX(){

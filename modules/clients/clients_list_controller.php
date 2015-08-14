@@ -144,6 +144,7 @@
 		$page_navigation = pageNav($num_page,9,$all_num_page,$url_query);
 		*/
 		//////////////////////////////////////////////////////////////
+		
         if($curViewType == 'ordinary' || $curViewType == 'short'){
 	     	$main_tbl_class = 'main_tbl_ordinary';
 			$num_items_on_page = count($clients_data['data']);
@@ -160,7 +161,9 @@
 			$header_tbl = '';
 			$header_tr = '<tr>'.str_repeat('<td>&nbsp;</td>',$num_cols).'</tr>';
 		}
+		
 		else if($curViewType == 'wide' || $curViewType == 'expanded'){
+
 		    foreach($clients_data['data'] as $item) $ids[$item['id']] = $item['id'];
 			$client_expanded_data = get_expanded_data_for_client_list($ids);
 			/*echo '<pre>';print_r($client_expanded_data);echo '</pre>';*/
@@ -246,8 +249,11 @@
 	ob_get_clean();
 
 	ob_start();
+
 	include('./skins/tpl/clients/client_list/top_plank.tpl');
 	include('./skins/tpl/clients/client_list/list.tpl');
+
+	echo 'asd65ds1ads3c21dasv3da2s1v32asd1vasd3v24d 12a';
 	$content = ob_get_contents();
 	ob_get_clean();
 	

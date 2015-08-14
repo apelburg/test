@@ -45,12 +45,14 @@
 			'otgrugen' => 'Отгруженные'													
 		); 
 
+		// protected $user_id;
+		// protected $user_access;
 
 		// название подраздела кабинета
 		private $sub_subsection;
 
 		// содержит экземпляр класса кабинета вер. 1.0
-		private $CABINET;
+		// private $CABINET;
 
 		// экземпляр класса продукции НЕ каталог (там нас интересуют кириллические названия статусов)
 		public $POSITION_NO_CATALOG;
@@ -77,11 +79,11 @@
 			}
 
 			// экземпляр класса кабинета вер. 1.0
-			$this->CABINET = new Cabinet;
+			// $this->CABINET = new Cabinet;
 
 			//$this->FORM = new Forms;
 		}
-			
+
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){
@@ -94,20 +96,6 @@
 				echo 'метод '.$method_template.' не предусмотрен';
 			}
 		}
-
-
-
-		############################################
-		###				AJAX START               ###
-		############################################
-
-
-		
-		############################################
-		###				AJAX END                 ###
-		############################################
-
-
 
 
 		#############################################################
@@ -704,25 +692,49 @@
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
 				
-				$table_order_row2_body = '<td class="show_hide" rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders"></span></td>
-						<td colspan="4" class="orders_info">
-							<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
-							'.$this->get_client_name_link_Database($this->Order['client_id']).'
-							<span class="greyText">счёт№:'.$this->Order['number_pyament_list'].'</span>
-						</td>
-						<td>
-							<!--// comments -->
-							<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	
-						</td>
-						<td><span class="show_the_full_information">'.$this->price_order.'</span> р.</td>
-						<td colspan="2">
-							<span class="greyText">оплачен: </span>'.$this->Order['payment_date'].'
-							<span class="greyText">в размере: </span> '.$this->Order['payment_status'].' р.
-						</td>
-						<td contenteditable="true" class="deadline">'.$this->Order['deadline'].'</td>
-						<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>
-						<td><span class="greyText">заказа: </span></td>
-						<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+				//////////////////////////
+				//	тело строки заказа -- start ---
+				//////////////////////////
+					$table_order_row2_body = '<td class="show_hide" rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders"></span></td>';
+					$table_order_row2_body .= '<td colspan="4" class="orders_info">';
+						$table_order_row2_body .= '<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>';
+							// добавляем ссылку на клиента
+							$table_order_row2_body .= $this->get_client_name_link_Database($this->Order['client_id']);
+						// номер счёта
+						$table_order_row2_body .= '<span class="greyText">счёт№:'.$this->Order['number_pyament_list'].'</span>';
+					$table_order_row2_body .= '</td>';
+					
+					// комментарии
+					$table_order_row2_body .= '<td><!--// comments -->';
+						$table_order_row2_body .= '<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>';
+					$table_order_row2_body .= '</td>';
+					
+					// стоимость заказа
+					$table_order_row2_body .= '<td><span class="show_the_full_information">'.$this->price_order.'</span> р.</td>';
+					
+					// платёжная информация
+					$this->Order_payment_percent = $this->calculation_percent_of_payment($this->price_order, $this->Order['payment_status']);
+
+					$table_order_row2_body .= '<td colspan="2">';
+						// если был оплачен.... и % оплаты больше нуля
+						if ((int)$this->Order_payment_percent > 0) {
+							// когда оплачен
+							$table_order_row2_body .= '<span class="greyText">оплачен: </span>'.$this->Order['payment_date'].'<br>';
+							// сколько оплатили в %
+							$table_order_row2_body .= '<span class="greyText">в размере: </span> '. $this->Order_payment_percent .' %';
+						}else{
+							$table_order_row2_body .= '<span class="redText">НЕ ОПЛАЧЕН</span>';
+						}
+					$table_order_row2_body .= '</td>';
+						
+					$table_order_row2_body .= '<td contenteditable="true" class="deadline">'.$this->Order['deadline'].'</td>';
+					$table_order_row2_body .= '<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>';
+					$table_order_row2_body .= '<td><span class="greyText">заказа: </span></td>';
+					$table_order_row2_body .= '<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+				//////////////////////////
+				//	тело строки заказа -- end ---
+				//////////////////////////
+
 				$table_order_row2 = '</tr>';
 				// включаем вывод позиций 
 				$table_order_row .= $table_order_row2_body.$table_order_row2.$table_order_positions_rows;
@@ -829,6 +841,14 @@
 
 
 				// получаем статусы участников заказа в две колонки: отдел - статус
+				// ob_start();
+			 // 	echo '<pre>';
+			 // 	print_r($position);
+			 // 	echo '</pre>';
+			    	
+			 // 	$content = ob_get_contents();
+			 // 	ob_get_clean();
+			 	// $html =$content;
 				$html .= $this->position_status_list_Html($position);
 				$html .= '</tr>';	
 
