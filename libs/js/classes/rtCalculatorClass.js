@@ -3059,7 +3059,7 @@ var rtCalculator = {
 		var client_id = tbl.getAttribute('client_id');
 		var query_num = tbl.getAttribute('query_num');
 		if(client_id==''){
-		   alert('не удалось определить клинета');
+		   alert('не удалось определить клиента');
 		   return;
 		}
 		if(query_num==''){
@@ -3158,7 +3158,6 @@ var rtCalculator = {
 			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие до нового ряда позици на нажатие зеленой кнопки
 			// светофора (позиции для отправки в КП)
 			if(pos_id!==false){
-				idsArr[indexCounter] = [];
 				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
 				// работаем с рядом - ищем светофор 
 				var tdsArr = trsArr[i].getElementsByTagName('td');   
@@ -3223,7 +3222,7 @@ var rtCalculator = {
 		var client_id = tbl.getAttribute('client_id');
 		var query_num = tbl.getAttribute('query_num');
 		if(client_id==''){
-		   alert('не удалось определить клинета');
+		   alert('не удалось определить клиента');
 		   return;
 		}
 		if(query_num==''){
@@ -3231,7 +3230,6 @@ var rtCalculator = {
 		   return;
 		}
 		
-
 		location = "?page=agreement&section=presetting&client_id=" + client_id + "&ids=" +JSON.stringify(idsArr)+'&query_num='+query_num;
 		
 		

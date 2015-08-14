@@ -40,7 +40,7 @@
 		
 		
 		// $message_tpl_filenames = array('recalculation','new_kp_new_client','new_kp');
-		$message_tpl_filenames = array('empty','new_kp_new_client');
+		$message_tpl_filenames = array('empty','new_kp_new_client','order_performance');
 		foreach($message_tpl_filenames as $tpl_filename){
 			$tpl_path = ROOT.'/skins/tpl/common/mail_tpls/'.$tpl_filename.'.tpl';
 			$fd = fopen($tpl_path,'r');

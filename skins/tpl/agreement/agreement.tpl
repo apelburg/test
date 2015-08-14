@@ -26,8 +26,8 @@
 
                        if(isset($_GET['query_num']))
                        {
-                      echo '<button type="button" onclick="location = \'?page=client_folder&\';" style="cursor:pointer;">вернуться в РТ</button>';
-                       } 
+                      echo '<button type="button" onclick="location = \'?page=client_folder&query_num='.$query_num.'&client_id='.$client_id.'\';" style="cursor:pointer;">вернуться в РТ</button>';
+                       }
                      echo '<button type="button" onclick="location = \'?page=client_folder&section=agreements&client_id='.$client_id.'\';" style="cursor:pointer;">вернуться в Договоры</button>';
         
             
