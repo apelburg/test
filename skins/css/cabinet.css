@@ -264,6 +264,10 @@ tr.cat_8 td {
 #cabinet_general_content #general_panel_orders_tbl tr.positions_rows td{
 	border: 1px solid #e8e8e8;
 }
+#cabinet_general_content #general_panel_orders_tbl tr.positions_rows.position_general_row td{
+	border-bottom: 1px solid #D1D1D1;
+	border-top: 1px solid #D1D1D1;
+}
 #cabinet_general_content #general_panel_orders_tbl tr.order_head_row td:nth-of-type(3){
 	padding: 0;	
 }
@@ -543,4 +547,40 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 
 .performer_status select,.choose_statuslist_order_and_paperwork{
 	width: 150px
+}
+.start_statuslist_uslugi{
+	   width: 150px;
+    height: 20px;
+    border: 1px solid #AAAAAA;
+    cursor: pointer;
+	background-color: #F1F1F1;
+}
+.start_statuslist_uslugi:hover{
+    border: 1px solid #AAAAAA;
+    background-color: #D2D2D2;
+}
+
+#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production td{
+	border: 1px solid #f1f1f1;
+}
+
+#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production:hover td.show_backlight{
+	background-color: #f1f1f1;
+}
+#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production:hover td.show_dialog_tz_for_production:hover{
+	background-color: #BBCE91;
+	cursor: pointer;
+}
+#dialog_gen_window_form .separation_container{
+	background-color: #F9F9F9;
+    padding: 2px;
+    margin-bottom: 10px;
+    border: 1px solid #ECECEC;
+}
+#dialog_gen_window_form .separation_container strong{
+	padding: 5px;
+}
+#dialog_gen_window_form .separation_container .data_info{
+	padding: 5px;
+	background-color: #fff;
 }

@@ -298,10 +298,25 @@
 		$id = $_POST['id']; 
 		unset($_POST['id'],$_POST['AJAX']);
 
-		// обрабатываем logotip_on
-		if(!isset($_POST['logotip_on'])){
-			$_POST['logotip_on'] = '';
-		}
+		/////////////////////
+		//	-- checkboxes --
+		/////////////////////
+			// обрабатываем logotip_on
+			if(!isset($_POST['logotip_on'])){
+				$_POST['logotip_on'] = '';
+			}
+			// обрабатываем show_status_film_photos
+			if(!isset($_POST['show_status_film_photos'])){
+				$_POST['show_status_film_photos'] = '';
+			}
+			// обрабатываем delivery_apl
+			if(!isset($_POST['delivery_apl'])){
+				$_POST['delivery_apl'] = '';
+			}
+		
+		//////////////////
+		//    checkboxes 
+		///////////////////
 
 		$query = "UPDATE `".OUR_USLUGI_LIST."` SET ";		
 		$n=0;
@@ -488,8 +503,26 @@
 
 		// включение/отключение поля logotip
 		$html .= '<div class="separation_container">';
-		// $html .= '<div class="name_input"></div>';
-		$html .= '<div class="edit_info"><input type="checkbox" name="logotip_on" id="logotip_on" '.(($usluga['logotip_on']=="on")?'checked':'').'>'.$usluga['logotip_on'].'<label for="logotip_on">Включить/отключить поле Логотип</label></div>';
+		$html .= '<div class="name_input">Поле "Логотип"</div>';
+		$html .= '<div class="edit_info"><input type="checkbox" name="logotip_on" id="logotip_on" '.(($usluga['logotip_on']=="on")?'checked':'').'><label for="logotip_on">Включить/отключить</label><br>
+					<span class="greyText">(включает/отключает поле "логотип" в доп.тех.инфо)</span>
+				</div>';
+		$html .= '</div>';
+
+		// доставка
+		$html .= '<div class="separation_container">';
+		$html .= '<div class="name_input">Доставка Апельбург <span style="color:#FFAAAA; font-size:12px">экспорт услуг доставки в разработке к версии 2.0</span></div>';
+		$html .= '<div class="edit_info"><input type="checkbox" name="delivery_apl" id="delivery_apl" '.(($usluga['delivery_apl']=="on")?'checked':'').'><label for="delivery_apl">услуга относится к доставке Апл</label><br>
+					<span class="greyText">(указать если услуга относится к доставке АПЛ и должна экспортироваться в карту курьера)</span>
+				</div>';
+		$html .= '</div>';
+
+		// плёнки
+		$html .= '<div class="separation_container">';
+		$html .= '<div class="name_input">Плёнки / клише </div>';
+		$html .= '<div class="edit_info"><input type="checkbox" name="show_status_film_photos" id="show_status_film_photos" '.(($usluga['show_status_film_photos']=="on")?'checked':'').'><label for="show_status_film_photos">Показать в полях услуги статусы плёнок</label><br>
+					<span class="greyText">(указать если к услуге необходимо указывать статусы плёнок)</span>
+				</div>';
 		$html .= '</div>';
 
 		// Цена исходящая
