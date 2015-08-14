@@ -354,7 +354,7 @@
 			$write_result = fwrite($fd,$file_content); //\r\n
 			fclose($fd);
 			
-			// создаем предзаказ
+			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
 			RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id);
 			
