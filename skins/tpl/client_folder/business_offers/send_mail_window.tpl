@@ -15,7 +15,9 @@
     <td class='fieldName'>Шаблон:</td>
     <td>
        <div class='mailSendWindow_tplBtn' type="empty" onclick="kpManager.setMessageTpl('empty');">Пустой бланк</div>
-       <div class='mailSendWindow_tplBtn' type="new_kp_new_client" onclick="kpManager.setMessageTpl('new_kp_new_client');">Новое КП / новый клиент</div><!--<div class='mailSendWindow_tplBtn' type="recalculation" onclick="kpManager.setMessageTpl('recalculation');">Перерасчет КП</div>
+       <div class='mailSendWindow_tplBtn' type="new_kp_new_client" onclick="kpManager.setMessageTpl('new_kp_new_client');">Новое КП / новый клиент</div>
+       <div class='mailSendWindow_tplBtn' type="order_performance" onclick="kpManager.setMessageTpl('order_performance');">Порядок выполнения заказа</div>
+       <!--<div class='mailSendWindow_tplBtn' type="recalculation" onclick="kpManager.setMessageTpl('recalculation');">Перерасчет КП</div>
        
        <div class='mailSendWindow_tplBtn' type="new_kp" onclick="kpManager.setMessageTpl('new_kp');">Новое КП / постоянный клиент</div>-->
     </td>
@@ -28,10 +30,10 @@
     <td class='fieldName'>Док-ты:</td>
     <td><input type="checkbox" name="attachedFile" id='attachedKpFileInput' value="" checked="checked"/><div id='attachedKpFile' class='attachedKpFileName'></div></td>
   </tr>
-  <tr>
+  <!--<tr>
     <td class='fieldName'></td>
     <td><input type="checkbox" name="attachedFile"  value="/os/skins/tpl/common/mail_files_to_attache/Apelburg_порядок_проведения_заказа.pdf"/><div class='attachedKpFileName'>Apelburg_порядок_проведения_заказа.pdf</div></td>
-  </tr>
+  </tr>-->
   <tr>
     <td class='fieldName'></td>
     <td><input type="checkbox" name="attachedFile"  value="/os/skins/tpl/common/mail_files_to_attache/Apelburg_презентация_компании.pdf"/><div class='attachedKpFileName'>Apelburg_презентация_компании.pdf</div></td>

@@ -554,6 +554,19 @@ class Client {
 		}
 		return $name;
 	}
+	static function get_whatever_client_name($id){
+	    // когда нужно имя компании и желательно чтобы оно было полным, но если нет полного тогда хотя бы краткое
+		global $mysqli;		
+
+		
+		$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			$row = $result->fetch_assoc();
+		    $name = (trim($row['comp_full_name'])!='')? $row['comp_full_name']:$row['company'];
+		}
+		return $name;
+	}
 
 	static function delete_for_manager($client_id,$manager_id){
 		global $mysqli;

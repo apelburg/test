@@ -259,7 +259,7 @@
 		   
 		   $rows = array();
 		 
-		   $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,
+		   $query = "SELECT list_tbl.recipient_id AS recipient_id , main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
 						  
@@ -284,6 +284,7 @@
 				   $multi_dim_arr[$row['main_id']]['art_id'] = $row['art_id'];
 				   $multi_dim_arr[$row['main_id']]['art'] = $row['art'];
 				   $multi_dim_arr[$row['main_id']]['name'] = $row['item_name'];
+				   $multi_dim_arr[$row['main_id']]['recipient_id'] = $row['recipient_id'];
 			   }
 			   //$multi_dim_arr[$row['main_id']]['uslugi_id'][] = $row['uslugi_id'];
 			   if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
@@ -687,7 +688,7 @@
 		   return $rt;	
 		   	
 	   }
-	    static function open_in_blank($kp_id,$client_id,$user_id,$save_on_disk = false){
+	    static function open_in_blank($kp_id,$client_id,$user_id,$show_logo = true,$save_on_disk = false){
 	        global $mysqli;
 			$stock = false;
 			$com_offer_descriptions = array();
@@ -697,15 +698,19 @@
 		   
 		    $cont_face_data_arr = get_client_cont_face_by_id($client_id,$user_id,true);
 		    $client_data_arr = select_all_client_data($client_id);
-			
+			 //
 			//print_r($cont_face_data_arr);
 			//exit;
 			$multi_dim_arr=self::fetch_kp_rows($kp_id);
-			//echo '<pre>';print_r($multi_dim_arr);echo '</pre>';
+			
+			// получаем данные о получателе КП, сначала вычисляем его id, потом передаем его в метод Client::get_cont_face_details($recipient_id);
+			$recipient_id = $multi_dim_arr[key($multi_dim_arr)]['recipient_id'];
+			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+			$cont_face_data = Client::get_cont_face_details($recipient_id);
 			
 			
 			/*************************************************************************/
-			$kp_content = '<div style="width:625px;background-color:#FFFFFF;"><div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><br>В компанию: '.$client_data_arr['comp_full_name'].'<br>Кому: '.$cont_face_data_arr['name'].'<br>Контакты: '.$cont_face_data_arr['phone'].'<br>'.$cont_face_data_arr['email'].'<br><br></div>
+			$kp_content = '<div style="width:625px;background-color:#FFFFFF;">'.(($show_logo)?'<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">':'').'<div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><br>В компанию: '.Client::get_client_name($client_id).'<br>Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</div>
 			<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center">Презентация</div>';
 			$kp_content .=  '<table width="625"  style="border:#CCCCCC solid 1px; border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">';
 			$tr_td = '<tr><td style="border:#CCCCCC solid 1px;" width="300" valign="middle" align="center">';

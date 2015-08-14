@@ -56,6 +56,15 @@ body{
   width:128px;
   margin:auto
 }
+.someABtn{
+  padding:7px 14px;
+  text-decoration:none; color:#777;border-radius: 4px;-moz-border-radius: 4px;-webkit-border-radius: 4px;border:#CCC solid 1px;cursor:pointer;
+  box-shadow:  0px 0px 1px 1px #EEE;
+  -moz-box-shadow:  0px 0px 1px 1px #EEE;
+  -webkit-box-shadow:  0px 0px 1px 1px #EEE;
+  background-image:url(../images/img_design/some_btn_bg.png)
+}
+.someBtn a{ }
 .alert_window_btn{
   float:left;
   padding:3px 0px 3px 0px;
