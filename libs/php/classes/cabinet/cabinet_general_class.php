@@ -118,8 +118,14 @@
 				case '4':					
 					$text = 'производство';// УСЛУГИ
 					echo $this->wrap_text_in_warning_message($text);
+					include_once 'cabinet_production_class.php';
+					// создаём экземпляр класса
+					$this->CLASS = new Cabinet_production_class($this->user_access);
+					// запускаем роутер шаблонов
+					$this->CLASS->__subsection_router__();
+					// получаем из класса формулировки для меню
+					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
-
 				case '5':
 					$text = 'менеджер';
 					echo $this->wrap_text_in_warning_message($text);
@@ -509,8 +515,10 @@
 			    for ($j=1; $j<=3; $j++) {
 			    	$checked = '';
 			    	foreach ($already_chosen_arr as $key => $id) {
-			    		if($suppliers_arr[$i]['id']==trim($id)){
-			    			$checked = 'class="checked"';
+			    		if(isset($suppliers_arr[$i]['id'])){
+				    		if($suppliers_arr[$i]['id']==trim($id)){
+				    			$checked = 'class="checked"';
+				    		}
 			    		}
 			    	}
 			    	$html .= (isset($suppliers_arr[$i]['nickName']))?'<td '.$checked.' data-id="'.$suppliers_arr[$i]['id'].'">'.$suppliers_arr[$i]['nickName']."</td>":"<td></td>";
@@ -541,7 +549,7 @@
 			             ";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			
-			echo '{"response":"OK","name":"chose_supplier_end"}';
+			echo '{"response":"OK","name":"chose_supplier_end", "function":"del_id_chose_supplier_id"}';
 		}
 
 		############################################

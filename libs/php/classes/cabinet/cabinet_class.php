@@ -10,11 +10,14 @@
 			'2' => 'Бухгалтерия',
 			'4' => 'Производство',
 			'5' => 'Менеджер',
-			'6' => 'Водитель',
+			'6' => 'Доставка',
 			'7' => 'Склад',
 			'8' => 'Снабжение',
 			'9' => 'Дизайнер' 
 		);
+
+		
+
 
     	////////////////////////////////////////////////////////////////////////////////////
     	// -- START -- СТАТУСЫ ПОДРАЗДЕЛЕНИЙ ПО ПОЗИЦИЯМ, ЗАКАЗУ И ПРЕДЗАКАЗУ -- START -- //
@@ -99,6 +102,39 @@
 				'question' => 'Вопрос'
 			);
 
+			// статусы плёнок для услуги
+			protected $status_film_photos = array(
+				// админ
+				1 => array(
+					'проверить наличие',
+					'нужно делать',
+					'в наличии',
+					'не требуются',
+					'готовы к отпраке',
+					'отправлены',
+					'получены'
+					),
+				// снабжениец
+				// 8 => array(),
+				// менеджер
+				5 => array(
+					'проверить наличие',
+					'в наличии',
+					'не требуются'
+					),
+				// дизайн
+				9 => array(
+					'готовы к отпраке',
+					'отправлены на фотовывод'
+					),
+				// производство 
+				4 => array(
+					'нужно делать',
+					'в наличии',
+					'получены'
+					)
+			); 
+
 
 
 			////////////////////////////////////////////////////////
@@ -150,7 +186,44 @@
 		/////////////////////////////////////////////////////////////////////////////////////
 		//	-----  START  ----- 	ДЕКОДЕРЫ СТАТУСОВ ПОДРАЗДЕЛЕНИЙ 	-----  START  -----
 		/////////////////////////////////////////////////////////////////////////////////////
+			// вывод статусов плёнок
+			protected function get_statuslist_film_photos($real_val,$cab_uslugi_id){
+				$html = '';
+				// флаг соответствия
+				$conformity_true = 0;
+				// если плёнки или клише не требуются то для всех кроме менеджеров и админов выводим неизменяемый статус
+				if($real_val == 'не требуются' && ($this->user_access != 5 && $this->user_access != 1)){ return '<span class="greyText">'.$real_val.'</span>';}
+				
 
+				// проверяем предусмотрена ли для пользователя возможность выставлять статусы
+				if(isset($this->status_film_photos[$this->user_access])){
+					$html .= '<select class="statuslist_film_photos" data-id="'.$cab_uslugi_id.'">';
+						$select_html = '';
+						foreach ($this->status_film_photos[$this->user_access] as $key => $value) {
+							if ($value == $real_val) {
+								$is_checked = 'selected="selected"';
+								$conformity_true = 1;
+							}else{
+								$is_checked = '';
+							}
+							
+							$select_html .= '<option value="'.$value.'" '.$is_checked.'>'.$value.'</option>';
+						}
+					// если соответствий в разрешённых для пользователя статусах так и не было найдено, добавляем в список возможность выбора того, что стояло до того
+					if(!$conformity_true){
+						$html .= '<option value="'.$real_val.'" selected="selected">'.$real_val.'</option>';
+					}
+					$html .= $select_html;
+					$html .= '</select>';
+				}else{
+					// узер без прав, просто транслируем тот статус который содержится в базе
+					$html .= $real_val;
+				}
+
+				// если $html всё ещё пуст, значит прав на выставление статуса у юзера нет и поле пустое
+				if(trim($html) == ""){$html="нет информации";}
+				return $html;
+			}
 			// вывод статусов склада с возможностью их редактирования (опционально по флагу $enable_selection)
 			protected function decoder_statuslist_sklad($real_val, $main_rows_id, $enable_selection = 0){
 				/*
@@ -342,7 +415,7 @@
 					foreach ($performer_status_arr as $key => $value) {
 						$html .= '<div class="otdel_status">';
 							$html .= '<div class="service_name">'.$value['service_name'].'</div>';
-							$html .= '<div class="performer_status">'.$this->get_statuslist_uslugi_Dtabase_Html($value['id'],$value['performer_status']).'</div>';
+							$html .= '<div class="performer_status">'.$this->get_statuslist_uslugi_Dtabase_Html($value['id'],$value['performer_status'],$value['id_dop_uslugi_row'],$value['performer']).'</div>';
 						$html .= '</div>';
 										
 					}
@@ -359,25 +432,52 @@
 			}
 
 			// выпадающий список статусов услуги
-			protected function get_statuslist_uslugi_Dtabase_Html($id,$real_val){
-							
-				// получаем id по которым будем выбирать статусы для услуги
-				$id_s = $this->get_id_parent_Database($id);
-				global $mysqli;
-				$html = '';
-				$html .= '<select><option value=""></option>';
-				$query = "SELECT * FROM `os__our_uslugi_status_list` WHERE `parent_id` IN (".$id_s.")";
-				//echo $query.'<br>';
-				$result = $mysqli->query($query) or die($mysqli->error);
-				if($result->num_rows > 0){			
-					while($row = $result->fetch_assoc()){
-						$is_checked = ($real_val==$row['name'])?'selected="selected"':'';
-						$html.= '<option value="'.$row['name'].'" '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
-					}
+			protected function get_statuslist_uslugi_Dtabase_Html($id,$real_val,$cab_dop_usl_id, $performer){
+				// $performer - подразделение (права доступа)
+				if(trim($real_val)!="" || $real_val == "in_processed"){// если есть статус - значит услуга запущена
+					// проверяем права доступа на редактирование статуса
+					if($this->user_access == $performer || $this->user_access==1){
+						// получаем id по которым будем выбирать статусы для услуги
+						$id_s = $this->get_id_parent_Database($id);
+						global $mysqli;
+						$html = '';
+						$html .= '<select class="get_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'"><option value=""></option>';
+						$query = "SELECT * FROM `".USLUGI_STATUS_LIST."` WHERE `parent_id` IN (".$id_s.")";
+						//echo $query.'<br>';
+						$result = $mysqli->query($query) or die($mysqli->error);
+						if($result->num_rows > 0){			
+							while($row = $result->fetch_assoc()){
+								$is_checked = ($real_val==$row['name'])?'selected="selected"':'';
+								$html.= '<option value="'.$row['name'].'" '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
+							}
+						
+						}
+						$html.= '</select>';	
+					}else{
+						$html = '<span class="greyText"  data-id="'.$cab_dop_usl_id.'">'.$real_val.'</span>';
+					}					
+					return $html;
 				
+				}else{// если статус отсутствует - услуга ещё не запущена
+					if($real_val=="in_processed"){
+						if($this->user_access == $performer){
+							$html = '<input type="button" value="Взять в работу" class="start_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'">';	
+						}else{
+							$html = 'ожидает обработки';
+						}
+						
+					}else{
+						// выводим кнопку запуска для всех кроме производства
+						if($this->user_access!=4){
+							$html = '<input type="button" value="Запуск" class="start_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'">';	
+						}else{
+							$html = 'ожидает запуска';
+						}
+					}
+					
+					
+					return $html;
 				}
-				$html.= '</select>';
-				return $html;
 			}
 
 			
@@ -397,7 +497,12 @@
 					$arr[] = $id;
 					$parent_id = $id;
 					while ($parent_id!=0) {
-						$parent_id = $this->Services_list_arr[$parent_id]['parent_id'];					
+						if(isset($this->Services_list_arr[$parent_id]['parent_id'])){
+							$parent_id = $this->Services_list_arr[$parent_id]['parent_id'];						
+						}else{
+							$parent_id = 0;
+						}
+						
 						if($parent_id!=0){
 							$arr[] = $parent_id;
 						}
@@ -430,13 +535,97 @@
 		/////////////////////////////////////////////////////////////
 		//	-----  START  -----  МЕТОДЫ AJAX  -----  START  -----  //
 		/////////////////////////////////////////////////////////////
+
+			// запуск услуг в работу
+			protected function start_services_in_processed_AJAX(){
+				global $mysqli;
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_status` =  'in_processed' ";
+				$query .= "WHERE  `id` ='".$_POST['id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK","function":"window_reload"}'; 	
+			}
+			// ТЗ для производства
+			protected function get_dialog_tz_for_production_AJAX(){
+				$html = '';
+				
+				global $mysqli;
+
+				$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `id` = '".(int)$_POST['row_id']."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$iputs_all_arr = array();
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$service = $row;
+					}
+				}
+
+				//////////////////////////
+				//	ДОП ПОЛЯ
+				//////////////////////////
+				// получаем список всех полей
+				$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."`";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$iputs_all_arr = array();
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$iputs_all_arr[$row['name_en']] = $row;
+					}
+				}
+
+
+				// получаем  json
+				$this->print_details_dop_Json = (trim($service['print_details_dop'])=="")?'{}':$service['print_details_dop'];
+				// декодируем json  в массив
+				$this->print_details_dop = json_decode($this->print_details_dop_Json, true);
+				
+				if(!isset($this->print_details_dop)){
+					$html .= "<div>произошла ошибка json</div>";
+				}
+				if(isset($this->print_details_dop) && !empty($this->print_details_dop)){
+					//echo  $service['print_details_dop'];
+					foreach ($this->print_details_dop as $key => $text) {
+						$html .= '<div class="separation_container">';
+							$html .= '<strong>'.$key.'</strong>:<br>';
+							$html .= '<div class="data_info">'.$text.'</div>';		
+						$html .= '</div>';					
+					}
+				}
+				//////////////////////////
+				//	текст TЗ 
+				//////////////////////////
+				$html .= '<div class="separation_container">';
+					$html .= '<strong>Техническое задание, пояснения:</strong><br>';
+					$html .= '<div class="data_info">'.$service['tz'].'</div>';
+				$html .= '</div>';
+				echo '{"response":"OK","html":"'.base64_encode($html).'","title":"ТЗ"}';
+			}
+
+			// смена статуса плёнок по услуге
+			protected function choose_statuslist_film_photos_AJAX(){
+				global $mysqli;
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `film_photos_status` =  '".$_POST['value']."' ";
+				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}';
+			}
+
+			// смена статуса услуги
+			protected function choose_service_status_AJAX(){
+				global $mysqli;
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_status` =  '".$_POST['value']."' ";
+				$query .= "WHERE  `id` ='".$_POST['id_row']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				// echo '{"response":"OK", "function":"php_message","text":"Статус услуги успешно изменён на ` '.$_POST['value'].' `"}';
+				echo '{"response":"OK"}';
+			}
+
 			// смена глобального статуса ЗАКАЗА
 			protected function choose_statuslist_order_and_paperwork_AJAX(){
 				global $mysqli;
 				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['value']."' ";
 				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
-				echo '{"response":"OK"}';
+				echo '{"response":"OK", "function":"window_reload"}';
 			}
 
 			// смена статуса бухгалтерии
@@ -704,7 +893,14 @@
 				$this->uslugi = $this->get_order_dop_uslugi($_POST['id_dop_data']); 
 				
 				if(count($this->uslugi)){ // если услуги прикреплены
+					/*
+					// делаем запрос по услугам в базу
+					// if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
+					// 	$this->Services_list_arr = $this->get_all_services_Database();
+					// }
+					*/
 
+					// собираем html форму
 					$html .= '<table id="services_listing"><tr>';
 					$html .= '<tr><th>Название услуги</th><th>Информация для зополнения</th></tr>';
 					$html .= '<td id="services_listing_each"><ul>';
@@ -713,7 +909,7 @@
 					$first_right_content = '';// контент по первой услуге
 					$n = 0; // порядковый номер
 					foreach ($this->uslugi as $usluga) {
-						$no_active = ($usluga['on_of']=='0')?' no_active':'';	
+						$no_active = ($usluga['on_of']=='0')?' no_active':'';	// услуга отключена / включена из выполнения в окне финансовой детализации
 						$this->Service = $usluga; // по сути строка из CAB_DOP_USLUGI			
 						$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').''.$no_active.'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
 						if($n == 0){
@@ -723,6 +919,8 @@
 						$n++;
 					}
 					$html .= '</ul></td>';
+					// про
+
 					// $html .= '<td id="content_dop_inputs_and_tz"><span class="title_dop_inputs_info">Выберите услугу</span></td>';
 					$html .= '<td id="content_dop_inputs_and_tz">'.$first_right_content.'</td>';
 
@@ -856,6 +1054,7 @@
 					while($row = $result->fetch_assoc()){
 						$this->iputs_id_Str = $row['uslugi_dop_inputs_id'];
 						$this->Service_logotip_on = $row['logotip_on'];
+						$this->Service_show_status_film_photos = $row['show_status_film_photos'];
 						// echo $row['logotip_on'];
 					}
 				}
@@ -973,6 +1172,14 @@
 				// подключаем поле логотип, если оно включено в админке или уже что-то содержит
 				if($this->Service['logotip']!='' || trim($this->Service_logotip_on)=="on"){
 					$html .='<div>Логотип<br><textarea class="save_logotip" name="logotip">'.$this->Service['logotip'].'</textarea></div>';
+				}
+
+				// подключаем поле плёнки, если оно включено в админке 
+				if(trim($this->Service_show_status_film_photos)=="on"){
+					$html .='<div>Плёнки<br>';
+					$html .= $this->get_statuslist_film_photos($this->Service['film_photos_status'],$this->Service['id']);
+					// $html .='<textarea class="save_logotip" name="logotip">'.$this->Service['logotip'].'</textarea>';
+					$html .='</div>';
 				}
 
 				$html .='<div>ТЗ <span class="greyText"> / (комментарий к услуге)</span><br><textarea class="save_tz" name="tz">'.$this->Service['tz'].'</textarea></div>';
@@ -1181,22 +1388,23 @@
 
 
 
-		// ГДЕ ОНА РАБОТАЕТ ????????/
-		// protected function show_cirilic_name_status_snab($status_snab){
-		// 	if(substr_count($status_snab, '_pause')){
-		// 		$status_snab = 'На паузе';
-		// 	}
-		// 	// echo '<pre>';
-		// 	// print_r($this->POSITION_NO_CATALOG->status_snab);
-		// 	// echo '</pre>';
+		// преобразует статус снабжения в читабельный вид
+		protected function show_cirilic_name_status_snab($status_snab){
+			if(substr_count($status_snab, '_pause')){
+				$status_snab = 'На паузе';
+			}
+
+			// echo '<pre>';
+			// print_r($this->POSITION_NO_CATALOG->status_snab);
+			// echo '</pre>';
 						
-		// 	if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
-		// 		$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
-		// 	}else{
-		// 		$status_snab;
-		// 	}
-		// 	return $status_snab;
-		// }
+			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
+				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
+			}else{
+				$status_snab;
+			}
+			return $status_snab;
+		}
 
 
 
@@ -1345,11 +1553,14 @@
 
 
 					$er = $this->performer[ $row['performer']];
-					//echo '<br><br>* '.$er.' *<br><br>';
+					// echo $row['performer'].'<br>';
+					// echo '<br><br>* '.$er.' *<br><br>';
 					$this->Position_status_list[  $er  ][] = array(
 						'performer_status' => $row['performer_status'], 
 						'service_name' => $row['name'],
-						'id' => $row['uslugi_id']
+						'id' => $row['uslugi_id'],
+						'performer' => $row['performer'],
+						'id_dop_uslugi_row' => $row['id']
 						);
 				}
 			}
@@ -1454,7 +1665,7 @@
 		}
 
 		// получаем имя сотрудника по id, если он указан
-		protected 	function get_name_employee_Database_Html($id){
+		protected 	function get_name_employee_Database_Html($id,$no_edit=0){
 			if(isset($id) && trim($id)!=''){
 			    global $mysqli;
 			    $String = '<span'.(($no_edit==0)?' class="attach_the_manager add"':' class="dop_grey_small_info"').' data-id="0">Прикрепить менеджера</span>';

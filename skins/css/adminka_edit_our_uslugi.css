@@ -156,3 +156,8 @@ table#tbl_edit_usl{
 .hidden_form_input{
 	display: none
 }
+
+.greyText{
+	color: #6d6e72;
+	font-size: 10px;
+}

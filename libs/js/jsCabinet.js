@@ -565,6 +565,37 @@ function show_dialog_and_send_POST_window(html,title,height,width){
 
 }
 
+
+// простое диалоговое окно с кнопкой закрыть
+function show_simple_dialog_window(html,title,height,width){
+	height_window = height || 'auto';
+	width = width || '1000';
+	title = title || '*** Название окна ***';
+	var buttons = new Array();
+	buttons.push({
+	    text: 'Закрыть',
+	    click: function() {
+			// подчищаем за собой
+			$('#dialog_gen_window_form').html('');
+			$('#dialog_gen_window_form').dialog( "destroy" );
+	    }
+	});
+
+	if($('#dialog_gen_window_form').length==0){
+		$('body').append('<div id="dialog_gen_window_form"></div>');
+	}
+
+	$('#dialog_gen_window_form').html(html);
+	$('#dialog_gen_window_form').dialog({
+          width: width,
+          height: height_window,
+          modal: true,
+          title : title,
+          autoOpen : true,
+          buttons: buttons          
+        });
+}
+
 // показать окно № 2  
 // используется в случае, когда нужно 2 одновременно открытых окна
 function show_dialog_and_send_POST_window_2(html,title,height,width){
@@ -714,6 +745,11 @@ function replace_query_row_obj(obj){
 	},'json');
 }
 
+
+
+function del_id_chose_supplier_id(data){
+	$('#chose_supplier_id').removeAttr('id');
+}
 //////////////////////////
 //	НАЗНАЧЕНИЕ ПОСТАВЩИКА 	
 //////////////////////////
@@ -789,6 +825,21 @@ $(document).on('click', '.dop_teh_info', function(event) {
 		}
 	},'json');
 });
+
+// редактирование статуса пленки / клише
+$(document).on('change', '.statuslist_film_photos', function(event) {
+	var row_id = $(this).attr('data-id');
+	var value = $(this).val();
+	$.post('', {
+		AJAX:'choose_statuslist_film_photos',
+		value:value,
+		row_id:row_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+	/* Act on the event */
+});
+
 
 // редактирование/ЗАПОЛНЕНИЕ dop_inputs
 $(document).on('click', '#services_listing_each .lili', function(event) {
@@ -1228,4 +1279,62 @@ $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', functio
 
 	$('#dialog_gen_window_form form input[name="service_name"]').val(service_name);
 	// $('#dialog_gen_window_form form input[name="dop_row_id"]').val(dop_row_id);
+});
+
+// обработчик изменения статуса услуги
+$(document).on('change', '.get_statuslist_uslugi', function(event) {
+	var id_row = $(this).attr('data-id');
+	var value = $(this).val();
+	$.post('', {
+		AJAX: 'choose_service_status',
+		id_row: id_row,
+		value:value 
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+////////////////////////////////////////////////
+//	функции вызываемые из PHP  --- start ---  //
+////////////////////////////////////////////////
+
+// вывод сообщения из PHP
+function php_message(data){
+	alert(data.text);
+}
+// перезагрузка окна
+function window_reload(data) {
+	location.reload();
+}
+
+
+//////////////////////////
+//	ПР-ВО
+//////////////////////////
+$(document).on('click', '.show_dialog_tz_for_production', function(event) {
+	$.post('', {
+		AJAX: 'get_dialog_tz_for_production',
+		row_id:$(this).attr('data-id')
+	}, function(data, textStatus, xhr) {
+		if(data['response']=="OK"){
+			title = data['title'];// для генерации окна всегда должен передаваться title
+			show_simple_dialog_window(Base64.decode(data['html']),title);
+		}else{
+			alert('Упс. Что-то пошло не так...');
+		}
+	},'json');
+});
+
+
+//////////////////////////
+//	запуск услуги в работу 
+//////////////////////////
+$(document).on('click', '.start_statuslist_uslugi', function(event) {
+	var id = $(this).attr('data-id');
+	$.post('', {
+		AJAX: 'start_services_in_processed',
+		id:id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
 });
