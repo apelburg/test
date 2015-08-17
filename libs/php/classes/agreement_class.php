@@ -424,7 +424,7 @@
 				}
 				if(isset($idsArr)){
 					$query = "SELECT * FROM `".BASE__CALCULATORS_Y_PRICE_PARAMS."` WHERE id IN('".implode("','",$idsArr)."') ORDER BY percentage";
-					echo $query;
+					// echo $query;
 					$result = $mysqli->query($query)or die($mysqli->error);
 					if($result->num_rows > 0){
 					    $row = $result->fetch_assoc();
@@ -433,7 +433,7 @@
 						$result->data_seek(0);
 						while($row = $result->fetch_assoc()) {
 						   //$tail = ($target==$row['price'])?'%':'руб.';
-						   echo '<pre>'; print_r($row); echo '</pre>';
+						   //echo '<pre>'; print_r($row); echo '</pre>';
 						   $tail = ($row['percentage']>1)?' - увелич. на '.$row['percentage'].'%':'';
 						   $out_put[] = $prefix.$row['value'].$tail;
 						   $prefix='';

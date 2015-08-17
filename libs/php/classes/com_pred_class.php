@@ -66,6 +66,10 @@
 										   $result = $mysqli->query($query)or die($mysqli->error);
 									   }
 						           }
+								   if($row_dop2['glob_type']=='extra' && ($row_dop2['quantity']!=$row_dop1['quantity'])){
+									   $query="UPDATE `".RT_DOP_USLUGI."` SET  `quantity` = '".$row_dop1['quantity']."'  WHERE `id` = '".$row_dop2['id']."'";
+									   $result = $mysqli->query($query)or die($mysqli->error);
+						           }
 							  }
 						 }
 			        }
@@ -86,6 +90,7 @@
 				   $query2="INSERT INTO `".KP_MAIN_ROWS."` 
 							   SET 
 							   `kp_id` = '".$kp_id."',
+							   `sort` = '".$row['sort']."',
 							   `art` = '".$row['art']."',
 							   `type` = '".$row['type']."',
 							   `art_id` = '".$row['art_id']."',
@@ -127,12 +132,16 @@
 							       $query6="INSERT INTO `".KP_DOP_USLUGI."` 
 										    SET 
 										   `dop_row_id` = '".$dop_row_id."',
+										   `uslugi_id` = '".$row5['uslugi_id']."',
 										   `glob_type` = '".$row5['glob_type']."',
 										   `type` = '".$row5['type']."',
 										   `quantity` = '".$row5['quantity']."',
 										   `price_in` = '".$row5['price_in']."',
-										   `price_out` = '".$row5['price_out']."'
+										   `price_out` = '".$row5['price_out']."',
+										   `for_how` = '".$row5['for_how']."',
+										   `print_details` = '".$row5['print_details']."' 
 										   ";
+										   
 							       $result6 = $mysqli->query($query6)or die($mysqli->error);
 							   }
 						   }			  
@@ -263,9 +272,9 @@
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
 						  
-						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
-		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out
-		          FROM 
+						  dop_uslugi_tbl.id AS uslugi_id ,dop_uslugi_tbl.uslugi_id AS dop_usluga_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
+		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.for_how AS for_how, dop_uslugi_tbl.print_details AS print_details
+		          FROM
 		          `".KP_LIST."`  list_tbl 
 				  LEFT JOIN  
 		          `".KP_MAIN_ROWS."`  main_tbl  ON  list_tbl.id = main_tbl.kp_id
@@ -273,7 +282,7 @@
 				  `".KP_DOP_DATA."`   dop_data_tbl   ON  main_tbl.id = dop_data_tbl.row_id
 				  LEFT JOIN 
 				  `".KP_DOP_USLUGI."` dop_uslugi_tbl ON  dop_data_tbl.id = dop_uslugi_tbl.dop_row_id
-		          WHERE list_tbl.id ='".$kp_id."' ORDER BY main_tbl.id";
+		          WHERE list_tbl.id ='".$kp_id."' ORDER BY main_tbl.sort";
 				  
 		   $result = $mysqli->query($query) or die($mysqli->error);
 		   $multi_dim_arr = array();
@@ -302,10 +311,12 @@
 			if(isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) && !empty($row['uslugi_id'])){
 			    $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['dop_uslugi'][$row['uslugi_t_glob_type']][$row['uslugi_id']] = array(
 																									'type' => $row['uslugi_t_type'],
+																									'usluga_id' => $row['dop_usluga_id'],
 																									'quantity' => $row['uslugi_t_quantity'],
 																									'price_in' => $row['uslugi_t_price_in'],
 																									'price_out' => $row['uslugi_t_price_out'],
-																									'uslugi_id' => $row['uslugi_id']
+																									'for_how' => $row['for_how'],
+																									'print_details' => $row['print_details']
 																									);
 			}
 		   
@@ -716,10 +727,14 @@
 			$tr_td = '<tr><td style="border:#CCCCCC solid 1px;" width="300" valign="middle" align="center">';
 			$td_tr = '</td></tr>';
 			$td_td = '</td><td style="border:#CCCCCC solid 1px;padding:6px;" width="325" valign="top">';
+			//
+			echo '<pre>'; print_r($multi_dim_arr); echo '</pre>';
+			
 			
 			/********************   ++++++++++++++  *********************/
+			$itogo=0;
+			$itogo_dop_uslugi=0;
 			// Разворачиваем массив 
-			// 1. уровень позиции
 			foreach($multi_dim_arr as $pos_key => $pos_level){
 			   
 				// Работаем с первой ячейкой ряда таблицы
@@ -775,34 +790,45 @@
 				
 				
 				
-				
-				
-				// 2. уровень расчетов
-				// на этом уровне идет постороение рядов HTML таблицы 
+			
+				// расчет стоимости
 				foreach($pos_level['dop_data'] as $r_key => $r_level){ //$r_ - сокращение обозначающее - уровень Расчёта позиции
 					
 					// количество
-					$quantity = $r_level['quantity'];
+					// чтобы в дальнейшем не было проблем с делением преобразуем $quantity в 1 если оно равно 0
+					$quantity = ($r_level['quantity']==0)? 1 :$r_level['quantity'];
 					// стоимость
-					$r_level['discount'] = 1;
-					$price = ($r_level['discount'] == 0)? $r_level['price_out'] : $r_level['price_out']*$r_level['discount'];
+					$price = ($r_level['discount'] != 0 )? round(($r_level['price_out']/100)*(100 + $r_level['discount']),2) :  $r_level['price_out'] ;
+					
 					$summ = $quantity*$price;
+					$itogo+=$summ;
+			
 				
 				    // 3. уровень нанесения логотипа
-				    // на этом уровне идет постороение рядов HTML таблицы 
-					$counter = 0;
+				    $all_print_summ = 0;
+					$all_extra_summ = 0;
+					$counter_print = 0;
+					$counter_extra = 0;
+					
 					if(isset($r_level['dop_uslugi']['print'])){
 						foreach($r_level['dop_uslugi']['print'] as $u_key => $u_level){
 						
 							     // наименование нанесения
 								 // форматируем вывод, разбиваем строки на куски определенной длины и вставляем перед каждым отступ
 								 $str_len = 38;
-								 $print_description = $u_level['type'];
+								 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+								 $print_description = Agreement::convert_print($u_level['print_details']);
+								 $print_description = $print_description;
 								 $print_description = nl2br($print_description);
 								 $print_description = iconv("UTF-8","windows-1251//TRANSLIT", $print_description);
 								 if(strpos($print_description,'<br>') == true) $print_description = str_replace('<br>','<br />',$print_description);
 								 $print_description_arr = explode('<br />',$print_description);
-								 $new_line = '<br />{##}';
+								 
+								 $space_str['short'] = '&nbsp;&nbsp;&nbsp;';
+								 $space_str['long']  = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+								 $section_space  = (count($r_level['dop_uslugi']['print'])>1)?  $space_str['long']:$space_str['short'];
+								 
+								 $new_line = '<br />'.$section_space;
 								 foreach($print_description_arr as $key => $piece){
 									 if(strlen($piece) > $str_len){  
 										 $piece = wordwrap($piece,$str_len,$new_line);
@@ -814,30 +840,52 @@
 								 $print_description = implode($new_line,$print_description_arr);
 								 $print_description = iconv("windows-1251","UTF-8//TRANSLIT", $print_description);
 								 
-				                 $space_str['short'] = '&nbsp;&nbsp;&nbsp;';
-								 $space_str['long']  = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-								 $section_space  = (count($r_level['dop_uslugi']['print'])>1)?  $space_str['long']:$space_str['short'];
+				                
 								 
 								 // количество
 								 $print_quantity = $u_level['quantity'];
-								 $quantity_for_division = ($quantity == 0)? 1: $quantity;
+								 // $quantity_for_division = ($quantity == 0)? 1: $quantity; - это для определения количества на которое надо делить нанесение потому что допускалось разное количество для товара и нанесения
 								 // стоимость
 								 //$print_price = ($u_level['discount'] == 0)? $u_level['price_out'] : $u_level['price_out'] + $u_level['price_out']/100*$u_level['discount'];
 								 $print_price = $u_level['price_out'];
 								 $print_summ  = $print_quantity*$print_price;
+								 $all_print_summ  += $print_summ;
+								 $itogo_dop_uslugi+= $print_summ;
 								 
 								 $print_description .= '<br />'.$section_space.'Тираж: '.$print_quantity.' шт.<br />
 				                                              '.$section_space.'1шт.: '.number_format($print_price,2,'.',' ').'руб. / тираж: <nobr>'.number_format($print_summ,2,'.',' ').'руб.</nobr><br />';
 								 
 								 
-                                 $mark = (count($r_level['dop_uslugi']['print'])>1)? ++$counter.'. ' :'';                   
+                                 $mark = (count($r_level['dop_uslugi']['print'])>1)? ++$counter_print.'. ' :'';                   
 							     $print_details[] =  $space_str['short'].$mark.$print_description;
-								 $pos_and_print_cost[] = $space_str['short'].'<span style="color:#00B050;font-weight:bold;">'.$mark.'1шт. : '.number_format(($summ+$print_summ)/$quantity_for_division,2,'.',' ').' руб. / тираж: <nobr>'.number_format(($summ+$print_summ),2,'.',' ').'руб.</nobr></span><br />';
-		
-							
-							
 						}
 					}
+					if(isset($r_level['dop_uslugi']['extra'])){
+						foreach($r_level['dop_uslugi']['extra'] as $u_key => $u_level){
+						     // количество
+							 $extra_quantity = $u_level['quantity'];
+							 // стоимость
+							 $extra_price = $u_level['price_out'];
+							 $extra_summ  = ($u_level['for_how']=='for_all')? $extra_price: $extra_quantity*$extra_price;
+							 $all_extra_summ  += $extra_summ;
+							 $itogo_dop_uslugi+= $extra_summ;
+							 
+							 $extra_usluga_details = self::get_usluga_details($u_level['usluga_id']);
+							 $extra_description = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
+							 //$extra_description .= '<br />'.$section_space.'Тираж: '.$print_quantity.' шт.<br />'.$section_space.'1шт.: '.number_format($extra_price,2,'.',' ').'руб. / тираж: <nobr>'.number_format($extra_summ,2,'.',' ').'руб.</nobr><br />';
+							 if($u_level['for_how']=='for_all'){
+							     $extra_description .= /*$section_space.*/' - <nobr>'.number_format($extra_summ,2,'.',' ').'руб.</nobr><br />';
+							 }
+							 else{
+							     $extra_description .= /*$section_space.*/' - за 1шт.: '.number_format($extra_price,2,'.',' ').'руб. / всего: <nobr>'.number_format($extra_summ,2,'.',' ').'руб.</nobr><br />';
+							 } 
+							 
+							 $mark = (count($r_level['dop_uslugi']['extra'])>1)? ++$counter_extra.'. ' :'';                   
+							 $extra_details[] =  $space_str['short'].$mark.$extra_description;
+						}
+					}
+					
+					
 				    // собираем содержимое ячейки
 					$description_cell = '<b>Сувенир:</b><br />
 					&nbsp;&nbsp;&nbsp;'.$pos_name.'<br />
@@ -847,26 +895,70 @@
 					if(isset($print_details)){
 					    $description_cell .= '<b>Лого:</b><br />';
 						$description_cell .= implode('<br />',$print_details);
-					    $description_cell .= '<br /><b>Стоимость сувенира + лого:</b><br />';
-						$description_cell .= implode('<br />',$pos_and_print_cost);
+					   
 				    }
+					if(isset($extra_details)){
+					    $description_cell .= '<b>Доп услуги:</b><br />';
+						$description_cell .= implode('<br />',$extra_details);
+					}
+					
+				    $description_cell .= '<br /><b>Стоимость сувенира';
+					if(isset($print_details)) $description_cell .= ' + лого';
+					if(isset($extra_details)) $description_cell .= ' + Доп услуги';
+					$description_cell .= ':</b><br />';	
+					
+				    $description_cell .= '<span style="color:#00B050;font-weight:bold;">1шт. : '.number_format(($summ+$all_print_summ+$all_extra_summ)/$quantity,2,'.',' ').' руб. / тираж: <nobr>'.number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'руб.</nobr></span><br />';
 					
 					$tbl_rows[] = $tr_td.$img_cell.$td_td.$description_cell.$td_tr;
 					$description_cell = $print_description ='';
 					unset($print_details);
+					unset($extra_details);
 					unset($pos_and_print_cost);
 				}
 			}
 		    /********************   ++++++++++++++  *********************/
 			
 			
-			$kp_content .= implode('',$tbl_rows).'</table>
-		   <div style="text-align:right;font-family:verdana;font-size:12px;line-height:20px;"><br>'.convert_bb_tags(mysql_result(select_manager_data($user_id),0,'mail_signature')).'<br><br><br></div></div>';
+			$kp_content .= implode('',$tbl_rows).'</table>';
+			
+			
+			if($itogo != 0){
+		
+				 $full_itog = $itogo + $itogo_dop_uslugi;
+				 $kp_content .= '<div>
+				 <table align="right" style="margin:15px 20px 10px 0;" border="0">
+					 <tr>
+						 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
+					 </tr>
+					 <tr>
+						 <td align="right" height="30" valign="top">Общая стоимость нанесения:</td><td align="right" valign="top">'.number_format($itogo_dop_uslugi,2,',',' ').'руб.</td>
+					 </tr>
+					 <tr style="font-family:verdana;font-size:14px;font-weight:bold;">
+						 <td align="right" valign="top">Итоговая сумма:</td><td align="right" valign="top" style="white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
+					 </tr>
+				 </table>
+				 <div style="clear:both;"></div>
+				 </div>';
+			}
+			
+			
+		   $kp_content .= '<div style="text-align:right;font-family:verdana;font-size:12px;line-height:20px;"><br>'.convert_bb_tags(mysql_result(select_manager_data($user_id),0,'mail_signature')).'<br><br><br></div></div>';
 		   
 		   
 		   return $kp_content;
 			
-	   }		
+	   }
+	   static function get_usluga_details($usluga_id){
+	        global $mysqli;
+			
+			$query="SELECT name FROM `".OUR_USLUGI_LIST."` WHERE id = '".$usluga_id."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+		    if($result->num_rows>0){
+			   $row=$result->fetch_assoc();
+			   return $row;
+			}
+			return false;
+	   }	
 	   static function open_in_blank_old($kp_id,$client_id,$user_id,$save_on_disk = false){
 	        global $mysqli;
 			$stock = false;

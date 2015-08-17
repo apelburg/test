@@ -32,7 +32,7 @@
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel, dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
 						  
 						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
-		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out
+		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.for_how AS uslugi_t_for_how
 		          FROM 
 		          `".RT_MAIN_ROWS."`  main_tbl 
 				  LEFT JOIN 
@@ -76,6 +76,7 @@
 																									'quantity' => $row['uslugi_t_quantity'],
 																									'price_in' => $row['uslugi_t_price_in'],
 																									'price_out' => $row['uslugi_t_price_out'],
+																									'for_how' => $row['uslugi_t_for_how'],
 																									'uslugi_id' => $row['uslugi_id']
 																									);
 			}
@@ -202,8 +203,8 @@
 				 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
 					 $summ_in = $summ_out = array();
 					 foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
-						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
-						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
+						 $summ_in[] = ($extra_data['for_how']=='for_all')? $extra_data['price_in']:$extra_data['quantity']*$extra_data['price_in'];
+						 $summ_out[] = ($extra_data['for_how']=='for_all')? $extra_data['price_out']:$extra_data['quantity']*$extra_data['price_out'];
 					 }
 					 $dop_uslugi_btn =  '<span>'.count($dop_row['dop_uslugi']['extra']).'</span>';
 					 $dop_uslugi_in_summ = array_sum($summ_in);
