@@ -1,12 +1,12 @@
 <?php
 
-	class Cabinet_production_class extends Cabinet{
+	class Cabinet_designer_class extends Cabinet{
 
 		// id начальника отдела производство
 		private $director_of_operations_ID = 42;
 
 		// допуски группы пользователей
-		private $group_access = 4;
+		private $group_access = 9;
 
 		// полльхзователи (работники) производства
 		private $userlist;
@@ -103,23 +103,13 @@
 				<table id="general_panel_orders_tbl">
 				<tr>
 					<th colspan="3">Артикул/номенклатура/печать</th>
-					<th>М</th>
-					<th>операции</th>
-					<th>тираж</th>
-					<th>запас</th>
-					<th>цвета</th>
-					<th>логотип нанесения</th>
-					<th>пплёнки/клише</th>
-					<th>статус товара</th>
-					<th>дата сдачи</th>
-					<th>дата работы</th>
-					<th>дмастер</th>
-					<th>статус операции</th>
-					<th>% гот-ти</th>
-					<th>статус позиции</th>
+					<th>Техническое задание</th>
+					<th>Подрядчик печати</th>
+					<th>Дата сдачи<br>макета</th>
+					<th>Дата утв.<br>макета</th>
+					<th>статус</th>
 				</tr>
 			';
-
 			global $mysqli;
 
 			$query = "SELECT 
@@ -177,7 +167,7 @@
 					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">
 											<span class="cabinett_row_hide_orders"></span>
 										</td>';
-					$table_order_row .= '<td colspan="10" class="orders_info">
+					$table_order_row .= '<td colspan="1" class="orders_info">
 										<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
 										'.$this->get_client_name_link_Database($this->Order['client_id']).'
 										<span class="greyText">,&nbsp;&nbsp;&nbsp;   менеджер: '.$this->get_manager_name_Database_Html($this->Order['manager_id'],1).'</span>

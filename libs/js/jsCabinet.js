@@ -225,6 +225,9 @@ function standard_response_handler(data){
 	if(data['response'] != "OK"){ // вывод при ошибке
 		console.log(data);
 	}
+	if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
+		alert(data['error']);
+	}
 }
 
 // редактирование срока по ДС
@@ -1292,6 +1295,7 @@ $(document).on('change', '.get_statuslist_uslugi', function(event) {
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
 	},'json');
+	check_loading_ajax();
 });
 
 ////////////////////////////////////////////////
@@ -1338,3 +1342,123 @@ $(document).on('click', '.start_statuslist_uslugi', function(event) {
 		standard_response_handler(data);
 	},'json');
 });
+
+
+// выставление даты работы над услугой
+// дата сдачи заказа
+jQuery(document).ready(function($) {
+	$('.show_backlight .calendar_date_work').datetimepicker({
+		minDate:new Date(),
+		// disabledDates:['07.05.2015'],
+		timepicker:false,
+	 	dayOfWeekStart: 1,
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		closeOnDateSelect:true,
+		onChangeDateTime: function(dp,$input){// событие выбора даты
+			// получение данных для отправки на сервер
+			var row_id = $input.attr('data-id');
+			var date = $input.val();
+
+			//alert($input.attr('class'));
+			$.post('', {
+				AJAX: 'change_date_work_of_service',
+				row_id: row_id,
+				date: date
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			},'json');
+			check_loading_ajax();
+		},
+	 	format:'d.m.Y',	 	
+	});
+});
+
+// взять в работу услугу
+$(document).on('click', '.get_in_work_service', function(event) {
+	// сохраняем ID строки
+	var row_id = $(this).attr('data-service_id');
+	// id пользователя, взяшего услугу в работу
+	var user_id = $(this).attr('data_user_ID');
+
+	// меняем html
+	$(this).replaceWith('<span data-id="'+user_id+'">'+$(this).attr('data-user_name')+'</span>');
+	
+
+	$.post('', {
+		AJAX: 'get_in_work_service',
+		row_id:row_id,
+		user_id:user_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+	check_loading_ajax();
+});
+
+// назначить исполнителя услуги
+$(document).on('change', '.production_userlist', function(event) {
+	var row_id = $(this).attr('data-row_id');
+	var user_id = $(this).val();
+	$.post('', {
+		AJAX: 'get_in_work_service',
+		row_id:row_id,
+		user_id:user_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+	check_loading_ajax();
+});
+
+//////////////////////////////////////////
+//	меняем % готовности услуги --- start
+//////////////////////////////////////////
+$(document).on('keyup', '.percentage_of_readiness', function(event) {
+	 timing_save_input('change_percentage_of_readiness',$(this))
+});
+function change_percentage_of_readiness(obj){// на вход принимает object input
+    var row_id = obj.attr('data-service_id');
+    $.post('', {
+        AJAX:'change_percentage_of_readiness',
+        row_id:row_id,
+        value:obj.html()
+    }, function(data, textStatus, xhr) {
+    	standard_response_handler(data);
+        if(data['response']=="OK"){
+            // php возвращает json в виде {"response":"OK"}
+            // если ответ OK - снимаем класс saved
+            obj.removeClass('saved');
+        }else{
+            console.log('Данные не были сохранены.');
+        }
+    },'json');
+}
+function timing_save_input(fancName,obj){
+    //если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
+    if(!obj.hasClass('saved')){
+        window[fancName](obj);
+        obj.addClass('saved');                  
+    }else{// стоит запрет, проверяем очередь по сейву данной функции        
+        if(obj.hasClass(fancName)){ //стоит в очереди на сохранение
+            // стоит очередь, значит мимо... всё и так сохранится
+        }else{
+            // не стоит в очереди, значит ставим
+            obj.addClass(fancName);
+            // вызываем эту же функцию через n времени всех очередей
+            var time = 2000;
+            $('.'+fancName).each(function(index, el) {
+                console.log($(this).html());
+                
+                setTimeout(function(){timing_save_input(fancName,$('.'+fancName).eq(index));// обнуляем очередь
+        if(obj.hasClass(fancName)){obj.removeClass(fancName);}}, time); 
+            });         
+        }       
+    }
+}
+
+//////////////////////////////////////////
+//	меняем % готовности услуги --- end
+//////////////////////////////////////////
+	

@@ -118,6 +118,7 @@
 				case '4':					
 					$text = 'производство';// УСЛУГИ
 					echo $this->wrap_text_in_warning_message($text);
+					
 					include_once 'cabinet_production_class.php';
 					// создаём экземпляр класса
 					$this->CLASS = new Cabinet_production_class($this->user_access);
@@ -172,6 +173,14 @@
 				case '9':
 					$text = 'дизайнер';// УСЛУГИ
 					echo $this->wrap_text_in_warning_message($text);
+
+					include_once 'cabinet_designers_class.php';
+					// создаём экземпляр класса
+					$this->CLASS = new Cabinet_designer_class($this->user_access);
+					// запускаем роутер шаблонов
+					$this->CLASS->__subsection_router__();
+					// получаем из класса формулировки для меню
+					$this->menu_name_arr = $this->CLASS->menu_name_arr;
 					break;
 
 				default:					

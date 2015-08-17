@@ -393,8 +393,6 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'in_work' => array('access'=>true),
-													'paused' => array('access'=>true),
 													'all' => array('access'=>true)
 													)
 												)
