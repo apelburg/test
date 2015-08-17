@@ -512,7 +512,7 @@
 			//print_r($out);
 			echo (isset($out))? json_encode($out):'';
 		}
-		static function change_quantity_and_calculators($quantity,$dop_data_id){
+		static function change_quantity_and_calculators($quantity,$dop_data_id,$print,$extra){
 		    global $mysqli;  
 			$itog_sums = array("summ_in"=>0,"summ_out"=>0);
 			

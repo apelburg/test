@@ -31,7 +31,7 @@
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel, dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
 						  
-						  dop_uslugi_tbl.id AS uslugi_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
+						  dop_uslugi_tbl.id AS uslgi_t_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.for_how AS uslugi_t_for_how
 		          FROM 
 		          `".RT_MAIN_ROWS."`  main_tbl 
@@ -57,7 +57,7 @@
 				     $multi_dim_arr[$row['main_id']]['dop_details'] = $data;
 				 }
 			 }
-			 //$multi_dim_arr[$row['main_id']]['uslugi_id'][] = $row['uslugi_id'];
+			 //$multi_dim_arr[$row['main_id']]['uslgi_t_id'][] = $row['uslgi_t_id'];
 			 if(isset($multi_dim_arr[$row['main_id']]) && !isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) &&!empty($row['dop_data_id'])){
 			     $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']] = array(
 																	'expel' => $row['expel'],
@@ -70,14 +70,14 @@
 																	'price_in' => $row['dop_t_price_in'],
 																	'price_out' => $row['dop_t_price_out']);
 		    }
-			if(isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) && !empty($row['uslugi_id'])){
-			    $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['dop_uslugi'][$row['uslugi_t_glob_type']][$row['uslugi_id']] = array(
+			if(isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) && !empty($row['uslgi_t_id'])){
+			    $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['dop_uslugi'][$row['uslugi_t_glob_type']][$row['uslgi_t_id']] = array(
 																									'type' => $row['uslugi_t_type'],
+																									'id' => $row['uslgi_t_id'],
 																									'quantity' => $row['uslugi_t_quantity'],
 																									'price_in' => $row['uslugi_t_price_in'],
 																									'price_out' => $row['uslugi_t_price_out'],
-																									'for_how' => $row['uslugi_t_for_how'],
-																									'uslugi_id' => $row['uslugi_id']
+																									'for_how' => $row['uslugi_t_for_how']	
 																									);
 			}
 			
@@ -203,15 +203,26 @@
 				 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
 					 $summ_in = $summ_out = array();
 					 foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
+					     // если количество в расчете доп услуг не равно количеству в колонке тираж товара 
+						 // необходимо присвоить доп услугам такое же количество
+						
+					     if($extra_data['quantity']!=$dop_row['quantity']){
+						     
+						     $query="UPDATE `".RT_DOP_USLUGI."` SET  `quantity` = '".$dop_row['quantity']."'  WHERE `id` = '".$extra_data['id']."'";
+						     $mysqli->query($query)or die($mysqli->error);
+							 $extra_data['quantity']=$dop_row['quantity'];
+					     }
 						 $summ_in[] = ($extra_data['for_how']=='for_all')? $extra_data['price_in']:$extra_data['quantity']*$extra_data['price_in'];
 						 $summ_out[] = ($extra_data['for_how']=='for_all')? $extra_data['price_out']:$extra_data['quantity']*$extra_data['price_out'];
 					 }
 					 $dop_uslugi_btn =  '<span>'.count($dop_row['dop_uslugi']['extra']).'</span>';
+					 $extra_exists_flag = 'extra_exists_flag="1"';
 					 $dop_uslugi_in_summ = array_sum($summ_in);
 					 $dop_uslugi_out_summ = array_sum($summ_out);
 					 if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);
 				 }
 				 else{// если данных по дополнительным услугам  нет выводим кнопку добавление дополнительных услуг
+				     $extra_exists_flag = '';
 					 $dop_uslugi_in_summ = 0;
 					 $dop_uslugi_out_summ = 0;
 					 $dop_uslugi_btn = '<span>+</span>';
@@ -283,7 +294,7 @@
 				 $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_out = $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
-				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $srock_sdachi = $print_exists_flag ='';
+				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $srock_sdachi = $print_exists_flag = $extra_exists_flag = '';
 				 
 				  
 			 }
@@ -352,7 +363,7 @@
                            <td type="print_exists_flag" class="hidden">'.$print_exists_flag.'</td>
 			               <td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden '.$expel_class_print.'">'.$print_in_summ_format.$currency.'</td> 
 			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.$expel_class_print.'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
-			               <td width="25" class="calc_btn" calc_btn="extra">'.$dop_uslugi_btn.'</td>';
+			               <td width="25" class="calc_btn" calc_btn="extra" '.$extra_exists_flag.'>'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden '.$expel_class_dop.'">'.$dop_uslugi_in_summ_format.$currency.'</td>';
 			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border '.$expel_class_dop.'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>

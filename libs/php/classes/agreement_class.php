@@ -237,6 +237,13 @@
 									 
 			
 								 } /**/
+								 if($uslugi_data['glob_type']=='extra' && ($uslugi_data['quantity']!=$dop_data['quantity'])){
+									  $query="UPDATE `".RT_DOP_USLUGI."` SET  `quantity` = '".$dop_data['quantity']."'  WHERE `id` = '".$uslugi_data['id']."'";
+									  $result = $mysqli->query($query)or die($mysqli->error);
+									  $uslugi_data['quantity'] = $dop_data['quantity'];
+									 
+			
+								 }
 							 }
 						 }
 						 if(isset($reload['flag']) && $reload['flag'] == true){
@@ -248,7 +255,7 @@
 						 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date);
 						 
 						 
-						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
+						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type DESC";
 						 // echo $query."\r\n";
 						 $result3 = $mysqli->query($query3)or die($mysqli->error);
 						 if($result3->num_rows>0){
@@ -256,12 +263,18 @@
 						     while($uslugi_data = $result3->fetch_assoc()){
 					            // 3). uslugi_data
 								 if($uslugi_data['glob_type'] == 'print' && !(!!$expel["print"])){
-                                    $name = Agreement::convert_print($uslugi_data['print_details']);
-									// записываем ряд
+                                     $name = self::convert_print($uslugi_data['print_details']);
+									 // записываем ряд
 									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
-								    $uslugi_summ_out += $uslugi_data['quantity']*$uslugi_data['price_out'];
+									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
+									 $name = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
+									 
+									 // нменяем количество на 1(еденицу) если это надбавка на всю стоимость
+									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
+									 // записываем ряд
+									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);
 								 }/**/
 								 
 								  
@@ -408,6 +421,17 @@
 			  return $mysqli->insert_id;
 		
 		}
+		static function get_usluga_details($usluga_id){
+	        global $mysqli;
+			
+			$query="SELECT name FROM `".OUR_USLUGI_LIST."` WHERE id = '".$usluga_id."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+		    if($result->num_rows>0){
+			   $row=$result->fetch_assoc();
+			   return $row;
+			}
+			return false;
+	   }	
 		static function convert_print($print_details){
 		
 		    global $mysqli;

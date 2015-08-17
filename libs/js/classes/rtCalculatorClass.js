@@ -2193,6 +2193,7 @@ var rtCalculator = {
 	    
 		// проверяем есть ли в ячейке расчеты нанесения
 		var printsExitst = false;
+		var extraExitst = false;
 		var tds_arr = cur_tr.getElementsByTagName('td');
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type') && tds_arr[j].getAttribute('type') == 'print_exists_flag'){
@@ -2201,10 +2202,15 @@ var rtCalculator = {
 					printsExitst = true;
 				}
 			}
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('calc_btn') && tds_arr[j].getAttribute('calc_btn') == 'extra' && tds_arr[j].getAttribute('extra_exists_flag')){
+					extraExitst = true;
+			}
+			
 		}
 		
-		if(printsExitst){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
-		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity_and_calculators=1&quantity='+cell.innerHTML+'&id='+row_id);
+		if(printsExitst || extraExitst){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity_and_calculators=1&quantity='+cell.innerHTML+'&id='+row_id+'&print='+printsExitst+'&extra='+extraExitst);
+			//alert(url);
 		    rtCalculator.send_ajax(url,callbackPrintsExitst);
 		}
 		else{// отправляем запрос на изменение только лишь значения тиража в базе данных 
