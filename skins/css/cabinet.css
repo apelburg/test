@@ -584,3 +584,11 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
 	padding: 5px;
 	background-color: #fff;
 }
+input.calendar_date_work{
+	width: 65px;
+	text-align: center;
+	cursor: pointer;
+}
+.percentage_of_readiness.saved{
+	background-color: #D4C28E;
+}

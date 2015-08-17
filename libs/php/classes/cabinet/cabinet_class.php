@@ -173,16 +173,7 @@
     	function __consturct(){
 		}
 
-		########   вызов AJAX   ########
-		protected function _AJAX_($name){
-			$method_AJAX = $name.'_AJAX';
-			// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-			if(method_exists($this, $method_AJAX)){
-				$this->$method_AJAX();
-				exit;
-			}					
-		}
-
+		
 		/////////////////////////////////////////////////////////////////////////////////////
 		//	-----  START  ----- 	ДЕКОДЕРЫ СТАТУСОВ ПОДРАЗДЕЛЕНИЙ 	-----  START  -----
 		/////////////////////////////////////////////////////////////////////////////////////
@@ -402,12 +393,13 @@
 					$html .= '</td>';
 				$html .= '</tr>';
 
-				
+				//$html .= '<tr><td colspan="2">'.$this->print_arr($this->Position_status_list).'</td></tr>';
 
 				// выводим стутусы услуг
 				foreach ($this->Position_status_list as $performer => $performer_status_arr) {
 					$html .= '<tr>';
 					$html .= '<td>';
+
 					$html .= '<div class="otdel_name">'.$performer.'</div>';
 					$html .= '</td>';
 					$html .= '<td>';
@@ -514,7 +506,8 @@
 				protected function get_all_services_Database(){
 					global $mysqli;
 					$arr = array();
-					$query = "SELECT * FROM `".OUR_USLUGI_LIST."`";	
+					$query = "SELECT *
+					 FROM `".OUR_USLUGI_LIST."`";	
 					$result = $mysqli->query($query) or die($mysqli->error);
 					if($result->num_rows > 0){	
 						while($row = $result->fetch_assoc()){
@@ -535,6 +528,57 @@
 		/////////////////////////////////////////////////////////////
 		//	-----  START  -----  МЕТОДЫ AJAX  -----  START  -----  //
 		/////////////////////////////////////////////////////////////
+			########   вызов AJAX   ########
+			protected function _AJAX_($name){
+				$method_AJAX = $name.'_AJAX';
+				// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+				if(method_exists($this, $method_AJAX)){
+					$this->$method_AJAX();
+					exit;
+				}					
+			}
+
+
+			// сохранение % готовности (функция с таймингом в JS)
+			protected function change_percentage_of_readiness_AJAX(){
+				global $mysqli;
+
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `percentage_of_readiness` =  '".$_POST['value']."' ";
+				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}'; 	
+			}
+
+			// присваиваем пользователя исполнителя услуги к услуге (взять услугу в работу)
+			protected function get_in_work_service_AJAX(){
+				global $mysqli;
+
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_id` =  '".$_POST['user_id']."' ";
+				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}'; 	
+			}
+
+			// редактирование даты работы над услугой
+			protected function change_date_work_of_service_AJAX(){
+				
+				// проверка принятых значений даты
+				if (($timestamp = strtotime($_POST['date'])) === false) {
+				    return '{"error":"Строка ('.$_POST['date'].') недопустима"}';
+				}
+
+				global $mysqli;
+				//записываем дату в базу
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `date_work` =  '".date("Y-m-d",$timestamp)."' ";
+				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				
+				// echo $query;
+				echo '{"response":"OK"}'; 	
+
+
+			}
+			
 
 			// запуск услуг в работу
 			protected function start_services_in_processed_AJAX(){
@@ -1536,7 +1580,11 @@
 			  тех услуг, которые были созданы после этого изменения
 			  чтобы изменения брались сразу из услуг нужно дополнить запрос выборкой по полю ,`os__our_uslugi`.`performer`
 			*/
-			$query = "SELECT `".CAB_DOP_USLUGI."`.*,`os__our_uslugi`.`name`
+			$query = "SELECT 
+			`".CAB_DOP_USLUGI."`.*,
+			`os__our_uslugi`.`name`,
+			DATE_FORMAT(`".CAB_DOP_USLUGI."`.`date_ready`,'%d.%m.%Y')  AS `date_ready`,
+			DATE_FORMAT(`".CAB_DOP_USLUGI."`.`date_work`,'%d.%m.%Y')  AS `date_work`
 			FROM `".CAB_DOP_USLUGI."` 
 			LEFT JOIN  `os__our_uslugi` ON  `os__our_uslugi`.`id` = `".CAB_DOP_USLUGI."`.`uslugi_id` 
 			WHERE `".CAB_DOP_USLUGI."`.`dop_row_id` = '".$dop_row_id."'";
@@ -1793,7 +1841,11 @@
 		protected function get_all_services_names_Database(){
 			global $mysqli;
 			$arr = array();
-			$query = "SELECT `id`, `parent_id`, `name`, `type` FROM `".OUR_USLUGI_LIST."`;";
+			$query = "SELECT `id`, 
+			`parent_id`, 
+			`name`, 
+			`type`
+			 FROM `".OUR_USLUGI_LIST."`;";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
@@ -2129,6 +2181,20 @@
 			// $price - стоимость
 			// $payment - уже заплаченная сумма
 			return ($price!=0)?round($payment*100/$price,2):'0.00';
+		}
+
+
+
+		// отдаёт $html распечатанного массива
+		protected function print_arr($arr){
+			ob_start();
+			echo '<pre>';
+			print_r($arr);
+			echo '</pre>';
+			$content = ob_get_contents();
+			ob_get_clean();
+			
+			return $content;
 		}
 
 
