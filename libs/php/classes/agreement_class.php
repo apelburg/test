@@ -223,13 +223,13 @@
 									 $reload['flag'] = true;
 									 //echo $dop_data['quantity'];
 									 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
-									 $json_out =  rtCalculators::change_quantity_and_calculators($dop_data['quantity'],$dop_data['id']);
+									 $json_out =  rtCalculators::change_quantity_and_calculators($dop_data['quantity'],$dop_data['id'],'true','false');
 									 $json_out_obj =  json_decode($json_out);
 									 
 									 // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
 									 // сбрасываем количество тиража и нанесения до 1шт.
-									 if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
-										 rtCalculators::change_quantity_and_calculators(1,$dop_data['id']);
+									 if(isset($json_out_obj->print->outOfLimit) || isset($json_out_obj->print->needIndividCalculation)){
+										 rtCalculators::change_quantity_and_calculators(1,$dop_data['id'],'true','false');
 										 
 										 $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$dop_data['id']."'";
 										 $result = $mysqli->query($query)or die($mysqli->error);
@@ -271,7 +271,7 @@
 									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
 									 $name = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
 									 
-									 // нменяем количество на 1(еденицу) если это надбавка на всю стоимость
+									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
 									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
 									 // записываем ряд
 									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);

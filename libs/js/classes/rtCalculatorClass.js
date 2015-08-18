@@ -2219,27 +2219,27 @@ var rtCalculator = {
 		}
 						
 		function callbackPrintsExitst(response){
-			// alert(response);
+		    //alert(response);
 			var response_obj = JSON.parse(response);
 							
-			if(response_obj.lackOfQuantity){
+			if(response_obj.print.lackOfQuantity){
 				 var str =''; 
-				 for(var index in response_obj.lackOfQuantity){
-					 str += (parseInt(index)+1)+'). '+response_obj.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.lackOfQuantity[index].minQuantity+"\r";  
+				 for(var index in response_obj.print.lackOfQuantity){
+					 str += (parseInt(index)+1)+'). '+response_obj.print.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.print.lackOfQuantity[index].minQuantity+"\r";  
 				 }
 				 alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
 			}
-			if(response_obj.outOfLimit){
+			if(response_obj.print.outOfLimit){
 				 var str ='';  
-				 for(var index in response_obj.outOfLimit){
-					 str += (parseInt(index)+1)+'). '+response_obj.outOfLimit[index].print_type+', лимит тиража - '+response_obj.outOfLimit[index].limitValue+"\r";  
+				 for(var index in response_obj.print.outOfLimit){
+					 str += (parseInt(index)+1)+'). '+response_obj.print.outOfLimit[index].print_type+', лимит тиража - '+response_obj.print.outOfLimit[index].limitValue+"\r";  
 				 }
 				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :\r"+str+"для этих нанесений требуется индивидуальный расчет");
 			}
-			if(response_obj.needIndividCalculation){ 
+			if(response_obj.print.needIndividCalculation){ 
 				 var str ='';  
-				 for(var index in response_obj.needIndividCalculation){
-					 str += (parseInt(index)+1)+'). '+response_obj.needIndividCalculation[index].print_type+"\r";  
+				 for(var index in response_obj.print.needIndividCalculation){
+					 str += (parseInt(index)+1)+'). '+response_obj.print.needIndividCalculation[index].print_type+"\r";  
 				 }
 				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :\r"+str+"");
 				
@@ -2248,12 +2248,21 @@ var rtCalculator = {
 			//// console.log(response_obj);
 			// если ответ был ok значит все нормально изменения сделаны 
 			// теперь нужно внести изменения в hmlt
-			if(response_obj.result == 'ok'){
+			if(response_obj.print.result == 'ok' && response_obj.extra.result == 'ok'){
 				rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
 				//// console.log(response_obj.new_sums);
-				rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.new_sums.summ_in);
-				rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.new_sums.summ_out);
+				if(response_obj.print.new_sums){ 
+				    rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.print.new_sums.summ_in);
+				    rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.print.new_sums.summ_out);
+				}
 				rtCalculator.tbl_model[row_id]["print_exists_flag"] = 'yes';
+				
+				if(response_obj.extra.new_sums){
+					rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"] = parseFloat(response_obj.extra.new_sums.summ_in);
+				    rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"] = parseFloat(response_obj.extra.new_sums.summ_out);
+				}
+
+				
 				
 				// производим пересчет ряда
 				rtCalculator.calculate_row(response_obj.row_id);

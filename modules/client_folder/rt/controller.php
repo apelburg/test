@@ -171,13 +171,13 @@
 						     $reload['flag'] = true;
 						     //echo $dop_row['quantity'];
 						     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
-		                     $json_out =  rtCalculators::change_quantity_and_calculators($dop_row['quantity'],$dop_key);
+		                     $json_out =  rtCalculators::change_quantity_and_calculators($dop_row['quantity'],$dop_key,'true','false');
 							 $json_out_obj =  json_decode($json_out);
 							 
 							 // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
 							 // сбрасываем количество тиража и нанесения до 1шт.
-							 if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
-							     rtCalculators::change_quantity_and_calculators(1,$dop_key);
+							 if(isset($json_out_obj->print->outOfLimit) || isset($json_out_obj->print->needIndividCalculation)){
+							     rtCalculators::change_quantity_and_calculators(1,$dop_key,'true','false');
 								 
 								 $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$dop_key."'";
 			                     $result = $mysqli->query($query)or die($mysqli->error);
@@ -388,7 +388,7 @@
 	 if(isset($reload['flag']) && $reload['flag'] == true){
 	     header('Location:'.HOST.'/?'.$_SERVER['QUERY_STRING']);
 	     exit;
-	 }
+	 }/**/
 	 
 	 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;" border="0">
 	          <tr class="w_border cap">

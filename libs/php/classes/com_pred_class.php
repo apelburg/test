@@ -54,13 +54,13 @@
 								       $reload['flag'] = true;
 									   //echo $dop_data['quantity'];
 									   include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
-									   $json_out =  rtCalculators::change_quantity_and_calculators($row_dop1['quantity'],$row_dop1['id']);
+									   $json_out =  rtCalculators::change_quantity_and_calculators($row_dop1['quantity'],$row_dop1['id'],'true','false');
 									   $json_out_obj =  json_decode($json_out);
 									 
 									   // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
 									   // сбрасываем количество тиража и нанесения до 1шт.
-									   if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
-										   rtCalculators::change_quantity_and_calculators(1,$row_dop1['id']);
+									   if(isset($json_out_obj->print->outOfLimit) || isset($json_out_obj->print->needIndividCalculation)){
+										   rtCalculators::change_quantity_and_calculators(1,$row_dop1['id'],'true','false');
 										 
 										   $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$row_dop1['id']."'";
 										   $result = $mysqli->query($query)or die($mysqli->error);
@@ -727,8 +727,8 @@
 			$tr_td = '<tr><td style="border:#CCCCCC solid 1px;" width="300" valign="middle" align="center">';
 			$td_tr = '</td></tr>';
 			$td_td = '</td><td style="border:#CCCCCC solid 1px;padding:6px;" width="325" valign="top">';
-			//
-			echo '<pre>'; print_r($multi_dim_arr); echo '</pre>';
+			
+			// echo '<pre>'; print_r($multi_dim_arr); echo '</pre>';
 			
 			
 			/********************   ++++++++++++++  *********************/
