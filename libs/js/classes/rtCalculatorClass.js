@@ -1878,7 +1878,8 @@ var rtCalculator = {
 					
 	
 					if(tds_arr[j].getAttribute('expel')){
-						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {"expel":{}};
+						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {};
+						if(!this.tbl_model[row_id].dop_data.expel)this.tbl_model[row_id].dop_data.expel = {};
 						var expel = !!parseInt(tds_arr[j].getAttribute('expel'));
 						if(type=='out_summ'){
 							this.tbl_model[row_id].dop_data.expel.main=expel;
@@ -1891,7 +1892,10 @@ var rtCalculator = {
 						}
 						
 					}
-					
+					if(tds_arr[j].hasAttribute('svetofor')){
+						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {};
+						this.tbl_model[row_id].dop_data.svetofor = tds_arr[j].getAttribute('svetofor');
+					}
 					
 					/*// если это ряд содержащий абсолютные ссуммы сохраняем постоянные ссылки на его ячейки , чтобы затем вносить в них изменения
 					// КАК ТО НЕ ПОЛУЧИЛОСЬ
@@ -1901,6 +1905,7 @@ var rtCalculator = {
 					}
 					*/
 				}
+				
 			}
 		
 		}
@@ -1957,7 +1962,7 @@ var rtCalculator = {
 								}
 								tds_arr[j].onblur = function(){
 								   if(rtCalculator.cur_cell.getAttribute('type') && rtCalculator.cur_cell.getAttribute('type')!= 'quantity'){
-									   this.complite_input();
+									   rtCalculator.complite_input();
 								   } 
 								}
 								tds_arr[j].setAttribute("contenteditable",true);
@@ -2313,7 +2318,7 @@ var rtCalculator = {
 		row['delta'] = row['margin'] = row['out_summ']-row['in_summ'];
 
 		// если ряд не исключен из рассчетов расчитываем разницу появивщуюся в результате изменений и помещаем данные 
-	    if(!row['dop_data']['expel']['main']){
+	    if(!row['dop_data']['expel']['main'] && row['dop_data']['svetofor']=='green'){
 			rtCalculator.tbl_model['total_row']['price_in_summ'] += row['price_in_summ'] - rtCalculator.previos_data['price_in_summ'];
 			rtCalculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rtCalculator.previos_data['price_out_summ'];
 			rtCalculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rtCalculator.previos_data['in_summ'];
@@ -2344,7 +2349,7 @@ var rtCalculator = {
 				var connected_vals = tds_arr[j].getAttribute('connected_vals');
 				
 				
-				if(type == 'glob_counter' || type == 'dop_details' || type == 'master_btn' || type == 'name') continue;
+				if(type == 'glob_counter' || type == 'dop_details' || type == 'master_btn' || type == 'name' || type == 'svetofor') continue;
 				
 				if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type];
 				else if(type=='print_exists_flag') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]; 
@@ -2386,7 +2391,7 @@ var rtCalculator = {
 		
 	    // получаем текущий статус ячейки и меняем его на противоположный
 		var status = !(!!parseInt(cell.getAttribute('expel')));
-		//alert(status+' '+cell.getAttribute('expel')+' '+cell.getAttribute('type'));
+		// alert(status+' '+cell.getAttribute('expel')+' '+cell.getAttribute('type'));
         
 		var row_id = cell.parentNode.getAttribute('row_id');
 		if(row_id == undefined) { alert('attribute row_id dont exists'); return;}
@@ -2457,7 +2462,9 @@ var rtCalculator = {
 			    // итоговый ряд пропускаем
 				if(id =='total_row') continue;
 				// если в ряд не участвует в расчете конечных сумм пропускаем его
+				// также если ряд имеет не зеленый светофор
 				if(rtCalculator.tbl_model[id]['dop_data']['expel']['main']) continue; 
+				if(rtCalculator.tbl_model[id]['dop_data']['svetofor']!='green') continue; 
 				//alert(id +' '+row_id+' '+type);
 				var row = rtCalculator.tbl_model[id];
 				
@@ -2545,16 +2552,32 @@ var rtCalculator = {
 	   
 	    e = e|| window.event;
 		var img_btn = e.target || e.srcElement;
-		//// console.log();
+		//// console.log(); 
+        // связано с состоянием интерфейса исключения рядов - поэтому слущаем его
+		if(rtCalculator.expel_value_from_calculation.in_process) return; 
+		
 		var td = img_btn.parentNode.parentNode;
 		var row_id = td.parentNode.getAttribute("row_id");
 		var status = img_btn.getAttribute("status");
+		
 		
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_svetofor='+ status +'&id='+row_id);
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ /*alert(response);*/
 		   td.getElementsByTagName('img')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_'+status+'.png';
 		   td.setAttribute("svetofor",status);
+		   
+		    // alert(status+' '+ typeof rtCalculator.tbl_model[row_id]['dop_data']['expel']['main']+' '+rtCalculator.tbl_model[row_id]['out_summ']);
+			if(status=='green' && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
+				rtCalculator.tbl_model['total_row']['out_summ'] = rtCalculator.tbl_model['total_row']['out_summ']+ rtCalculator.tbl_model[row_id]['out_summ'];
+				rtCalculator.tbl_model['total_row']['in_summ'] = rtCalculator.tbl_model['total_row']['in_summ']+ rtCalculator.tbl_model[row_id]['in_summ']; 
+			}
+			else if(status!='green' && rtCalculator.tbl_model[row_id].dop_data.svetofor == 'green'  && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
+				rtCalculator.tbl_model.total_row['out_summ'] = rtCalculator.tbl_model.total_row['out_summ']- rtCalculator.tbl_model[row_id]['out_summ'];
+				rtCalculator.tbl_model.total_row['in_summ'] = rtCalculator.tbl_model.total_row['in_summ']- rtCalculator.tbl_model[row_id]['in_summ']; 
+			}
+			rtCalculator.tbl_model[row_id].dop_data.svetofor = status;
+			rtCalculator.change_html(row_id);/**/
 		}
 		
 		rtCalculator.hide_svetofor();

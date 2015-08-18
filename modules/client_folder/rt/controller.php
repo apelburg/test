@@ -256,9 +256,9 @@
 				 $delta_format = number_format($delta,'2','.','');
 				 $margin_format = number_format($margin,'2','.','');
 		
-				 
+				 $svetofor_stat = ($dop_row['row_status']=='')?'green':$dop_row['row_status'];
 				 // если ряд не исключен из расчетов добавляем значения в итоговый ряд
-				 if(!(!!$expel["main"])){
+				 if(!(!!$expel["main"]) && $svetofor_stat=='green'){// && ( || $dop_row['row_status']=='')
 					 @$total['price_in_summ'] += $price_in_summ;
 					 @$total['price_out_summ'] += $price_out_summ;
 					 if(!(!!$expel["print"])) @$total['print_in_summ'] += $print_in_summ;
@@ -269,7 +269,7 @@
 					 @$total['out_summ'] += $out_summ;
 				 }
 				 $img_design_path = HOST.'/skins/images/img_design/';
-				 $svetofor_stat = ($dop_row['row_status']=='')?'green':$dop_row['row_status'];
+				 
 				 $svetofor_src = $img_design_path.'rt_svetofor_'.$svetofor_stat.'.png';
 				 $svetofor = '<img src="'.$svetofor_src.'" />';
 				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer center"';
@@ -346,7 +346,7 @@
 										  //extra_panel
 			 $cur_row .=  '<td class="hidden"></td>
 			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
-			               <td width="40" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
+			               <td width="40" type="svetofor" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
 			               <td width="60" type="quantity" class="right"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="20" class="r_border left quantity_dim">'.$quantity_dim.'</td>
 						   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
