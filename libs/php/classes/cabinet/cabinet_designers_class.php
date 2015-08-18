@@ -2,8 +2,8 @@
 
 	class Cabinet_designer_class extends Cabinet{
 
-		// id начальника отдела производство
-		private $director_of_operations_ID = 42;
+		// id начальника отдела дизайна
+		private $director_of_operations_ID = 77; 
 
 		// допуски группы пользователей
 		private $group_access = 9;
@@ -14,6 +14,7 @@
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
 			'important' => 'Важно',
+			'get_in_work' => 'Принять в работу',
 			'in_processed'=>'обрабатывается',
 			'no_worcked_snab' => 'Не обработанные СНАБ',		
 			'no_worcked_men' => 'Не обработанные МЕН',
@@ -48,7 +49,17 @@
 			'arrange_delivery' => 'Оформить доставку',
 			'delivery' => 'Доставка',
 			'pclosing_documents' => 'Закрывающие документы',
-			'otgrugen' => 'Отгруженные'													
+			'otgrugen' => 'Отгруженные',	
+			'my_orders' => 'Мои заказы',
+			'makets' => 'Макеты',
+			'design' => 'Дизайн',
+			'related_changes' => 'Правки',
+			'on_production' => 'На производство',
+			'films_for_withdrawal' => 'Плёнки на вывод',
+			'on_foreign_production' => 'На чужое производство',
+			'in_the_production_apelburg' => 'В производстве Апельбург',
+			'in_the_production_supplier' => 'В производстве подрядчик'
+
 		); 
 
 		// название подраздела кабинета
@@ -76,8 +87,14 @@
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){
-			$method_template = $_GET['section'].'_Template';
+			$subsection = isset($_GET['subsection'])?$_GET['subsection']:'all';
+
+			$method_template = $_GET['section'].'_'.$subsection.'_Template';
+			// $method_template = $_GET['section'].'_Template';
 			echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
+
+			// скрываем левое меню за ненадобностью
+			echo '<style type="text/css" media="screen">#cabinet_left_coll_menu{display:none;}</style>';
 			// если в этом классе существует такой метод - выполняем его
 			if(method_exists($this, $method_template)){
 				$this->$method_template();				
@@ -90,15 +107,18 @@
 		//////////////////////////
 		//	Section - Заказы
 		//////////////////////////
-		private function orders_Template($id_row=0){
+		// роутер по вкладкам 
+		
+
+		private function orders_all_Template($id_row=0){
+
 			$where = 0;
 			// скрываем левое меню
 			$html = '';
-			$table_head_html = '<style type="text/css" media="screen">
-				#cabinet_left_coll_menu{display:none;}
-			</style>';
+			$table_head_html = '';
 			
 			// формируем шапку таблицы вывода
+			// $table_head_html .= $this->print_arr($_SESSION);
 			$table_head_html .= '
 				<table id="general_panel_orders_tbl">
 				<tr>
@@ -167,7 +187,7 @@
 					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">
 											<span class="cabinett_row_hide_orders"></span>
 										</td>';
-					$table_order_row .= '<td colspan="1" class="orders_info">
+					$table_order_row .= '<td colspan="3" class="orders_info">
 										<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
 										'.$this->get_client_name_link_Database($this->Order['client_id']).'
 										<span class="greyText">,&nbsp;&nbsp;&nbsp;   менеджер: '.$this->get_manager_name_Database_Html($this->Order['manager_id'],1).'</span>
@@ -189,6 +209,7 @@
 			echo $html;
 		}
 
+
 		
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html(){			
@@ -202,12 +223,13 @@
 				$this->Position_status_list = array(); // в переменную заложим все статусы
 
 				$this->id_dop_data = $position['id_dop_data'];
-
 				
-				// выборка только массива печати
-				$this->services_print = $this->get_dop_services_for_production( $this->get_order_dop_uslugi( $this->id_dop_data ) );
+				// выборка только массива услуг дизайна
+				$this->services_design = $this->get_dop_services_for_production( $this->get_order_dop_uslugi( $this->id_dop_data ) , $this->user_access );
+				// выборка только массива услуг производства
+				$this->services_production = $this->get_dop_services_for_production( $this->get_order_dop_uslugi( $this->id_dop_data ) , 4 );
 
-				$this->services_num  = count($this->services_print);
+				$this->services_num  = count($this->services_design);
 								
 				// если услуг для производства в данной позиции нет - переходм к следующей
 				if($this->services_num == 0){continue;}
@@ -232,7 +254,7 @@
 				$html_row_2 .= '</tr>';	
 
 
-				$html .= $this->get_service_content_for_production($position,$this->services_print,$html_row_1,$html_row_2);
+				$html .= $this->get_service_content_for_production($position,$this->services_design,$html_row_1,$html_row_2);
 
 
 				
@@ -244,10 +266,11 @@
 		}		
 
 		// фильтр услуг для производства
-		private function get_dop_services_for_production($services_arr){
+		private function get_dop_services_for_production($services_arr, $user_access){
 			if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
 				$this->Services_list_arr = $this->get_all_services_Database();
 			}
+
 			// объявляем массив, который будем возвращать 
 			$new_arr = array();
 			
@@ -255,7 +278,7 @@
 				// если такая услуга существует в базе
 			 	if(isset( $this->Services_list_arr[$service['uslugi_id']]) ){
 			 		// если доступ позволяет её обрабатывать
-			 		if($this->Services_list_arr[ $service['uslugi_id'] ]['performer'] == $this->user_access){
+			 		if($this->Services_list_arr[ $service['uslugi_id'] ]['performer'] == $user_access){
 			 			// добавляем услугу в новый массив 
 			 			$new_arr[] = $service;
 			 		}
@@ -290,16 +313,7 @@
 				$html = '';
 				$html .= ($n>0)?'<tr class="position_for_production row__'.($key+2).'" data-id="'.$position['id'].'">':'';
 					// место
-					$html .= '<td class="show_backlight">';
-						$html .= ($key+1);
-
-						// ob_start();
-						// echo '<pre>';
-						// print_r($position);
-						// echo '</pre>';			    	
-						// $content = ob_get_contents();
-						// ob_get_clean();
-					$html .= '</td>';
+					
 
 					// операция
 					$html .= '<td class="show_backlight show_dialog_tz_for_production" data-id="'.$service['id'].'">';
@@ -314,53 +328,34 @@
 						// $html .= $content;
 					$html .= '</td>';
 
-					// тираж
-					$html .= '<td class="show_backlight">';
-						$html .= $position['quantity'];
-					$html .= '</td>';
-
-					// запас
-					$html .= '<td class="show_backlight">';
-						$html .= (($position['zapas']!=0 && trim($position['zapas'])!='')?(($position['print_z']==0)?'+'.$position['zapas'].'<br>НПЗ':'+'.$position['zapas'].'<br>ПЗ'):'');
-					$html .= '</td>';
-
-					// цвета, логотип и другие персонализированные данные мы оставляем в окне ТЕХ. ЗАДАНИЕ
-					$html .= '<td class="show_backlight">';
-						// комментарии для решения возможных проблем
-
-						$html .= '<!--// ключ к полю возможно будет отличаться не в локальной версии... при изменении названия поля Пантоны... выгрузка информации сюда изменится -->';
-						$html .= (isset($this->print_details_dop['pantony'])?$this->print_details_dop['pantony']:'');
-					$html .= '</td>';
-
 					
-					$html .= '<td class="show_backlight" data-id="'.$service['id'].'">';
-						$html .= $service['logotip'];
-					$html .= '</td>';
 
 					// плёнки / клише
 					$html .= '<td class="show_backlight">';
 						$html .= $this->get_statuslist_film_photos($service['film_photos_status'],$service['id']);
 					$html .= '</td>';
-					// статус товара
-					$html .= '<td class="show_backlight">';
-						$html .= $this->decoder_statuslist_sklad($position['status_sklad'], $position['id']);
-					$html .= '</td>';
+					
+
 					// дата сдачи
 					$html .= '<td class="show_backlight">';
 						$html .= '<span class="greyText">'.$this->Order['date_of_delivery_of_the_order'].'</span>';
 					$html .= '</td>';
+					
 					// дата работы
 					$html .= '<td class="show_backlight">';
 						$html .= '<input type="text" name="calendar_date_work"  value="'.(($service['date_work']=='00.00.0000')?'нет':$service['date_work']).'" data-id="'.$service['id'].'" class="calendar_date_work">';
 					$html .= '</td>';
-					// мастер
+
+					// исполнитель услуги
 					$html .= '<td class="show_backlight">';
 						$html .= $this->get_production_userlist_Html($service['performer_id'],$service['id']);
 					$html .= '</td>';
+
 					// статус готовности
 					$html .= '<td class="show_backlight">';
 						$html .= $this->get_statuslist_uslugi_Dtabase_Html($service['uslugi_id'],$service['performer_status'],$service['id'], $service['performer']);
 					$html .= '</td>';
+
 					// % готовности
 					$html .= '<td class="show_backlight percentage_of_readiness" contenteditable="true" data-service_id="'.$service['id'].'">';
 						$html .= $service['percentage_of_readiness'];
@@ -397,6 +392,26 @@
 					return $html;
 					break;
 				case '4': 
+					if($this->user_id == $this->director_of_operations_ID){// исключение для начальника производства - он должен иметь возможность распределять работу между работниками производства
+						$html .= '<select class="production_userlist" data-row_id="'.$service_id.'">';
+						$html .= '<option value=""></option>';
+						foreach ($this->userlist as $key => $user) {
+							$checked = ($performer_id == $user['id'])?' selected="selected"':'';
+							$html .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+						}
+						$html .= '</select>';
+						return $html;
+					}else{// для произ-ва выдаём кнопку взять в работу или транслируем имя пользователя, который взялся за заказ или был назначен для него
+						if(trim($performer_id)!='' && isset($this->userlist[$performer_id])){
+							$user = $this->userlist[$performer_id];
+							return $user['name'].' '.$user['last_name'];
+						}else{
+							$user = $this->userlist[$this->user_id];
+							return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+						};
+					}
+					break;
+				case '9': 
 					if($this->user_id == $this->director_of_operations_ID){// исключение для начальника производства - он должен иметь возможность распределять работу между работниками производства
 						$html .= '<select class="production_userlist" data-row_id="'.$service_id.'">';
 						$html .= '<option value=""></option>';

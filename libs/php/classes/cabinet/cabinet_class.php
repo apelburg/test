@@ -256,10 +256,13 @@
 					$enable_selection - разрешение на вывод редактируемого списка, по умолчанию запрещено
 				*/
 
+				// если стоит статус "Вопрос" красная подсветка
+				$red_bg_color = (trim($real_val) == "question")?' style="background-color:rgba(255, 0, 0, 0.4);"':'';
+
 				$html = '';
 				// проверяем на разрешение смены статуса снабжения
 				if($this->user_access == 8 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
-					$html .= '<select  data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
+					$html .= '<select '.$red_bg_color.' data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
 						if($real_val == 'in_processed'){$html .= '<option value="in_processed" selected="selected">в обработке</option>';}
 						foreach ($this->statuslist_snab as $name_en => $name_ru) {
 							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
@@ -272,7 +275,7 @@
 					if($real_val == 'in_processed'){// если статус in_processed, то его не декодировать в кириллицу с помощью стандартного массива, поэтому пишем исключение
 						$html .='<span class="greyText">в обработке</span>';
 					}else{
-						$html .='<span class="greyText">'.(isset($this->statuslist_snab[$real_val])?$this->statuslist_snab[$real_val]:$real_val).'</span>';
+						$html .='<span '.$red_bg_color.' class="greyText">'.(isset($this->statuslist_snab[$real_val])?$this->statuslist_snab[$real_val]:$real_val).'</span>';
 					}
 					// добавляем div c ожидаемой датой поставки
 					$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'">'.$date_delivery_product.'</div>';
@@ -426,6 +429,11 @@
 			// выпадающий список статусов услуги
 			protected function get_statuslist_uslugi_Dtabase_Html($id,$real_val,$cab_dop_usl_id, $performer){
 				// $performer - подразделение (права доступа)
+
+				// если стоит статус "Вопрос" красная подсветка
+				$red_bg_color = (trim($real_val) == "Вопрос")?' style="background-color:rgba(255, 0, 0, 0.4);"':'';
+
+
 				if(trim($real_val)!="" || $real_val == "in_processed"){// если есть статус - значит услуга запущена
 					// проверяем права доступа на редактирование статуса
 					if($this->user_access == $performer || $this->user_access==1){
@@ -433,7 +441,7 @@
 						$id_s = $this->get_id_parent_Database($id);
 						global $mysqli;
 						$html = '';
-						$html .= '<select class="get_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'"><option value=""></option>';
+						$html .= '<select '.$red_bg_color.' class="get_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'"><option value=""></option>';
 						$query = "SELECT * FROM `".USLUGI_STATUS_LIST."` WHERE `parent_id` IN (".$id_s.")";
 						//echo $query.'<br>';
 						$result = $mysqli->query($query) or die($mysqli->error);
@@ -446,7 +454,7 @@
 						}
 						$html.= '</select>';	
 					}else{
-						$html = '<span class="greyText"  data-id="'.$cab_dop_usl_id.'">'.$real_val.'</span>';
+						$html = '<span  '.$red_bg_color.' class="greyText"  data-id="'.$cab_dop_usl_id.'">'.(($real_val=="in_processed")?'обрабатывается':$real_val).'</span>';
 					}					
 					return $html;
 				
@@ -459,8 +467,8 @@
 						}
 						
 					}else{
-						// выводим кнопку запуска для всех кроме производства
-						if($this->user_access!=4){
+						// выводим кнопку запуска для всех кроме производства и дизайна (они ждут отмашки снабов или менеджера)
+						if($this->user_access!=4 && $this->user_access!=9){
 							$html = '<input type="button" value="Запуск" class="start_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'">';	
 						}else{
 							$html = 'ожидает запуска';

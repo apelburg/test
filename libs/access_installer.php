@@ -393,7 +393,17 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'all' => array('access'=>true)
+													'all' => array('access'=>true),
+													'get_in_work' => array('access'=>true),
+													'my_orders' => array('access'=>true),
+													'makets' => array('access'=>true),
+													'design' => array('access'=>true),
+													'related_changes' => array('access'=>true),
+													'on_production' => array('access'=>true),
+													'films_for_withdrawal' => array('access'=>true),
+													'on_foreign_production' => array('access'=>true),
+													'in_the_production_apelburg' => array('access'=>true),
+													'in_the_production_supplier' => array('access'=>true)
 													)
 												)
 											)
