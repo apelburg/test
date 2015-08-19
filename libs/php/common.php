@@ -129,7 +129,8 @@
 	}
 	
 	function getWorkingDays($begin,$end/*агрументы должны быть в формате UNIX*/){
-        // функция подчсчитывает количество рабочих дней со следующего дня после $begin по $end включительно
+        // функция подсчитывает количество рабочих дней со следующего дня после $begin по $end включительно
+		// пример вызова getWorkingDays("2015-11-05 10:41:01","2015-11-07 10:41:01");
         // календарь праздничных дней - для каждого года массив дат в формате 00.00 ( день.месяц )
         $selebrations = array(
 	                         "2015" => array("01.01","02.01","03.01","04.01","05.01","06.01","07.01","08.01","23.02","08.03","01.05","09.05","12.06","04.11")
@@ -209,12 +210,13 @@
     }
 	
 	function transform_img_size($img,$limit_height,$limit_width){
-     	list($img_width, $img_height, $type, $attr) = (file_exists($img))? getimagesize($img): array($limit_width,$limit_height,'',''); 
+     	list($img_width, $img_height, $type, $attr) = (fopen($img,'r'))? getimagesize($img): array($limit_width,$limit_height,'',''); 
+		if($img_width==0 || $img_height ==0 )return array(0,0);
 		$limit_relate = $limit_height/$limit_width;
 		$img_relate = $img_height/$img_width;
-		if($limit_relate < $img_relate) $limit_width = $limit_height/$img_relate; 
-		else $limit_height = $limit_width*$img_relate;
-		return array($limit_height,$limit_width); 
+		if($limit_relate < $img_relate) return array($limit_height,$limit_height/$img_relate); 
+		else  return array($limit_width*$img_relate,$limit_width); 
+		//return array($limit_height,$limit_width); 
 	}
 	
 	function convert_bb_tags($text){
@@ -463,6 +465,7 @@
 	    global $db;
 		
 		$go_on = true;
+		// echo '<pre>';print_r($range);echo '</pre>';
 		
 	    if($range){
 		    if($range['by']){

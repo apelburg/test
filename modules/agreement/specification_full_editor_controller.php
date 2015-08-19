@@ -1,8 +1,8 @@
 <?php 
 
     
-	
-    $agreement = fetch_agreement_content($agreement_id);
+	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+    $agreement = Agreement::fetch_agreement_content($agreement_id);
    
     $date_arr = explode('-',$agreement['date']);
 	$agreement_year_folder = $date_arr[0];
@@ -25,6 +25,7 @@
 ?>
 
 <?php include ('./skins/tpl/agreement/tinymse_js_block.html'); ?>
+<style> .main_menu_tbl{ display:none; } </style>
 <div style="margin:auto;width:1200px;">
     <div style="margin:10px 20px;">
         <button type="button" onclick="location = '?<?php echo addOrReplaceGetOnURL('section=agreement_editor'); ?>';" style="cursor:pointer;">назад</button>

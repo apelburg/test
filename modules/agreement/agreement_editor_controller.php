@@ -183,7 +183,7 @@
 				$date_arr = explode('-',$val[0]['date']);
 				$specification_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';
 				$production_term_in_days = getWorkingDays($val[0]['date']." 00:00:00",$specifications_arr[$key][0]['shipping_date_time']);
-				$production_term_in_days_word = trim(num_word_transfer((int)$production_term_in_days));
+				$production_term_in_days_word = (trim(num_word_transfer((int)$production_term_in_days))==0)? 'ноль' : trim(num_word_transfer((int)$production_term_in_days));
 				
 
 				list($first_part,$second_part) = explode('-',number_format($itogo,2,'-',''));

@@ -64,7 +64,7 @@
 	if(isset($_GET['filter_by_letter']) && $_GET['filter_by_letter']) $filters[] = array ('type' =>'by_letter','col' =>'company','val' => $_GET['filter_by_letter']);
 	
 	if($user_status == 1) $range = false;
-	else $range = array('by'=>'user_id','user_id'=> $user_id);
+	else $range = array('by'=>'manager_id','id'=> $user_id);
 	
 	if(isset($_GET['filter_by_range'])) $range = array ('by' =>'manager_id','id' => $_GET['filter_by_range']);
 	
@@ -131,7 +131,7 @@
 	$clients_data = get_clients_list($range,$order,$filters,$search,$limit_str);
 	
 	
-	/*echo '<pre>';print_r($clients_data);echo '</pre>';*/
+	/* echo '<pre>';print_r($clients_data);echo '</pre>'; */
 	if(is_array($clients_data)){
 	
 		///////////////////        page nav        ///////////////////
@@ -219,7 +219,7 @@
 	}
 	else{
 	    echo 'клиенты не найдены';
-		$page_navigation = '';
+		$page_navigation = $header_tbl = $header_tr = '';
 	}
 	
 	$rows = ob_get_contents();

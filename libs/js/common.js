@@ -877,7 +877,7 @@
 					var checked = dropDownManagerList.selected_in_previous[vals[0]]?'checked':'';
 					
 					div.innerHTML = '<div class="name" onclick="dropDownManagerList.check_if_all(this.parentNode.getElementsByTagName(\'input\')[0],0);"> ' + vals[1]  + '</div>';
-					div.innerHTML +='<div class="checkbox"><input type="checkbox" onclick="dropDownManagerList.check_if_all(this,1);" value="'+ vals[0] + '" '+  checked + '></div><div class="clear_div"></div>';
+					div.innerHTML +='<div class="checkbox"><input type="checkbox" style="display: block;" onclick="dropDownManagerList.check_if_all(this,1);" value="'+ vals[0] + '" '+  checked + '></div><div class="clear_div"></div>';
 					
 					return div;
 				}
