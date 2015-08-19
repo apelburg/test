@@ -128,6 +128,45 @@
 		return '<a href="'.$href.'"></a>';
 	}
 	
+	function getWorkingDays($begin,$end/*агрументы должны быть в формате UNIX*/){
+        // функция подчсчитывает количество рабочих дней со следующего дня после $begin по $end включительно
+        // календарь праздничных дней - для каждого года массив дат в формате 00.00 ( день.месяц )
+        $selebrations = array(
+	                         "2015" => array("01.01","02.01","03.01","04.01","05.01","06.01","07.01","08.01","23.02","08.03","01.05","09.05","12.06","04.11")
+							 );
+					
+	   
+        if(!isset($selebrations[substr($begin,0,4)])){ echo 'не установлен календарь праздничных дней на '.substr($begin,0,4).' год.'; }
+	    if(!isset($selebrations[substr($end,0,4)])){ echo 'не установлен календарь праздничных дней на '.substr($end,0,4).' год.'; }   
+       
+        $begin = dateToUnix($begin);
+	    $end = dateToUnix($end);
+	   
+	    $secondsInDay = 60*60*24;
+	    $counter = 0;
+	    while($begin<$end){
+	        $begin+=$secondsInDay;
+
+		    $dayInWeek = date("w",$begin);
+		    // если суббота или воскресенье
+		    if($dayInWeek == 6 || $dayInWeek == 0) continue;
+
+		    $year = date("Y",$begin);
+		    $dayMonth = date("d.m",$begin);
+		    // если праздничный день
+		    if(isset($selebrations[$year]) && in_array($dayMonth,$selebrations[$year])) continue;
+		  
+		    $counter++;
+	    }
+	    return $counter;
+    }
+    function dateToUnix($datetime){
+        list($date,$time) = explode(" ",$datetime); 
+	    list($year,$month,$day) = explode("-",$date); 
+	    list($hour,$minute,$second) = explode(":",$time); 
+	    return mktime($hour, $minute, $second, $month, $day, $year); 
+    }
+   
 	function identify_supplier_by_prefix($article){// 
 	   global $suppliers_data_by_prefix;					   
 	   $prefix = substr($article,0,2);

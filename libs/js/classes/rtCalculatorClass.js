@@ -2381,6 +2381,9 @@ var rtCalculator = {
 		// метод исключающий или включающий значения из подсчетов
 		// либо в текущих рядах, либо в окончательных суммах по всей таблице (итоговый ряд)
 		
+		// связано с состоянием интерфейса светофоров - поэтому слущаем его
+		if(rtCalculator.change_svetofor.in_process) return; 
+
 	    if(rtCalculator.expel_value_from_calculation.in_process) return; 
 		rtCalculator.expel_value_from_calculation.in_process = true;
 		
@@ -2555,6 +2558,8 @@ var rtCalculator = {
 		//// console.log(); 
         // связано с состоянием интерфейса исключения рядов - поэтому слущаем его
 		if(rtCalculator.expel_value_from_calculation.in_process) return; 
+		if(rtCalculator.change_svetofor.in_process) return; 
+		rtCalculator.change_svetofor.in_process = true;
 		
 		var td = img_btn.parentNode.parentNode;
 		var row_id = td.parentNode.getAttribute("row_id");
@@ -2578,6 +2583,7 @@ var rtCalculator = {
 			}
 			rtCalculator.tbl_model[row_id].dop_data.svetofor = status;
 			rtCalculator.change_html(row_id);/**/
+			rtCalculator.change_svetofor.in_process = false;
 		}
 		
 		rtCalculator.hide_svetofor();
