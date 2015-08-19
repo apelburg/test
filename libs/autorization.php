@@ -1,5 +1,5 @@
 <?php
-
+	
 	if(isset($_GET['set_user_id'])){ 
 		if(!isset($_SESSION['access']['come_back_in_own_profile'])) $_SESSION['access']['come_back_in_own_profile'] = $_SESSION['access']['user_id']; 
 		$_SESSION['access']['user_id'] = $_GET['set_user_id'];

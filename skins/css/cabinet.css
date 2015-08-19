@@ -592,3 +592,21 @@ input.calendar_date_work{
 .percentage_of_readiness.saved{
 	background-color: #D4C28E;
 }
+
+.seat_number_film .greyText{
+	padding: 0 5px
+}
+.seat_number{
+	height: 100%;
+    padding: 0 5px 0 0;
+    border-right: 1px solid grey;
+    font-size: 11px;
+}
+.seat_number_logo{
+	min-width: 200px;
+    font-size: 11px;
+    color: #907474;
+}
+.linked_div{
+	text-align: right;
+}

@@ -172,6 +172,9 @@
 				// запрашиваем информацию по позициям
 				$table_order_positions_rows = $this->table_order_positions_rows_Html();
 				
+				if($table_order_positions_rows == ''){continue;}
+
+				
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
 					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">

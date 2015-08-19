@@ -98,7 +98,7 @@
 				'products_bought' => 'выкуплено',
 				'waits_products' => 'Продукция ожидается:',
 				'in_production' => 'В Производстве',
-				'ready_for_shipment' => 'Готов к отгрузке',
+				'ready_for_shipment' => 'Готов к отгрузке',				
 				'question' => 'Вопрос'
 			);
 
@@ -120,6 +120,7 @@
 				5 => array(
 					'проверить наличие',
 					'в наличии',
+					'нужно делать',
 					'не требуются'
 					),
 				// дизайн
@@ -129,7 +130,7 @@
 					),
 				// производство 
 				4 => array(
-					'нужно делать',
+					'перевывод',
 					'в наличии',
 					'получены'
 					)
@@ -256,10 +257,13 @@
 					$enable_selection - разрешение на вывод редактируемого списка, по умолчанию запрещено
 				*/
 
+				// если стоит статус "Вопрос" красная подсветка
+				$red_bg_color = (trim($real_val) == "question")?' style="background-color:rgba(255, 0, 0, 0.4);"':'';
+
 				$html = '';
 				// проверяем на разрешение смены статуса снабжения
 				if($this->user_access == 8 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
-					$html .= '<select  data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
+					$html .= '<select '.$red_bg_color.' data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
 						if($real_val == 'in_processed'){$html .= '<option value="in_processed" selected="selected">в обработке</option>';}
 						foreach ($this->statuslist_snab as $name_en => $name_ru) {
 							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
@@ -272,7 +276,7 @@
 					if($real_val == 'in_processed'){// если статус in_processed, то его не декодировать в кириллицу с помощью стандартного массива, поэтому пишем исключение
 						$html .='<span class="greyText">в обработке</span>';
 					}else{
-						$html .='<span class="greyText">'.(isset($this->statuslist_snab[$real_val])?$this->statuslist_snab[$real_val]:$real_val).'</span>';
+						$html .='<span '.$red_bg_color.' class="greyText">'.(isset($this->statuslist_snab[$real_val])?$this->statuslist_snab[$real_val]:$real_val).'</span>';
 					}
 					// добавляем div c ожидаемой датой поставки
 					$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'">'.$date_delivery_product.'</div>';
@@ -426,6 +430,11 @@
 			// выпадающий список статусов услуги
 			protected function get_statuslist_uslugi_Dtabase_Html($id,$real_val,$cab_dop_usl_id, $performer){
 				// $performer - подразделение (права доступа)
+
+				// если стоит статус "Вопрос" красная подсветка
+				$red_bg_color = (trim($real_val) == "Вопрос")?' style="background-color:rgba(255, 0, 0, 0.4);"':'';
+
+
 				if(trim($real_val)!="" || $real_val == "in_processed"){// если есть статус - значит услуга запущена
 					// проверяем права доступа на редактирование статуса
 					if($this->user_access == $performer || $this->user_access==1){
@@ -433,7 +442,7 @@
 						$id_s = $this->get_id_parent_Database($id);
 						global $mysqli;
 						$html = '';
-						$html .= '<select class="get_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'"><option value=""></option>';
+						$html .= '<select '.$red_bg_color.' class="get_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'"><option value=""></option>';
 						$query = "SELECT * FROM `".USLUGI_STATUS_LIST."` WHERE `parent_id` IN (".$id_s.")";
 						//echo $query.'<br>';
 						$result = $mysqli->query($query) or die($mysqli->error);
@@ -446,7 +455,7 @@
 						}
 						$html.= '</select>';	
 					}else{
-						$html = '<span class="greyText"  data-id="'.$cab_dop_usl_id.'">'.$real_val.'</span>';
+						$html = '<span  '.$red_bg_color.' class="greyText"  data-id="'.$cab_dop_usl_id.'">'.(($real_val=="in_processed")?'обрабатывается':$real_val).'</span>';
 					}					
 					return $html;
 				
@@ -459,8 +468,8 @@
 						}
 						
 					}else{
-						// выводим кнопку запуска для всех кроме производства
-						if($this->user_access!=4){
+						// выводим кнопку запуска для всех кроме производства и дизайна (они ждут отмашки снабов или менеджера)
+						if($this->user_access!=4 && $this->user_access!=9){
 							$html = '<input type="button" value="Запуск" class="start_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'">';	
 						}else{
 							$html = 'ожидает запуска';
@@ -507,7 +516,8 @@
 					global $mysqli;
 					$arr = array();
 					$query = "SELECT *
-					 FROM `".OUR_USLUGI_LIST."`";	
+					 FROM `".OUR_USLUGI_LIST."`";
+					 // echo $query;	
 					$result = $mysqli->query($query) or die($mysqli->error);
 					if($result->num_rows > 0){	
 						while($row = $result->fetch_assoc()){
@@ -538,6 +548,15 @@
 				}					
 			}
 
+			// сохранение путьи к макету
+			protected function save_the_url_for_layout_AJAX(){
+				global $mysqli;
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+					`the_url_for_layout` =  '".$_POST['text']."' 
+					WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}';
+			}
 
 			// сохранение % готовности (функция с таймингом в JS)
 			protected function change_percentage_of_readiness_AJAX(){
@@ -596,24 +615,44 @@
 
 				$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `id` = '".(int)$_POST['row_id']."'";
 				$result = $mysqli->query($query) or die($mysqli->error);
-				$iputs_all_arr = array();
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 						$service = $row;
 					}
 				}
 
+				// стоимость услуги
+				$html .= '<div class="separation_container">';
+					$html .= '<strong>Входащая стоимость услуги</strong>:<br>';
+					$html .= '<div class="data_info">'.$service['price_in'].' р.</div>';
+					$html .= '<strong>Исходащая стоимость услуги</strong>:<br>';
+					$html .= '<div class="data_info">'.$service['price_out'].' р.</div>';			
+				$html .= '</div>';
+
+				// путь к макету
+				// если указан
+				if (trim($service['the_url_for_layout'])!='') {
+					$html .= '<div class="separation_container">';
+					$html .= '<strong>Путь к макету</strong>:<br>';
+					$html .= '<div class="data_info">'.$service['the_url_for_layout'].' р.</div>';			
+				$html .= '</div>';
+				}
+
+
 				//////////////////////////
 				//	ДОП ПОЛЯ
 				//////////////////////////
-				// получаем список всех полей
-				$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."`";
-				$result = $mysqli->query($query) or die($mysqli->error);
-				$iputs_all_arr = array();
-				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						$iputs_all_arr[$row['name_en']] = $row;
+				if(!isset($this->dop_inputs_listing)){
+					// получаем список всех полей
+					$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."`";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					$this->dop_inputs_listing = array();
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$this->dop_inputs_listing[$row['name_en']] = $row;
+						}
 					}
+
 				}
 
 
@@ -625,11 +664,12 @@
 				if(!isset($this->print_details_dop)){
 					$html .= "<div>произошла ошибка json</div>";
 				}
+
 				if(isset($this->print_details_dop) && !empty($this->print_details_dop)){
 					//echo  $service['print_details_dop'];
 					foreach ($this->print_details_dop as $key => $text) {
 						$html .= '<div class="separation_container">';
-							$html .= '<strong>'.$key.'</strong>:<br>';
+							$html .= '<strong>'.$this->dop_inputs_listing[$key]['name_ru'].'</strong>:<br>';
 							$html .= '<div class="data_info">'.$text.'</div>';		
 						$html .= '</div>';					
 					}
@@ -1098,7 +1138,8 @@
 					while($row = $result->fetch_assoc()){
 						$this->iputs_id_Str = $row['uslugi_dop_inputs_id'];
 						$this->Service_logotip_on = $row['logotip_on'];
-						$this->Service_show_status_film_photos = $row['show_status_film_photos'];
+						$this->Service_show_status_film_photos = $row['show_status_film_photos'];						
+						$this->maket_true_for_Service = $row['maket_true'];
 						// echo $row['logotip_on'];
 					}
 				}
@@ -1222,6 +1263,14 @@
 				if(trim($this->Service_show_status_film_photos)=="on"){
 					$html .='<div>Плёнки<br>';
 					$html .= $this->get_statuslist_film_photos($this->Service['film_photos_status'],$this->Service['id']);
+					// $html .='<textarea class="save_logotip" name="logotip">'.$this->Service['logotip'].'</textarea>';
+					$html .='</div>';
+				}
+
+				// подключаем поле путь к макету
+				if (trim($this->maket_true_for_Service)=="on") {
+					$html .='<div>Путь к макету (к старому):<br>';
+					$html .= '<div><input type="text" name="the_url_for_layout" class="save_the_url_for_layout" value="'.$this->Service['the_url_for_layout'].'"></div>';
 					// $html .='<textarea class="save_logotip" name="logotip">'.$this->Service['logotip'].'</textarea>';
 					$html .='</div>';
 				}
@@ -1479,10 +1528,11 @@
 		// или get_dop_uslugi_no_print_type
 		public function calc_summ_dop_uslug($arr,$tir=0){ // 
 			$summ = 0;
+						
 			// перебираем массив услуг
 			foreach ($arr as $key => $value) {
 				// если услуга не была добавлена кем либо в заказ, при добавлении добавляется id автора
-				if($value['author_id_added_services'] <= 0){
+				if(!isset($value['author_id_added_services']) || $value['author_id_added_services'] <= 0){
 					// суммируем её к общей сумме позиции
 					if($value['for_how']=="for_one"){
 						$summ += ($value['price_out']*$value['quantity']);					
@@ -1582,12 +1632,13 @@
 			*/
 			$query = "SELECT 
 			`".CAB_DOP_USLUGI."`.*,
-			`os__our_uslugi`.`name`,
+			`".OUR_USLUGI_LIST."`.`name`,
 			DATE_FORMAT(`".CAB_DOP_USLUGI."`.`date_ready`,'%d.%m.%Y')  AS `date_ready`,
 			DATE_FORMAT(`".CAB_DOP_USLUGI."`.`date_work`,'%d.%m.%Y')  AS `date_work`
 			FROM `".CAB_DOP_USLUGI."` 
-			LEFT JOIN  `os__our_uslugi` ON  `os__our_uslugi`.`id` = `".CAB_DOP_USLUGI."`.`uslugi_id` 
+			LEFT JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` = `".CAB_DOP_USLUGI."`.`uslugi_id` 
 			WHERE `".CAB_DOP_USLUGI."`.`dop_row_id` = '".$dop_row_id."'";
+			$query .= " ORDER BY `".OUR_USLUGI_LIST."`.`id` ASC";
 
 			//$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -1712,6 +1763,26 @@
 		    return $String;
 		}
 
+		// получаем форму присвоения даты утверждения макета
+		// в зависимости от уровня допуска для некоторых это календарь, а для менеджеров это кнопка
+		protected function get_Position_approval_date($approval_date,$position_id){
+			$html = '';
+			if($this->user_access == 5){
+				if(trim($approval_date)==""){
+					$html .= '<input type="button" class="set_approval_date" data-id="'.$position_id.'" value="Макет утверждён">';
+				}else{
+					$html .= '<span class="greyText">'.$approval_date.'</span>';	
+				}
+				
+			}else{
+				$html .= '<input type="text" class="approval_date" value="'.$approval_date.'" data-id="'.$position_id.'">';
+			}
+			
+
+
+			return $html;
+		}
+
 		// получаем имя сотрудника по id, если он указан
 		protected 	function get_name_employee_Database_Html($id,$no_edit=0){
 			if(isset($id) && trim($id)!=''){
@@ -1735,9 +1806,9 @@
 		}
 
 
-		## Запросы __ запросы к базе
+		
 		// фильтрация позиций ЗАПРОСОВ по горизонтальному меню
-		private function requests_Template_recuestas_main_rows_Database($id){
+		protected function requests_Template_recuestas_main_rows_Database($id){
 						
 			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ 
 			switch ($_GET['subsection']) {
@@ -1794,16 +1865,15 @@
 					".$where."
 					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
 				// echo  $query.'<br><br>';
-			$main_rows = array();
+			
+			$postion_arr = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$main_rows_id = array();
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$main_rows[] = $row;
+					$postion_arr[] = $row;
 				}
 			}
-			// if($main_rows){ echo $query;}
-			return $main_rows;
+			return $postion_arr;
 		}
 
 
@@ -2136,13 +2206,30 @@
 
 		// правим дату утверждения макета
 		protected function change_approval_date_AJAX(){
+			
+			// вносим правки в позицию
 			global $mysqli;
 			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
 				`approval_date` =  '".$_POST['date']."' 
 				WHERE  `id` ='".$_POST['row_id']."';";
 
 			$result = $mysqli->query($query) or die($mysqli->error);
+			// запускаем все прикреплённые услуги
+
+			//ищем 'being_prepared' меняем на in_processed
+			$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`performer_status` =  'in_processed' 
+				WHERE  `dop_row_id` ='".$_POST['dop_data_id']."' AND `performer_status` = 'being_prepared';";
+
+			$result = $mysqli->query($query) or die($mysqli->error);
+				
 			echo '{"response":"OK"}';
+
+			nenn 
+
+			asfa54fwea6fae651
+
+
 		}
 
 
