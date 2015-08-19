@@ -395,13 +395,17 @@ body{
 .options_bar .block .sub_block .manager_list_container .checkbox{
   float:left; 
   cursor:pointer;
-  /*
-  height:20px;
-  width:20px;
-  */
+  height:18px;
+  /* width:20px;*/
+  
 }
 .options_bar .block .sub_block .manager_list_container .checkbox input{
   cursor:pointer;
+  /* отмена общих стилей (от красивых чекбоксов)*/
+  margin-top:0px;
+   box-shadow: none;
+  -moz-box-shadow:  none;
+  -webkit-box-shadow:  none;
 }
  
 .options_bar .block .sub_block .manager_list_container .clear_div{
