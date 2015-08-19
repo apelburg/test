@@ -425,7 +425,7 @@
 		##########################################
 		## Предзаказ
 		private function paperwork_Template($id_row=0){
-
+			$where = 0;
 			global $mysqli;
 			
 			// простой запрос
@@ -436,8 +436,21 @@
 				`".CAB_ORDER_ROWS."`.*, 
 				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
 				FROM `".CAB_ORDER_ROWS."`";
-			$query .=" WHERE `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
+				
+			// фильтр по менеджеру
+			$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
+			$where = 1;
+
 			
+			// получаем статусы предзаказа
+			$paperwork_status_string = '';
+			foreach (array_keys($this->paperwork_status) as $key => $status) {
+				$paperwork_status_string .= (($key>0)?",":"")."'".$status."'";
+			}
+			// выбираем из базы только предзаказы (заказы не показываем)
+			$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` IN (".$paperwork_status_string.")";
+			$where = 1;
+
 
 			//////////////////////////
 			//	исключения по фильтрации  СТАРТ
@@ -663,6 +676,7 @@
 					DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
 					FROM `".CAB_ORDER_ROWS."`";
 				
+				// вывод только строки заказа
 				if($id_row){
 					$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
 					$where = 1;
@@ -670,15 +684,38 @@
 					// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = ''";
 				}
 
+				// если знаем id клиента - выводим только заказы по клиенту
 				if(isset($_GET['client_id'])){
 					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
 					$where = 1;
 				}
 
+				// если это МЕН - выводим только его заказы
 				if($this->user_access ==5){
 					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
 					$where = 1;
 				}
+
+
+				// получаем статусы заказа
+				$order_status_string = '';
+				foreach (array_keys($this->order_status) as $key => $status) {
+					$order_status_string .= (($key>0)?",":"")."'".$status."'";
+				}
+				// выбираем из базы только заказы (предзаказы не показываем)
+				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` IN (".$order_status_string.")";
+				$where = 1;
+
+
+
+
+				// получаем статусы заказа
+			$order_status_string = '';
+			foreach (array_keys($this->order_status) as $key => $status) {
+				$order_status_string .= (($key>0)?",":"")."'".$status."'";
+			}
+			// выбираем из базы только заказы (предзаказы не показываем)
+			$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` IN (".$order_status_string.")";
 
 				// // отфильтровываем по статусам ПРЕДЗАКАЗЫ от заказов, выводим только заказы
 				// $query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` = '".implode(",", array_keys($this->order_status))."'";

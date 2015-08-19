@@ -2225,9 +2225,7 @@
 				
 			echo '{"response":"OK"}';
 
-			nenn 
-
-			asfa54fwea6fae651
+			echo 'необходимо доделать функцию. ищем \'being_prepared\' меняем на in_processed';
 
 
 		}
