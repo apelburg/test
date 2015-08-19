@@ -5,6 +5,7 @@
 <script type="text/javascript">
    tableDataManager.url = '?page=agreement&update_specification_ajax=1';
 </script>
+<style> .main_menu_tbl{ display:none; } </style>
 <div class="specification">
     <br />
     <br />

@@ -398,7 +398,9 @@
 		
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
             //$stylesheet = file_get_contents('style.css');
-				
+			$filename = 'Презентация_'.$client_id.'_'.date('Ymd_His').'.pdf';
+
+	
 			$mpdf=new mPDF();
 			//$mpdf->WriteHTML($stylesheet,1);
 			$mpdf->WriteHTML($html,2);
@@ -751,9 +753,9 @@
 						//$img_src = '../../skins/images/img_design/icon_index_2.jpg';
 											
 						// меняем размер изображения
-						// $size_arr = transform_img_size($img_src,230,300);
-						$size_arr = array(230,300);
-						$img_cell = '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$img_src[1].'">';
+						$size_arr = transform_img_size($img_src,230,300);
+						// $size_arr = array(230,300);
+						$img_cell = '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
 					}
                 }				
 				

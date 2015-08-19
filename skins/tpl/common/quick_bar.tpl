@@ -20,16 +20,16 @@
         </td>
 
         <td class="quick_button_2">
-            <div id="new_query" class="std_button">Новый запрос</div>
+            <!--<<div id="new_query" class="std_button">Новый запрос</div>-->
         </td>
         <td class="quick_button_3">
 
-            <div class="quick_button_circle">
+            <!--<div class="quick_button_circle">
                 <div class="quick_button_circle__circle" style="background-image: url(./skins/images/img_design/button_circle_1.png);border-color:green">
                     <div class="quick_button_circle__alert">12</div>
                 </div>
                 <div class="quick_button_circle__text">Уведомления</div>
-            </div> 
+            </div> -->
             <?php echo $planner_display; ?>
         </td>
         <td class="quick_view_button">

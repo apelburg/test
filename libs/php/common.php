@@ -210,12 +210,13 @@
     }
 	
 	function transform_img_size($img,$limit_height,$limit_width){
-     	list($img_width, $img_height, $type, $attr) = (file_exists($img))? getimagesize($img): array($limit_width,$limit_height,'',''); 
+     	list($img_width, $img_height, $type, $attr) = (fopen($img,'r'))? getimagesize($img): array($limit_width,$limit_height,'',''); 
+		if($img_width==0 || $img_height ==0 )return array(0,0);
 		$limit_relate = $limit_height/$limit_width;
 		$img_relate = $img_height/$img_width;
-		if($limit_relate < $img_relate) $limit_width = $limit_height/$img_relate; 
-		else $limit_height = $limit_width*$img_relate;
-		return array($limit_height,$limit_width); 
+		if($limit_relate < $img_relate) return array($limit_height,$limit_height/$img_relate); 
+		else  return array($limit_width*$img_relate,$limit_width); 
+		//return array($limit_height,$limit_width); 
 	}
 	
 	function convert_bb_tags($text){
@@ -464,6 +465,7 @@
 	    global $db;
 		
 		$go_on = true;
+		// echo '<pre>';print_r($range);echo '</pre>';
 		
 	    if($range){
 		    if($range['by']){
