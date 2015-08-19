@@ -286,10 +286,11 @@
 				}
 			}	
 		    
-			if($shipping!='0000-00-00 00:00:00'){
-			    $query="UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET  `shipping_date_time` = '".$shipping."'  WHERE `id` IN('".implode("','", $specIdsArr)."')";
-				$mysqli->query($query)or die($mysqli->error);
-			}
+            // если дата изготовления товара меньше даты  спецификации то уравниваем их
+			$shipping = ($shipping<$date.' 00:00:00')? $date.' 00:00:00': $shipping;
+			$query="UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET  `shipping_date_time` = '".$shipping."'  WHERE `id` IN('".implode("','", $specIdsArr)."')";
+			$mysqli->query($query)or die($mysqli->error);
+			
 			// exit;	
 		
 			
