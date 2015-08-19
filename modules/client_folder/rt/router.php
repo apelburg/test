@@ -146,7 +146,7 @@
 		// echo $_GET['quantity'];
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 		
-		echo rtCalculators::change_quantity_and_calculators($_GET['quantity'],$_GET['id']);
+		echo rtCalculators::change_quantity_and_calculators($_GET['quantity'],$_GET['id'],$_GET['print'],$_GET['extra']);
 		exit;
 	}
 	if(isset($_GET['distribute_print'])){
@@ -222,7 +222,7 @@
 	$theme = RT::fetch_theme($query_num);
 	$theme_block = '<input id="query_theme_input" class="query_theme" query_num="'.$query_num.'" type="text" value="'.(($theme=='')?'Введите тему':htmlspecialchars($theme,ENT_QUOTES)).'">';	
 
-	
+	echo '<br>'.getWorkingDays(date("Y-m-d H:i:s",time()),date("2015-11-03 10:41:01"));
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';
 	

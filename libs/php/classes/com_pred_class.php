@@ -54,13 +54,13 @@
 								       $reload['flag'] = true;
 									   //echo $dop_data['quantity'];
 									   include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
-									   $json_out =  rtCalculators::change_quantity_and_calculators($row_dop1['quantity'],$row_dop1['id']);
+									   $json_out =  rtCalculators::change_quantity_and_calculators($row_dop1['quantity'],$row_dop1['id'],'true','false');
 									   $json_out_obj =  json_decode($json_out);
 									 
 									   // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
 									   // сбрасываем количество тиража и нанесения до 1шт.
-									   if(isset($json_out_obj->outOfLimit) || isset($json_out_obj->needIndividCalculation)){
-										   rtCalculators::change_quantity_and_calculators(1,$row_dop1['id']);
+									   if(isset($json_out_obj->print->outOfLimit) || isset($json_out_obj->print->needIndividCalculation)){
+										   rtCalculators::change_quantity_and_calculators(1,$row_dop1['id'],'true','false');
 										 
 										   $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$row_dop1['id']."'";
 										   $result = $mysqli->query($query)or die($mysqli->error);
@@ -727,8 +727,8 @@
 			$tr_td = '<tr><td style="border:#CCCCCC solid 1px;" width="300" valign="middle" align="center">';
 			$td_tr = '</td></tr>';
 			$td_td = '</td><td style="border:#CCCCCC solid 1px;padding:6px;" width="325" valign="top">';
-			//
-			echo '<pre>'; print_r($multi_dim_arr); echo '</pre>';
+			
+			// echo '<pre>'; print_r($multi_dim_arr); echo '</pre>';
 			
 			
 			/********************   ++++++++++++++  *********************/
@@ -805,42 +805,25 @@
 			
 				
 				    // 3. уровень нанесения логотипа
+					$str_len = 38;
 				    $all_print_summ = 0;
 					$all_extra_summ = 0;
 					$counter_print = 0;
 					$counter_extra = 0;
-					
+					$space_str['short'] = '&nbsp;&nbsp;&nbsp;';
+			        $space_str['long']  = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			
 					if(isset($r_level['dop_uslugi']['print'])){
 						foreach($r_level['dop_uslugi']['print'] as $u_key => $u_level){
-						
+						         
 							     // наименование нанесения
 								 // форматируем вывод, разбиваем строки на куски определенной длины и вставляем перед каждым отступ
-								 $str_len = 38;
 								 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
 								 $print_description = Agreement::convert_print($u_level['print_details']);
-								 $print_description = $print_description;
-								 $print_description = nl2br($print_description);
-								 $print_description = iconv("UTF-8","windows-1251//TRANSLIT", $print_description);
-								 if(strpos($print_description,'<br>') == true) $print_description = str_replace('<br>','<br />',$print_description);
-								 $print_description_arr = explode('<br />',$print_description);
+								 //$print_description = $print_description;
 								 
-								 $space_str['short'] = '&nbsp;&nbsp;&nbsp;';
-								 $space_str['long']  = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 								 $section_space  = (count($r_level['dop_uslugi']['print'])>1)?  $space_str['long']:$space_str['short'];
-								 
-								 $new_line = '<br />'.$section_space;
-								 foreach($print_description_arr as $key => $piece){
-									 if(strlen($piece) > $str_len){  
-										 $piece = wordwrap($piece,$str_len,$new_line);
-										 $print_description_arr[$key] = $piece;
-									 }
-									 else $print_description_arr[$key] = trim($piece);
-							  	 }
-								
-								 $print_description = implode($new_line,$print_description_arr);
-								 $print_description = iconv("windows-1251","UTF-8//TRANSLIT", $print_description);
-								 
-				                
+				                 $print_description = self::split_description($print_description,$str_len,$section_space);
 								 
 								 // количество
 								 $print_quantity = $u_level['quantity'];
@@ -870,15 +853,21 @@
 							 $all_extra_summ  += $extra_summ;
 							 $itogo_dop_uslugi+= $extra_summ;
 							 
-							 $extra_usluga_details = self::get_usluga_details($u_level['usluga_id']);
+							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+							 $extra_usluga_details = Agreement::get_usluga_details($u_level['usluga_id']);
 							 $extra_description = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
-							 //$extra_description .= '<br />'.$section_space.'Тираж: '.$print_quantity.' шт.<br />'.$section_space.'1шт.: '.number_format($extra_price,2,'.',' ').'руб. / тираж: <nobr>'.number_format($extra_summ,2,'.',' ').'руб.</nobr><br />';
+							 
+							 $section_space  = (count($r_level['dop_uslugi']['extra'])>1)?  $space_str['long']:$space_str['short'];
+				             $extra_description = self::split_description($extra_description,$str_len,$section_space);
+							
 							 if($u_level['for_how']=='for_all'){
 							     $extra_description .= /*$section_space.*/' - <nobr>'.number_format($extra_summ,2,'.',' ').'руб.</nobr><br />';
 							 }
 							 else{
-							     $extra_description .= /*$section_space.*/' - за 1шт.: '.number_format($extra_price,2,'.',' ').'руб. / всего: <nobr>'.number_format($extra_summ,2,'.',' ').'руб.</nobr><br />';
+							     $extra_description .= /*$section_space.*/' - за 1шт.: '.number_format($extra_price,2,'.',' ').'руб. / всего: <br /><nobr>'.number_format($extra_summ,2,'.',' ').'руб.</nobr><br />';
 							 } 
+							 
+							 
 							 
 							 $mark = (count($r_level['dop_uslugi']['extra'])>1)? ++$counter_extra.'. ' :'';                   
 							 $extra_details[] =  $space_str['short'].$mark.$extra_description;
@@ -907,7 +896,7 @@
 					if(isset($extra_details)) $description_cell .= ' + Доп услуги';
 					$description_cell .= ':</b><br />';	
 					
-				    $description_cell .= '<span style="color:#00B050;font-weight:bold;">1шт. : '.number_format(($summ+$all_print_summ+$all_extra_summ)/$quantity,2,'.',' ').' руб. / тираж: <nobr>'.number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'руб.</nobr></span><br />';
+				    $description_cell .= '&nbsp;&nbsp;&nbsp;<span style="color:#00B050;font-weight:bold;">1шт. : '.number_format(($summ+$all_print_summ+$all_extra_summ)/$quantity,2,'.',' ').' руб. / тираж: <nobr>'.number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'руб.</nobr></span><br />';
 					
 					$tbl_rows[] = $tr_td.$img_cell.$td_td.$description_cell.$td_tr;
 					$description_cell = $print_description ='';
@@ -948,17 +937,48 @@
 		   return $kp_content;
 			
 	   }
-	   static function get_usluga_details($usluga_id){
-	        global $mysqli;
+	   static function split_description($str,$str_len,$section_space){
+	         $str = nl2br($str);
+			 $str = iconv("UTF-8","windows-1251//TRANSLIT", $str);
+			 if(strpos($str,'<br>') == true) $str = str_replace('<br>','<br />',$str);
+			 $str_arr = explode('<br />',$str);
+			 
+			 $new_line = '<br />'.$section_space;
+			 foreach($str_arr as $key => $piece){
+				 if(strlen($piece) > $str_len){  
+					 $piece = wordwrap($piece,$str_len,$new_line);
+					 $str_arr[$key] = $piece;
+				 }
+				 else $str_arr[$key] = trim($piece);
+			 }
 			
-			$query="SELECT name FROM `".OUR_USLUGI_LIST."` WHERE id = '".$usluga_id."'";
-			$result = $mysqli->query($query)or die($mysqli->error);
-		    if($result->num_rows>0){
-			   $row=$result->fetch_assoc();
-			   return $row;
-			}
-			return false;
-	   }	
+			 $str = implode($new_line,$str_arr);
+			 $str = iconv("windows-1251","UTF-8//TRANSLIT", $str);
+			 
+			 return $str;
+			 
+			 
+			 /* $print_description = nl2br($print_description);
+			 $print_description = iconv("UTF-8","windows-1251//TRANSLIT", $print_description);
+			 if(strpos($print_description,'<br>') == true) $print_description = str_replace('<br>','<br />',$print_description);
+			 $print_description_arr = explode('<br />',$print_description);
+			 
+			 $space_str['short'] = '&nbsp;&nbsp;&nbsp;';
+			 $space_str['long']  = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			 $section_space  = (count($r_level['dop_uslugi']['print'])>1)?  $space_str['long']:$space_str['short'];
+			 
+			 $new_line = '<br />'.$section_space;
+			 foreach($print_description_arr as $key => $piece){
+				 if(strlen($piece) > $str_len){  
+					 $piece = wordwrap($piece,$str_len,$new_line);
+					 $print_description_arr[$key] = $piece;
+				 }
+				 else $print_description_arr[$key] = trim($piece);
+			 }
+			
+			 $print_description = implode($new_line,$print_description_arr);
+			 $print_description = iconv("windows-1251","UTF-8//TRANSLIT", $print_description);*/
+	   }
 	   static function open_in_blank_old($kp_id,$client_id,$user_id,$save_on_disk = false){
 	        global $mysqli;
 			$stock = false;

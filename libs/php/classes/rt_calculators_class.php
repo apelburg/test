@@ -396,7 +396,7 @@
 			// если надо удалить все расчеты нанесения
 			if($all && !$usluga_id){
 			    $query="DELETE FROM `".RT_DOP_USLUGI."` WHERE
-									   `dop_row_id` ='".$dop_row_id."'"; 
+									    glob_type ='print' AND `dop_row_id` ='".$dop_row_id."'"; 
 				 echo $query;
 				 $mysqli->query($query)or die($mysqli->error);
 			
@@ -512,78 +512,185 @@
 			//print_r($out);
 			echo (isset($out))? json_encode($out):'';
 		}
-		static function change_quantity_and_calculators($quantity,$dop_data_id){
+		static function change_quantity_and_calculators($quantity,$dop_data_id,$print,$extra){
 		    global $mysqli;  
-			$itog_sums = array("summ_in"=>0,"summ_out"=>0);
 			
-			// делаем запрос чтобы получить данные о всех расчетах нанесений привязанных к данному ряду
-		    $query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
-			                    `".RT_DOP_DATA."` dop_data
-								  ON dop_data.`id` =  uslugi.`dop_row_id`
-			                      WHERE uslugi.glob_type ='print' AND dop_data.`id` = '".$dop_data_id."'";
-			//echo $query;
-			$result = $mysqli->query($query)or die($mysqli->error);
-			if($result->num_rows>0){
-				while($row = $result->fetch_assoc()){
-				    if($quantity != 0){
-						// детали расчета нанесения
-						$print_details_obj = json_decode($row['print_details']);
-						//print_r($print_details_obj->dop_params);echo "\r\n";//
-						$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
-						// получаем новые исходящюю и входящюю цену исходя из нового таража
-						$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
-						//print_r($new_price_arr);echo "\r\n";//
+			// ЗАДАЧА:
+			// произвести необходимые проверки по допустимости установки нового значения quantity, если изменения допустимы передать 
+			// result - ok, и новые значения itog_sums для print или extra, если есть какие-то предупреждения передать их, если изменения
+			// не допустимы передать result - error, и описания ошибок
+			// в конце если зменения допустимы изменяем количество в строке расчета
+			
+            $out_put = array();
+			$out_put['row_id'] = $dop_data_id;
+			$out_put['print']['result']='ok';
+			$out_put['extra']['result']='ok';	
+			
+			if($print == 'true'){
+			    $itog_sums = array("summ_in"=>0,"summ_out"=>0);
+				// делаем запрос чтобы получить данные о всех расчетах нанесений привязанных к данному ряду
+				$query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
+									`".RT_DOP_DATA."` dop_data
+									  ON dop_data.`id` =  uslugi.`dop_row_id`
+									  WHERE uslugi.glob_type ='print' AND dop_data.`id` = '".$dop_data_id."'";
+				//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					while($row = $result->fetch_assoc()){
+						if($quantity != 0){
+							// детали расчета нанесения
+							$print_details_obj = json_decode($row['print_details']);
+							//print_r($print_details_obj->dop_params);echo "\r\n";//
+							$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
+							// получаем новые исходящюю и входящюю цену исходя из нового тиража
+							$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
+							//print_r($new_price_arr);echo "\r\n";//
+						
+							// сохраняем полученные данные в промежуточный массив
+							$dataArr[]= array('new_price_arr' => $new_price_arr,'print_details_obj' => $print_details_obj,'uslugi_row_id' => $row['uslugi_row_id']);
+						 }
+						 else $dataArr[]= array('uslugi_row_id' => $row['uslugi_row_id']);
+					}
 					
-						// сохраняем полученные данные в промежуточный массив
-						$dataArr[]= array('new_price_arr' => $new_price_arr,'print_details_obj' => $print_details_obj,'uslugi_row_id' => $row['uslugi_row_id']);
-					 }
-					 else $dataArr[]= array('uslugi_row_id' => $row['uslugi_row_id']);
-				}
-				
-				// если все в порядке и нет ни каких исключений делаем дальнейшие операции
-				if(!(self::$needIndividCalculation || self::$outOfLimit)){
-				     
-					 foreach($dataArr as $key => $dataVal){
-				     // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
-						if($quantity != 0) $new_data = self::make_calculations($quantity,$dataVal['new_price_arr'],$dataVal['print_details_obj']->dop_params);
-						else{
-						    $new_data["new_price_arr"] = array("price_in"=>0,"price_out"=>0);
-							$new_data["new_summs"] = array("summ_in"=>0,"summ_out"=>0); 
+					// если все в порядке и нет ни каких исключений делаем дальнейшие операции
+					if(!(self::$needIndividCalculation || self::$outOfLimit)){
+						 
+						 foreach($dataArr as $key => $dataVal){
+						 // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
+							if($quantity != 0) $new_data = self::make_calculations($quantity,$dataVal['new_price_arr'],$dataVal['print_details_obj']->dop_params);
+							else{
+								$new_data["new_price_arr"] = array("price_in"=>0,"price_out"=>0);
+								$new_data["new_summs"] = array("summ_in"=>0,"summ_out"=>0); 
+							}
+							
+							// перезаписываем новые значения прайсов и X индекса обратно в базу данных
+							$query="UPDATE `".RT_DOP_USLUGI."` 
+										  SET 
+										  quantity = '".$quantity."',
+										  price_in = '".$new_data["new_price_arr"]["price_in"]."',
+										  price_out = '".$new_data["new_price_arr"]["price_out"]."'
+										  WHERE id = '".$dataVal['uslugi_row_id']."'";
+							$mysqli->query($query)or die($mysqli->error);
+							
+							$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
+							$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
 						}
-						
-						// перезаписываем новые значения прайсов и X индекса обратно в базу данных
-						$query="UPDATE `".RT_DOP_USLUGI."` 
-									  SET 
-									  quantity = '".$quantity."',
-									  price_in = '".$new_data["new_price_arr"]["price_in"]."',
-									  price_out = '".$new_data["new_price_arr"]["price_out"]."'
-									  WHERE id = '".$dataVal['uslugi_row_id']."'";
-						$mysqli->query($query)or die($mysqli->error);
-						
-						$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
-						$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
-						//print_r($new_summs);
-						//echo "\r\n";
-						// обновляем количество 
-						$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$dop_data_id."'";
-			            $result = $mysqli->query($query)or die($mysqli->error);
-				    }
+					}
+					
+					// если дошли до этого места значит все нормально
+					// отправляем новые данные обратно клиенту
+					// print_r($itog_sums);
+					//$result =(self::$needIndividCalculation || self::$outOfLimit)?'error':'ok';
+	                if(self::$needIndividCalculation || self::$outOfLimit) $out_put['print']['result']='error';
+					
+					if(self::$lackOfQuantity)	$out_put['print']['lackOfQuantity'] = self::$lackOfQuantityDetails;
+					if(self::$outOfLimit)  $out_put['print']['outOfLimit'] = self::$outOfLimitDetails;
+					if(self::$needIndividCalculation)  $out_put['print']['needIndividCalculation'] = self::$needIndividCalculationDetails;
+					
+					if($out_put['print']['result']=='ok') $out_put['print']['new_sums'] = $itog_sums;
+				}
+			}
+			if($extra == 'true' && $out_put['print']['result']=='ok'){// $out_put['print']['result']=='error' то работать с extra нет смысла
+			    $out_put['extra']['new_sums'] = array("summ_in"=>0,"summ_out"=>0);
+			    // считаем новые itog_sums
+			    $query="SELECT*FROM `".RT_DOP_USLUGI."` WHERE glob_type ='extra' AND dop_row_id = '".$dop_data_id."'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					while($row = $result->fetch_assoc()){
+					     $out_put['extra']['new_sums']['summ_in'] += ($row['for_how']=='for_all')? $row['price_in']:$quantity*$row['price_in'];
+						 $out_put['extra']['new_sums']['summ_out'] +=($row['for_how']=='for_all')? $row['price_out']:$quantity*$row['price_out'];
+					}
 				}
 				
-				// если дошли до этого места значит все нормально
-				// отправляем новые данные обратно клиенту
-				// print_r($itog_sums);
-				$result =(self::$needIndividCalculation || self::$outOfLimit)?'error':'ok';
+			    $query="UPDATE `".RT_DOP_USLUGI."` SET  quantity = '".$quantity."' WHERE dop_row_id = '".$dop_data_id."'";
+				$mysqli->query($query)or die($mysqli->error);
 
-				
-				$json_str =  '{"result":"'.$result.'","row_id":'.$dop_data_id;
-				if($result=='ok')	$json_str .= ',"new_sums":'.json_encode($itog_sums);
-				if(self::$lackOfQuantity)	$json_str .= ',"lackOfQuantity":'.json_encode(self::$lackOfQuantityDetails);
-				if(self::$outOfLimit)  $json_str .= ',"outOfLimit":'.json_encode(self::$outOfLimitDetails);
-				if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
-				$json_str .=  '}';
-				// используется в том числе при перерасчете нанесения при загрузке старницы в РТ
-				return $json_str;
+			}
+			// если по нужным услугам обновление с флагом result == ok, обновляем количество в RT_DOP_DATA
+			if($out_put['print']['result']=='ok' && $out_put['extra']['result']=='ok'){
+				// обновляем количество 
+				$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$dop_data_id."'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+			}
+			//print_r($out_put);
+			return json_encode($out_put);
+		}
+		static function change_quantity_and_calculators2($quantity,$dop_data_id,$print,$extra){
+		    global $mysqli;  
+			
+			
+			$itog_sums = array("summ_in"=>0,"summ_out"=>0);
+ 
+			if($print == 'true'){
+				// делаем запрос чтобы получить данные о всех расчетах нанесений привязанных к данному ряду
+				$query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
+									`".RT_DOP_DATA."` dop_data
+									  ON dop_data.`id` =  uslugi.`dop_row_id`
+									  WHERE uslugi.glob_type ='print' AND dop_data.`id` = '".$dop_data_id."'";
+				//echo $query;
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					while($row = $result->fetch_assoc()){
+						if($quantity != 0){
+							// детали расчета нанесения
+							$print_details_obj = json_decode($row['print_details']);
+							//print_r($print_details_obj->dop_params);echo "\r\n";//
+							$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
+							// получаем новые исходящюю и входящюю цену исходя из нового таража
+							$new_price_arr = self::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
+							//print_r($new_price_arr);echo "\r\n";//
+						
+							// сохраняем полученные данные в промежуточный массив
+							$dataArr[]= array('new_price_arr' => $new_price_arr,'print_details_obj' => $print_details_obj,'uslugi_row_id' => $row['uslugi_row_id']);
+						 }
+						 else $dataArr[]= array('uslugi_row_id' => $row['uslugi_row_id']);
+					}
+					
+					// если все в порядке и нет ни каких исключений делаем дальнейшие операции
+					if(!(self::$needIndividCalculation || self::$outOfLimit)){
+						 
+						 foreach($dataArr as $key => $dataVal){
+						 // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
+							if($quantity != 0) $new_data = self::make_calculations($quantity,$dataVal['new_price_arr'],$dataVal['print_details_obj']->dop_params);
+							else{
+								$new_data["new_price_arr"] = array("price_in"=>0,"price_out"=>0);
+								$new_data["new_summs"] = array("summ_in"=>0,"summ_out"=>0); 
+							}
+							
+							// перезаписываем новые значения прайсов и X индекса обратно в базу данных
+							$query="UPDATE `".RT_DOP_USLUGI."` 
+										  SET 
+										  quantity = '".$quantity."',
+										  price_in = '".$new_data["new_price_arr"]["price_in"]."',
+										  price_out = '".$new_data["new_price_arr"]["price_out"]."'
+										  WHERE id = '".$dataVal['uslugi_row_id']."'";
+							$mysqli->query($query)or die($mysqli->error);
+							
+							$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
+							$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
+							//print_r($new_summs);
+							//echo "\r\n";
+							// обновляем количество 
+							$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$dop_data_id."'";
+							$result = $mysqli->query($query)or die($mysqli->error);
+						}
+					}
+					
+					// если дошли до этого места значит все нормально
+					// отправляем новые данные обратно клиенту
+					// print_r($itog_sums);
+					$result =(self::$needIndividCalculation || self::$outOfLimit)?'error':'ok';
+	
+					
+					$json_str =  '{"result":"'.$result.'","row_id":'.$dop_data_id;
+					if($result=='ok')	$json_str .= ',"new_sums":'.json_encode($itog_sums);
+					if(self::$lackOfQuantity)	$json_str .= ',"lackOfQuantity":'.json_encode(self::$lackOfQuantityDetails);
+					if(self::$outOfLimit)  $json_str .= ',"outOfLimit":'.json_encode(self::$outOfLimitDetails);
+					if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
+					$json_str .=  '}';
+					// используется в том числе при перерасчете нанесения при загрузке старницы в РТ
+					return $json_str;
+				}
 			}
 		}
 		static function change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam){

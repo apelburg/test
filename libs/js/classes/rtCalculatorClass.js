@@ -1878,7 +1878,8 @@ var rtCalculator = {
 					
 	
 					if(tds_arr[j].getAttribute('expel')){
-						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {"expel":{}};
+						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {};
+						if(!this.tbl_model[row_id].dop_data.expel)this.tbl_model[row_id].dop_data.expel = {};
 						var expel = !!parseInt(tds_arr[j].getAttribute('expel'));
 						if(type=='out_summ'){
 							this.tbl_model[row_id].dop_data.expel.main=expel;
@@ -1891,7 +1892,10 @@ var rtCalculator = {
 						}
 						
 					}
-					
+					if(tds_arr[j].hasAttribute('svetofor')){
+						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {};
+						this.tbl_model[row_id].dop_data.svetofor = tds_arr[j].getAttribute('svetofor');
+					}
 					
 					/*// если это ряд содержащий абсолютные ссуммы сохраняем постоянные ссылки на его ячейки , чтобы затем вносить в них изменения
 					// КАК ТО НЕ ПОЛУЧИЛОСЬ
@@ -1901,6 +1905,7 @@ var rtCalculator = {
 					}
 					*/
 				}
+				
 			}
 		
 		}
@@ -1957,7 +1962,7 @@ var rtCalculator = {
 								}
 								tds_arr[j].onblur = function(){
 								   if(rtCalculator.cur_cell.getAttribute('type') && rtCalculator.cur_cell.getAttribute('type')!= 'quantity'){
-									   this.complite_input();
+									   rtCalculator.complite_input();
 								   } 
 								}
 								tds_arr[j].setAttribute("contenteditable",true);
@@ -2193,6 +2198,7 @@ var rtCalculator = {
 	    
 		// проверяем есть ли в ячейке расчеты нанесения
 		var printsExitst = false;
+		var extraExitst = false;
 		var tds_arr = cur_tr.getElementsByTagName('td');
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type') && tds_arr[j].getAttribute('type') == 'print_exists_flag'){
@@ -2201,10 +2207,15 @@ var rtCalculator = {
 					printsExitst = true;
 				}
 			}
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('calc_btn') && tds_arr[j].getAttribute('calc_btn') == 'extra' && tds_arr[j].getAttribute('extra_exists_flag')){
+					extraExitst = true;
+			}
+			
 		}
 		
-		if(printsExitst){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
-		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity_and_calculators=1&quantity='+cell.innerHTML+'&id='+row_id);
+		if(printsExitst || extraExitst){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity_and_calculators=1&quantity='+cell.innerHTML+'&id='+row_id+'&print='+printsExitst+'&extra='+extraExitst);
+			//alert(url);
 		    rtCalculator.send_ajax(url,callbackPrintsExitst);
 		}
 		else{// отправляем запрос на изменение только лишь значения тиража в базе данных 
@@ -2213,27 +2224,27 @@ var rtCalculator = {
 		}
 						
 		function callbackPrintsExitst(response){
-			// alert(response);
+		    //alert(response);
 			var response_obj = JSON.parse(response);
 							
-			if(response_obj.lackOfQuantity){
+			if(response_obj.print.lackOfQuantity){
 				 var str =''; 
-				 for(var index in response_obj.lackOfQuantity){
-					 str += (parseInt(index)+1)+'). '+response_obj.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.lackOfQuantity[index].minQuantity+"\r";  
+				 for(var index in response_obj.print.lackOfQuantity){
+					 str += (parseInt(index)+1)+'). '+response_obj.print.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.print.lackOfQuantity[index].minQuantity+"\r";  
 				 }
 				 alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
 			}
-			if(response_obj.outOfLimit){
+			if(response_obj.print.outOfLimit){
 				 var str ='';  
-				 for(var index in response_obj.outOfLimit){
-					 str += (parseInt(index)+1)+'). '+response_obj.outOfLimit[index].print_type+', лимит тиража - '+response_obj.outOfLimit[index].limitValue+"\r";  
+				 for(var index in response_obj.print.outOfLimit){
+					 str += (parseInt(index)+1)+'). '+response_obj.print.outOfLimit[index].print_type+', лимит тиража - '+response_obj.print.outOfLimit[index].limitValue+"\r";  
 				 }
 				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :\r"+str+"для этих нанесений требуется индивидуальный расчет");
 			}
-			if(response_obj.needIndividCalculation){ 
+			if(response_obj.print.needIndividCalculation){ 
 				 var str ='';  
-				 for(var index in response_obj.needIndividCalculation){
-					 str += (parseInt(index)+1)+'). '+response_obj.needIndividCalculation[index].print_type+"\r";  
+				 for(var index in response_obj.print.needIndividCalculation){
+					 str += (parseInt(index)+1)+'). '+response_obj.print.needIndividCalculation[index].print_type+"\r";  
 				 }
 				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :\r"+str+"");
 				
@@ -2242,12 +2253,21 @@ var rtCalculator = {
 			//// console.log(response_obj);
 			// если ответ был ok значит все нормально изменения сделаны 
 			// теперь нужно внести изменения в hmlt
-			if(response_obj.result == 'ok'){
+			if(response_obj.print.result == 'ok' && response_obj.extra.result == 'ok'){
 				rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
 				//// console.log(response_obj.new_sums);
-				rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.new_sums.summ_in);
-				rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.new_sums.summ_out);
+				if(response_obj.print.new_sums){ 
+				    rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.print.new_sums.summ_in);
+				    rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.print.new_sums.summ_out);
+				}
 				rtCalculator.tbl_model[row_id]["print_exists_flag"] = 'yes';
+				
+				if(response_obj.extra.new_sums){
+					rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"] = parseFloat(response_obj.extra.new_sums.summ_in);
+				    rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"] = parseFloat(response_obj.extra.new_sums.summ_out);
+				}
+
+				
 				
 				// производим пересчет ряда
 				rtCalculator.calculate_row(response_obj.row_id);
@@ -2298,7 +2318,7 @@ var rtCalculator = {
 		row['delta'] = row['margin'] = row['out_summ']-row['in_summ'];
 
 		// если ряд не исключен из рассчетов расчитываем разницу появивщуюся в результате изменений и помещаем данные 
-	    if(!row['dop_data']['expel']['main']){
+	    if(!row['dop_data']['expel']['main'] && row['dop_data']['svetofor']=='green'){
 			rtCalculator.tbl_model['total_row']['price_in_summ'] += row['price_in_summ'] - rtCalculator.previos_data['price_in_summ'];
 			rtCalculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rtCalculator.previos_data['price_out_summ'];
 			rtCalculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rtCalculator.previos_data['in_summ'];
@@ -2329,7 +2349,7 @@ var rtCalculator = {
 				var connected_vals = tds_arr[j].getAttribute('connected_vals');
 				
 				
-				if(type == 'glob_counter' || type == 'dop_details' || type == 'master_btn' || type == 'name') continue;
+				if(type == 'glob_counter' || type == 'dop_details' || type == 'master_btn' || type == 'name' || type == 'svetofor') continue;
 				
 				if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type];
 				else if(type=='print_exists_flag') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]; 
@@ -2361,6 +2381,9 @@ var rtCalculator = {
 		// метод исключающий или включающий значения из подсчетов
 		// либо в текущих рядах, либо в окончательных суммах по всей таблице (итоговый ряд)
 		
+		// связано с состоянием интерфейса светофоров - поэтому слущаем его
+		if(rtCalculator.change_svetofor.in_process) return; 
+
 	    if(rtCalculator.expel_value_from_calculation.in_process) return; 
 		rtCalculator.expel_value_from_calculation.in_process = true;
 		
@@ -2371,7 +2394,7 @@ var rtCalculator = {
 		
 	    // получаем текущий статус ячейки и меняем его на противоположный
 		var status = !(!!parseInt(cell.getAttribute('expel')));
-		//alert(status+' '+cell.getAttribute('expel')+' '+cell.getAttribute('type'));
+		// alert(status+' '+cell.getAttribute('expel')+' '+cell.getAttribute('type'));
         
 		var row_id = cell.parentNode.getAttribute('row_id');
 		if(row_id == undefined) { alert('attribute row_id dont exists'); return;}
@@ -2442,7 +2465,9 @@ var rtCalculator = {
 			    // итоговый ряд пропускаем
 				if(id =='total_row') continue;
 				// если в ряд не участвует в расчете конечных сумм пропускаем его
+				// также если ряд имеет не зеленый светофор
 				if(rtCalculator.tbl_model[id]['dop_data']['expel']['main']) continue; 
+				if(rtCalculator.tbl_model[id]['dop_data']['svetofor']!='green') continue; 
 				//alert(id +' '+row_id+' '+type);
 				var row = rtCalculator.tbl_model[id];
 				
@@ -2530,16 +2555,35 @@ var rtCalculator = {
 	   
 	    e = e|| window.event;
 		var img_btn = e.target || e.srcElement;
-		//// console.log();
+		//// console.log(); 
+        // связано с состоянием интерфейса исключения рядов - поэтому слущаем его
+		if(rtCalculator.expel_value_from_calculation.in_process) return; 
+		if(rtCalculator.change_svetofor.in_process) return; 
+		rtCalculator.change_svetofor.in_process = true;
+		
 		var td = img_btn.parentNode.parentNode;
 		var row_id = td.parentNode.getAttribute("row_id");
 		var status = img_btn.getAttribute("status");
+		
 		
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_svetofor='+ status +'&id='+row_id);
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ /*alert(response);*/
 		   td.getElementsByTagName('img')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_'+status+'.png';
 		   td.setAttribute("svetofor",status);
+		   
+		    // alert(status+' '+ typeof rtCalculator.tbl_model[row_id]['dop_data']['expel']['main']+' '+rtCalculator.tbl_model[row_id]['out_summ']);
+			if(status=='green' && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
+				rtCalculator.tbl_model['total_row']['out_summ'] = rtCalculator.tbl_model['total_row']['out_summ']+ rtCalculator.tbl_model[row_id]['out_summ'];
+				rtCalculator.tbl_model['total_row']['in_summ'] = rtCalculator.tbl_model['total_row']['in_summ']+ rtCalculator.tbl_model[row_id]['in_summ']; 
+			}
+			else if(status!='green' && rtCalculator.tbl_model[row_id].dop_data.svetofor == 'green'  && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
+				rtCalculator.tbl_model.total_row['out_summ'] = rtCalculator.tbl_model.total_row['out_summ']- rtCalculator.tbl_model[row_id]['out_summ'];
+				rtCalculator.tbl_model.total_row['in_summ'] = rtCalculator.tbl_model.total_row['in_summ']- rtCalculator.tbl_model[row_id]['in_summ']; 
+			}
+			rtCalculator.tbl_model[row_id].dop_data.svetofor = status;
+			rtCalculator.change_html(row_id);/**/
+			rtCalculator.change_svetofor.in_process = false;
 		}
 		
 		rtCalculator.hide_svetofor();

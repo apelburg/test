@@ -182,6 +182,8 @@
 				
 				$date_arr = explode('-',$val[0]['date']);
 				$specification_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';
+				$production_term_in_days = getWorkingDays($val[0]['date']." 00:00:00",$specifications_arr[$key][0]['shipping_date_time']);
+				$production_term_in_days_word = trim(num_word_transfer((int)$production_term_in_days));
 				
 
 				list($first_part,$second_part) = explode('-',number_format($itogo,2,'-',''));
@@ -222,7 +224,7 @@
 				
 				
 				/*$production_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $specifications_arr[$key][0][\'item_production_term\']; ?>&nbsp;</span>';*/
-				$production_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $specifications_arr[$key][0][\'shipping_date_time\']; ?>&nbsp;</span>';
+				$production_term = '<span bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $production_term_in_days.\' (\'.$production_term_in_days_word.\')\'; ?>&nbsp;</span>';
 				
 				$prepayment_term = '<?php include ($_SERVER[\'DOCUMENT_ROOT\'].\'/os/modules/agreement/agreements_templates/\'.$specifications_arr[$key][0][\'prepayment\'].\'_prepaiment_conditions.tpl\'); ?>';
 				
