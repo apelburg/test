@@ -476,7 +476,8 @@ $(document).on('click', '.attach_the_client', function(event) {
 		rt_list_id:rt_list_id
 	}, function(data, textStatus, xhr) {
 		show_dialog_and_send_POST_window(data,'Выбрать клиента',750);
-		replace_query_row_obj(obj);
+		// replace_query_row_obj(obj);
+		location.reload();
 	});
 });
 

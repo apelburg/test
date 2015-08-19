@@ -70,44 +70,46 @@
 				        'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
-											'important'=> array(
-												'access'=>true,
-												'subsection'=>array( // 2
-													'all' => array('access'=>true)
-													)
-												),
+											// 'important'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array( // 2
+											// 		'all' => array('access'=>true)
+											// 		)
+											// 	),
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
+													'all' => array('access'=>true),
 													'no_worcked_men' => array('access'=>true),
 													'in_work' => array('access'=>true),
-													'send_to_snab' => array('access'=>true),
-													'calk_snab' => array('access'=>true),
+													// 'send_to_snab' => array('access'=>true),
+													// 'calk_snab' => array('access'=>true),
 													//'ready_KP' => array('access'=>true), // будем прикручивать на будущие версии
-													'denied' => array('access'=>true),
-													'all' => array('access'=>true),
+													// 'denied' => array('access'=>true),
 													'history' => array('access'=>true)
 													)
 												), 
 											'paperwork'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'create_spec' => array('access'=>true),
-													'signed' => array('access'=>true),
-													'expense' => array('access'=>true)
+													'all' => array('access'=>true),
+													// 'create_spec' => array('access'=>true),
+													// 'signed' => array('access'=>true),
+													// 'expense' => array('access'=>true)
 													)
 												), 
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'in_work' => array('access'=>true),
-													'start' => array('access'=>true),
-													'production' => array('access'=>true),
-													'my_orders_diz' => array('access'=>true),
-													'all_orders_diz' => array('access'=>true),
-													'not accepted' => array('access'=>true),
-													'issue' => array('access'=>true),
-													'paused' => array('access'=>true)
+													'all' => array('access'=>true),
+													// 'in_work' => array('access'=>true),
+													// 'start' => array('access'=>true),
+													// 'production' => array('access'=>true),
+													// 'my_orders_diz' => array('access'=>true),
+													// 'all_orders_diz' => array('access'=>true),
+													// 'not accepted' => array('access'=>true),
+													// 'issue' => array('access'=>true),
+													// 'paused' => array('access'=>true)
 													// 'start' => array('access'=>true),
 													// 'purchase' => array('access'=>true),
 													// 'design' => array('access'=>true),
@@ -117,27 +119,27 @@
 													// 'all' => array('access'=>true)
 													)
 												),
-											'for_shipping'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'order_of_documents' => array('access'=>true),
-													'arrange_delivery' => array('access'=>true),
-													'delivery' => array('access'=>true),
-													'pclosing_documents' => array('access'=>true)
-													)
-												),
+											// 'for_shipping'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array(  // 2
+											// 		'order_of_documents' => array('access'=>true),
+											// 		'arrange_delivery' => array('access'=>true),
+											// 		'delivery' => array('access'=>true),
+											// 		'pclosing_documents' => array('access'=>true)
+											// 		)
+											// 	),
 											'closed'=> array(
 												'access'=>true, 
 												'subsection'=>array(  // 2
 													'all' => array('access'=>true),
 													)
-												),
-											'simples'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												)
+												)//,
+											// 'simples'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array(  // 2
+											// 		'all' => array('access'=>true),
+											// 		)
+											// 	)
 											)
 										),
 					   'suppliers'=> array(

@@ -772,7 +772,14 @@
 				// echo $method;
 				// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
 				if(method_exists($this, $method)){
-					echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
+					ob_start();
+					
+					$this->$method($_POST['os__rt_list_id']);
+
+					$html = ob_get_contents();
+					ob_get_clean();
+					
+					echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 					exit;
 				}							
 			}

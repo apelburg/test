@@ -95,7 +95,7 @@
 		############################################
 		###		        AJAX START               ###
 		############################################
-		private function get_in_work_AJAX(){
+		protected function get_in_work_AJAX(){
 			global $mysqli;
 			// прикрепить клиента и менеджера к запросу	
 			$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
@@ -103,7 +103,7 @@
 			echo '{"response":"OK"}';
 		}
 
-		private function take_in_operation_AJAX(){
+		protected function take_in_operation_AJAX(){
 			global $mysqli;
 			// прикрепить клиента и менеджера к запросу	
 			$query ="UPDATE  `".RT_LIST."` SET `status`='taken_into_operation',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
@@ -202,7 +202,8 @@
 
 		##########################################
 		################ Запросы
-		private function requests_Template($id_row=0){			
+		protected function requests_Template($id_row=0){			
+			$where = 0;
 			include ('./libs/php/classes/rt_class.php');
 
 			// $array_request = array();
@@ -222,6 +223,7 @@
 			///////////////////////////////////////////////
 				if($id_row){// если указан, осущевствляем вывод только одного заказа
 					$query .=" AND `".RT_LIST."`.`id` = '".$id_row."'";
+					$where = 1;
 				}else{
 					// статусы могут быть трёх (3) типов:
 					// not_process - не обработанные:
@@ -247,6 +249,11 @@
 						default:
 							$query .= " AND `".RT_LIST."`.`status` = 'in_work'";
 							break;
+					}
+
+					// если знаем id клиента - выводим только заказы по клиенту
+					if(isset($_GET['client_id'])){
+						$query .= " AND `".RT_LIST."`.`client_id` = '".$_GET['client_id']."'";
 					}
 
 				}

@@ -749,7 +749,14 @@ body{
   
 }
 .client_details_field .details_tbl td.cap{
-  width:40px;
+  width:40px; 
+  text-align:right;
+  font-size:11px;
+  color:#898989;
+  /*font-weight:bold;*/
+}
+.client_details_field.new_tbl .details_tbl td.cap{
+  width:auto;  
   text-align:right;
   font-size:11px;
   color:#898989;
@@ -768,7 +775,14 @@ body{
   overflow:hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  height:18px;
+  height:18px; 
+}
+.client_details_field.new_tbl .details_tbl td .container{
+  width: auto;
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  height:auto; 
 }
 
 
@@ -2451,4 +2465,32 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 .rtCalendarContextWindow,.rtCalendarContextWindow a, .rtCalendarContextWindow td, .rtCalendarContextWindow th{
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 13px;
+}
+
+#get_form_Html_tbl .section_div{
+  border-top:1px solid grey;
+  padding-left: 15px;
+  padding: 5px 0;
+}
+#get_form_Html_tbl tr th{
+  color:#6d6e72;
+  text-align: left;
+  padding-left: 15px;
+}
+#get_form_Html_tbl tr td{
+  padding: 5px 15px;
+
+}
+#get_form_Html_tbl tr td:nth-of-type(1){
+  width: 180px; 
+  vertical-align:top;
+}
+#get_form_Html_tbl tr td:nth-of-type(2){
+  vertical-align:top;
+  color: #6d6e72;
+  font-size: 11px;
+}
+#get_form_Html_tbl tr td label:hover{
+  /*background-color: #f1f1f1;*/
+  cursor: pointer;
 }

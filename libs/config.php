@@ -97,11 +97,11 @@
 	
 	// новая РТ
 	define("RT_LIST", "os__rt_list"); // таблица запросов	
-	define("RT_LIST_COMMENTS","os__rt_list_comments");// 
-	define("RT_MAIN_ROWS","os__rt_main_rows"); //
-	define("RT_DOP_DATA","os__rt_dop_data"); //
+	define("RT_LIST_COMMENTS","os__rt_list_comments"); // 
+	define("RT_MAIN_ROWS","os__rt_main_rows"); // 
+	define("RT_DOP_DATA","os__rt_dop_data"); // 
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
-	define("RT_ART_SIZE","os__rt_art_sizes"); //
+	define("RT_ART_SIZE","os__rt_art_sizes"); // 
 
 	// АРХИВ ВАРИАНТОВ В РТ НЕ УЧАВСТВУЕТ
 	define("DOP_USLUGI_HIST", 'os__dop_uslugi_history');

@@ -17,6 +17,9 @@ PS было бы неплохо взять взять это за правило
 		// id пользователя
     	private $user_id;
 
+
+    	private $user_access;
+
     	// тип продукта с которым работает форма
     	private $type_product;
 		
@@ -39,48 +42,119 @@ PS было бы неплохо взять взять это за правило
 			//ext_cl - сувениры клиента
 
      	# true/false разрешаем или запрещаем работу класса с ними
-		public $arr_type_product = array(
-			'cat' => array(
-				'name' => 'Продукция с сайта',
-				'readonly' => true,
-				'access' => false
-				),
-			'pol' => array(
-				'name' => 'Полиграфия / листовая',
-				'readonly' => false,
-				'access' => true
-				),
-			'pol_many' => array(
-				'name' => 'Полиграфия / многолистовая',
-				'readonly' => true,
-				'access' => true
-				),
-			'calendar' => array(
-				'name' => 'Полиграфия / календари',
-				'readonly' => true,
-				'access' => true
-				),
-			'packing' => array(
-				'name' => 'Упаковка картонная',
-				'readonly' => true,
-				'access' => true
-				),
-			'packing_other' => array(
-				'name' => 'Упаковка разная',
-				'readonly' => true,
-				'access' => true
-				),
-			'ext' => array(
-				'name' => 'Сувениры под заказ',
-				'readonly' => true,
-				'access' => true
-				),
-			'ext_cl' => array(
-				'name' => 'Сувениры клиента',
-				'readonly' => true,
-				'access' => true
-				),
-			);
+     	public $arr_section_product = array(
+     		'souvenirs' => array(
+     			'name' => 'Сувениры',
+     			'sections' => array(
+     				'cat' => array(
+						'name' => 'Продукция с сайта',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'которые есть на сайте Апельбург и имеют артикул, так же Вы можете добавить данный товар из корзины на сайте'
+						),
+					'ext' => array(
+						'name' => 'Сувениры под заказ',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Антистресс, Алкоголь, Ароматизатор, Аксессуары для мобильных, 
+Бандана, Банный набор, Бейсболка, Бокал, Бочонок, Браслет, Брелок, Брюки, Бутылка,
+Ваза, Варенье , Ветровка, Внешний аккумулятор, Воздушные шар, Вымпел, 
+Галстук, Георгиевская ленточка, 
+Держатель, Диск CD, Дисконтная карта, Драже мятное, 
+Ежедневник под заказ, Жилет, Зажигалка, Значок, Зонт, Игрушка, 
+Календарь сувенирный, Карамель, Карандаш, Карты игральные, Карта пластиковая, Каски строительные, Коврики для мыши, Коврики на торпеду, Косметичка, Костер, Косынка, Кофейный набор, Кружка, Кубарик-трансформер, 
+Ланч-бокс, Ланъярд, Леденец, Лента, Ложки, 
+Магнит, Мармелад, Масленка, Мат, Медаль, Мешочек, Миндаль, Миски, Модель, Монетница, Мышь, Мяч, 
+Наборы, Нанобокс, Носки, Обложки, 
+Пазл, Папка-уголок, Печенье, Планшет, Платок, Плед , Плитка шоколада, Подставка под горячее, Поло, Полотенце, Полиграфическая вставка, Полукомбинезон, Портмоне, Портсигар, 
+Рамка для номера, Рулетка, Ручка, Рюкзак, 
+Салфетка, Светоотражатель, Ситечко для чая , Скатерть, Скотч, Скрепка, Сланцы, Стакан, Стелла, Сумка, 
+Табличка, Толстовка, Универсальный внешний аккумулятор, 
+Фартук, Фишки,Флаг тканевый, Флажок сувенирный, Флешка, Фоторамка, Футболка, Чай, Чайник, Чайный набор, Часы наручные, Чехол, 
+Шампанское , Шар новогодний, Шарик воздушный, Шарфы, Шашки, Шнурок, Шоколад , 
+Электрочайник, CD диск, DVD-диск, PVC-флешка, PVC-шеврон'
+						),
+
+					'ext_cl' => array(
+						'name' => 'Сувениры клиента',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'которые нам привозят только для нанесения. (Мы не покупаем товар - товар клиента)'
+						)
+     				)
+     			),
+     		'polygraphy' =>  array(
+     			'name' => 'Полиграфия',
+     			'sections' => array(
+	     			'pol' => array(
+						'name' => 'Листовая',
+						'readonly' => false,
+						'access' => true,
+						'description' => 'Афиша, Баннер, Баннерный стенд, Бирка, Бланк, Буклет, 
+Визитка, Вставка, Выставочные стенды, Газета, Грамота, Диплом, Евробуклет, Карточка, Календарик карманный, Конверт, 
+Листовка, Мобильные панели, Мобильные стенды, Наклейка, Открытка, 
+Пакет, Папка, Папка вырубная, Плакат, Пресс волл, Приглашения, Путеводитель, 
+Разделители, Рекламный щит, Ростовые фигуры, Сертификат, Стикеры, 
+Фирменный бланк, Флаерс, Флажок бумажный, Фотография, Этикетка, PopUp, RollUp'
+						),
+					'pol_many' => array(
+						'name' => 'Многолистовая',
+						'readonly' => false,
+						'access' => true,
+						'description' => 'Альбом, Блок для записей, Блокнот, Брошюра, Каталог, Книга, Книжка, Кубарик, Нотная тетрадь, Планинги, Тетрадь'
+						),
+     				)
+     			),
+     		'calendars' =>  array(
+     			'name' => 'Календари',
+     			'sections' => array(
+	     			'quarterly_calendar' => array(
+						'name' => 'Квартальные',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Трио, Макси, Моно, Люкс Квадро, Рекламный, New Профи, New Футура, Гранд, Евростандарт, Максима, New Эксперт, Премиум, Классика, Спектрум 1, Спектрум 2, Квадро, Концепт, Имидж, Универсал, Рационал, Прагматика'
+						),
+					'wall_calendar' => array(
+						'name' => 'Настенные',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Календарь перекидной настенный, Календарь-плакат настенный'
+						),
+					'desktop_calendar' => array(
+						'name' => 'Настольные',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Календарь перекидной домик'
+						)
+     				)
+     			),
+     		'packing' =>  array(
+     			'name' => 'Упаковка',
+     			'sections' => array(
+	     			'boxes' => array(
+						'name' => 'коробки',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Коробка “крышка-дно”, Коробка “шкатулка”, Коробка “самосборная”, Коробка “четырехклапанная”, Коробка “футляр”, Коробка “круглая”, Коробка “книга”, Коробка “пицца”, Коробка под бутылку, Тубус, Шубер'
+						),
+					'package' => array(
+						'name' => 'Пакеты',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Пакеты бумажные, Пакеты ПВД, Пакеты ПНД, Пакеты картонные, Пакеты имитлин, Пакеты эфалин'
+						),
+					'other_packing' => array(
+						'name' => 'Остальное',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Банка, Корзина, Короб, Коробка для вина, Коробка для чая, Посылочный ящик, Сундук, Футляр с выдвижной крышкой, из дерева, из шпона, из МДФ, из рейки, из ДВП, из ДСП, из ПВХ, из фетра, из платика, из спанбонда, из жести, из фанеры'
+						)
+     				)
+     			)
+     		);
+
+     	
+		
 
      	// перечисление разрешённых разделов полей 
      	// а так же некоторая необходимая для их обработки информация
@@ -89,6 +163,128 @@ PS было бы неплохо взять взять это за правило
      	// наличие кнопки клонирования раздела формы
      	// наличие кнопки добавления своего варианта // копирует самый нижний imput
      	public $form_type = array(
+     		'pol_many' => array(
+     			'name_product'=>array(
+     				'name'=>'Наименование',
+     				'moderate'=>true,
+     				'note'=>'укажите название изделия',
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>true,
+     				'cancel_selection' =>false // кнопка отмены всех выбранных
+     				),
+     			'product_dop_text'=>array(
+     				'name'=>'Доп. наименование',
+     				'moderate'=>false,
+     				'note'=>'текст который будет виден в РТ сразу же за Намименованием. К примеру: Открытка № 1, где "№ 1" - это доп. наименование',
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'quantity'=>array(
+     				'name'=>'Тираж',
+     				'moderate'=>true,
+     				'note'=>'укажите тираж изделий',
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>true,
+     				'cancel_selection' =>false
+     				),
+     			'format'=>array(
+     				'name'=>'Формат',
+     				'moderate'=>true,
+     				'note'=>'укажите формат (мм)',
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>true,
+     				'cancel_selection' =>false
+     				),
+     			'material' =>array(
+     				'name'=>'Материал',
+     				'moderate'=>true,
+     				'note'=>'укажите материал (картон не мелованный, дизайнерский, бумага мелованная и т.д.), название материала (Splendorgel-Сплендоргель)',
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'plotnost' =>array(
+     				'name'=>'Плотность материала',
+     				'note'=>'плотность (130гр, 170гр,300гр и т.д.)',
+     				'moderate'=>true,
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'type_print' =>array(
+     				'name'=>'Вид печати',
+     				'moderate'=>false,
+     				'note'=>'укажите вид печати и кол-во цветов (4+0 и т.д.) + "другое" , выбрать Pantone если есть дополнительная печать пятым цветом',
+     				'btn_add_var'=>true,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'change_list' => array(
+     				'name'=>'Изменение листа',
+     				'note'=>'укажите при необходимости дальнейшего изменения формы листа, при вырубке указать наличие штампа',
+     				'moderate'=>false,
+     				'btn_add_var'=>true,
+     				'btn_add_val'=>true,
+     				'cancel_selection' => true
+     				),
+     			'laminat' => array(
+     				'name'=>'Ламинат',
+     				'note'=>'укажите при необходимости вид обработки поверхности листа',
+     				'moderate'=>false,
+     				'btn_add_var'=>true,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>true
+     				),
+     			'lak' => array(
+     				'name'=>'Лак',
+     				'note'=>'укажите при необходимости вид обработки поверхности листа',
+     				'moderate'=>false,
+     				'btn_add_var'=>true,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>true
+     				),
+     			'date_calc_snab' => array(
+     				'name'=>'Желаемый срок готовности рассчета',
+     				'note'=>'стандартно, или до дата.',
+     				'moderate'=>true,
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'date_print' => array(
+     				'name'=>'Срок сдачи заказа клиенту',
+     				'note'=>'укажите дату если необходима конкретная дата отгрузки',
+     				'moderate'=>true,
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'how_mach' => array(
+     				'name'=>'Бюджет',
+     				'note'=>'',
+     				'moderate'=>false,
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'images' => array(
+     				'name'=>'Путь к макету',
+     				'note'=>'если есть картинка или фото',
+     				'moderate'=>false,
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				),
+     			'dop_info' => array(
+     				'name'=>'Пояснения',
+     				'note'=>'укажите дополнительную информацию, если такая имеется',
+     				'moderate'=>false,
+     				'btn_add_var'=>false,
+     				'btn_add_val'=>false,
+     				'cancel_selection' =>false
+     				)
+    			),  
      		'pol' => array( // поисание формы для полиграфической продукции
      			'name_product'=>array(
      				'name'=>'Наименование',
@@ -204,7 +400,7 @@ PS было бы неплохо взять взять это за правило
      				),
      			'dop_info' => array(
      				'name'=>'Пояснения',
-     				'note'=>'укажите дополнительную информацию, если таковая имеется',
+     				'note'=>'укажите дополнительную информацию, если такая имеется',
      				'moderate'=>false,
      				'btn_add_var'=>false,
      				'btn_add_val'=>false,
@@ -216,7 +412,8 @@ PS было бы неплохо взять взять это за правило
 
 
 		function __construct(){
-			$this->usser_id = $_SESSION['access']['user_id'];
+			$this->user_id = $_SESSION['access']['user_id'];
+			$this->user_access = $_SESSION['access']['access'];
 		}
 
 		// возвращает форму выбора заведения новой позиции в запрос
@@ -232,21 +429,44 @@ PS было бы неплохо взять взять это за правило
 			//packing_other - упаковка другая
 			//ext - сувениры под заказ
 			//ext_cl - сувениры клиента
-			$array_product_type = $this->arr_type_product;
-
 			$html = '';
-
 			$html .= '<form>';
+			$html .= '<table id="get_form_Html_tbl">';
+			$html .= '<tr><th>Тип</th><th>Описание типа</th></tr>';
 			$i=0;
-			foreach ($array_product_type as $key => $value) {
-				if($value['access']){
+			foreach ($this->arr_section_product as $section_product => $section_product_array) {
+				$html .= '<tr><td colspan="2"><div class="section_div">'.$section_product_array['name'].'</div></td></tr>'; // название раздела
+				
+				foreach ($section_product_array['sections'] as $key => $value) {
+					if($value['access']){
 
-					$readonly = ($value['readonly'])?'disabled':'';
-					$readonly_style = ($value['readonly'])?'style="color:grey"':'';
-					$html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'" '.$readonly.'><label '.$readonly_style.' for="type_product_'.$i.'">'.$value['name'].'</label><br>';
-					$i++;
-				}				
+						$readonly = ($value['readonly'])?'disabled':'';
+						$readonly_style = ($value['readonly'])?'style="color:grey"':'';
+
+						$html .= '<tr>';
+							$html .= '<td>';
+							$html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'" '.$readonly.'><label '.$readonly_style.' for="type_product_'.$i.'">'.$value['name'].'</label>';
+							$html .= '</td>';
+							$html .= '<td>';
+							$html .= '<label '.$readonly_style.' for="type_product_'.$i.'">'.$value['description'].'</label>';
+							$html .= '</td>';
+						$html .= '</tr>';
+						$i++;
+					}
+
+				}
 			}
+
+			$html .= '<table>';
+
+
+
+			// $array_product_type = $this->arr_type_product;
+
+			// $html = '';
+
+			
+			
 			$html .= '<input type="hidden" name="AJAX" value="get_form_Html">';
 			$html .= '</form>';
 			return $html;
@@ -454,7 +674,8 @@ PS было бы неплохо взять взять это за правило
 				
 				//для каждого поля запрашиваем форму
 				$html .= $this->generate_form_Html($this->get_form_Html_listing_Database_Array($type_product,$key),'',$type_product);
-								
+				
+				// echo $html;				
 				// добавляем кнопки				
 				$html .= '</div>';	
 				$html .= '<div class="buttons_form">';
@@ -462,6 +683,7 @@ PS было бы неплохо взять взять это за правило
 				$html .= ($value['btn_add_val'])?'<span class="btn_add_val">+ значение</span>':'';
 				$html .= ($value['cancel_selection'])?'<span class="cancel_selection">отменить</span>':'';
 				$html .= '</div>';
+
 			}	
 
 			$html .= '</form></div>';
@@ -664,9 +886,9 @@ PS было бы неплохо взять взять это за правило
 
 		// генерит html
 		private function generate_form_Html($arr,$parent='',$type_product){	
-			// echo '<pre>';
-			// print_r($arr);
-			// echo '</pre>';
+			echo '<pre>';
+			print_r($arr);
+			echo '</pre>';
 			$html = '';
 			$select = 0;
 
@@ -703,7 +925,7 @@ PS было бы неплохо взять взять это за правило
 								// выводим как есть
 								$html .= '<textarea data-id="'.$val['id'].'" id="'.$id.'" name="'.$p_name.'">'.$val['val'].'</textarea><br>';
 								break;
-							case $this->usser_id: // если запись соответствует id менеджера
+							case $this->user_id: // если запись соответствует id менеджера
 								// позволяем менеджеру удалить своё поле
 								$html .= '<textarea data-id="'.$val['id'].'" id="'.$id.'" name="'.$p_name.'">'.$val['val'].'</textarea>'.$this->span_del.'<br>';
 								break;
@@ -720,7 +942,7 @@ PS было бы неплохо взять взять это за правило
 								// выводим как есть
 								$html .= '<input data-id="'.$val['id'].'" type="'.$val['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$val['val'].'"><br>';
 								break;
-							case $this->usser_id: // если запись соответствует id менеджера
+							case $this->user_id: // если запись соответствует id менеджера
 								// позволяем менеджеру удалить своё поле
 								$html .= '<input data-id="'.$val['id'].'" type="'.$val['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$val['val'].'">'.$this->span_del.'<br>';
 								break;
@@ -737,7 +959,7 @@ PS было бы неплохо взять взять это за правило
 								// выводим как есть
 								$html .= '<option data-id="'.$val['id'].'" id="'.$id.'" value="'.$val['val'].'">'.$val['val'].'</option><br>';
 								break;
-							case $this->usser_id: // если запись соответствует id менеджера
+							case $this->user_id: // если запись соответствует id менеджера
 								// позволяем менеджеру удалить своё поле
 								$html .= '<option data-id="'.$val['id'].'" id="'.$id.'" value="'.$val['val'].'">'.$val['val'].' '.$this->span_del.'</option><br>';
 								break;
@@ -755,7 +977,7 @@ PS было бы неплохо взять взять это за правило
 								// выводим как есть
 								$html .= '<input data-id="'.$val['id'].'" type="'.$val['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$val['val'].'"><label for="'.$id.'">'.$val['val'].'</label><br>';
 								break;
-							case $this->usser_id: // если запись соответствует id менеджера
+							case $this->user_id: // если запись соответствует id менеджера
 								// позволяем менеджеру удалить своё поле
 								$html .= '<input data-id="'.$val['id'].'" type="'.$val['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$val['val'].'"><label for="'.$id.'">'.$val['val'].' '.$this->span_del.'</label><br>';
 								break;
@@ -790,6 +1012,11 @@ PS было бы неплохо взять взять это за правило
 					$arr[] = $row;
 				}
 			}
+			echo $query;
+			echo '<pre>';
+			print_r($arr);
+			echo '</pre>';
+				
 			return $arr;
 		}
 

@@ -154,6 +154,62 @@ class Client {
 		}
         // 
 	}
+
+	// вывод краткой информации о клиенте
+	static function get_client__information($id){
+		// получаем информацию по клиенту
+		global $mysqli;		
+		////////////////////////////////////////
+		//	получаем данные из основной таблицы
+		////////////////////////////////////////
+		$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$Client_info = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$Client_info = $row;
+			}
+		}
+		$company_name = '';
+		
+		if(!empty($Client_info)){
+			$company_name = $Client_info['company'];
+		}
+
+		//////////////////////////
+		//	получаем телефоны и емейл
+		//////////////////////////
+		// global $mysqli;
+		$contacts = array();
+		$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = 'CLIENTS_TBL' AND `parent_id` = '".(int)$id."'";
+		
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$contacts[] = $row;
+			}
+		}
+		// echo '<pre>';
+		// print_r($contacts);
+		// echo '</pre>';			
+
+		
+
+		$phone = '';
+		$email = '';
+
+		foreach ($contacts as $contact) {
+			if($contact['type'] == 'phone' && $phone == ''){
+				$phone = $contact['contact'];
+			}
+			if($contact['type'] == 'email' && $email == ''){
+				$email = $contact['contact'];
+			}
+		}
+
+		include './skins/tpl/clients/client_list/condensed_information_on_the_client.tpl';
+		return;
+	}
 	
 	static function get_addres($id){
 		global $mysqli;
