@@ -313,6 +313,12 @@
 			if(!isset($_POST['delivery_apl'])){
 				$_POST['delivery_apl'] = '';
 			}
+
+
+			// обрабатываем maket_true
+			if(!isset($_POST['maket_true'])){
+				$_POST['maket_true'] = '';
+			}
 		
 		//////////////////
 		//    checkboxes 
@@ -504,7 +510,7 @@
 		// включение/отключение поля logotip
 		$html .= '<div class="separation_container">';
 		$html .= '<div class="name_input">Поле "Логотип"</div>';
-		$html .= '<div class="edit_info"><input type="checkbox" name="logotip_on" id="logotip_on" '.(($usluga['logotip_on']=="on")?'checked':'').'><label for="logotip_on">Включить/отключить</label><br>
+		$html .= '<div class="edit_info"><input type="checkbox" name="logotip_on" id="logotip_on" '.(($usluga['logotip_on']=="on")?'checked':'').'><label for="logotip_on">Включить</label><br>
 					<span class="greyText">(включает/отключает поле "логотип" в доп.тех.инфо)</span>
 				</div>';
 		$html .= '</div>';
@@ -523,6 +529,14 @@
 		$html .= '<div class="edit_info"><input type="checkbox" name="show_status_film_photos" id="show_status_film_photos" '.(($usluga['show_status_film_photos']=="on")?'checked':'').'><label for="show_status_film_photos">Показать в полях услуги статусы плёнок</label><br>
 					<span class="greyText">(указать если к услуге необходимо указывать статусы плёнок)</span>
 				</div>';
+		$html .= '</div>';
+
+		// наличие макета
+		$html .= '<div class="separation_container">';
+		$html .= '<div class="name_input">Наличие макета</div>';
+		$html .= '<div class="edit_info"><input type="checkbox" name="maket_true" id="maket_true" '.(($usluga['maket_true']=="on")?'checked':'').'><label for="maket_true">Для исполнения услуги необходимо наличие макета</label><br>
+					<span class="greyText">(указать если с услугой будет работать дизайнер или оператор, если включено - в доп.тех нфо появляется поле путь к макету)</span>
+				</div>';		
 		$html .= '</div>';
 
 		// Цена исходящая

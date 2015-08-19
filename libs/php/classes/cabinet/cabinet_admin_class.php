@@ -651,6 +651,12 @@
 				$where = 1;
 			}
 
+			if($this->user_access ==5){
+				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
+				$where = 1;
+			}
+
+
 			// // отфильтровываем по статусам ПРЕДЗАКАЗЫ от заказов, выводим только заказы
 			// $query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` = '".implode(",", array_keys($this->order_status))."'";
 			
@@ -701,7 +707,12 @@
 							// добавляем ссылку на клиента
 							$table_order_row2_body .= $this->get_client_name_link_Database($this->Order['client_id']);
 						// номер счёта
-						$table_order_row2_body .= '<span class="greyText">счёт№:'.$this->Order['number_pyament_list'].'</span>';
+						$table_order_row2_body .= '&nbsp;<span class="greyText">счёт№:'.$this->Order['number_pyament_list'].'</span>';
+						// имя менеджера
+						$table_order_row2_body .= '&nbsp;<span class="greyText">менеджер: '.$this->get_name_employee_Database_Html($this->Order['manager_id']).'</span>';
+						// снабжение 
+						$table_order_row2_body .= '&nbsp;<span class="greyText">снабжение: '.$this->get_name_employee_Database_Html($this->Order['snab_id']).'</span>';
+
 					$table_order_row2_body .= '</td>';
 					
 					// комментарии
@@ -784,7 +795,7 @@
 				//	Расчёт стоимости позиций END
 				////////////////////////////////////			
 				
-				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'">';
+				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$position['id'].'">';
 				// порядковый номер позиции в заказе
 				$html .= '<td><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
 				// описание позиции
@@ -830,8 +841,9 @@
 				$html .= $this->grt_dop_teh_info($position);
 				
 				// дата утверждения макета
-				$this->Position_approval_date = $position['approval_date'];
-				$html .= '<td><input type="text" class="approval_date" value="'.$this->Position_approval_date.'"></td>';
+				$html .= '<td>';
+					$html .= $this->get_Position_approval_date( $this->Position_approval_date = $position['approval_date'], $position['id'] );
+				$html .= '</td>';
 
 				$html .= '<td><!--// срок по ДС по позиции --></td>';
 

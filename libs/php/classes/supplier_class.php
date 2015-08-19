@@ -232,7 +232,7 @@ class Supplier{
 		return 1;
 	}
 	# запись в лог
-	static function history_edit_type($supplier_id, $user_id, $text ,$type,$tbl,$post,$id_row){
+	static function history_edit_type($supplier_id, $user_id, $text ,$type,$tbl,$post,$id_row=0){
 		global $mysqli;
 
 		$query = "SELECT * FROM " . constant($tbl) . " WHERE `id` = '" . $_POST['id'] . "'";

@@ -123,14 +123,16 @@ $(document).ready(function() {
 		closeOnDateSelect:true,
 		onChangeDateTime: function(dp,$input){// событие выбора даты
 			// получение данных для отправки на сервер
-			var row_id = $input.parent().parent().attr('data-id');
+			var row_id = $input.attr('data-id');
+			var dop_data_id = $input.parent().parent().attr('data-cab_dop_data_id');
 			var date = $input.val();
 
 			//alert($input.attr('class'));
 			$.post('', {
 				AJAX: 'change_approval_date',
 				row_id: row_id,
-				date: date
+				date: date,
+				dop_data_id:dop_data_id
 			}, function(data, textStatus, xhr) {
 				standard_response_handler(data);
 
@@ -932,6 +934,22 @@ $(document).on('keyup','#dialog_gen_window_form .save_logotip', function(event) 
 	},'json');
 	check_loading_ajax();
 });
+// сохранения поля путь к макету
+$(document).on('keyup','#dialog_gen_window_form .save_the_url_for_layout', function(event) {
+	
+	var cab_dop_usluga_id = $('#services_listing_each .lili.checked').attr('data-dop_usluga_id');
+
+	$.post('', {
+		AJAX:'save_the_url_for_layout',
+		cab_dop_usluga_id: cab_dop_usluga_id,
+		text : $(this).val()
+	}, function(data, textStatus, xhr) {
+		if(data['response']!="OK"){
+			alert('Что-то пошло не так');
+		}
+	},'json');
+	check_loading_ajax();
+});
 
 // редактирование dop_inputs
 $(document).on('keyup','#dialog_gen_window_form .dop_inputs', function(event) {
@@ -1461,4 +1479,42 @@ function timing_save_input(fancName,obj){
 //////////////////////////////////////////
 //	меняем % готовности услуги --- end
 //////////////////////////////////////////
-	
+
+// нажатие кнопки макет утверждён
+$(document).on('click', '.set_approval_date', function(event) {
+	// получаем текущую дату
+	var d = new Date();
+	var curr_date = d.getDate();
+	var curr_month = d.getMonth() + 1;
+	var curr_year = d.getFullYear();
+
+	var date  = curr_date + "." + curr_month + "." + curr_year;
+	// alert(date);
+
+	// меняем html
+	$(this).replaceWith('<span class="greyText">'+date+'</span>');
+
+	// получаем id позиции
+	var row_id = $(this).attr('data-id');
+	// получаем dop_data_id
+	var dop_data_id = $(this).parent().parent().attr('data-cab_dop_data_id');
+
+	// закрываем экран от дальнейшего редактирования
+	window_preload_add();
+	// отправляем запрос
+	$.post('', {
+		AJAX: 'change_approval_date',
+		row_id: row_id,
+		date: date,
+		dop_data_id: dop_data_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+		// при удачном ответе перезагружаем окно
+		if (data['response']=="OK"){
+			location.reload();
+		}else{
+			alert('Что-то пошло не так.');
+			window_preload_del();
+		}
+	},'json');
+});

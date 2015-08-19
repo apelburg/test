@@ -223,7 +223,7 @@
 	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
 	        $user_n = $user_name.' '.$user_last_name;
 	        $text_history = $user_n.' обновил информацию по поставщику '.$supplier_name_i;
-	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'chenge_name_company',$tbl,$_POST,$id_row);
+	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'chenge_name_company',$tbl,$_POST,0);
 	        //-- END -- //
 
 			//тут обновляем название компании

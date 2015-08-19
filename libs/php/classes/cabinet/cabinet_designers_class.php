@@ -87,7 +87,13 @@
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){
-			$subsection = isset($_GET['subsection'])?$_GET['subsection']:'all';
+			if (isset($_GET['subsection']) && $_GET['subsection'] != "" ){
+				$subsection = $_GET['subsection'];	
+			}else{
+				$subsection = 'all';
+				$_GET['subsection'] = 'all';
+			}
+			
 
 			$method_template = $_GET['section'].'_'.$subsection.'_Template';
 			// $method_template = $_GET['section'].'_Template';
@@ -99,6 +105,7 @@
 			if(method_exists($this, $method_template)){
 				$this->$method_template();				
 			}else{
+				
 				echo 'метод '.$method_template.' не предусмотрен';
 			}
 		}
@@ -111,6 +118,9 @@
 		
 
 		private function orders_all_Template($id_row=0){
+			// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
+			// создаем экземпляр класса форм
+			$this->FORM = new Forms();
 
 			$where = 0;
 			// скрываем левое меню
@@ -119,17 +129,21 @@
 			
 			// формируем шапку таблицы вывода
 			// $table_head_html .= $this->print_arr($_SESSION);
-			$table_head_html .= '
-				<table id="general_panel_orders_tbl">
-				<tr>
-					<th colspan="3">Артикул/номенклатура/печать</th>
-					<th>Техническое задание</th>
-					<th>Подрядчик печати</th>
-					<th>Дата сдачи<br>макета</th>
-					<th>Дата утв.<br>макета</th>
-					<th>статус</th>
-				</tr>
-			';
+			$table_head_html .= '<table id="general_panel_orders_tbl">';
+				$table_head_html .= '<tr>';
+					$table_head_html .= '<th colspan="3" rowspan="2">Артикул/номенклатура/печать</th>';
+					$table_head_html .= '<th  rowspan="2">Техническое задание</th>';
+					$table_head_html .= '<th>Подрядчик печати</th>';
+					$table_head_html .= '<th rowspan="2">Дата сдачи<br>макета</th>';
+					$table_head_html .= '<th rowspan="2">Дата утв.<br>макета</th>';
+					$table_head_html .= '<th rowspan="2">исполнитель</th>';
+					$table_head_html .= '<th rowspan="2">статус дизайна</th>';
+					$table_head_html .= '<th rowspan="2">статус снабжение</th>';
+				$table_head_html .= '</tr>';
+				$table_head_html .= '<tr>';
+				$table_head_html .= '<th><span style="float:left; height:100%; padding: 0 5px 0 0; border-right:1px solid grey">М</span><span style="folat:right; padding:0 5px;">пленки / клише</span></th>';
+				$table_head_html .= '</tr>';
+
 			global $mysqli;
 
 			$query = "SELECT 
@@ -182,6 +196,9 @@
 				// запрашиваем информацию по позициям
 				$table_order_positions_rows = $this->table_order_positions_rows_Html();
 				
+				// усли позиций по данному заказу нет - переходим к следующеё итерации цикла
+				if($table_order_positions_rows==''){continue;}
+
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
 					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">
@@ -218,35 +235,64 @@
 			$html = '';	
 
 			$this->position_item = 1;// порядковый номер позиции
-			// формируем строки позиций	(перебор позиций)		
+			// формируем строки позиций	(перебор позиций)	
+			$n = 0;	
 			foreach ($positions_rows as $key => $position) {
 				$this->Position_status_list = array(); // в переменную заложим все статусы
 
 				$this->id_dop_data = $position['id_dop_data'];
 				
+				// ТЗ на изготовление продукцию для НЕКАТАЛОГА
+				// для каталога и НЕкаталога способы хранения и получения данной информации различны
+				$this->no_cat_TZ = '';
+				if(trim($position['type'])!='cat' && trim($position['type'])!=''){
+					// доп инфо по некаталогу берём из json 
+					$this->no_cat_TZ = $this->decode_json_no_cat_to_html($position);
+				}
+
+				// получаем массив услуг по позиции
+				$this->position_services_arr = $this->get_order_dop_uslugi( $this->id_dop_data );
+
 				// выборка только массива услуг дизайна
-				$this->services_design = $this->get_dop_services_for_production( $this->get_order_dop_uslugi( $this->id_dop_data ) , $this->user_access );
+				$this->services_design = $this->get_dop_services_for_production( $this->position_services_arr , $this->user_access );
 				// выборка только массива услуг производства
-				$this->services_production = $this->get_dop_services_for_production( $this->get_order_dop_uslugi( $this->id_dop_data ) , 4 );
+				$this->services_production = $this->get_dop_services_for_production( $this->position_services_arr , 4 );
 
 				$this->services_num  = count($this->services_design);
-								
+				
+				$n++;				
 				// если услуг для производства в данной позиции нет - переходм к следующей
 				if($this->services_num == 0){continue;}
 
-				$html_row_1 = '<tr class="position_for_production position_general_row row__'.$this->position_item.'" data-id="'.$position['id'].'">';
-				
+				$html_row_1 = '<tr class="position_for_production position_general_row row__'.$n.'" data-id="'.$position['id'].'">';
+					
 					// // порядковый номер позиции в заказе
-					$html_row_1 .= '<td rowspan="'.$this->services_num.'"><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
+					$html_row_1 .= '<td rowspan="'.$this->services_num.'"><span class="orders_info_punct">'.$n.'п</span></td>';
 					
 					// // описание позиции
 					$html_row_1 .= '<td  rowspan="'.$this->services_num.'" >';
 						// наименование товара
 						$html_row_1 .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
+						// описание некаталожной продукции
+						$html_row_1 .= $this->no_cat_TZ;
+						// места нанесения
+						$html_row_1 .= $this->get_service_printing_list();
+
+						// // массив по позиции
+						// $html_row_1 .= 'массив позиции<br>';
+						// $html_row_1 .= $this->print_arr($position);
+
+						// // массив всeх услуг
+						// $html_row_1 .= 'массив всех услуг<br>';
+						// $html_row_1 .= $this->print_arr($this->position_services_arr);
+
+						// // массив услуг печати
+						// $html_row_1 .= 'массив услуг печати<br>';
+						// $html_row_1 .= $this->print_arr($this->services_production);
+						$html_row_1 .= '<div class="linked_div">'.identify_supplier_by_prefix($position['art']).'</div>';
 					$html_row_1 .= '</td>';
 
 					// $html_row_2 = '<td rowspan="'.$this->services_num.'">1</td>';
-					// статус снабжение
 					$html_row_2 = '<td rowspan="'.$this->services_num.'" >
 								<div>'.$this->decoder_statuslist_snab($position['status_snab'],$position['date_delivery_product'],0,$position['id']).'</div>
 							</td>';
@@ -263,14 +309,45 @@
 				$this->position_item = $this->position_item+1+$this->services_num-1;
 			}				
 			return $html;
-		}		
+		}
 
-		// фильтр услуг для производства
-		private function get_dop_services_for_production($services_arr, $user_access){
+		// места нанесения
+		private function get_service_printing_list(){
+			//если нет прикрепленных мест печати - выходим
+			if(empty($this->services_production)){return '';}
+
+
 			if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
 				$this->Services_list_arr = $this->get_all_services_Database();
 			}
 
+
+			$html = '';
+			$n = 1;
+			$service_name = '';
+
+			// перебираем услуги нанесения по позиции
+			foreach ($this->services_production as $key => $service) {
+				if($service_name != $this->Services_list_arr[$service['uslugi_id']]['name']){
+					if($service_name == ''){$html .= '<br>';}
+					$service_name = $this->Services_list_arr[$service['uslugi_id']]['name'];
+					$html .= $service_name.'<br>';
+					$n = 1;
+				}
+				$html .= 'место '.$n++.': ';
+				// декодируем dop_inputs для услуги печати
+				$html .= (($this->decode_dop_inputs_information_for_servece($service)!="")?$this->decode_dop_inputs_information_for_servece($service):'<span style="color:red">информация отсутствует</span>').'<br>';
+			}
+			return $html;	
+
+		}		
+
+
+		// фильтр услуг
+		private function get_dop_services_for_production($services_arr, $user_access){
+			if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
+				$this->Services_list_arr = $this->get_all_services_Database();
+			}
 			// объявляем массив, который будем возвращать 
 			$new_arr = array();
 			
@@ -278,7 +355,10 @@
 				// если такая услуга существует в базе
 			 	if(isset( $this->Services_list_arr[$service['uslugi_id']]) ){
 			 		// если доступ позволяет её обрабатывать
-			 		if($this->Services_list_arr[ $service['uslugi_id'] ]['performer'] == $user_access){
+			 		/*
+						Т.к. в данном случае дизайнер работает не со всеми услугами производства, отфильтровываем все услуги по флагу maket_true
+					*/
+			 		if($this->Services_list_arr[ $service['uslugi_id'] ]['performer'] == $user_access && $this->Services_list_arr[ $service['uslugi_id'] ]['maket_true'] == "on"){
 			 			// добавляем услугу в новый массив 
 			 			$new_arr[] = $service;
 			 		}
@@ -289,7 +369,51 @@
 			return $new_arr;
 		}
 
-		// выводит строки услуг для производства
+
+		// докодируем доп поля по услугам в читабельный вид
+		private function decode_dop_inputs_information_for_servece($service){
+			global $mysqli;
+			$html = '';
+			//////////////////////////
+			//	ДОП ПОЛЯ
+			//////////////////////////
+			if(!isset($this->dop_inputs_listing)){
+				// получаем список всех полей
+				$query = "SELECT * FROM `".CAB_DOP_USLUGI_DOP_INPUTS."`";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$this->dop_inputs_listing = array();
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->dop_inputs_listing[$row['name_en']] = $row;
+					}
+				}
+
+			}
+			
+			
+
+			// получаем  json
+			$this->print_details_dop_Json = (trim($service['print_details_dop'])=="")?'{}':$service['print_details_dop'];
+			// декодируем json  в массив
+			$this->print_details_dop = json_decode($this->print_details_dop_Json, true);
+			
+			if(!isset($this->print_details_dop)){
+				$html .= "<div>произошла ошибка json</div>";
+			}
+				
+			if(isset($this->print_details_dop) && !empty($this->print_details_dop)){
+				//echo  $service['print_details_dop'];
+				$n=0;
+				foreach ($this->print_details_dop as $key => $text) {
+					$html .= (($n>0)?', ':'').$this->dop_inputs_listing[$key]['name_ru'].':'.$text;
+					$n++;
+				}
+			}
+			return $html;
+		}
+
+
+		// выводит строки услуг для дизайнеров и операторов
 		private function get_service_content_for_production($position, $services_arr, $html_row_1, $html_row_2){
 			if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
 				$this->Services_list_arr = $this->get_all_services_Database();
@@ -297,6 +421,8 @@
 
 			$gen_html = '';
 			$n = 0;
+
+			$service_count = count($services_arr);
 			
 			// перебираем услуги по позиции
 			foreach ($services_arr as $key => $service) {
@@ -319,21 +445,32 @@
 					$html .= '<td class="show_backlight show_dialog_tz_for_production" data-id="'.$service['id'].'">';
 						$html .= $this->Service_name;
 
-						// ob_start();
-						// echo '<pre>';
-						// print_r($service);
-						// echo '</pre>';			    	
-						// $content = ob_get_contents();
-						// ob_get_clean();
-						// $html .= $content;
+
+						// перебираем производственные услуги к которым дизайнер/оператор будет готовить макет или дизайн
+						foreach ($this->services_production as $key_production_service => $production_service) {
+							$html .= '<div class="seat_number_logo">';
+								$html .= 'место'.($key_production_service+1).' ('.$this->Services_list_arr[ $production_service['uslugi_id'] ]['name'].'): ';
+								$html .= $production_service['logotip'];
+							$html .='</div>';	
+						}
+
+						// выводим ТЗ
+						//$html .= '<br>'.$service['tz'];
+
 					$html .= '</td>';
 
 					
-
-					// плёнки / клише
 					$html .= '<td class="show_backlight">';
-						$html .= $this->get_statuslist_film_photos($service['film_photos_status'],$service['id']);
+						// подрядчик печати 	
+						$html .= $position['suppliers_name'];
+						// пленки / клише
+						$html .= $this->get_film_and_cliches();
 					$html .= '</td>';
+
+					// // плёнки / клише
+					// $html .= '<td class="show_backlight">';
+					// 	$html .= $this->get_statuslist_film_photos($service['film_photos_status'],$service['id']);
+					// $html .= '</td>';
 					
 
 					// дата сдачи
@@ -356,10 +493,10 @@
 						$html .= $this->get_statuslist_uslugi_Dtabase_Html($service['uslugi_id'],$service['performer_status'],$service['id'], $service['performer']);
 					$html .= '</td>';
 
-					// % готовности
-					$html .= '<td class="show_backlight percentage_of_readiness" contenteditable="true" data-service_id="'.$service['id'].'">';
-						$html .= $service['percentage_of_readiness'];
-					$html .= '</td>';
+					// // % готовности
+					// $html .= '<td class="show_backlight percentage_of_readiness" contenteditable="true" data-service_id="'.$service['id'].'">';
+					// 	$html .= $service['percentage_of_readiness'];
+					// $html .= '</td>';
 				$html .= ($n>0)?'</tr>':'';
 
 				if($n==0){// это дополнительные колонки в уже сформированную строку
@@ -371,6 +508,21 @@
 				$n++;
 			}
 			return $gen_html ;
+		}
+
+		// информация о плёнках и клише
+		private function get_film_and_cliches(){
+			// если услуг печати нет - выходим
+			if(empty($this->services_production)){return '';}
+			
+			$html = '';
+			//return $this->print_arr($this->services_production);
+			// перебираем услуги печати
+			$n = 1;
+			foreach ($this->services_production as $key => $production_service) {
+				$html .= '<div class="seat_number_film"><span class="seat_number">'.$n++.'</span>'.$this->get_statuslist_film_photos($production_service['film_photos_status'],$production_service['id']).'</div>';
+			}
+			return $html;
 		}
 
 		// отдаёт имя пользователя, список пользователей или 
