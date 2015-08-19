@@ -2216,16 +2216,51 @@
 			$result = $mysqli->query($query) or die($mysqli->error);
 			// запускаем все прикреплённые услуги
 
-			//ищем 'being_prepared' меняем на in_processed
-			$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
-				`performer_status` =  'in_processed' 
-				WHERE  `dop_row_id` ='".$_POST['dop_data_id']."' AND `performer_status` = 'being_prepared';";
 
-			$result = $mysqli->query($query) or die($mysqli->error);
+			////////////////////////////////////////////////
+			//  ищем 'being_prepared' меняем на in_processed	
+			////////////////////////////////////////////////
+				// запрашиваем id тех строк, которые необходимо изменить
+				$str = '';
+				$query = "SELECT * FROM `".CAB_DOP_USLUGI."`
+				WHERE  `dop_row_id` ='".$_POST['dop_data_id']."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo $query;
+				$n = 0;
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						if($row['performer_status'] == 'being_prepared' || trim($row['performer_status']) == '')
+						$str .= (($n>0)?",":"")."'".$row['id']."'";
+						$n++;
+					}
+				}
+
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`performer_status` =  'in_processed' 
+				WHERE  `id` IN (".$str.")";
+				echo $query;
+				if($str!=''){
+					$result = $mysqli->query($query) or die($mysqli->error);	
+				}
 				
+				// меняем на in_processed
+				
+			////////////////////////////////////////////////
+			//  ищем 'being_prepared' меняем на in_processed	
+			////////////////////////////////////////////////
+			
 			echo '{"response":"OK"}';
 
-			echo 'необходимо доделать функцию. ищем \'being_prepared\' меняем на in_processed';
+
+			
+			
+
+			
+			
+				
+			
+
+			//echo 'необходимо доделать функцию. ищем \'being_prepared\' меняем на in_processed';
 
 
 		}
