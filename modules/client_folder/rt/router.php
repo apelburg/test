@@ -181,12 +181,23 @@
 		}
 
 		if($_POST['AJAX']=='get_form_Html'){
+			//////////////////////////
+			//	Для каталожной продукции
+			//////////////////////////
+			if(isset($_POST['type_product']) && $_POST['type_product'] == "cat"){
+				$FORM->get_for_add_catalog_product();	
+				exit;
+			}
+			//////////////////////////
+			//	Для некаталожной продукции
+			//////////////////////////
 			// запрашиваем из POST массива данные о типе продукта
 			$t_p = (isset($_POST['type_product']) && $_POST['type_product']!="")?$_POST['type_product']:'none';
 			// если тип уже известен, то мы уже не можем его менять, а значит можем выдать форму только для него
-			if(isset($type_product)){
+			if(isset($type_product)){ 
 				$t_p = $type_product;
 			}
+
 
 			// запрос формы html
 			$FORM->get_product_form_Html($t_p);

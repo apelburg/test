@@ -48,7 +48,7 @@ PS было бы неплохо взять взять это за правило
      			'sections' => array(
      				'cat' => array(
 						'name' => 'Продукция с сайта',
-						'readonly' => true,
+						'readonly' => false,
 						'access' => true,
 						'description' => 'которые есть на сайте Апельбург и имеют артикул, так же Вы можете добавить данный товар из корзины на сайте'
 						),
@@ -167,7 +167,7 @@ PS было бы неплохо взять взять это за правило
      			'name_product'=>array(
      				'name'=>'Наименование',
      				'moderate'=>true,
-     				'note'=>'укажите название изделия',
+     				'note'=>'укажите название изделия без дополнительных уточнений. Уточнения Вы можете добавить в поле Доп. наименование.',
      				'btn_add_var'=>false,
      				'btn_add_val'=>true,
      				'cancel_selection' =>false // кнопка отмены всех выбранных
@@ -175,7 +175,7 @@ PS было бы неплохо взять взять это за правило
      			'product_dop_text'=>array(
      				'name'=>'Доп. наименование',
      				'moderate'=>false,
-     				'note'=>'текст который будет виден в РТ сразу же за Намименованием. К примеру: Открытка № 1, где "№ 1" - это доп. наименование',
+     				'note'=>'краткое название, уточнение. Этот текст будет отображаться в сервисе сразу же за Наименованием. например: Брошюра для юных участников, где "для юных участников" - это доп. наименование',
      				'btn_add_var'=>false,
      				'btn_add_val'=>false,
      				'cancel_selection' =>false
@@ -191,59 +191,59 @@ PS было бы неплохо взять взять это за правило
      			'format'=>array(
      				'name'=>'Формат',
      				'moderate'=>true,
-     				'note'=>'укажите формат (мм)',
+     				'note'=>'единицы измерения - миллиметры.',
      				'btn_add_var'=>false,
      				'btn_add_val'=>true,
      				'cancel_selection' =>false
      				),
-     			'material' =>array(
-     				'name'=>'Материал',
-     				'moderate'=>true,
-     				'note'=>'укажите материал (картон не мелованный, дизайнерский, бумага мелованная и т.д.), название материала (Splendorgel-Сплендоргель)',
-     				'btn_add_var'=>false,
-     				'btn_add_val'=>false,
-     				'cancel_selection' =>false
-     				),
-     			'plotnost' =>array(
-     				'name'=>'Плотность материала',
-     				'note'=>'плотность (130гр, 170гр,300гр и т.д.)',
-     				'moderate'=>true,
-     				'btn_add_var'=>false,
-     				'btn_add_val'=>false,
-     				'cancel_selection' =>false
-     				),
-     			'type_print' =>array(
-     				'name'=>'Вид печати',
-     				'moderate'=>false,
-     				'note'=>'укажите вид печати и кол-во цветов (4+0 и т.д.) + "другое" , выбрать Pantone если есть дополнительная печать пятым цветом',
-     				'btn_add_var'=>true,
-     				'btn_add_val'=>false,
-     				'cancel_selection' =>false
-     				),
-     			'change_list' => array(
-     				'name'=>'Изменение листа',
-     				'note'=>'укажите при необходимости дальнейшего изменения формы листа, при вырубке указать наличие штампа',
-     				'moderate'=>false,
-     				'btn_add_var'=>true,
-     				'btn_add_val'=>true,
-     				'cancel_selection' => true
-     				),
-     			'laminat' => array(
-     				'name'=>'Ламинат',
-     				'note'=>'укажите при необходимости вид обработки поверхности листа',
-     				'moderate'=>false,
-     				'btn_add_var'=>true,
-     				'btn_add_val'=>false,
-     				'cancel_selection' =>true
-     				),
-     			'lak' => array(
-     				'name'=>'Лак',
-     				'note'=>'укажите при необходимости вид обработки поверхности листа',
-     				'moderate'=>false,
-     				'btn_add_var'=>true,
-     				'btn_add_val'=>false,
-     				'cancel_selection' =>true
-     				),
+     			// 'material' =>array(
+     			// 	'name'=>'Материал',
+     			// 	'moderate'=>true,
+     			// 	'note'=>'укажите материал (картон не мелованный, дизайнерский, бумага мелованная и т.д.), название материала (Splendorgel-Сплендоргель)',
+     			// 	'btn_add_var'=>false,
+     			// 	'btn_add_val'=>false,
+     			// 	'cancel_selection' =>false
+     			// 	),
+     			// 'plotnost' =>array(
+     			// 	'name'=>'Плотность материала',
+     			// 	'note'=>'плотность (130гр, 170гр,300гр и т.д.)',
+     			// 	'moderate'=>true,
+     			// 	'btn_add_var'=>false,
+     			// 	'btn_add_val'=>false,
+     			// 	'cancel_selection' =>false
+     			// 	),
+     			// 'type_print' =>array(
+     			// 	'name'=>'Вид печати',
+     			// 	'moderate'=>false,
+     			// 	'note'=>'укажите вид печати и кол-во цветов (4+0 и т.д.) + "другое" , выбрать Pantone если есть дополнительная печать пятым цветом',
+     			// 	'btn_add_var'=>true,
+     			// 	'btn_add_val'=>false,
+     			// 	'cancel_selection' =>false
+     			// 	),
+     			// 'change_list' => array(
+     			// 	'name'=>'Изменение листа',
+     			// 	'note'=>'укажите при необходимости дальнейшего изменения формы листа, при вырубке указать наличие штампа',
+     			// 	'moderate'=>false,
+     			// 	'btn_add_var'=>true,
+     			// 	'btn_add_val'=>true,
+     			// 	'cancel_selection' => true
+     			// 	),
+     			// 'laminat' => array(
+     			// 	'name'=>'Ламинат',
+     			// 	'note'=>'укажите при необходимости вид обработки поверхности листа',
+     			// 	'moderate'=>false,
+     			// 	'btn_add_var'=>true,
+     			// 	'btn_add_val'=>false,
+     			// 	'cancel_selection' =>true
+     			// 	),
+     			// 'lak' => array(
+     			// 	'name'=>'Лак',
+     			// 	'note'=>'укажите при необходимости вид обработки поверхности листа',
+     			// 	'moderate'=>false,
+     			// 	'btn_add_var'=>true,
+     			// 	'btn_add_val'=>false,
+     			// 	'cancel_selection' =>true
+     			// 	),
      			'date_calc_snab' => array(
      				'name'=>'Желаемый срок готовности рассчета',
      				'note'=>'стандартно, или до дата.',
@@ -472,6 +472,11 @@ PS было бы неплохо взять взять это за правило
 			return $html;
 		}
 
+		// возвращает форму для каталожной продукции
+		public function get_for_add_catalog_product(){
+			echo 'В разработке<br>';
+			echo 'форма будет в самое ближайшее время';
+		}
 
 		// возвращает html формы для заведения запроса на расчёт в отделе снабжения
 		public function get_product_form_Html($type_product){
@@ -886,9 +891,9 @@ PS было бы неплохо взять взять это за правило
 
 		// генерит html
 		private function generate_form_Html($arr,$parent='',$type_product){	
-			echo '<pre>';
-			print_r($arr);
-			echo '</pre>';
+			// echo '<pre>';
+			// print_r($arr);
+			// echo '</pre>';
 			$html = '';
 			$select = 0;
 
@@ -1012,10 +1017,10 @@ PS было бы неплохо взять взять это за правило
 					$arr[] = $row;
 				}
 			}
-			echo $query;
-			echo '<pre>';
-			print_r($arr);
-			echo '</pre>';
+			// echo $query;
+			// echo '<pre>';
+			// print_r($arr);
+			// echo '</pre>';
 				
 			return $arr;
 		}
