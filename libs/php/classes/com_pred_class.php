@@ -1325,7 +1325,7 @@
 			return $rows;
 		}
 		static function create_list_old_version($client_id,$certain_kp_filename = FALSE){
-		   
+
             $rows = '';
 		    $prefix = '../admin/order_manager/';
             $dir_name = $prefix.'data/com_offers/'.$client_id;
