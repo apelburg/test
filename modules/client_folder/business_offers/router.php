@@ -159,7 +159,9 @@
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';
 	
-	include ROOT.'/skins/tpl/client_folder/rt/client_details_bar.tpl';
+	// планка клиента
+	include_once './libs/php/classes/client_class.php';
+	Client::get_client__information($_GET['client_id']);
 	
 	include 'business_offers_controller.php';
 
