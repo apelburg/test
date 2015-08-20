@@ -1,6 +1,6 @@
 <tr class="noselect">
     <td class="edge">&nbsp;</td>
-    <td class="name"><div><a href="?page=cabinet&section=requests&subsection=no_worcked_men&client_id=<?php echo $item['id']; ?>" target="_blank"><?php echo '22'.$item['company']; ?></a></div></td>
+    <td class="name"><div><a href="?page=cabinet&section=requests&subsection=no_worcked_men&client_id=<?php echo $item['id']; ?>" target="_blank"><?php echo $item['company']; ?></a></div></td>
     <td class="rating">
         <div style="position:relative;width:50px;">
           <div class="lower_plank" style="position:absolute;top:0px;left:0px;">

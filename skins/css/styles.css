@@ -1672,9 +1672,9 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #calculatorDialogBox .calculatorDistributionTbl { border-collapse:collapse}
 #calculatorDialogBox .calculatorDistributionTbl td { vertical-align:top; font-size: 11px; border-bottom: 1px solid #8b8a89;}
 #calculatorDialogBox .printPlaceSelectDiv { margin-left: 54px; border: #FFFF66 solid 0px;}
-#calculatorDialogBox .printPlaceSelectDiv select{width: 144px; }
-#calculatorDialogBox .printTypesSelectDiv {  margin-left: 310px; border: #3333FF solid 0px;}
-#calculatorDialogBox .printTypesSelectDiv select{ width: 144px; }
+#calculatorDialogBox .printPlaceSelectDiv select{width: 184px; }
+#calculatorDialogBox .printTypesSelectDiv {  margin-left: 320px; border: #3333FF solid 0px;}
+#calculatorDialogBox .printTypesSelectDiv select{ width: 184px; }
 #calculatorDialogBox .calculatorTitle{ float:left;margin:2px 5px 0 0;}
 #calculatorDialogBox .calculatorElementsBox{ float:left;}
 
@@ -1685,18 +1685,18 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #calculatorDialogBox .YPriceParamCMYK{ margin-top: 1px; height: 18px; width: 44px; border: #CCC solid 1px; }
 
 
-#calculatorDialogBox .printSizesSelectDiv{   margin-left: 270px; }
+#calculatorDialogBox .printSizesSelectDiv{   margin-left: 315px; }
 #calculatorDialogBox .dopParametrsTitle{   background-color:#D2EAAF; text-align:left; padding: 4px 0 0 30px; height: 20px;}
 #calculatorDialogBox .dopParametrsTbl { border-collapse:collapse;  margin: 40px 0 0 40px; }
 #calculatorDialogBox .dopParametrsTbl td{ height: 35px; border:#CCC solid 0px; vertical-align:top}
-#calculatorDialogBox .dopParametrsTbl td.title{ width: 140px;  text-align: left; font-size: 11px; /*letter-spacing:0px;font-family:Arial, Helvetica, sans-serif*/}
+#calculatorDialogBox .dopParametrsTbl td.title{ width: 170px;  text-align: left; font-size: 11px; /*letter-spacing:0px;font-family:Arial, Helvetica, sans-serif*/}
 #calculatorDialogBox .dopParametrsTbl td.select{ width: 75px;font-size: 11px;}
 #calculatorDialogBox .dopParametrsTbl td.select select{ width: 75px;}
 #calculatorDialogBox .dopParametrsTbl td.multi{ width: 11px;  font-size: 9px;}
 #calculatorDialogBox .dopParametrsTbl td.multi input {width: 13px;}
-#calculatorDialogBox .commentsTextArea{ margin: 0 0 20px 40px; width: 500px;}
-#calculatorDialogBox .itogDisplayTbl{ margin:7px 0 0  35px; border-collapse:collapse}
-#calculatorDialogBox .itogDisplayTbl td{width: 85px; height:25px; text-align: right; border:#CCC solid 0px; font-size: 14px; font-weight:bold; font-family:Arial, Helvetica, sans-serif}
+#calculatorDialogBox .commentsTextArea{ margin: 0 0 20px 40px; width: 530px;}
+#calculatorDialogBox .itogDisplayTbl{ margin:7px 0 10px  35px; border-collapse:collapse}
+#calculatorDialogBox .itogDisplayTbl td{width: 105px; height:25px; text-align: right; border:#CCC solid 0px; font-size: 14px; font-weight:bold; font-family:Arial, Helvetica, sans-serif}
 #calculatorDialogBox .itogDisplayTbl tr.head td{ font-size: 11px; font-weight:100; color:#AAA; padding:0 8px;}
 #calculatorDialogBox .itogDisplayTbl td.title{ width: 70px; font-size: 12px; font-weight:100;}
 #calculatorDialogBox .BtnsDiv{margin:2px 0 0 50px; width: 485px; height:45px; border:#CCC solid 0px;}

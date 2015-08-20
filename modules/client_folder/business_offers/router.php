@@ -146,10 +146,10 @@
 	
 	
 	 if(isset($_GET['delete_com_offer'])){
-
+          
 	     if(isset($_GET['old_version'])) Com_pred::delete_old_version($_GET['delete_com_offer'],intval($_GET['client_id']),$_GET['id']/* must be string*/);
 		 else Com_pred::delete($_GET['delete_com_offer']);
-		 
+		 //exit;
 		 header('Location:?'.addOrReplaceGetOnURL('client_id='.$client_id,'delete_com_offer&old_version&id'));
 	 }
 	 /////////////////////////////////////// end Временно /////////////////////////////////////// 
@@ -159,7 +159,9 @@
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';
 	
-	include ROOT.'/skins/tpl/client_folder/rt/client_details_bar.tpl';
+	// планка клиента
+	include_once './libs/php/classes/client_class.php';
+	Client::get_client__information($_GET['client_id']);
 	
 	include 'business_offers_controller.php';
 

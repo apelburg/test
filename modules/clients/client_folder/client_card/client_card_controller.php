@@ -1,4 +1,7 @@
 <?php
+    save_way_back(array('page=clients','section=planner'),'?page=cabinet&client_id='.$client_id);
+	$quick_button_back = get_link_back();
+
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);

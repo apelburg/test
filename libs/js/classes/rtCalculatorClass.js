@@ -297,7 +297,7 @@ var rtCalculator = {
 			// открываем окно с калькулятором
 			
 				
-			$("#calculatorDialogBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет нанесения логотипа",modal:true,width: 600,close: function() {this.remove();$("#calculatorDialogBox").remove();}});
+			$("#calculatorDialogBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет нанесения логотипа",modal:true,width: 680,close: function() {this.remove();$("#calculatorDialogBox").remove();}});
 			$("#calculatorDialogBox").dialog("open");
 		}
 	}

@@ -56,7 +56,7 @@
 											'business_offers'=> array('access'=>true),
 											'agreements'=> array('access'=>true),
 											'planner'=> array('access'=>true),
-											'order_art_edit'=> array('access'=>true),
+											'rt_position'=> array('access'=>true),
 											'order_tbl'=> array(
 												'access'=>true,
 												'change_status_glob'=> array('access'=>true),

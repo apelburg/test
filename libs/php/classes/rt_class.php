@@ -533,7 +533,7 @@
 			
 			// содержимое корзины
 			$basket_arr = $_SESSION['basket'];
-			print_r($basket_arr);
+			// print_r($basket_arr);
 			
 			
 			
@@ -597,7 +597,8 @@
 				}
 	
 			}
-			
+			$out_put = array(0  , $client_id);
+			return json_encode($out_put);
 			
 		}
 		static function calcualte_query_summ($query_num){

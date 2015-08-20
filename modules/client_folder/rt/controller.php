@@ -304,7 +304,7 @@
 			  //echo $row['row_type'].' = ';
 			 if($row['row_type'] == 'cat'){ 
 				 $extra_panel = '<div class="pos_plank cat">
-								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['art'].'</a>
+								   <a href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'">'.$row['art'].'</a>
 								   <div class="pos_link_plank">
 									  <div class="catalog">
 										  <a id="" href="/?page=description&id='.$row['art_id'].'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
@@ -341,13 +341,13 @@
 			                              </td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
-			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="270" type="name" class="top">'.$extra_panel.'</td>':'';
+			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="name" class="art_name top">'.$extra_panel.'</td>':'';
 										  
 										  //extra_panel
 			 $cur_row .=  '<td class="hidden"></td>
 			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
 			               <td width="40" type="svetofor" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
-			               <td width="60" type="quantity" class="right"  editable="true">'.$dop_row['quantity'].'</td>
+			               <td width="60" type="quantity" class="quantity right"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="20" class="r_border left quantity_dim">'.$quantity_dim.'</td>
 						   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
 						   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">'.$currency.'</td>
@@ -367,14 +367,14 @@
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden '.$expel_class_dop.'">'.$dop_uslugi_in_summ_format.$currency.'</td>';
 			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border '.$expel_class_dop.'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>
-						   <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="in right hidden '.$expel_class_main.'">'.$in_summ_format.'</td>
+						   <td type="in_summ" connected_vals="total_summ" c_stat="0" class="total in right hidden '.$expel_class_main.'">'.$in_summ_format.'</td>
 						   <td width="15" connected_vals="total_summ" c_stat="0" class="currency hidden r_border '.$expel_class_main.'">'.$currency.'</td>
-						   <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$out_summ_format.'</td>
+						   <td type="out_summ" connected_vals="total_summ" c_stat="1" class="total out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$out_summ_format.'</td>
 						   <td width="15" connected_vals="total_summ" c_stat="1" class="currency r_border left '.$expel_class_main.'">'.$currency.'</td>
 						   <td width="70" class="grey r_border center">'.$srock_sdachi.'</td>
-						   <td width="80" type="delta" class="right">'.$delta_format.'</td>
+						   <td type="delta" class="delta right">'.$delta_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
-						   <td width="80" type="margin" class="right">'.$margin_format.'</td>
+						   <td type="margin" class="margin right">'.$margin_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
 						   <td stretch_column>&nbsp;</td>';
 			 $cur_row .=  '<td ><div class="overflow">'.$dop_row['glob_status'].'<div></td>';  
@@ -403,13 +403,13 @@
 				  </td>
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
-				  <td width="270" class="right">
+				  <td class="art_name right">
 				      <a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
 				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status_all.'.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
-				  <td width="60" class="right">тираж</td>
+				  <td width="60" class="quantity right">тираж</td>
 				  <td width="20" class="r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br><span class="small">входящая штука</span></td>
 				  <td width="15" connected_vals="art_price" c_stat="1" class="grey w_border"></td>
@@ -428,14 +428,14 @@
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
            $rt.= '<td width="80"  connected_vals="uslugi" c_stat="0" class="pointer r_border hidden">$ доп. услуги<br><span class="small">входящая тираж</span></td> 
 			      <td width="80"  connected_vals="uslugi" c_stat="1" class="out pointer r_border">$ доп. услуги<br><span class="small">исходящая тираж</span></td>
-				  <td width="100" connected_vals="total_summ" c_stat="0" class="pointer hidden center">итого<br><span class="small">входящая</span></td>
+				  <td connected_vals="total_summ" c_stat="0" class="total pointer hidden center">итого<br><span class="small">входящая</span></td>
 				  <td width="15" connected_vals="total_summ" c_stat="0" class="hidden r_border"></td>
-				  <td width="100" connected_vals="total_summ" c_stat="1" class="pointer center">итого<br><span class="small">исходящая</span></td>
+				  <td connected_vals="total_summ" c_stat="1" class="total pointer center">итого<br><span class="small">исходящая</span></td>
 				  <td width="15" connected_vals="total_summ" c_stat="1" class="r_border"></td>
 				  <td width="70" class="center grey r_border">срок сдачи</td>
-				  <td width="80" class="center">delta</td>
+				  <td class="delta center">delta</td>
 				  <td width="10"></td>
-				  <td width="80"  class="center">маржина-<br>льность</td>
+				  <td class="margin center">маржина-<br>льность</td>
 				  <td width="10"></td>
 				  <td stretch_column>&nbsp;</td>
                   <td width="70">статус</td>';              
@@ -468,14 +468,14 @@
     if($test_data)	$rt.= '<td class="test_data_cap"></td>';
            $rt.= '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0"  class="r_border hidden">'.number_format(@$total['dop_uslugi_in_summ'],'2','.','').'р</td> 
 			      <td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1" class="out r_border">'.number_format(@$total['dop_uslugi_out_summ'],'2','.','').'р</td>
-			      <td width="100" type="in_summ" connected_vals="total_summ" c_stat="0" class="right hidden">'.number_format(@$total['in_summ'],'2','.','').'</td>
+			      <td type="in_summ" connected_vals="total_summ" c_stat="0" class="right hidden">'.number_format(@$total['in_summ'],'2','.','').'</td>
 				  <td width="15" connected_vals="total_summ" c_stat="0" class="left hidden r_border">р</td>
-				  <td width="100" type="out_summ" connected_vals="total_summ" c_stat="1" class="right">'.number_format(@$total['out_summ'],'2','.','').'</td>
+				  <td  type="out_summ" connected_vals="total_summ" c_stat="1" class="right">'.number_format(@$total['out_summ'],'2','.','').'</td>
 				  <td width="15" connected_vals="total_summ" c_stat="1" class="left r_border">р</td>
 				  <td width="70" class="grey r_border"></td>
-				  <td width="80" type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
+				  <td type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>
-				  <td width="80" type="margin" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
+				  <td type="margin" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>
 				  <td stretch_column>&nbsp;</td>
                   <td></td>';              
