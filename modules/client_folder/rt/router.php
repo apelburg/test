@@ -185,7 +185,7 @@
 			//	Для каталожной продукции
 			//////////////////////////
 			if(isset($_POST['type_product']) && $_POST['type_product'] == "cat"){
-				$FORM->get_for_add_catalog_product();	
+				echo '{"response":"OK","type":"'.$_POST['type_product'].'","html":"'.base64_encode($FORM->get_for_add_catalog_product()).'"}';
 				exit;
 			}
 			//////////////////////////
@@ -200,7 +200,7 @@
 
 
 			// запрос формы html
-			$FORM->get_product_form_Html($t_p);
+			echo '{"response":"OK","type":"'.$_POST['type_product'].'","html":"'.base64_encode($FORM->get_product_form_Html($t_p)).'"}';
 			exit;
 		}
 
@@ -236,7 +236,19 @@
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';
 	
-	include ROOT.'/skins/tpl/client_folder/rt/client_details_bar.tpl';
+	// include ROOT.'/skins/tpl/client_folder/rt/client_details_bar.tpl';
+	/////////////////////////////////
+	//	крткая информация по клиенту
+	/////////////////////////////////
+	if(isset($_GET['client_id']) && $_GET['client_id']!=""){
+		include_once './libs/php/classes/client_class.php';
+		//$CLIENT = new Client((int)$_GET['client_id']);
+		// echo '<pre>';
+		// print_r($CLIENT);
+		// echo '</pre>';	
+		Client::get_client__information($_GET['client_id']);
+	}
+	
 	include ROOT.'/skins/tpl/client_folder/rt/options_bar.tpl';
 
     include 'controller.php';

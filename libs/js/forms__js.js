@@ -135,9 +135,7 @@ $(document).on('click','#create_new_position',function(e) {
 			AJAX:'to_chose_the_type_product_form'
 		}, function(data, textStatus, xhr) {
 			// вызов окна выбора типа продукции
-			show_dialog_chosen_type_product(data);
-			
-			
+			show_dialog_chosen_type_product(data);			
 			//alert(data);
 		});
 	// }
@@ -150,14 +148,26 @@ function show_dialog_chosen_type_product(html){
 	    text: 'OK',
 	    click: function() {
 	    	var serialize = $('#dialog_gen_window_form form').serialize();
-	    	
 	    	$('#general_form_for_create_product .pad:hidden').remove();
 		    $.post('', serialize, function(data, textStatus, xhr) {
-				// вызов формы заведения не каталожного товара и генерации вариантов
-				show_dialog(data);
-				// объявляем работу датапикера для полей даты
-				create_datepicker_for_variant_cont();
-			});				    	
+				// если ответ от серера положительный
+				if(data['response']=="OK"){
+					// отфильтровываем каталожный товар
+					if(data['type']=="cat"){
+						// ОБРАБОТКА КАТАЛОЖНОГО ТОВАРА
+						show_dialog_and_send_POST_window(Base64.decode(data['html']),'Введите № артикула',$(window).height());
+
+					}else{
+						// ОБРАБОТКА НЕКАТАЛОЖНОГО ТОВАРА
+						// вызов формы заведения не каталожного товара и генерации вариантов
+						show_dialog(Base64.decode(data['html']));
+						// объявляем работу датапикера для полей даты
+						create_datepicker_for_variant_cont();
+					}
+				}else{
+					alert('Что-то пошло не так');
+				}
+			},'json');				    	
 	    }
 	});
 
@@ -208,7 +218,7 @@ function show_dialog(html){
 	    				$(this).css({'border':'1px solid red'});
 	    				moderate = 1;
 	    			}
-	    			console.log(moder);
+	    			// console.log(moder);
 	    			
 	    		
 	    		}	
@@ -282,3 +292,98 @@ function show_dialog_var(html){
         });
 
 }
+
+// стандартный обработчик ответа AJAX
+function standard_response_handler(data){
+	if(data['function'] !== undefined){ // вызов функции... если требуется
+		window[data['function']](data);
+	}
+	if(data['response'] != "OK"){ // вывод при ошибке
+		console.log(data);
+	}
+	if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
+		alert(data['error']);
+	}
+	if(data['response']=='show_new_window'){
+		title = data['title'];// для генерации окна всегда должен передаваться title
+		show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
+	}
+}
+
+
+// показать окно № 1
+function show_dialog_and_send_POST_window(html,title,height,width){
+	height_window = height || 'auto';
+	width = width || '1000';
+	title = title || '*** Название окна ***';
+	var buttons = new Array();
+	buttons.push({
+	    text: 'OK',
+	    click: function() {
+	    	var serialize = $('#dialog_gen_window_form form').serialize();
+	    	
+	    	$('#general_form_for_create_product .pad:hidden').remove();
+		    $.post('', serialize, function(data, textStatus, xhr) {
+		    	// если из PHP было передано название какой либо функции
+		    	// выполняем её
+		    	if(data['function'] !== undefined){
+		    		window[data['function']](data);
+		    	}
+
+				if(data['response']=='show_new_window'){
+					title = data['title'];// для генерации окна всегда должен передаваться title
+					show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
+				}else{
+					// подчищаем за собой
+					$('#dialog_gen_window_form').html('');
+					$('#dialog_gen_window_form').dialog( "destroy" );
+					// тут можно расположить какие либо действия в зависимости от ответа
+					// с сервера					
+				}
+			},'json');				    	
+	    }
+	});
+
+	if($('#dialog_gen_window_form').length==0){
+		$('body').append('<div id="dialog_gen_window_form"></div>');
+	}
+	$('#dialog_gen_window_form').html(html);
+	$('#dialog_gen_window_form').dialog({
+          width: width,
+          height: height_window,
+          modal: true,
+          title : title,
+          autoOpen : true,
+          buttons: buttons          
+        });
+
+}
+
+$(document).on('change keyup', '#add_new_articul_in_rt', function(event) {
+	var art = $(this).val();
+	$('#information_block_of_articul').addClass('loader');
+	$.post('', {
+		AJAX: 'check_exists_articul',
+		art: art
+	}, function(data, textStatus, xhr) {
+		if(data['response']=="OK"){
+			$('#information_block_of_articul').removeClass('loader').html(Base64.decode(data['html']));
+		}else{
+			alert('Что-то пошло не так');
+		}
+	},'json');
+});
+
+$(document).on('click', '#choose_one_of_several_articles tr td', function(event) {
+	var art_id = $(this).parent().attr('data-art_id');
+	var art = $(this).parent().attr('data-art');
+	var art_name = $(this).parent().attr('data-art_name');
+	// подставляем выбранные значения
+	$('#information_block_of_articul input[name="art"]').val(art);
+	$('#information_block_of_articul input[name="art_id"]').val(art_id);
+	$('#information_block_of_articul input[name="art_name"]').val(art_name);
+
+	$('#choose_one_of_several_articles tr.checked').removeClass('checked');
+	$(this).parent().addClass('checked');
+
+});

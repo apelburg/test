@@ -1,1 +1,0 @@
-сondensed_information_on_the_client

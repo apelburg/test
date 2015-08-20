@@ -31,7 +31,7 @@ PS было бы неплохо взять взять это за правило
      	// которую добаил менеджер для личного пользования
      	private $span_del = '<span class="delete_user_val">X</span>';
 
-     	# ОПИСАНИЕ ТИПОВ ТОВАРОВ 
+     	# ОПИСАНИЕ ТИПОВ ТОВАРОВ и ИХ ГРУПП
 			//cat  - каталог
 			//pol - полиграфия листовая
 			//pol_many - полиграфия многолистовая
@@ -414,7 +414,203 @@ PS было бы неплохо взять взять это за правило
 		function __construct(){
 			$this->user_id = $_SESSION['access']['user_id'];
 			$this->user_access = $_SESSION['access']['access'];
+
+			## данные POST
+			if(isset($_POST['AJAX'])){
+				$this->_AJAX_($_POST['AJAX']);
+			}
+
+			## данные GET --- НА ВРЕМЯ ОТЛАДКИ !!!
+			if(isset($_GET['AJAX'])){
+				$this->_AJAX_($_GET['AJAX']);
+			}
 		}
+		//////////////////////////
+		//	methods_AJAX  -- start
+		//////////////////////////
+			########   вызов AJAX   ########
+			private function _AJAX_($name){
+				$method_AJAX = $name.'_AJAX';
+				// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+				if(method_exists($this, $method_AJAX)){
+					$this->$method_AJAX();
+					exit;
+				}					
+			}
+
+			// проверяем наличие артикула на сайте, выводим его описание при нахождении
+			private function check_exists_articul_AJAX(){
+				$html = '';
+				if(strlen($_POST['art']) < 4){
+					$html .= '<div class="inform_message red">Количество символов в артикуле должно быть не менее 4 (четырёх) символов.</div>';
+					echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+					exit;
+				}
+                    $html .= '<form>';
+
+				// делаем запрос в базу по артикулу
+				$art_arr = $this->search_articule_Database($_POST['art']);
+
+				
+				// получаем количесвто найденных совпадений
+				$count = count($art_arr);
+				switch ($count) {
+					case 1: // всё впорядке, мы нашли то, что искали
+						$html .= '<div class="inform_message">Найдено <strong>одно</strong> совпадение</div>';
+                              $html .= '<table id="choose_one_of_several_articles">';
+                              $html .= '<tr>';
+                              $html .= '<th>п</th>';
+                              $html .= '<th>Арт.</th>';
+                              $html .= '<th>Название</th>';
+                              $html .= '<th>Поставщик</th>';
+                              $html .= '<th>Апл</th>';
+                              $html .= '</tr>';
+                              $n = 1;
+
+                              $html .= '<tr data-art_id="'.$art_arr[0]['id'].'" data-art="'.$art_arr[0]['art'].'" class="checked">';
+                              $html .= '<td>'.$n++.'</td>';
+                              $html .= '<td>'.$art_arr[0]['art'].'</td>';
+                              $html .= '<td>'.$art_arr[0]['name'].'</td>';
+                              $html .= '<td>'.identify_supplier_by_prefix($art_arr[0]['art']).'</td>';
+                              $html .= '<td><a target="_blank" href="http://www.apelburg.ru/description/'.$art_arr[0]['id'].'/">на сайт</a></td>';
+                              $html .= '</tr>';
+
+                              // добавляем полное описание артикула
+                              if(trim($art_arr[0]['description']) != ''){
+                                   $html .= '<tr>';
+                                   $html .= '<td colspan="5">';
+                                   $html .= '<div>'.$art_arr[0]['description'].'</div>';
+                                   $html .= '</td>';
+                                   $html .= '</tr>';     
+                              }
+                              
+
+                              $html .= '</table>';
+                              
+                              // добавляем скрытые поля
+                              $html .= '<input type="hidden" name="AJAX" value="insert_in_database_new_catalog_position">';
+                              $html .= '<input type="hidden" name="art_id" value="'.$art_arr[0]['id'].'">';
+                              $html .= '<input type="hidden" name="art" value="'.$art_arr[0]['art'].'">';
+                              $html .= '</form>';
+
+						break;
+					case 0: // мы ненашли ничего
+						$html = '<div class="inform_message red">Такого артикула нет в базе. Попробуйте ввести другое значение.</div>';
+						break;
+					
+					default: // мы нашли более одного совпадения
+						$html .= '<div class="inform_message">Найдено <strong>'.$count.'</strong> совпадения(й). Пожалуйста уточните Ваш запрос.</div>';
+						$html .= '<table id="choose_one_of_several_articles">';
+						$html .= '<tr>';
+						$html .= '<th>п</th>';
+						$html .= '<th>Арт.</th>';
+						$html .= '<th>Название</th>';
+						$html .= '<th>Поставщик</th>';
+						$html .= '<th>Апл</th>';
+						$html .= '</tr>';
+						$n = 1;
+
+						foreach ($art_arr as $key => $articul) {
+							$html .= '<tr data-art_id="'.$articul['id'].'" data-art_name="'.$articul['name'].'" data-art="'.$articul['art'].'" '.(($key==0)?'class="checked"':'').'>';
+							$html .= '<td>'.$n++.'</td>';
+							$html .= '<td>'.$articul['art'].'</td>';
+							$html .= '<td>'.$articul['name'].'</td>';
+							$html .= '<td>'.identify_supplier_by_prefix($articul['art']).'</td>';
+							$html .= '<td><a target="_blank" href="http://www.apelburg.ru/description/'.$articul['id'].'/">на сайт</a></td>';
+							$html .= '</tr>';
+						}
+						$html .= '</table>';
+                              // добавляем скрытые поля
+                              $html .= '<input type="hidden" name="AJAX" value="insert_in_database_new_catalog_position">';
+                              $html .= '<input type="hidden" name="art_id" value="'.$art_arr[0]['id'].'">';
+                              $html .= '<input type="hidden" name="art_name" value="'.$art_arr[0]['name'].'">';
+                              $html .= '<input type="hidden" name="art" value="'.$art_arr[0]['art'].'">';
+                              $html .= '</form>';
+						break;
+				}
+                    
+
+				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+
+			}
+
+               // добавление каталожного товара в РТ
+               private function insert_in_database_new_catalog_position_AJAX(){
+                    global $mysqli; 
+                    //////////////////////////
+                    //  запрашиваем размеры к выбранному артикулу
+                    //////////////////////////
+                    $query = "SELECT * FROM apelburg_base.new__base__dop_params where art_id = '170'";
+
+
+
+                    //////////////////////////
+                    //  осущевствляем проверку всех необходимых данных
+                    //////////////////////////
+                    if(isset($_GET['query_num'])){
+                         $this->query_num = (int)$_GET['query_num'];
+                    }else{
+                         return 'не указан query_num';
+                    }
+                    //////////////////////////
+                    //  Вставляем строку в main_rows
+                    //////////////////////////
+                    $this->sort_num = $this->get_sort_num();    
+
+                    $query ="INSERT INTO `".RT_MAIN_ROWS."` SET
+                         `query_num` = '".$this->query_num."',
+                         `name` = '".trim($_POST['art_name'])."',
+                         `date_create` = CURRENT_DATE(),
+                         `art_id` = '".$_POST['art_id']."',
+                         `art` = '".$_POST['art']."',
+                         `type` = 'cat',
+                         `sort` = '".$this->sort_num."'";                    
+                   
+                    $result = $mysqli->query($query) or die($mysqli->error);
+                    
+                    $main_rows_id = $mysqli->insert_id;  
+
+                    //////////////////////////
+                    //  вставляем строку в dop_data
+                    //////////////////////////
+                     $query ="INSERT INTO `".RT_DOP_DATA."` SET
+                         `row_id` = '".$main_rows_id."',
+                         `row_status` = 'green',
+                         `date_create` = CURRENT_DATE(),
+                         `art_id` = '".$_POST['art_id']."',
+                         `art` = '".$_POST['art']."',
+                         `type` = 'cat',
+                         `sort` = '".$this->sort_num."'";                    
+                   
+                    $result = $mysqli->query($query) or die($mysqli->error);
+                    
+                    $main_rows_id = $mysqli->insert_id; 
+
+
+                    echo '{"response":"OK"}';
+
+                    // echo $this->print_arr($_POST);
+               }
+
+			//search articule
+			private function search_articule_Database($art){
+				global $mysqli;
+				$query = "SELECT * FROM `".BASE_TBL."` WHERE `art` LIKE '%".trim($art)."%';";
+				$arr = array();
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$arr[] = $row;
+					}
+				}
+				return $arr;
+			}
+
+
+
+		//////////////////////////
+		//	methods_AJAX  -- end
+		//////////////////////////
 
 		// возвращает форму выбора заведения новой позиции в запрос
 		// осущевствляется выбор типа товара
@@ -457,15 +653,7 @@ PS было бы неплохо взять взять это за правило
 				}
 			}
 
-			$html .= '<table>';
-
-
-
-			// $array_product_type = $this->arr_type_product;
-
-			// $html = '';
-
-			
+			$html .= '</table>';			
 			
 			$html .= '<input type="hidden" name="AJAX" value="get_form_Html">';
 			$html .= '</form>';
@@ -474,8 +662,15 @@ PS было бы неплохо взять взять это за правило
 
 		// возвращает форму для каталожной продукции
 		public function get_for_add_catalog_product(){
-			echo 'В разработке<br>';
-			echo 'форма будет в самое ближайшее время';
+			ob_start();	
+				
+				include_once './skins/tpl/client_folder/rt/add_new_position.tpl';
+
+				$html = ob_get_contents();
+			
+			ob_get_clean();
+			
+			return $html;
 		}
 
 		// возвращает html формы для заведения запроса на расчёт в отделе снабжения
@@ -692,7 +887,7 @@ PS было бы неплохо взять взять это за правило
 			}	
 
 			$html .= '</form></div>';
-			echo $html;
+			return $html;
 		}
 
 		// чистим дубли в ма
@@ -1038,6 +1233,24 @@ PS было бы неплохо взять взять это за правило
 			}
 			return $arr;
 		}
+
+          //////////////////////////
+          //     SERVICE METHODS
+          //////////////////////////
+          // распечатать массив в переменную
+          private function print_arr($arr){
+               ob_start();    
+                    
+                    echo '<pre>';
+                    print_r($arr);
+                    echo '</pre>';      
+
+                    $html = ob_get_contents();
+               
+               ob_get_clean();
+
+               return $html;
+          }
 
 	}
 

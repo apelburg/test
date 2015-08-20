@@ -2498,3 +2498,47 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
   /*background-color: #f1f1f1;*/
   cursor: pointer;
 }
+
+
+
+.loader{
+  min-height: 100px;
+  background-image: url(../images/img_design/preloader.gif);
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+.art_name_input{
+  margin-top: 10px;
+}
+.inform_message{
+  background-color: #92B73E;
+  padding: 5px;
+  margin: 10px 0 5px 0;
+}
+.inform_message.red{
+  background: none;
+  border: 1px solid red;
+  color: red;
+}
+
+#choose_one_of_several_articles{
+  margin-top: 10px;
+  width: 100%;
+  border-collapse: collapse;
+}
+#choose_one_of_several_articles tr th{
+  color: grey;
+}
+#choose_one_of_several_articles tr td,
+#choose_one_of_several_articles tr th{
+  padding: 5px;
+  text-align: left; 
+  border: 1px solid #f1f1f1;
+}
+#choose_one_of_several_articles tr:hover td{
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+#choose_one_of_several_articles tr.checked td{
+  background-color: #C5C5C5;
+}
