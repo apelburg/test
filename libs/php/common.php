@@ -3,7 +3,7 @@
     if(isset($_GET['add_data_to_rt_from_basket'])){
 		 include_once ROOT.'/libs/php/classes/rt_class.php';
 		 //echo $_GET['client_data'].' - '.$_GET['manager_login'];
-		 RT::add_data_from_basket($_GET['client_data'],$_GET['manager_login']);
+		 echo RT::add_data_from_basket($_GET['client_data'],$_GET['manager_login']);
 		 exit;
 	}
 	if(isset($_GET['subquery_for_planner_window'])){
@@ -412,8 +412,8 @@
 				if($filter['type']=='by_rating'){
 					$filter_arr = explode(',',$filter['val']);
 					foreach($rate_arr as $key => $val){
-						foreach($filter_arr as $filter){
-							if($val >= $filter && $val < $filter+1) $ids[] = $key;
+						foreach($filter_arr as $filter_val){
+							if($val >= $filter_val && $val < $filter_val+1) $ids[] = $key;
 						}
 					}
 					$where[]=  "suppliers_tbl.id IN (".implode(',',$ids).")";
