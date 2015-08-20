@@ -32,7 +32,7 @@
 	<div id="number_position_and_type">
 		<ul>
 			<li title="порядковый номер позиции в заказе">Позиция № 1 (Это нужно????)</li>
-			<li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span><?php echo $POSITION_GEN->FORM->arr_type_product[$type_product]['name']; ?></li>
+			<li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span><?php if(isset($POSITION_GEN->FORM->arr_type_product[$type_product]['name'])){echo $POSITION_GEN->FORM->arr_type_product[$type_product]['name'];} ?></li>
 			<li><span>доп инфо: </span>Тендер</li>
 			<li><span>снабженец: </span><?php echo Manager::get_snab_name_for_query_String($snab_id); ?></li>
 			<li><span>статус позиции: </span>Расчитано</li>

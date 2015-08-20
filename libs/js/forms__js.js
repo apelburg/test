@@ -401,4 +401,9 @@ $(document).on('click', '#choose_the_size tr td', function(event) {
 	$(this).parent().addClass('checked');
 
 });
+
+
+function window_reload(){
+	location.reload();
+}
 //	15610440.34

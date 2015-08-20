@@ -477,7 +477,7 @@ $(document).on('click', '.attach_the_client', function(event) {
 	}, function(data, textStatus, xhr) {
 		show_dialog_and_send_POST_window(data,'Выбрать клиента',750);
 		// replace_query_row_obj(obj);
-		location.reload();
+		// location.reload();
 	});
 });
 

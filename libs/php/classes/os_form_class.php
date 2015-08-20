@@ -646,7 +646,7 @@ PS было бы неплохо взять взять это за правило
                     // $main_rows_id = $mysqli->insert_id; 
 
 
-                    echo '{"response":"OK"}';
+                    echo '{"response":"OK","function":"window_reload"}';
 
                     // echo $this->print_arr($_POST);
                }
