@@ -19,7 +19,7 @@
       ----
    </td>
    <td class="center italic grey">
-       <a href='?page=clients&section=client_folder&subsection=business_offers&client_id=<?php  echo $client_id; ?>&delete_com_offer=<?php  echo urlencode($file); ?>&id=<?php  echo $com_pred_data["id"]; ?>&old_version=true' onclick='if(confirm(" Внимание! КП будет удалено!\r\n Вы действительно хотите удалить КП?")){ return true;} else{ return false;}'>DEL</a>
+       <a href='?<?php  echo addOrReplaceGetOnURL('delete_com_offer='.urlencode($file).'&id='.$com_pred_data["id"].'&old_version=true'); ?>' onclick='if(confirm(" Внимание! КП будет удалено!\r\n Вы действительно хотите удалить КП?")){ return true;} else{ return false;}'>DEL</a>
    </td>
    <td class="flank_cell">&nbsp;</td>
 </tr>

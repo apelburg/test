@@ -14,16 +14,44 @@
 .hidden{ display:none; }
 .active{ background-color: #EEE;}
 
+/*@media screen and (max-width:1920px){
+}
+@media screen and (max-width:1366px){
+}
+@media screen and (max-width:1280px){
+}*/
+
 .rt_tbl_head{ 
  /*table-layout:fixed;*/
  border-collapse:collapse;
 
 }
-.rt_tbl_head td{ 
- padding:0px;
- font-size:11px;
- border:#FF0000 solid 0px;
+.rt_tbl_head td{ padding:0px;font-size:11px;border:#FF0000 solid 0px}
+
+
+@media screen and (max-width:1920px){
+  .rt_tbl_head td.art_name{ width:470px; }
+  /*.rt_tbl_head td.quantity{ width:60px; }*/
+  .rt_tbl_head td.total{ width:120px; }
+  .rt_tbl_head td.delta{ width:160px; border:#FF0000 solid 0px; }
+  .rt_tbl_head td.margin{ width:160px; border:#FF0000 solid 0px;  }
 }
+@media screen and (max-width:1600px){
+  .rt_tbl_head td.art_name{ width:370px; }
+  /*.rt_tbl_head td.quantity{ width:60px; }*/
+  .rt_tbl_head td.total{ width:120px; }
+  .rt_tbl_head td.delta{ width:100px; border:#FF0000 solid 0px;  }
+  .rt_tbl_head td.margin{ width:100px; border:#FF0000 solid 0px;  }
+}
+@media screen and (max-width:1366px){
+  .rt_tbl_head td.art_name{ width:270px; }
+  /*.rt_tbl_head td.quantity{ width:60px; }*/
+  .rt_tbl_head td.total{ width:100px; }
+  .rt_tbl_head td.delta{ width:80px; }
+  .rt_tbl_head td.margin{ width:80px; }
+}
+
+
 .rt_tbl_head .bottom_border td{ border-bottom: #999 solid 2px;}
 .rt_tbl_head span.small{ 
  font-size:9px;
@@ -126,6 +154,28 @@ table-layout:fixed;
  font-size:12px; 
  border:#FF0000 solid 0px;
 }
+@media screen and (max-width:1920px){
+  .rt_tbl_body td.art_name{ width:470px; }
+  /*.rt_tbl_body td.quantity{ width:60px; }*/
+  .rt_tbl_body td.total{ width:120px; }
+  .rt_tbl_body td.delta{ width:160px; border:#FF0000 solid 0px; }
+  .rt_tbl_body td.margin{ width:160px; border:#FF0000 solid 0px;  }
+}
+@media screen and (max-width:1600px){
+  .rt_tbl_body td.art_name{ width:370px; }
+  /*.rt_tbl_body td.quantity{ width:60px; }*/
+  .rt_tbl_body td.total{ width:120px; }
+  .rt_tbl_body td.delta{ width:100px; border:#FF0000 solid 0px;  }
+  .rt_tbl_body td.margin{ width:100px; border:#FF0000 solid 0px;  }
+}
+@media screen and (max-width:1366px){
+  .rt_tbl_body td.art_name{ width:270px; }
+  /*.rt_tbl_body td.quantity{ width:60px; }*/
+  .rt_tbl_body td.total{ width:100px; }
+  .rt_tbl_body td.delta{ width:80px; }
+  .rt_tbl_body td.margin{ width:80px; }
+}
+
 .rt_tbl_body .lowest_row_in_pos td{
  border-bottom:#FF0000 solid 0px;
  padding-bottom:25px;

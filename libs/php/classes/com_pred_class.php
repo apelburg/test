@@ -161,18 +161,19 @@
 		   return (!empty($kp_num['kp_num']))? ++$kp_num['kp_num']: 100000;
 	   }*/
 	   static function delete($kp_id){
-	       global $mysqli;
-
+ 	       global $mysqli;
+           // если таблицы будут содержать родительские записи, которые следует удалить, но для которых нет соответствующих дочерних записей, то           // ничего не получится. Инструкция WHERE не найдет соответствий для родительской записи в дочерней и, следовательно, не выберет
+		   // родительскую запись для удаления. Чтобы обеспечить выбор и удаление родительской записи даже при отсутствии у нее дочерних записей,           // используйте LEFT JOIN:
            $query="DELETE list, main_rows, dop_data, uslugi
 				                 FROM `".KP_LIST."` list
-                                 INNER JOIN `".KP_MAIN_ROWS."` main_rows
+                                 LEFT  JOIN `".KP_MAIN_ROWS."` main_rows
 								 ON list.id = main_rows.kp_id 
-								 RIGHT JOIN `".KP_DOP_DATA."` dop_data 
+								 LEFT  JOIN `".KP_DOP_DATA."` dop_data 
 								 ON main_rows.id = dop_data.row_id
-								 RIGHT JOIN `".KP_DOP_USLUGI."` uslugi 
+								 LEFT  JOIN `".KP_DOP_USLUGI."` uslugi 
 								 ON dop_data.id = uslugi.dop_row_id 
 								 WHERE list.id = '".$kp_id."'";
-		   $result = $mysqli->query($query)or die($mysqli->error);
+		   $mysqli->query($query)or die($mysqli->error);
 	   }
 	   static function delete_old_version($file,$client_id,$id){
 		

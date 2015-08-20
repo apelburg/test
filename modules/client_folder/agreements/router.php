@@ -8,7 +8,7 @@
 	
 
 	// чтобы не гонялись между собой - section= business_offers,planner
-	save_way_back(array('section=agreement_editor','section=business_offers','section=planner'),'?page=cabinet&client_id='.$client_id);
+	save_way_back(array('section=agreement_editor','section=business_offers','section=planner','section=agreements'),'?page=cabinet&client_id='.$client_id);
 	$quick_button_back = get_link_back();
 
 	include 'agreements_controller.php';
