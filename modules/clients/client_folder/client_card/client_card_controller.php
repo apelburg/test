@@ -647,7 +647,7 @@ else {
     
     // получаем рейтинг компании
     $clientRating = Client::get_reiting($client_id, $client['rate']);
-    echo $client_id;
+    // echo $client_id;
     // получаем реквизиты компании
     $requisites = Client::get_requisites($client_id);
     

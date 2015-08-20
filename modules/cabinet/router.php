@@ -6,6 +6,10 @@
 	if(!@$ACCESS['cabinet']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 
+
+	
+
+
 	include './libs/php/classes/comments_class.php';
 	new Comments_for_query_class;
 	new Comments_for_order_class;
@@ -35,7 +39,7 @@
 	$menu_left = "";
 	foreach ($ACCESS['cabinet']['section'] as $key => $value) {
 		if($value['access']){
-			$menu_left .= '<li '.((isset($_GET["section"]) && $_GET["section"]==$key)?'class="selected"':'').'><a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section='.$key.'&subsection='.key($value['subsection']).'">'.$menu_name_arr[$key].'</a><li>';
+			$menu_left .= '<li '.((isset($_GET["section"]) && $_GET["section"]==$key)?'class="selected"':'').'><a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section='.$key.'&subsection='.key($value['subsection']).''.(isset($_GET["client_id"])?'&client_id='.$_GET["client_id"]:'').'">'.$menu_name_arr[$key].'</a><li>';
 		}
 	}
 		
@@ -44,10 +48,26 @@
 	$menu_central_arr = (array_key_exists($section, $ACCESS['cabinet']['section']))?$ACCESS['cabinet']['section'][$section]['subsection']:array();
 	foreach ($menu_central_arr as $key2 => $value2) {
 		// $menu_central .= "$key2 -";
-		$menu_central .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'><a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.'">'.$menu_name_arr[$key2].'</a><li>';
+		$menu_central .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'><a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.''.(isset($_GET["client_id"])?'&client_id='.$_GET["client_id"]:'').'">'.$menu_name_arr[$key2].'</a><li>';
 	}
 
+
+	//////////////////////////
+	//	поиск и т.д.
+	//////////////////////////
 	include'./skins/tpl/common/quick_bar.tpl';
+	
+	/////////////////////////////////
+	//	крткая информация по клиенту
+	/////////////////////////////////
+	if(isset($_GET['client_id']) && $_GET['client_id']!=""){
+		include_once './libs/php/classes/client_class.php';
+		//$CLIENT = new Client((int)$_GET['client_id']);
+		// echo '<pre>';
+		// print_r($CLIENT);
+		// echo '</pre>';	
+		Client::get_client__information($_GET['client_id']);
+	}
 
 	include'./skins/tpl/cabinet/show.tpl';
 		

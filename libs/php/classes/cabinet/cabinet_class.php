@@ -772,7 +772,14 @@
 				// echo $method;
 				// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
 				if(method_exists($this, $method)){
-					echo '{"response":"OK","html":"'.base64_encode($this->$method($_POST['os__rt_list_id'])).'"}';
+					ob_start();
+					
+					$this->$method($_POST['os__rt_list_id']);
+
+					$html = ob_get_contents();
+					ob_get_clean();
+					
+					echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 					exit;
 				}							
 			}
@@ -2216,18 +2223,51 @@
 			$result = $mysqli->query($query) or die($mysqli->error);
 			// запускаем все прикреплённые услуги
 
-			//ищем 'being_prepared' меняем на in_processed
-			$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
-				`performer_status` =  'in_processed' 
-				WHERE  `dop_row_id` ='".$_POST['dop_data_id']."' AND `performer_status` = 'being_prepared';";
 
-			$result = $mysqli->query($query) or die($mysqli->error);
+			////////////////////////////////////////////////
+			//  ищем 'being_prepared' меняем на in_processed	
+			////////////////////////////////////////////////
+				// запрашиваем id тех строк, которые необходимо изменить
+				$str = '';
+				$query = "SELECT * FROM `".CAB_DOP_USLUGI."`
+				WHERE  `dop_row_id` ='".$_POST['dop_data_id']."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo $query;
+				$n = 0;
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						if($row['performer_status'] == 'being_prepared' || trim($row['performer_status']) == '')
+						$str .= (($n>0)?",":"")."'".$row['id']."'";
+						$n++;
+					}
+				}
+
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`performer_status` =  'in_processed' 
+				WHERE  `id` IN (".$str.")";
+				echo $query;
+				if($str!=''){
+					$result = $mysqli->query($query) or die($mysqli->error);	
+				}
 				
+				// меняем на in_processed
+				
+			////////////////////////////////////////////////
+			//  ищем 'being_prepared' меняем на in_processed	
+			////////////////////////////////////////////////
+			
 			echo '{"response":"OK"}';
 
-			nenn 
 
-			asfa54fwea6fae651
+			
+			
+
+			
+			
+				
+			
+
+			//echo 'необходимо доделать функцию. ищем \'being_prepared\' меняем на in_processed';
 
 
 		}

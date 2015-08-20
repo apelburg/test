@@ -119,6 +119,13 @@
 				FROM `".RT_LIST."`
 				INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".RT_LIST."`.`client_id`
 				INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".RT_LIST."`.`manager_id`";
+			
+
+			// если знаем id клиента - выводим только заказы по клиенту
+			if(isset($_GET['client_id'])){
+				$query .= " WHERE `".RT_LIST."`.`client_id` = '".$_GET['client_id']."'";
+			}
+
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
 			if($result->num_rows > 0){
