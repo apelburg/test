@@ -6,10 +6,9 @@
 	if(!@$ACCESS['cabinet']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 
-
+	save_way_back(array('page=cabinet'),'?page=cabinet&client_id='.$client_id);
+	$quick_button_back = get_link_back();
 	
-
-
 	include './libs/php/classes/comments_class.php';
 	new Comments_for_query_class;
 	new Comments_for_order_class;

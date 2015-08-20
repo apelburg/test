@@ -6,7 +6,8 @@
 	if(!@$ACCESS['suppliers']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 	
-	
+	save_way_back(array('page=suppliers'),'?page=cabinet&client_id='.$client_id);
+	$quick_button_back = get_link_back();
 	
 	include_once('./libs/php/classes/supplier_class.php');
 	include_once('./libs/php/classes/mail_class.php');

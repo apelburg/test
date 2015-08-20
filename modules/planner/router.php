@@ -6,6 +6,9 @@
 	if(!@$ACCESS['planner']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 	
+	save_way_back(array('page=planner','section=agreements','section=business_offers','section=planner'),'?page=cabinet&client_id='.$client_id);
+	$quick_button_back = get_link_back();
+	
 	if(isset($_GET['show_client_list_by_manager'])){
 	    $itog_arr = get_clients_list_for_user($_GET['manager_id'],array('company',''));
 		$str1 = $str2 = '';

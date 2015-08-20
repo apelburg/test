@@ -6,6 +6,9 @@
 	if(!@$ACCESS['clients']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 	
+	save_way_back(array('page=clients'),'?page=cabinet&client_id='.$client_id);
+	$quick_button_back = get_link_back();
+	
      include_once('./libs/php/classes/client_class.php');
 	 
 	 /////////////////////////////////// AJAX //////////////////////////////////////
