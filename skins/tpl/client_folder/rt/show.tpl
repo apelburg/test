@@ -9,6 +9,7 @@
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/forms__js.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/scrolledTableSizeFixing.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/rtCalculatorClass.js"></script>
+<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/printCalculatorClass.js"></script>
 <script type="text/javascript" src="./libs/js/up_window_consructor.js"></script>
 <div class="scrolled_tbl_container"> 
 <?php echo $rt; ?>

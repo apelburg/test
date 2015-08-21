@@ -255,10 +255,10 @@
 				 $out_summ_format = number_format($out_summ,'2','.','');
 				 $delta_format = number_format($delta,'2','.','');
 				 $margin_format = number_format($margin,'2','.','');
-		
+		 
 				 $svetofor_stat = ($dop_row['row_status']=='')?'green':$dop_row['row_status'];
 				 // если ряд не исключен из расчетов добавляем значения в итоговый ряд
-				 if(!(!!$expel["main"]) && $svetofor_stat=='green'){// && ( || $dop_row['row_status']=='')
+				 if(!(!!$expel["main"]) && ($svetofor_stat=='sgreen' || $svetofor_stat=='green')){// && ( || $dop_row['row_status']=='')
 					 @$total['price_in_summ'] += $price_in_summ;
 					 @$total['price_out_summ'] += $price_out_summ;
 					 if(!(!!$expel["print"])) @$total['print_in_summ'] += $print_in_summ;
@@ -404,7 +404,7 @@
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
 				  <td class="art_name right">
-				      <a href="#" onclick="print_r(rtCalculator.tbl_model);">_</a>
+				      <a href="#" onclick="console.log(rtCalculator.tbl_model);/*print_r(rtCalculator.tbl_model);*/">_</a>
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>

@@ -63,7 +63,8 @@
 		 exit;
 	}
 	if(isset($_GET['change_svetofor'])){
-		 RT::change_svetofor(array($_GET['id']),$_GET['change_svetofor']);
+	     $idsArr = (isset($_GET['idsArr']))? json_decode($_GET['idsArr']):false;
+		 RT::change_svetofor(array($_GET['id']),$_GET['change_svetofor'],$idsArr);
 		 exit;
 	}
 	if(isset($_GET['make_com_offer'])){

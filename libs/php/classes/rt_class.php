@@ -32,12 +32,18 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
-		static function change_svetofor($idsArr,$val){
+		static function change_svetofor($idsArr,$val,$idsArr2){
 		    global $mysqli;   //print_r($data); 
-	   
+	        
 			$query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = '".$val."'  WHERE `id` IN('".implode("','",$idsArr)."')";
 			//echo $query;
-			$result = $mysqli->query($query)or die($mysqli->error);
+			$mysqli->query($query)or die($mysqli->error);
+			
+			if($val=='sgreen'){
+			    $query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = 'red'  WHERE `row_status` <> 'grey' AND `id` IN('".implode("','",$idsArr2)."')";
+			    //echo $query;
+			    $mysqli->query($query)or die($mysqli->error);			
+			}
 		}
 		static function svetofor_display_relay($status,$ids){
 		    global $mysqli; 
