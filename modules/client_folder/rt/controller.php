@@ -40,7 +40,8 @@
 				  LEFT JOIN 
 				  `".RT_DOP_USLUGI."` dop_uslugi_tbl ON  dop_data_tbl.id = dop_uslugi_tbl.dop_row_id
 		          WHERE main_tbl.query_num ='".$query_num."' ORDER BY main_tbl.sort,dop_data_tbl.id";
-				  
+		
+			// echo $query;
 		 $result = $mysqli->query($query) or die($mysqli->error);
 		 $multi_dim_arr = array();
 	     while($row = $result->fetch_assoc()){

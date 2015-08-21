@@ -467,7 +467,7 @@ PS было бы неплохо взять взять это за правило
                               $html .= '</tr>';
                               $n = 1;
 
-                              $html .= '<tr data-art_id="'.$art_arr[0]['id'].'" data-art="'.$art_arr[0]['art'].'" class="checked">';
+                              $html .= '<tr data-art_id="'.$art_arr[0]['id'].'"  data-art_name="'.$art_arr[0]['name'].'" data-art="'.$art_arr[0]['art'].'" class="checked">';
                               $html .= '<td>'.$n++.'</td>';
                               $html .= '<td>'.$art_arr[0]['art'].'</td>';
                               $html .= '<td>'.$art_arr[0]['name'].'</td>';
@@ -491,6 +491,7 @@ PS было бы неплохо взять взять это за правило
                               $html .= '<input type="hidden" name="AJAX" value="insert_in_database_new_catalog_position">';
                               $html .= '<input type="hidden" name="art_id" value="'.$art_arr[0]['id'].'">';
                               $html .= '<input type="hidden" name="art" value="'.$art_arr[0]['art'].'">';
+                              $html .= '<input type="hidden" name="art_name" value="'.$art_arr[0]['name'].'">';
                               $html .= '</form>';
 
 						break;
@@ -520,6 +521,7 @@ PS было бы неплохо взять взять это за правило
 							$html .= '</tr>';
 						}
 						$html .= '</table>';
+
                               // добавляем скрытые поля
                               $html .= '<input type="hidden" name="AJAX" value="insert_in_database_new_catalog_position">';
                               $html .= '<input type="hidden" name="art_id" value="'.$art_arr[0]['id'].'">';
@@ -537,12 +539,71 @@ PS было бы неплохо взять взять это за правило
                // добавление каталожного товара в РТ
                private function insert_in_database_new_catalog_position_AJAX(){
                     global $mysqli; 
-                    //////////////////////////
-                    //  запрашиваем размеры к выбранному артикулу
-                    //////////////////////////
-                    $query = "SELECT * FROM apelburg_base.new__base__dop_params where art_id = '170'";
+
+                    if(!isset($_POST['chosen_size'])){
+                         //////////////////////////
+                         //  запрашиваем размеры к выбранному артикулу
+                         //////////////////////////
+                         $query = "SELECT * FROM `".BASE_DOP_PARAMS_TBL."` where art_id = '".(int)$_POST['art_id']."'";
+                         $size_arr = array();
+                         $result = $mysqli->query($query) or die($mysqli->error);
+                         if($result->num_rows > 0){
+                              while($row = $result->fetch_assoc()){
+                                   $size_arr[] = $row;
+                              }
+                         }
+
+                         if(count($size_arr) > 1){ // если размеров более одного выводим новую форму с выбором размера
+                              $html = '';
+                              $html .= '<form>';
+                              // выводим таблицу размеров
+
+                              $html .= '<div class="inform_message">Выберите размер</div>';
+
+                              $html .= '<table id="choose_the_size">';
+                              $html .= '<tr><th colspan="2">'.$_POST['art_name'].'</th></tr>';
+                              $html .= '<tr><th>Размер</th><th>Цена</th></tr>';
+                              foreach ($size_arr as $key => $value) {
+                                   $html .= '<tr>';
+                                        $html .= '<td>';
+                                             $html .= $value['size'];
+                                        $html .= '</td>';
+                                        $html .= '<td>';
+                                             $html .= '<span>'.$value['price'].'</span> р.';
+                                        $html .= '</td>';
+                                   $html .= '</tr>';
+                              }
+
+                              $html .= '</table>';
+                              $html .= '<input type="hidden" name="chosen_size" class="chosen_size" value="">';// размер
+                              $html .= '<input type="hidden" name="price_out" class="price_out" value="">';// размер
 
 
+                              // вывод скрытых полей переданных ранее
+                              foreach ($_POST as $key => $value) {
+                                   $html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+                              }
+                              $html .= '</form>';
+
+
+                              echo '{"response":"show_new_window" , "title":"Выберите размер","html":"'.base64_encode($html).'"}';
+                              exit;
+
+                         }else{
+                              $this->price_out = $size_arr[0]['price'];
+                         }
+
+                    }else{
+                         $this->price_out = $_POST['price_out'];
+                    }
+
+                    // echo '{"response":"none"}';
+
+                    // echo $this->print_arr($this);
+
+                    // echo $this->print_arr($_POST);
+
+                    // exit;
 
                     //////////////////////////
                     //  осущевствляем проверку всех необходимых данных
@@ -574,20 +635,18 @@ PS было бы неплохо взять взять это за правило
                     //  вставляем строку в dop_data
                     //////////////////////////
                      $query ="INSERT INTO `".RT_DOP_DATA."` SET
-                         `row_id` = '".$main_rows_id."',
+                         `row_id` = '".$main_rows_id."',                         
+                         `price_out` = '".$this->price_out."',
                          `row_status` = 'green',
-                         `date_create` = CURRENT_DATE(),
-                         `art_id` = '".$_POST['art_id']."',
-                         `art` = '".$_POST['art']."',
-                         `type` = 'cat',
-                         `sort` = '".$this->sort_num."'";                    
+
+                         `glob_status` = 'в работе'";                    
                    
                     $result = $mysqli->query($query) or die($mysqli->error);
                     
-                    $main_rows_id = $mysqli->insert_id; 
+                    // $main_rows_id = $mysqli->insert_id; 
 
 
-                    echo '{"response":"OK"}';
+                    echo '{"response":"OK","function":"window_reload"}';
 
                     // echo $this->print_arr($_POST);
                }

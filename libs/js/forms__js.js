@@ -387,3 +387,23 @@ $(document).on('click', '#choose_one_of_several_articles tr td', function(event)
 	$(this).parent().addClass('checked');
 
 });
+
+$(document).on('click', '#choose_the_size tr td', function(event) {
+	var size = $(this).parent().find('td').eq(0).html();
+	var price = $(this).parent().find('td').eq(1).html();
+
+	// подставляем выбранные значения
+
+	$('#dialog_gen_window_form input[name="chosen_size"]').val(size);
+	$('#dialog_gen_window_form input[name="price_out"]').val(price);
+
+	$('#choose_the_size tr.checked').removeClass('checked');
+	$(this).parent().addClass('checked');
+
+});
+
+
+function window_reload(){
+	location.reload();
+}
+//	15610440.34

@@ -186,7 +186,7 @@
 			//	Для каталожной продукции
 			//////////////////////////
 			if(isset($_POST['type_product']) && $_POST['type_product'] == "cat"){
-				$FORM->get_for_add_catalog_product();	
+				echo '{"response":"OK","type":"cat","html":"'.base64_encode($FORM->get_for_add_catalog_product()).'"}';	
 				exit;
 			}
 			//////////////////////////
@@ -201,7 +201,7 @@
 
 
 			// запрос формы html
-			$FORM->get_product_form_Html($t_p);
+			echo '{"response":"OK","html":"'.base64_encode($FORM->get_product_form_Html($t_p)).'"}';
 			exit;
 		}
 

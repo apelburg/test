@@ -297,7 +297,7 @@
 		## Запросы __ запросы к базе
 
 		// получаем позиции по запросу
-		private function requests_Template_recuestas_main_rows_Database($id){
+		protected function requests_Template_recuestas_main_rows_Database($id){
 			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ 
 			switch ($_GET['subsection']) {
 				case 'all':

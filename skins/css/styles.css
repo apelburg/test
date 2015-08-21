@@ -2521,24 +2521,29 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
   color: red;
 }
 
-#choose_one_of_several_articles{
+#choose_one_of_several_articles,#choose_the_size{
   margin-top: 10px;
   width: 100%;
   border-collapse: collapse;
 }
-#choose_one_of_several_articles tr th{
+#choose_one_of_several_articles tr th,
+#choose_the_size tr th{
   color: grey;
 }
 #choose_one_of_several_articles tr td,
-#choose_one_of_several_articles tr th{
+#choose_one_of_several_articles tr th,
+#choose_the_size tr th,
+#choose_the_size tr td{
   padding: 5px;
   text-align: left; 
   border: 1px solid #f1f1f1;
 }
-#choose_one_of_several_articles tr:hover td{
+#choose_one_of_several_articles tr:hover td,
+#choose_the_size tr:hover td{
   background-color: #f1f1f1;
   cursor: pointer;
 }
-#choose_one_of_several_articles tr.checked td{
+#choose_one_of_several_articles tr.checked td,
+#choose_the_size tr.checked td{
   background-color: #C5C5C5;
 }
