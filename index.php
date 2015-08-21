@@ -16,6 +16,8 @@
     include('libs/autorization.php');
 	include('libs/variables.php');
 
+	
+
     // ** БЕЗОПАСНОСТЬ **
 	// если нет массива $ACCESS (права доступа) прерываем работу скирпта 
 	if(!isset($ACCESS)) exit('доступ отсутсвует');

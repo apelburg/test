@@ -559,7 +559,12 @@ table#general_panel_orders_tbl tr td.change_supplier:hover{
     border: 1px solid #AAAAAA;
     background-color: #D2D2D2;
 }
-
+#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production{
+	display: none; /*скрыть позиции*/
+}
+#cabinet_general_content table#general_panel_orders_tbl tr.order_head_row td{
+	border-top: 1px solid #6d6e72;
+}
 #cabinet_general_content table#general_panel_orders_tbl tr.position_for_production td{
 	border: 1px solid #f1f1f1;
 }

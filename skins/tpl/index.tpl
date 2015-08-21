@@ -60,7 +60,11 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
                 
                     <a href="?page=empty3" class="<?php if($page=='empty3')echo'selected'; ?>">Уведомления</a>-->
 
-                    <a href="?page=cabinet&section=requests&subsection=no_worcked" class="<?php if($page=='cabinet')echo'selected'; ?>">Кабинет</a>
+                   <!--  <a href="?page=cabinet&section=requests&subsection=no_worcked" class="<?php //if($page=='cabinet')echo'selected'; ?>">Кабинет</a> -->
+
+                   <?php 
+                    echo get_worked_link_for_cabinet();
+                   ?>
                     
                     <a href="?page=admin" class="<?php if($page=='admin')echo'selected'; ?>">Админка</a>
                 

@@ -246,6 +246,7 @@ $(document).on('keyup', '.deadline', function(event) {
 	});
 	check_loading_ajax();
 });
+
 // сохраняем поле ОПЛАЧЕНО
 $(document).on('change','.buch_status_select select',function(){
 		// записываем id строки услуги
@@ -295,38 +296,59 @@ $(document).on('click','#cabinet_general_content .cabinett_row_hide',function() 
 
 // свернуть/развернуть строку ЗАКАЗА
 $(document).on('click','#cabinet_general_content .cabinett_row_hide_orders',function() {	
-	if($(this).hasClass('show')){
-		// запоминаем значение rowspan
-		var rowspan = Number($(this).parent().attr('data-rowspan'));
+	
+	if($(this).hasClass('show')){ // если поле скрыто
+		// скрываем остальные поля
+		//console.log($('#general_panel_orders_tbl tr.order_head_row').length);
+		// var n =0;
+		
+		
+		//tbl_row_close($('#general_panel_orders_tbl tr.order_head_row td.show_hide span.show'));
+		
+		
+		// console.log('654654 = '+ index);
+		
 
-		$(this).parent().attr('rowspan',rowspan);
 
-		// скрываем все строки
-		obj = $(this).parent().parent().next('tr');
-		for (var i = 0; i < rowspan-1; i++) {
-			obj.show();
-			obj = obj.next('tr');
-		};
-
-		$(this).removeClass('show');
-	}else{
-		// запоминаем значение rowspan
-		var rowspan = Number($(this).parent().attr('rowspan'));
-		// ставим rowspan 1, сохраняем заначение в тег
-		$(this).parent().attr('rowspan','1').attr('data-rowspan',rowspan);
-		// скрываем все строки
-		obj = $(this).parent().parent().next('tr');
-		for (var i = 0; i < rowspan-1; i++) {
-			obj.hide();
-			obj = obj.next('tr');
-			console.log(obj.next('tr').html());
-		};
-
-		$(this).addClass('show');
+		tbl_row_open($(this));
+	}else{ // если поле открыто
+		tbl_row_close($(this));
 	}	
 });
 
+function tbl_row_open(obj){
+	obj.removeClass('show');
+	// запоминаем значение rowspan
+	var rowspan = Number(obj.parent().attr('data-rowspan'));
 
+	obj.parent().attr('rowspan',rowspan);
+
+	// скрываем все строки
+	obj = obj.parent().parent().next('tr');
+	for (var i = 0; i < rowspan-1; i++) {
+		obj.show();
+		obj = obj.next('tr');
+	};
+
+	
+}
+
+function tbl_row_close(obj){
+	obj.addClass('show');
+	// запоминаем значение rowspan
+	var rowspan = Number(obj.parent().attr('rowspan'));
+	// ставим rowspan 1, сохраняем заначение в тег
+	obj.parent().attr('rowspan','1').attr('data-rowspan',rowspan);
+	// скрываем все строки
+	obj = obj.parent().parent().next('tr');
+	for (var i = 0; i < rowspan-1; i++) {
+		obj.hide();
+		obj = obj.next('tr');
+		console.log(obj.next('tr').html());
+	};
+
+	
+}
 
 
 

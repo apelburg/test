@@ -2606,4 +2606,54 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		}
 	}
 	*/
+
+
+	function get_real_user_access($id){
+		global $mysqli;
+	   
+	    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
+	    $result = $mysqli->query($query)or die($mysqli->error);
+	    if($result->num_rows>0){
+			while($row = $result->fetch_assoc()){
+			   return  $row['access'];
+			}				
+	    }
+	    else{
+	        return 0;
+	    }
+	}
+
+	// возвращает ссылку на кабинет
+	function get_worked_link_for_cabinet(){
+		global $ACCESS_SHABLON;
+			
+		$user_access = get_real_user_access($_SESSION['access']['user_id']);
+
+		// echo $user_access;
+
+		if( !isset($ACCESS_SHABLON[ $user_access ]['cabinet']['section'] ) ){
+			return; 
+		}else{
+			// первый ключ section
+			$n = 0;
+			foreach ($ACCESS_SHABLON[$user_access]['cabinet']['section'] as $key => $value) {
+				if ($n == 0) {
+					$section = $key;
+				}
+				$n++;
+			}
+
+			// первый ключ section
+			$n = 0;
+			foreach ($ACCESS_SHABLON[$user_access]['cabinet']['section'][$section]['subsection'] as $key => $value) {
+				if ($n == 0) {
+					$subsection = $key;
+				}
+				$n++;
+			}
+			 
+			//$subsection = key($ACCESS_SHABLON[$user_access]['cabinet']['section'][0]['subsection'][0]);
+			return '<a href="?page=cabinet&amp;section='.$section.'&amp;subsection='.$subsection.'" class="'.((isset($_GET['page']) && $_GET['page'] =='cabinet')?'selected':'').'">Кабинет</a>';
+		}
+	}
 ?>

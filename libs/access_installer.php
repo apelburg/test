@@ -217,12 +217,12 @@
 						'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
-											'important'=> array(
-												'access'=>true,
-												'subsection'=>array( // 2
-													'all' => array('access'=>true)
-													)
-												),											
+											// 'important'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array( // 2
+											// 		'all' => array('access'=>true)
+											// 		)
+											// 	),											
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
@@ -346,12 +346,12 @@
 				       'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
-											'important'=> array(
-												'access'=>true,
-												'subsection'=>array( // 2
-													'all' => array('access'=>true)
-													)
-												),
+											// 'important'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array( // 2
+											// 		'all' => array('access'=>true)
+											// 		)
+											// 	),
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2

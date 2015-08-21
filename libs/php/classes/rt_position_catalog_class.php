@@ -212,10 +212,11 @@ class Position_catalog{
 		$result = $mysqli->query($query) or die($mysqli->error);
 		// запоминаем новый id
 		$insert_id = $mysqli->insert_id;
+
 		// узнаем количество строк
 		$query = "SELECT COUNT( * ) AS `num`
 				FROM  `os__rt_dop_data` 
-				WHERE  `row_id` ='1'";
+				WHERE  `row_id` ='1'";  /// !!!! править тут !!!!
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
