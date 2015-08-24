@@ -23,6 +23,7 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 #cabinet_general_content table tr td.each_art{ 
 	padding-top: 0;
 	padding-left: 0;
+	d
 }
 
 #cabinet_general_content .cab_position_div tr td{ border:none; padding: 2px}
@@ -81,7 +82,7 @@ td.show_hide{
 	background-repeat: no-repeat;
 
 }
-/*.query_detail{display: none}*/
+.query_detail{display: none}
 .cabinett_row_hide,
 .cabinett_row_hide_orders{
 	border-top: 1px solid #e2e2e2;
@@ -260,6 +261,9 @@ tr.cat_8 td {
 .dop_teh_info:hover{
 	background: #fff;
 	cursor: pointer;
+}
+#cabinet_general_content #general_panel_orders_tbl tr.positions_rows{
+	display: none;
 }
 #cabinet_general_content #general_panel_orders_tbl tr.positions_rows td{
 	border: 1px solid #e8e8e8;

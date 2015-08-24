@@ -264,22 +264,22 @@ $(document).on('change','.buch_status_select select',function(){
 		});
 	});
 
-	// схраняем статус заказа
-	$(document).on('change','.select_global_status select',function(){
-		// записываем id строки услуги
-		var row_id = $(this).parent().parent().attr('data-id');
-		var value = $(this).val();
-		var obj = $(this).parent().parent();
-		window_preload_add();
-		$.post('', {
-			AJAX:'select_global_status',
-			row_id:row_id,
-			value:value
-		}, function(data, textStatus, xhr) {
-			console.log(data);
-			replace_query_row_obj(obj);
-		});
+// схраняем статус заказа
+$(document).on('change','.select_global_status select',function(){
+	// записываем id строки услуги
+	var row_id = $(this).parent().parent().attr('data-id');
+	var value = $(this).val();
+	var obj = $(this).parent().parent();
+	window_preload_add();
+	$.post('', {
+		AJAX:'select_global_status',
+		row_id:row_id,
+		value:value
+	}, function(data, textStatus, xhr) {
+		console.log(data);
+		replace_query_row_obj(obj);
 	});
+});
 
 
 
@@ -1514,14 +1514,15 @@ $(document).on('click', '.set_approval_date', function(event) {
 	var date  = curr_date + "." + curr_month + "." + curr_year;
 	// alert(date);
 
-	// меняем html
-	$(this).replaceWith('<span class="greyText">'+date+'</span>');
+	
 
 	// получаем id позиции
 	var row_id = $(this).attr('data-id');
+	
 	// получаем dop_data_id
 	var dop_data_id = $(this).parent().parent().attr('data-cab_dop_data_id');
-
+	// меняем html
+	$(this).replaceWith('<span class="greyText">'+date+'</span>');
 	// закрываем экран от дальнейшего редактирования
 	window_preload_add();
 	// отправляем запрос

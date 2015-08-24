@@ -10,7 +10,7 @@
     define('ACTIVITY_LOG','activity_log');
 	define('STAT_SEARCH','statistics_search');// таблица статистики поисковых запросов на сайте
     define('HOLIDAY_BTN', 'menu_for_gifts_new_holiday_button'); // список праздников для отображения в кнопке в шапке
-
+    
     // names base tables
 	// define('BASE_TBL','base');
 	define('BASE_OLD_TBL','base');

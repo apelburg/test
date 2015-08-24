@@ -2583,6 +2583,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 	        $result = mysql_query($query,$db) or die(mysql_error());
 		}
 	}
+	
 /*	function get_client_requisites_acting_manegement_face($id){
 	    global $db;
 	//	$query = "SELECT*FROM `".CLIENT_REQUISITES_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' AND `acting` =  '1'";

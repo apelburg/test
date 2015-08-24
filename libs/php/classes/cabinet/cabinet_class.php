@@ -332,7 +332,7 @@
 				}
 
 				// проверяем на разрешение смены статуса
-				if($this->user_access == 2 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
+				if($this->user_access == 2 || $this->user_access == 1 || $enable_selection || ($this->user_access == 5 && isset($this->paperwork_status[$real_val]) )){ 
 					if($real_val == 'in_operation' && $this->user_access == 1){
 						$html = '<input type="button" name="'.$real_val.'" class="'.$real_val.'" value="'.$status_arr[$real_val].'">';
 					}else{
@@ -710,7 +710,8 @@
 				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['value']."' ";
 				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
-				echo '{"response":"OK", "function":"window_reload"}';
+				// echo '{"response":"OK", "function":"window_reload"}';
+				echo '{"response":"OK"}';
 			}
 
 			// смена статуса бухгалтерии
@@ -773,14 +774,10 @@
 				// echo $method;
 				// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
 				if(method_exists($this, $method)){
-					ob_start();
-					
-					$this->$method($_POST['os__rt_list_id']);
-
-					$html = ob_get_contents();
-					ob_get_clean();
+					$html = $this->$method($_POST['os__rt_list_id']);
 					
 					echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+					
 					exit;
 				}							
 			}
@@ -1822,32 +1819,31 @@
 			switch ($_GET['subsection']) {
 				case 'no_worcked_men': // не обработанные
 					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
 					
 
 				case 'in_work': // в работе у менеджера
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;				
 
 				case 'history':
-					//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
-				$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%')";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%') AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
 				case 'denied':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct'";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
 
 				case 'paused':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE '%pause%'";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE '%pause%' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
 
 				case 'calk_snab':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE 'calculate_is_ready'";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE 'calculate_is_ready' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
 
 				default:
-					$where = "WHERE `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+					$where = "WHERE `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".RT_MAIN_ROWS."`.`query_num` = '".$id."'  AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
 			}
 
@@ -2228,12 +2224,12 @@
 			////////////////////////////////////////////////
 			//  ищем 'being_prepared' меняем на in_processed	
 			////////////////////////////////////////////////
-				// запрашиваем id тех строк, которые необходимо изменить
+				// запрашиваем id прикреплённых услуг, которые необходимо стартануть
 				$str = '';
 				$query = "SELECT * FROM `".CAB_DOP_USLUGI."`
 				WHERE  `dop_row_id` ='".$_POST['dop_data_id']."'";
 				$result = $mysqli->query($query) or die($mysqli->error);
-				echo $query;
+				// echo $query;
 				$n = 0;
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
@@ -2246,7 +2242,7 @@
 				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
 				`performer_status` =  'in_processed' 
 				WHERE  `id` IN (".$str.")";
-				echo $query;
+				// echo $query;
 				if($str!=''){
 					$result = $mysqli->query($query) or die($mysqli->error);	
 				}
