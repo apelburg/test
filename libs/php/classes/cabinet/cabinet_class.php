@@ -2282,7 +2282,7 @@
 
 
 		// запрос строк позиций по заказу
-		protected function positions_rows_Database($order_id){
+		protected function positions_rows_Database($order_id, $filters = 0){
 			$arr = array();
 			global $mysqli;
 			$query = "SELECT *, `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data` 
@@ -2291,6 +2291,22 @@
 			WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_id."'";
 			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
 			//echo $query.'<br>';
+
+			$where = 1;
+			if($filters != 0){
+				//////////////////////////
+				//	filtres sklad
+				//////////////////////////
+				if(isset($_GET['sklad'])){
+					
+				}
+
+
+			}
+
+
+
+
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){

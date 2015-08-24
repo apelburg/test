@@ -38,9 +38,74 @@
 			'order_of_documents' => 'Заказ документов',
 			'arrange_delivery' => 'Оформить доставку',
 			'delivery' => 'Доставка',
+			'waits_products' => 'Продукция ожидается',
+			'goods_in_stock' => 'На складе',
+			'sended_on_outsource' => 'У поставщика в пр-ве',
 			'pclosing_documents' => 'Закрывающие документы',
+			'checked_and_packed'  => 'Заказы на отгрузку',
+			'goods_shipped_for_client' => 'Отгруженные',
 			'otgrugen' => 'Отгруженные'													
 		); 
+
+		//////////////////////////
+		//	фильтры по разделам для кнопок подраздела
+		//////////////////////////
+		protected $filtres = array(
+			'orders' => array(
+				'waits_products' => array(
+					'order' => array(
+						'global_status' => 'in_work' // фильтр по глобальному статусу заказа
+						),
+					'position' => array(),
+					'orders' => array()
+					),
+				'waits_products' => array(
+					'order' => array(
+						'global_status' => 'in_work' // фильтр по глобальному статусу заказа
+						),
+                    'position' => array(
+                        'status_snab' => 'waits_products'
+                        ),
+                    'usluga' => array()
+					),
+                'goods_in_stock' => array(
+                    'order' => array(
+                       	'global_status' => 'in_work'// фильтр по глобальному статусу заказа
+                    	),
+                    'position' => array(
+                       	'status_sklad' => 'goods_in_stock'
+                    	),
+                    'usluga' => array()                      
+                    ),    
+                'sended_on_outsource' => array(
+                	'order' => array(
+                        'global_status' => 'in_work'// фильтр по глобальному статусу заказа
+                    	),
+                    'position' => array(
+                        'status_sklad' => 'sended_on_outsource'
+                    	),
+                    'usluga' => array()
+                    ),    
+                'pclosing_documents' => array(
+                	'order' => array(
+                    	'global_status' => 'in_work'// фильтр по глобальному статусу заказа
+                        ),
+                    'position' => array(
+                    	'status_sklad' => 'pclosing_documents'
+                        ),
+                    'usluga' => array()
+                    ),
+                'goods_shipped_for_client' => array(
+                    'order' => array(
+                    	'global_status' => 'in_work'// фильтр по глобальному статусу заказа
+                        ),
+                    'position' => array(
+                    	'status_sklad' => 'goods_shipped_for_client'
+                        ),
+                    'usluga' => array()
+                    )
+				)
+			);
 
 		// название подраздела кабинета
 		private $sub_subsection;
@@ -180,8 +245,8 @@
 											<span class="cabinett_row_hide_orders"></span>
 										</td>';
 					$table_order_row .= '<td colspan="6" class="orders_info">
-										<span class="greyText">№: </span><a href="?page=cabinet'.(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$this->Order['client_id'].'&order_num='.$this->order_num_for_User.'">'.$this->order_num_for_User.'</a> 
-										'.$this->get_client_name_link_Database($this->Order['client_id']).'
+										<span class="greyText">Заказ №: </span><a href="?page=cabinet'.(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$this->Order['client_id'].'&order_num='.$this->order_num_for_User.'">'.$this->order_num_for_User.'</a> 
+										<span class="greyText">,&nbsp;&nbsp;&nbsp;   Кампания : </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'
 										<span class="greyText">,&nbsp;&nbsp;&nbsp;   Юр.лицо : в разработке</span>
 										<span class="greyText">,&nbsp;&nbsp;&nbsp;   менеджер: '.$this->get_manager_name_Database_Html($this->Order['manager_id'],1).'</span>
 										<span class="greyText">,&nbsp;&nbsp;&nbsp;   снабжение: '.$this->get_name_employee_Database_Html($this->Order['snab_id']).'</span>
@@ -201,7 +266,7 @@
 			$html = $table_head_html.$table_order_row.'</table>';
 			echo $html;
 		}
-		
+
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html(){			
 			// получаем массив позиций заказа

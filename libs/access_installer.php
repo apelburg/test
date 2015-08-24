@@ -292,7 +292,6 @@
 										'full_suppliers_delete'=> false
 										),
 				       );
-	
 	// ДОСТАВКА
 	$ACCESS_SHABLON[6] = array(
 						'cabinet'=> array(
@@ -308,7 +307,6 @@
 												)
 											)
 										));	
-
 	// СКЛАД
 	$ACCESS_SHABLON[7] = array(
 						'cabinet'=> array(
@@ -317,9 +315,12 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													// 'in_work' => array('access'=>true),
-													// 'paused' => array('access'=>true),
-													'all' => array('access'=>true)
+													'all' => array('access'=>true),
+													'waits_products' => array('access' => true),
+													'goods_in_stock' => array('access' => true),
+													'sended_on_outsource' => array('access' => true),
+													'pclosing_documents' => array('access' => true),
+													'goods_shipped_for_client' => array('access' => true),
 													)
 												)
 											)
@@ -367,13 +368,21 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
 													'start' => array('access'=>true),
 													'purchase' => array('access'=>true),
 													'design' => array('access'=>true),
 													'production' => array('access'=>true),
 													'ready_for_shipment' => array('access'=>true),
-													'paused' => array('access'=>true),
-													'all' => array('access'=>true)
+													'paused' => array('access'=>true)
+													
+													)
+												),
+											'for_shipping'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'ready_for_shipment' => array('access'=>true),
+													'otgrugen' => array('access'=>true)
 													)
 												),
 											'closed'=> array(

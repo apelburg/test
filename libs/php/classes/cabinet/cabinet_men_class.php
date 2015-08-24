@@ -577,7 +577,7 @@
 				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
 				//'.$this->get_manager_name_Database_Html($this->Order['manager_id']).'
 				$html2_body = '<td class="show_hide" rowspan="'.$rowspan.'"><span class="cabinett_row_hide"></span></td>
-							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$this->order_num.'&order_id='.$this->Order['id'].'&client_id='.$this->Order['client_id'].'">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span></td>
+							<td>'.$this->order_num_for_User.'<span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span></td>
 							<td>'.$this->Order['create_time'].'</td>
 							<td>'.$this->get_client_name_Database($this->Order['client_id'],1).'</td>
 							<td class="invoice_num" contenteditable="true">'.$this->Order['invoice_num'].'</td>
@@ -738,7 +738,7 @@
 					//////////////////////////
 						$table_order_row2_body = '<td class="show_hide" data-rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders show"></span></td>';
 						$table_order_row2_body .= '<td colspan="4" class="orders_info">';
-							$table_order_row2_body .= '<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>';
+							$table_order_row2_body .= $this->order_num_for_User.' <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>';
 								// добавляем ссылку на клиента
 								$table_order_row2_body .= '&nbsp;'.$this->get_client_name_link_Database($this->Order['client_id']);
 							// номер счёта
