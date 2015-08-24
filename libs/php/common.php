@@ -33,9 +33,9 @@
 	    $filename = ROOT.'/libs/help/'.$topic.'.txt';
 	    $fd = fopen($filename,"rb");
 		$content = fread($fd,filesize($filename));
-		return $content;
-	
+		return $content;	
 	}
+
     function addOrReplaceGetOnURL( $new_get, $del_get = NULL ){
 	    // данные из строки запроса
         if($_SERVER['QUERY_STRING'] == '' && $new_get == '') return '';
@@ -2623,20 +2623,22 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 	    }
 	}
 
-	// возвращает ссылку на кабинет
+
+
+	// возвращает ссылку на кабинет Html
 	function get_worked_link_for_cabinet(){
 		global $ACCESS_SHABLON;
 			
-		$user_access = get_real_user_access($_SESSION['access']['user_id']);
+		$user_id = get_real_user_access($_SESSION['access']['user_id']);
 
 		// echo $user_access;
 
-		if( !isset($ACCESS_SHABLON[ $user_access ]['cabinet']['section'] ) ){
+		if( !isset($ACCESS_SHABLON[ $user_id ]['cabinet']['section'] ) ){
 			return; 
 		}else{
 			// первый ключ section
 			$n = 0;
-			foreach ($ACCESS_SHABLON[$user_access]['cabinet']['section'] as $key => $value) {
+			foreach ($ACCESS_SHABLON[$user_id]['cabinet']['section'] as $key => $value) {
 				if ($n == 0) {
 					$section = $key;
 				}
@@ -2645,7 +2647,41 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 
 			// первый ключ section
 			$n = 0;
-			foreach ($ACCESS_SHABLON[$user_access]['cabinet']['section'][$section]['subsection'] as $key => $value) {
+			foreach ($ACCESS_SHABLON[$user_id]['cabinet']['section'][$section]['subsection'] as $key => $value) {
+				if ($n == 0) {
+					$subsection = $key;
+				}
+				$n++;
+			}
+			 
+			//$subsection = key($ACCESS_SHABLON[$user_id]['cabinet']['section'][0]['subsection'][0]);
+			return '<a href="?page=cabinet&section='.$section.'&subsection='.$subsection.'" class="'.((isset($_GET['page']) && $_GET['page'] =='cabinet')?'selected':'').'">Кабинет</a>';
+		}
+	}
+
+	// возвращает ссылку на кабинет
+	function get_worked_link_href_for_cabinet(){
+		global $ACCESS_SHABLON;
+			
+		$user_id = get_real_user_access($_SESSION['access']['user_id']);
+
+		// echo $user_access;
+
+		if( !isset($ACCESS_SHABLON[ $user_id ]['cabinet']['section'] ) ){
+			return; 
+		}else{
+			// первый ключ section
+			$n = 0;
+			foreach ($ACCESS_SHABLON[$user_id]['cabinet']['section'] as $key => $value) {
+				if ($n == 0) {
+					$section = $key;
+				}
+				$n++;
+			}
+
+			// первый ключ section
+			$n = 0;
+			foreach ($ACCESS_SHABLON[$user_id]['cabinet']['section'][$section]['subsection'] as $key => $value) {
 				if ($n == 0) {
 					$subsection = $key;
 				}
@@ -2653,7 +2689,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 			}
 			 
 			//$subsection = key($ACCESS_SHABLON[$user_access]['cabinet']['section'][0]['subsection'][0]);
-			return '<a href="?page=cabinet&amp;section='.$section.'&amp;subsection='.$subsection.'" class="'.((isset($_GET['page']) && $_GET['page'] =='cabinet')?'selected':'').'">Кабинет</a>';
+			return 'os/?page=cabinet&section='.$section.'&subsection='.$subsection;
 		}
 	}
 ?>
