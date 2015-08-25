@@ -495,7 +495,7 @@
 					FROM `".CAB_ORDER_MAIN."` 
 					INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`
 					LEFT JOIN `".CAB_ORDER_ROWS."` ON `".CAB_ORDER_ROWS."`.`id` = `".CAB_ORDER_MAIN."`.`order_num`
-					WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`order_num` = '".$predzakaz['id']."'
+					WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`order_num` = '".$predzakaz['order_num']."'
 					ORDER BY `".CAB_ORDER_MAIN."`.`id` ASC
 			                
 				";
@@ -747,7 +747,7 @@
 				$table_order_positions_rows = $this->table_order_positions_rows_Html();
 				
 				// формируем строку с информацией о заказе
-				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
+				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
 				
 
 				//////////////////////////
@@ -819,7 +819,7 @@
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html(){			
 			// получаем массив позиций заказа
-			$positions_rows = $this->positions_rows_Database($this->Order['id']);
+			$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
 			$html = '';	
 
 			$this->position_item = 1;// порядковый номер позиции

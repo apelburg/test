@@ -957,6 +957,7 @@ $(document).on('keyup','#dialog_gen_window_form .save_logotip', function(event) 
 	},'json');
 	check_loading_ajax();
 });
+
 // сохранения поля путь к макету
 $(document).on('keyup','#dialog_gen_window_form .save_the_url_for_layout', function(event) {
 	
@@ -982,7 +983,7 @@ $(document).on('keyup','#dialog_gen_window_form .dop_inputs', function(event) {
 	var Json = $('#dop_input_json').html();
 	var json_object = JSON.parse(Json);
 
-	json_object[name_en] = val;
+	json_object[name_en] = Base64.encode(val);
 	if(val.trim()==""){
 		delete json_object[name_en];
 	}
@@ -1005,6 +1006,32 @@ $(document).on('keyup','#dialog_gen_window_form .dop_inputs', function(event) {
 });
 
 
+// применить логотип ко всем услугам по позиции
+$(document).on('click', '#save_logotip_for_all_position', function(event) {
+	$.post('', {
+
+		AJAX: 'save_logotip_for_all_position',
+		position_id: $(this).attr('data-position_id'),
+		id_dop_data: $(this).attr('data-id_dop_data'),
+		logotip : $('#save_logotip_for_all_services_tbl .save_logotip_for_all_services').val()
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+// применить логотип ко всем услугам по заказу
+$(document).on('click', '#save_logotip_for_all_order', function(event) {
+	$.post('', {
+		AJAX: 'save_logotip_for_all_order',
+		position_id: $(this).attr('data-position_id'),
+		id_dop_data: $(this).attr('data-id_dop_data'),
+		logotip : $('#save_logotip_for_all_services_tbl .save_logotip_for_all_services').val(),
+		order_num: $(this).attr('data-order_num')
+
+	}, function(data, textStatus, xhr) {
+
+		standard_response_handler(data);
+	},'json');
+});
 
 ///////////////////////////////////////////////
 //	статус сохранения отредактированного поля
@@ -1343,9 +1370,18 @@ $(document).on('change', '.get_statuslist_uslugi', function(event) {
 //	функции вызываемые из PHP  --- start ---  //
 ////////////////////////////////////////////////
 
-// вывод сообщения из PHP
+// вывод сообщения из PHP в alert
 function php_message(data){
 	alert(data.text);
+}
+
+function php_message_alert(data){
+	console.log(data);
+	alert(Base64.decode(data['message']));
+}
+// вывод сообщения из PHP в модальное окно
+function php_message_dialog(data){
+	show_simple_dialog_window(Base64.decode(data['message']),data['title']);
 }
 // перезагрузка окна
 function window_reload(data) {

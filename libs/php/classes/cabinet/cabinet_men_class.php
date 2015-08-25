@@ -483,7 +483,7 @@
 					FROM `".CAB_ORDER_MAIN."` 
 					INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`
 					LEFT JOIN `".CAB_ORDER_ROWS."` ON `".CAB_ORDER_ROWS."`.`id` = `".CAB_ORDER_MAIN."`.`order_num`
-					WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`order_num` = '".$this->Order['id']."'
+					WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`order_num` = '".$this->Order['order_num']."'
 					ORDER BY `".CAB_ORDER_MAIN."`.`id` ASC
 			                
 				";
@@ -511,16 +511,16 @@
 				
 				// шапка таблицы позиций заказа
 				$html .= '<tr>
-						<th>артикул</th>
-						<th>номенклатура</th>
-						<th>тираж</th>
-						<th>цены:</th>
-						<th>товар</th>
-						<th>печать</th>
-						<th>доп. услуги</th>
-					<th>в общем</th>
-					<th></th>
-					<th></th>
+							<th>артикул</th>
+							<th>номенклатура</th>
+							<th>тираж</th>
+							<th>цены:</th>
+							<th>товар</th>
+							<th>печать</th>
+							<th>доп. услуги</th>
+							<th>в общем</th>
+							<th></th>
+							<th></th>
 						</tr>';
 
 
@@ -798,7 +798,7 @@
 			// возвращает html строки позиций
 			private function table_order_positions_rows_Html(){			
 				// получаем массив позиций заказа
-				$positions_rows = $this->positions_rows_Database($this->Order['id']);
+				$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
 				$html = '';	
 
 				$this->position_item = 1;// порядковый номер позиции

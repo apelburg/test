@@ -39,7 +39,7 @@
 		'get_in_work' => 'Принять',
 		'my_orders' => 'Мои заказы',
 		'only_get_in' => 'Только принятые',
-		'' => 'Ожидает объединения'										
+		'expected_a_union' => 'Ожидает объединения'										
 		); 
 
 		//////////////////////////
@@ -684,7 +684,7 @@
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html(){			
 			// получаем массив позиций заказа
-			$positions_rows = $this->positions_rows_Database($this->Order['id']);
+			$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
 			$html = '';	
 
 			$this->position_item = 1;// порядковый номер позиции

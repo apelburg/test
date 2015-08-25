@@ -177,8 +177,8 @@
 				
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
-					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">
-											<span class="cabinett_row_hide_orders"></span>
+					$table_order_row .= '<td class="show_hide" data-rowspan="'.$this->position_item.'">
+											<span class="cabinett_row_hide_orders show"></span>
 										</td>';
 					$table_order_row .= '<td colspan="10" class="orders_info">
 										<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
@@ -206,7 +206,7 @@
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html(){			
 			// получаем массив позиций заказа
-			$positions_rows = $this->positions_rows_Database($this->Order['id']);
+			$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
 			$html = '';	
 
 			$this->position_item = 1;// порядковый номер позиции

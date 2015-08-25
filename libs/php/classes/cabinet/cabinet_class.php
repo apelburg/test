@@ -200,11 +200,11 @@
 								$is_checked = '';
 							}
 							
-							$select_html .= '<option value="'.$value.'" '.$is_checked.'>'.$value.'</option>';
+							$select_html .= '<option value=\''.$value.'\' '.$is_checked.'>'.$value.'</option>';
 						}
 					// если соответствий в разрешённых для пользователя статусах так и не было найдено, добавляем в список возможность выбора того, что стояло до того
 					if(!$conformity_true){
-						$html .= '<option value="'.$real_val.'" selected="selected">'.$real_val.'</option>';
+						$html .= '<option value=\''.$real_val.'\' selected="selected">'.$real_val.'</option>';
 					}
 					$html .= $select_html;
 					$html .= '</select>';
@@ -236,7 +236,7 @@
 					$html .= '<select class="choose_statuslist_sklad" data-id="'.$main_rows_id.'">';
 						foreach ($this->statuslist_sklad as $name_en => $name_ru) {
 							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
-							$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
+							$html .= '<option value=\''.$name_en.'\' '.$is_checked.'>'.$name_ru.'</option>';
 						}
 					$html .= '</select>';
 				}else{
@@ -268,7 +268,7 @@
 						if($real_val == 'in_processed'){$html .= '<option value="in_processed" selected="selected">в обработке</option>';}
 						foreach ($this->statuslist_snab as $name_en => $name_ru) {
 							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
-							$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
+							$html .= '<option value=\''.$name_en.'\' '.$is_checked.'>'.$name_ru.'</option>';
 						}
 					$html .= '</select>';
 					// добавляем div с iput для редактирования ожидаемой даты поставки
@@ -549,13 +549,157 @@
 				}					
 			}
 
-			// сохранение путьи к макету
+			protected function save_logotip_for_all_position_AJAX(){
+				global $mysqli;
+
+				// если массив услуг пуст - заполняем его
+				if(empty($this->Services_list_arr)){
+					$this->Services_list_arr = $this->get_all_services_Database();
+				}
+
+				// завпрашиваем услуги прикрепленные к данной позиции
+				$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".(int)$_POST['id_dop_data']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$service_union_arr[] = $row;
+					}
+				}
+				
+				$id_s = array();
+
+				// перебираем прикрепленные услуги
+				foreach ($service_union_arr as $key => $union_service) {
+					// проеряем существует ли описание такой услуги и если существует то включено ли поле логотип
+					if(isset($this->Services_list_arr[$union_service['uslugi_id']]) && $this->Services_list_arr[$union_service['uslugi_id']]['logotip_on'] == 'on'){
+						// запоминаем id прикреплённой услуги, который мы намереваемся изменить
+						$id_s[] = $union_service['id'];
+					}else{
+						// если такой услуги у нас в списках почему-то нет, но она у нас прикреплена
+						// т.е. мы не можем проверить включено ли поле логотип в данной прикрепленнной услуге и заполняем ету ячейку в базе без проверки 
+						$id_s[] = $union_service['id'];
+					}
+				}
+
+				// перебор выписанных нами id услуг, к которым мы будем прикреплять логотип
+				$id_s_str = '';
+				foreach ($id_s as $key => $value) {
+					$id_s_str .= (($key>0)?',':'')."'".$value."'";
+				}
+
+
+
+				if($id_s_str != ''){
+					//////////////////////////////////////////////////////////////////////////////
+					//	запрос на прикрепление логотипа к услугам прикреплённым к позиции
+					//////////////////////////////////////////////////////////////////////////////
+					$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+						`logotip` =  '".trim($_POST['logotip'])."' 
+						WHERE  `id` IN (".$id_s_str.");";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					// формируем ответ
+					$Message = 'Значение проля логотип успешно прикреплено ко всем услугам по текущей позиции.';
+				}else{
+					// формируем ответ
+					$Message = 'К данной позиции не прикреплено ни одной услуги<br> в которой можно было бы заполнить поле логотип.';
+
+				}
+
+				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"php_message_alert", "title":"Сообщение из ОС"}';
+			}
+
+			protected function save_logotip_for_all_order_AJAX(){
+				global $mysqli;
+
+				// если массив услуг пуст - заполняем его
+				if(empty($this->Services_list_arr)){
+					$this->Services_list_arr = $this->get_all_services_Database();
+				}
+
+
+				// запрашиваем позиции прикреплённые к зауазу
+				$query = "SELECT *, `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data` 
+				FROM `".CAB_ORDER_DOP_DATA."` 
+				INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
+				WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".(int)$_POST['order_num']."'";
+				$dop_row_id_str = '';
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$n = 0;
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$dop_row_id_str .= (($n>0)?',':'')."'".$row['id_dop_data']."'";
+						$n++;
+					}
+				}
+				// echo $query.'  <br>  '.$dop_row_id_str; 
+
+				$service_union_arr = array();
+				// если у нас есть список dop_row_id позиций
+				if($dop_row_id_str != ''){
+					// завпрашиваем услуги прикрепленные к позициям заказа
+					$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` IN (".$dop_row_id_str.");";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$service_union_arr[] = $row;
+						}
+					}
+				}
+
+				// echo '<br>'.$query.'<br>';
+				
+				$id_s = array();
+
+				// перебираем прикрепленные услуги
+				foreach ($service_union_arr as $key => $union_service) {
+					// проеряем существует ли описание такой услуги и если существует то включено ли поле логотип
+					if(isset($this->Services_list_arr[$union_service['uslugi_id']]) && $this->Services_list_arr[$union_service['uslugi_id']]['logotip_on'] == 'on'){
+						// запоминаем id прикреплённой услуги, который мы намереваемся изменить
+						$id_s[] = $union_service['id'];
+					}else{
+						// если такой услуги у нас в списках почему-то нет, но она у нас прикреплена
+						// т.е. мы не можем проверить включено ли поле логотип в данной прикрепленнной услуге и заполняем ету ячейку в базе без проверки 
+						$id_s[] = $union_service['id'];
+					}
+				}
+
+				// перебор выписанных нами id услуг, к которым мы будем прикреплять логотип
+				$id_s_str = '';
+				foreach ($id_s as $key => $value) {
+					$id_s_str .= (($key>0)?',':'')."'".$value."'";
+				}
+
+				// echo $id_s_str,'  <br>';
+
+				if($id_s_str != ''){
+					//////////////////////////////////////////////////////////////////////////////
+					//	запрос на прикрепление логотипа к услугам прикреплённым к позиции
+					//////////////////////////////////////////////////////////////////////////////
+					$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+						`logotip` =  '".trim($_POST['logotip'])."' 
+						WHERE  `id` IN (".$id_s_str.");";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					// формируем ответ
+					$Message = 'Значение проля логотип успешно прикреплено ко всем услугам заказа № '.$_POST['order_num'].'.';
+					
+					// echo $query;
+				}else{
+					// формируем ответ
+					$Message = 'К данному заказу не прикреплено ни одной услуги<br> в которой можно было бы заполнить поле логотип.';
+
+				}
+
+				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"php_message_alert","title":"Сообщение из ОС"}';
+			}
+
+			// сохранение пути к макету
 			protected function save_the_url_for_layout_AJAX(){
 				global $mysqli;
 				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
-					`the_url_for_layout` =  '".$_POST['text']."' 
+					`the_url_for_layout` =  '".base64_encode($_POST['text'])."' 
 					WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
+				// echo $query;
 				echo '{"response":"OK"}';
 			}
 
@@ -635,7 +779,7 @@
 				if (trim($service['the_url_for_layout'])!='') {
 					$html .= '<div class="separation_container">';
 					$html .= '<strong>Путь к макету</strong>:<br>';
-					$html .= '<div class="data_info">'.$service['the_url_for_layout'].' р.</div>';			
+					$html .= '<div class="data_info">'.base64_decode($service['the_url_for_layout']).'</div>';			
 				$html .= '</div>';
 				}
 
@@ -853,7 +997,7 @@
 						$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
 					}else if(!$f){
 						foreach ($_POST['dop_inputs'] as $key1 => $value) {
-							$html .= '<input type="hidden" name="dop_inputs['.$key1.']" value="'.$value.'">';
+							$html .= '<input type="hidden" name="dop_inputs['.$key1.']" value=\''.$value.'\'>';
 							// $html .= '<tr><td>'.$iputs_all_arr[$key]['name_ru'].':</td><td>'.$value.'</td></tr>';
 						}
 						$f++;	
@@ -973,6 +1117,33 @@
 				$html .= '<input type="text" class="rezerv_info_input" name="rezerv_info" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value="'.$this->get_cab_dop_data_position_Database($_POST['id_dop_data']).'">';
 				$html .= '</div>';
 
+				// подгружаем форму по заполнению поля логотип для всех услуг
+				$html .= '<div class="container_form">';
+				$html .= '<div class="green_inform_block">Логотип (использовать поле при условии, что логотип клиента одинаковый для всех услуг)</div>';
+					$html .= '<table id="save_logotip_for_all_services_tbl">';
+					$html .= '<tr>';
+						$html .= '<td>Название</td>';
+						$html .= '<td colspan="2">Применить название для:</td>';
+					$html .= '</tr>';
+					$html .= '<tr>';
+
+						// собираем строку для передачи данных из POST массива в теги input
+						$data_str = '';
+						if(isset($_POST)){
+							unset($_POST['AJAX']);
+							foreach ($_POST as $key => $value) {
+								$data_str .= ' data-'.$key.'="'.$value.'"';
+							}
+						}
+
+						// добавляем кнопки
+						$html .= '<td><input type="text" class="save_logotip_for_all_services" name="logotip" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value=""></td>';
+						$html .= '<td><input type="button" name="" '.$data_str.' id="save_logotip_for_all_position" value="Всех услуг в списке этой позиции"></td>';
+						$html .= '<td><input type="button" name="" '.$data_str.' id="save_logotip_for_all_order" value="Всех услуг в этом заказе"></td>';
+						
+					$html .= '</tr></table>';
+				$html .= '</div>';
+
 				#######################################
 
 				// подгружаем таблицу услуг
@@ -991,7 +1162,7 @@
 
 					// собираем html форму
 					$html .= '<table id="services_listing"><tr>';
-					$html .= '<tr><th>Название услуги</th><th>Информация для зополнения</th></tr>';
+					$html .= '<tr><th>Название услуги</th><th>Информация для заполнения</th></tr>';
 					$html .= '<td id="services_listing_each"><ul>';
 					
 					// перебираем услуги и вы
@@ -1206,7 +1377,7 @@
 				$html .= $this->Service['print_details_read'];
 				foreach ($this->iputs_arr as $key => $input) {
 					//echo $input['name_ru'];
-					$html .= $input['name_ru'].'<br>';
+					$html .= $input['name_ru'].':<br>';
 					if($input['type']=="text"){
 							if(isset($this->print_details_dop[$input['name_en']])){
 								$text = $this->print_details_dop[$input['name_en']];
@@ -1215,11 +1386,11 @@
 							}
 							
 							// определяем допуски на редактирование доп полей
-							if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 11){
-									$html .= $text;
-									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'"></div>';
+							if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 1){
+									// $html .= $text;
+									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value=\''.base64_decode($text).'\'></div>';
 								}else{
-									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'" '.((trim($text)=='')?'':'disabled').'></div>';
+									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value=\''.base64_decode($text).'\' '.((trim($text)=='')?'':'disabled').'></div>';
 								}
 							
 					}else{
@@ -1239,7 +1410,7 @@
 								$text = isset($this->print_details_dop[$input['name_en']])?$this->print_details_dop[$input['name_en']]:'';
 								
 								// определяем допуски на редактирование доп полей
-								if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 11){
+								if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 1){
 									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'"></div>';
 								}else{
 									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'" '.(($text=='')?'':'disabled').'></div>';
@@ -1275,12 +1446,12 @@
 				// подключаем поле путь к макету
 				if (trim($this->maket_true_for_Service)=="on") {
 					$html .='<div>Путь к макету (к старому):<br>';
-					$html .= '<div><input type="text" name="the_url_for_layout" class="save_the_url_for_layout" value="'.$this->Service['the_url_for_layout'].'"></div>';
+					$html .= '<div><input type="text" name="the_url_for_layout" placeholder="заполнить при необходимости" class="save_the_url_for_layout" value="'.base64_decode($this->Service['the_url_for_layout']).'"></div>';
 					// $html .='<textarea class="save_logotip" name="logotip">'.$this->Service['logotip'].'</textarea>';
 					$html .='</div>';
 				}
 
-				$html .='<div>ТЗ <span class="greyText"> / (комментарий к услуге)</span><br><textarea class="save_tz" name="tz">'.$this->Service['tz'].'</textarea></div>';
+				$html .='<div>Комментарии для исполнителя '.(isset($this->performer[$this->Service['performer']])?'"'.$this->performer[$this->Service['performer']].'"':'').'<br><textarea class="save_tz" name="tz">'.$this->Service['tz'].'</textarea></div>';
 
 				return $html;
 			}		
@@ -1405,15 +1576,12 @@
 						</div>
 					';
 				}
+
 				$html .= '</div>';
-				// echo '<pre>';
-				// print_r($arr);
-				// echo '</pre>';
+
 				return $html;
 			}else{// в случае исключения выводим массив, дабы было видно куда копать
-				echo '<pre>';
-				print_r($arr);
-				echo '</pre>';
+				return $this->print_arr($arr);
 			}
 		}
 
@@ -1901,7 +2069,7 @@
 			$html = '';
 			 	
 			// собираем Object по заказу
-			$this->Positions_arr = $this->positions_rows_Database($_POST['order_id']);
+			$this->Positions_arr = $this->positions_rows_Database($_POST['order_num']);
 			foreach ($this->Positions_arr as $key => $value) {
 				$this->Positions_arr[$key]['SERVICES'] = $this->get_order_dop_uslugi($value['id_dop_data']);	 								
 			}
@@ -2282,13 +2450,13 @@
 
 
 		// запрос строк позиций по заказу
-		protected function positions_rows_Database($order_id, $filters = 0){
+		protected function positions_rows_Database($order_num, $filters = 0){
 			$arr = array();
 			global $mysqli;
 			$query = "SELECT *, `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data` 
 			FROM `".CAB_ORDER_DOP_DATA."` 
 			INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
-			WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_id."'";
+			WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_num."'";
 			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
 			//echo $query.'<br>';
 

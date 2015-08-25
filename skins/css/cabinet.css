@@ -402,15 +402,19 @@ vertical-align: top;
 }
 
 #dialog_gen_window_form .lili.for_one{
-  background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+  background-image: url('../images/img_design/usluga_icon_for_all_one_red.png');
   background-repeat: no-repeat;
-  background-position-y: -23px;
+  /*background-position-y: -23px;*/
+  
+      background-position-y: 3px;
+    background-position-x: 3px;
 }
 
 #dialog_gen_window_form .lili.for_all{
-  background-image: url('../images/img_design/usluga_icon_for_all_one.png');
+  background-image: url('../images/img_design/usluga_icon_for_all_one_green.png');
   background-repeat: no-repeat;
-  background-position-y: 0px;
+      background-position-y: 3px;
+    background-position-x: 3px;
 }
 #dialog_gen_window_form .lili.f_close{
   background-image: url('../images/img_design/open-closed-folder.png');
@@ -436,6 +440,7 @@ vertical-align: top;
 }
 #dop_input_json{
 	display: none;
+	/*display: block;*/
 }
 .delete_dop_input_for_admin{
 	font-size: 11px;
@@ -618,4 +623,30 @@ input.calendar_date_work{
 }
 .linked_div{
 	text-align: right;
+}
+
+#save_logotip_for_all_services_tbl{
+	width: 100%;
+
+}
+#save_logotip_for_all_services_tbl tr td{
+	padding: 5px;
+}
+#save_logotip_for_all_services_tbl tr td:nth-of-type(2){
+	width: 150px;
+}
+#save_logotip_for_all_services_tbl tr td input[type="button"]{
+	border: 1px solid #A5A5A5;
+    border-radius: 0;
+    background-color: #f1f1f1;
+    padding: 4px;
+    color: #000;
+    cursor: pointer;
+}
+#save_logotip_for_all_services_tbl tr td input[type="button"]:hover{
+	background-color: #CACACA;
+}
+#save_logotip_for_all_services_tbl .save_logotip_for_all_services{
+	width: 100%;
+	padding: 3px;
 }
