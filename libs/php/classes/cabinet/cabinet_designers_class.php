@@ -105,12 +105,12 @@
 			if(method_exists($this, $method_template)){
 				$this->$method_template();				
 			}else{
-				
-				echo 'метод '.$method_template.' не предусмотрен';
+				// обработка ответа о неправильном адресе
+				$this->response_to_the_wrong_address($method_template);	
 			}
 		}
 
-		
+				
 		//////////////////////////
 		//	Section - Заказы
 		//////////////////////////

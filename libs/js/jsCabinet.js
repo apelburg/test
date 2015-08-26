@@ -1578,3 +1578,15 @@ $(document).on('click', '.set_approval_date', function(event) {
 		}
 	},'json');
 });
+
+
+// редирект страницы при выгрузке div для редиректа
+$(window).load(function() {
+	if($('#js_location').length > 0){
+		var href = $('#js_location a').attr('href');
+		// alert($('#js_location a').attr('href'));
+		setTimeout(function(){ 
+			window.location.href = href;
+		}, Number($('#js_location').attr('data-time')));
+	}
+});

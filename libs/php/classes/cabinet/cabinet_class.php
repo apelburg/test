@@ -549,6 +549,7 @@
 				}					
 			}
 
+			// присваиваем значение поля логотип (в окне доп. тех. инфо) ко всем услугам по текущей позиции
 			protected function save_logotip_for_all_position_AJAX(){
 				global $mysqli;
 
@@ -608,6 +609,7 @@
 				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"php_message_alert", "title":"Сообщение из ОС"}';
 			}
 
+			// присваиваем значение поля логотип (в окне доп. тех. инфо) ко всем услугам по текущему заказу
 			protected function save_logotip_for_all_order_AJAX(){
 				global $mysqli;
 
@@ -739,10 +741,7 @@
 				
 				// echo $query;
 				echo '{"response":"OK"}'; 	
-
-
-			}
-			
+			}			
 
 			// запуск услуг в работу
 			protected function start_services_in_processed_AJAX(){
@@ -752,6 +751,7 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK","function":"window_reload"}'; 	
 			}
+
 			// ТЗ для производства
 			protected function get_dialog_tz_for_production_AJAX(){
 				$html = '';
@@ -766,13 +766,22 @@
 					}
 				}
 
-				// стоимость услуги
-				$html .= '<div class="separation_container">';
-					$html .= '<strong>Входащая стоимость услуги</strong>:<br>';
-					$html .= '<div class="data_info">'.$service['price_in'].' р.</div>';
-					$html .= '<strong>Исходащая стоимость услуги</strong>:<br>';
-					$html .= '<div class="data_info">'.$service['price_out'].' р.</div>';			
-				$html .= '</div>';
+				// ограничиваем выгрузку стоимости по допуску юзера
+				if($this->user_access == 1 || $this->user_access == 2 || $this->user_access == 5 || $this->user_access == 8 || $this->user_access == 9){
+					// стоимость услуги
+					$html .= '<div class="separation_container">';
+						$html .= '<strong>Входащая стоимость услуги</strong>:<br>';
+						$html .= '<div class="data_info">'.$service['price_in'].' р.</div>';
+						$html .= '<strong>Исходащая стоимость услуги</strong>:<br>';
+						$html .= '<div class="data_info">'.$service['price_out'].' р.</div>';			
+					$html .= '</div>';
+				}else if($this->user_id == $this->director_of_operations_ID){
+					// стоимость услуги
+					$html .= '<div class="separation_container">';
+						$html .= '<strong>Входащая стоимость услуги</strong>:<br>';
+						$html .= '<div class="data_info">'.$service['price_in'].' р.</div>';
+					$html .= '</div>';
+				}
 
 				// путь к макету
 				// если указан
@@ -782,6 +791,7 @@
 					$html .= '<div class="data_info">'.base64_decode($service['the_url_for_layout']).'</div>';			
 				$html .= '</div>';
 				}
+
 
 
 				//////////////////////////
@@ -872,7 +882,6 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
 			}
-
 
 			// смена статуса склада
 			protected function choose_statuslist_sklad_AJAX(){
@@ -1208,14 +1217,6 @@
 				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 			}	
 
-
-			// // форма добавления услуги 
-			// protected function get_uslugi_list_Database_Html_AJAX(){
-			// 	include_once './libs/php/classes/rt_position_catalog_class.php';
-			// 	include_once './libs/php/classes/rt_position_gen_class.php';
-			// 	new Position_general_Class();			
-			// }
-
 			// включение отключение услуги
 			protected function change_service_on_of_AJAX(){
 				global $mysqli;
@@ -1256,7 +1257,6 @@
 				echo '{"response":"OK"}';
 			}
 
-
 			// сохранение поля резерв
 			protected function save_rezerv_info_AJAX(){
 				global $mysqli;
@@ -1266,9 +1266,7 @@
 					WHERE  `id` ='".$_POST['cab_dop_data_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
-
 			}
-
 
 			protected function get_dop_inputs_for_services_AJAX(){
 				// для вызова AJAX
@@ -1279,7 +1277,6 @@
 				}
 				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 			}
-
 
 			// ролучаем dop_inputs
 			protected function get_dop_inputs_for_services($id, $dop_usluga_id){
@@ -1649,10 +1646,7 @@
 			////////////////////////////////////
 			//	Расчёт стоимости позиций END
 			////////////////////////////////////
-		}	
-		
-
-
+		}
 
 		// преобразует статус снабжения в читабельный вид
 		protected function show_cirilic_name_status_snab($status_snab){
@@ -1671,8 +1665,6 @@
 			}
 			return $status_snab;
 		}
-
-
 
 		//	оборачивает в div warning_message
 		protected function wrap_text_in_warning_message($text){
@@ -1729,39 +1721,6 @@
 			return $arr_new;
 		}
 		
-
-		///////////////////////////////////////////////////////////////////////////////
-		//	-----  START  -----  старые функции выбора статуса  -----  START  -----  //
-		///////////////////////////////////////////////////////////////////////////////
-			
-			/*
-			protected function select_status($real_val,$status_arr){
-				
-				$html = '<select><option value="">...</option>';
-				foreach ($status_arr as $key => $value){
-					$is_checked = ($real_val==$key)?'selected="selected"':'';
-					$html .= ' <option '.$is_checked.' value="'.$key.'">'.$value.'</option>';
-				}	
-				$html .= '</select>';
-				return $html;
-			}
-
-			
-			public function get_gen_status($variable,$type){
-				$start_status = $variable[0]['status_'.$type];
-				foreach ($variable as $key => $value) {
-					if($start_status!=$value['status_'.$type] ){
-						$start_status = '';
-					}
-				}
-				return $start_status;
-			}
-			*/
-		
-		////////////////////////////////////////////////////////////////////////////
-		//   -----  END  -----  старые функции выбора статуса  -----  END  -----  //
-		////////////////////////////////////////////////////////////////////////////
-
 		// выбираем данные о стоимости доп услуг не относящихся к печати
 		// на вход подаётся массив из get_dop_uslugi($dop_row_id); 
 		public function get_dop_uslugi_no_print_type($arr){			
@@ -1773,7 +1732,6 @@
 			}
 			return $arr_new;
 		}
-
 
 		// выбираем данные о доп услугах для варианта расчёта
 		public function get_query_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data`
@@ -1790,8 +1748,6 @@
 			}
 			return $arr;
 		}
-
-
 
 		// выбираем данные о доп услугах для заказа
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
@@ -1914,9 +1870,7 @@
 			if($f == 0){$str .= '?';}else{$str .= '&';}
 			$str .= $name.'='; 
 			return $str;
-		}
-
-		
+		}		
 
 		// получаем имя менеджера
 		protected 	function get_manager_name_Database_Html($id,$no_edit=0){
@@ -1977,8 +1931,6 @@
 				return 'не указан';
 			}
 		}
-
-
 		
 		// фильтрация позиций ЗАПРОСОВ по горизонтальному меню
 		protected function requests_Template_recuestas_main_rows_Database($id){
@@ -2048,7 +2000,6 @@
 			return $postion_arr;
 		}
 
-
 		// получаем информацию из cab_dop_data
 		protected function get_cab_dop_data_position_Database($id){
 			global $mysqli;
@@ -2097,13 +2048,57 @@
 			return $arr;
 		}
 
+		// отработка кнопок фильтров горизонтального меню
+		protected function get_filter_list($where){
+			if (isset($_GET['filters'])) {
+				switch ($this->user_access) {
+					case '1': // админы
+						foreach ($_GET['filters'] as $key => $value) {
+							# code...
+						}
+						break;
+
+					case '2': // бух
+						# code...
+						break;
+
+					case '4': // пр-во
+						# code...
+						break;
+
+					case '5': // мен
+						# code...
+						break;
+
+					case '6': // доставка
+						# code...
+						break;
+
+					case '7': // склад
+						# code...
+						break;
+
+					case '8': // снабжение
+						# code...
+						break;
+
+					case '9': // диз
+						# code...
+						break;
+					
+					default:
+						# code...
+						break;
+				}
+			}
+		}
+
 		protected function get_a_detailed_article_on_the_price_of_positions_Html(){
 			// получаем название всех услуг
 			$this->Services_list = $this->get_all_services_names_Database();
 
 
 			$html = '';
-
 
 
 			// собираем шапку таблицы
@@ -2348,14 +2343,6 @@
 
 			$html .= '<table>';
 
-			// ob_start();
-			// echo '<pre>';
-			// print_r($this->Positions_arr);
-			// echo '</pre>';
-			    	
-			// $content = ob_get_contents();
-			// ob_get_clean();
-			// $html .=$content;
 			return $html;
 		}
 
@@ -2505,5 +2492,72 @@
 			return $content;
 		}
 
+		// ответ о неверном адресе
+		protected function response_to_the_wrong_address($method_template){
+			// отправляем сообщение об ошибке
+			$this->error_message_for_incorrect_URL();
+			// собиравем сообщение для пользоватедля
+			$message = 'Вы не должны были попасть на данную страницу, но что-то пошло не так и Вы всё таки здесь!!!<br>';
+			$message .= 'Через 12 сукунд Вы будете переадресованы на стартовую страницу кабинета <br>в соответствии с Вашим уровнем доступа.<br>';
+			$message .= 'Сообщение о данном происшествии уже отправлено разработчикам. Спасибо.';
+			// при выгрузке данного дива на страницу JS переадресует пользователя через 5 секунд по указанной в div ссылке
+			$message .= '<div id="js_location" data-time="12000"><a href="http://'.$_SERVER['HTTP_HOST'].'/'.get_worked_link_href_for_cabinet().'">Перейти по ссылке</a></div>';
+			// выводим сообщение
+			echo $this->wrap_text_in_warning_message($message);
+		}
 
+		// оповещение об ошибке Разработчиков
+		protected function error_message_for_incorrect_URL(){
+			// получаем имя пользователя
+			include_once './libs/php/classes/manager_class.php';
+			$user_name = Manager::get_snab_name_for_query_String($this->user_access);
+			
+			$message = '';
+			$message .= date('d-m-Y в H:i:s').'<br>';
+
+			if(isset($_SESSION['come_back_in_own_profile'])){
+				$user_name_real = Manager::get_snab_name_for_query_String($_SESSION['come_back_in_own_profile']);	
+				$message .= 'Пользователь '.$user_name_real.', находясь под учётной записью: "'.$user_name.'" (ID: '.$this->user_id.', Access: '.$this->user_access.') перешёл по адресу http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].' и наткнулся на ошибку.';
+				$message .= 'Реальный уровень допуска пользователя: '.$this->get_user_access_Database_Int($_SESSION['come_back_in_own_profile']).'<br>';
+				$message .= 'Реальный ID пользователя: '.$_SESSION['come_back_in_own_profile'].'<br>';
+				$message .= isset($_GET)?'ID пользователя: '.$this->user_id.'<br>':'';	
+
+			}else{
+				$message .= 'Пользователь '.$user_name.' перешёл по адресу http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].' и наткнулся на ошибку.';
+				$message .= 'Уровень допуска пользователя: '.$this->user_access.'<br>';
+				$message .= 'ID пользователя: '.$this->user_id.'<br>';
+				$message .= isset($_GET)?'ID пользователя: '.$this->user_id.'<br>':'';	
+			}
+			
+			// отправка сообщения
+			$this->error_message($message);
+			
+		}
+
+		
+		// отправка сообщения об ошибке
+		protected function error_message($message,$subject = 'Error message' ,$from_email = 'os@apelburg.ru'){
+			include_once './libs/php/classes/mail_class.php';
+			$mailClass = new Mail();
+			$mailClass->send('kapitonoval2012@gmail.com',$from_email,$subject,$message);	
+		}
+
+
+
+		// запрашивает из базы допуски пользователя
+		private function get_user_access_Database_Int($id){
+			global $mysqli;
+			$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);				
+			$int = 0;
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$int = (int)$row['access'];
+				}
+			}
+			//echo $query;
+			return $int;
+		}
+
+		
    	}

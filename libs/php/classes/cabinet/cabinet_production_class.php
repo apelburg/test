@@ -3,7 +3,7 @@
 	class Cabinet_production_class extends Cabinet{
 
 		// id начальника отдела производство
-		private $director_of_operations_ID = 42;
+		protected $director_of_operations_ID = 42;
 
 		// допуски группы пользователей
 		private $group_access = 4;
@@ -22,7 +22,7 @@
 			'calk_snab' => 'Рассчитанные',
 			'ready_KP' => 'Выставлено КП',
 			'denied' => 'ТЗ не корректно',
-			'all' => 'Все',
+			'all' => 'Все заказы',
 			'orders' => 'Заказы',
 			'requests' =>'Запросы',
 			'create_spec' => 'Спецификация создана',
@@ -48,7 +48,15 @@
 			'arrange_delivery' => 'Оформить доставку',
 			'delivery' => 'Доставка',
 			'pclosing_documents' => 'Закрывающие документы',
-			'otgrugen' => 'Отгруженные'													
+			'otgrugen' => 'Отгруженные',
+			'get_in_work' => 'Взять в работу',
+			'stencil_shelk_and_transfer' => 'Трафарет(Ш+Т)',
+			'shelk' => 'Шелкография',
+			'transfer' => 'Термотрансфер',
+			'tampoo' => 'Тампопечать',
+			'tisnenie' => 'Тиснение',
+			'dop_uslugi' => 'Доп. услуги',
+			'plenki_and_klishe' => 'Проверка плёнок/клише'
 		); 
 
 		// название подраздела кабинета
@@ -76,13 +84,26 @@
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){
-			$method_template = $_GET['section'].'_Template';
+			if (isset($_GET['subsection']) && $_GET['subsection'] != "" ){
+				$subsection = $_GET['subsection'];	
+			}else{
+				$subsection = 'all';
+				$_GET['subsection'] = 'all';
+			}
+			
+
+			$method_template = $_GET['section'].'_'.$subsection.'_Template';
+			// $method_template = $_GET['section'].'_Template';
 			echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
+
+			// скрываем левое меню за ненадобностью
+			echo '<style type="text/css" media="screen">#cabinet_left_coll_menu{display:none;}</style>';
 			// если в этом классе существует такой метод - выполняем его
 			if(method_exists($this, $method_template)){
 				$this->$method_template();				
 			}else{
-				echo 'метод '.$method_template.' не предусмотрен';
+				// обработка ответа о неправильном адресе
+				$this->response_to_the_wrong_address($method_template);	
 			}
 		}
 
@@ -131,13 +152,23 @@
 				$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
 				$where = 1;
 			}else{
-				// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = ''";
+				// фильтрация по клиенту
+				if(isset($_GET['client_id'])){
+					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
+					$where = 1;
+				}
+
+				//////////////////////////
+				//	filter_list   -- start
+				//////////////////////////
+					$query .= $this->get_filter_list( $where );
+				//////////////////////////
+				//	filter_list 	-- end
+				//////////////////////////
+
 			}
 
-			if(isset($_GET['client_id'])){
-				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
-				$where = 1;
-			}
+			
 			
 			$query .= ' ORDER BY `id` DESC';
 			// echo $query;
