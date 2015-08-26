@@ -642,7 +642,7 @@ var rtCalculator = {
 		// метод исключающий или включающий значения из подсчетов
 		// либо в текущих рядах, либо в окончательных суммах по всей таблице (итоговый ряд)
 		
-		// связано с состоянием интерфейса светофоров - поэтому слущаем его
+		// связано с состоянием интерфейса светофоров - поэтому слушаем его
 		if(rtCalculator.change_svetofor.in_process) return; 
 
 	    if(rtCalculator.expel_value_from_calculation.in_process) return; 
@@ -728,7 +728,7 @@ var rtCalculator = {
 				// если в ряд не участвует в расчете конечных сумм пропускаем его
 				// также если ряд имеет не зеленый светофор
 				if(rtCalculator.tbl_model[id]['dop_data']['expel']['main']) continue; 
-				if(rtCalculator.tbl_model[id]['dop_data']['svetofor']!='green') continue; 
+				if(!(rtCalculator.tbl_model[id]['dop_data']['svetofor']=='green' || rtCalculator.tbl_model[id]['dop_data']['svetofor']=='sgreen')) continue; 
 				//alert(id +' '+row_id+' '+type);
 				var row = rtCalculator.tbl_model[id];
 				
@@ -824,10 +824,16 @@ var rtCalculator = {
 		
 		var td = img_btn.parentNode.parentNode;
 		var row_id = td.parentNode.getAttribute("row_id");
-		var status = img_btn.getAttribute("status");
+		var cur_status = td.getAttribute("svetofor");
+		var new_status = img_btn.getAttribute("status");
+		//alert(cur_status);
+		if(new_status == cur_status){
+		    rtCalculator.change_svetofor.in_process = false;	
+			return;
+		}
 		
-		if(status=='sgreen'){
-			// собираем id остальных рядов относящихся к этой позиции
+		if(new_status=='sgreen'){
+			// собираем id остальных рядов относящихся к этой позиции для отправки на сервер чтобы отключить (нужные из них) в красный
 			var parent_pos_id = rtCalculator.tbl_model[row_id].dop_data.parent_pos_id;
 			// alert(parent_pos_id);
 			// cобираем id-шники рядов относяшихся к данной товарной позиции
@@ -844,58 +850,101 @@ var rtCalculator = {
 		   - пересчет общей суммы для переназначенных
 		*/
 		
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_svetofor='+ status +'&id='+row_id+((idsArr && idsArr.length > 0)?'&idsArr='+JSON.stringify(idsArr):''));
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_svetofor='+ new_status +'&id='+row_id+((idsArr && idsArr.length > 0)?'&idsArr='+JSON.stringify(idsArr):''));
 		// alert(url);
 		
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ /*alert(response);*/
-		   td.getElementsByTagName('img')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_'+status+'.png';
-		   td.setAttribute("svetofor",status);
-		    // alert(status+' '+ typeof rtCalculator.tbl_model[row_id]['dop_data']['expel']['main']+' '+rtCalculator.tbl_model[row_id]['out_summ']);
-			if(status=='sgreen'){
+		   td.getElementsByTagName('img')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_'+new_status+'.png';
+		   td.setAttribute("svetofor",new_status);
+		    // alert(new_status+' '+ typeof rtCalculator.tbl_model[row_id]['dop_data']['expel']['main']+' '+rtCalculator.tbl_model[row_id]['out_summ']);
+			
+			if(new_status=='green'){
+				addToItog(row_id,cur_status);
+				rtCalculator.tbl_model[row_id].dop_data.svetofor = new_status;
+			}
+			if(new_status == 'grey' || new_status == 'red'){  
+				subtractFromItog(row_id,cur_status);
+				rtCalculator.tbl_model[row_id].dop_data.svetofor = new_status;
+			}
+			if(new_status=='sgreen'){
 				
 				var tbl = document.getElementById('rt_tbl_body');
 		        var trsArr = tbl.getElementsByTagName('tr');
 	
 		        // обходим ряды таблицы
+				// В РЕЗУЛЬТАТЕ ОБХОДА, суммы всех рядов позиции, кроме текущего устанавливаемого в sgreen, 
+				// при соответсвии условиям вычитаются из Итого
+				forMark:
 			    for( var i= 0 ; i < trsArr.length; i++){
+					// проверяем входит ли расчет в расчеты данной позиции, причем текущий устанавливаемый не входит в idsObj
 				    if(trsArr[i].hasAttribute('row_id') && idsObj[trsArr[i].getAttribute('row_id')]){
 						var r_id = trsArr[i].getAttribute('row_id');
 						var tdsArr = trsArr[i].getElementsByTagName('td');
+						// проверяем какое текущее значение у светофора ряда если grey то не трогаем ряд, пропускаем его
 						for( var j= 0 ; j < tdsArr.length; j++){
-							if(tdsArr[j].hasAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')!="grey"){
-								tdsArr[j].getElementsByTagName('IMG')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_red.png';
-								tdsArr[j].setAttribute('svetofor','red');
-								rtCalculator.tbl_model['total_row']['out_summ'] -= rtCalculator.tbl_model[r_id]['out_summ'];
-								rtCalculator.tbl_model['total_row']['in_summ'] -= rtCalculator.tbl_model[r_id]['in_summ']; 
-								rtCalculator.tbl_model['total_row']["print_in_summ"] -= rtCalculator.tbl_model[r_id]["print_in_summ"];
-								rtCalculator.tbl_model['total_row']["print_out_summ"] -= rtCalculator.tbl_model[r_id]["print_out_summ"];
-								rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"] -= rtCalculator.tbl_model[r_id]["dop_uslugi_in_summ"];
-								rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"] -= rtCalculator.tbl_model[r_id]["dop_uslugi_out_summ"];
-							}
+							 if(tdsArr[j].hasAttribute('svetofor')){
+								 if(tdsArr[j].getAttribute('svetofor')=="grey") continue forMark;
+								 
+								 tdsArr[j].getElementsByTagName('IMG')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_red.png';
+								 var r_cur_status = tdsArr[j].getAttribute("svetofor");
+						         tdsArr[j].setAttribute('svetofor','red');
+								 rtCalculator.tbl_model[r_id].dop_data.svetofor = 'red';
+					             break;
+				             }
 						}
-						
+						// alert(r_id+ ' '+cur_status+ ' '+r_cur_status);
+						subtractFromItog(r_id,r_cur_status);
 					}
 			    }
+				//суммы текущего устанавливаемого в sgreen ряда, при соответвии условиям прибавляются к Итого
+				 addToItog(row_id,cur_status);
+				 rtCalculator.tbl_model[row_id].dop_data.svetofor = new_status;
 			}
-			if(status=='green' && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
-				rtCalculator.tbl_model['total_row']['out_summ'] += rtCalculator.tbl_model[row_id]['out_summ'];
-				rtCalculator.tbl_model['total_row']['in_summ'] += rtCalculator.tbl_model[row_id]['in_summ']; 
-                rtCalculator.tbl_model['total_row']["print_in_summ"] += rtCalculator.tbl_model[row_id]["print_in_summ"];
-				rtCalculator.tbl_model['total_row']["print_out_summ"] += rtCalculator.tbl_model[row_id]["print_out_summ"];
-			    rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"] += rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"];
-				rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"] += rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"];
-				
+			function addToItog(row_id,cur_status){
+				// alert(cur_status);
+				// РАСШИФРОВКА - если при новом статусе строка должна учитываться в Итого, при этом текущий статус grey || red 
+				// (тоесть на данный момент не учитывается в Итого),и строка не исключена из расчета(тоесть должна учитываеться в Итого)
+				// добавляем значения строки в Итого при этом надо учесть не исключены ли нанесения и доп услуги если да то их трогать 
+				// не надо(потому что они уже не должны учитываются в  Итого
+				if((cur_status == 'grey' || cur_status == 'red') && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
+					// alert('add');
+					rtCalculator.tbl_model['total_row']['out_summ'] += rtCalculator.tbl_model[row_id]['out_summ'];
+					rtCalculator.tbl_model['total_row']['in_summ'] += rtCalculator.tbl_model[row_id]['in_summ']; 
+					rtCalculator.tbl_model['total_row']['delta'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
+			        rtCalculator.tbl_model['total_row']['margin'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
+					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print']){
+						rtCalculator.tbl_model['total_row']["print_in_summ"] += rtCalculator.tbl_model[row_id]["print_in_summ"];
+						rtCalculator.tbl_model['total_row']["print_out_summ"] += rtCalculator.tbl_model[row_id]["print_out_summ"];
+					}
+					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop']){
+						rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"] += rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"];
+						rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"] += rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"];
+					}
+				}
 			}
-			else if(status!='green' && rtCalculator.tbl_model[row_id].dop_data.svetofor == 'green'  && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
-				rtCalculator.tbl_model['total_row']['out_summ'] -= rtCalculator.tbl_model[row_id]['out_summ'];
-				rtCalculator.tbl_model['total_row']['in_summ'] -= rtCalculator.tbl_model[row_id]['in_summ']; 
-                rtCalculator.tbl_model['total_row']["print_in_summ"] -= rtCalculator.tbl_model[row_id]["print_in_summ"];
-				rtCalculator.tbl_model['total_row']["print_out_summ"] -= rtCalculator.tbl_model[row_id]["print_out_summ"];
-			    rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"] -= rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"];
-				rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"] -= rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"];
+			function subtractFromItog(row_id,cur_status){
+				// alert(cur_status);
+				// РАСШИФРОВКА - если при новом статусе строка не должна учитываться в Итого, при этом текущий статус  green || sgreen 
+				// (тоесть на данный момент учитывается в Итого), и строка не исключена из расчета (тоесть на данный момент учитывается в Итого)
+				// вычитаем значения строки из Итого при этом надо учесть не исключены ли нанесения и доп услуги если да то их трогать 
+				// не надо(потому что они уже не учитываются в  Итого		 
+				if((cur_status == 'green' || cur_status == 'sgreen') && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
+					// alert('subtract');
+					rtCalculator.tbl_model['total_row']['out_summ'] -= rtCalculator.tbl_model[row_id]['out_summ'];
+					rtCalculator.tbl_model['total_row']['in_summ'] -= rtCalculator.tbl_model[row_id]['in_summ']; 
+				    rtCalculator.tbl_model['total_row']['delta'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
+			        rtCalculator.tbl_model['total_row']['margin'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
+					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print']){
+						rtCalculator.tbl_model['total_row']["print_in_summ"] -= rtCalculator.tbl_model[row_id]["print_in_summ"];
+						rtCalculator.tbl_model['total_row']["print_out_summ"] -= rtCalculator.tbl_model[row_id]["print_out_summ"];
+					}
+					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop']){
+						rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"] -= rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"];
+						rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"] -= rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"];
+					}
+				}
 			}
-			rtCalculator.tbl_model[row_id].dop_data.svetofor = status;
 			rtCalculator.change_html(row_id);/**/
 			rtCalculator.change_svetofor.in_process = false;
 		}

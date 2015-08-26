@@ -540,6 +540,7 @@
 			// содержимое корзины
 			$basket_arr = $_SESSION['basket'];
 			// print_r($basket_arr);
+			// exit;
 			
 			
 			
@@ -585,6 +586,11 @@
 												`row_id` = '$row_id',
 												`quantity` = '".$data['quantity']."',
 												`price_out` = '".$data['price']."'"; 
+				if(!empty($data['size_id']) && $data['size_id']!='undefined'){
+				    $tirage_json[$data['size_id']] = array("dop"=>"0","tir"=>$data['quantity']);
+				    $query .= ",`tirage_json` = '".json_encode($tirage_json)."'";	
+					unset($tirage_json);
+				}							
 												
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$dop_row_id = $mysqli->insert_id;
