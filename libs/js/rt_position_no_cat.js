@@ -32,8 +32,9 @@ $(document).on('click', '#variant_of_snab table.show_table tr td', function(even
 
 	// выделяем выбранный вариант
 	$(this).parent().parent().find('.checked').removeClass('checked');
-	$(this).parent().parent().find('td').css({'background':'none'});
-	$(this).parent().find('td').css({'background':'#c7c8ca'});
+	
+	// $(this).parent().parent().find('td').css({'background':'none'});
+	// $(this).parent().find('td').css({'background':'#c7c8ca'});
 
 	// получаем id строки варианта
 	var id_row = $(this).parent().addClass('checked').attr('data-id');

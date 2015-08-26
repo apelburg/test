@@ -147,6 +147,10 @@
 				case '7':
 					$text = 'склад';
 					echo $this->wrap_text_in_warning_message($text);
+
+					echo '';
+
+
 					include_once 'cabinet_sklad_class.php';
 					// создаём экземпляр класса
 					$this->CLASS = new Cabinet_sklad_class($this->user_access);

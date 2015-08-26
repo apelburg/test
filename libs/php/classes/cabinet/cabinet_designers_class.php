@@ -201,8 +201,8 @@
 
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
-					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">
-											<span class="cabinett_row_hide_orders"></span>
+					$table_order_row .= '<td class="show_hide" rowspan="1" data-rowspan="'.$this->position_item.'">
+											<span class="cabinett_row_hide_orders show"></span>
 										</td>';
 					$table_order_row .= '<td colspan="3" class="orders_info">
 										<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
@@ -231,7 +231,7 @@
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html(){			
 			// получаем массив позиций заказа
-			$positions_rows = $this->positions_rows_Database($this->Order['id']);
+			$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
 			$html = '';	
 
 			$this->position_item = 1;// порядковый номер позиции
@@ -271,6 +271,9 @@
 					
 					// // описание позиции
 					$html_row_1 .= '<td  rowspan="'.$this->services_num.'" >';
+
+						// вставляем номер заказа
+						$html_row_1 .= '№ '.$this->order_num_for_User.'<br>';
 						// наименование товара
 						$html_row_1 .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
 						// описание некаталожной продукции
@@ -289,6 +292,10 @@
 						// // массив услуг печати
 						// $html_row_1 .= 'массив услуг печати<br>';
 						// $html_row_1 .= $this->print_arr($this->services_production);
+						// добавляем тираж
+						$html_row_1 .= 'Тираж: '.($position['quantity']) .' шт.';	
+
+
 						$html_row_1 .= '<div class="linked_div">'.identify_supplier_by_prefix($position['art']).'</div>';
 					$html_row_1 .= '</td>';
 
@@ -325,7 +332,7 @@
 			$html = '';
 			$n = 1;
 			$service_name = '';
-
+			
 			// перебираем услуги нанесения по позиции
 			foreach ($this->services_production as $key => $service) {
 				if($service_name != $this->Services_list_arr[$service['uslugi_id']]['name']){
@@ -335,8 +342,10 @@
 					$n = 1;
 				}
 				$html .= 'место '.$n++.': ';
+				
 				// декодируем dop_inputs для услуги печати
-				$html .= (($this->decode_dop_inputs_information_for_servece($service)!="")?$this->decode_dop_inputs_information_for_servece($service):'<span style="color:red">информация отсутствует</span>').'<br>';
+				$decode_dop_inputs_information_for_servece = $this->decode_dop_inputs_information_for_servece($service);
+				$html .= (($decode_dop_inputs_information_for_servece != "")?$decode_dop_inputs_information_for_servece:'<span style="color:red">информация отсутствует</span>').'<br>';
 			}
 			return $html;	
 
@@ -401,14 +410,17 @@
 				$html .= "<div>произошла ошибка json</div>";
 			}
 				
+			$n=0;
+			// раскодируем jsondop_inputs	
 			if(isset($this->print_details_dop) && !empty($this->print_details_dop)){
 				//echo  $service['print_details_dop'];
 				$n=0;
 				foreach ($this->print_details_dop as $key => $text) {
-					$html .= (($n>0)?', ':'').$this->dop_inputs_listing[$key]['name_ru'].':'.$text;
+					$html .= (($n>0)?', ':'').$this->dop_inputs_listing[$key]['name_ru'].': '.base64_decode($text);
 					$n++;
 				}
 			}
+
 			return $html;
 		}
 

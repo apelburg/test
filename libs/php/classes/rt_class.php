@@ -824,7 +824,7 @@
                 
                 // правим order_num на новый номер заказа
                 $query = "UPDATE  `".CAB_ORDER_MAIN."` 
-                        SET  `order_num` =  '".$order_id ."' 
+                        SET  `order_num` =  '".$order_num ."' 
                         WHERE  `id` ='".$main_row_id."';";
                 $result = $mysqli->query($query) or die($mysqli->error);
 

@@ -207,7 +207,7 @@ class Position_no_catalog{
 		    for ($j=1; $j<=3; $j++) {
 		    	$checked = '';
 		    	foreach ($already_chosen_arr as $key => $id) {
-		    		if($suppliers_arr[$i]['id']==trim($id)){
+		    		if(isset($suppliers_arr[$i]['id']) && $suppliers_arr[$i]['id']==trim($id)){
 		    			$checked = 'class="checked"';
 		    		}
 		    	}
@@ -682,7 +682,7 @@ class Position_no_catalog{
 									</tr>
 								</tbody></table>
 							';
-		$html .= '</td><td style="display:none">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->type_product,$pause,$edit_true).'</td></tr></table>';
+		$html .= '</td><td style="">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->type_product,$pause,$edit_true).'</td></tr></table>';
 		$html .= '</div>';
 
 		

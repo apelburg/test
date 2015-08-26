@@ -533,7 +533,7 @@
 
 		// наличие макета
 		$html .= '<div class="separation_container">';
-		$html .= '<div class="name_input">Наличие макета</div>';
+		$html .= '<div class="name_input">Наличие макета<span style="    color: rgba(255, 0, 0, 0.77); font-size:12px">&nbsp;Внимание. Если эта опция отключена, дизайнер не увидит эту услугу у себя в кабинете <br>(даже если отдел дизайна отвечает за переключение статусов по данной услуге)!!!!</span></div>';
 		$html .= '<div class="edit_info"><input type="checkbox" name="maket_true" id="maket_true" '.(($usluga['maket_true']=="on")?'checked':'').'><label for="maket_true">Для исполнения услуги необходимо наличие макета</label><br>
 					<span class="greyText">(указать если с услугой будет работать дизайнер или оператор, если включено - в доп.тех нфо появляется поле путь к макету)</span>
 				</div>';		

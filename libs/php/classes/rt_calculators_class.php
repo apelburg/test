@@ -329,7 +329,7 @@
 			'\u044e' => 'ю', '\u042e' => 'Ю', 
 			'\u044f' => 'я', '\u042f' => 'Я', 
 			
-			'\r' => '', 
+			'\r' => '',
 			'\n' => '<br />', 
 			'\t' => '' 
 			); 
@@ -342,7 +342,7 @@
 		static function save_calculatoins_result($details_obj){
 		    global $mysqli;  
 			
-			print_r($details_obj);
+			// print_r($details_obj);
 			 
            
             // если PHP 5.4 то достаточно этого

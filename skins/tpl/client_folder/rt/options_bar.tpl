@@ -3,8 +3,14 @@
 $(document).on('keyup', '.query_theme', function(event) {
     // первым параметром перелаём название функции отвечающей за отправку запроса AJAX
     // вторым параметром передаём объект к которому добавляется класс saved (класс подсветки)
-    timing_save_input('save_status_name',$(this));  
+    timing_save_input('save_status_name',$(this));
 });
+
+
+function fff(element,defaultBgString){
+   if(element.value == defaultBgString) element.value = '';
+   //timing_save_input('save_status_name',$(element));  
+}
 
 function save_status_name(obj){// на вход принимает object input
     var query_num = obj.attr('query_num');

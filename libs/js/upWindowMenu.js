@@ -188,7 +188,7 @@
 		a.setAttribute('action','delete');
 		a.href = '#';
 		a.onclick = rtCalculator.copy_rows;
-		a.appendChild(document.createTextNode('Создать копию'));
+		a.appendChild(document.createTextNode('Скопировать позиции'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
@@ -1566,12 +1566,12 @@
 		
 		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)
         if(!(idsObj = rtCalculator.get_active_rows())){
-			alert('не возможно создать КП, вы не выбрали ни одной позиции');
+			alert('не возможно создать КП, вы не выбрали ни одного расчета');
 			return;
 		} 
 		
 		show_processing_timer();
-		var query_theme = document.getElementById('query_theme_input').value;
+		var query_theme = (document.getElementById('query_theme_input').value == "Введите тему")?'':document.getElementById('query_theme_input').value;
 		var tbl = document.getElementById('rt_tbl_body');
 		var client_id = tbl.getAttribute('client_id');
 		var query_num = tbl.getAttribute('query_num');

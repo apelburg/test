@@ -1,5 +1,5 @@
 <?php 
-	// еуые
+	//
     header('Content-type: text/html; charset=utf-8');
 	ini_set('error_reporting', E_ALL);
 	ini_set('display_errors', 1);
@@ -15,6 +15,8 @@
 	include('libs/php/common.php');
     include('libs/autorization.php');
 	include('libs/variables.php');
+
+	
 
     // ** БЕЗОПАСНОСТЬ **
 	// если нет массива $ACCESS (права доступа) прерываем работу скирпта 

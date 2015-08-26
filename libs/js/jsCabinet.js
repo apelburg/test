@@ -246,6 +246,7 @@ $(document).on('keyup', '.deadline', function(event) {
 	});
 	check_loading_ajax();
 });
+
 // сохраняем поле ОПЛАЧЕНО
 $(document).on('change','.buch_status_select select',function(){
 		// записываем id строки услуги
@@ -263,22 +264,22 @@ $(document).on('change','.buch_status_select select',function(){
 		});
 	});
 
-	// схраняем статус заказа
-	$(document).on('change','.select_global_status select',function(){
-		// записываем id строки услуги
-		var row_id = $(this).parent().parent().attr('data-id');
-		var value = $(this).val();
-		var obj = $(this).parent().parent();
-		window_preload_add();
-		$.post('', {
-			AJAX:'select_global_status',
-			row_id:row_id,
-			value:value
-		}, function(data, textStatus, xhr) {
-			console.log(data);
-			replace_query_row_obj(obj);
-		});
+// схраняем статус заказа
+$(document).on('change','.select_global_status select',function(){
+	// записываем id строки услуги
+	var row_id = $(this).parent().parent().attr('data-id');
+	var value = $(this).val();
+	var obj = $(this).parent().parent();
+	window_preload_add();
+	$.post('', {
+		AJAX:'select_global_status',
+		row_id:row_id,
+		value:value
+	}, function(data, textStatus, xhr) {
+		console.log(data);
+		replace_query_row_obj(obj);
 	});
+});
 
 
 
@@ -295,38 +296,59 @@ $(document).on('click','#cabinet_general_content .cabinett_row_hide',function() 
 
 // свернуть/развернуть строку ЗАКАЗА
 $(document).on('click','#cabinet_general_content .cabinett_row_hide_orders',function() {	
-	if($(this).hasClass('show')){
-		// запоминаем значение rowspan
-		var rowspan = Number($(this).parent().attr('data-rowspan'));
+	
+	if($(this).hasClass('show')){ // если поле скрыто
+		// скрываем остальные поля
+		//console.log($('#general_panel_orders_tbl tr.order_head_row').length);
+		// var n =0;
+		
+		
+		//tbl_row_close($('#general_panel_orders_tbl tr.order_head_row td.show_hide span.show'));
+		
+		
+		// console.log('654654 = '+ index);
+		
 
-		$(this).parent().attr('rowspan',rowspan);
 
-		// скрываем все строки
-		obj = $(this).parent().parent().next('tr');
-		for (var i = 0; i < rowspan-1; i++) {
-			obj.show();
-			obj = obj.next('tr');
-		};
-
-		$(this).removeClass('show');
-	}else{
-		// запоминаем значение rowspan
-		var rowspan = Number($(this).parent().attr('rowspan'));
-		// ставим rowspan 1, сохраняем заначение в тег
-		$(this).parent().attr('rowspan','1').attr('data-rowspan',rowspan);
-		// скрываем все строки
-		obj = $(this).parent().parent().next('tr');
-		for (var i = 0; i < rowspan-1; i++) {
-			obj.hide();
-			obj = obj.next('tr');
-			console.log(obj.next('tr').html());
-		};
-
-		$(this).addClass('show');
+		tbl_row_open($(this));
+	}else{ // если поле открыто
+		tbl_row_close($(this));
 	}	
 });
 
+function tbl_row_open(obj){
+	obj.removeClass('show');
+	// запоминаем значение rowspan
+	var rowspan = Number(obj.parent().attr('data-rowspan'));
 
+	obj.parent().attr('rowspan',rowspan);
+
+	// скрываем все строки
+	obj = obj.parent().parent().next('tr');
+	for (var i = 0; i < rowspan-1; i++) {
+		obj.show();
+		obj = obj.next('tr');
+	};
+
+	
+}
+
+function tbl_row_close(obj){
+	obj.addClass('show');
+	// запоминаем значение rowspan
+	var rowspan = Number(obj.parent().attr('rowspan'));
+	// ставим rowspan 1, сохраняем заначение в тег
+	obj.parent().attr('rowspan','1').attr('data-rowspan',rowspan);
+	// скрываем все строки
+	obj = obj.parent().parent().next('tr');
+	for (var i = 0; i < rowspan-1; i++) {
+		obj.hide();
+		obj = obj.next('tr');
+		console.log(obj.next('tr').html());
+	};
+
+	
+}
 
 
 
@@ -935,6 +957,7 @@ $(document).on('keyup','#dialog_gen_window_form .save_logotip', function(event) 
 	},'json');
 	check_loading_ajax();
 });
+
 // сохранения поля путь к макету
 $(document).on('keyup','#dialog_gen_window_form .save_the_url_for_layout', function(event) {
 	
@@ -960,7 +983,7 @@ $(document).on('keyup','#dialog_gen_window_form .dop_inputs', function(event) {
 	var Json = $('#dop_input_json').html();
 	var json_object = JSON.parse(Json);
 
-	json_object[name_en] = val;
+	json_object[name_en] = Base64.encode(val);
 	if(val.trim()==""){
 		delete json_object[name_en];
 	}
@@ -983,6 +1006,32 @@ $(document).on('keyup','#dialog_gen_window_form .dop_inputs', function(event) {
 });
 
 
+// применить логотип ко всем услугам по позиции
+$(document).on('click', '#save_logotip_for_all_position', function(event) {
+	$.post('', {
+
+		AJAX: 'save_logotip_for_all_position',
+		position_id: $(this).attr('data-position_id'),
+		id_dop_data: $(this).attr('data-id_dop_data'),
+		logotip : $('#save_logotip_for_all_services_tbl .save_logotip_for_all_services').val()
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+// применить логотип ко всем услугам по заказу
+$(document).on('click', '#save_logotip_for_all_order', function(event) {
+	$.post('', {
+		AJAX: 'save_logotip_for_all_order',
+		position_id: $(this).attr('data-position_id'),
+		id_dop_data: $(this).attr('data-id_dop_data'),
+		logotip : $('#save_logotip_for_all_services_tbl .save_logotip_for_all_services').val(),
+		order_num: $(this).attr('data-order_num')
+
+	}, function(data, textStatus, xhr) {
+
+		standard_response_handler(data);
+	},'json');
+});
 
 ///////////////////////////////////////////////
 //	статус сохранения отредактированного поля
@@ -1321,9 +1370,18 @@ $(document).on('change', '.get_statuslist_uslugi', function(event) {
 //	функции вызываемые из PHP  --- start ---  //
 ////////////////////////////////////////////////
 
-// вывод сообщения из PHP
+// вывод сообщения из PHP в alert
 function php_message(data){
 	alert(data.text);
+}
+
+function php_message_alert(data){
+	console.log(data);
+	alert(Base64.decode(data['message']));
+}
+// вывод сообщения из PHP в модальное окно
+function php_message_dialog(data){
+	show_simple_dialog_window(Base64.decode(data['message']),data['title']);
 }
 // перезагрузка окна
 function window_reload(data) {
@@ -1492,14 +1550,15 @@ $(document).on('click', '.set_approval_date', function(event) {
 	var date  = curr_date + "." + curr_month + "." + curr_year;
 	// alert(date);
 
-	// меняем html
-	$(this).replaceWith('<span class="greyText">'+date+'</span>');
+	
 
 	// получаем id позиции
 	var row_id = $(this).attr('data-id');
+	
 	// получаем dop_data_id
 	var dop_data_id = $(this).parent().parent().attr('data-cab_dop_data_id');
-
+	// меняем html
+	$(this).replaceWith('<span class="greyText">'+date+'</span>');
 	// закрываем экран от дальнейшего редактирования
 	window_preload_add();
 	// отправляем запрос

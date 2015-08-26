@@ -331,16 +331,16 @@
 .variant_info{width: 100%}
 .variant_info .cell{ vertical-align: baseline; padding: 5px 10px 5px 0}
 .variant_info table{width:100%; border:none;border-collapse: collapse}
-.variant_info table tr th{ background-color: #c7c8ca;  font-weight: normal; text-align: right;color: #5a5c61;
+.variant_info table tr th{ background-color: #F3F3F3;  font-weight: normal; text-align: right;color: #5a5c61;
   font-size: 10px; }
 .variant_info table tr th.del_cell,.variant_info table tr th.edit_cell{width: 32px; text-align: center;}
 .variant_info table tr td{  text-align: right; }
 .variant_info table tr td:nth-of-type(2){  text-align: left; }
 .variant_info table tr th:nth-of-type(2){min-width: 50px;text-align: left;}
 .variant_info table tr th:nth-of-type(1){
-  font-weight: bold; text-align: left; font-size: 12px; color:#000;padding-left: 15px}
+  font-weight: bold; text-align: left; font-size: 12px; color:#000;/*padding-left: 15px*/}
 .variant_info table.calkulate_table tr th:nth-of-type(1){
-  padding-left: 24px
+ /* padding-left: 24px*/
 }
 
 .variant_info table.calkulate_table tr th.type_row_calc_tbl,
@@ -545,7 +545,7 @@ span.snab_comment {
 #variant_of_snab table.show_table.show_table tr th{ background-color: #e8e8e8; font-weight: normal; font-size: 10px; color: grey; padding: 5px}
 #variant_of_snab table.show_table tr td{  font-size: 10px;  padding: 5px; }
 
-
+#variant_of_snab table.show_table tr.checked td{background-color: #c7c8ca;}
 
 #variant_of_snab table.show_table tr th:nth-of-type(2),
 #variant_of_snab table.show_table tr td:nth-of-type(2){text-align: left;}
@@ -559,6 +559,8 @@ span.snab_comment {
 #variant_of_snab table.show_table tr td:nth-of-type(6){text-align: right;}
 #variant_of_snab table.show_table tr th:nth-of-type(7),
 #variant_of_snab table.show_table tr td:nth-of-type(7){text-align: right;width: 350px;}
+#variant_of_snab table.show_table tr td.change_supplier:hover{background: #E2E2E2;}
+
 #variant_of_snab table.show_table tr th:nth-of-type(8),
 #variant_of_snab table.show_table tr td:nth-of-type(8){text-align: center;}
 #variant_of_snab table.show_table tr th:nth-of-type(9),
@@ -636,9 +638,9 @@ span.snab_comment {
 #variant_of_snab table.calkulate_table tr td:nth-last-child(3){ width: 80px}
 #variant_of_snab table.calkulate_table tr td:nth-last-child(4){ width: 80px}
 #variant_of_snab table.calkulate_table tr td:nth-last-child(5){ width: 150px}
-#variant_of_snab table.calkulate_table tr td:nth-of-type(1){ width: 450px}
+#variant_of_snab table.calkulate_table tr td:nth-of-type(1){ width: 450px; text-align: left;}
 
-#variant_of_snab table.calkulate_table tr.calculate.calculate_usl td:nth-child(even){ background-color: #F5FAFF;}
+#variant_of_snab table.calkulate_table tr.calculate.calculate_usl td:nth-child(even){ /*background-color: #F5FAFF;*/}
 #variant_of_snab table.calkulate_table tr.calculate.calculate_usl td.usl_del{ background: none;}
 .change_supplier:hover{background-color: $f4f4f4; /*cursor: default;*/ color:#fff;}
 #chose_supplier_tbl tr td{
@@ -713,3 +715,20 @@ span.snab_comment {
 .calculate.calculate_usl.editing td{ background-color: #f1f1f1}
 .tz_text_shablon,.tz_text{ display: none}
 .tz_taxtarea_edit{ width: 100%;  min-height: 250px;}
+
+/****************************************
+  правки по замечаниям Славы   START
+*****************************************/
+#edit_option_content{
+  display: none;
+}
+#variant_of_snab table.calkulate_table tr td:nth-of-type(1){
+  width: auto;
+}
+#variant_of_snab table.calkulate_table{
+  /*width: auto;*/
+}
+
+/****************************************
+  правки по замечаниям Славы   END
+*****************************************/

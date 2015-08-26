@@ -826,11 +826,16 @@ var rtCalculator = {
 		var row_id = td.parentNode.getAttribute("row_id");
 		var cur_status = td.getAttribute("svetofor");
 		var new_status = img_btn.getAttribute("status");
-		//alert(cur_status);
-		if(new_status == cur_status){
+
+        // проверяем не является ли новый статус sgreen если нет то проверяем не равен ли новый статус текущему статусу если да то
+		// прекращаем выполнение метода потому что это ничего не меняет и не имеет смысла
+		// но если новый статус равен sgreen то сверку не производим и продолжаем выполнение скрипта потому что sgreen воздействует
+		// не только на свой ряд но и на другие в которых могли произоти какие то изменения
+		if(new_status!= 'sgreen' && new_status == cur_status){
 		    rtCalculator.change_svetofor.in_process = false;	
 			return;
 		}
+		// alert(cur_status);
 		
 		if(new_status=='sgreen'){
 			// собираем id остальных рядов относящихся к этой позиции для отправки на сервер чтобы отключить (нужные из них) в красный
@@ -1126,7 +1131,7 @@ var rtCalculator = {
 				// работаем с рядом - ищем светофор 
 				var tdsArr = trsArr[i].getElementsByTagName('td');   
 				for( var j= 0 ; j < tdsArr.length; j++){
-					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
+					if(tdsArr[j].getAttribute('svetofor') && (tdsArr[j].getAttribute('svetofor')=='green' || tdsArr[j].getAttribute('svetofor')=='sgreen')){
 						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
 						nothing = false;
 					}
@@ -1446,7 +1451,7 @@ var rtCalculator = {
 		
 		if(nothing || more_then_one || less_then_one){
 			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной позиции');
-			if(more_then_one){
+			else if(more_then_one){
 				var alertStrObj ={};
 				var alertStrArr =[];
 				for(var pos in idsObj){
@@ -1457,7 +1462,7 @@ var rtCalculator = {
 				}
 				alert('не возможно создать заказ,\rвыбрано более одного варианта расчета в рядах:\r\n'+alertStrArr.join(''));
 			}
-			if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
+			else if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
 			return;
 		}
 		
@@ -1609,7 +1614,7 @@ var rtCalculator = {
 		
 		if(nothing || more_then_one || less_then_one){
 			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной позиции');
-			if(more_then_one){
+			else if(more_then_one){
 				var alertStrObj ={};
 				var alertStrArr =[];
 				for(var pos in idsObj){
@@ -1620,7 +1625,7 @@ var rtCalculator = {
 				}
 				alert('не возможно создать заказ,\rвыбрано более одного варианта расчета в рядах:\r\n'+alertStrArr.join(''));
 			}
-			if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
+			else if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
 			return;
 		}
 		

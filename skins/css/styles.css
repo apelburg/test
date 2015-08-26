@@ -1671,7 +1671,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #calculatorDialogBox .menuContainer {margin-bottom: 40px; background-color:#99B52A; border: 0px solid #8b8a89; height:30px;width:100%;}
 #calculatorDialogBox .calculatorDistributionTbl { border-collapse:collapse}
 #calculatorDialogBox .calculatorDistributionTbl td { vertical-align:top; font-size: 11px; border-bottom: 1px solid #8b8a89;}
-#calculatorDialogBox .printPlaceSelectDiv { margin-left: 54px; border: #FFFF66 solid 0px;}
+#calculatorDialogBox .printPlaceSelectDiv { float: left; margin-left: 54px; border: #FFFF66 solid 0px;}
 #calculatorDialogBox .printPlaceSelectDiv select{width: 184px; }
 #calculatorDialogBox .printTypesSelectDiv {  margin-left: 320px; border: #3333FF solid 0px;}
 #calculatorDialogBox .printTypesSelectDiv select{ width: 184px; }

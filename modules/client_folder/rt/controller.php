@@ -127,6 +127,11 @@
 		 if(isset($row['dop_data']) && count($row['dop_data'])>1){
 			  $row['dop_data']= $service_row + $row['dop_data']; 
 		 }
+		 // 
+		 if(!isset($row['dop_data'])){
+		      $row['name'] .= '<span style="color:red"> ОШИБКА - ДАННЫЕ ПО РАСЧЕТУ НЕ ПОЛУЧЕНЫ (УДАЛИТЕ ПОЗИЦИЮ)</span>';
+			  $row['dop_data']= $service_row; 
+		 }
 		 
 		 //array_unshift($row['dop_data'],array('quantity'=>0,'price_in'=>0,'price_out'=>0,'row_status'=>0,'glob_status'=>0));
 		 
@@ -276,7 +281,7 @@
 				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer center"';
 				 $svetofor_tr_display = ($row['svetofor_display']==1 && $dop_row['row_status']=='red')?'hidden':'';
 				 $currency = 'р';
-				 $quantity_dim = 'шт';
+				 //$quantity_dim = 'шт';<td width="20" class=" left quantity_dim">'.$quantity_dim.'</td>
 				 $discount = $dop_row['discount'].'%';
 				 $srock_sdachi = implode('.',array_reverse(explode('-',$dop_row['shipping_date'])));
 				 if($srock_sdachi=='00.00.0000') $srock_sdachi='';
@@ -348,14 +353,13 @@
 			 $cur_row .=  '<td class="hidden"></td>
 			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
 			               <td width="40" type="svetofor" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
-			               <td width="60" type="quantity" class="quantity right"  editable="true">'.$dop_row['quantity'].'</td>
-						   <td width="20" class="r_border left quantity_dim">'.$quantity_dim.'</td>
+			               <td width="60" type="quantity" class="quantity right r_border"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
 						   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">'.$currency.'</td>
 						   <td width="90" type="price_in_summ" connected_vals="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
 						  
 						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left hidden">'.$currency.'</td>
-						   <td width="40" class="center" onclick="return show_discount_window(this,'.$dop_key.','.$client_id.');">'.$discount.'</td>
+						   <td width="45" class="center" onclick="return show_discount_window(this,'.$dop_key.','.$client_id.');">'.$discount.'</td>
 						   <td width="90" type="price_out" editable="true" connected_vals="art_price" c_stat="1" class="out right">'.$price_out.'</td>
 						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >'.$currency.'</td>
 						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
@@ -410,13 +414,12 @@
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
 				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status_all.'.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
-				  <td width="60" class="quantity right">тираж</td>
-				  <td width="20" class="r_border"></td>
+				  <td width="60" type="quantity" class="quantity right r_border">тираж</td>
 				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br><span class="small">входящая штука</span></td>
 				  <td width="15" connected_vals="art_price" c_stat="1" class="grey w_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="0" class="grey w_border right hidden pointer">$ товара<br><span class="small">входящая тираж</span></td>
 				  <td width="15" connected_vals="art_price" c_stat="0" class="grey w_border hidden"></td>
-				  <td width="40" class="grey w_border">наценка</td>
+				  <td width="45" class="grey w_border">наценка</td>
 				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border right pointer">$ товара<br><span class="small">исходящая штука</span></td>
 				  <td width="15" connected_vals="art_price" c_stat="1" class="grey w_border r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="0" class="grey w_border right pointer hidden">$ товара<br><span class="small">исходящая тираж</span></td>
@@ -450,13 +453,12 @@
 				  <td class="right"></td>
 				  <td class="hidden">dop_details</td>
 				  <td></td>
-				  <td></td>
-				  <td width="20" class="r_border"></td>
+				  <td class="quantity r_border"></td>
 				  <td connected_vals="art_price" c_stat="1"></td>
 				  <td width="15" connected_vals="art_price" c_stat="1"></td>
 				  <td type="price_in_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_in_summ'],'2','.','').'</td>
 				  <td width="15" connected_vals="art_price" c_stat="0" class="hidden">р</td>
-				  <td width="40" class=""></td>
+				  <td width="45" class=""></td>
 				  <td connected_vals="art_price" c_stat="1"></td>
 				  <td width="15" connected_vals="art_price" c_stat="1" class="r_border"></td>
 				  <td type="price_out_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_out_summ'],'2','.','').'</td>

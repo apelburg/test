@@ -6,7 +6,7 @@
 	if(!@$ACCESS['client_folder']['section']['rt']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 	
-	save_way_back(array('section=rt_position','section=agreement_editor','section=agreements','section=business_offers','section=planner'),'?page=cabinet&client_id='.$client_id);
+	save_way_back(array('page=client_folder','section=rt_position','section=agreement_editor','section=agreements','section=business_offers','section=planner'),'?page=cabinet&client_id='.$client_id);
 	$quick_button_back = get_link_back();
 	
 	
@@ -232,7 +232,7 @@
 	
 	$create_time = RT::fetch_query_create_time($query_num);
 	$theme = RT::fetch_theme($query_num);
-	$theme_block = '<input id="query_theme_input" class="query_theme" query_num="'.$query_num.'" type="text" value="'.(($theme=='')?'Введите тему':htmlspecialchars($theme,ENT_QUOTES)).'">';	
+	$theme_block = '<input id="query_theme_input" class="query_theme" query_num="'.$query_num.'" type="text" value="'.(($theme=='')?'Введите тему':htmlspecialchars($theme,ENT_QUOTES)).'" onclick="fff(this,\'Введите тему\');">';	
 
 	// шаблон поиска
 	include ROOT.'/skins/tpl/common/quick_bar.tpl';

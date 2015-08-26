@@ -34,8 +34,18 @@
 		'arrange_delivery' => 'Оформить доставку',
 		'delivery' => 'Доставка',
 		'pclosing_documents' => 'Закрывающие документы',
-		'otgrugen' => 'Отгруженные'													
+		'otgrugen' => 'Отгруженные',
+		// кнопки фильтрации заказа для СНАБ
+		'get_in_work' => 'Принять',
+		'my_orders' => 'Мои заказы',
+		'only_get_in' => 'Только принятые',
+		'expected_a_union' => 'Ожидает объединения'										
 		); 
+
+		//////////////////////////
+		//	фильтры по разделам для кнопок подраздела
+		//////////////////////////
+		protected $filtres = array();
 
 		// название подраздела кабинета
 		private $sub_subsection;
@@ -517,7 +527,7 @@
 				$html2 = '
 						<tr data-id="'.$value['id'].'">
 							<td class="this->cabinett_row_show show"><span></span></td>
-							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.$order_num_1.'</a></td>
+							<td>'.$order_num_1.'</td>
 							<td>'.$value['create_time'].'</td>
 							<td>'.$value['company'].'</td>
 							<td class="invoice_num" contenteditable="true">'.$value['invoice_num'].'</td>
@@ -553,206 +563,7 @@
 		}
 
 
-		################ Заказы
-		// Private Function orders_Template(){
-
-		// 	global $mysqli;
-		// 	// простой запрос
-		// 	$array_request = array();
-
-			
-		// 	$query = "SELECT 
-		// 		`".CAB_ORDER_ROWS."`.*, 
-		// 		DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-		// 		`".CLIENTS_TBL."`.`company`,
-		// 		`".MANAGERS_TBL."`.`name`,
-		// 		`".MANAGERS_TBL."`.`last_name`,
-		// 		`".MANAGERS_TBL."`.`email` 
-		// 		FROM `".CAB_ORDER_ROWS."`
-		// 		INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`client_id`
-		// 		INNER JOIN `".MANAGERS_TBL."` ON `".MANAGERS_TBL."`.`id` = `".CAB_ORDER_ROWS."`.`manager_id`";
-		// 	// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` NOT LIKE '%Отгружен%' AND `".CAB_ORDER_ROWS."`.`global_status` NOT LIKE '%Аннулирован%'";
-		// 	$subsection = (isset($_GET['subsection']))?$_GET['subsection']:'';
-		// 	switch ($subsection) {
-		// 		case 'paused':
-		// 			# code...Приостановлен
-		// 			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'Приостановлен'";
-		// 			break;
-		// 		case 'ready_for_shipment':
-		// 			# code...Приостановлен
-		// 			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = 'Готов к отгрузке'";
-		// 			break;
-		// 		case 'in_work':
-		// 			$query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` NOT LIKE '%Отгружен%' AND `".CAB_ORDER_ROWS."`.`global_status` NOT LIKE '%Аннулирован%'";
-		// 			break;
-				
-		// 		default:
-		// 			# code...
-		// 			break;
-		// 	}
-		// 	// echo $query;
-		// 	$result = $mysqli->query($query) or die($mysqli->error);
-		// 	$main_rows_id = array();
-			
-		// 	if($result->num_rows > 0){
-		// 		while($row = $result->fetch_assoc()){
-		// 			$main_rows_id[] = $row;
-		// 		}
-		// 	}
-
-		// 	// echo '<pre>';
-		// 	// print_r($zapros);
-		// 	// echo '</pre>';
-
-		// 	// собираем html строк-запросов
-		// 	$html1 = '';
-		// 	if(count($main_rows_id)==0){return 1;}
-
-		// 	foreach ($main_rows_id as $key => $value) {
-		// 		if(!isset($value2)){continue;}
-		// 		$order_num_1 = Cabinet::show_order_num($value['order_num']);
-		// 		$invoice_num = $value['invoice_num'];
-
-		// 		$main_rows = $this->get_main_rows_Database($value['id']);
-
-		// 		// СОБИРАЕМ ТАБЛИЦУ
-		// 		###############################
-		// 		// строка с артикулами START
-		// 		###############################
-		// 		$html = '<tr class="query_detail">';
-		// 		$html .= '<td class="show_hide"><span class="this->cabinett_row_hide" style="  top: -26px;
-		//   padding-top: 25px;"></span></td>';
-		// 		$html .= '<td colspan="5" class="each_art">';
-				
-				
-		// 		// ВЫВОД позиций
-		// 		$html .= '<table class="cab_position_div">';
-				
-		// 		// шапка таблицы позиций заказа
-		// 		$html .= '<tr>
-		// 				<th>артикул</th>
-		// 				<th>номенклатура</th>
-		// 				<th>тираж</th>
-		// 				<th>цены:</th>
-		// 				<th>товар</th>
-		// 				<th>печать</th>
-		// 				<th>доп. услуги</th>
-		// 			<th>в общем</th>
-		// 			<th>стутаус снаб</th>
-		// 			<th>статус склад</th>
-		// 			<th>статус мен</th>
-		// 				</tr>';
-
-
-		// 		$in_out_summ = 0; // общая стоимость заказа
-		// 		$num_position = count($main_rows);$r=0;
-		// 		foreach ($main_rows as $key1 => $val1) {
-		// 			//ОБСЧЁТ ВАРИАНТОВ
-		// 			// получаем массив стоимости нанесения и доп услуг для данного варианта 
-		// 			$dop_usl = $this->CABINET->get_order_dop_uslugi($val1['id_dop_data']);
-		// 			// выборка только массива стоимости печати
-		// 			$dop_usl_print = $this->CABINET->get_dop_uslugi_print_type($dop_usl);
-		// 			// выборка только массива стоимости доп услуг
-		// 			$dop_usl_no_print = $this->CABINET -> get_dop_uslugi_no_print_type($dop_usl);
-
-		// 			// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
-		// 			// стоимость печати варианта
-		// 			$calc_summ_dop_uslug = $this->CABINET -> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
-		// 			// стоимость доп услуг варианта
-		// 			$calc_summ_dop_uslug2 = $this->CABINET -> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
-		// 			// стоимость товара для варианта
-		// 			$price_out = $val1['price_out'] * $val1['quantity'];
-		// 			// стоимость варианта на выходе
-		// 			$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
-
-
-		// 			$html .= '<tr  data-id="'.$val1['id'].'">
-		// 			<td> '.$val1['id_dop_data'].'<!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
-		// 			<td>'.$val1['name'].'</td>
-		// 			<td>'.($val1['quantity']+$val1['zapas']).'</td>
-		// 			<td></td>
-		// 			<td><span>'.$price_out.'</span> р.</td>
-		// 			<td><span>'.$calc_summ_dop_uslug.'</span> р.</td>
-		// 			<td><span>'.$calc_summ_dop_uslug2.'</span> р.</td>
-		// 			<td><span>'.$in_out.'</span> р.</td>
-		// 			<td class="status_snab">'.$this->CABINET->select_status(8,$val1['status_snab']).'</td>
-		// 			<td>'.$val1['status_sklad'].'</td>
-		// 			<td>'.$val1['status_men'].'</td>
-		// 					</tr>';
-		// 			$in_out_summ +=$in_out; // прибавим к общей стоимости
-		// 			$r++;
-		// 		}
-		// 		$html .= '</table>';
-		// 		$html .= '</td>';
-		// 		$html .= '</tr>';
-		// 		###############################
-		// 		// строка с артикулами END
-		// 		###############################
-
-		// 		// получаем % оплаты
-		// 		$percent_payment = round($value['payment_status']*100/$in_out_summ,2);		
-		// 		// собираем строку заказа
-		// 		$html2 = '
-		// 				<tr data-id="'.$value['id'].'">
-		// 					<td class="this->cabinett_row_show show"><span></span></td>
-		// 					<td class="number_order"><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$value['id'].'&client_id='.$value['client_id'].'">'.$order_num_1.'</a></td>
-		// 					<td>'.$value['company'].'</td>
-		// 					<td></td>
-		// 					<td>'.$value['payment_date'].'</td>
-		// 					<td class="select_global_status">'.$value['global_status'].'</td>
-		// 				</tr>
-		// 		';
-		// 		$html1 .= $html2 . $html;
-		// 	}
-		// 	echo '
-		// 	<table class="this->cabinet_general_content_row">
-		// 					<tr>
-		// 						<th id="show_allArt"></th>
-		// 						<th>Заказ</th>
-		// 						<th>Компания</th>			
-		// 						<th></th>
-		// 						<th>Дата опл-ты</th>
-		// 						<th>Статус заказа.</th>
-		// 					</tr>';
-		// 	echo $html1;
-		// 	echo '</table>';
-		// }
-		// ## Заказы __ запросы к базе		
-		// private function orders_Template_get_main_rows_Database($id){
-		// 	global $mysqli;
-		// 	$query = "
-		// 		SELECT 
-		// 			`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
-		// 			`".CAB_ORDER_DOP_DATA."`.`quantity`,	
-		// 			`".CAB_ORDER_DOP_DATA."`.`price_out`,	
-		// 			`".CAB_ORDER_DOP_DATA."`.`print_z`,	
-		// 			`".CAB_ORDER_DOP_DATA."`.`zapas`,	
-		// 			DATE_FORMAT(`".CAB_ORDER_MAIN."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
-		// 			`".CAB_ORDER_MAIN."`.*,
-		// 			`".CAB_ORDER_MAIN."`.`id` AS `main_rows_id`,
-		// 			`".CAB_ORDER_ROWS."`.`id` AS `request_id`,
-		// 			`".CAB_ORDER_ROWS."`.`global_status`,
-		// 			`".CAB_ORDER_ROWS."`.`payment_status`,
-		// 			`".CAB_ORDER_ROWS."`.`number_pyament_list`
-		// 			FROM `".CAB_ORDER_MAIN."` 
-		// 			INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`
-		// 			LEFT JOIN `".CAB_ORDER_ROWS."` ON `".CAB_ORDER_ROWS."`.`id` = `".CAB_ORDER_MAIN."`.`order_num`
-		// 			WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`order_num` = '".$value['id']."'
-		// 			ORDER BY `".CAB_ORDER_MAIN."`.`id` ASC
-			                
-		// 		";
-
-		// 	$main_rows = array();
-		// 	$result = $mysqli->query($query) or die($mysqli->error);
-		// 	$main_rows_id = array();
-		// 	if($result->num_rows > 0){
-		// 		while($row = $result->fetch_assoc()){
-		// 			$main_rows[] = $row;
-		// 		}
-		// 	}
-		// 	return $main_rows;
-		// }
-		################ Заказы __ END
+		
 		//////////////////////////
 		//	Section - Заказы
 		//////////////////////////
@@ -836,7 +647,7 @@
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
 				
-				$table_order_row2_body = '<td class="show_hide" rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders"></span></td>
+				$table_order_row2_body = '<td class="show_hide" data-rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders show"></span></td>
 						<td colspan="4" class="orders_info">
 							<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
 							'.$this->get_client_name_link_Database($this->Order['client_id']).'
@@ -873,7 +684,7 @@
 		// возвращает html строки позиций
 		private function table_order_positions_rows_Html(){			
 			// получаем массив позиций заказа
-			$positions_rows = $this->positions_rows_Database($this->Order['id']);
+			$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
 			$html = '';	
 
 			$this->position_item = 1;// порядковый номер позиции
