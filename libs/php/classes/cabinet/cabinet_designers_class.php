@@ -87,18 +87,9 @@
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){
-			if (isset($_GET['subsection']) && $_GET['subsection'] != "" ){
-				$subsection = $_GET['subsection'];	
-			}else{
-				$subsection = 'all';
-				$_GET['subsection'] = 'all';
-			}
-			
-
-			$method_template = $_GET['section'].'_'.$subsection.'_Template';
+			$method_template = $_GET['section'].'_Template';
 			// $method_template = $_GET['section'].'_Template';
 			echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
-
 			// скрываем левое меню за ненадобностью
 			echo '<style type="text/css" media="screen">#cabinet_left_coll_menu{display:none;}</style>';
 			// если в этом классе существует такой метод - выполняем его
@@ -117,7 +108,7 @@
 		// роутер по вкладкам 
 		
 
-		private function orders_all_Template($id_row=0){
+		private function orders_Template($id_row=0){
 			// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
 			// создаем экземпляр класса форм
 			$this->FORM = new Forms();

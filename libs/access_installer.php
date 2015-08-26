@@ -327,7 +327,7 @@
 													'waits_products' => array('access' => true),
 													'goods_in_stock' => array('access' => true),
 													'sended_on_outsource' => array('access' => true),
-													'pclosing_documents' => array('access' => true),
+													'checked_and_packed' => array('access' => true),
 													'goods_shipped_for_client' => array('access' => true),
 													)
 												)

@@ -84,18 +84,9 @@
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){
-			if (isset($_GET['subsection']) && $_GET['subsection'] != "" ){
-				$subsection = $_GET['subsection'];	
-			}else{
-				$subsection = 'all';
-				$_GET['subsection'] = 'all';
-			}
-			
-
-			$method_template = $_GET['section'].'_'.$subsection.'_Template';
+			$method_template = $_GET['section'].'_Template';
 			// $method_template = $_GET['section'].'_Template';
 			echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
-
 			// скрываем левое меню за ненадобностью
 			echo '<style type="text/css" media="screen">#cabinet_left_coll_menu{display:none;}</style>';
 			// если в этом классе существует такой метод - выполняем его
@@ -161,7 +152,7 @@
 				//////////////////////////
 				//	filter_list   -- start
 				//////////////////////////
-					$query .= $this->get_filter_list( $where );
+					$query .= $this->get_filter_list_Order( $where );
 				//////////////////////////
 				//	filter_list 	-- end
 				//////////////////////////
@@ -456,7 +447,7 @@
 							return $user['name'].' '.$user['last_name'];
 						}else{
 							$user = $this->userlist[$this->user_id];
-							return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+							return '<input type="button" value="Взять в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
 						};
 					}
 					break;

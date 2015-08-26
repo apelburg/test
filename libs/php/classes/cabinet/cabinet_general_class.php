@@ -614,11 +614,11 @@
 			$menu_central_arr = (array_key_exists($_GET["section"], $this->ACCESS['cabinet']['section']))?$this->ACCESS['cabinet']['section'][$_GET["section"]]['subsection']:array();
 			
 			foreach ($menu_central_arr as $key2 => $value2) {
-				$menu .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'>
-									<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.''.(isset($_GET["client_id"])?'&client_id='.$_GET["client_id"]:'').'">
-										'.$this->CLASS->menu_name_arr[$key2].'
-									</a>
-								<li>';
+				$menu .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'>';
+					$menu .= '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.''.(isset($_GET["client_id"])?'&client_id='.$_GET["client_id"]:'').'">';
+						$menu .= $this->CLASS->menu_name_arr[$key2].'';
+					$menu .= '</a>';
+				$menu .= '<li>';
 			}
 			// return 654654;
 			return $menu;

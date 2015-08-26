@@ -44,7 +44,8 @@
 			'pclosing_documents' => 'Закрывающие документы',
 			'checked_and_packed'  => 'Заказы на отгрузку',
 			'goods_shipped_for_client' => 'Отгруженные',
-			'otgrugen' => 'Отгруженные'													
+			'otgrugen' => 'Отгруженные',
+			'we_are_waiting_the_products' => 'Ожидается'											
 		); 
 
 		//////////////////////////
@@ -132,18 +133,9 @@
 
 		// стадратный метод для вывода шаблона
 		public function __subsection_router__(){
-			if (isset($_GET['subsection']) && $_GET['subsection'] != "" ){
-				$subsection = $_GET['subsection'];	
-			}else{
-				$subsection = 'all';
-				$_GET['subsection'] = 'all';
-			}
-			
-
-			$method_template = $_GET['section'].'_'.$subsection.'_Template';
+			$method_template = $_GET['section'].'_Template';
 			// $method_template = $_GET['section'].'_Template';
 			echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
-
 			// скрываем левое меню за ненадобностью
 			echo '<style type="text/css" media="screen">#cabinet_left_coll_menu{display:none;}</style>';
 			// если в этом классе существует такой метод - выполняем его
@@ -159,6 +151,8 @@
 		//	Section - Заказы
 		//////////////////////////
 		private function orders_Template($id_row=0){
+
+			$this->get_filters();
 			$where = 0;
 			// скрываем левое меню
 			$html = '';
@@ -250,7 +244,7 @@
 
 				// запрашиваем информацию по позициям
 				$table_order_positions_rows = $this->table_order_positions_rows_Html();
-				
+				if($table_order_positions_rows == ''){ continue; }
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
 					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">
@@ -267,7 +261,8 @@
 										<!--// comments -->
 										<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	
 									</td>';
-					$table_order_row .= '<td><strong>'.$this->Order['date_of_delivery_of_the_order'].'</strong></td>';
+					// $table_order_row .= '<td><strong>'.$this->Order['date_of_delivery_of_the_order'].'</strong></td>';
+									$table_order_row .= '<td><strong></strong></td>';
 					$table_order_row .= '<td><span class="greyText">заказа: </span></td>';
 					$table_order_row .= '<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
 				$table_order_row .= '</tr>';
@@ -277,6 +272,38 @@
 
 			$html = $table_head_html.$table_order_row.'</table>';
 			echo $html;
+		}
+
+		private function get_filters(){
+			$this->filter_order = ' '; // status_global и status_buch
+			$this->filter_position = ' '; // status_sklad и status_snab
+			$this->filter_uslugi = ' ';// uslugi_id и performer_status и performer
+
+
+			if (isset($_GET['subsection'])) {
+				switch ($_GET['section'].'_'.$_GET['subsection']) {
+						case 'orders_waits_products': // взять в работу
+							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_snab` = \'waits_products\'';
+							break;
+						case 'orders_goods_in_stock': // на складе
+							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'goods_in_stock\'';
+							break;
+						case 'orders_sended_on_outsource': // у поставщика в пр-ве
+							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'sended_on_outsource\'';
+							break;
+						case 'orders_checked_and_packed': // у поставщика в пр-ве
+							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'checked_and_packed\'';
+							break;
+						case 'orders_goods_shipped_for_client': // у поставщика в пр-ве
+							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'goods_shipped_for_client\'';
+							break;
+
+
+						default:
+							# code...
+							break;
+					}	
+			}			
 		}
 
 		// возвращает html строки позиций
@@ -328,9 +355,9 @@
 						</td>';
 
 				// дата отгрузки
-				$html .= '<td>
-							<div>'.$this->Order['date_of_delivery_of_the_order'].'</div>
-						</td>';
+				$html .= '<td>';
+					// $html .= '<div>'.$this->Order['date_of_delivery_of_the_order'].'</div>';
+					$html .= '</td>';
 
 				// статус товара
 				$html .= '<td>

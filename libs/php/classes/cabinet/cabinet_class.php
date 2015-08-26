@@ -16,6 +16,11 @@
 			'9' => 'Дизайнер' 
 		);
 
+
+		protected $filter_order = ' '; // status_global и status_buch
+		protected $filter_position = ' '; // status_sklad и status_snab
+		protected $filter_uslugi = ' ';// uslugi_id и performer_status и performer
+
 		
 
 
@@ -52,7 +57,7 @@
 				// ЗАКАЗ
 				'in_operation'=>'Запуск в работу', // нельзя выбрать
 				'in_work'=>'В работе',
-				'ready_for_shipment'=>'Готов к отгрузке',
+				// 'ready_for_shipment'=>'Готов к отгрузке',
 				'shipped'=>'Отгружен',
 				'paused'=>'Заказ приостановлен',		
 				'cancelled'=>'Заказ аннулирован'
@@ -106,33 +111,33 @@
 			protected $status_film_photos = array(
 				// админ
 				1 => array(
-					'проверить наличие',
+					'проверить наличие', // диз не видит
 					'нужно делать',
 					'в наличии',
-					'не требуются',
-					'готовы к отпраке',
+					'не требуются', // диз не видит
+					'готовы к отправке',
 					'отправлены',
-					'получены'
+					'получены' // диз не видит
 					),
 				// снабжениец
 				// 8 => array(),
 				// менеджер
 				5 => array(
-					'проверить наличие',
+					'проверить наличие', // диз не видит
 					'в наличии',
 					'нужно делать',
-					'не требуются'
+					'не требуются' // диз не видит
 					),
 				// дизайн
 				9 => array(
-					'готовы к отпраке',
+					'готовы к отправке',
 					'отправлены на фотовывод'
 					),
 				// производство 
 				4 => array(
 					'перевывод',
-					'в наличии',
-					'получены'
+					'в наличии', // диз не видит
+					'получены' // // диз не видит
 					)
 			); 
 
@@ -410,7 +415,7 @@
 					$html .= '<td>';
 
 					foreach ($performer_status_arr as $key => $value) {
-						$html .= '<div class="otdel_status">';
+						$html .= '<div class="otdel_status" data-id="'.$value['id'].'">';
 							$html .= '<div class="service_name">'.$value['service_name'].'</div>';
 							$html .= '<div class="performer_status">'.$this->get_statuslist_uslugi_Dtabase_Html($value['id'],$value['performer_status'],$value['id_dop_uslugi_row'],$value['performer']).'</div>';
 						$html .= '</div>';
@@ -469,8 +474,8 @@
 						}
 						
 					}else{
-						// выводим кнопку запуска для всех кроме производства и дизайна (они ждут отмашки снабов или менеджера)
-						if($this->user_access!=4 && $this->user_access!=9){
+						// все услуги могут запускать только АДМИНЫ и СНАБЫ
+						if($this->user_access == 1 || $this->user_access== 8){
 							$html = '<input type="button" value="Запуск" class="start_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'">';	
 						}else{
 							$html = 'ожидает запуска';
@@ -746,10 +751,37 @@
 			// запуск услуг в работу
 			protected function start_services_in_processed_AJAX(){
 				global $mysqli;
-				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_status` =  'in_processed' ";
-				$query .= "WHERE  `id` ='".$_POST['id']."';";
-				$result = $mysqli->query($query) or die($mysqli->error);
-				echo '{"response":"OK","function":"window_reload"}'; 	
+
+				if($this->user_access == 1){
+					$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_status` =  'in_processed' ";
+					$query .= "WHERE  `id` ='".$_POST['id']."';";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					echo '{"response":"OK","function":"window_reload"}'; 	
+				}else{
+					// для не админов и всех кто так или иначе получил доступ к кнопке или для всех поголовно --- нужно обсудить с Серёгой
+					//!!!!!! доделать !!!!!
+				/*
+					1). сдалеть запрос в базу и узнать dop_data_id в данной услуге
+					2). опросить базу на услуги с куратором ДИЗ по данному dop_data_id
+					3). если НЕ Нашли - просто запускаем в работу
+						если НАШЛИ - выводим окно с перечислением услуг диза, их текущего статуса и предлагаем 
+						3 варианта:
+						1). Запустить и изменить статус услуг диза на "услуга выполнена"
+						2). Запустить и не менять статусы
+						3). Отменить запуск услуги в работу
+
+
+						или вообще не давать запустить если ты не админ.... ведь запуск без дизайна 
+						обычно не возможен.... хотя это ведь может быть распаковка и её нужно сделать заранее
+						что тогда???? выходит придётся дать такую превилегию снабженцам????
+
+				*/
+
+
+				}
+
+							
+				
 			}
 
 			// ТЗ для производства
@@ -850,12 +882,77 @@
 
 			// смена статуса услуги
 			protected function choose_service_status_AJAX(){
+				
 				global $mysqli;
+				//////////////////////////
+				//	смена статуса услуги
+				//////////////////////////
 				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_status` =  '".$_POST['value']."' ";
 				$query .= "WHERE  `id` ='".$_POST['id_row']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
+
+				
+
+				////////////////////////////////////////////////
+				//	следствие окончания всех услуг на позицию  START
+				////////////////////////////////////////////////
+					// каждый раз при смене статуса по услуге 
+					// (если этот статус меняется из под профиля пр-во )  !!!!!!!
+					// система должна проверить статусы по всем услугам прикрепленным 
+					// к текущей позиции и при условии, что все статусы будут иметь значение 
+					// "услуга выполнена" система выставляет статусы склада и снабжения 
+					// по данной позиции на готов к отгрузке
+
+					if($this->user_access == 4 && isset($_POST['value']) && $_POST['value'] == 'услуга выполнена'){
+						// проверяем все ли услуги выполнены
+						$query = "SELECT `performer_status`,`dop_row_id` FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` IN (SELECT `dop_row_id` FROM `".CAB_DOP_USLUGI."` WHERE  `id` ='".$_POST['id_row']."')";
+						echo $query;
+						$result = $mysqli->query($query) or die($mysqli->error);
+						$union_services_arr = array();
+
+						$UPDATE_FLAG = true;
+						$dop_row_id = 0;
+						if($result->num_rows > 0){
+							while($row = $result->fetch_assoc()){
+								if (trim($row['performer_status']) != 'услуга выполнена') {
+									$UPDATE_FLAG = false;									
+								}
+								$dop_row_id = $row['dop_row_id'];
+							}
+						}
+
+						// если $UPDATE_FLAG всё ещё true , т.е. все услуги готовы
+						if($UPDATE_FLAG == true && $dop_row_id!=0){
+							// делаем запрос по $dop_row_id и узнаем id строки из CAB_ORDER_MAIN
+							$query = "SELECT * FROM `".CAB_ORDER_DOP_DATA."` WHERE `id` = '".$dop_row_id."'";
+							$result = $mysqli->query($query) or die($mysqli->error);
+							$row_id = 0;
+							if($result->num_rows > 0){
+								while($row = $result->fetch_assoc()){
+									$row_id = $row['row_id'];
+								}
+							}
+
+							if($row_id != 0){
+								// обновляем статусы снабжения и склада
+								$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
+								`status_snab` =  'ready_for_shipment',
+								`status_sklad` =  'checked_and_packed' 
+								WHERE  `id` ='".$row_id."';";
+								$result = $mysqli->query($query) or die($mysqli->error);
+							}						
+						}
+					}
+				////////////////////////////////////////////////
+				//	следствие окончания всех услуг на позицию  END
+				////////////////////////////////////////////////
+
 				// echo '{"response":"OK", "function":"php_message","text":"Статус услуги успешно изменён на ` '.$_POST['value'].' `"}';
+				
+
 				echo '{"response":"OK"}';
+				
+					
 			}
 
 			// смена глобального статуса ЗАКАЗА
@@ -1303,20 +1400,18 @@
 				}
 
 				// получаем инфу и настройки по данной услуге
-				$query = "SELECT * FROM ".OUR_USLUGI_LIST." WHERE `id` = '".$id."'";
-				// echo $query;
-				$result = $mysqli->query($query) or die($mysqli->error);
-				$this->iputs_id_Str = '0';
-				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						$this->iputs_id_Str = $row['uslugi_dop_inputs_id'];
-						$this->Service_logotip_on = $row['logotip_on'];
-						$this->Service_show_status_film_photos = $row['show_status_film_photos'];						
-						$this->maket_true_for_Service = $row['maket_true'];
-						// echo $row['logotip_on'];
-					}
+				if(!isset($this->All_Services_arr)){
+					$this->All_Services_arr = $this->get_all_services_names_Database();
 				}
-				// echo 5564645;
+
+
+				$this->iputs_id_Str = isset($this->All_Services_arr[$id]['uslugi_dop_inputs_id'])?$this->All_Services_arr[$id]['uslugi_dop_inputs_id']:'';
+				$this->Service_logotip_on = isset($this->All_Services_arr[$id]['logotip_on'])?$this->All_Services_arr[$id]['logotip_on']:'';
+				$this->Service_show_status_film_photos = isset($this->All_Services_arr[$id]['show_status_film_photos'])?$this->All_Services_arr[$id]['show_status_film_photos']:'';						
+				$this->maket_true_for_Service = isset($this->All_Services_arr[$id]['maket_true'])?$this->All_Services_arr[$id]['maket_true']:'';
+						// echo $row['logotip_on'];
+
+
 
 
 				//////////////////////////
@@ -2034,10 +2129,7 @@
 		protected function get_all_services_names_Database(){
 			global $mysqli;
 			$arr = array();
-			$query = "SELECT `id`, 
-			`parent_id`, 
-			`name`, 
-			`type`
+			$query = "SELECT *
 			 FROM `".OUR_USLUGI_LIST."`;";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){
@@ -2049,25 +2141,21 @@
 		}
 
 		// отработка кнопок фильтров горизонтального меню
-		protected function get_filter_list($where){
-			if (isset($_GET['filters'])) {
+		protected function get_filter_list_Order($where){
+			if (isset($_GET['subsection'])) {
 				switch ($this->user_access) {
 					case '1': // админы
-						foreach ($_GET['filters'] as $key => $value) {
-							# code...
-						}
 						break;
 
 					case '2': // бух
-						# code...
 						break;
 
 					case '4': // пр-во
-						# code...
+						// фильтрация по заказу отсутствует
 						break;
 
 					case '5': // мен
-						# code...
+						
 						break;
 
 					case '6': // доставка
@@ -2447,17 +2535,10 @@
 			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
 			//echo $query.'<br>';
 
-			$where = 1;
-			if($filters != 0){
-				//////////////////////////
-				//	filtres sklad
-				//////////////////////////
-				if(isset($_GET['sklad'])){
-					
-				}
+			$query .= $this->filter_position; 
 
 
-			}
+			// echo  '654654'.$this->filter_position.'<br>';
 
 
 
