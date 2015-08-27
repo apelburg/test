@@ -134,7 +134,7 @@
 		    $print_details = (!is_object($print_details))? json_decode($print_details):$print_details;
 			// echo '<pre>'; print_r($print_details); echo '</pre>';//
 			$out_put = array();
-			$out_put['tip_pechati'] = base64_encode($print_details->print_type);
+			//$out_put['tip_pechati'] = base64_encode($print_details->print_type); // тип печати не нужен
 			$out_put['mesto_pechati'] = base64_encode($print_details->place_type);
 			
 			
