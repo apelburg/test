@@ -154,7 +154,9 @@
                             $arr[] = $row['value'];
 						}
 						
-						$out_put['kolvo_cvetov'] =  base64_encode(implode(', ',$arr));
+						// $out_put['kolvo_cvetov'] =  base64_encode(implode(', ',$arr));
+						$out_put['cveta'] =  base64_encode(implode(', ',$arr));
+						
 						unset($arr); 
 					}
 					unset($idsArr); 
