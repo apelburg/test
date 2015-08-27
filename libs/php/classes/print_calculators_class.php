@@ -2,7 +2,7 @@
     class printCalculator{
 	    function __consturct(){
 		}
-		static function convert_print($print_details){
+		static function convert_print_details($print_details){
 		
 		    global $mysqli;
 			
