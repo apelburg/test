@@ -896,12 +896,12 @@
 			// выяисляем свёрнут или развёрнут заказ для данного пользователя
 			protected function get_open_close_for_this_user($open_close){
 				$open_close_arr = ($open_close!="")?json_decode($open_close):array();
-
-				if(isset($open_close_arr[$this->user_id])){
-					return true;
-				}else{
-					return false;
-				}
+				return true;
+				// if(isset($open_close_arr[$this->user_id])){
+				// 	return true;
+				// }else{
+				// 	return false;
+				// }
 			}
 
 			// раскрыть скрыть заказ
@@ -1559,7 +1559,7 @@
 			// ролучаем dop_inputs
 			protected function get_dop_inputs_for_services($id, $dop_usluga_id){
 				global $mysqli;
-				
+				include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 				// запрашиваем информацию по ТЗ и , если нужно
 				if(!isset($this->Service)){ // если нам ничего не известно по строке из CAB_DOP_USLUGI
 					$query = "SELECT * FROM ".CAB_DOP_USLUGI." WHERE `id` = '".$dop_usluga_id."'";
