@@ -702,6 +702,10 @@
 		}
 		// создание заказа из запроса
         static function make_order($rows_data,$client_id,$query_num,$specification_num,$agreement_id){
+            // подключаем класс для информации из калькулятора
+        	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+
+
             global $mysqli;
 
 
@@ -728,7 +732,7 @@
                 $query = "SELECT MAX(order_num) max FROM `".CAB_ORDER_ROWS."`";                                 
                 $result = $mysqli->query($query) or die($mysqli->error);
                 $order_num_data = $result->fetch_assoc();
-                $order_num = ($order_num_data['max']==0)? 00000:$order_num_data['max']+1;
+                $order_num = ($order_num_data['max']==0)? 00001:$order_num_data['max']+1;
                 //echo $query_num;
 
                 // КОПИРУЕМ СТРОКУ ЗАКАЗА из таблицы запросов
@@ -743,7 +747,7 @@
                 $order_id = $mysqli->insert_id; 
                 // пишем номер заказа в созданную строку
                 $query = "UPDATE  `".CAB_ORDER_ROWS."` 
-                            SET  `order_num` =  '".$order_num."' 
+                            SET  `order_num` =  '".(int)$order_num."' 
                             WHERE  `id` ='".$order_id."';";
                 // выполняем запрос
                 $result = $mysqli->query($query) or die($mysqli->error);
@@ -853,6 +857,7 @@
 						`price_in` = '".$row['price_in']."',
 						`price_out` = '".$row['price_out']."',
 						`for_how` = '".$row['for_how']."',
+						`print_details_dop` = '".printCalculator::convert_print_details_to_dop_tech_info($row['print_details'])."',
 						`tz` = '".$row['tz']."',				
 						`performer` = '".$row['performer']."',
 						`print_details` = '".$row['print_details']."';";

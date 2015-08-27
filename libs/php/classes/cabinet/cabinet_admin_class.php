@@ -462,11 +462,11 @@
 			$query .= ' ORDER BY `id` DESC';
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$Order = array();
+			$this->Order_arr = array();
 			
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$Order[] = $row;
+					$this->Order_arr[] = $row;
 				}
 			}
 
@@ -474,13 +474,14 @@
 			
 			// собираем html строк-предзаказов
 			$html1 = '';
-			if(count($Order)==0){return 1;}
+			if(count($this->Order_arr)==0){return 1;}
 
-			foreach ($Order as $predzakaz) {
+			foreach ($this->Order_arr as $predzakaz) {
 				//if(!isset($predzakaz2)){continue;} // !!!!!!!!!!!!!!!!!
 				$order_num_1 = Cabinet::show_order_num($predzakaz['order_num']);
 				$invoice_num = $predzakaz['invoice_num'];
 
+				$this->Order_open = $this->get_open_close_for_this_user($predzakaz['open_close']);
 
 				$query = "
 				SELECT 
@@ -515,9 +516,9 @@
 				###############################
 				// строка с артикулами START
 				###############################
-				$html = '<tr class="query_detail">';
+				$html = '<tr class="query_detail" '.(($this->Order_open==true)?'style="display: table-row;"':'').'>';
 				//$html .= '<td class="show_hide"><span class="this->cabinett_row_hide"></span></td>';
-				$html .= '<td colspan="11" class="each_art">';
+				$html .= '<td colspan="11" class="each_art" >';
 				
 				
 				// ВЫВОД позиций
@@ -592,7 +593,7 @@
 				$html2 = '<tr data-id="'.$predzakaz['id'].'" >';
 				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
 				//'.$this->get_manager_name_Database_Html($predzakaz['manager_id']).'
-				$html2_body = '<td class="show_hide" data-rowspan="'.$rowspan.'"><span class="cabinett_row_hide show"></span></td>
+				$html2_body = '<td class="show_hide" '.(($this->Order_open)?'rowspan':'data-rowspan').'="'.$rowspan.'"><span class="cabinett_row_hide '.(($this->Order_open)?'':'show').'"></span></td>
 							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$predzakaz['id'].'&client_id='.$predzakaz['client_id'].'">'.$order_num_1.'</a></td>
 							<td>'.$predzakaz['create_time'].'<br>'.$this->get_manager_name_Database_Html($predzakaz['manager_id'],1).'</td>
 							<td>'.$this->get_client_name_Database($predzakaz['client_id'],1).'</td>
@@ -737,6 +738,7 @@
 				// цена заказа
 				$this->price_order = 0;
 
+				$this->Order_open = $this->get_open_close_for_this_user($this->Order['open_close']);
 				// запоминаем обрабатываемые номера заказа и запроса
 				// номер запроса
 				$this->query_num = $this->Order['query_num'];
@@ -756,7 +758,7 @@
 				//////////////////////////
 				//	тело строки заказа -- start ---
 				//////////////////////////
-					$table_order_row2_body = '<td class="show_hide" data-rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders show"></span></td>';
+					$table_order_row2_body = '<td class="show_hide" '.(($this->Order_open)?'data-rowspan':'rowspan').'="'.$this->position_item.'"><span class="cabinett_row_hide_orders show"></span></td>';
 					$table_order_row2_body .= '<td colspan="4" class="orders_info">';
 						$table_order_row2_body .= '<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>';
 							// добавляем ссылку на клиента
