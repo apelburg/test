@@ -155,11 +155,7 @@
 						}
 						
 						// $out_put['kolvo_cvetov'] =  base64_encode(implode(', ',$arr));
-<<<<<<< HEAD
 						$out_put['Pantone'] =  base64_encode(implode(', ',$arr));
-=======
-						$out_put['cveta'] =  base64_encode(implode(', ',$arr));
->>>>>>> 31702e33450be2c772bbc4d475db40dcd9de8fc8
 						
 						unset($arr); 
 					}
