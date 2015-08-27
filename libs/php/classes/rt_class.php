@@ -32,12 +32,18 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
-		static function change_svetofor($idsArr,$val){
+		static function change_svetofor($idsArr,$val,$idsArr2){
 		    global $mysqli;   //print_r($data); 
-	   
+	        
 			$query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = '".$val."'  WHERE `id` IN('".implode("','",$idsArr)."')";
 			//echo $query;
-			$result = $mysqli->query($query)or die($mysqli->error);
+			$mysqli->query($query)or die($mysqli->error);
+			
+			if($val=='sgreen'){
+			    $query="UPDATE `".RT_DOP_DATA."` SET  `row_status` = 'red'  WHERE `row_status` <> 'grey' AND `id` IN('".implode("','",$idsArr2)."')";
+			    //echo $query;
+			    $mysqli->query($query)or die($mysqli->error);			
+			}
 		}
 		static function svetofor_display_relay($status,$ids){
 		    global $mysqli; 
@@ -534,6 +540,7 @@
 			// содержимое корзины
 			$basket_arr = $_SESSION['basket'];
 			// print_r($basket_arr);
+			// exit;
 			
 			
 			
@@ -579,6 +586,11 @@
 												`row_id` = '$row_id',
 												`quantity` = '".$data['quantity']."',
 												`price_out` = '".$data['price']."'"; 
+				if(!empty($data['size_id']) && $data['size_id']!='undefined'){
+				    $tirage_json[$data['size_id']] = array("dop"=>"0","tir"=>$data['quantity']);
+				    $query .= ",`tirage_json` = '".json_encode($tirage_json)."'";	
+					unset($tirage_json);
+				}							
 												
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$dop_row_id = $mysqli->insert_id;

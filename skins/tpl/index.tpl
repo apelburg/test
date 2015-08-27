@@ -107,6 +107,6 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
     echo $content; 
     ?>
 </div>
-<!--<div style="position:absolute;right:0px;bottom:0px;"><a href="#" onclick="alert(error_report);return false;">ошибки</a></div>-->
+<div style="position:absolute;right:0px;bottom:0px;"><a href="#" onclick="alert(error_report);return false;">ошибки</a></div><!---->
 </body>
 </html>

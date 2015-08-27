@@ -33,8 +33,13 @@
 			// последний ряд пропускаем чтобы он выставился автоматически так как он упирается в полосу прокрутки
 			if(i==(top_head_tds.length-1)) continue;
 			
-			//if(i==3 || i==10 || i==15) var correstion = 2;
+			//
+			//var correstion =(top_head_tds[i].className.indexOf('r_border')>-1)? 2:1;
+	
 			top_body_tds[i].style.width = (top_head_tds[i].offsetWidth -correstion) + "px";
+			// корректируем ширину колонки на -10 потому что колонка имееет padding -10, из-за этого ширина клонки считается на 10 больше
+			// в результате колонка в таблице получает ширину на 10 плюс свой padding и становится шире на 10
+			if(top_head_tds[i].hasAttribute('type') && top_head_tds[i].getAttribute('type')=='quantity') top_body_tds[i].style.width =(top_head_tds[i].offsetWidth -correstion) - 10 + "px";
 			//top_body_tds[i].style.border =  "#FF0000 solid 1px";top_head_tds[i].style.border =  "#FF0000 solid 1px";
 		
 		}

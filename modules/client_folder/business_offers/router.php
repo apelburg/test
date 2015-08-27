@@ -128,7 +128,7 @@
 		 $create_list = FALSE;
 	}
 	if(isset($_GET['show_old_kp'])){
-		 $rows = Com_pred::create_list($client_id,array('type'=>'old','kp'=>$_GET['show_old_kp']));
+		 $rows = Com_pred::create_list('',$client_id,array('type'=>'old','kp'=>$_GET['show_old_kp']));
 		 $create_list = FALSE;
 		 $in_blank_view = Com_pred::open_old_kp($_GET['show_old_kp']);
 		 

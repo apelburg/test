@@ -136,6 +136,7 @@
   line-height:12px;
   text-decoration:none;
 }
+.rt_tbl_head .quantity{ padding-right:10px;}
 .rt_tbl_body .r_border, .rt_tbl_head .r_border{
  border-right:#d9dada solid 1px;
 }
@@ -192,7 +193,7 @@ table-layout:fixed;
  top:10px;
  left:6px;
  background-color: #EEE;
- width:80px;
+ width:108px;
  height:30px;
  display:block;
 }
@@ -261,6 +262,7 @@ height:200px;
 .rt_tbl_body .calc_btn{   text-align:center;}
 .rt_tbl_body .calc_btn > *{  border:#92b73e solid 1px; color:#000; padding:1px 4px 1px 4px; font-size:11px;cursor:pointer;}
 .rt_tbl_body .calc_btn_no_active > *{  border:#92b73e solid 1px; color:#000; padding:1px 4px 1px 4px; font-size:11px;}
+.rt_tbl_body .quantity{ padding-right:10px;}
 .rt_tbl_body .quantity_dim{ font-size:11px; line-height:14px;}
 
 .rt_tbl_body .right, .rt_tbl_head .right{ text-align:right;}
