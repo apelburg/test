@@ -253,7 +253,7 @@
 
 	private function del_uslugu_Database(){
 		global $mysqli;
-		$query = "DELETE FROM `".OUR_USLUGI_LIST."` WHERE `id`='".$_POST['id']."'";
+		$query = "UPDATE `".OUR_USLUGI_LIST."` SET `deleted` = '1' WHERE `id`='".$_POST['id']."'";
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 		$return_json = '{"response":"OK"}'; 
 		return $return_json; 
@@ -362,7 +362,7 @@
 		global $mysqli;
 		$html = '';
 		
-		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."' AND `deleted` = '0'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
@@ -586,7 +586,9 @@
 				
 				// $is_checked = ($real_val==$row['name'])?'selected="selected"':'';
 				// $html.= '<option value="'.$row['name'].'" '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
-				$html.= '<div><input class="status_name" type="text" value="'.$row['name'].'"> <span class="button status_del"  data-id="'.$row['id'].'">X</span></div>';
+				$html.= '<div>';
+				$html.= (($row['reserved_system']=='0')?'<input class="status_name" type="text" value="'.$row['name'].'"><span class="button status_del"  data-id="'.$row['id'].'">X</span>':$row['name']. '<span style="    color: rgba(255, 0, 0, 0.77); font-size:12px">&nbsp; статус зарезервирован системой </span>');
+				$html.= '</div>';
 			}
 		
 		}

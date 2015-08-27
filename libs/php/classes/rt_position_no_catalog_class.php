@@ -1241,7 +1241,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		global $mysqli;
 		$html = '';
 		
-		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."' AND `deleted` = '0'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			$html .= '<ul>';

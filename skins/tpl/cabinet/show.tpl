@@ -17,13 +17,13 @@
 		<div class="cell" id="cabinet_left_coll_menu">
 			<div id="cabinet_top_menu1"></div>
 			<ul id="cabinet_left_menu">
-				<?php echo $menu_left; ?>
+				<?php echo $CABINET->menu_left_Html; ?>
 			</ul>
 		</div>
 		<div class="cell" id="cabinet_central_panel">
 			<div id="cabinet_top_menu">
 				<ul id="central_menu">
-					<?php echo $menu_central; ?>
+					<?php echo $CABINET->menu_top_center_Html; ?>
 				</ul>
 			</div>
 			<div id="cabinet_general_content">

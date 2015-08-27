@@ -206,7 +206,15 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'all' => array('access'=>true)
+													'all' => array('access'=>true),
+													'get_in_work' => array('access'=>true),
+													'stencil_shelk_and_transfer' => array('access'=>true),
+													'shelk' => array('access'=>true),
+													'transfer' => array('access'=>true),
+													'tampoo' => array('access'=>true),
+													'tisnenie' => array('access'=>true),
+													'dop_uslugi' => array('access'=>true),
+													'plenki_and_klishe' => array('access'=>true)
 													)
 												)
 											)
@@ -319,7 +327,7 @@
 													'waits_products' => array('access' => true),
 													'goods_in_stock' => array('access' => true),
 													'sended_on_outsource' => array('access' => true),
-													'pclosing_documents' => array('access' => true),
+													'checked_and_packed' => array('access' => true),
 													'goods_shipped_for_client' => array('access' => true),
 													)
 												)
@@ -395,7 +403,6 @@
 											
 										)
 				       );
-	
 	// ДИЗАЙН
 	$ACCESS_SHABLON[9] = array(
 						'cabinet'=> array(
