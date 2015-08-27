@@ -2707,6 +2707,22 @@
 
 		}
 
+		// получаем список пользователей по номеру подразделения
+		protected function get_production_userlist_Database(){
+			if(empty($this->userlist)){
+				global $mysqli;
+				$query = "SELECT * FROM `".MANAGERS_TBL."` WHERE  `access` = '".$this->group_access."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+
+				$this->userlist = array();
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->userlist[$row['id']] = $row;
+					}
+				}
+			}
+			return $this->userlist;
+		}
 
 		// правим срок по дс
 		protected function change_deadline_value_AJAX(){

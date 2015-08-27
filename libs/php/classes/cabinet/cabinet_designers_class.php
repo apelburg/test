@@ -3,13 +3,13 @@
 	class Cabinet_designer_class extends Cabinet{
 
 		// id начальника отдела дизайна
-		private $director_of_operations_ID = 77; 
+		protected $director_of_operations_ID = 77; 
 
 		// допуски группы пользователей
-		private $group_access = 9;
+		protected $group_access = 9;
 
 		// полльхзователи (работники) производства
-		private $userlist;
+		protected $userlist;
 		
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
@@ -616,22 +616,7 @@
 			}			
 		}
 
-		// получаем список пользователей производство
-		private function get_production_userlist_Database(){
-			if(empty($this->userlist)){
-				global $mysqli;
-				$query = "SELECT * FROM `".MANAGERS_TBL."` WHERE  `access` = '".$this->group_access."'";
-				$result = $mysqli->query($query) or die($mysqli->error);
-
-				$this->userlist = array();
-				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						$this->userlist[$row['id']] = $row;
-					}
-				}
-			}
-			return $this->userlist;
-		}
+		
 
 
 		#############################################################

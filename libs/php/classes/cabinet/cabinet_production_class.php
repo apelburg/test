@@ -6,10 +6,10 @@
 		protected $director_of_operations_ID = 42;
 
 		// допуски группы пользователей
-		private $group_access = 4;
+		protected $group_access = 4;
 
 		// полльхзователи (работники) производства
-		private $userlist;
+		protected $userlist;
 		
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
@@ -182,6 +182,24 @@
 				// цена заказа
 				$this->price_order = 0;
 
+				//////////////////////////
+				//	open_close   -- start
+				//////////////////////////
+					// получаем флаг открыт/закрыто
+					$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
+					
+					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
+					// class для кнопки показать / скрыть
+					#$this->open_close_class = "";
+					// rowspan / data-rowspan
+					#$this->open_close_rowspan = "rowspan";
+					// стили для строк которые скрываем или показываем
+					#$this->open_close_tr_style = ' style="display: table-row;"';
+
+				//////////////////////////
+				//	open_close   -- end
+				//////////////////////////
+
 				// запоминаем обрабатываемые номера заказа и запроса
 				// номер запроса
 				$this->query_num = $this->Order['query_num'];
@@ -199,8 +217,8 @@
 				
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
-					$table_order_row .= '<td class="show_hide" data-rowspan="'.$this->position_item.'">
-											<span class="cabinett_row_hide_orders show"></span>
+					$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
+											<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
 										</td>';
 					$table_order_row .= '<td colspan="10" class="orders_info">
 										<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
@@ -247,7 +265,7 @@
 				// если услуг для производства в данной позиции нет - переходм к следующей
 				if($this->services_num == 0){continue;}
 
-				$html_row_1 = '<tr class="position_for_production position_general_row row__'.$this->position_item.'" data-id="'.$position['id'].'">';
+				$html_row_1 = '<tr class="position_for_production position_general_row row__'.$this->position_item.'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>';
 				
 					// // порядковый номер позиции в заказе
 					$html_row_1 .= '<td rowspan="'.$this->services_num.'"><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
@@ -323,7 +341,7 @@
 				$this->Service_name = (isset($this->Services_list_arr[ $service['uslugi_id'] ]['name'])?$this->Services_list_arr[ $service['uslugi_id'] ]['name']:'данная услуга в базе не найдена');
 
 				$html = '';
-				$html .= ($n>0)?'<tr class="position_for_production row__'.($key+2).'" data-id="'.$position['id'].'">':'';
+				$html .= ($n>0)?'<tr class="position_for_production row__'.($key+2).'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>':'';
 					// место
 					$html .= '<td class="show_backlight">';
 						$html .= ($key+1);
@@ -461,27 +479,7 @@
 					};
 					break;
 			}			
-		}
-
-		// получаем список пользователей производство
-		private function get_production_userlist_Database(){
-			if(empty($this->userlist)){
-				global $mysqli;
-				$query = "SELECT * FROM `".MANAGERS_TBL."` WHERE  `access` = '".$this->group_access."'";
-				$result = $mysqli->query($query) or die($mysqli->error);
-
-				$this->userlist = array();
-				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						$this->userlist[$row['id']] = $row;
-					}
-				}
-			}
-			return $this->userlist;
-		}
-
-
-		
+		}		
 
 
 		//////////////////////////
@@ -497,16 +495,7 @@
 		//////////////////////////
 		private function closed_Template(){
 			echo 'Раздел в разработке =)';
-		}	
-
-
-		//////////////////////////
-		//	Section - Образцы
-		//////////////////////////
-		private function simples_Template(){
-			echo 'Раздел в разработке =)';
-		}	
-
+		}
 
 		#############################################################
 		##      методы для работы с поддиректориями subsection     ##
