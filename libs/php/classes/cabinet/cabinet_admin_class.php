@@ -189,20 +189,38 @@
 			$query .= ' ORDER BY `id` DESC'; 
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$zapros_arr = array();
+			$this->zapros_arr = array();
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$zapros_arr[] = $row;
+					$this->zapros_arr[] = $row;
 				}
 			}
 
 			$general_tbl_row = '';
 			// собираем html строк-запросов 
 			$html = '';
-			foreach ($zapros_arr as $zapros) {
+			foreach ($this->zapros_arr as $zapros) {
 				// получаем позиции по запросу
 				$positions_arr = $this->get_position_arr_Database($zapros['query_num']);
 				
+				//////////////////////////
+				//	open_close   -- start
+				//////////////////////////
+					// получаем флаг открыт/закрыто
+					$this->open__close = $this->get_open_close_for_this_user($zapros['open_close']);
+					
+					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
+					// class для кнопки показать / скрыть
+					#$this->open_close_class = "";
+					// rowspan / data-rowspan
+					#$this->open_close_rowspan = "rowspan";
+					// стили для строк которые скрываем или показываем
+					#$this->open_close_tr_style = ' style="display: table-row;"';
+
+				//////////////////////////
+				//	open_close   -- end
+				//////////////////////////
+
 				/*
 					в эту переменную запишется 0 если при переборе вариантов 
 					не встретится ни одного некаталожного товара
@@ -289,7 +307,7 @@
 				// если в массиве $_POST содержится значение, значит мы запрашиваем только одну строку и подставляем значение из массива
 				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
 				// собираем строку запроса
-				$general_tbl_row_body ='<td class="show_hide" rowspan="1" data-rowspan="'.$rowspan.'"><span class="cabinett_row_hide show"></span></td>
+				$general_tbl_row_body ='<td class="show_hide" '.$this->open_close_rowspan.'="'.$rowspan.'"><span class="cabinett_row_hide'.$this->open_close_class.'"></span></td>
 							<td><a href="./?page=client_folder&client_id='.$zapros['client_id'].'&query_num='.$zapros['query_num'].'">'.$zapros['query_num'].'</a> </td>
 							<td><span data-sec="'.$zapros['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$zapros['time_attach_manager'].'</span>'.$this->get_manager_name_Database_Html($zapros['manager_id']).'</td>
 							<td>'.$zapros['create_time'].'</td>
@@ -305,7 +323,7 @@
 									'.$general_tbl_row_body.'
 									</tr>';
 				
-				$general_tbl_row .= '<tr class="query_detail">';
+				$general_tbl_row .= '<tr class="query_detail" '.$this->open_close_tr_style.'>';
 					//$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
 					$general_tbl_row .= '<td colspan="7" class="each_art">';
 
@@ -480,8 +498,23 @@
 				//if(!isset($predzakaz2)){continue;} // !!!!!!!!!!!!!!!!!
 				$order_num_1 = Cabinet::show_order_num($predzakaz['order_num']);
 				$invoice_num = $predzakaz['invoice_num'];
+				//////////////////////////
+				//	open_close   -- start
+				//////////////////////////
+					// получаем флаг открыт/закрыто
+					$this->open__close = $this->get_open_close_for_this_user($predzakaz['open_close']);
+					
+					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
+					// class для кнопки показать / скрыть
+					#$this->open_close_class = "";
+					// rowspan / data-rowspan
+					#$this->open_close_rowspan = "rowspan";
+					// стили для строк которые скрываем или показываем
+					#$this->open_close_tr_style = ' style="display: table-row;"';
 
-				$this->Order_open = $this->get_open_close_for_this_user($predzakaz['open_close']);
+				//////////////////////////
+				//	open_close   -- end
+				//////////////////////////
 
 				$query = "
 				SELECT 
@@ -516,7 +549,7 @@
 				###############################
 				// строка с артикулами START
 				###############################
-				$html = '<tr class="query_detail" '.(($this->Order_open==true)?'style="display: table-row;"':'').'>';
+				$html = '<tr class="query_detail" '.$this->open_close_tr_style.'>';
 				//$html .= '<td class="show_hide"><span class="this->cabinett_row_hide"></span></td>';
 				$html .= '<td colspan="11" class="each_art" >';
 				
@@ -593,7 +626,7 @@
 				$html2 = '<tr data-id="'.$predzakaz['id'].'" >';
 				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
 				//'.$this->get_manager_name_Database_Html($predzakaz['manager_id']).'
-				$html2_body = '<td class="show_hide" '.(($this->Order_open)?'rowspan':'data-rowspan').'="'.$rowspan.'"><span class="cabinett_row_hide '.(($this->Order_open)?'':'show').'"></span></td>
+				$html2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$rowspan.'"><span class="cabinett_row_hide'.$this->open_close_class.'"></span></td>
 							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$order_num_1.'&order_id='.$predzakaz['id'].'&client_id='.$predzakaz['client_id'].'">'.$order_num_1.'</a></td>
 							<td>'.$predzakaz['create_time'].'<br>'.$this->get_manager_name_Database_Html($predzakaz['manager_id'],1).'</td>
 							<td>'.$this->get_client_name_Database($predzakaz['client_id'],1).'</td>
@@ -738,7 +771,24 @@
 				// цена заказа
 				$this->price_order = 0;
 
-				$this->Order_open = $this->get_open_close_for_this_user($this->Order['open_close']);
+				//////////////////////////
+				//	open_close   -- start
+				//////////////////////////
+					// получаем флаг открыт/закрыто
+					$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
+					
+					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
+					// class для кнопки показать / скрыть
+					#$this->open_close_class = "";
+					// rowspan / data-rowspan
+					#$this->open_close_rowspan = "rowspan";
+					// стили для строк которые скрываем или показываем
+					#$this->open_close_tr_style = ' style="display: table-row;"';
+
+				//////////////////////////
+				//	open_close   -- end
+				//////////////////////////
+
 				// запоминаем обрабатываемые номера заказа и запроса
 				// номер запроса
 				$this->query_num = $this->Order['query_num'];
@@ -758,7 +808,7 @@
 				//////////////////////////
 				//	тело строки заказа -- start ---
 				//////////////////////////
-					$table_order_row2_body = '<td class="show_hide" '.(($this->Order_open)?'data-rowspan':'rowspan').'="'.$this->position_item.'"><span class="cabinett_row_hide_orders show"></span></td>';
+					$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
 					$table_order_row2_body .= '<td colspan="4" class="orders_info">';
 						$table_order_row2_body .= '<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>';
 							// добавляем ссылку на клиента
@@ -855,7 +905,7 @@
 				//	Расчёт стоимости позиций END
 				////////////////////////////////////			
 				
-				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$position['id'].'">';
+				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>';
 				// порядковый номер позиции в заказе
 				$html .= '<td><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
 				// описание позиции
@@ -931,15 +981,13 @@
 			return $html;
 		}		
 
-
 		
-		
-		//////////////////////////
-		//	Section - На отгрузку
-		//////////////////////////
-		protected function for_shipping_Template(){
-			echo 'Раздел в разработке =)';
-		}	
+		// //////////////////////////
+		// //	Section - На отгрузку
+		// //////////////////////////
+		// protected function for_shipping_Template(){
+		// 	echo 'Раздел в разработке =)';
+		// }	
 
 
 		//////////////////////////
@@ -1027,6 +1075,24 @@
 				// цена заказа
 				$this->price_order = 0;
 
+				//////////////////////////
+				//	open_close   -- start
+				//////////////////////////
+					// получаем флаг открыт/закрыто
+					$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
+					
+					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
+					// class для кнопки показать / скрыть
+					#$this->open_close_class = "";
+					// rowspan / data-rowspan
+					#$this->open_close_rowspan = "rowspan";
+					// стили для строк которые скрываем или показываем
+					#$this->open_close_tr_style = ' style="display: table-row;"';
+
+				//////////////////////////
+				//	open_close   -- end
+				//////////////////////////
+
 				// запоминаем обрабатываемые номера заказа и запроса
 				// номер запроса
 				$this->query_num = $this->Order['query_num'];
@@ -1045,7 +1111,7 @@
 				//////////////////////////
 				//	тело строки заказа -- start ---
 				//////////////////////////
-					$table_order_row2_body = '<td class="show_hide" data-rowspan="'.$this->position_item.'"><span class="cabinett_row_hide_orders show"></span></td>';
+					$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
 					$table_order_row2_body .= '<td colspan="4" class="orders_info">';
 						$table_order_row2_body .= '<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>';
 							// добавляем ссылку на клиента

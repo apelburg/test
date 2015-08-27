@@ -98,21 +98,21 @@
 		############################################
 		###		        AJAX START               ###
 		############################################
-		protected function get_in_work_AJAX(){
-			global $mysqli;
-			// прикрепить клиента и менеджера к запросу	
-			$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
-			$result = $mysqli->query($query) or die($mysqli->error);	
-			echo '{"response":"OK"}';
-		}
+			protected function get_in_work_AJAX(){
+				global $mysqli;
+				// прикрепить клиента и менеджера к запросу	
+				$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+				$result = $mysqli->query($query) or die($mysqli->error);	
+				echo '{"response":"OK"}';
+			}
 
-		protected function take_in_operation_AJAX(){
-			global $mysqli;
-			// прикрепить клиента и менеджера к запросу	
-			$query ="UPDATE  `".RT_LIST."` SET `status`='taken_into_operation',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
-			$result = $mysqli->query($query) or die($mysqli->error);	
-			echo '{"response":"OK"}';
-		}		
+			protected function take_in_operation_AJAX(){
+				global $mysqli;
+				// прикрепить клиента и менеджера к запросу	
+				$query ="UPDATE  `".RT_LIST."` SET `status`='taken_into_operation',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+				$result = $mysqli->query($query) or die($mysqli->error);	
+				echo '{"response":"OK"}';
+			}		
 
 		############################################
 		###		         AJAX END                ###

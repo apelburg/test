@@ -31,8 +31,6 @@
 		protected $filter_position = ' '; // status_sklad и status_snab
 		protected $filter_uslugi = ' ';// uslugi_id и performer_status и performer
 
-		
-
 
     	////////////////////////////////////////////////////////////////////////////////////
     	// -- START -- СТАТУСЫ ПОДРАЗДЕЛЕНИЙ ПО ПОЗИЦИЯМ, ЗАКАЗУ И ПРЕДЗАКАЗУ -- START -- //
@@ -895,17 +893,30 @@
 
 			// выяисляем свёрнут или развёрнут заказ для данного пользователя
 			protected function get_open_close_for_this_user($open_close){
-				$open_close_arr = ($open_close!="")?json_decode($open_close):array();
-				return true;
-				// if(isset($open_close_arr[$this->user_id])){
-				// 	return true;
-				// }else{
-				// 	return false;
-				// }
+				$open_close_arr = ($open_close!="")?json_decode($open_close,true):array();
+				//return true;
+				if(isset($open_close_arr[$this->user_id])){
+					// class для кнопки показать / скрыть
+					$this->open_close_class = "";
+					// rowspan / data-rowspan
+					$this->open_close_rowspan = "rowspan";
+					// стили для строк которые скрываем или показываем
+					$this->open_close_tr_style = ' style="display: table-row;"';
+					return true;
+				}else{
+					// class для кнопки показать / скрыть
+					$this->open_close_class = " show";
+					// rowspan / data-rowspan
+					$this->open_close_rowspan = "data-rowspan";
+					// стили для строк которые скрываем или показываем
+					$this->open_close_tr_style = '"';
+					return false;
+				}
 			}
 
 			// раскрыть скрыть заказ
 			protected function open_close_order_AJAX(){
+
 				/*
 					т.к. один и тот же заказ может просматривать очень много пользователей одновременно 
 					хранить информацию о том закрыт данный заказ или открыть у данного пользователя будем в Json
@@ -916,10 +927,13 @@
 						- если запись есть - заказ развёрнут
 
 				*/
+				$tbl = (isset($_GET['section']) && $_GET['section'] == 'requests')?RT_LIST:CAB_ORDER_ROWS;
+
+
 				// делаем запрос на хранящуюся у нас в базе информацию по данной строке заказа
 				global $mysqli;
 				$open_close = "";
-				$query = "SELECT `id`, `open_close` FROM `".CAB_ORDER_ROWS."`";
+				$query = "SELECT `id`, `open_close` FROM `".$tbl."`";
 				$query .= " WHERE  `id` ='".$_POST['order_id']."';";
 
 				// делаем выборку open_close
@@ -930,21 +944,16 @@
 					}
 				}
 
+				// echo $query;
+
 				// декодируем json (если там что-то есть)
 				//  !!!! если будут вылезать ошибке о некорректном json - будем решать по мере их поступления
 				$open_close_arr = array();
-				echo '<pre>';
-				print_r($open_close_arr);
-				echo '</pre>';
-					
+				
 				if(trim($open_close)!=""){
 					$open_close_arr = json_decode($open_close,true);
 				}
 
-				echo '<pre>';
-				print_r($open_close_arr);
-				echo '</pre>';
-					
 				// если заказ нужно открыть
 				if($_POST['open_close'] == 1){
 					// вставляем в наш массив информацию, что для данного пользователя заказ раскрыт
@@ -956,8 +965,12 @@
 					}
 				}
 
+				// echo '<pre>';
+				// print_r($open_close_arr);
+				// echo '</pre>';
+
 				// переписываем информацию в строке заказа
-				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `open_close` =  '".json_encode($open_close_arr)."' ";
+				$query = "UPDATE  `".$tbl."`  SET  `open_close` =  '".json_encode($open_close_arr)."' ";
 				$query .= " WHERE  `id` ='".$_POST['order_id']."';";
 				// echo $query;
 				$result = $mysqli->query($query) or die($mysqli->error);
