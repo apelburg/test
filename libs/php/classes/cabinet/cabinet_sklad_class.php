@@ -157,9 +157,8 @@
 			// скрываем левое меню
 			$html = '';
 			$table_head_html = '<style type="text/css" media="screen">
-				#cabinet_left_coll_menu{display:none;}
-			#cabinet_general_content #general_panel_orders_tbl tr.positions_rows{display: table-row;}
-			</style>';
+									#cabinet_left_coll_menu{display:none;}
+								</style>';
 			// $html = '';
 			$table_head_html .= '
 				<table id="general_panel_orders_tbl">
@@ -233,6 +232,24 @@
 				// цена заказа
 				$this->price_order = 0;
 
+				//////////////////////////
+				//	open_close   -- start
+				//////////////////////////
+					// получаем флаг открыт/закрыто
+					$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
+					
+					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
+					// class для кнопки показать / скрыть
+					#$this->open_close_class = "";
+					// rowspan / data-rowspan
+					#$this->open_close_rowspan = "rowspan";
+					// стили для строк которые скрываем или показываем
+					#$this->open_close_tr_style = ' style="display: table-row;"';
+
+				//////////////////////////
+				//	open_close   -- end
+				//////////////////////////
+
 				// запоминаем обрабатываемые номера заказа и запроса
 				// номер запроса
 				$this->query_num = $this->Order['query_num'];
@@ -247,8 +264,8 @@
 				if($table_order_positions_rows == ''){ continue; }
 				// формируем строку с информацией о заказе
 				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
-					$table_order_row .= '<td class="show_hide" rowspan="'.$this->position_item.'">
-											<span class="cabinett_row_hide_orders"></span>
+					$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
+											<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
 										</td>';
 					$table_order_row .= '<td colspan="6" class="orders_info">
 										<span class="greyText">Заказ №: </span><a href="?page=cabinet'.(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$this->Order['client_id'].'&order_num='.$this->order_num_for_User.'">'.$this->order_num_for_User.'</a> 
@@ -321,7 +338,7 @@
 
 				$this->logotip = $this->get_content_logotip($this->id_dop_data);
 				
-				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'">';
+				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>';
 				// // порядковый номер позиции в заказе
 				$html .= '<td><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
 				// // описание позиции

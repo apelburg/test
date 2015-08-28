@@ -288,9 +288,29 @@ $(document).on('click','#cabinet_general_content .cabinett_row_hide',function() 
 	if($(this).hasClass('show')){
 		$(this).parent().attr('rowspan','2').parent().next().show();
 		$(this).removeClass('show');
+
+
+		var order_id = $(this).parent().parent().attr('data-id');
+		// сохраняем положение раскрытого/скрытого заказа
+		$.post('',{
+			AJAX: 'open_close_order',
+			order_id: order_id,
+			open_close: '1'
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');
 	}else{
 		$(this).parent().attr('rowspan','1').parent().next().hide();
 		$(this).addClass('show');
+		var order_id = $(this).parent().parent().attr('data-id');
+		// сохраняем положение раскрытого/скрытого заказа
+		$.post('',{
+			AJAX: 'open_close_order',
+			order_id: order_id,
+			open_close: '0'
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');
 	}	
 });
 
@@ -316,7 +336,9 @@ $(document).on('click','#cabinet_general_content .cabinett_row_hide_orders',func
 	}	
 });
 
+// раскрыть строку заказа
 function tbl_row_open(obj){
+	var order_id = obj.parent().parent().attr('data-id');
 	obj.removeClass('show');
 	// запоминаем значение rowspan
 	var rowspan = Number(obj.parent().attr('data-rowspan'));
@@ -330,10 +352,21 @@ function tbl_row_open(obj){
 		obj = obj.next('tr');
 	};
 
+	// сохраняем положение раскрытого заказа
+	$.post('',{
+		AJAX: 'open_close_order',
+		order_id: order_id,
+		open_close: '1'
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+
 	
 }
 
+// свернуть строку заказа
 function tbl_row_close(obj){
+	var order_id = obj.parent().parent().attr('data-id');
 	obj.addClass('show');
 	// запоминаем значение rowspan
 	var rowspan = Number(obj.parent().attr('rowspan'));
@@ -346,6 +379,15 @@ function tbl_row_close(obj){
 		obj = obj.next('tr');
 		console.log(obj.next('tr').html());
 	};
+
+	// сохраняем положение свёрнутого заказа
+	$.post('',{
+		AJAX: 'open_close_order',
+		order_id: order_id,
+		open_close: '0'
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
 
 	
 }

@@ -1,7 +1,17 @@
 <?php
     class Cabinet{
-    	// все предоставляемые услуги
-    	protected $Services_list_arr;
+    	// услуга с которой работает система в данный момент времени, содержит массив строки из 
+    	protected $Service; // array();
+
+    	// содержит массив всех прикреплённых к позиции услуг
+    	protected $Services_for_position_arr; // array();
+
+    	// содержит массив всех прикреплённых к позиции услуг отсортирована по подразделениям
+    	protected $Services_for_position_arr_sort_by_performer; // array();
+
+
+    	// содержит массив всех существующих услуг содержащихся в OUR_USLUGI_LIST (все предоставляемые услуги)
+    	protected $Services_list_arr; // array();
 
     	// исполнитель услуг по правам
     	protected $performer = array(
@@ -20,8 +30,6 @@
 		protected $filter_order = ' '; // status_global и status_buch
 		protected $filter_position = ' '; // status_sklad и status_snab
 		protected $filter_uslugi = ' ';// uslugi_id и performer_status и performer
-
-		
 
 
     	////////////////////////////////////////////////////////////////////////////////////
@@ -92,9 +100,11 @@
 				
 			// статусы снабжение
 			protected $statuslist_snab = array(
+				'in_operation' => 'Ожидает запуска', // не выводим в общий выбор --- статус на уровне кнопки
 				'adopted' => 'Принят',
 				'maquette_adopted' => 'Макет принят',
 				'not_adopted' => 'Не принят',
+				'maquette_maket' => 'Ожидает макет',
 				'waits_union' => 'Ожидает объединения',
 				'products_capitalized_warehouse' => 'Продукция оприходована складом',// сервисный статус, вытекает из статуса склада - принято на склад
 				'waits_union' => 'Ожидает счет от поставщика',
@@ -102,7 +112,7 @@
 				'waits_the_bill_of_supplier' => 'Ожидаем отправку постащика',
 				'products_bought' => 'выкуплено',
 				'waits_products' => 'Продукция ожидается:',
-				'in_production' => 'В Производстве',
+				'in_production' => 'В Производстве', // -> запуск всех услуг кроме доставки и дизайна, при этом услуга Диза ставится на "услуга выполнена"
 				'ready_for_shipment' => 'Готов к отгрузке',				
 				'question' => 'Вопрос'
 			);
@@ -478,6 +488,7 @@
 						if($this->user_access == 1 || $this->user_access== 8){
 							$html = '<input type="button" value="Запуск" class="start_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'">';	
 						}else{
+
 							$html = 'ожидает запуска';
 						}
 					}
@@ -752,15 +763,50 @@
 			protected function start_services_in_processed_AJAX(){
 				global $mysqli;
 
-				if($this->user_access == 1){
+				
 					$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_status` =  'in_processed' ";
 					$query .= "WHERE  `id` ='".$_POST['id']."';";
 					$result = $mysqli->query($query) or die($mysqli->error);
-					echo '{"response":"OK","function":"window_reload"}'; 	
-				}else{
-					// для не админов и всех кто так или иначе получил доступ к кнопке или для всех поголовно --- нужно обсудить с Серёгой
+					
+
+					
+					// получаем информацию по услуге в которой меняем статус
+					$this->Service = $this->get_service((int)$_POST['id']);
+					// получаем список прикреплённных услуг отсортированных по Performer
+					$this->Services_for_position_arr_sort_by_performer = $this->position_service_sort_of_perforfer($this->Service['dop_row_id']);
+
+					// проверяем все ли услуги Дизайна выполнены
+					$design_already_made = true; $n = 0; $design_service_ids = '';
+					if(isset($this->Services_for_position_arr_sort_by_performer['9'])){
+						foreach ($this->Services_for_position_arr_sort_by_performer['9'] as $key => $design_service) {
+							if(trim($design_service['performer_status']) == 'услуга выполнена' || trim($design_service['performer_status']) == 'Макет отправлен в СНАБ'){
+								// запоминаем id ДИЗ услуг, которые будем менять на услуга выполнена
+								$design_service_ids .=  ((0 != $n++)?',':'')."'".$design_service['id']."'";
+							}else{
+								// меняем флаг
+								$design_already_made = false;									
+							}
+						}
+					}
+
+					// если услуги дизайна выполнены - 
+					if ($design_already_made == true) { 
+						// переводим статусы услуг дизайно в окончательный статус
+						$this->update_performer_status_for_services('услуга выполнена', $design_service_ids);
+
+						// правим статус указанной услуги
+						$this->update_performer_status_for_services('in_processed', "'".(int)$_POST['id']."'");
+						// отвечаем, что всё ОК и перезагружаем страницу
+						echo '{"response":"OK","function":"window_reload"}'; 
+					}
+
+
+
+
+					// для не админов и всех кто так или иначе получил доступ к кнопке или для всех поголовно 
+					// --- нужно обсудить с Серёгой
 					//!!!!!! доделать !!!!!
-				/*
+					/*
 					1). сдалеть запрос в базу и узнать dop_data_id в данной услуге
 					2). опросить базу на услуги с куратором ДИЗ по данному dop_data_id
 					3). если НЕ Нашли - просто запускаем в работу
@@ -773,15 +819,163 @@
 
 						или вообще не давать запустить если ты не админ.... ведь запуск без дизайна 
 						обычно не возможен.... хотя это ведь может быть распаковка и её нужно сделать заранее
-						что тогда???? выходит придётся дать такую превилегию снабженцам????
+						что тогда???? выходит придётся дать такую превилегию снабженцам???? 
 
-				*/
+					*/
 
+			}
 
+			/////////////////////////////////////////////////////////////////////////////////////
+			//	-----  START  -----  service->  -----  START  -----
+			/////////////////////////////////////////////////////////////////////////////////////
+				// обновление статусов у группы услуг
+				protected function update_performer_status_for_services($status, $IDs){ // нужно ли???? !!!! 
+					global $mysqli;
+					$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_status` =  '".$status."' ";
+					$query .= "WHERE  `id` IN (".$IDs.");";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					return;
 				}
 
-							
+				// получаем прикреплённую услугу по id
+				protected function get_service($service_id){
+					global $mysqli;
+					$service = 0;
+					$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `id` = '".$service_id."'";
+					
+					$result = $mysqli->query($query) or die($mysqli->error);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$service = $row;
+						}
+					}
+					return $service;
+				}
+
+				// получаем список услуг к позиции
+				protected function get_all_services_for_position($dop_row_id){
+					global $mysqli;
+					$position_service_arr = array();
+					$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$position_service_arr = $row;
+						}
+					}
+					return $position_service_arr;
+				}
+
+				// сортируем массив прикреплённных услуг по Performer (куратору, подразделению) 
+				protected function position_service_sort_of_perforfer($dop_row_id = 0){
+					if(!isset($this->Services_for_position_arr)){
+						if($dop_row_id != 0){
+							$this->Services_for_position_arr = $this->get_all_services_for_position($dop_row_id);
+						}else{
+							echo 'dop_row_id не указан!!! ';exit;
+						}
+					}
+
+					$service_arr_filtering_for_performer = array();
+					foreach ($this->Services_for_position_arr as $service) {
+						$service_arr_filtering_for_performer[$service['performer']][] = $service;
+					}
+
+					return $service_arr_filtering_for_performer;
+				}
+
+
+
 				
+			//////////////////////////////////////////////////////////////////////////////////
+			//   -----  END  -----  service->  -----  END  -----
+			///////////////////////////////////////////////////////////////////////////////////
+
+			// выяисляем свёрнут или развёрнут заказ для данного пользователя
+			protected function get_open_close_for_this_user($open_close){
+				$open_close_arr = ($open_close!="")?json_decode($open_close,true):array();
+				//return true;
+				if(isset($open_close_arr[$this->user_id])){
+					// class для кнопки показать / скрыть
+					$this->open_close_class = "";
+					// rowspan / data-rowspan
+					$this->open_close_rowspan = "rowspan";
+					// стили для строк которые скрываем или показываем
+					$this->open_close_tr_style = ' style="display: table-row;"';
+					return true;
+				}else{
+					// class для кнопки показать / скрыть
+					$this->open_close_class = " show";
+					// rowspan / data-rowspan
+					$this->open_close_rowspan = "data-rowspan";
+					// стили для строк которые скрываем или показываем
+					$this->open_close_tr_style = '"';
+					return false;
+				}
+			}
+
+			// раскрыть скрыть заказ
+			protected function open_close_order_AJAX(){
+
+				/*
+					т.к. один и тот же заказ может просматривать очень много пользователей одновременно 
+					хранить информацию о том закрыт данный заказ или открыть у данного пользователя будем в Json
+					массив имеет вид
+					array( $user_id => 1,$user_id => 1 )
+					примем за правило:
+						- если записи нет - то заказ свёрнут
+						- если запись есть - заказ развёрнут
+
+				*/
+				$tbl = (isset($_GET['section']) && $_GET['section'] == 'requests')?RT_LIST:CAB_ORDER_ROWS;
+
+
+				// делаем запрос на хранящуюся у нас в базе информацию по данной строке заказа
+				global $mysqli;
+				$open_close = "";
+				$query = "SELECT `id`, `open_close` FROM `".$tbl."`";
+				$query .= " WHERE  `id` ='".$_POST['order_id']."';";
+
+				// делаем выборку open_close
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$open_close = $row['open_close'];
+					}
+				}
+
+				// echo $query;
+
+				// декодируем json (если там что-то есть)
+				//  !!!! если будут вылезать ошибке о некорректном json - будем решать по мере их поступления
+				$open_close_arr = array();
+				
+				if(trim($open_close)!=""){
+					$open_close_arr = json_decode($open_close,true);
+				}
+
+				// если заказ нужно открыть
+				if($_POST['open_close'] == 1){
+					// вставляем в наш массив информацию, что для данного пользователя заказ раскрыт
+					$open_close_arr[(string)$this->user_id] = '1';	
+				}else{
+					// удаляем из массива информацию от том, что заказ 
+					if(isset($open_close_arr[$this->user_id])){
+						unset($open_close_arr[$this->user_id]);
+					}
+				}
+
+				// echo '<pre>';
+				// print_r($open_close_arr);
+				// echo '</pre>';
+
+				// переписываем информацию в строке заказа
+				$query = "UPDATE  `".$tbl."`  SET  `open_close` =  '".json_encode($open_close_arr)."' ";
+				$query .= " WHERE  `id` ='".$_POST['order_id']."';";
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				
+				echo '{"response":"OK"}';
 			}
 
 			// ТЗ для производства
@@ -905,8 +1099,8 @@
 
 					if($this->user_access == 4 && isset($_POST['value']) && $_POST['value'] == 'услуга выполнена'){
 						// проверяем все ли услуги выполнены
-						$query = "SELECT `performer_status`,`dop_row_id` FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` IN (SELECT `dop_row_id` FROM `".CAB_DOP_USLUGI."` WHERE  `id` ='".$_POST['id_row']."')";
-						echo $query;
+						$query = "SELECT `performer_status`,`dop_row_id` FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$this->get_dop_data_id_from_service($_POST['id_row'])."'";
+						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						$union_services_arr = array();
 
@@ -1378,7 +1572,7 @@
 			// ролучаем dop_inputs
 			protected function get_dop_inputs_for_services($id, $dop_usluga_id){
 				global $mysqli;
-				
+				include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 				// запрашиваем информацию по ТЗ и , если нужно
 				if(!isset($this->Service)){ // если нам ничего не известно по строке из CAB_DOP_USLUGI
 					$query = "SELECT * FROM ".CAB_DOP_USLUGI." WHERE `id` = '".$dop_usluga_id."'";
@@ -1394,7 +1588,7 @@
 				// если у нас есть информация в поле $this->Service['print_details'] - декодируем её в читабельный вид
 				if(trim($this->Service['print_details'])!=''){
 					include_once './libs/php/classes/agreement_class.php';
-					$this->Service['print_details_read'] = '<div><span>Данные из калькулятора:</span><br><div class="calculator_info">'.Agreement::convert_print($this->Service['print_details']) .'</div></div>';
+					$this->Service['print_details_read'] = '<div><span>Данные из калькулятора:</span><br><div class="calculator_info">'.printCalculator::convert_print_details($this->Service['print_details']) .'</div></div>';
 				}else{
 					$this->Service['print_details_read'] = '';
 				}
@@ -1503,9 +1697,9 @@
 								
 								// определяем допуски на редактирование доп полей
 								if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 1){
-									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'"></div>';
+									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.base64_decode($text).'"></div>';
 								}else{
-									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'" '.(($text=='')?'':'disabled').'></div>';
+									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.base64_decode($text).'" '.(($text=='')?'':'disabled').'></div>';
 								}
 								
 						}else{
@@ -1601,7 +1795,7 @@
 						global $mysqli;
 						$html = '';
 						
-						$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+						$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."' AND `deleted` = '0'";
 						$result = $mysqli->query($query) or die($mysqli->error);
 						
 
@@ -1846,6 +2040,9 @@
 
 		// выбираем данные о доп услугах для заказа
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
+			// ВНИМАНИЕ !!!!!!!!!!
+			// данный метод используется (специально заточен) для просчёта стоимости заказа
+			// нежелательно его модифицировать для других нужд !!!!!
 			global $mysqli;
 
 
@@ -1887,8 +2084,6 @@
 						);
 				}
 			}
-			// $arr[] = $query;
-			//echo $query;
 			return $arr;
 		}
 
@@ -2512,6 +2707,22 @@
 
 		}
 
+		// получаем список пользователей по номеру подразделения
+		protected function get_production_userlist_Database(){
+			if(empty($this->userlist)){
+				global $mysqli;
+				$query = "SELECT * FROM `".MANAGERS_TBL."` WHERE  `access` = '".$this->group_access."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+
+				$this->userlist = array();
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->userlist[$row['id']] = $row;
+					}
+				}
+			}
+			return $this->userlist;
+		}
 
 		// правим срок по дс
 		protected function change_deadline_value_AJAX(){

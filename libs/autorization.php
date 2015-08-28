@@ -3,27 +3,14 @@
 	if(isset($_GET['set_user_id'])){ 
 		if(!isset($_SESSION['access']['come_back_in_own_profile'])) $_SESSION['access']['come_back_in_own_profile'] = $_SESSION['access']['user_id']; 
 		$_SESSION['access']['user_id'] = $_GET['set_user_id'];
-		// для кабинета для разных пользователей разный URL, так что пишем исключение
-		if (isset($_GET['page']) && $_GET['page'] == 'cabinet') {		
-			header  ('Location: http://'.$_SERVER['HTTP_HOST'].'/'.get_worked_link_href_for_cabinet());	
-		}else{
-			header ('Location:?'.addOrReplaceGetOnURL('','set_user_id'));
-		}
-
+		header ('Location:?'.addOrReplaceGetOnURL('','set_user_id'));
 		exit;
 	}
 	if(isset($_GET['come_back_in_own_profile'])){ 
 		if (isset($_SESSION['access']['come_back_in_own_profile']) && $_SESSION['access']['come_back_in_own_profile'] != '') {
 			$_SESSION['access']['user_id'] = $_SESSION['access']['come_back_in_own_profile']; 
 			unset($_SESSION['access']['come_back_in_own_profile']);
-			// для кабинета для разных пользователей разный URL, так что пишем исключение
-			if (isset($_GET['page']) && $_GET['page'] == 'cabinet') {	
-				header  ('Location: http://'.$_SERVER['HTTP_HOST'].'/'.get_worked_link_href_for_cabinet());	
-			}else{
-				header ('Location:?'.addOrReplaceGetOnURL('','come_back_in_own_profile'));
-			}
-		}else{
-			echo 'Что-то не так. По неизвестной причине переменная $_SESSION[\'access\'][\'come_back_in_own_profile\'] оказалась пуста, т.е. система не знает Вашего ID.';
+			header ('Location:?'.addOrReplaceGetOnURL('','come_back_in_own_profile'));
 		}
 		
 		exit;
