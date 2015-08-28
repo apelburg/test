@@ -126,6 +126,15 @@
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link2";
+		var a = document.createElement('a');
+		a.href = '#';
+		a.onclick = rtCalculator.sendToSnab;
+		a.appendChild(document.createTextNode('Отправить в снаб'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
 		/*var innerDiv = document.createElement('div');
 		innerDiv.className = "link2";
 		var a = document.createElement('a');

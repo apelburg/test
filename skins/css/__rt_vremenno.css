@@ -197,6 +197,9 @@ table-layout:fixed;
  height:30px;
  display:block;
 }
+.rt_tbl_body .block_snab{
+ background-color: #EEE;
+}
 .scrolled_tbl_movable_part{
 overflow-y:scroll; 
 height:200px;

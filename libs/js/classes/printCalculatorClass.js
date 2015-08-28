@@ -1139,8 +1139,8 @@ var printCalculator = {
 
 		var textarea = document.createElement('TEXTAREA');
 		textarea.className = "commentsTextArea";
-		if(printCalculator.currentCalculationData.print_details.comment){
-			var comment = Base64.decode(printCalculator.currentCalculationData.print_details.comment);
+		if(printCalculator.currentCalculationData.tz){
+			var comment = Base64.decode(printCalculator.currentCalculationData.tz);
 			textarea.value= comment.replace(/<br \/>/g,"\r");
 		}
 		textarea.onchange = function(){  printCalculator.currentCalculationData.print_details.comment = this.value; }

@@ -29,7 +29,7 @@
 		 
 		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn , main_tbl.svetofor_display AS svetofor_display ,
 		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel, dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel, dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time, dop_data_tbl.status_snab AS status_snab,
 						  
 						  dop_uslugi_tbl.id AS uslgi_t_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.for_how AS uslugi_t_for_how
@@ -66,6 +66,7 @@
 																	'shipping_time' => $row['shipping_time'],
 																	'row_status' => $row['row_status'],
 																	'glob_status' => $row['glob_status'],
+																	'status_snab' => $row['status_snab'],
 																	'quantity' => $row['dop_t_quantity'],
 																	'discount' => $row['dop_t_discount'],
 																	'price_in' => $row['dop_t_price_in'],
@@ -249,7 +250,7 @@
 				 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
 				 
 				 $delta = $out_summ-$in_summ; 
-				 $margin = ($out_summ-$in_summ)/$out_summ*100;
+				 $margin = ($in_summ>0 && $out_summ>0)?(($out_summ-$in_summ)/$out_summ)*100:0;
 				 
 				 $price_in_summ_format = number_format($price_in_summ,'2','.','');
 				 $price_out_summ_format = number_format($price_out_summ,'2','.','');
@@ -261,7 +262,8 @@
 				 $out_summ_format = number_format($out_summ,'2','.','');
 				 $delta_format = number_format($delta,'2','.','');
 				 $margin_format = number_format($margin,'2','.','');
-		 
+		         $margin_currency = '%';
+				 
 				 $svetofor_stat = ($dop_row['row_status']=='')?'green':$dop_row['row_status'];
 				 // если ряд не исключен из расчетов добавляем значения в итоговый ряд
 				 if(!(!!$expel["main"]) && ($svetofor_stat=='sgreen' || $svetofor_stat=='green')){// && ( || $dop_row['row_status']=='')
@@ -300,7 +302,7 @@
 				 $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_out = $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
-				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $srock_sdachi = $print_exists_flag = $extra_exists_flag = '';
+				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $srock_sdachi = $print_exists_flag = $extra_exists_flag = $margin_currency = '';
 				 
 				  
 			 }
@@ -334,10 +336,11 @@
 								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 								 </div>';
 			 }
-			 
+
+			 $block = (isset($dop_row['status_snab']) && ($dop_row['status_snab']=='on_calculation_snab' || $dop_row['status_snab']=='on_recalculation_snab' || $dop_row['status_snab']=='in_calculation'))?1:0;
 			 
 		     $cur_row  =  '';
-		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge ':'').(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos ':'').(($counter!=0)?$svetofor_tr_display:'').(($row_span==0)?'hidden':'').'">';
+		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge ':'').(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos ':'').(($counter!=0)?$svetofor_tr_display:'').(($row_span==0)?'hidden':'').(($block==1)?' block_snab':'').'"  block="'.$block.'">';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="glob_counter" class="top glob_counter" width="30" oncontextmenu="openCloseMenu(event,\'contextmenuNew\',{\'pos_id\':\''.$key.'\',\'control_num\':\''.'4'.'\'});">'.$glob_counter.'</td>':'';
 			 
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="master_btn" class="top master_btn noselect" width="35">   
@@ -349,7 +352,7 @@
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="name" class="art_name top">'.$extra_panel.'</td>':'';
 										  
-										  //extra_panel
+										  //extra_panel $dop_row['status_snab'].$block.
 			 $cur_row .=  '<td class="hidden"></td>
 			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
 			               <td width="40" type="svetofor" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
@@ -380,7 +383,7 @@
 						   <td type="delta" class="delta right">'.$delta_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
 						   <td type="margin" class="margin right">'.$margin_format.'</td>
-						   <td width="10" class="left">%</td>
+						   <td width="10" class="left">'.$margin_currency.'</td>
 						   <td stretch_column>&nbsp;</td>';
 			 $cur_row .=  '<td ><div class="overflow">'.$dop_row['glob_status'].'<div></td>';  
 			 $cur_row .= '</tr>';
