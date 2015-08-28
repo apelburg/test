@@ -1907,29 +1907,29 @@
 		}
 
 		// общет стоимости позиции
-		protected function GET_PRICE_for_position($value){
+		protected function GET_PRICE_for_position($position){
 			////////////////////////////////////
 			//	Расчёт стоимости позиций START  
 			////////////////////////////////////
 
-			//ОБСЧЁТ ВАРИАНТОВ
-			// получаем массив стоимости нанесения и доп услуг для данного варианта 
-			$dop_usl = $this-> get_order_dop_uslugi($value['id_dop_data']);
+				//ОБСЧЁТ ВАРИАНТОВ
+				// получаем массив стоимости нанесения и доп услуг для данного варианта 
+				$dop_usl = $this-> get_order_dop_uslugi($position['id_dop_data']);
 
-			// выборка только массива стоимости печати
-			$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
-			// выборка только массива стоимости доп услуг
-			$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
+				// выборка только массива стоимости печати
+				$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
+				// выборка только массива стоимости доп услуг
+				$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
 
 
-			// стоимость товара
-			$this->Price_for_the_goods = $value['price_out'] * $value['quantity'];
-			// стоимость услуг печати
-			$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
-			// стоимость услуг не относящихся к печати
-			$this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($value['print_z']==1)?$value['quantity']+$value['zapas']:$value['quantity']));
-			// общаяя цена позиции включает в себя стоимость услуг и товара
-			$this->Price_for_the_position = $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing;
+				// стоимость товара
+				$this->Price_for_the_goods = $position['price_out'] * $position['quantity'];
+				// стоимость услуг печати
+				$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity']));
+				// стоимость услуг не относящихся к печати
+				$this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity']));
+				// общаяя цена позиции включает в себя стоимость услуг и товара
+				$this->Price_for_the_position = $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing;
 					
 
 			////////////////////////////////////
@@ -2041,9 +2041,13 @@
 		// выбираем данные о доп услугах для заказа
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			// ВНИМАНИЕ !!!!!!!!!!
-			// данный метод используется (специально заточен) для просчёта стоимости заказа
+			// данный метод используется (специально заточен) для просчёта стоимости заказа и запроса
 			// нежелательно его модифицировать для других нужд !!!!!
 			global $mysqli;
+
+			// определяем таблицу прикреплённых услуг
+			$tbl = (isset($_GET['section']) && $_GET['section'] == 'requests')?RT_DOP_USLUGI:CAB_DOP_USLUGI;
+
 
 
 			/*
@@ -2051,14 +2055,15 @@
 			  тех услуг, которые были созданы после этого изменения
 			  чтобы изменения брались сразу из услуг нужно дополнить запрос выборкой по полю ,`os__our_uslugi`.`performer`
 			*/
+
 			$query = "SELECT 
-			`".CAB_DOP_USLUGI."`.*,
-			`".OUR_USLUGI_LIST."`.`name`,
-			DATE_FORMAT(`".CAB_DOP_USLUGI."`.`date_ready`,'%d.%m.%Y')  AS `date_ready`,
-			DATE_FORMAT(`".CAB_DOP_USLUGI."`.`date_work`,'%d.%m.%Y')  AS `date_work`
-			FROM `".CAB_DOP_USLUGI."` 
-			LEFT JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` = `".CAB_DOP_USLUGI."`.`uslugi_id` 
-			WHERE `".CAB_DOP_USLUGI."`.`dop_row_id` = '".$dop_row_id."'";
+			`".$tbl."`.*,
+			`".OUR_USLUGI_LIST."`.`name`";
+			$query .= (isset($_GET['section']) && $_GET['section'] == 'requests')?"":", DATE_FORMAT(`".$tbl."`.`date_ready`,'%d.%m.%Y')  AS `date_ready`";
+			$query .= (isset($_GET['section']) && $_GET['section'] == 'requests')?"":",DATE_FORMAT(`".$tbl."`.`date_work`,'%d.%m.%Y')  AS `date_work`";
+			$query .= " FROM `".$tbl."` 
+			LEFT JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` = `".$tbl."`.`uslugi_id` 
+			WHERE `".$tbl."`.`dop_row_id` = '".$dop_row_id."'";
 			$query .= " ORDER BY `".OUR_USLUGI_LIST."`.`id` ASC";
 
 			//$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
@@ -2072,16 +2077,20 @@
 					$arr[] = $row;
 
 
-					$er = $this->performer[ $row['performer']];
-					// echo $row['performer'].'<br>';
-					// echo '<br><br>* '.$er.' *<br><br>';
-					$this->Position_status_list[  $er  ][] = array(
-						'performer_status' => $row['performer_status'], 
-						'service_name' => $row['name'],
-						'id' => $row['uslugi_id'],
-						'performer' => $row['performer'],
-						'id_dop_uslugi_row' => $row['id']
-						);
+					// для зказа на понадобится дополнительная информация по статусам 
+					// если мы не в запросе
+					if(isset($_GET['section']) && $_GET['section'] != 'requests'){
+						// сортируем услугу в массив $this->Position_status_list по подразделениям
+						$er = $this->performer[ $row['performer']];
+						
+						$new_arr['performer_status'] = $row['performer_status']; 
+						$new_arr['service_name'] = $row['name'];
+						$new_arr['id'] = $row['uslugi_id'];
+						$new_arr['performer'] = $row['performer'];
+						$new_arr['id_dop_uslugi_row'] = $row['id'];
+						
+						$this->Position_status_list[  $er  ][] = $new_arr;
+					}
 				}
 			}
 			return $arr;

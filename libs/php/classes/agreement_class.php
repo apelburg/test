@@ -263,7 +263,8 @@
 						     while($uslugi_data = $result3->fetch_assoc()){
 					            // 3). uslugi_data
 								 if($uslugi_data['glob_type'] == 'print' && !(!!$expel["print"])){
-                                     $name = self::convert_print($uslugi_data['print_details']);
+									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
 									 // записываем ряд
 									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);
 								 }
