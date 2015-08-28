@@ -53,9 +53,9 @@
 		 exit;
 	}
 	if(isset($_GET['change_quantity'])){
-		// echo $_GET['quantity'];
-		RT::change_quantity($_GET['quantity'],$_GET['id']);
-		exit;
+		 // echo $_GET['quantity'];
+		 RT::change_quantity($_GET['quantity'],$_GET['id']);
+		 exit;
 	}
 	if(isset($_GET['expel_value_from_calculation'])){
 	     //print_r(json_decode($_GET['expel_value_from_calculation']));
@@ -77,6 +77,12 @@
 		 */
 		 exit;
 	}
+	if(isset($_GET['sendToSnab'])){
+		 
+		 echo  RT::sendToSnab(json_decode($_GET['sendToSnab']));
+		 exit;
+	}
+	
 
 	/*if(isset($_GET['makeSpecAndPreorder'])){		 
 		 // RT::make_specification($_GET['make_order']);

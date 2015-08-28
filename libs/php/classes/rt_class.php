@@ -135,6 +135,26 @@
 			return $shift_counter;
 	      
 		}
+		static function sendToSnab($idsObj){
+		    global $mysqli;
+			
+            //echo '<pre>---'; print_r($idsObj); echo '</pre>';
+			foreach($idsObj as $dopIdsObj){
+				$dopIdsArr = (array)$dopIdsObj;
+				if(count($dopIdsArr)==0) continue;
+				// echo '<pre>'; print_r($dopIdsArr); echo '</pre>';  
+				foreach($dopIdsArr as $key => $val){
+				    $query="UPDATE `".RT_DOP_DATA."` SET  `status_snab` = 'on_calculation_snab'  WHERE `id` = '".$key."' AND `status_snab` <> 'calculate_is_ready'";
+					$result = $mysqli->query($query)or die($mysqli->error);
+			
+					$query="UPDATE `".RT_DOP_DATA."` SET  `status_snab` = 'on_recalculation_snab'  WHERE `id` = '".$key."' AND `status_snab` = 'calculate_is_ready'";
+					$result = $mysqli->query($query)or die($mysqli->error);
+				
+				}
+			}
+			
+			return 1;
+		}
 		static function insert_copied_rows_insert_part_TO_HOLE_TBL($place_id,$mainCopiedRowId,$query_num,$dop_data /* $place_id - куда вставляем, $pos_id - что будем вставлять */){
 		    global $mysqli;
 			

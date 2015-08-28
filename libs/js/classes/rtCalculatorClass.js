@@ -195,10 +195,11 @@ var rtCalculator = {
 		for(var i in trs_arr){
 			if(trs_arr[i].getAttribute){
 			    if(trs_arr[i].getAttribute("row_id")!='0'){
+					var block = (trs_arr[i].hasAttribute("block") && trs_arr[i].getAttribute("block")=='1')?true:false;
 					var tds_arr = trs_arr[i].getElementsByTagName('td');
 					for(var j in tds_arr){
 						if(tds_arr[j].getAttribute){
-							if(tds_arr[j].getAttribute('editable')){
+							if(tds_arr[j].getAttribute('editable') && !block){
 								//tds_arr[j].onkeyup = this.make_calculations;
 								tds_arr[j].onfocus = function(e){ 
 								   e = e || window.event;
@@ -238,7 +239,7 @@ var rtCalculator = {
 								if(tds_arr[j].getElementsByTagName('img')[0]) $(tds_arr[j].getElementsByTagName('img')[0]).mouseenter(this.show_svetofor);
 								
 							}
-							if(tds_arr[j].getAttribute('calc_btn')){
+							if(tds_arr[j].getAttribute('calc_btn') && !block){
 								//// console.log(j+' svetofor');
 								if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = printCalculator.start_calculator;
 								
@@ -590,7 +591,8 @@ var rtCalculator = {
 		if(!row['dop_data']['expel']['print']) row['out_summ'] +=row['print_out_summ'];
 		if(!row['dop_data']['expel']['dop'])   row['out_summ'] +=row['dop_uslugi_out_summ'];
 		
-		row['delta'] = row['margin'] = row['out_summ']-row['in_summ'];
+		row['delta'] = row['out_summ']-row['in_summ'];
+		row['margin'] = (row['out_summ']>0 && row['in_summ']>0)?((row['out_summ']-row['in_summ'])/row['in_summ'])*100:0;
 
 		// если ряд не исключен из рассчетов расчитываем разницу появивщуюся в результате изменений и помещаем данные 
 	    if(!row['dop_data']['expel']['main'] && (row['dop_data']['svetofor']=='green' || row['dop_data']['svetofor']=='sgreen')){
@@ -599,7 +601,7 @@ var rtCalculator = {
 			rtCalculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rtCalculator.previos_data['in_summ'];
 			rtCalculator.tbl_model['total_row']['out_summ'] += row['out_summ'] - rtCalculator.previos_data['out_summ'];
 			rtCalculator.tbl_model['total_row']['delta'] +=  row['delta'] - rtCalculator.previos_data['delta'];
-			rtCalculator.tbl_model['total_row']['margin'] +=  row['margin'] - rtCalculator.previos_data['margin'];
+			//rtCalculator.tbl_model['total_row']['margin'] +=  row['margin'] - rtCalculator.previos_data['margin'];
 		}
 	}
 	,
@@ -703,8 +705,8 @@ var rtCalculator = {
 				rtCalculator.tbl_model[row_id]['in_summ'] += cur_in_summ;
 			}
 			// меняем значения delta и margin текущей ячейки
-			rtCalculator.tbl_model[row_id]['delta'] = rtCalculator.tbl_model[row_id]['margin'] = rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'];
-
+			rtCalculator.tbl_model[row_id]['delta'] = rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'];
+			rtCalculator.tbl_model[row_id]['margin'] = (rtCalculator.tbl_model[row_id]['out_summ']>0 && rtCalculator.tbl_model[row_id]['in_summ']>0)?((rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'])/rtCalculator.tbl_model[row_id]['in_summ'])*100:0;    
 		}
 		
 		// изменяем значение status в JS модели таблицы - rtCalculator.tbl_model
@@ -931,7 +933,8 @@ var rtCalculator = {
 					rtCalculator.tbl_model['total_row']['out_summ'] += rtCalculator.tbl_model[row_id]['out_summ'];
 					rtCalculator.tbl_model['total_row']['in_summ'] += rtCalculator.tbl_model[row_id]['in_summ']; 
 					rtCalculator.tbl_model['total_row']['delta'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
-			        rtCalculator.tbl_model['total_row']['margin'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
+			        //rtCalculator.tbl_model['total_row']['margin'] = (rtCalculator.tbl_model['out_summ']>0 && rtCalculator.tbl_model['in_summ']>0)?((rtCalculator.tbl_model['out_summ']-rtCalculator.tbl_model['in_summ'])/rtCalculator.tbl_model['in_summ'])*100:0;
+
 					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print']){
 						rtCalculator.tbl_model['total_row']["print_in_summ"] += rtCalculator.tbl_model[row_id]["print_in_summ"];
 						rtCalculator.tbl_model['total_row']["print_out_summ"] += rtCalculator.tbl_model[row_id]["print_out_summ"];
@@ -953,7 +956,7 @@ var rtCalculator = {
 					rtCalculator.tbl_model['total_row']['out_summ'] -= rtCalculator.tbl_model[row_id]['out_summ'];
 					rtCalculator.tbl_model['total_row']['in_summ'] -= rtCalculator.tbl_model[row_id]['in_summ']; 
 				    rtCalculator.tbl_model['total_row']['delta'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
-			        rtCalculator.tbl_model['total_row']['margin'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
+			        //rtCalculator.tbl_model['total_row']['margin'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
 					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print']){
 						rtCalculator.tbl_model['total_row']["print_in_summ"] -= rtCalculator.tbl_model[row_id]["print_in_summ"];
 						rtCalculator.tbl_model['total_row']["print_out_summ"] -= rtCalculator.tbl_model[row_id]["print_out_summ"];
@@ -1509,6 +1512,31 @@ var rtCalculator = {
 			close_processing_timer(); closeAllMenuWindows();
 		}	*/  
 
+	}
+	,
+	sendToSnab:function(e){
+		
+		e = e || window.event;
+		var element = e.target;
+		
+		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)
+        if(!(idsObj = rtCalculator.get_active_rows())){
+			alert('не возможно создать КП, вы не выбрали ни одного расчета');
+			return;
+		} 
+		//console.log(idsObj);
+		show_processing_timer();
+		
+	    // формируем url для AJAX запроса
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('sendToSnab='+JSON.stringify(idsObj));
+		// AJAX запрос
+		make_ajax_request(url,callback);
+		function callback(response){ 
+		    //alert(response);
+		    if(response == '1') location.reload();
+		    /*console.log(response);*/ 
+			close_processing_timer(); closeAllMenuWindows();
+		}	  
 	}
 	,
 	makeSpecAndPreorder2:function(e){

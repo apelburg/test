@@ -185,10 +185,7 @@
 		static function get_print_types_related_data($out_put,$all_sizes_in_one_place){
 		    global $mysqli;  
 			
-			
-			 
 			//$print_types = $out_put['print_types'];
-			
 			// 
 			foreach($out_put['print_types'] as $print_id => $val){
 			    //if($print_id != 13) continue;
@@ -361,6 +358,7 @@
 									   `uslugi_id` ='".$details_obj->print_details->print_id."',
 									   `performer` ='".self::get_performer_id($details_obj->print_details->print_id)."',
 									   `glob_type` ='print',
+									   `tz` ='".$details_obj->print_details->comment."',
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = '".$details_obj->price_in."',
 									   `price_out` ='".$details_obj->price_out."',
