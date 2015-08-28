@@ -1632,3 +1632,9 @@ $(window).load(function() {
 		}, Number($('#js_location').attr('data-time')));
 	}
 });
+
+
+$(document).on('click', '.get_requeried_expense_menu', function(event) {
+	alert('Тут мы должны выбрать из:/n перевыставить счёт, запросить доп. счёт.');
+	alert('После выбора одного из двух пунктов всплывает уточнающее меню по типу счёта');
+});

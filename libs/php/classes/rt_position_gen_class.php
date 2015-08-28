@@ -163,7 +163,7 @@ class Position_general_Class{
 
 	private function save_tz_text_AJAX(){
 		global $mysqli;
-		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".$_POST['tz']."' WHERE `id`='".$_POST['rt_dop_uslugi_id']."';
+		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".base64_encode($_POST['tz'])."' WHERE `id`='".$_POST['rt_dop_uslugi_id']."';
 ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 

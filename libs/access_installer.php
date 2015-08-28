@@ -92,10 +92,11 @@
 											'paperwork'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'all' => array('access'=>true),
-													// 'create_spec' => array('access'=>true),
-													// 'signed' => array('access'=>true),
-													// 'expense' => array('access'=>true)
+													// 'all' => array('access'=>true),
+													'create_spec' => array('access'=>true),
+													'signed' => array('access'=>true),
+													'requested_the_bill' => array('access'=>true),
+													'expense' => array('access'=>true)	
 													)
 												), 
 											'orders'=> array(
@@ -132,7 +133,13 @@
 												'access'=>true,
 												'subsection'=>array(  // 2
 													'ready_for_shipment' => array('access'=>true),
-													'otgrugen' => array('access'=>true)
+													)
+												),											
+											'already_shipped'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'fully_shipped' => array('access'=>true),
+													'partially_shipped' => array('access'=>true)
 													)
 												),
 											'closed'=> array(
@@ -140,7 +147,13 @@
 												'subsection'=>array(  // 2
 													'all' => array('access'=>true),
 													)
-												)//,
+												),
+											'history'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												),
 											// 'simples'=> array(
 											// 	'access'=>true,
 											// 	'subsection'=>array(  // 2
@@ -178,7 +191,10 @@
 											'paperwork'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'all' => array('access'=>true)
+													'create_spec' => array('access'=>true),
+													'signed' => array('access'=>true),
+													'requested_the_bill' => array('access'=>true),
+													'expense' => array('access'=>true)													
 													)
 												), 
 											'orders'=> array(
@@ -193,10 +209,22 @@
 												'access'=>true,
 												'subsection'=>array(  // 2
 													'ready_for_shipment' => array('access'=>true),
-													'otgrugen' => array('access'=>true)
+													)
+												),
+											'already_shipped'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'fully_shipped' => array('access'=>true),
+													'partially_shipped' => array('access'=>true)
 													)
 												),
 											'closed'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												),
+											'history'=> array(
 												'access'=>true, 
 												'subsection'=>array(  // 2
 													'all' => array('access'=>true),
@@ -270,10 +298,22 @@
 												'access'=>true,
 												'subsection'=>array(  // 2
 													'ready_for_shipment' => array('access'=>true),
-													'otgrugen' => array('access'=>true)
+													)
+												),											
+											'already_shipped'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'fully_shipped' => array('access'=>true),
+													'partially_shipped' => array('access'=>true)
 													)
 												),
 											'closed'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												),
+											'history'=> array(
 												'access'=>true, 
 												'subsection'=>array(  // 2
 													'all' => array('access'=>true),
@@ -397,7 +437,13 @@
 												'access'=>true,
 												'subsection'=>array(  // 2
 													'ready_for_shipment' => array('access'=>true),
-													'otgrugen' => array('access'=>true)
+													)
+												),											
+											'already_shipped'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'fully_shipped' => array('access'=>true),
+													'partially_shipped' => array('access'=>true)
 													)
 												),
 											'closed'=> array(
@@ -405,7 +451,13 @@
 												'subsection'=>array(  // 2
 													'all' => array('access'=>true),
 													)
-												)
+												),
+											'history'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												),
 											)
 											
 										)
@@ -431,7 +483,13 @@
 													// 'in_the_production_supplier' => array('access'=>true)
 													)
 												)
-											)
+											),
+											'history'=> array(
+												'access'=>true, 
+												'subsection'=>array(  // 2
+													'all' => array('access'=>true),
+													)
+												),
 										));	
     //--------------------------------------------------------------------------\\
     //                  ЗАГРУЗКА ПРАВ ДАННОГО ПОЛЬЗОВАТЕЛЯ                      \\  
