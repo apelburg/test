@@ -189,25 +189,25 @@
 			$query .= ' ORDER BY `id` DESC'; 
 			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
-			$this->zapros_arr = array();
+			$this->Zapros_arr = array();
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$this->zapros_arr[] = $row;
+					$this->Zapros_arr[] = $row;
 				}
 			}
 
 			$general_tbl_row = '';
 			// собираем html строк-запросов 
 			$html = '';
-			foreach ($this->zapros_arr as $zapros) {
+			foreach ($this->Zapros_arr as $this->Zapros) {
 				// получаем позиции по запросу
-				$positions_arr = $this->get_position_arr_Database($zapros['query_num']);
+				$positions_arr = $this->get_position_arr_Database($this->Zapros['query_num']);
 				
 				//////////////////////////
 				//	open_close   -- start
 				//////////////////////////
 					// получаем флаг открыт/закрыто
-					$this->open__close = $this->get_open_close_for_this_user($zapros['open_close']);
+					$this->open__close = $this->get_open_close_for_this_user($this->Zapros['open_close']);
 					
 					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
 					// class для кнопки показать / скрыть
@@ -280,14 +280,14 @@
 						<td>'.$this->Price_of_no_printing.'</td>
 						<td>'.$this->Price_for_the_position.'</td>
 						<td></td>
-						<td data-type="'.$position['type'].'" data-status="'.$position['status_snab'].'" class="'.$position['status_snab'].'_'.$this->user_access.' '.$zapros['status'].'_status_snab_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($position['status_snab']).'</td>
+						<td data-type="'.$position['type'].'" data-status="'.$position['status_snab'].'" class="'.$position['status_snab'].'_'.$this->user_access.' '.$this->Zapros['status'].'_status_snab_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($position['status_snab']).'</td>
 					</tr>';
 				}
 
 				//////////////////////////
 				//	собираем строку с номером запроса (шапку заказа)
 				//////////////////////////
-				switch ($zapros['status']) {
+				switch ($this->Zapros['status']) {
 					/*
 						на дальнейшую реализацию
 					*/
@@ -298,28 +298,30 @@
 						####
 						# $this->name_cirillic_status  -  содержится в родительском классе
 						###
-						$status_or_button = (isset($this->name_cirillic_status[$zapros['status']])?$this->name_cirillic_status[$zapros['status']]:'статус не предусмотрен!!!!'.$zapros['status']);
+						$status_or_button = (isset($this->name_cirillic_status[$this->Zapros['status']])?$this->name_cirillic_status[$this->Zapros['status']]:'статус не предусмотрен!!!!'.$this->Zapros['status']);
 						break;
 				}
 
 				// выделяем красным текстом если менеджер не взял запрос в обработку в течение 5 часов
-				$overdue = (($zapros['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
+				$overdue = (($this->Zapros['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
 				// если в массиве $_POST содержится значение, значит мы запрашиваем только одну строку и подставляем значение из массива
 				$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
-				// собираем строку запроса
-				$general_tbl_row_body ='<td class="show_hide" '.$this->open_close_rowspan.'="'.$rowspan.'"><span class="cabinett_row_hide'.$this->open_close_class.'"></span></td>
-							<td><a href="./?page=client_folder&client_id='.$zapros['client_id'].'&query_num='.$zapros['query_num'].'">'.$zapros['query_num'].'</a> </td>
-							<td><span data-sec="'.$zapros['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$zapros['time_attach_manager'].'</span>'.$this->get_manager_name_Database_Html($zapros['manager_id']).'</td>
-							<td>'.$zapros['create_time'].'</td>
-							<td><span data-rt_list_query_num="'.$zapros['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($zapros['query_num']).'"></span></td>
-							<td>'.$this->get_client_name_Database($zapros['client_id']).'</td>
-							<td>'.RT::calcualte_query_summ($zapros['query_num']).'</td>
-							<td class="'.$zapros['status'].'_'.$this->user_access.'">'.$status_or_button.'</td>';
+					//////////////////////////
+					//	собираем строку запроса
+					//////////////////////////
+						$general_tbl_row_body ='<td class="show_hide" '.$this->open_close_rowspan.'="'.$rowspan.'"><span class="cabinett_row_hide'.$this->open_close_class.'"></span></td>';
+						$general_tbl_row_body .='<td><a href="./?page=client_folder&client_id='.$this->Zapros['client_id'].'&query_num='.$this->Zapros['query_num'].'">'.$this->Zapros['query_num'].'</a> </td>';
+						$general_tbl_row_body .='<td><span data-sec="'.$this->Zapros['time_attach_manager_sec']*(-1).'" '.$overdue.'>'.$this->Zapros['time_attach_manager'].'</span>'.$this->get_manager_name_Database_Html($this->Zapros['manager_id']).'</td>';
+						$general_tbl_row_body .='<td>'.$this->Zapros['create_time'].'</td>';
+						$general_tbl_row_body .='<td><span data-rt_list_query_num="'.$this->Zapros['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Zapros['query_num']).'"></span></td>';
+						$general_tbl_row_body .='<td>'.$this->get_client_name_Database($this->Zapros['client_id']).'</td>';
+						$general_tbl_row_body .='<td>'.RT::calcualte_query_summ($this->Zapros['query_num']).'</td>';
+						$general_tbl_row_body .='<td class="'.$this->Zapros['status'].'_'.$this->user_access.'">'.$status_or_button.'</td>';
 				
 				// если запрос по строке, возвращаем строку
 				if($id_row!=0){return $general_tbl_row_body;}
 
-				$general_tbl_row .= '<tr data-id="'.$zapros['id'].'" id="rt_list_id_'.$zapros['id'].'">
+				$general_tbl_row .= '<tr data-id="'.$this->Zapros['id'].'" id="rt_list_id_'.$this->Zapros['id'].'">
 									'.$general_tbl_row_body.'
 									</tr>';
 				
