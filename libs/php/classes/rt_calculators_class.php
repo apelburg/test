@@ -60,7 +60,8 @@
 				// ищем типы нанесения присвоенные данному артикулу на прямую
 				// возврашаемое значение: массив содержащий один элемент обозначающий (имитирующий)
 				// стандартное (дефолтное) место нанесения с вложенными в него типами нанесения 
-			    $out_put_data = self::get_related_art_and_print_types($data->art_id);
+			    // $out_put_data = self::get_related_art_and_print_types($data->art_id);
+				$out_put_data = array('out_put'=> array(),'result1'=>false);
 				$result1 = $out_put_data['result1'];
 		 
 				// получаем (если установленны) данные о конкретных местах нанесения для данного артикула
@@ -342,9 +343,11 @@
 		static function save_calculatoins_result($details_obj){
 		    global $mysqli;  
 			
-			// print_r($details_obj);
-			 
-           
+		    //print_r($details_obj);
+			foreach($details_obj->print_details->dop_params->YPriceParam as $key => $data){
+			   if(isset($data->cmyk)) $details_obj->print_details->dop_params->YPriceParam[$key]->cmyk =  base64_encode($data->cmyk);
+			} 
+            $details_obj->print_details->comment = base64_encode($details_obj->print_details->comment);
             // если PHP 5.4 то достаточно этого
                /* $print_details = json_encode($details_obj->print_details,JSON_UNESCAPED_UNICODE);*/
 			// но пришлось использовать это

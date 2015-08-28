@@ -249,7 +249,7 @@
 				 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
 				 
 				 $delta = $out_summ-$in_summ; 
-				 $margin = $out_summ-$in_summ;
+				 $margin = ($out_summ-$in_summ)/$out_summ*100;
 				 
 				 $price_in_summ_format = number_format($price_in_summ,'2','.','');
 				 $price_out_summ_format = number_format($price_out_summ,'2','.','');
@@ -380,7 +380,7 @@
 						   <td type="delta" class="delta right">'.$delta_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
 						   <td type="margin" class="margin right">'.$margin_format.'</td>
-						   <td width="10" class="left">'.$currency.'</td>
+						   <td width="10" class="left">%</td>
 						   <td stretch_column>&nbsp;</td>';
 			 $cur_row .=  '<td ><div class="overflow">'.$dop_row['glob_status'].'<div></td>';  
 			 $cur_row .= '</tr>';

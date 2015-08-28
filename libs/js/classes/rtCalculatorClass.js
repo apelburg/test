@@ -208,8 +208,9 @@ var rtCalculator = {
                                    // устанавливаем текущюю ячейку
 								   rtCalculator.changes_in_process = true;
 								}
-								tds_arr[j].onkeyup = function(){
-								   if(rtCalculator.cur_cell.getAttribute('type') && rtCalculator.cur_cell.getAttribute('type')== 'quantity'){
+								tds_arr[j].onkeyup = function(e){
+								   //if(!rtCalculator.cur_cell) location.reload();
+								   if(rtCalculator.cur_cell  &&  rtCalculator.cur_cell.hasAttribute('type') && rtCalculator.cur_cell.getAttribute('type')== 'quantity'){
 									   rtCalculator.checkQuantity();
 								   }
 								   else{
@@ -449,6 +450,10 @@ var rtCalculator = {
 		//**print_r(rtCalculator.tbl_model[row_id]);
 		
 		// сохраняем итоговые суммы ряда до изменения ячейки
+		rtCalculator.previos_data['print_in_summ'] = rtCalculator.tbl_model[row_id]['print_in_summ'];
+		rtCalculator.previos_data['print_out_summ'] = rtCalculator.tbl_model[row_id]['print_out_summ'];
+		rtCalculator.previos_data['dop_uslugi_in_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_in_summ'];
+		rtCalculator.previos_data['dop_uslugi_out_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_out_summ'];
 		rtCalculator.previos_data['price_in_summ'] = rtCalculator.tbl_model[row_id]['price_in_summ'];
 		rtCalculator.previos_data['price_out_summ'] = rtCalculator.tbl_model[row_id]['price_out_summ'];
 		rtCalculator.previos_data['in_summ'] = rtCalculator.tbl_model[row_id]['in_summ'];
@@ -511,7 +516,7 @@ var rtCalculator = {
 				
 			}
 			
-			//// console.log(response_obj);
+			// console.log(response_obj);
 			// если ответ был ok значит все нормально изменения сделаны 
 			// теперь нужно внести изменения в hmlt
 			if(response_obj.print.result == 'ok' && response_obj.extra.result == 'ok'){
@@ -520,12 +525,21 @@ var rtCalculator = {
 				if(response_obj.print.new_sums){ 
 				    rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.print.new_sums.summ_in);
 				    rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.print.new_sums.summ_out);
+					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] && (rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='green' || rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='sgreen')){
+						rtCalculator.tbl_model['total_row']["print_in_summ"]  += rtCalculator.tbl_model[row_id]["print_in_summ"]-rtCalculator.previos_data['print_in_summ'];
+						rtCalculator.tbl_model['total_row']["print_out_summ"] += rtCalculator.tbl_model[row_id]["print_out_summ"]-rtCalculator.previos_data['print_out_summ'];
+					}
+					
 				}
 				rtCalculator.tbl_model[row_id]["print_exists_flag"] = 'yes';
 				
 				if(response_obj.extra.new_sums){
 					rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"] = parseFloat(response_obj.extra.new_sums.summ_in);
 				    rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"] = parseFloat(response_obj.extra.new_sums.summ_out);
+					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop'] && (rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='green' || rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='sgreen')){
+						rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"]  += rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"]-rtCalculator.previos_data['dop_uslugi_in_summ'];
+						rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"]  += rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"]-rtCalculator.previos_data['dop_uslugi_out_summ'];
+					}
 				}
 
 				
@@ -1743,11 +1757,6 @@ var rtCalculator = {
 	     }
 		
 		//////////////////////////////////////////////////////////////////////////////////////////	
-	}
-	,
-	nextTag:function(node){ 
-	   var node = node.nextSibling; 
-	   return (node && node.nodeType!=1) ? this.nextTag(node) : node; 
 	}
 	,
 	certainTd:function(node,type){ 

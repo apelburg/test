@@ -821,8 +821,8 @@
 						         
 							     // наименование нанесения
 								 // форматируем вывод, разбиваем строки на куски определенной длины и вставляем перед каждым отступ
-								 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
-								 $print_description = Agreement::convert_print($u_level['print_details']);
+								 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+								 $print_description = printCalculator::convert_print_details($u_level['print_details']);
 								 //$print_description = $print_description;
 								 
 								 $section_space  = (count($r_level['dop_uslugi']['print'])>1)?  $space_str['long']:$space_str['short'];

@@ -1682,7 +1682,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 
 #calculatorDialogBox .YPriceParamDivContainer{   margin-left: 60px; float:left; border: #3333FF solid 0px; }
 #calculatorDialogBox .YPriceParamCMYKdiv{ margin-left: 12px;  float:left; border: #3333FF solid 0px; }
-#calculatorDialogBox .YPriceParamCMYK{ margin-top: 1px; height: 18px; width: 44px; border: #CCC solid 1px; }
+#calculatorDialogBox .YPriceParamCMYK{ margin-top: 1px; height: 18px; width: 57px; border: #CCC solid 1px; }
 
 
 #calculatorDialogBox .printSizesSelectDiv{   margin-left: 315px; }
