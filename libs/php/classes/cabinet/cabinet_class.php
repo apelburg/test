@@ -93,8 +93,8 @@
 				'no_goods' => 'нет в наличии', 
 				// 'waiting' => 'ожидаем',
 				'goods_in_stock' => 'принято на склад', // ->
-				'sended_on_outsource' => 'отправлено на оутсорсинг',
-				'checked_and_packed'  => 'проверено и упаковано',
+				'sended_on_outsource' => 'отправлено на аутсорсинг',
+				'checked_and_packed'  => 'готов к одгрузке',
 				'goods_shipped_for_client' => 'отгружен клиенту'
 			);
 				
@@ -106,14 +106,15 @@
 				'not_adopted' => 'Не принят',
 				'maquette_maket' => 'Ожидает макет',
 				'waits_union' => 'Ожидает объединения',
-				'products_capitalized_warehouse' => 'Продукция оприходована складом',// сервисный статус, вытекает из статуса склада - принято на склад
+				// 'products_capitalized_warehouse' => 'Продукция оприходована складом',// сервисный статус, вытекает из статуса склада - принято на склад
 				'waits_union' => 'Ожидает счет от поставщика',
-				'on_outsource' => 'уехало на аутсорсинг',
+				// 'on_outsource' => 'уехало на аутсорсинг',
 				'waits_the_bill_of_supplier' => 'Ожидаем отправку постащика',
 				'products_bought' => 'выкуплено',
 				'waits_products' => 'Продукция ожидается:',
 				'in_production' => 'В Производстве', // -> запуск всех услуг кроме доставки и дизайна, при этом услуга Диза ставится на "услуга выполнена"
-				'ready_for_shipment' => 'Готов к отгрузке',				
+				// 'ready_for_shipment' => 'Готов к отгрузке',	
+				// 'goods_shipped_for_client' => 'отгружен клиенту',			
 				'question' => 'Вопрос'
 			);
 
@@ -171,11 +172,13 @@
 		    		'ogruzochnye_accepted' => 'shipped'// отгрузочные приняты
 		    	);
 
-		    	// следствия склад
-		    	protected $CONSEQUENCES_of_status_sklad = array(
-		    		'sended_on_outsource' => 'on_outsource',// принято на склад
-		    		'goods_in_stock' => 'products_capitalized_warehouse'// принято на склад
-		    	);
+		    	// // статус склад -> статус снаб
+		    	// protected $CONSEQUENCES_of_status_sklad = array(
+		    	// 	'goods_in_stock' => 'goods_in_stock',// принято на склад -> продукция оприходована складом
+		    	// 	'sended_on_outsource' => 'goods_in_stock',// отправлено на оутсорс -> отправлено на оутсорсинг
+		    	// 	'checked_and_packed' => 'goods_in_stock', // проверено и упаковано -> готово к отгрузке
+		    	// 	'goods_shipped_for_client' => 'goods_shipped_for_client'// отгружен клиенту -> отгружен клиенту
+		    	// );
 
 	    	////////////////////////////////////////////////////////
 			//   --- END ---   СЛЕДСТВИЯ СТАТУСОВ   --- END ---   //
@@ -280,19 +283,41 @@
 				// проверяем на разрешение смены статуса снабжения
 				if($this->user_access == 8 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
 					$html .= '<select '.$red_bg_color.' data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
+						
 						if($real_val == 'in_processed'){$html .= '<option value="in_processed" selected="selected">в обработке</option>';}
+						// перебираем статусы склада (т.к. статусы склада транслируются в статусы снабжения)
+						foreach ($this->statuslist_sklad as $name_en => $name_ru) {
+							if ($name_en == $real_val) {
+								$is_checked = 'selected="selected"';
+								$html .= '<option value=\''.$name_en.'\' '.$is_checked.'>'.$name_ru.'</option>';	
+							}
+						}
+						// перебираем статусы снабжения
 						foreach ($this->statuslist_snab as $name_en => $name_ru) {
 							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
 							$html .= '<option value=\''.$name_en.'\' '.$is_checked.'>'.$name_ru.'</option>';
 						}
+
+
 					$html .= '</select>';
 					// добавляем div с iput для редактирования ожидаемой даты поставки
-				$html .= '<div data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'"><input typwe="text" value="'.$date_delivery_product.'"></div>';
+					$html .= '<div data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'"><input typwe="text" value="'.$date_delivery_product.'"></div>';
+				
 				}else{
 					if($real_val == 'in_processed'){// если статус in_processed, то его не декодировать в кириллицу с помощью стандартного массива, поэтому пишем исключение
 						$html .='<span class="greyText">в обработке</span>';
 					}else{
-						$html .='<span '.$red_bg_color.' class="greyText">'.(isset($this->statuslist_snab[$real_val])?$this->statuslist_snab[$real_val]:$real_val).'</span>';
+						$decoder_status_name = $real_val;
+						// если существует соответствие в статусах склад
+						if(isset($this->statuslist_sklad[$real_val])){
+							$decoder_status_name = $this->statuslist_sklad[$real_val];
+						}
+						// если существует соответствие в статусах снаб
+						if(isset($this->statuslist_snab[$real_val])){
+							$decoder_status_name = $this->statuslist_snab[$real_val];
+						}
+						// выводим трансляцию статуса снабжения
+						$html .='<span '.$red_bg_color.' class="greyText">'.$decoder_status_name.'</span>';
 					}
 					// добавляем div c ожидаемой датой поставки
 					$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'">'.$date_delivery_product.'</div>';
@@ -1179,15 +1204,13 @@
 				global $mysqli;
 				$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
 					`status_sklad` =  '".$_POST['value']."' ";
-				// если есть следствия на статус снаба
-				if(isset($this->CONSEQUENCES_of_status_sklad[trim($_POST['value'])])){
-					$query .= " , `status_snab` =  '".$this->CONSEQUENCES_of_status_sklad[trim($_POST['value'])]."'";
-				}
+				// все статусы склада транслируются в статусы снабжения
+				$query .= " , `status_snab` =  '".$_POST['value']."'";				
 
 				$query .= " WHERE  `id` ='".$_POST['row_id']."';";
 
 				$result = $mysqli->query($query) or die($mysqli->error);
-				echo $query;
+				// echo $query;
 				echo '{"response":"OK"}';
 			}
 
@@ -1923,7 +1946,7 @@
 
 
 				// стоимость товара
-				$this->Price_for_the_goods = $position['price_out'] * $position['quantity'];
+				$this->Price_for_the_goods = $position['price_out'] * ($position['quantity']+$position['zapas']);
 				// стоимость услуг печати
 				$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity']));
 				// стоимость услуг не относящихся к печати
@@ -2048,8 +2071,12 @@
 			// определяем таблицу прикреплённых услуг
 			$tbl = (isset($_GET['section']) && $_GET['section'] == 'requests')?RT_DOP_USLUGI:CAB_DOP_USLUGI;
 
-
-
+			// при условии что:
+			//	- это запросы 
+			//  - работает снабжение
+			//  - subsection = history
+			//  -> выгружаем данные из таблиц для СНАБ HISTORY
+			$tbl = ($this->user_access == 8 && isset($_GET['section']) && $_GET['section'] == 'requests' && isset($_GET['subsection']) && $_GET['subsection'] == 'history')?DOP_USLUGI_HIST:$tbl;
 			/*
 			  при изменении в админке по услуге ответственного за услугу, это изменение коснется только 
 			  тех услуг, которые были созданы после этого изменения
@@ -2070,7 +2097,7 @@
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$arr = array();
 
-			//echo $query;
+			// echo $query;
 
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
@@ -2756,11 +2783,6 @@
 			//echo $query.'<br>';
 
 			$query .= $this->filter_position; 
-
-
-			// echo  '654654'.$this->filter_position.'<br>';
-
-
 
 
 			$result = $mysqli->query($query) or die($mysqli->error);

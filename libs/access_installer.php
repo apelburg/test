@@ -128,6 +128,13 @@
 											// 		'pclosing_documents' => array('access'=>true)
 											// 		)
 											// 	),
+											'for_shipping'=> array(
+												'access'=>true,
+												'subsection'=>array(  // 2
+													'ready_for_shipment' => array('access'=>true),
+													'otgrugen' => array('access'=>true)
+													)
+												),
 											'closed'=> array(
 												'access'=>true, 
 												'subsection'=>array(  // 2

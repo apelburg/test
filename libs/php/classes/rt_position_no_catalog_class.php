@@ -1052,9 +1052,8 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		// получаем новый статус
 		$new_status = $_POST['new_status'];
 		
-		// если новый статус - это запрос на перерасчёт:
-		if($new_status == 'on_recalculation_snab'){
-
+		// если снабжение взяло расчет в работу на расчёт 
+		if($new_status == 'in_calculation'){
 			//копируем все строки которые были отправлены на перерасчёт в таблицу HISTORY
 			$this->copy_variants_to_history_Database($id_dop_data);
 		}
