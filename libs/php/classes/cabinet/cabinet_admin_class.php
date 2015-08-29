@@ -644,7 +644,7 @@
 							<td><span class="payment_status_span edit_span"  contenteditable="true">'.$predzakaz['payment_status'].'</span>р</td>
 							<td><span>'.$this->Price_of_position.'</span> р.</td>
 							<td class="buch_status_select">'.$this->decoder_statuslist_buch($predzakaz['buch_status']).'</td>
-							<td class="select_global_status">'.$this->decoder_statuslist_order_and_paperwork($predzakaz['global_status']).'</td>';
+							<td class="select_global_status_paperwork">'.$this->decoder_statuslist_order_and_paperwork($predzakaz['global_status']).'</td>';
 				$html3 = '</tr>';
 
 				$html1 .= $html2 .$html2_body.$html3. $html;

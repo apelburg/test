@@ -221,6 +221,12 @@ $(document).on('change', '.choose_statuslist_snab', function(event) {
 
 // стандартный обработчик ответа AJAX
 function standard_response_handler(data){
+	if(data['response']=='show_new_window'){
+		title = data['title'];// для генерации окна всегда должен передаваться title
+		var height = (data['height'] !== undefined)?data['height']:'auto';
+		var width = (data['width'] !== undefined)?data['width']:'auto';
+		show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
+	}
 	if(data['function'] !== undefined){ // вызов функции... если требуется
 		window[data['function']](data);
 	}
@@ -335,6 +341,7 @@ $(document).on('click','#cabinet_general_content .cabinett_row_hide_orders',func
 		tbl_row_close($(this));
 	}	
 });
+
 
 // раскрыть строку заказа
 function tbl_row_open(obj){
@@ -605,10 +612,11 @@ function show_dialog_and_send_POST_window(html,title,height,width){
 		    	if(data['function'] !== undefined){
 		    		window[data['function']](data);
 		    	}
-
-				if(data['response']=='show_new_window'){
+		    	if(data['response']=='show_new_window'){
 					title = data['title'];// для генерации окна всегда должен передаваться title
-					show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
+					var height = (data['height'] !== undefined)?data['height']:'auto';
+					var width = (data['width'] !== undefined)?data['width']:'auto';
+					show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
 				}else{
 					// подчищаем за собой
 					$('#dialog_gen_window_form').html('');
@@ -1634,7 +1642,68 @@ $(window).load(function() {
 });
 
 
-$(document).on('click', '.get_requeried_expense_menu', function(event) {
-	alert('Тут мы должны выбрать из:/n перевыставить счёт, запросить доп. счёт.');
-	alert('После выбора одного из двух пунктов всплывает уточнающее меню по типу счёта');
-});
+/////////////////////////////
+//	выставить счёт  -- start
+/////////////////////////////
+
+	// запрос на перевыставить счёт и выставить доп.счёт
+	$(document).on('click', '.buch_status_select', function(event) {
+		// если нет кнопки запроса счёта
+		// alert($(this).find('input.query_the_bill').length);
+		if($(this).find('input.query_the_bill').length==0 && $(this).find('input.select').length==0){
+			var order_id = $(this).parent().attr('data-id');
+			var AJAX = 'get_commands_men_for_buch';
+
+			$.post('', {
+				AJAX:AJAX,
+				order_id: order_id
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+				// show_dialog_and_send_POST_window(Base64.decode(data['html']),data['title'],'auto',230);	
+			},'json');
+
+		}
+
+		// alert('Тут мы должны выбрать из:/n перевыставить счёт, запросить доп. счёт.');
+		
+		// alert('После выбора одного из двух пунктов всплывает уточнающее меню по типу счёта');
+		// alert('После выпобра типа счёта меняем статус бух на зпрошен счёт');
+
+		/*
+			в окне которое создал Серёга должен создаться счёт выбранного типа с пустыми полями.
+
+		*/
+	});
+
+	// кнопка выставить счёт
+	$(document).on('click', 'input.query_the_bill', function(event) {
+		event.preventDefault();
+		var order_id = $(this).parent().parent().attr('data-id');
+		var AJAX = 'get_listing_type_the_bill';
+		$.post('', {
+			AJAX:AJAX,
+			order_id: order_id
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+			// show_dialog_and_send_POST_window(Base64.decode(data['html']),data['title'],'auto',230);
+			
+		},'json');
+	});
+
+	// подсветка выбранного пункта
+	$(document).on('click', '#dialog_gen_window_form .check_one_li_tag li', function(event) {
+		$('#dialog_gen_window_form .check_one_li_tag li.checked').removeClass('checked');
+		$(this).addClass('checked');
+	});
+
+	$(document).on('click', '#get_listing_type_the_bill li', function(event) {
+		$('#dialog_gen_window_form input[name="type_the_bill"]').val($(this).attr('data-name_en'));
+	});
+
+	$(document).on('click', '#get_commands_men_for_buch li', function(event) {
+		$('#dialog_gen_window_form input[name="status_buch"]').val($(this).attr('data-name_en'));
+	});
+
+/////////////////////////////
+//	выставить счёт  -- start
+/////////////////////////////

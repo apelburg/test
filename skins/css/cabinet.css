@@ -448,7 +448,8 @@ vertical-align: top;
 }
 
 table#general_panel_orders_tbl tr td.price_for_the_position:hover,
-table#general_panel_orders_tbl tr td.change_supplier:hover{
+table#general_panel_orders_tbl tr td.change_supplier:hover,
+table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
 	background-color: #BBCE91;cursor: pointer;
 }
 
@@ -651,3 +652,16 @@ input.calendar_date_work{
 	padding: 3px;
 }
 #js_location{display: none}
+#dialog_gen_window_form .check_one_li_tag{
+	list-style: none;
+	padding: 0px;
+}
+#dialog_gen_window_form .check_one_li_tag li{
+	padding: 3px 14px;
+	cursor: pointer;
+}
+
+#dialog_gen_window_form .check_one_li_tag li.checked {
+    background-color: #007036;
+    color: #FFF;
+}

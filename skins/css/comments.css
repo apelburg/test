@@ -86,3 +86,18 @@
 	background-repeat: no-repeat;
 	background-position: 50%;
 }
+
+.add_nah {
+    /*float: right;   */
+    margin-right: 10px;
+}
+.div_for_button {
+    padding-top: 13px;
+}
+.create_time_message{
+	font-size: 11px;
+    color: #B1B1B1;
+}
+.user_name {
+    color: #5F5F5F;
+}

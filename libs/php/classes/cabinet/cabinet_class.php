@@ -75,7 +75,7 @@
 				'cancelled'=>'Заказ аннулирован'
 	    		);
 
-			// статусы бухгалтерии
+			// статусы БУХ - вывод в select
 	    	protected $buch_status = array(
 	    		'is_pending' => 'предзаказ ожидает обработки', //-> статус предзаказа = being_prepared (в обработке)
 	    		'score_exhibited' => 'счёт выставлен ', //-> статус предзаказа = waiting_for_payment (ожидает оплаты)
@@ -85,13 +85,26 @@
 				'bail_refunded' => 'залог возвращен', 
 				'prihodnik_on_bail_ofr_samples' => 'залог за образцы ???', 
 				'letter_of_guarantee' => 'гарантийное письмо', // -> перевод в заказ = in_operation
-				'request_expense'=>'Запрошен счёт', // присваивается
 				// 'cancelled'=>'Аннулирован',	//-> статус предзаказа =  cancelled_paperwork
 				'returns_client_collateral' => 'возврат залога клиенту', 
 				'refund_in_a_row' => 'возврат денег по счёту', 
 				'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ', // -> статус предзаказа =  'shipped'
 				'return_order_in_paperorder' => 'вернуть заказ в предзаказ' 	    		
 	    	);
+			// статусы БУХ - сервисные (если уже не выставлены) 
+	    	protected $buch_status_service = array(
+	    		'request_expense'=>'Запрошен счёт',
+	    		'reget_the_bill' => 'перевыставить счёт', 
+				'get_the_dop_bill' => 'запрошен доп. счёт'
+	    	);
+			
+			// комманды менеджера  (при клике на статус буха меню)
+			protected $commands_men_for_buch = array(
+				'reget_the_bill' => 'перевыставить счёт', 
+				'get_the_dop_bill' => 'запросить доп. счёт'
+			);
+
+			
 
 	    	// типы счетов которые мы можем запросить
 	    	protected $type_the_bill =array(
@@ -100,6 +113,8 @@
 	    		'the_bill_for_simples' => 'счёт на образцы',
 	    		'prihodnik' => 'приходник',
 	    		);
+
+
 	    	
 			// статусы склад
 			protected $statuslist_sklad = array(
@@ -357,7 +372,7 @@
 				$html = '';
 				// если стоит is_pending - ставим кнопку
 				if($real_val == "is_pending" && $this->user_access!=2 && $this->user_access!=8){
-					return '<input type="button" name="" value="Запросить счёт">';
+					return '<input type="button" name="query_the_bill" class="query_the_bill" value="Запросить счёт">';
 				}
 
 				
@@ -396,7 +411,8 @@
 				}
 
 				// проверяем на разрешение смены статуса
-				if($this->user_access == 2 || $this->user_access == 1 || $enable_selection || ($this->user_access == 5 && isset($this->paperwork_status[$real_val]) )){ 
+				//if($this->user_access == 2 || $this->user_access == 1 || $enable_selection || ($this->user_access == 5 && isset($this->paperwork_status[$real_val]) )){ 
+				if($this->user_access == 1 || $enable_selection){ 
 					if($real_val == 'in_operation' && $this->user_access == 1){
 						$html = '<input type="button" name="'.$real_val.'" class="'.$real_val.'" value="'.$status_arr[$real_val].'">';
 					}else{
@@ -613,6 +629,176 @@
 					exit;
 				}					
 			}
+
+			// создаем пустой счёт
+			protected function create_the_new_bill_AJAX(){
+				// если мы имеем дело не с обычным счётом выводим окно с комментариями по заказанному документу(счёту)
+				if(isset($_POST['type_the_bill']) && $_POST['type_the_bill'] != "the_bill" && !isset($_POST['comment_text'])){
+					$html = '';
+					$html .= '<form>';
+					// перебираем остальные значения для передачи их далее
+					foreach ($_POST as $key => $value) {
+						$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+					}
+
+					//////////////////////////////
+					//	форма комментария для БУХ
+					//////////////////////////////
+
+					$html .= '<div class="comment table">';
+						$html .= '<div class="row">';
+							$html .= '<div class="cell comment_text">';
+									$html .= '<textarea name="comment_text"></textarea>';
+									$html .= '<div class="div_for_button">';
+										$html .= '<button class="add_nah">Нах</button>';
+										$html .= '<button class="add_nah">Нах?</button>';
+										$html .= '<button class="add_nah">Без комментария</button>';
+										// $html .= '<button id="add_new_comment_button">Отправить</button>';
+									$html .= '</div>';
+							$html .= '</div>';
+						$html .= '</div>';
+					$html .= '</div>';
+
+					$html .= '</form>';
+					echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Комментарии для Бухгалтерии:","width":"600"}';
+				}else{
+					echo '{"response":"show_new_window", "html":"'.base64_encode($this->get_window_buh_uchet_AJAX()).'","title":"Бухгалтерский учёт:","width":"1000"}';
+					
+				}
+
+			}
+
+			// окно бух учёта
+			protected function get_window_buh_uchet_AJAX(){
+
+				$html = '';
+				// строка заказ, менеджер, Компания
+				$this->Order = $this->get_one_order_row_Database((int)$_POST['order_id']);
+
+				// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
+				$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
+
+
+				$html .= $this->print_arr($this->Order);
+				$html .= '<div class="general_info_for_order">';
+					$html .= '<span><strong>Заказ: </strong>'.$this->order_num_for_User.'</span>';
+					include_once './libs/php/classes/manager_class.php';
+					
+					$html .= '&nbsp;<span>Менеджер: '.Manager::get_snab_name_for_query_String($this->Order['manager_id']).'</span>';
+					$html .= '&nbsp;<span style="color:red">Вывод клиента по id '.$this->Order['client_id'].' </span>';
+				$html .= '</div>';
+				
+				$html .= $this->print_arr($_POST);
+
+				//////////////////////////
+				//	выводим скрытый POST для обновления окна
+				//////////////////////////
+					$html .= '<form>';
+					// перебираем остальные значения для передачи их далее
+						foreach ($_POST as $key => $value) {
+							$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+						}
+
+					$html .= '</form>';
+				//////////////////////////
+				//	выводим скрытый POST для обновления окна
+				//////////////////////////
+
+				if(isset($_POST['AJAX']) && $_POST['AJAX'] == 'get_window_buh_uchet'){
+					echo $html;
+				}else{
+					return $html;
+				}
+
+
+
+			}
+
+
+			// запрос информации по заказу
+			protected function get_one_order_row_Database($order_id){
+				global $mysqli;
+				$query = "SELECT 
+				`".CAB_ORDER_ROWS."`.*, 
+				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".CAB_ORDER_ROWS."`";
+				$query .= " WHERE `".CAB_ORDER_ROWS."`.`id` = '".$order_id."'";
+
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$Order_arr = array();
+				
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$Order_arr = $row;
+					}
+				}
+				return $Order_arr;
+			}
+
+
+
+			// запрос из кнопки выставить счёт
+			protected function get_listing_type_the_bill_AJAX(){
+				$html = '';
+				$html .= '<form>';
+				$html .= '<ul id="get_listing_type_the_bill" class="check_one_li_tag">';
+				$n = 0;
+				$first_val = '';
+				foreach ($this->type_the_bill as $name_en => $name_ru) {
+					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+					if($n==0){$first_val = $name_en;}
+					$n++;
+				}
+				$html .= '<input type="text" name="type_the_bill" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="AJAX" value="create_the_new_bill">';	
+				$html .= '</ul>';
+				// если информации о статусе бух не пришло
+				if(!isset($_POST['status_buch'])){$html .= '<input type="text" name="status_buch" value="get_the_bill">';}
+				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+				unset($_POST['AJAX']);
+				// перебираем остальные значения для передачи их далее
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
+				$html .= '</form>';
+
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите тип счёта:","width":"230"}';
+			}
+
+			// вывод меню выбора запроса счёта 
+			protected function get_commands_men_for_buch_AJAX(){
+				$html = '';
+				$n = 0;
+				$html .= '<ul id="get_commands_men_for_buch" class="check_one_li_tag">';
+				$first_val = '';
+				foreach ($this->commands_men_for_buch as $name_en => $name_ru) {
+					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+					if($n==0){$first_val = $name_en;}
+					$n++;
+
+				}
+				$html .= '</ul>';
+
+
+				$html .= '<form>';
+
+				$html .= '<input type="text" name="status_buch" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
+
+				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+				unset($_POST['AJAX']);
+				// перебираем остальные значения для передачи их далее
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
+
+				$html .= '</form>';
+
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:","width":"230"}';
+				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+				// echo 'base';
+			}	
 
 			// правим дату сдачи заказа
 			protected function change_date_of_delivery_of_the_order_AJAX(){
