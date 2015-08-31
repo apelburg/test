@@ -52,8 +52,8 @@
 	    	protected $paperwork_status = array(
 	    		// ПРЕДЗАКАЗ
 				'being_prepared'=>'В оформлении',
-				'request_expense'=>'Запрошен счёт',
-				'requeried_expense'=>'Перевыставить счёт',
+				// 'request_expense'=>'Запрошен счёт',
+				// 'requeried_expense'=>'Перевыставить счёт',
 				'waiting_for_payment' => 'ждём оплаты', // сервисный
 				'paused_paperwork'=>'Предзаказ приостановлен',		
 				'cancelled_paperwork'=>'Предзаказ аннулирован'
@@ -63,15 +63,19 @@
 	    	// содержится в базе в `os__cab_orders_list` в global_status
 	    	protected $order_status = array(
 				// ЗАКАЗ
-				'in_operation'=>'Запуск в работу', // нельзя выбрать
-				'in_work'=>'В работе',
+				'in_operation'=>'Запуск в работу', // нельзя выбрать // вытекает из статусов BUCH
+				'in_work'=>'В работе', // вытекает из кнопки Запуск в работу
 				// 'ready_for_shipment'=>'Готов к отгрузке',
-				'shipped'=>'Отгружен',
-				'paused'=>'Заказ приостановлен',		
-				'cancelled'=>'Заказ аннулирован'
+				'shipped'=>'Отгружен', // вытекает из статусов позиций
+				
 				);
+	    	protected $order_service_status = array(
+	    		'maket_without_payment' =>'Макет без оплаты',
+	    		'paused'=>'Заказ приостановлен',	
+				'cancelled'=>'Заказ аннулирован'
+	    		);
 
-			// статусы бухгалтерии
+			// статусы БУХ - вывод в select
 	    	protected $buch_status = array(
 	    		'is_pending' => 'предзаказ ожидает обработки', //-> статус предзаказа = being_prepared (в обработке)
 	    		'score_exhibited' => 'счёт выставлен ', //-> статус предзаказа = waiting_for_payment (ожидает оплаты)
@@ -84,8 +88,32 @@
 				// 'cancelled'=>'Аннулирован',	//-> статус предзаказа =  cancelled_paperwork
 				'returns_client_collateral' => 'возврат залога клиенту', 
 				'refund_in_a_row' => 'возврат денег по счёту', 
-				'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ' // -> статус предзаказа =  'shipped'
+				'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ', // -> статус предзаказа =  'shipped'
+				'return_order_in_paperorder' => 'вернуть заказ в предзаказ' 	    		
 	    	);
+			// статусы БУХ - сервисные (если уже не выставлены) 
+	    	protected $buch_status_service = array(
+	    		'request_expense'=>'Запрошен счёт',
+	    		'reget_the_bill' => 'перевыставить счёт', 
+				'get_the_dop_bill' => 'запрошен доп. счёт'
+	    	);
+			
+			// комманды менеджера  (при клике на статус буха меню)
+			protected $commands_men_for_buch = array(
+				'reget_the_bill' => 'перевыставить счёт', 
+				'get_the_dop_bill' => 'запросить доп. счёт'
+			);
+
+			
+
+	    	// типы счетов которые мы можем запросить
+	    	protected $type_the_bill =array(
+	    		'the_bill' => 'счёт',
+	    		'the_bill_offer' => 'счёт - оферта',
+	    		'the_bill_for_simples' => 'счёт на образцы',
+	    		'prihodnik' => 'приходник',
+	    		);
+
 
 	    	
 			// статусы склад
@@ -94,7 +122,7 @@
 				// 'waiting' => 'ожидаем',
 				'goods_in_stock' => 'принято на склад', // ->
 				'sended_on_outsource' => 'отправлено на аутсорсинг',
-				'checked_and_packed'  => 'готов к одгрузке',
+				'ready_for_shipment'  => 'готов к отгрузке',
 				'goods_shipped_for_client' => 'отгружен клиенту'
 			);
 				
@@ -128,7 +156,8 @@
 					'не требуются', // диз не видит
 					'готовы к отправке',
 					'отправлены',
-					'получены' // диз не видит
+					'получены', // диз не видит
+					'клише клиента'
 					),
 				// снабжениец
 				// 8 => array(),
@@ -136,13 +165,15 @@
 				5 => array(
 					'проверить наличие', // диз не видит
 					'в наличии',
+					'клише клиента',
 					'нужно делать',
 					'не требуются' // диз не видит
 					),
 				// дизайн
 				9 => array(
 					'готовы к отправке',
-					'отправлены на фотовывод'
+					'отправлены на фотовывод',
+					'клише заказано'
 					),
 				// производство 
 				4 => array(
@@ -161,15 +192,16 @@
 					следствия нужны для переключения статусов других подразделений при изменении какого-либо статуса			
 				*/
 
-				// МАССИВ СЛЕДСТВИЙ статусов заказа из статусов бухгалтерии
+				// статус БУХ -> статус Заказа/Предзаказа
 		    	protected $CONSEQUENCES_of_status_buch = array(
-		    		'is_pending' => 'being_prepared', // предзаказ ожидает обработки
-		    		'score_exhibited' => 'waiting_for_payment', // счёт выставлен
-		    		'payment' => 'in_operation', // оплачен
-		    		'partially_paid' => 'in_operation', // чатично оплачен
-		    		'collateral_received' => 'in_operation', // принят залог
-		    		'letter_of_guarantee' => 'in_operation', // гарантийное 
-		    		'ogruzochnye_accepted' => 'shipped'// отгрузочные приняты
+		    		'return_order_in_paperorder' => 'being_prepared', // вернуть заказ в предзаказ -> предзаказ ожидает обработки
+		    		'score_exhibited' => 'waiting_for_payment', // счёт выставлен -> ждём оплаты
+		    		'payment' => 'in_operation', // оплачен -> кнопка "Запуск в работу"
+		    		'partially_paid' => 'in_operation', // чатично оплачен -> кнопка "Запуск в работу"
+		    		'collateral_received' => 'in_operation', // принят залог -> кнопка "Запуск в работу"
+		    		'letter_of_guarantee' => 'in_operation', // гарантийное -> кнопка "Запуск в работу"
+		    		
+		    		'ogruzochnye_accepted' => 'shipped'// отгрузочные приняты ???
 		    	);
 
 		    	// // статус склад -> статус снаб
@@ -235,6 +267,7 @@
 				if(trim($html) == ""){$html="нет информации";}
 				return $html;
 			}
+
 			// вывод статусов склада с возможностью их редактирования (опционально по флагу $enable_selection)
 			protected function decoder_statuslist_sklad($real_val, $main_rows_id, $enable_selection = 0){
 				/*
@@ -336,7 +369,13 @@
 					$enable_selection - разрешение на вывод редактируемого списка, по умолчанию запрещено
 				*/
 
-				$html = '';			
+				$html = '';
+				// если стоит is_pending - ставим кнопку
+				if($real_val == "is_pending" && $this->user_access!=2 && $this->user_access!=8){
+					return '<input type="button" name="query_the_bill" class="query_the_bill" value="Запросить счёт">';
+				}
+
+				
 				// проверяем на разрешение смены статуса снабжения
 				if($this->user_access == 2 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
 				// if($enable_selection){
@@ -347,7 +386,7 @@
 						}
 					$html .= '</select>';
 				}else{
-					$html .='<span class="greyText">'.(isset($this->buch_status[$real_val])?$this->buch_status[$real_val]:$real_val).'</span>';
+					$html .='<span class="greyText get_requeried_expense_menu">'.(isset($this->buch_status[$real_val])?$this->buch_status[$real_val]:$real_val).'</span>';
 					
 				}
 				// возвращаем
@@ -372,7 +411,8 @@
 				}
 
 				// проверяем на разрешение смены статуса
-				if($this->user_access == 2 || $this->user_access == 1 || $enable_selection || ($this->user_access == 5 && isset($this->paperwork_status[$real_val]) )){ 
+				//if($this->user_access == 2 || $this->user_access == 1 || $enable_selection || ($this->user_access == 5 && isset($this->paperwork_status[$real_val]) )){ 
+				if($this->user_access == 1 || $enable_selection){ 
 					if($real_val == 'in_operation' && $this->user_access == 1){
 						$html = '<input type="button" name="'.$real_val.'" class="'.$real_val.'" value="'.$status_arr[$real_val].'">';
 					}else{
@@ -440,7 +480,7 @@
 
 				//$html .= '<tr><td colspan="2">'.$this->print_arr($this->Position_status_list).'</td></tr>';
 
-				// выводим стутусы услуг
+				// выводим статусы услуг
 				foreach ($this->Position_status_list as $performer => $performer_status_arr) {
 					$html .= '<tr>';
 					$html .= '<td>';
@@ -588,6 +628,260 @@
 					$this->$method_AJAX();
 					exit;
 				}					
+			}
+
+			// создаем пустой счёт
+			protected function create_the_new_bill_AJAX(){
+				// если мы имеем дело не с обычным счётом выводим окно с комментариями по заказанному документу(счёту)
+				if(isset($_POST['type_the_bill']) && $_POST['type_the_bill'] != "the_bill" && !isset($_POST['comment_text'])){
+					$html = '';
+					$html .= '<form>';
+					// перебираем остальные значения для передачи их далее
+					foreach ($_POST as $key => $value) {
+						$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+					}
+
+					//////////////////////////////
+					//	форма комментария для БУХ
+					//////////////////////////////
+
+					$html .= '<div class="comment table">';
+						$html .= '<div class="row">';
+							$html .= '<div class="cell comment_text">';
+									$html .= '<textarea name="comment_text"></textarea>';
+									$html .= '<div class="div_for_button">';
+										$html .= '<button class="add_nah">Нах</button>';
+										$html .= '<button class="add_nah">Нах?</button>';
+										$html .= '<button class="add_nah">Без комментария</button>';
+										// $html .= '<button id="add_new_comment_button">Отправить</button>';
+									$html .= '</div>';
+							$html .= '</div>';
+						$html .= '</div>';
+					$html .= '</div>';
+
+					$html .= '</form>';
+					echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Комментарии для Бухгалтерии:","width":"600"}';
+				}else{
+					echo '{"response":"show_new_window", "html":"'.base64_encode($this->get_window_buh_uchet_AJAX()).'","title":"Бухгалтерский учёт:","width":"1000"}';
+					
+				}
+
+			}
+
+			// окно бух учёта
+			protected function get_window_buh_uchet_AJAX(){
+
+				$html = '';
+				// строка заказ, менеджер, Компания
+				$this->Order = $this->get_one_order_row_Database((int)$_POST['order_id']);
+
+				// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
+				$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
+
+
+				$html .= $this->print_arr($this->Order);
+				$html .= '<div class="general_info_for_order">';
+					$html .= '<span><strong>Заказ: </strong>'.$this->order_num_for_User.'</span>';
+					include_once './libs/php/classes/manager_class.php';
+					
+					$html .= '&nbsp;<span>Менеджер: '.Manager::get_snab_name_for_query_String($this->Order['manager_id']).'</span>';
+					$html .= '&nbsp;<span style="color:red">Вывод клиента по id '.$this->Order['client_id'].' </span>';
+				$html .= '</div>';
+				
+				$html .= $this->print_arr($_POST);
+
+				//////////////////////////
+				//	выводим скрытый POST для обновления окна
+				//////////////////////////
+					$html .= '<form>';
+					// перебираем остальные значения для передачи их далее
+						foreach ($_POST as $key => $value) {
+							$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+						}
+
+					$html .= '</form>';
+				//////////////////////////
+				//	выводим скрытый POST для обновления окна
+				//////////////////////////
+
+				if(isset($_POST['AJAX']) && $_POST['AJAX'] == 'get_window_buh_uchet'){
+					echo $html;
+				}else{
+					return $html;
+				}
+
+
+
+			}
+
+
+			// запрос информации по заказу
+			protected function get_one_order_row_Database($order_id){
+				global $mysqli;
+				$query = "SELECT 
+				`".CAB_ORDER_ROWS."`.*, 
+				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				FROM `".CAB_ORDER_ROWS."`";
+				$query .= " WHERE `".CAB_ORDER_ROWS."`.`id` = '".$order_id."'";
+
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$Order_arr = array();
+				
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$Order_arr = $row;
+					}
+				}
+				return $Order_arr;
+			}
+
+
+
+			// запрос из кнопки выставить счёт
+			protected function get_listing_type_the_bill_AJAX(){
+				$html = '';
+				$html .= '<form>';
+				$html .= '<ul id="get_listing_type_the_bill" class="check_one_li_tag">';
+				$n = 0;
+				$first_val = '';
+				foreach ($this->type_the_bill as $name_en => $name_ru) {
+					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+					if($n==0){$first_val = $name_en;}
+					$n++;
+				}
+				$html .= '<input type="text" name="type_the_bill" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="AJAX" value="create_the_new_bill">';	
+				$html .= '</ul>';
+				// если информации о статусе бух не пришло
+				if(!isset($_POST['status_buch'])){$html .= '<input type="text" name="status_buch" value="get_the_bill">';}
+				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+				unset($_POST['AJAX']);
+				// перебираем остальные значения для передачи их далее
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
+				$html .= '</form>';
+
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите тип счёта:","width":"230"}';
+			}
+
+			// вывод меню выбора запроса счёта 
+			protected function get_commands_men_for_buch_AJAX(){
+				$html = '';
+				$n = 0;
+				$html .= '<ul id="get_commands_men_for_buch" class="check_one_li_tag">';
+				$first_val = '';
+				foreach ($this->commands_men_for_buch as $name_en => $name_ru) {
+					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+					if($n==0){$first_val = $name_en;}
+					$n++;
+
+				}
+				$html .= '</ul>';
+
+
+				$html .= '<form>';
+
+				$html .= '<input type="text" name="status_buch" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
+
+				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+				unset($_POST['AJAX']);
+				// перебираем остальные значения для передачи их далее
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
+
+				$html .= '</form>';
+
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:","width":"230"}';
+				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+				// echo 'base';
+			}	
+
+			// правим дату сдачи заказа
+			protected function change_date_of_delivery_of_the_order_AJAX(){
+				global $mysqli;
+				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
+					`date_of_delivery_of_the_order` =  '".$_POST['date']."' 
+					WHERE  `id` ='".$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}';
+			}
+
+			// правим дату утверждения макета
+			protected function change_approval_date_AJAX(){
+				
+				// вносим правки в позицию
+				global $mysqli;
+				$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
+					`approval_date` =  '".$_POST['date']."' 
+					WHERE  `id` ='".$_POST['row_id']."';";
+
+				$result = $mysqli->query($query) or die($mysqli->error);
+				// запускаем все прикреплённые услуги
+
+
+				////////////////////////////////////////////////
+				//  ищем 'being_prepared' меняем на in_processed	
+				////////////////////////////////////////////////
+					// запрашиваем id прикреплённых услуг, которые необходимо стартануть
+					$str = '';
+					$query = "SELECT * FROM `".CAB_DOP_USLUGI."`
+					WHERE  `dop_row_id` ='".$_POST['dop_data_id']."'";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					// echo $query;
+					$n = 0;
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							if($row['performer_status'] == 'being_prepared' || trim($row['performer_status']) == '')
+							$str .= (($n>0)?",":"")."'".$row['id']."'";
+							$n++;
+						}
+					}
+
+					$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+					`performer_status` =  'in_processed' 
+					WHERE  `id` IN (".$str.")";
+					// echo $query;
+					if($str!=''){
+						$result = $mysqli->query($query) or die($mysqli->error);	
+					}
+					
+					// меняем на in_processed
+					
+				////////////////////////////////////////////////
+				//  ищем 'being_prepared' меняем на in_processed	
+				////////////////////////////////////////////////
+				
+				echo '{"response":"OK"}';
+				//echo 'необходимо доделать функцию. ищем \'being_prepared\' меняем на in_processed';
+			}
+
+			// правим срок по дс
+			protected function change_deadline_value_AJAX(){
+				global $mysqli;
+				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
+					`deadline` =  '".$_POST['value']."' 
+					WHERE  `id` ='".$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}';
+			}
+			// детализация позиции по прикреплённым услугам
+			protected function get_a_detailed_article_on_the_price_of_positions_AJAX(){
+				$html = '';
+				 	
+				// собираем Object по заказу
+				$this->Positions_arr = $this->positions_rows_Database($_POST['order_num']);
+				foreach ($this->Positions_arr as $key => $value) {
+					$this->Positions_arr[$key]['SERVICES'] = $this->get_order_dop_uslugi($value['id_dop_data']);	 								
+				}
+
+				// собираем HTML
+				$html .= $this->get_a_detailed_article_on_the_price_of_positions_Html();
+
+				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 			}
 
 			// присваиваем значение поля логотип (в окне доп. тех. инфо) ко всем услугам по текущей позиции
@@ -1077,7 +1371,7 @@
 						$html .= '<div class="separation_container">';
 							$html .= '<strong>'.$this->dop_inputs_listing[$key]['name_ru'].'</strong>:<br>';
 							$html .= '<div class="data_info">'.$text.'</div>';		
-						$html .= '</div>';					
+						$html .= '</div>';			
 					}
 				}
 				//////////////////////////
@@ -1085,7 +1379,7 @@
 				//////////////////////////
 				$html .= '<div class="separation_container">';
 					$html .= '<strong>Техническое задание, пояснения:</strong><br>';
-					$html .= '<div class="data_info">'.$service['tz'].'</div>';
+					$html .= '<div class="data_info">'.base64_decode($service['tz']).'</div>';
 				$html .= '</div>';
 				echo '{"response":"OK","html":"'.base64_encode($html).'","title":"ТЗ"}';
 			}
@@ -1746,7 +2040,7 @@
 
 				// подключаем поле плёнки, если оно включено в админке 
 				if(trim($this->Service_show_status_film_photos)=="on"){
-					$html .='<div>Плёнки<br>';
+					$html .='<div>Плёнки/Клише<br>';
 					$html .= $this->get_statuslist_film_photos($this->Service['film_photos_status'],$this->Service['id']);
 					// $html .='<textarea class="save_logotip" name="logotip">'.$this->Service['logotip'].'</textarea>';
 					$html .='</div>';
@@ -1760,7 +2054,7 @@
 					$html .='</div>';
 				}
 
-				$html .='<div>Комментарии для исполнителя '.(isset($this->performer[$this->Service['performer']])?'"'.$this->performer[$this->Service['performer']].'"':'').'<br><textarea class="save_tz" name="tz">'.$this->Service['tz'].'</textarea></div>';
+				$html .='<div>Комментарии для исполнителя '.(isset($this->performer[$this->Service['performer']])?'"'.$this->performer[$this->Service['performer']].'"':'').'<br><textarea class="save_tz" name="tz">'.base64_decode($this->Service['tz']).'</textarea></div>';
 
 				return $html;
 			}		
@@ -1855,12 +2149,22 @@
 		//   -----  END  -----  МЕТОДЫ AJAX  -----  END  -----  //
 		//////////////////////////////////////////////////////////
 
+		///////////////////////////////////////////////////////////////////////////////////////
+		//	-----  START  -----  General Template (общие для всех шаблоны)  -----  START  -----
+		///////////////////////////////////////////////////////////////////////////////////////
+			protected function history_Template(){
+				echo $this->wrap_text_in_warning_message('Сюда попадают заказы, которые были закрыты и по которым была произведена выплата менеджеру.');
+			}
+			
+		////////////////////////////////////////////////////////////////////////////////////
+		//   -----  END  -----  General Template (общие для всех шаблоны) -----  END  -----
+		////////////////////////////////////////////////////////////////////////////////////
 		
 
 		/*
 			декодируем поле json для некаталога в читабельный вид
 			получаем из json описания некаталожного товара всю содержащуюся там информацию
-		*/
+		*/		
 		protected function decode_json_no_cat_to_html($arr){// из cabinet_admin_class.php
 			// список разрешённых для вывода в письмо полей
 			$send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
@@ -2341,21 +2645,7 @@
 		    return $str;
 		}
 
-		// детализация позиции по прикреплённым услугам
-		protected function get_a_detailed_article_on_the_price_of_positions_AJAX(){
-			$html = '';
-			 	
-			// собираем Object по заказу
-			$this->Positions_arr = $this->positions_rows_Database($_POST['order_num']);
-			foreach ($this->Positions_arr as $key => $value) {
-				$this->Positions_arr[$key]['SERVICES'] = $this->get_order_dop_uslugi($value['id_dop_data']);	 								
-			}
-
-			// собираем HTML
-			$html .= $this->get_a_detailed_article_on_the_price_of_positions_Html();
-
-			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-		}
+		
 
 		protected function get_all_services_names_Database(){
 			global $mysqli;
@@ -2672,76 +2962,7 @@
 			return $percent;
 		}
 
-		// правим дату сдачи заказа
-		protected function change_date_of_delivery_of_the_order_AJAX(){
-			global $mysqli;
-			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
-				`date_of_delivery_of_the_order` =  '".$_POST['date']."' 
-				WHERE  `id` ='".$_POST['row_id']."';";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			echo '{"response":"OK"}';
-		}
-
-		// правим дату утверждения макета
-		protected function change_approval_date_AJAX(){
-			
-			// вносим правки в позицию
-			global $mysqli;
-			$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
-				`approval_date` =  '".$_POST['date']."' 
-				WHERE  `id` ='".$_POST['row_id']."';";
-
-			$result = $mysqli->query($query) or die($mysqli->error);
-			// запускаем все прикреплённые услуги
-
-
-			////////////////////////////////////////////////
-			//  ищем 'being_prepared' меняем на in_processed	
-			////////////////////////////////////////////////
-				// запрашиваем id прикреплённых услуг, которые необходимо стартануть
-				$str = '';
-				$query = "SELECT * FROM `".CAB_DOP_USLUGI."`
-				WHERE  `dop_row_id` ='".$_POST['dop_data_id']."'";
-				$result = $mysqli->query($query) or die($mysqli->error);
-				// echo $query;
-				$n = 0;
-				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						if($row['performer_status'] == 'being_prepared' || trim($row['performer_status']) == '')
-						$str .= (($n>0)?",":"")."'".$row['id']."'";
-						$n++;
-					}
-				}
-
-				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
-				`performer_status` =  'in_processed' 
-				WHERE  `id` IN (".$str.")";
-				// echo $query;
-				if($str!=''){
-					$result = $mysqli->query($query) or die($mysqli->error);	
-				}
-				
-				// меняем на in_processed
-				
-			////////////////////////////////////////////////
-			//  ищем 'being_prepared' меняем на in_processed	
-			////////////////////////////////////////////////
-			
-			echo '{"response":"OK"}';
-
-
-			
-			
-
-			
-			
-				
-			
-
-			//echo 'необходимо доделать функцию. ищем \'being_prepared\' меняем на in_processed';
-
-
-		}
+		
 
 		// получаем список пользователей по номеру подразделения
 		protected function get_production_userlist_Database(){
@@ -2760,17 +2981,7 @@
 			return $this->userlist;
 		}
 
-		// правим срок по дс
-		protected function change_deadline_value_AJAX(){
-			global $mysqli;
-			$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
-				`deadline` =  '".$_POST['value']."' 
-				WHERE  `id` ='".$_POST['row_id']."';";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			echo '{"response":"OK"}';
-		}
-
-
+		
 		// запрос строк позиций по заказу
 		protected function positions_rows_Database($order_num, $filters = 0){
 			$arr = array();
@@ -2780,10 +2991,9 @@
 			INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
 			WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".$order_num."'";
 			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
-			//echo $query.'<br>';
+			
 
 			$query .= $this->filter_position; 
-
 
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){
@@ -2821,7 +3031,7 @@
 			$this->error_message_for_incorrect_URL();
 			// собиравем сообщение для пользоватедля
 			$message = 'Вы не должны были попасть на данную страницу, но что-то пошло не так и Вы всё таки здесь!!!<br>';
-			$message .= 'Через 12 сукунд Вы будете переадресованы на стартовую страницу кабинета <br>в соответствии с Вашим уровнем доступа.<br>';
+			$message .= 'Через 12 секунд Вы будете переадресованы на стартовую страницу кабинета <br>в соответствии с Вашим уровнем доступа.<br>';
 			$message .= 'Сообщение о данном происшествии уже отправлено разработчикам. Спасибо.';
 			// при выгрузке данного дива на страницу JS переадресует пользователя через 5 секунд по указанной в div ссылке
 			$message .= '<div id="js_location" data-time="12000"><a href="http://'.$_SERVER['HTTP_HOST'].'/'.get_worked_link_href_for_cabinet().'">Перейти по ссылке</a></div>';

@@ -76,17 +76,31 @@ $(document).on('click', '#add_comments_of_position', function(event) {
 //////////////////////////
 //	ОБЩИЕ ФУНКЦИИ
 //////////////////////////
+$(document).on('click', '.add_nah', function(event) {
+	event.preventDefault();
+	var add_val = $(this).html();	//alert($(this).val());
+	var textarea_val = $(this).parent().parent().parent().find('textarea').val();
+	// if(textarea_val!=""){
+		// $(this).parent().parent().parent().find('textarea').val(textarea_val+'\n' +add_val);	
+	// }else{
+	$(this).parent().parent().parent().find('textarea').val(textarea_val+' '+add_val);
+	// }
+	
+});
 
 $(document).on('click', '#add_new_comment_button', function(event) {
 	event.preventDefault();
 	var obj = $(this);
-	var serialize = $(this).parent().serialize();
+	var serialize = $('#dialog_gen_window_form form').serialize();
 	$(this).parent().find('.comment_text textarea').val('');
 	$.post('', serialize, function(data, textStatus, xhr) {
 		if (data['response']!="OK") {
 			alert('УПС......Что-то пошло не так');
 		}else{
-			obj.parent().before(Base64.decode(data['html']));
+			// вставляем сообщение в HTML
+			obj.parent().parent().parent().parent().before(Base64.decode(data['html']));
+			// подчищаем textarea
+			obj.parent().parent().parent().find('textarea').val('');
 		}
 	},'json');
 });

@@ -70,7 +70,7 @@ class Comments_for_query_class{
 						$html .= '<div class="create_time_message">'.date('d.m.Y H:i:s').'</div>';
 						$html .= '</div>';
 						$html .= '<div class="cell comment_text">';
-						$html .= '<div class="create_time_message">'.$_POST['comment_text'].'</div>';
+						$html .= '<div>'.$_POST['comment_text'].'</div>';
 						$html .= '</div>';
 					$html .= '</div>';
 				$html .= '</div>';			
@@ -120,7 +120,7 @@ class Comments_for_query_class{
 					$html .= '<div class="create_time_message">'.$value['create_time'].'</div>';
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
-					$html .= '<div class="create_time_message">'.$value['comment_text'].'</div>';
+					$html .= '<div>'.$value['comment_text'].'</div>';
 					$html .= '</div>';
 				$html .= '</div>';
 			$html .= '</div>';
@@ -138,14 +138,19 @@ class Comments_for_query_class{
 		
 		$html = '';
 		$html .= '<form>';
-		$html .= '<div class="comment table">';
-			$html .= '<div class="row">';
-				$html .= '<div class="cell user_name_comments">';
-					$html .= '<div class="user_name" data-id="'.$_SESSION['access']['user_id'].'">'. $this->user_name .'</div>';
-					
+			$html .= '<div class="comment table">';
+				$html .= '<div class="row">';
+					$html .= '<div class="cell user_name_comments">';
+						$html .= '<div class="user_name" data-id="'.$_SESSION['access']['user_id'].'">'. $this->user_name .'</div>';
+						
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
-					$html .= '<textarea name="comment_text"></textarea>';
+							$html .= '<textarea name="comment_text"></textarea>';
+							$html .= '<div class="div_for_button">';
+								$html .= '<button class="add_nah">Нах</button>';
+								$html .= '<button class="add_nah">Нах?</button>';
+								$html .= '<button id="add_new_comment_button">Отправить</button>';
+							$html .= '</div>';
 					$html .= '</div>';
 				$html .= '</div>';
 			$html .= '</div>';
@@ -154,7 +159,7 @@ class Comments_for_query_class{
 			$html .= '<input name="AJAX" type="hidden" value="add_new_comment_for_query"></input>';
 			$html .= '<input name="id" type="hidden" value="'.$this->user_id.'"></input>';
 			$html .= '<input name="query_num" type="hidden" value="'.$_POST['query_num'].'"></input>';
-			$html .= '<button id="add_new_comment_button">Отправить</button>';
+			
 		$html .= '</form>';
 		$html .= '</div>';
 		return $html;
@@ -288,7 +293,7 @@ class Comments_for_order_class extends Comments_for_query_class{
 						$html .= '<div class="create_time_message">'.$value['create_time'].'</div>';
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
-						$html .= '<div class="create_time_message">'.$value['comment_text'].'</div>';
+						$html .= '<div>'.$value['comment_text'].'</div>';
 					$html .= '</div>';
 				$html .= '</div>';
 			$html .= '</div>';
@@ -318,6 +323,11 @@ class Comments_for_order_class extends Comments_for_query_class{
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
 					$html .= '<textarea name="comment_text"></textarea>';
+					$html .= '<div class="div_for_button">';
+						$html .= '<button class="add_nah">Нах</button>';
+						$html .= '<button class="add_nah">Нах?</button>';
+						$html .= '<button id="add_new_comment_button">Отправить</button>';
+					$html .= '</div>';
 					$html .= '</div>';
 				$html .= '</div>';
 			$html .= '</div>';
@@ -326,7 +336,6 @@ class Comments_for_order_class extends Comments_for_query_class{
 			$html .= '<input name="AJAX" type="hidden" value="add_new_comment_for_order"></input>';
 			$html .= '<input name="id" type="hidden" value="'.$this->user_id.'"></input>';
 			$html .= '<input name="order_num" type="hidden" value="'.$_POST['order_num'].'"></input>';
-			$html .= '<button id="add_new_comment_button">Отправить</button>';
 		$html .= '</form>';
 		$html .= '</div>';
 		return $html;
@@ -500,7 +509,7 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 						$html .= '<div class="create_time_message">'.$value['create_time'].'</div>';
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
-						$html .= '<div class="create_time_message">'.$value['comment_text'].'</div>';
+						$html .= '<div>'.$value['comment_text'].'</div>';
 					$html .= '</div>';
 				$html .= '</div>';
 			$html .= '</div>';
@@ -526,6 +535,11 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 					$html .= '</div>';
 					$html .= '<div class="cell comment_text">';
 						$html .= '<textarea name="comment_text"></textarea>';
+						$html .= '<div class="div_for_button">';
+							$html .= '<button class="add_nah">Нах</button>';
+							$html .= '<button class="add_nah">Нах?</button>';
+							$html .= '<button id="add_new_comment_button">Отправить</button>';
+						$html .= '</div>';
 						$html .= '<input name="name" type="hidden" value="'.$this->user_name .'"></input>';
 						$html .= '<input name="AJAX" type="hidden" value="add_new_comment_for_position"></input>';
 						$html .= '<input name="id" type="hidden" value="'.$this->user_id.'"></input>';
@@ -533,7 +547,6 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 					$html .= '</div>';						
 				$html .= '</div>';
 			$html .= '</div>';	
-			$html .= '<button id="add_new_comment_button">Отправить</button>';
 		$html .= '</form>';
 		return $html;
 	}
