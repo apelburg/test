@@ -668,9 +668,10 @@
 				$query ="INSERT INTO `".CAB_BILL_TBL."` SET 
 					`order_id` = '".$_POST['order_id']."',
 					`type_the_bill` = '".$_POST['type_the_bill']."',
-					`date_create` = '".$date_for_base."',
-					`comments` = '".$_POST['comment_text']."'
-				";
+					`date_create` = '".$date_for_base."'";
+					if(isset($_POST['comment_text'])){
+						$query .= ",`comments` = '".$_POST['comment_text']."'";
+					}
 
 				$result = $mysqli->query($query) or die($mysqli->error);
 				// запоминаем новый id
@@ -808,8 +809,8 @@
 							$html .= '<div class="cell comment_text">';
 									$html .= '<textarea name="comment_text"></textarea>';
 									$html .= '<div class="div_for_button">';
-										$html .= '<button class="add_nah">Нах</button>';
-										$html .= '<button class="add_nah">Нах?</button>';
+										// $html .= '<button class="add_nah">Нах</button>';
+										// $html .= '<button class="add_nah">Нах?</button>';
 										$html .= '<button class="add_nah">Без комментария</button>';
 										// $html .= '<button id="add_new_comment_button">Отправить</button>';
 									$html .= '</div>';
@@ -935,7 +936,7 @@
 
 				// запрашиваем
 				$the_bill_arr = $this->get_the_bill_for_order_Database($order['id']);
-				if(empty($the_bill_arr)){return '';}
+				if(empty($the_bill_arr)){return '<table></table>';}
 
 				$html = '';
 
