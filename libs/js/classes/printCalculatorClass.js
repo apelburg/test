@@ -821,7 +821,7 @@ var printCalculator = {
 			
 			// содержит поле ввода ЦМИКа
 			var YPriceParamCMYK = document.createElement('DIV');
-			YPriceParamCMYK.className = 'YPriceParamCMYK';
+			YPriceParamCMYK.className = 'YPriceParamCMYK hidden';
 			YPriceParamCMYK.setAttribute("contenteditable",true);
 			YPriceParamCMYK.onblur =  printCalculator.onblurCMYK;
 			
@@ -896,7 +896,15 @@ var printCalculator = {
 					 YPriceParamDiv.appendChild(YPriceParamSelectWrapClone);
 					 // CMYK
 					 var YPriceParamCMYKсlone = YPriceParamCMYK.cloneNode(true);
-					 if(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk) YPriceParamCMYKсlone.innerHTML = Base64.decode(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk);
+                     if(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk){
+						  // делаем перекодировку, заменяем полученные в кодировке данные на раскодированные потому что потом
+						  // их надо будет отправлять на сервер, а они отправляются на сервер не закодированными
+						  // ВООБЩЕТО НАВЕРНО лучще переделать систему и кодировать сразу здесь чтобы не было путаницы и данные 
+						  // всегда отправлялись на сервер в кодировке
+						  printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk = Base64.decode(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk);
+	                      YPriceParamCMYKсlone.innerHTML = printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk;
+						  YPriceParamCMYKсlone.className = 'YPriceParamCMYK';
+					 }
 					 YPriceParamCMYKсlone.onblur = printCalculator.onblurCMYK;
 				     YPriceParamCMYKdiv.appendChild(YPriceParamCMYKсlone);
 				}
@@ -1576,7 +1584,6 @@ var printCalculator = {
 		// console.log(printCalculator.currentCalculationData);
         // console.log('<<< saveCalculatorResult --');
 		
-		//return;
 		// формируем url для AJAX запроса
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_calculator_result=1&details='+JSON.stringify(printCalculator.currentCalculationData));
 		printCalculator.send_ajax(url,callback);
@@ -1585,7 +1592,7 @@ var printCalculator = {
 		
 		
 		function callback(response){ 
-		    //  alert(response);
+		    // alert(response);
 			// console.log(response);
 			location.reload();
 		}
@@ -1602,6 +1609,9 @@ var printCalculator = {
 			if(cellsArr[i] == cur_cell) break;//alert(i);
 		}
 		printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk = cur_cell.innerHTML;
+		// alert(print_r(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam));
+		// console.log('--2--');
+		// console.log(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam);
 	}
 	,
 	onchangeYPriceParamSelect:function(YPriceParamDiv,YPriceParamCMYKdiv){
@@ -1609,19 +1619,23 @@ var printCalculator = {
 		// чтобы сохранить их в dataForProcessing а затем запустить printCalculator.makeProcessing();
 		
 		// затираем данные по цветам которые были до этого
+		// ниже мы пройдем по существующим селектам проверим на то что они выбраны и поместим данные в этот объект заново, в том числе надо
+		// добавить данные по CMYK
 		if(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam) printCalculator.currentCalculationData.print_details.dop_params.YPriceParam = [];
 		
 		var selectsArr = YPriceParamDiv.getElementsByTagName("SELECT");
 		var CMYKsArr = YPriceParamCMYKdiv.getElementsByTagName("DIV");
 		
 		//alert(selectsArr.length);
+		// ЗДЕСЬ НЕ ПРАВИЛЬНЫЙ ПРОХОД, здесь идти по СИБЛИНГАМ потому-что в цикле используется удаление
 		for( var i = 0; i < selectsArr.length; i++){
 			var value = selectsArr[i].options[selectsArr[i].selectedIndex].value;
 			var item_id = selectsArr[i].options[selectsArr[i].selectedIndex].getAttribute('item_id');
 			// если value != 0(0 равно вспомогательное значение "Выбрать"), значит выбор в селекте сделан 
 			// добавляем его в dataForProcessing
 			if(value != 0){
-				printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.push({'id':item_id,'coeff':value}); 
+				if(typeof CMYKsArr[i] !== 'undefined') printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.push({'id':item_id,'coeff':value,'cmyk':CMYKsArr[i].innerHTML}); 
+				else   printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.push({'id':item_id,'coeff':value}); 
 				CMYKsArr[i].className = 'YPriceParamCMYK';
 			}
 			// если value == 0(0 равно вспомогательное значение "Выбрать"), значит выбор в селекте не сделан
