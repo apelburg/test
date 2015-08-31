@@ -665,3 +665,117 @@ input.calendar_date_work{
     background-color: #007036;
     color: #FFF;
 }
+
+.comment.table{
+	width:100%;
+}
+.comment.table textarea{
+	width:100%;
+	height: 100px;
+}
+
+.buh_window{
+	border-bottom: 1px solid #B1B1B1;
+	padding: 8px 0px;
+}
+.buh_window span{
+	margin-right: 15px;
+}
+.buh_window .date_return_width_specification_signed,
+.buh_window .date_specification_signed,
+.date_create_the_bill{
+	width: 83px;
+	cursor: default;
+}
+.buh_window .for_price_the_bill{
+	width: 85px;
+}
+.saved{
+	background-color: #f1f1f1;
+}
+#add_the_bill_link span{
+	font-style: oblique;
+	text-decoration: underline;
+	cursor: pointer;
+}
+#add_the_bill_link span:hover{
+	text-decoration: none;
+}
+#cabinet_general_content table tr th.buh_uchet{
+	text-align: center;
+}
+#cabinet_general_content table tr td.buh_uchet{
+	background-image: url('../../skins/images/img_design/open_buch_uchet.png');
+	background-position: 50%;
+	background-repeat: no-repeat;
+}
+.buh_uchet:hover{
+	background-color: #BBCE91;
+    cursor: pointer;
+}
+.buch_status_select:hover{
+	background-color: #BBCE91;
+    cursor: pointer;
+}
+.tz_text_new {
+    background: url('../images/img_design/tz_text_new.png') no-repeat;
+    float: right;
+    margin: auto;
+    width: 30px;
+    height: 30px;
+    background-position: 0px 2px;
+    border: 1px solid #fff;
+    cursor: pointer;
+}
+.buch_comments{
+	float: right;
+    background: url('../../skins/images/img_design/tz_text_edit.png') no-repeat;
+    margin: auto;
+    width: 30px;
+    height: 30px;
+    background-position: 0px 2px;
+    margin-top: -4px;
+    cursor: pointer;
+}
+
+span.buch_comments.only_read {
+    /*margin-right: 52px;*/
+}
+.button.usl_del{
+	float: right;
+	padding: 1px 5px 0 5px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: grey;
+    cursor: pointer;
+}
+#container_from_the_bill{
+	padding: 9px 0 3px;
+}
+#container_from_the_bill .container_from_the_bill{
+	padding: 5px 0;
+}
+#container_from_the_bill .container_from_the_bill.deleted{
+	color: #b1b1b1;
+}
+#add_the_bill_link{
+	margin-top: 11px;
+}
+
+.deleted_note{
+	display: none;
+}
+.why_this_doc_deleted{
+	cursor: pointer;
+	color: rgba(255, 0, 0, 0.49);
+}
+#container_from_the_bill table {
+	width: 100%;
+}
+#container_from_the_bill table tr td:nth-of-type(2) span{
+	padding-left: 10px;	
+}
+.onlyread{
+	border: 1px solid #f1f1f1;
+	padding: 15px;
+}

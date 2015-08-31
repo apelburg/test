@@ -237,11 +237,11 @@
 					$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `payment_status` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
 					$result = $mysqli->query($query) or die($mysqli->error);
 				}
-				private function change_invoce_num_AJAX(){
-					global $mysqli;
-					$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `invoice_num` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
-					$result = $mysqli->query($query) or die($mysqli->error);
-				}
+				// private function change_invoce_num_AJAX(){
+				// 	global $mysqli;
+				// 	$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `invoice_num` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
+				// 	$result = $mysqli->query($query) or die($mysqli->error);
+				// }
 				private function number_payment_list_AJAX(){
 					global $mysqli;
 					$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `number_pyament_list` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";

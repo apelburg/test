@@ -242,7 +242,7 @@
 				###############################
 				$html = '<tr class="query_detail" '.$this->open_close_tr_style.'>';
 				//$html .= '<td class="show_hide"><span class="this->cabinett_row_hide"></span></td>';
-				$html .= '<td colspan="11" class="each_art">';
+				$html .= '<td colspan="12" class="each_art">';
 				
 				
 				// ВЫВОД позиций
@@ -264,38 +264,46 @@
 
 
 				$this->Price_of_position = 0; // общая стоимость заказа
-				foreach ($position_arr as $key1 => $val1) {
-					//ОБСЧЁТ ВАРИАНТОВ
-					// получаем массив стоимости нанесения и доп услуг для данного варианта 
-					$dop_usl = $this-> get_order_dop_uslugi($val1['id_dop_data']);
-					// выборка только массива стоимости печати
-					$dop_usl_print = $this->get_dop_uslugi_print_type($dop_usl);
-					// выборка только массива стоимости доп услуг
-					$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
+				foreach ($position_arr as $key1 => $this->position) {
+					////////////////////////////////////
+					//	Расчёт стоимости позиций START  
+					////////////////////////////////////
+					/*
+						!!!!!!!!    ОПИСАНИЕ    !!!!!!!!!
 
-					// ВЫЧИСЛЯЕМ СТОИМОСТЬ ПЕЧАТИ И ДОП УСЛУГ ДЛЯ ВАРИАНТА ПРОСЧЁТА
-					// стоимость печати варианта
-					$calc_summ_dop_uslug = $this-> calc_summ_dop_uslug($dop_usl_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
-					// стоимость доп услуг варианта
-					$calc_summ_dop_uslug2 = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($val1['print_z']==1)?$val1['quantity']+$val1['zapas']:$val1['quantity']));
-					// стоимость товара для варианта
-					$price_out = $val1['price_out'] * $val1['quantity'];
-					// стоимость варианта на выходе
-					$in_out = $calc_summ_dop_uslug + $calc_summ_dop_uslug2 + $price_out;
+						стоимость товара
+						$this->Price_for_the_goods;
+						стоимость услуг печати
+						$this->Price_of_printing;
+						стоимость услуг не относящихся к печати
+						$this->Price_of_no_printing;
+						общаяя цена позиции включает в себя стоимость услуг и товара
+						$this->Price_for_the_position;
+					*/
+					$this->GET_PRICE_for_position($this->position);				
+					
+					////////////////////////////////////
+					//	Расчёт стоимости позиций END
+					////////////////////////////////////
+					
+					
+					//////////////////////////
+					//	собираем строки вариантов по каждой позиции
+					//////////////////////////
 
 					$html .= '<tr  data-id="'.$this->Order['id'].'">
-					<td> '.$val1['id_dop_data'].'<!--'.$val1['id_dop_data'].'|-->  '.$val1['art'].'</td>
-					<td>'.$val1['name'].'</td>
-					<td>'.($val1['quantity']+$val1['zapas']).'</td>
+					<td><!--'.$this->position['id_dop_data'].'|-->  '.$this->position['art'].'</td>
+					<td>'.$this->position['name'].'</td>
+					<td>'.($this->position['quantity']+$this->position['zapas']).'</td>
 					<td></td>
-					<td><span>'.$price_out.'</span> р.</td>
-					<td><span>'.$calc_summ_dop_uslug.'</span> р.</td>
-					<td><span>'.$calc_summ_dop_uslug2.'</span> р.</td>
-					<td><span>'.$in_out.'</span> р.</td>
+					<td><span>'.$this->Price_for_the_goods.'</span> р.</td>
+					<td><span>'.$this->Price_of_printing.'</span> р.</td>
+					<td><span>'.$this->Price_of_no_printing.'</span> р.</td>
+					<td><span>'.$this->Price_for_the_position.'</span> р.</td>
 					<td></td>
 					<td></td>
 							</tr>';
-					$this->Price_of_position +=$in_out; // прибавим к общей стоимости
+					$this->Price_of_position += $this->Price_for_the_position; // прибавим к общей стоимости
 				}
 
 				$html .= '</table>';
@@ -317,7 +325,8 @@
 							<td><a href="./?page=client_folder&section=order_tbl&order_num='.$this->order_num_for_User.'&order_id='.$this->Order['id'].'&client_id='.$this->Order['client_id'].'">'.$this->order_num_for_User.'</a></td>
 							<td>'.$this->Order['create_time'].'<br>'.$this->get_manager_name_Database_Html($this->Order['manager_id'],1).'</td>
 							<td>'.$this->get_client_name_Database($this->Order['client_id'],1).'</td>
-							<td class="this->invoice_num" contenteditable="true">'.$this->Order['invoice_num'].'</td>
+							<td class="buh_uchet"></td>
+							<td class="invoice_num" ></td>
 							<td><input type="text" class="payment_date" readonly="readonly" value="'.$this->Order['payment_date'].'"></td>
 							<td class="number_payment_list" contenteditable="true">'.$this->Order['number_pyament_list'].'</td>
 							<td><span>'.$percent_payment.'</span> %</td>
@@ -342,7 +351,8 @@
 								<th>Номер</th>
 								<th>Дата/время заведения</th>
 								<th>Компания</th>						
-								<th class="this->invoice_num">Счёт</th>
+								<th class="buh_uchet">Бух. Уч.</th>
+								<th>Счёт</th>
 								<th>Дата опл-ты</th>
 								<th>№ платёжки</th>
 								<th>% оплаты</th>
