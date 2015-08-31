@@ -344,7 +344,10 @@
 			foreach($details_obj->print_details->dop_params->YPriceParam as $key => $data){
 			   if(isset($data->cmyk)) $details_obj->print_details->dop_params->YPriceParam[$key]->cmyk =  base64_encode($data->cmyk);
 			} 
-            $details_obj->print_details->comment = base64_encode($details_obj->print_details->comment);
+			
+			echo '-'.(isset($details_obj->print_details->comment)).'-';
+            $details_obj->print_details->comment = (isset($details_obj->print_details->comment))? base64_encode($details_obj->print_details->comment):'';
+			echo '-'.$details_obj->print_details->comment.'-';
             // если PHP 5.4 то достаточно этого
                /* $print_details = json_encode($details_obj->print_details,JSON_UNESCAPED_UNICODE);*/
 			// но пришлось использовать это
@@ -373,6 +376,7 @@
 									   `uslugi_id` ='".$details_obj->print_details->print_id."',
 									   `performer` ='".self::get_performer_id($details_obj->print_details->print_id)."',
 									   `glob_type` ='print',
+									   `tz` ='".$details_obj->print_details->comment."',
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = '".$details_obj->price_in."',
 									   `price_out` ='".$details_obj->price_out."',
