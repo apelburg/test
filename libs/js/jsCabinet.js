@@ -8,15 +8,18 @@
 			var height = (data['height'] !== undefined)?data['height']:'auto';
 			var width = (data['width'] !== undefined)?data['width']:'auto';
 			show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
+			window_preload_del();
 		}
 		if(data['response']=='show_new_window_simple'){
 			title = data['title'];// для генерации окна всегда должен передаваться title
 			var height = (data['height'] !== undefined)?data['height']:'auto';
 			var width = (data['width'] !== undefined)?data['width']:'auto';
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
+			window_preload_del();
 		}
 		if(data['function'] !== undefined){ // вызов функции... если требуется
 			window[data['function']](data);
+			window_preload_del();
 		}
 		if(data['response'] != "OK"){ // вывод при ошибке
 			console.log(data);
@@ -534,7 +537,20 @@ function tbl_row_close(obj){
 // })
 
 $(document).on('click', '#cabinet_general_content table tr td.buh_uchet', function(event) {
-	var order_id = $(this).parent().attr('data-id');
+	var order_id = $(this).parent().attr('data-id');	
+	get_buh_uchet_window(order_id);
+});
+
+$(document).on('click', '#replace_the_dialog_window', function(event) {
+	var order_id = $(this).attr('data-id');	
+	$('#'+$(this).parent().parent().attr('id')).remove();
+	get_buh_uchet_window(order_id);
+});
+
+
+
+function get_buh_uchet_window(order_id){
+	window_preload_add();
 	$.post('', {
 		AJAX:'get_window_buh_uchet',
 		order_id:order_id
@@ -621,9 +637,7 @@ $(document).on('click', '#cabinet_general_content table tr td.buh_uchet', functi
 			 	format:'d.m.Y',
 			});	
 	},'json');
-
-
-});
+}
 
 
 $(document).on('keyup','.payment_status_span:focus',function(){

@@ -765,8 +765,6 @@
 				//comments
 			}
 
-
-
 			// сохраняем комментарии для счёта 
 			protected function save_the_comment_for_the_bill_AJAX(){
 				global $mysqli;
@@ -935,13 +933,13 @@
 		    	// $this->type_the_bill 
 
 				// запрашиваем
-				$the_bill_arr = $this->get_the_bill_for_order_Database($order['id']);
-				if(empty($the_bill_arr)){return '<table></table>';}
+				$this->the_bill_arr = $this->get_the_bill_for_order_Database($order['id']);
+				if(empty($this->the_bill_arr)){return '<table></table>';}
 
 				$html = '';
 
 				$html .='<table>';
-				foreach ($the_bill_arr as $key => $the_bill) {
+				foreach ($this->the_bill_arr as $key => $the_bill) {
 					switch ($the_bill['deleted']) { // проверка не удален ли
 						case '0': // не удалён
 							// номер чего
@@ -1035,6 +1033,7 @@
 					
 					$html .= '&nbsp;<span>Менеджер: '.Manager::get_snab_name_for_query_String($this->Order['manager_id']).'</span>';
 					$html .= '&nbsp;<span>Компания: '.$this->get_client_name_simple_Database($this->Order['client_id'],1).'</span>';
+					$html .= '<button type="button" id="replace_the_dialog_window" data-id="'.$this->Order['id'].'">Обновить</button>';
 				$html .= '</div>';
 
 
@@ -1046,21 +1045,28 @@
 					$html .= '&nbsp;<span>возвращена с подписью: <input data-order_id="'.$this->Order['id'].'" type="text" value="'.$this->Order['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>';
 					$html .= '&nbsp;<span>Для договора: '.$this->get_agreement_link($this->Order).'</span>';
 
-
 					// счета
 					$html .= '<div id="container_from_the_bill">';
 						$html .= $this->get_the_bill_for_order_Html($this->Order);
 						$html .= '<div id="add_the_bill_link" data-id="'.$this->Order['id'].'">';
-								$html.= '<span>добавить строчку для доп счёта</span>';
-						$html .= '</div>';	
-
-					$html .= '</div>';
-				
+							$html.= '<span>добавить строчку для доп счёта</span>';
+						$html .= '</div>';
+					$html .= '</div>';				
 				$html .= '</div>';
 
+				// оплата
+				$html .= '<div class="buh_window">';
+					$html .= '<span><strong>Оплата</strong></span><br>';
+					$html .= '<div id="container_from_the_payment">';
+						$html .= $this->get_the_payment_order_for_bill_Html($this->Order);
+						$html .= '<div id="add_the_payment_order_link" data-id="'.$this->Order['id'].'">';
+							$html.= '<span>добавить строчку платежа</span>';
+						$html .= '</div>';	
+					$html .= '</div>';				
+				$html .= '</div>';
 
-				// $html .= $this->print_arr($this->Order);				
-				// $html .= $this->print_arr($_POST);
+				$html .= $this->print_arr($this->Order);				
+				$html .= $this->print_arr($_POST);
 
 				//////////////////////////
 				//	выводим скрытый POST для обновления окна
@@ -1075,6 +1081,101 @@
 				//	выводим скрытый POST для обновления окна
 				//////////////////////////
 				return $html;
+			}
+
+			// получаем html платёжных поручений
+			protected function get_the_payment_order_for_bill_Html($order){
+				// получаем массив полатежных поручений
+				$payment_order_arr = $this->get_the_payment_order_for_bill_Database($order['id']);
+				if(empty($payment_order_arr)){return '<table></table>';}
+
+				$html = $this->print_arr($payment_order_arr);				
+				$html .= 'method - get_the_payment_order_for_bill_Html - OK';
+				$html .= '<table>';
+				foreach ($payment_order_arr as $key => $payment) {
+					$html .= '<tr>';
+						// номер п/п
+						$html .= '<td>';
+							$html .= '<span>№ п/п: </span>';
+							$html .= '<input type="text" placeholder="введите номер п/п" value="'.$payment['number'].'" >';
+						$html .= '</td>';
+
+						// по счёту
+						$html .= '<td>';
+							$html .= '<span>по счёту: </span>';
+							// создаем селект по счетам (если его ещё нет)
+							$this->get_Html_select_from_the_bill($payment);
+							// вывод селекта по счетам
+							$html .= $this->Html_select_from_the_bill;
+						$html .= '</td>';
+						// дата
+						$html .= '<td>';
+							$html .= '<span>дата: </span>';
+							$html .= '<input type="text"  class="date_payment_order" placeholder="введите дату оплаты" value="'.$payment['payment_date'].'" >';
+						$html .= '</td>';
+
+						// сумма оплаты
+						$html .= '<td>';
+							$html .= '<span>в размере:</span>';
+							$html .= '<input type="text" class="date_payment_order" placeholder="введите дату оплаты" value="'.$payment['price_from_pyment'].'" >';
+						$html .= '</td>';
+
+
+						$html .= '<td>';
+							$html .= '<span class="'.(($payment['comments']=="")?'tz_text_new':'buch_comments').'"  data-id="'.$payment['id'].'"></span>';
+						$html .= '</td>';
+						$html .= '<td>';
+							$html .= '<span class="button usl_del" data-id="'.$payment['id'].'">X</span>';
+						$html .='</td>';
+
+					$html .= '</tr>';
+				}
+
+
+
+
+				$html .= '</table>';
+				return $html;
+			}
+			//вывод выпадающего списка по счетам
+			protected function get_Html_select_from_the_bill($payment){
+				if(!isset($this->Html_select_from_the_bill)){
+					$html = '';
+					$html .= '<select data-id="'.$payment['id'].'">';
+					$html .= '<option value="">счёт не прикреплён...</optiopn>';	
+					foreach ($this->the_bill_arr as $key => $the_bill) {
+						$selected = ($payment['bill_id'] == $the_bill['id'])?' selected="selected"':'';
+						if($the_bill['deleted'] != 1){
+							$html .= '<option value="'.$the_bill['id'].'" '.$selected.'>'.$this->type_the_bill[$the_bill['type_the_bill']][0].' '.$the_bill['number'].'</optiopn>';	
+						}else{
+							$html .= ($selected!='')?'<option value="'.$the_bill['id'].'" '.$selected.' class="deleted_bill_option">(счёт удалён)'.$this->type_the_bill[$the_bill['type_the_bill']][0].' '.$the_bill['number'].'</optiopn>':'';	
+						}						
+					}
+					$html .= '</select>';
+					$this->Html_select_from_the_bill = $html;	
+				}				
+			}
+
+
+			// запрашиваем из базы платёжные порчения
+			protected function get_the_payment_order_for_bill_Database($order_id){
+				global $mysqli;
+				$query = "SELECT 
+				`".CAB_PYMENT_ORDER."`.*, 
+				DATE_FORMAT(`".CAB_PYMENT_ORDER."`.`payment_date`,'%d.%m.%Y %H:%i:%s')  AS `payment_date`
+				FROM `".CAB_PYMENT_ORDER."`";
+				$query .= " WHERE `".CAB_PYMENT_ORDER."`.`order_id` = '".$order_id."'";
+
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$payment_order_arr = array();
+				
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$payment_order_arr[] = $row;
+					}
+				}
+				return $payment_order_arr;
 			}
 
 

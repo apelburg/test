@@ -20,6 +20,10 @@
 		case 'places_editor':
 		include 'places_editor/router.php';
 		break;
+		
+		case 'form_edit':
+		include 'form_edit/router.php';
+		break;
 			
 		default:
 		include 'controller.php';
