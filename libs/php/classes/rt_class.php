@@ -780,8 +780,10 @@
                 // получаем id нового заказа... он же номер
                 $order_id = $mysqli->insert_id; 
                 // пишем номер заказа в созданную строку
-                $query = "UPDATE  `".CAB_ORDER_ROWS."` 
-                            SET  `order_num` =  '".(int)$order_num."' 
+                $query = "UPDATE  `".CAB_ORDER_ROWS."` SET
+                            `order_num` =  '".(int)$order_num."' ,
+                            `specification_num` = '".(int)$specification_num."',
+                            `agreement_id` = '".(int)$agreement_id."'
                             WHERE  `id` ='".$order_id."';";
                 // выполняем запрос
                 $result = $mysqli->query($query) or die($mysqli->error);

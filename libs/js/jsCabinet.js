@@ -1,15 +1,179 @@
-// показать загрузку траницы
-function window_preload_add(){
-	if(!$('#preloader_window_block').length){
-		var object = $('<div/>').attr('id','preloader_window_block'); object.appendTo('body')
-	}	
-}
-// скрыть загрузку страницы
-function window_preload_del(){
-	if($('#preloader_window_block').length){
-		$('#preloader_window_block').remove();
-	}	
-}
+//////////////////////////////////
+//	СТАНДАРТНЫЕ ФУНКЦИИ  -- start
+//////////////////////////////////
+	//стандартный обработчик ответа AJAX
+	function standard_response_handler(data){
+		if(data['response']=='show_new_window'){
+			title = data['title'];// для генерации окна всегда должен передаваться title
+			var height = (data['height'] !== undefined)?data['height']:'auto';
+			var width = (data['width'] !== undefined)?data['width']:'auto';
+			show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
+		}
+		if(data['response']=='show_new_window_simple'){
+			title = data['title'];// для генерации окна всегда должен передаваться title
+			var height = (data['height'] !== undefined)?data['height']:'auto';
+			var width = (data['width'] !== undefined)?data['width']:'auto';
+			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
+		}
+		if(data['function'] !== undefined){ // вызов функции... если требуется
+			window[data['function']](data);
+		}
+		if(data['response'] != "OK"){ // вывод при ошибке
+			console.log(data);
+		}
+		if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
+			alert(data['error']);
+		}
+	}
+
+
+	// показать анимацию загрузки траницы
+	function window_preload_add(){
+		if(!$('#preloader_window_block').length){
+			var object = $('<div/>').attr('id','preloader_window_block'); object.appendTo('body')
+		}	
+	}
+	// скрыть анимацию загрузки траницы
+	function window_preload_del(){
+		if($('#preloader_window_block').length){
+			$('#preloader_window_block').remove();
+		}	
+	}
+
+	//////////////////////////
+	// ОКНА
+	//////////////////////////
+		// показать окно № 1
+		function show_dialog_and_send_POST_window(html,title,height,width){
+			height_window = height || 'auto';
+			width = width || '1000';
+			title = title || '*** Название окна ***';
+			var buttons = new Array();
+			buttons.push({
+			    text: 'OK',
+			    click: function() {
+			    	var serialize = $('#dialog_gen_window_form form').serialize();
+			    	
+			    	$('#general_form_for_create_product .pad:hidden').remove();
+				    $.post('', serialize, function(data, textStatus, xhr) {
+				    	
+				    	
+						$('#dialog_gen_window_form').html('');
+						$('#dialog_gen_window_form').dialog( "destroy" );				
+						
+						standard_response_handler(data);
+
+					},'json');				    	
+			    }
+			});
+
+			if($('#dialog_gen_window_form').length==0){
+				$('body').append('<div id="dialog_gen_window_form"></div>');
+			}
+			$('#dialog_gen_window_form').html(html);
+			$('#dialog_gen_window_form').dialog({
+		          width: width,
+		          height: height_window,
+		          modal: true,
+		          title : title,
+		          autoOpen : true,
+		          buttons: buttons          
+		        });
+		}
+
+		// показать окно № 2  
+		// используется в случае, когда нужно 2(два) одновременно открытых окна
+		function show_dialog_and_send_POST_window_2(html,title,height,width){
+			height_window = height || 'auto';
+			width = width || '1000';
+			title = title || '*** Название окна ***';
+			var buttons = new Array();
+			buttons.push({
+			    text: 'OK',
+			    click: function() {
+			    	var serialize = $('#dialog_gen_window_form2 form').serialize();
+			    	
+			    	$('#general_form_for_create_product .pad:hidden').remove();
+				    $.post('', serialize, function(data, textStatus, xhr) {
+				    	$('#dialog_gen_window_form').html('');
+						$('#dialog_gen_window_form').dialog( "destroy" );				
+						
+						standard_response_handler(data);
+					},'json');				    	
+			    }
+			});
+
+			if($('#dialog_gen_window_form2').length==0){
+				$('body').append('<div id="dialog_gen_window_form2"></div>');
+			}
+			$('#dialog_gen_window_form2').html(html);
+			$('#dialog_gen_window_form2').dialog({
+		          width: width,
+		          height: height_window,
+		          modal: true,
+		          title : title,
+		          autoOpen : true,
+		          buttons: buttons          
+		        });
+		}
+
+		// простое диалоговое окно с кнопкой закрыть
+		function show_simple_dialog_window(html,title,height,width){
+			var window_num = $('.ui-dialog').length;
+
+			height_window = height || 'auto';
+			width = width || '1000';
+			title = title || '*** Название окна ***';
+			var buttons = new Array();
+			buttons.push({
+			    text: 'Закрыть',
+			    click: function() {
+					// подчищаем за собой
+					$('#dialog_gen_window_form_'+window_num+'').html('');
+					$('#dialog_gen_window_form_'+window_num+'').dialog( "destroy" );
+			    }
+			});			
+
+			$('body').append('<div id="dialog_gen_window_form_'+window_num+'"></div>');			
+			$('#dialog_gen_window_form_'+window_num+'').html(html);
+			$('#dialog_gen_window_form_'+window_num+'').dialog({
+		          width: width,
+		          height: height_window,
+		          modal: true,
+		          title : title,
+		          autoOpen : true,
+		          buttons: buttons          
+		        });
+		}		
+
+	////////////////////////////////////////////////
+	//	функции вызываемые из PHP  --- start ---  //
+	////////////////////////////////////////////////
+
+		// вывод сообщения из PHP в alert
+		function php_message(data){
+			alert(data.text);
+		}
+
+		function php_message_alert(data){
+			console.log(data);
+			alert(Base64.decode(data['message']));
+		}
+		// вывод сообщения из PHP в модальное окно
+		function php_message_dialog(data){ // а оно еще нужно ???
+			// show_simple_dialog_window(Base64.decode(data['message']),data['title']);
+			show_simple_dialog_window('Необходимо переделать на стандартный выход.<br> Алексей',data['title']);
+		}
+		// перезагрузка окна
+		function window_reload(data) {
+			location.reload();
+		}
+//////////////////////////////////
+//	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
+//////////////////////////////////
+
+
+
 
 // показать / скрыть каталожные позиции 
 $(document).on('click', '.click_me_and_show_catalog', function(event) {
@@ -18,36 +182,6 @@ $(document).on('click', '.click_me_and_show_catalog', function(event) {
 
 //календарь
 $(document).ready(function() {
-	$('.payment_date').datetimepicker({
-		minDate:new Date(),
-		// disabledDates:['07.05.2015'],
-		timepicker:false,
-	 	dayOfWeekStart: 1,
-	 	onGenerate:function( ct ){
-			$(this).find('.xdsoft_date.xdsoft_weekend')
-				.addClass('xdsoft_disabled');
-			$(this).find('.xdsoft_date');
-		},
-		closeOnDateSelect:true,
-		onChangeDateTime: function(dp,$input){// событие выбора даты
-			// получение данных для отправки на сервер
-			var row_id = $input.parent().parent().attr('data-id');
-			var date = $input.val();
-
-			//alert($input.attr('class'));
-			$.post('', {
-				AJAX: 'change_payment_date',
-				row_id: row_id,
-				date: date
-			}, function(data, textStatus, xhr) {
-				console.log(data);
-			});
-		},
-	 	format:'d.m.Y',
-	 	
-	});
-
-
 	// дата сдачи заказа
 	$('.date_of_delivery_of_the_order').datetimepicker({
 		minDate:new Date(),
@@ -79,7 +213,6 @@ $(document).ready(function() {
 	});
 
 	// ожидаемая дата прихода продукции на склад
-
 	$('.waits_products_div input').datetimepicker({
 		minDate:new Date(),
 		// disabledDates:['07.05.2015'],
@@ -106,8 +239,7 @@ $(document).ready(function() {
 			},'json');
 		},
 	 	format:'d.m.Y',	 	
-	});
-	
+	});	
 
 	// дата утверждения макета
 	$('.approval_date').datetimepicker({
@@ -218,25 +350,6 @@ $(document).on('change', '.choose_statuslist_snab', function(event) {
 	},'json');
 });
 
-
-// стандартный обработчик ответа AJAX
-function standard_response_handler(data){
-	if(data['response']=='show_new_window'){
-		title = data['title'];// для генерации окна всегда должен передаваться title
-		var height = (data['height'] !== undefined)?data['height']:'auto';
-		var width = (data['width'] !== undefined)?data['width']:'auto';
-		show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
-	}
-	if(data['function'] !== undefined){ // вызов функции... если требуется
-		window[data['function']](data);
-	}
-	if(data['response'] != "OK"){ // вывод при ошибке
-		console.log(data);
-	}
-	if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
-		alert(data['error']);
-	}
-}
 
 // редактирование срока по ДС
 $(document).on('keyup', '.deadline', function(event) {
@@ -406,19 +519,111 @@ function tbl_row_close(obj){
 //////////////////////////
 //	БУХГАЛТЕРИЯ START
 //////////////////////////
-$(document).on('keyup','.invoice_num:focus',function(){
-	// записываем id строки позиции
-	var row_id = $(this).parent().attr('data-id');
-	var value = $(this).html();
+// $(document).on('keyup','.invoice_num:focus',function(){
+// 	// записываем id строки позиции
+// 	var row_id = $(this).parent().attr('data-id');
+// 	var value = $(this).html();
 	
+// 	$.post('', {
+// 		AJAX:'change_invoce_num',
+// 		row_id:row_id,
+// 		value:value
+// 	}, function(data, textStatus, xhr) {
+// 		console.log(data);
+// 	});
+// })
+
+$(document).on('click', '#cabinet_general_content table tr td.buh_uchet', function(event) {
+	var order_id = $(this).parent().attr('data-id');
 	$.post('', {
-		AJAX:'change_invoce_num',
-		row_id:row_id,
-		value:value
+		AJAX:'get_window_buh_uchet',
+		order_id:order_id
 	}, function(data, textStatus, xhr) {
-		console.log(data);
-	});
-})
+		standard_response_handler(data);	
+		
+		//////////////////////////
+		//	дата подписания спецификации
+		//////////////////////////
+			$('.date_specification_signed').datetimepicker({
+				// minDate:new Date(),
+				timepicker:false,
+			 	dayOfWeekStart: 1,
+				closeOnDateSelect:true,
+				onChangeDateTime: function(dp,$input){// событие выбора даты
+					// получение данных для отправки на сервер
+					var order_id = $input.attr('data-order_id');
+					var date = $input.val();
+
+					$input.blur();
+					//alert($input.attr('class'));
+					$.post('', {
+						// AJAX: 'change_payment_date',
+						AJAX: 'change_date_specification_signed',
+						order_id: order_id,
+						date: date
+					}, function(data, textStatus, xhr) {
+						standard_response_handler(data);
+					},'json');
+				},
+			 	format:'d.m.Y',
+			});
+
+		//////////////////////////
+		//	смена даты выставления счёта
+		//////////////////////////
+			$('.date_create_the_bill').datetimepicker({
+				// minDate:new Date(),
+				timepicker:false,
+			 	dayOfWeekStart: 1,
+				closeOnDateSelect:true,
+				onChangeDateTime: function(dp,$input){// событие выбора даты
+					// получение данных для отправки на сервер
+					var id_row = $input.attr('data-id');
+					var date = $input.val();
+
+					$input.blur();
+					//alert($input.attr('class'));
+					$.post('', {
+						// AJAX: 'change_payment_date',
+						AJAX: 'change_date_create_the_bill',
+						id_row: id_row,
+						date: date
+					}, function(data, textStatus, xhr) {
+						standard_response_handler(data);
+					},'json');
+				},
+			 	format:'d.m.Y',
+			});
+
+		//////////////////////////
+		//	дата возврата подписанной спецификации
+		//////////////////////////
+			$('.date_return_width_specification_signed').datetimepicker({
+				// minDate:new Date(),
+				timepicker:false,
+			 	dayOfWeekStart: 1,
+				closeOnDateSelect:true,
+				onChangeDateTime: function(dp,$input){// событие выбора даты
+					// получение данных для отправки на сервер
+					var order_id = $input.attr('data-order_id');
+					var date = $input.val();
+					$input.blur();
+					//alert($input.attr('class'));
+					$.post('', {
+						// AJAX: 'change_payment_date',
+						AJAX: 'change_date_return_width_specification_signed',
+						order_id: order_id,
+						date: date
+					}, function(data, textStatus, xhr) {
+						standard_response_handler(data);
+					},'json');
+				},
+			 	format:'d.m.Y',
+			});	
+	},'json');
+
+
+});
 
 
 $(document).on('keyup','.payment_status_span:focus',function(){
@@ -454,20 +659,20 @@ $(document).on('keyup','.number_payment_list:focus',function(){
 	});
 })
 
-// номер TTH
-$(document).on('keyup','.change_ttn_number:focus',function(){
-	// записываем id строки услуги
-	var row_id = $(this).parent().attr('data-id');
-	var value = $(this).html();
+// // номер TTH
+// $(document).on('keyup','.change_ttn_number:focus',function(){
+// 	// записываем id строки услуги
+// 	var row_id = $(this).parent().attr('data-id');
+// 	var value = $(this).html();
 
-	$.post('', {
-		AJAX:'change_ttn_number',
-		row_id:row_id,
-		value:value
-	}, function(data, textStatus, xhr) {
-		console.log(data);
-	});
-})
+// 	$.post('', {
+// 		AJAX:'change_ttn_number',
+// 		row_id:row_id,
+// 		value:value
+// 	}, function(data, textStatus, xhr) {
+// 		console.log(data);
+// 	});
+// })
 // отгружено
 $(document).on('keyup','.change_delivery_tir:focus',function(){
 	// записываем id строки услуги
@@ -486,7 +691,118 @@ $(document).on('keyup','.change_delivery_tir:focus',function(){
 	}, function(data, textStatus, xhr) {
 		console.log(data);
 	});
-})
+});
+// // выводим окно с комментариями по удалению при клике на надпись Удалён
+// $(document).on('click', '.why_this_doc_deleted', function(event) {
+// 	var html = 'Причина удаления:<br>'+$(this).parent().find('.deleted_note').html();
+// 	show_simple_dialog_window(html,'Информация об удалении.','auto', 350);
+// });
+
+
+//////////////////////////
+//	сохранение номера счёта с таймингом  
+//////////////////////////
+	$(document).on('keyup', '.number_the_bill', function(event) {
+		 timing_save_input('number_the_bill',$(this))
+	});
+
+	function number_the_bill(obj){// на вход принимает object input
+	    var row_id = obj.attr('data-id');
+	    $.post('', {
+	        AJAX:'change_number_the_bill',
+	        row_id:row_id,
+	        value:obj.val()
+	    }, function(data, textStatus, xhr) {
+	    	standard_response_handler(data);
+	        if(data['response']=="OK"){
+	            // php возвращает json в виде {"response":"OK"}
+	            // если ответ OK - снимаем класс saved
+	            obj.removeClass('saved');
+	        }else{
+	            console.log('Данные не были сохранены.');
+	        }
+	    },'json');
+	}
+//////////////////////////
+//	сохранение суммы счёта с таймингом  
+//////////////////////////
+	$(document).on('keyup', '.for_price_the_bill', function(event) {
+		 timing_save_input('for_price_the_bill',$(this))
+	});
+
+	function for_price_the_bill(obj){// на вход принимает object input
+	    var row_id = obj.attr('data-id');
+	    $.post('', {
+	        AJAX:'change_for_price_the_bill',
+	        row_id:row_id,
+	        value:obj.val()
+	    }, function(data, textStatus, xhr) {
+	    	standard_response_handler(data);
+	        if(data['response']=="OK"){
+	            // php возвращает json в виде {"response":"OK"}
+	            // если ответ OK - снимаем класс saved
+	            obj.removeClass('saved');
+	        }else{
+	            console.log('Данные не были сохранены.');
+	        }
+	    },'json');
+	}
+
+// вызов окна редактирования комментариев для счёта
+$(document).on('click', '.buch_comments,.tz_text_new', function(event) {
+	var onlyread = ($(this).hasClass('only_read'))?1:0;
+
+	var row_id = $(this).attr('data-id');
+	$.post('', {
+		AJAX: 'get_the_comment_width_the_bill',
+		row_id:row_id,
+		onlyread:onlyread
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+// удаление счёта
+$(document).on('click', '.button.usl_del', function(event) {
+	var row_id = $(this).attr('data-id');
+	var obj = $(this).parent().parent();
+	obj.find('.buch_comments').addClass('only_read');
+	$(this).remove();
+	obj.find('input').each(function(index, el) {
+		var inp_val = $(this).val();
+		$(this).replaceWith(inp_val);
+	});
+	obj.find('td').eq(1).append('<span class="why_this_doc_deleted">Удален</span>');
+
+	obj.addClass('deleted');
+	$.post('', {
+		AJAX:'delete_the_bill',
+		row_id:row_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+
+	},'json');
+});
+
+// добавление счёта в бух учёте
+$(document).on('click', '#add_the_bill_link span', function(event) {
+	var obj = $(this);
+	var order_id = $(this).parent().attr('data-id');
+	$.post('', {
+		AJAX:'get_listing_type_the_bill',
+		order_id: order_id,
+		get_html_row_the_bill: 1
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+function add_new_bill_in_window(data){
+	$('#container_from_the_bill table').append(Base64.decode(data['html']));
+}
+
+
+
 //////////////////////////
 //	БУХГАЛТЕРИЯ END
 //////////////////////////
@@ -590,144 +906,6 @@ function change_attache_manager(data){
 		$('#dialog_gen_window_form').remove();
 	};
 }
-
-//////////////////////////////////////////////////////
-//	General function for generate dialog windo START
-//////////////////////////////////////////////////////
-// показать окно № 1
-function show_dialog_and_send_POST_window(html,title,height,width){
-	height_window = height || 'auto';
-	width = width || '1000';
-	title = title || '*** Название окна ***';
-	var buttons = new Array();
-	buttons.push({
-	    text: 'OK',
-	    click: function() {
-	    	var serialize = $('#dialog_gen_window_form form').serialize();
-	    	
-	    	$('#general_form_for_create_product .pad:hidden').remove();
-		    $.post('', serialize, function(data, textStatus, xhr) {
-		    	// если из PHP было передано название какой либо функции
-		    	// выполняем её
-		    	if(data['function'] !== undefined){
-		    		window[data['function']](data);
-		    	}
-		    	if(data['response']=='show_new_window'){
-					title = data['title'];// для генерации окна всегда должен передаваться title
-					var height = (data['height'] !== undefined)?data['height']:'auto';
-					var width = (data['width'] !== undefined)?data['width']:'auto';
-					show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
-				}else{
-					// подчищаем за собой
-					$('#dialog_gen_window_form').html('');
-					$('#dialog_gen_window_form').dialog( "destroy" );
-					// тут можно расположить какие либо действия в зависимости от ответа
-					// с сервера					
-				}
-			},'json');				    	
-	    }
-	});
-
-	if($('#dialog_gen_window_form').length==0){
-		$('body').append('<div id="dialog_gen_window_form"></div>');
-	}
-	$('#dialog_gen_window_form').html(html);
-	$('#dialog_gen_window_form').dialog({
-          width: width,
-          height: height_window,
-          modal: true,
-          title : title,
-          autoOpen : true,
-          buttons: buttons          
-        });
-
-}
-
-
-// простое диалоговое окно с кнопкой закрыть
-function show_simple_dialog_window(html,title,height,width){
-	height_window = height || 'auto';
-	width = width || '1000';
-	title = title || '*** Название окна ***';
-	var buttons = new Array();
-	buttons.push({
-	    text: 'Закрыть',
-	    click: function() {
-			// подчищаем за собой
-			$('#dialog_gen_window_form').html('');
-			$('#dialog_gen_window_form').dialog( "destroy" );
-	    }
-	});
-
-	if($('#dialog_gen_window_form').length==0){
-		$('body').append('<div id="dialog_gen_window_form"></div>');
-	}
-
-	$('#dialog_gen_window_form').html(html);
-	$('#dialog_gen_window_form').dialog({
-          width: width,
-          height: height_window,
-          modal: true,
-          title : title,
-          autoOpen : true,
-          buttons: buttons          
-        });
-}
-
-// показать окно № 2  
-// используется в случае, когда нужно 2 одновременно открытых окна
-function show_dialog_and_send_POST_window_2(html,title,height,width){
-	height_window = height || 'auto';
-	width = width || '1000';
-	title = title || '*** Название окна ***';
-	var buttons = new Array();
-	buttons.push({
-	    text: 'OK',
-	    click: function() {
-	    	var serialize = $('#dialog_gen_window_form2 form').serialize();
-	    	
-	    	$('#general_form_for_create_product .pad:hidden').remove();
-		    $.post('', serialize, function(data, textStatus, xhr) {
-		    	// если из PHP было передано название какой либо функции
-		    	// выполняем её
-		    	if(data['function'] !== undefined){
-		    		window[data['function']](data);
-		    	}
-
-				if(data['response']=='show_new_window'){
-					title = data['title'];// для генерации окна всегда должен передаваться title
-					show_dialog_and_send_POST_window_2(Base64.decode(data['html']),title);
-				}else{
-					// подчищаем за собой
-					$('#dialog_gen_window_form2').html('');
-					$('#dialog_gen_window_form2').dialog( "destroy" );
-					// тут можно расположить какие либо действия в зависимости от ответа
-					// с сервера					
-				}
-			},'json');				    	
-	    }
-	});
-
-	if($('#dialog_gen_window_form2').length==0){
-		$('body').append('<div id="dialog_gen_window_form2"></div>');
-	}
-	$('#dialog_gen_window_form2').html(html);
-	$('#dialog_gen_window_form2').dialog({
-          width: width,
-          height: height_window,
-          modal: true,
-          title : title,
-          autoOpen : true,
-          buttons: buttons          
-        });
-
-}
-
-
-//////////////////////////////////////////////////////
-//	General function for generate dialog windo END
-//////////////////////////////////////////////////////
-
 
 
 //////////////////////////
@@ -1416,27 +1594,7 @@ $(document).on('change', '.get_statuslist_uslugi', function(event) {
 	check_loading_ajax();
 });
 
-////////////////////////////////////////////////
-//	функции вызываемые из PHP  --- start ---  //
-////////////////////////////////////////////////
 
-// вывод сообщения из PHP в alert
-function php_message(data){
-	alert(data.text);
-}
-
-function php_message_alert(data){
-	console.log(data);
-	alert(Base64.decode(data['message']));
-}
-// вывод сообщения из PHP в модальное окно
-function php_message_dialog(data){
-	show_simple_dialog_window(Base64.decode(data['message']),data['title']);
-}
-// перезагрузка окна
-function window_reload(data) {
-	location.reload();
-}
 
 
 //////////////////////////
@@ -1650,7 +1808,7 @@ $(window).load(function() {
 	$(document).on('click', '.buch_status_select', function(event) {
 		// если нет кнопки запроса счёта
 		// alert($(this).find('input.query_the_bill').length);
-		if($(this).find('input.query_the_bill').length==0 && $(this).find('input.select').length==0){
+		if($(this).find('input.query_the_bill').length==0 && $(this).find('select').length==0){
 			var order_id = $(this).parent().attr('data-id');
 			var AJAX = 'get_commands_men_for_buch';
 
@@ -1707,3 +1865,5 @@ $(window).load(function() {
 /////////////////////////////
 //	выставить счёт  -- start
 /////////////////////////////
+
+

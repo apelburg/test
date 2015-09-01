@@ -94,7 +94,11 @@
 	define("CAB_ORDER_DOP_DATA","os__cab_orders_dop_data"); // таблица вариантов просчёта
 	define("CAB_DOP_USLUGI", "os__cab_dop_uslugi"); // таблица доп услуг
 	define("CAB_DOP_USLUGI_DOP_INPUTS", "os__our_uslugi_dop_inputs"); // список доп. полей для заполнения
-	
+	define("CAB_BILL_TBL", "os__cab_bill_tbl"); // таблица выставленных счетов
+	define("CAB_PYMENT_ORDER", "os__cab_payment_order"); // таблица платёжных поручений по счётам
+	define("CAB_TTN", "os__cab_ttn"); // товарно-транспортные накладные
+
+
 	// новая РТ
 	define("RT_LIST", "os__rt_list"); // таблица запросов	
 	define("RT_LIST_COMMENTS","os__rt_list_comments"); // 
