@@ -1578,7 +1578,7 @@
 			alert('не возможно создать КП, вы не выбрали ни одного расчета');
 			return;
 		} 
-		
+		/* console.log(idsObj);return; */
 		show_processing_timer();
 		var query_theme = (document.getElementById('query_theme_input').value == "Введите тему")?'':document.getElementById('query_theme_input').value;
 		var tbl = document.getElementById('rt_tbl_body');

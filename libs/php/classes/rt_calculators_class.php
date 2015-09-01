@@ -345,9 +345,7 @@
 			   if(isset($data->cmyk)) $details_obj->print_details->dop_params->YPriceParam[$key]->cmyk =  base64_encode($data->cmyk);
 			} 
 			
-			echo '-'.(isset($details_obj->print_details->comment)).'-';
             $details_obj->print_details->comment = (isset($details_obj->print_details->comment))? base64_encode($details_obj->print_details->comment):'';
-			echo '-'.$details_obj->print_details->comment.'-';
             // если PHP 5.4 то достаточно этого
                /* $print_details = json_encode($details_obj->print_details,JSON_UNESCAPED_UNICODE);*/
 			// но пришлось использовать это

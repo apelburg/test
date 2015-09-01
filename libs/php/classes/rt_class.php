@@ -193,6 +193,7 @@
 						// меняем row_id обозначивающий внешний ключ на id вставленного в RT_MAIN_ROWS ряда и присваиваем id пустое значение 
 						$copied_dop_row = $result3->fetch_assoc();
 						$dop_row_id = $copied_dop_row['id'];
+						$copied_dop_row['status_snab']='on_calculation';
 						$copied_dop_row['id']='';
 						// id родительского ряда равно последнего вставленного ряда
 						$copied_dop_row['row_id']= $row_id;
@@ -254,6 +255,7 @@
 						// меняем row_id обозначивающий внешний ключ на id вставленного в RT_MAIN_ROWS ряда и присваиваем id пустое значение 
 						$copied_dop_row = $result3->fetch_assoc();
 						$dop_row_id = $copied_dop_row['id'];
+						$copied_dop_row['status_snab']='on_calculation';
 						$copied_dop_row['id']='';
 						// id родительского ряда равно последнего вставленного ряда
 						$copied_dop_row['row_id']= $row_id;
