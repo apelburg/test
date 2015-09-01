@@ -134,13 +134,19 @@
 		    $print_details = (!is_object($print_details))? json_decode($print_details):$print_details;
 			// echo '<pre>'; print_r($print_details); echo '</pre>';//
 			$out_put = array();
-			$out_put['tip_pechati'] = base64_encode($print_details->print_type);
-			$out_put['mesto_pechati'] = base64_encode($print_details->place_type);
+			
+			// если пустые значения не создаем элемент
+			if(isset($print_details->place_type) && trim($print_details->place_type) !=''){
+			    if(trim($print_details->place_type) !='Стандартно' && trim($print_details->place_type) !='стандартно')  $out_put['mesto_pechati'] = base64_encode($print_details->place_type);
+		    }
 			
 			
 			if(isset($print_details->dop_params->YPriceParam)){
 			    foreach($print_details->dop_params->YPriceParam as $index => $details){
-				    if($details->id!=0) $idsArr[] = $details->id;	
+				    if($details->id!=0){
+					    $idsArr[] = $details->id;
+						$CMYKArr[$details->id] = (isset($details->cmyk))?$details->cmyk:'';
+					}	
 				}
 				if(isset($idsArr)){
 					$query = "SELECT * FROM `".BASE__CALCULATORS_Y_PRICE_PARAMS."` WHERE id IN('".implode("','",$idsArr)."') ORDER BY percentage";
@@ -151,11 +157,14 @@
 					    //$type = $row['param_type'];
 						$result->data_seek(0);
 						while($row = $result->fetch_assoc()) {
-                            $arr[] = $row['value'];
+                            $arr[] = $row['value'].' '.base64_decode($CMYKArr[$row[id]]);
 						}
-						
-						$out_put['kolvo_cvetov'] =  base64_encode(implode(', ',$arr));
-						unset($arr); 
+                        // если пустые значения не создаем элемент
+						if(isset($arr)){
+						    $out_put['Pantone'] =  base64_encode(implode(', ',$arr));
+						    $out_put['kolvo_cvetov'] =  base64_encode(count($arr));
+						    unset($arr);
+						} 
 					}
 					unset($idsArr); 
 					unset($details);
@@ -200,8 +209,11 @@
 						while($row = $result->fetch_assoc()) {
 						   $arr[] = $row['title'].' '.$dop_details[$row['id']]['multi'];
 						}
-					    $out_put['dop_opcii'] =  base64_encode(implode(', ',$arr));
-						unset($arr);
+						// если пустые значения не создаем элемент
+						if(isset($arr)){
+						    $out_put['dop_opcii'] =  base64_encode(implode(', ',$arr));
+						    unset($arr);
+						} 
 					}
 					unset($idsArr); 
 					unset($details); 
@@ -229,7 +241,13 @@
 						   $arr[] = $row['title'].''.$dop_details[$row['id']]['multi'];
 						   $prefix='';
 						}
-					    $out_put['dop_opcii'] .=  ', '.base64_encode(implode(', ',$arr));
+						// если пустые значения не создаем элемент
+						if(isset($arr)){
+						    if(isset($out_put['dop_opcii'])) $out_put['dop_opcii'] .=  ', '.base64_encode(implode(', ',$arr));
+							else $out_put['dop_opcii'] = base64_encode(implode(', ',$arr));
+						    unset($arr);
+						} 
+					    
 						unset($arr);
 					}
 					unset($idsArr); 

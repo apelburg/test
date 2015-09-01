@@ -362,7 +362,7 @@
 						   <td width="90" type="price_in_summ" connected_vals="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
 						  
 						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left hidden">'.$currency.'</td>
-						   <td width="45" class="center" onclick="return show_discount_window(this,'.$dop_key.','.$client_id.');">'.$discount.'</td>
+						   <td width="45" class="center" type="discount" discount_fieid="1">'.$discount.'</td>
 						   <td width="90" type="price_out" editable="true" connected_vals="art_price" c_stat="1" class="out right">'.$price_out.'</td>
 						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >'.$currency.'</td>
 						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>

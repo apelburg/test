@@ -1148,7 +1148,11 @@ var printCalculator = {
 		var textarea = document.createElement('TEXTAREA');
 		textarea.className = "commentsTextArea";
 		if(printCalculator.currentCalculationData.tz){
-			var comment = Base64.decode(printCalculator.currentCalculationData.tz);
+			// ВООБЩЕТО НАВЕРНО лучще переделать систему и кодировать сразу здесь чтобы не было путаницы и данные 
+			// всегда отправлялись на сервер в кодировке
+			printCalculator.currentCalculationData.tz = Base64.decode(printCalculator.currentCalculationData.tz);
+			printCalculator.currentCalculationData.print_details.comment = printCalculator.currentCalculationData.tz;
+			var comment = printCalculator.currentCalculationData.tz;
 			textarea.value= comment.replace(/<br \/>/g,"\r");
 		}
 		textarea.onchange = function(){  printCalculator.currentCalculationData.print_details.comment = this.value; }
