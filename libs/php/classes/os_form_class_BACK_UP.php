@@ -42,15 +42,126 @@ PS было бы неплохо взять взять это за правило
 			//ext_cl - сувениры клиента
 
      	# true/false разрешаем или запрещаем работу класса с ними
-    
+     	public $arr_section_product = array(
+     		'souvenirs' => array(
+     			'name' => 'Сувениры',
+     			'sections' => array(
+     				'cat' => array(
+						'name' => 'Продукция с сайта',
+						'readonly' => false,
+						'access' => true,
+						'description' => 'которые есть на сайте Апельбург и имеют артикул, так же Вы можете добавить данный товар из корзины на сайте'
+						),
+					'ext' => array(
+						'name' => 'Сувениры под заказ',
+						'readonly' => false,
+						'access' => true,
+						'description' => 'Антистресс, Алкоголь, Ароматизатор, Аксессуары для мобильных, 
+                                             Бандана, Банный набор, Бейсболка, Бокал, Бочонок, Браслет, Брелок, Брюки, Бутылка,
+                                             Ваза, Варенье , Ветровка, Внешний аккумулятор, Воздушные шар, Вымпел, 
+                                             Галстук, Георгиевская ленточка, 
+                                             Держатель, Диск CD, Дисконтная карта, Драже мятное, 
+                                             Ежедневник под заказ, Жилет, Зажигалка, Значок, Зонт, Игрушка, 
+                                             Календарь сувенирный, Карамель, Карандаш, Карты игральные, Карта пластиковая, Каски строительные, Коврики для мыши, Коврики на торпеду, Косметичка, Костер, Косынка, Кофейный набор, Кружка, Кубарик-трансформер, 
+                                             Ланч-бокс, Ланъярд, Леденец, Лента, Ложки, 
+                                             Магнит, Мармелад, Масленка, Мат, Медаль, Мешочек, Миндаль, Миски, Модель, Монетница, Мышь, Мяч, 
+                                             Наборы, Нанобокс, Носки, Обложки, 
+                                             Пазл, Папка-уголок, Печенье, Планшет, Платок, Плед , Плитка шоколада, Подставка под горячее, Поло, Полотенце, Полиграфическая вставка, Полукомбинезон, Портмоне, Портсигар, 
+                                             Рамка для номера, Рулетка, Ручка, Рюкзак, 
+                                             Салфетка, Светоотражатель, Ситечко для чая , Скатерть, Скотч, Скрепка, Сланцы, Стакан, Стелла, Сумка, 
+                                             Табличка, Толстовка, Универсальный внешний аккумулятор, 
+                                             Фартук, Фишки,Флаг тканевый, Флажок сувенирный, Флешка, Фоторамка, Футболка, Чай, Чайник, Чайный набор, Часы наручные, Чехол, 
+                                             Шампанское , Шар новогодний, Шарик воздушный, Шарфы, Шашки, Шнурок, Шоколад , 
+                                             Электрочайник, CD диск, DVD-диск, PVC-флешка, PVC-шеврон'
+						),
+
+					'ext_cl' => array(
+						'name' => 'Сувениры клиента',
+						'readonly' => false,
+						'access' => true,
+						'description' => 'которые нам привозят только для нанесения. (Мы не покупаем товар - товар клиента)'
+						)
+     				)
+     			),
+     		'polygraphy' =>  array(
+     			'name' => 'Полиграфия',
+     			'sections' => array(
+	     			'pol' => array(
+						'name' => 'Листовая',
+						'readonly' => false,
+						'access' => true,
+						'description' => 'Афиша, Баннер, Баннерный стенд, Бирка, Бланк, Буклет, 
+                                        Визитка, Вставка, Выставочные стенды, Газета, Грамота, Диплом, Евробуклет, Карточка, Календарик карманный, Конверт, 
+                                        Листовка, Мобильные панели, Мобильные стенды, Наклейка, Открытка, 
+                                        Пакет, Папка, Папка вырубная, Плакат, Пресс волл, Приглашения, Путеводитель, 
+                                        Разделители, Рекламный щит, Ростовые фигуры, Сертификат, Стикеры, 
+                                        Фирменный бланк, Флаерс, Флажок бумажный, Фотография, Этикетка, PopUp, RollUp'
+						),
+					'pol_many' => array(
+						'name' => 'Многолистовая',
+						'readonly' => false,
+						'access' => true,
+						'description' => 'Альбом, Блок для записей, Блокнот, Брошюра, Каталог, Книга, Книжка, Кубарик, Нотная тетрадь, Планинги, Тетрадь'
+						),
+     				)
+     			),
+     		'calendars' =>  array(
+     			'name' => 'Календари',
+     			'sections' => array(
+	     			'quarterly_calendar' => array(
+						'name' => 'Квартальные',
+						'readonly' => false, 
+						'access' => true,
+						'description' => 'Трио, Макси, Моно, Люкс Квадро, Рекламный, New Профи, New Футура, Гранд, Евростандарт, Максима, New Эксперт, Премиум, Классика, Спектрум 1, Спектрум 2, Квадро, Концепт, Имидж, Универсал, Рационал, Прагматика'
+						),
+					'wall_calendar' => array(
+						'name' => 'Настенные',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Календарь перекидной настенный, Календарь-плакат настенный'
+						),
+					'desktop_calendar' => array(
+						'name' => 'Настольные',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Календарь перекидной домик'
+						)
+     				)
+     			),
+     		'packing' =>  array(
+     			'name' => 'Упаковка',
+     			'sections' => array(
+	     			'boxes' => array(
+						'name' => 'коробки',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Коробка “крышка-дно”, Коробка “шкатулка”, Коробка “самосборная”, Коробка “четырехклапанная”, Коробка “футляр”, Коробка “круглая”, Коробка “книга”, Коробка “пицца”, Коробка под бутылку, Тубус, Шубер'
+						),
+					'package' => array(
+						'name' => 'Пакеты',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Пакеты бумажные, Пакеты ПВД, Пакеты ПНД, Пакеты картонные, Пакеты имитлин, Пакеты эфалин'
+						),
+					'other_packing' => array(
+						'name' => 'Остальное',
+						'readonly' => true,
+						'access' => true,
+						'description' => 'Банка, Корзина, Короб, Коробка для вина, Коробка для чая, Посылочный ящик, Сундук, Футляр с выдвижной крышкой, из дерева, из шпона, из МДФ, из рейки, из ДВП, из ДСП, из ПВХ, из фетра, из платика, из спанбонда, из жести, из фанеры'
+						)
+     				)
+     			)
+     		);
+
+     	
+		
+
      	// перечисление разрешённых разделов полей 
      	// а так же некоторая необходимая для их обработки информация
      	// имя на кириллице
      	// доп описание по заполняемой форме
      	// наличие кнопки клонирования раздела формы
      	// наличие кнопки добавления своего варианта // копирует самый нижний imput
-
-          /*
      	public $form_type = array(
      		'pol_many' => array(
      			'name_product'=>array(
@@ -426,20 +537,12 @@ PS было бы неплохо взять взять это за правило
                          'cancel_selection' =>false
                          )
                )    
-     	);  
-
-          */      
-
-          public $form_type = array();
+     	);
 
 
 		function __construct(){
 			$this->user_id = $_SESSION['access']['user_id'];
-			// допуски пользователя под которым мог зайти Админ
-               $this->user_access = $this->get_user_access_Database_Int($this->user_id);
-
-               // реальные допуски
-               $this->user_access_real = $_SESSION['access']['access'];
+			$this->user_access = $_SESSION['access']['access'];
 
 			## данные POST
 			if(isset($_POST['AJAX'])){
@@ -449,55 +552,8 @@ PS было бы неплохо взять взять это за правило
 			## данные GET --- НА ВРЕМЯ ОТЛАДКИ !!!
 			if(isset($_GET['AJAX'])){
 				$this->_AJAX_($_GET['AJAX']);
-			}               
+			}
 		}
-
-
-          private function get_form_type_Database(){
-               global $mysqli;
-
-               $query = "SELECT * FROM `".FORM_GROUPS."` ";
-               $query .= " INNER JOIN `".FROM_SECTIONS."` ON `".FROM_SECTIONS."`.`parent_group`=`".FORM_GROUPS."`.`group_name_en`";
-
-               // echo $query;
-               $this->arr_section_product = array();
-               $result = $mysqli->query($query) or die($mysqli->error);
-
-
-
-          }
-
-          private function get_arr_section_product_Database(){
-               global $mysqli;
-
-               $query = "SELECT * FROM `".FORM_GROUPS."` ";
-               $query .= " INNER JOIN `".FROM_SECTIONS."` ON `".FROM_SECTIONS."`.`parent_group`=`".FORM_GROUPS."`.`group_name_en`";
-
-               // echo $query;
-               $this->arr_section_product = array();
-               $result = $mysqli->query($query) or die($mysqli->error);
-               
-               $name = '';
-               if($result->num_rows > 0){
-                    while($row = $result->fetch_assoc()){
-                         if($name != $row['group_name_en']){
-                              $this->arr_section_product[$row['group_name_en']] = array(
-                                   'name' => $row['group_name_ru']                              
-                              );     
-                         }
-                         // $form_groups[] = $row;
-                         
-                         $this->arr_section_product[$row['group_name_en']]['sections'][$row['name_en']] = array(
-                              'name' => $row['name_ru'],
-                              'readonly' => $row['readonly'],
-                              'access' => $row['access'],
-                              'description' => $row['description']
-                              ); 
-
-                         $name = $row['group_name_en'];
-                    }
-               }
-          }
 		//////////////////////////
 		//	methods_AJAX  -- start
 		//////////////////////////
@@ -510,46 +566,6 @@ PS было бы неплохо взять взять это за правило
 					exit;
 				}					
 			}
-
-               private function to_chose_the_type_product_form_AJAX(){
-                    // форма выбора типа продукта
-                    echo '{"response":"show_new_window","html":"'.base64_encode($this->to_chose_the_type_product_form_Html()).'","title":"Выберите тип продукции"}';
-               }
-
-               private function save_no_cat_variant_AJAX(){
-                    unset($_POST['AJAX']); // уничтожаем переменную, дабы она не попала в массив обработки
-                    $this->insert_new_options_in_the_Database();
-               }
-
-               private function general_form_for_create_product_AJAX(){
-                    unset($_POST['AJAX']); // уничтожаем переменную, дабы она не попала в массив обработки
-                    $type_product = $_POST['type_product'];
-                    // echo '<pre>';
-                    // print_r($_POST);
-                    // echo '<pre>';
-                    echo '<div style="border-top:1px solid red">'.$this->restructuring_of_the_entry_form($_POST,$type_product).'</div>';
-               }
-
-
-               private function get_form_Html_AJAX(){
-                    //////////////////////////
-                    //   Для каталожной продукции
-                    //////////////////////////
-                    if(isset($_POST['type_product']) && $_POST['type_product'] == "cat"){
-                         echo '{"response":"show_new_window","type":"cat","title":"Введите № артикула","html":"'.base64_encode($this->get_for_add_catalog_product()).'"}';  
-                         exit;
-                    }
-                    //////////////////////////
-                    //   Для некаталожной продукции
-                    //////////////////////////
-                    // запрашиваем из POST массива данные о типе продукта
-                    $t_p = (isset($_POST['type_product']) && $_POST['type_product']!="")?$_POST['type_product']:'none';
-                   
-                    // запрос формы html
-
-                    // echo '{"response":"show_new_window","html":"asdsad"}';
-                    echo '{"response":"show_form_moderate_window","html":"'.base64_encode($this->get_product_form_Html($t_p)).'"}';
-               }
 
 			// проверяем наличие артикула на сайте, выводим его описание при нахождении
 			private function check_exists_articul_AJAX(){
@@ -790,17 +806,21 @@ PS было бы неплохо взять взять это за правило
      		// возвращает форму выбора заведения новой позиции в запрос
      		// осущевствляется выбор типа товара
      		# на вход подается номер запроса
-     		private function to_chose_the_type_product_form_Html(){
+     		public function to_chose_the_type_product_form_Html(){
+     			# ОПИСАНИЕ ТИПОВ ТОВАРОВ
+     			//cat  - каталог
+     			//pol - полиграфия листовая
+     			//pol_many - полиграфия многолистовая
+     			// calendar - икалендарь
+     			//packing - упаковка картон
+     			//packing_other - упаковка другая
+     			//ext - сувениры под заказ
+     			//ext_cl - сувениры клиента
      			$html = '';
      			$html .= '<form>';
      			$html .= '<table id="get_form_Html_tbl">';
      			$html .= '<tr><th>Тип</th><th>Описание типа</th></tr>';
      			$i=0;
-
-                    // получаем группы товаров и их секции с описанием
-                    $arr_section_product = $this->get_arr_section_product_Database();
-
-
      			foreach ($this->arr_section_product as $section_product => $section_product_array) {
      				$html .= '<tr><td colspan="2"><div class="section_div">'.$section_product_array['name'].'</div></td></tr>'; // название раздела
      				
@@ -829,7 +849,6 @@ PS было бы неплохо взять взять это за правило
      			$html .= '<input type="hidden" name="AJAX" value="get_form_Html">';
      			$html .= '</form>';
      			return $html;
-                    // 'show_new_window';
      		}
 
      		// возвращает форму для каталожной продукции
@@ -847,9 +866,7 @@ PS было бы неплохо взять взять это за правило
 
      		// возвращает html формы для заведения запроса на расчёт в отделе снабжения
      		public function get_product_form_Html($type_product){
-
-     			$this->form_type = $this->get_form_inputs_group_Database($type_product);
-
+     			
      			// если поля для запрошенного типа продукции описаны в классе
      			if(isset($this->form_type[$type_product]) && count($this->form_type[$type_product])!=0){
      				// получаем форму
@@ -858,9 +875,9 @@ PS было бы неплохо взять взять это за правило
      				$form = self::get_form_Html($this->form_type[$this->type_product] , $type_product);
      				return $form;
      			}else{
-                         // впротивном случае выводи ошибку
+     				// впротивном случае выводи ошибку
      				$error = "Такого типа продукции не предусмотрено. Обратитесь к администрации";
-                         return $error;
+     				return $error;
      			}
      		}
 
@@ -959,7 +976,6 @@ PS было бы неплохо взять взять это за правило
      			return $num;
      		}
 
-               // вставить строку в RT_MAIN_ROWS
      		private function insert_new_main_row_Database($query_num_i, $arr, $type_product){	
      			$this->sort_num = $this->get_sort_num();
      			// echo '<pre>';
@@ -979,23 +995,6 @@ PS было бы неплохо взять взять это за правило
      			
      			return $mysqli->insert_id;	
      		}
-
-               // получаем массив групп полей
-               private function  get_form_inputs_group_Database($group_sections_name_en){
-                    //echo "SELECT * FROM `".FORM_GROUP_INPUTS."` WHERE `group_sections_name_en` = '".$group_sections_name_en."';";
-                    if(!isset($this->form_type[$group_sections_name_en])){
-                         global $mysqli;
-                         $query = "SELECT *, `name_group_inputs_ru` AS `name` FROM `".FORM_GROUP_INPUTS."` WHERE `group_sections_name_en` = '".$group_sections_name_en."';";
-                         // echo $query;
-                         $result = $mysqli->query($query) or die($mysqli->error);
-                         if($result->num_rows > 0){
-                              while($row = $result->fetch_assoc()){
-                                   $this->form_type[$group_sections_name_en][$row['name_group_inputs_en']] = $row;
-                              }
-                         }
-                    }
-                    return $this->form_type;
-               }
 
      		// обработка данных из формы
      		public function restructuring_of_the_entry_form($array_in,$type_product,$child = 0){
@@ -1041,147 +1040,45 @@ PS было бы неплохо взять взять это за правило
      			return $return;
                }
 
-               // удаление поля
-               private function delete_input_width_form_AJAX(){
-                    global $mysqli;
-                    $query = "DELETE FROM `".FORM_ROWS_LISTS."` WHERE `id`='".(int)$_POST['row_id']."';";
-                    $result = $mysqli->query($query) or die($mysqli->error);
-                    echo '{"response":"OK"}';
-               }
-
-               // заведение нового поля ввода в базу
-               private function greate_new_input_AJAX(){
-
-                    global $mysqli;
-                    // $html = $this->print_arr($_POST);
-                    $query ="INSERT INTO `".FORM_ROWS_LISTS."` SET
-                         `name_ru` = '".trim($_POST['name_ru'])."',
-                         `name_en` = '".trim($_POST['name_en'])."',
-                         `note` = '".trim($_POST['note'])."',
-                         `placeholder` = '".trim($_POST['placeholder'])."',
-                         `parent_name` = '".trim($_POST['parent_name'])."',
-                         `type` = '".trim($_POST['type'])."',
-                         `author_id` = '".trim($_POST['author_id'])."',
-                         `author_access` = '".trim($_POST['author_access'])."',
-                         `name_group_inputs_en` = '".trim($_POST['name_group_inputs_en'])."',
-                         `row_id_group_inputs` = '".trim($_POST['row_id_group_inputs'])."',
-                         `type_product` = '".trim($_POST['type_product'])."'";  
-                    if(isset($_POST['parent_id'])){
-                         $query .= ",`parent_id` = '".trim($_POST['parent_id'])."'";
-                    }                  
-                   
-                    $result = $mysqli->query($query) or die($mysqli->error);
-
-                    echo '{"response":"OK"}';
-               }
-               // вывовд формы добавления нового поля
-               private function get_form_width_add_input_AJAX(){
-                    $html = '';
-                    $html .= '<form>';
-                    $html .= 'Название<br>';
-                    $html .= '<input type="text" name="name_ru" id="cirillic_name_input"><br>';
-                    $html .= 'Пояснения к названию(мелкий шрифт)<br>';
-                    $html .= '<input type="text" name="note"><br>';
-                    $html .= 'Название на англ.<br>';
-                    $html .= '<input type="text" name="name_en" id="eng_name_input"><br>';
-                    $html .= 'Подсказка внутри текстогого поля.<br>';
-                    $html .= '<input type="text" name="placeholder"><br>';
-                    $html .= 'Выберите тип поля<br>';
-                    $html .= '<select name="type" id="check_the_type_of_input">';
-                         $html .= '<option value=""></option>';
-                         $html .= '<option value="checkbox">Галка</option>';
-                         $html .= '<option value="radio">Радио</option>';
-                         $html .= '<option value="text">текстовое поле</option>';
-                         $html .= '<option value="textarea">большое текстовое поле</option>';
-                    $html .= '</select><br>';
-
-                    unset($_POST['AJAX']);
-                    foreach ($_POST as $key => $value) {
-                         $html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-                    }
-
-                    $html .= '<input type="hidden" name="author_id" value="'.$this->user_id.'">';
-                    $html .= '<input type="hidden" name="author_access" value="'.$this->user_access.'">';
-                    $html .= '<input type="hidden" name="AJAX" value="greate_new_input">';
-
-                    $html .= '<form>';
-
-                    echo '{"response":"show_new_window_2","html":"'.base64_encode($html).'","title":"Создание поля"}';
-
-               }
      		// выдаёт форму по типу продукции
-               public function get_form_Html($form_groups_arr,$type_product){
-                    $this->type_product = $type_product;
+     		public function get_form_Html($arr,$type_product){
+     			// global $mysqli;
+     			$html = '';
+     			$html .= '<div id="general_form_for_create_product"><form>';
+     			$html .= '<input type="hidden" name="AJAX" value="general_form_for_create_product">';
+     			$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
+     			// перебираем массив разрешенных для данного типа товара полей
+     			// echo '<pre>';
+     			// print_r($arr);
+     			// echo '</pre>';
+     			foreach ($arr as $key => $value) {
+     				$html .= '<div class="one_row_for_this_type '.$key.'" data-type="'.$key.'" data-moderate="'.$value['moderate'].'">';
+     				
+     				$moderate = ($value['moderate'])?'<span style="color:red; font-size:14px">*</span>':'';
+     				// определяем имя поля
+     				$html .= '<strong>'.$value['name'].' '.$moderate.'</strong><br>';
 
-                    // global $mysqli;
-                    $html = '';
-                    $html .= '<div id="general_form_for_create_product"><form>';
-                    $html .= '<input type="hidden" name="AJAX" form_group="general_form_for_create_product">';
-                    $html .= '<input type="hidden" name="type_product" form_group="'.$this->type_product.'">';
-                    //////////////////////////
-                    //  для админов добавляем кнопку обновить
-                    //////////////////////////
-                         if($this->user_access_real == 1){
-                              // $html . '<button type="button" id="replace_the_dialog_window" data-id="50">Обновить</button>';
-                              $html .= '<div id="replace_from_window" data-type="'.$type_product.'"><button type="button">Обновить</botton></div>';
-                         }
+     				// доп описание по полю
+     				$html .= ($value['note']!='')?'<div style="font-size:10px">'.$value['note'].'</div>':'';
+     				
+     				//для каждого поля запрашиваем форму
+     				$html .= $this->generate_form_Html($this->get_form_Html_listing_Database_Array($type_product,$key),'',$type_product);
+     				
+     				// echo $html;				
+     				// добавляем кнопки				
+     				$html .= '</div>';	
+     				$html .= '<div class="buttons_form">';
+     				$html .= ($value['btn_add_var'])?'<span class="btn_add_var">+ вариант</span>':'';
+     				$html .= ($value['btn_add_val'])?'<span class="btn_add_val">+ значение</span>':'';
+     				$html .= ($value['cancel_selection'])?'<span class="cancel_selection">отменить</span>':'';
+     				$html .= '</div>';
 
-                    // перебираем массив групп полей
-                    foreach ($form_groups_arr as $tovar_group_sections_name_en => $this->form_group) {
+     			}	
 
-                         $this->tovar_group_sections_name_en = $tovar_group_sections_name_en;
+     			$html .= '</form></div>';
+     			return $html;
+     		}
 
-                         $html .= '<div class="one_row_for_this_type '.(($this->user_access == 1)?'shine_edit_blocks':'').' '.$tovar_group_sections_name_en.'" data-type="'.$tovar_group_sections_name_en.'" data-moderate="'.$this->form_group['moderate'].'" data-id="'.$this->form_group['id'].'">';
-                         
-                         // если необходима модерация - указываем
-                         $moderate = ($this->form_group['moderate'])?'<span style="color:red; font-size:14px">*</span>':'';
-                         // определяем наименование группы полей
-                         $html .= '<strong>'.$this->form_group['name'].' '.$moderate.'</strong>';
-                         //////////////////////////
-                         //  для админов добавляем кнопки удалить и редактировать
-                         //////////////////////////
-                              if($this->user_access == 1){
-                                   $html .= '&nbsp;<span class="group_edit redactor_buttons" data-id="'.$this->form_group['id'].'">Ред.</span>';
-                                   $html .= '<span class="group_del redactor_buttons" data-id="'.$this->form_group['id'].'">Удалить</span>';
-                              }
-                         $html .= '<br>';
-
-                         // доп описание по полю
-                         $html .= ($this->form_group['note']!='')?'<div style="font-size:10px">'.$this->form_group['note'].'</div>':'';
-                         
-                         //для каждого поля запрашиваем форму
-                         
-                         $html .= $this->generate_form_Html($tovar_group_sections_name_en);
-                         // добавляем кнопку добавления поля ввода в группу
-                         if($this->user_access == 1){
-                              // $html .= '<div class="div_add_input_in_group">';
-                              $html .= '<br><span class="add_input_in_group redactor_buttons" data-form_group_id="'.$this->form_group['id'].'" data-type_product="'.$this->type_product.'"  data-name_group_en="'.$this->tovar_group_sections_name_en.'">+ Добавить поле в группу</span>';
-                              // $html .= '</div>';
-                         }
-
-                         $html .= '</div>';  
-                         
-                         $html .= '<div class="buttons_form">';
-                              $html .= ($this->form_group['btn_add_var'])?'<span class="btn_add_var">+ вариант</span>':'';
-                              $html .= ($this->form_group['btn_add_val'])?'<span class="btn_add_val">+ значение</span>':'';
-                              $html .= ($this->form_group['cancel_selection'])?'<span class="cancel_selection">отменить</span>':'';
-                         $html .= '</div>';
-
-                    }    
-
-
-
-                    $html .= '</form>';
-                    //////////////////////////
-                    //  для админов добавляем кнопки удалить и редактировать
-                    //////////////////////////
-                         if($this->user_access == 1){
-                              $html .= '&nbsp;<span class="group_add redactor_buttons" data-type_product="'.$type_product.'">+ Добавить группу</span>';
-                              
-                         }
-                    $html .= '</div>';
-                    return $html;
-               }
      		// возвращает таблицу всех возможных вариантов из множества, которое натыкал юзер
      		private function greate_table_variants_Html($arr,$product_options,$type_product){
      			
@@ -1360,8 +1257,7 @@ PS было бы неплохо взять взять это за правило
      				}
      			}
      			return $arr;
-     		
-               }
+     		}
      		
      		// генератор id
      		private function generate_id_Strintg($name){
@@ -1372,283 +1268,140 @@ PS было бы неплохо взять взять это за правило
      			return $id;
      		}
 
-               // запрашивает из базы допуски пользователя
-               // необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
-               private function get_user_access_Database_Int($id){
-                    global $mysqli;
-                    $query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
-                    $result = $mysqli->query($query) or die($mysqli->error);                   
-                    $int = 0;
-                    if($result->num_rows > 0){
-                         while($row = $result->fetch_assoc()){
-                              $int = (int)$row['access'];
-                         }
-                    }
-                    //echo $query;
-                    return $int;
-               }
+     		// генерит html
+     		private function generate_form_Html($arr,$parent='',$type_product){	
+     			// echo '<pre>';
+     			// print_r($arr);
+     			// echo '</pre>';
+     			$html = '';
+     			$select = 0;
 
+     			foreach ($arr as $k => $val){
+     				// $p_name = '';
+     				if($parent==''){
+     					// если это группа checkbox, то 
+     					// echo $this->form_type[$type_product][$val['parent_name']]['btn_add_var'];
+     					// if($val['type']=='checkbox' && isset($this->form_type[$type_product][$val['parent_name']]['btn_add_var']) && !$this->form_type[$type_product][$val['parent_name']]['btn_add_var']){
+     					if($val['type']=='checkbox' && isset($this->form_type[$type_product][$val['parent_name']]['btn_add_var']) && !$this->form_type[$type_product][$val['parent_name']]['btn_add_var']){
+     						$p_name = $val['parent_name'].'[][]';
+     					}else{
+     						$p_name = $val['parent_name'].'[0][]';
+     					}
+     				}else{
+     					$parent = (substr($parent, -2, 2)=='[]')?substr($parent,0,strlen($parent)-2):$parent;
+     					
+     					 if(!strstr($parent, "[0]")){
+     					 	$parent = $parent.'[0]';
+     					 }
+     					$p_name = $parent.'['.$val['parent_name'].']'.'[]';
+     				}
+     				
+     				$id = $this->generate_id_Strintg($val['parent_name']);
+
+
+     				$html .= ($val['note']!='')?'<span style="font-size:10px">'.$val['note'].'</span><br>':'';
+     				// $html .= $val['type'];
+     				switch ($val['type']) {
+     					case 'textarea':// если тип поля textarea
+     						if($select > 0){$html .= '</select><br>';$select =0;}
+     						switch ($val['manager_id']) {
+     							case '0': // если запись соответствует 0, т.е. обязательна для вывода
+     								// выводим как есть
+     								$html .= '<textarea data-id="'.$val['id'].'" id="'.$id.'" name="'.$p_name.'">'.$val['val'].'</textarea><br>';
+     								break;
+     							case $this->user_id: // если запись соответствует id менеджера
+     								// позволяем менеджеру удалить своё поле
+     								$html .= '<textarea data-id="'.$val['id'].'" id="'.$id.'" name="'.$p_name.'">'.$val['val'].'</textarea>'.$this->span_del.'<br>';
+     								break;
+     							
+     							default:
+     								# code...
+     								break;
+     						}	
+     						break;
+     					case 'text':// если тип поля text
+     						if($select > 0){$html .= '</select><br>';$select =0;}
+     						switch ($val['manager_id']) {
+     							case '0': // если запись соответствует 0, т.е. обязательна для вывода
+     								// выводим как есть
+     								$html .= '<input data-id="'.$val['id'].'" type="'.$val['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$val['val'].'"><br>';
+     								break;
+     							case $this->user_id: // если запись соответствует id менеджера
+     								// позволяем менеджеру удалить своё поле
+     								$html .= '<input data-id="'.$val['id'].'" type="'.$val['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$val['val'].'">'.$this->span_del.'<br>';
+     								break;
+     							
+     							default:
+     								# code...
+     								break;
+     						}	
+     						break;
+     					case 'select':// если тип поля select
+     						if($select == 0){$html .= '<select name="'.$p_name.'">';$select =1;}
+     						switch ($val['manager_id']) {
+     							case '0': // если запись соответствует 0, т.е. обязательна для вывода
+     								// выводим как есть
+     								$html .= '<option data-id="'.$val['id'].'" id="'.$id.'" value="'.$val['val'].'">'.$val['val'].'</option><br>';
+     								break;
+     							case $this->user_id: // если запись соответствует id менеджера
+     								// позволяем менеджеру удалить своё поле
+     								$html .= '<option data-id="'.$val['id'].'" id="'.$id.'" value="'.$val['val'].'">'.$val['val'].' '.$this->span_del.'</option><br>';
+     								break;
+     							
+     							default:
+     								# code...
+     								break;
+     						}	
+     						break;
+     					
+     					default:
+     						if($select > 0){$html .= '</select><br>';$select =0;}
+     						switch ($val['manager_id']) {
+     							case '0': // если запись соответствует 0, т.е. обязательна для вывода
+     								// выводим как есть
+     								$html .= '<input data-id="'.$val['id'].'" type="'.$val['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$val['val'].'"><label for="'.$id.'">'.$val['val'].'</label><br>';
+     								break;
+     							case $this->user_id: // если запись соответствует id менеджера
+     								// позволяем менеджеру удалить своё поле
+     								$html .= '<input data-id="'.$val['id'].'" type="'.$val['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$val['val'].'"><label for="'.$id.'">'.$val['val'].' '.$this->span_del.'</label><br>';
+     								break;
+     							
+     							default:
+     								# code...
+     								break;
+     						}	
+     						break;
+     				}
+     					
+     				if($val['child']!=''){
+     					$arr_child = $this->get_child_listing_Database_Array($val['child']);
+     					$html .= '<div class="pad">'.$this->generate_form_Html($arr_child,$p_name,$type_product).'</div>';
+     				}
+
+     									
+     			}
+     			if($select > 0){$html .= '</select><br>';$select =0;}
+     			return $html;
+     		}
 
                // запрашивает из базы список вариантов для полей формы по отдельности
-               private function get_form_Html_listing_Database_Array($input_name){
-                    global $mysqli;               
-                    $query = "SELECT * FROM `".FORM_ROWS_LISTS."` WHERE `type_product` = '".$this->type_product."' AND `name_group_inputs_en` = '".$input_name."' ORDER BY `parent_id` DESC";
-                    $this->inputs = array();
-                    $this->input_ID = array();
-                    $result = $mysqli->query($query) or die($mysqli->error);
-                    if($result->num_rows > 0){
-                         while($row = $result->fetch_assoc()){
-                              // $arr[$row['id']] = $row;
-                              $this->input_ID[$row['id']] = $row;
-                              $this->inputs[$row['parent_id']][$row['id']] =  $row;
-                         }
-                    }
-                    return;
-                    // return $arr;
-               }
-
-             
-               private function generate_form_Database_Array($inputs,$input_ID,$parent_id = 0){
-                    $arr = array();
-
-                    $tree = array(); 
-                    $sub = array( 0 => &$tree ); 
-
-                    foreach ($this->input_ID as $item){
-                         if(!isset($this->inputs))
-                         
-                    } 
-
-                    
-                    return $tree; // отдать массив
-               }
-
-               private function generate_form_Html($tovar_group_sections_name_en){
-                    // вычисляем массив всех полей ввода
-                    // $this->from_inputs_array = $this->generate_form_Database_Array($this->get_form_Html_listing_Database_Array($tovar_group_sections_name_en),0);
-                    $this->get_form_Html_listing_Database_Array($tovar_group_sections_name_en);
-                    $this->from_inputs_array = $this->generate_form_Database_Array($this->inputs,$this->input_ID,0);
-                    // $html = $this->print_arr($this->input_ID);
-                    // $html .= $this->print_arr($this->inputs);
-                    // return $html;
-                    return $this->print_arr($this->from_inputs_array); // распечатать массив
-                    // return $this->generate_form_Html_recurciv($this->from_inputs_array); // отдать HTML
-               }
-
-               private function generate_form_Html_recurciv($all_inputs_arr){
-                    $html = '';
-                    $this->buttons_edit_and_del = '';
-                    
-                    foreach ($all_inputs_arr as $key => $input) {
-                         if($this->user_access == 1){
-                              // $html .= '<div class="div_add_input_in_group">';
-                              $this->buttons_edit_and_del = '<span class="add_input_in_form redactor_buttons" data-parent_name="'.$input['name_en'].'" data-id="'.$input['id'].'"  data-group_inputs_row_id="'.$this->form_group['id'].'" data-type_product="'.$this->type_product.'"  data-name_group_en="'.$this->tovar_group_sections_name_en.'">+ Добавить поле</span>';
-                              $this->buttons_edit_and_del .= '<span class="delete_input_width_form redactor_buttons" data-id="'.$input['id'].'">Удалить</span>';
-                              // $html .= '</div>';
-                         }
-                         $id = $this->generate_id_Strintg($input['parent_name']);
-                         switch ($input['type']) {
-                              case 'textarea':// если тип поля textarea
-                                   //if($select > 0){$html .= '</select><br>';$select =0;}
-                                   
-                                        // позволяем менеджеру удалить своё поле
-                                        $html .= $input['name_ru'].'<br>';
-                                        $html .= '<textarea data-id="'.$input['id'].'" id="'.$id.'" name="'.$input['parent_name'].'">'.$input['val'].'</textarea>'.$this->buttons_edit_and_del.'<br>';
-                                             
-                                   break;
-                              case 'text':// если тип поля text
-                                   $html .= $input['name_ru'].'<br>';
-                                   $html .= '<input data-id="'.$input['id'].'" type="'.$input['type'].'" id="'.$id.'" name="'.$input['parent_name'].'" value="'.$input['val'].'">'.$this->buttons_edit_and_del.'<br>';
-                                    
-                                    
-                                   break;
-                              case 'select':// если тип поля select
-                                   $html .= '<select name="'.$input['name'].'">';   
-                                   $html .= '<option value="">....</option>';
-                                   $html .= '</select>'.$this->buttons_edit_and_del.'<br>';
-                                   break;
-                              
-                              default:
-                                        
-                                   // позволяем менеджеру удалить своё поле
-                                   $html .= '<input data-id="'.$input['id'].'" type="'.$input['type'].'" id="'.$id.'" name="'.$input['parent_name'].'" value="'.$input['val'].'"><label for="'.$id.'">'.$input['name_ru'].' '.$this->buttons_edit_and_del.'</label>';
-                                   // добавляем кнопку добавления поля ввода в группу
-                                   
-                                             
-                                   break;
-                         }
-                         $html .= '<br>';
-
-                         if(isset($input['child']) && ! empty($input['child'])){
-                              $html .= '<div class="pad" '.(($this->user_access == 1)?' style="display: block;"':'').'>'.$this->generate_form_Html_recurciv($input['child']).'</div>';
-                         }
-                    }
-                    return $html;
-               }
-
-
-
-
-
-
-
-     		// генерит html
-               private function generate_form_Html_OLD($inputs_arr,$parent='',$type_product){ 
-                    // echo '<pre>';
-                    // print_r($arr);
-                    // echo '</pre>';
-                    $html = '';
-                    // $html .= $this->print_arr($_SESSION);
-                    $select = 0;
-                    $prevent_type_input = '';
-
-                    $html .= $this->print_arr($inputs_arr);
-
-
-
-                    foreach ($inputs_arr as $input){
-                         if($select > 0 && $prevent_type_input=="select" && $input['type'] != 'select'){$html .= '</select><br>';$select = 0;}
-                         $prevent_type_input = $input['type'];
-
-                         $p_name = '';
-                         if($parent==''){
-                              // если это группа checkbox, то 
-                              // echo $this->form_type[$type_product][$input['parent_name']]['btn_add_var'];
-                              // if($input['type']=='checkbox' && isset($this->form_type[$type_product][$input['parent_name']]['btn_add_var']) && !$this->form_type[$type_product][$input['parent_name']]['btn_add_var']){
-                              if($input['type']=='checkbox' && isset($this->form_type[$type_product][$input['parent_name']]['btn_add_var']) && !$this->form_type[$type_product][$input['parent_name']]['btn_add_var']){
-                                   $p_name = $input['parent_name'].'[][]';
-                              }else{
-                                   $p_name = $input['parent_name'].'[0][]';
-                              }
-                         }else{
-                              $parent = (substr($parent, -2, 2)=='[]')?substr($parent,0,strlen($parent)-2):$parent;
-                              
-                               if(!strstr($parent, "[0]")){
-                                   $parent = $parent.'[0]';
-                               }
-                              $p_name = $parent.'['.$input['parent_name'].']'.'[]';
-                         }
-                         
-                         $id = $this->generate_id_Strintg($input['parent_name']);
-
-
-                         $html .= ($input['note']!='')?'<span style="font-size:10px">'.$input['note'].'</span><br>':'';
-                         
-                         // обёртка для форматирования при редактировании формы
-                         if($this->user_access == 1){
-                            $html .= '<div class="one_input">';
-                         }
-                         
-                         switch ($input['type']) {
-                              case 'textarea':// если тип поля textarea
-                                   //if($select > 0){$html .= '</select><br>';$select =0;}
-                                   switch ($input['manager_id']) {
-                                        case '0': // если запись соответствует 0, т.е. обязательна для вывода
-                                             // выводим как есть
-                                             $html .= '<textarea data-id="'.$input['id'].'" id="'.$id.'" name="'.$p_name.'">'.$input['val'].'</textarea><br>';
-                                             break;
-                                        case $this->user_id: // если запись соответствует id менеджера
-                                             // позволяем менеджеру удалить своё поле
-                                             $html .= '<textarea data-id="'.$input['id'].'" id="'.$id.'" name="'.$p_name.'">'.$input['val'].'</textarea>'.$this->span_del.'<br>';
-                                             break;
-                                        
-                                        default:
-                                             # code...
-                                             break;
-                                   }    
-                                   break;
-                              case 'text':// если тип поля text
-                                   //if($select > 0){$html .= '</select><br>';$select =0;}
-                                   switch ($input['manager_id']) {
-                                        case '0': // если запись соответствует 0, т.е. обязательна для вывода
-                                             // выводим как есть
-                                             $html .= '<input data-id="'.$input['id'].'" type="'.$input['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$input['val'].'"><br>';
-                                             break;
-                                        case $this->user_id: // если запись соответствует id менеджера
-                                             // позволяем менеджеру удалить своё поле
-                                             $html .= '<input data-id="'.$input['id'].'" type="'.$input['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$input['val'].'">'.$this->span_del.'<br>';
-                                             break;
-                                        
-                                        default:
-                                             # code...
-                                             break;
-                                   }    
-                                   break;
-                              case 'select':// если тип поля select
-                                   if($select == 0){$html .= '<select name="'.$p_name.'">';$select =1;}
-                                   switch ($input['manager_id']) {
-                                        case '0': // если запись соответствует 0, т.е. обязательна для вывода
-                                             // выводим как есть
-                                             $html .= '<option data-id="'.$input['id'].'" id="'.$id.'" value="'.$input['val'].'">'.$input['val'].'</option><br>';
-                                             break;
-                                        case $this->user_id: // если запись соответствует id менеджера
-                                             // позволяем менеджеру удалить своё поле
-                                             $html .= '<option data-id="'.$input['id'].'" id="'.$id.'" value="'.$input['val'].'">'.$input['val'].' '.$this->span_del.'</option><br>';
-                                             break;
-                                        
-                                        default:
-                                             # code...
-                                             break;
-                                   }    
-                                   break;
-                              
-                              default:
-                                   //if($select > 0){$html .= '</select><br>';$select =0;}
-                                   switch ($input['manager_id']) {
-                                        case '0': // если запись соответствует 0, т.е. обязательна для вывода
-                                             // выводим как есть
-                                             $html .= '<input data-id="'.$input['id'].'" type="'.$input['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$input['val'].'"><label for="'.$id.'">'.$input['val'].'</label>';
-                                             // добавляем кнопку добавления поля ввода в группу
-                                             if($this->user_access == 1){
-                                                  // $html .= '<div class="div_add_input_in_group">';
-                                                  $html .= '<span class="add_input_in_form redactor_buttons" data-id="'.$input['id'].'">+ Добавить поле</span>';
-                                                  $html .= '<span class="delete_input_width_form redactor_buttons" data-id="'.$input['id'].'">Удалить</span>';
-                                                  // $html .= '</div>';
-                                             }
-                                             $html .= '<br>';
-                                             break;
-                                        case $this->user_id: // если запись соответствует id менеджера
-                                             // позволяем менеджеру удалить своё поле
-                                             $html .= '<input data-id="'.$input['id'].'" type="'.$input['type'].'" id="'.$id.'" name="'.$p_name.'" value="'.$input['val'].'"><label for="'.$id.'">'.$input['val'].' '.$this->span_del.'</label>';
-                                             // добавляем кнопку добавления поля ввода в группу
-                                             if($this->user_access == 1){
-                                                  // $html .= '<div class="div_add_input_in_group">';
-                                                  $html .= '<span class="add_input_in_form redactor_buttons" data-id="'.$input['id'].'">+ Добавить поле</span>';
-                                                  $html .= '<span class="delete_input_width_form redactor_buttons" data-id="'.$input['id'].'">Удалить</span>';
-                                                  // $html .= '</div>';
-                                             }
-                                             $html .= '<br>';
-                                             break;
-                                        
-                                        default:
-                                             # code...
-                                             break;
-                                   }    
-                                   break;
-                         }
-
-
-                         if($select > 0 && $prevent_type_input=="select" && $input['type'] != 'select'){$html .= '</select><br>';$select = 0;}
-
-                         // получаем детей
-                         if($input['child']!=''){
-                              $arr_child = $this->get_child_listing_Database_Array($input['child']);
-                              $html .= '<div class="pad" '.(($this->user_access == 1)?' style="display: block;"':'').'>'.$this->generate_form_Html($arr_child,$p_name,$type_product).'</div>';
-                         }
-                         // обёртка для форматирования при редактировании формы
-                         if($this->user_access == 1 && $select == 0){
-                             $html .= '</div>';
-                         }
-
-                        
-                                                 
-                    }
-                    
-                    
-                    return $html;
-               }
-
-               
+     		private function get_form_Html_listing_Database_Array($type_product,$input_name){
+     			global $mysqli;			
+     			$query = "SELECT * FROM `".FORM_ROWS_LISTS."` WHERE `type_product` = '".$type_product."' AND `parent_name` = '".$input_name."'";
+     			$arr = array();
+     			$result = $mysqli->query($query) or die($mysqli->error);
+     			if($result->num_rows > 0){
+     				while($row = $result->fetch_assoc()){
+     					$arr[] = $row;
+     				}
+     			}
+     			// echo $query;
+     			// echo '<pre>';
+     			// print_r($arr);
+     			// echo '</pre>';
+     				
+     			return $arr;
+     		}
 
      		// запрашивает из базы список CHILD для полей формы
      		private function get_child_listing_Database_Array($child){

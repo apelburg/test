@@ -9,6 +9,8 @@
 <link href="<?php  echo HOST; ?>/skins/css/__rt_vremenno.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/skins/css/checkboxes.css" rel="stylesheet" type="text/css">
 
+
+<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jquery.liTranslit.js"></script><!-- транслитерация-->
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/forms__js.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/scrolledTableSizeFixing.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/rtCalculatorClass.js"></script>
