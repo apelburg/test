@@ -733,3 +733,23 @@ span.snab_comment {
 /****************************************
   правки по замечаниям Славы   END
 *****************************************/
+
+.redactor_buttons{
+  padding: 2px 5px;
+  border: 1px solid rgba(255, 0, 0, 0.28);
+  color: rgba(255, 0, 0, 0.57);
+  cursor: pointer;
+  margin-right: 15px;
+}
+.shine_edit_blocks{
+  border: 1px solid red;
+}
+.div_add_input_in_group{
+  padding: 5px 0
+}
+.shine_edit_blocks .one_input{
+  padding: 5px 0;
+}
+.shine_edit_blocks span.add_input_in_form.redactor_buttons {
+    margin-left: 15px;
+}

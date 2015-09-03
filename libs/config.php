@@ -112,7 +112,11 @@
 	define("DOP_DATA_HIST", 'os__dop_data_history');
 
 	// новые таблицы для РТ
-	define("FORM_ROWS_LISTS", "form_rows_for_lists"); // поля для генератора форм 
+	define("FORM_ROWS_LISTS", "os__forms_input"); // поля для генератора форм 
+	define("FORM_GROUP_INPUTS", "os__forms_group_inputs"); // поля для генератора форм 
+	define("FORM_GROUPS", "os__forms_tovar_group"); // группы товаров
+	define("FROM_SECTIONS", "os__forms_tovar_group_sections"); // секции группы товаров
+
 	define('USLUGI_STATUS_LIST', 'os__our_uslugi_status_list'); // таблица статусов этапов выполнения для услуг
 	define("OUR_USLUGI_LIST","os__our_uslugi"); // Список всех услуг с ценами
 

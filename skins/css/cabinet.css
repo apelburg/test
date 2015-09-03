@@ -683,7 +683,8 @@ input.calendar_date_work{
 }
 .buh_window .date_return_width_specification_signed,
 .buh_window .date_specification_signed,
-.date_create_the_bill{
+.date_create_the_bill,
+.date_payment_order{
 	width: 83px;
 	cursor: default;
 }
@@ -693,14 +694,7 @@ input.calendar_date_work{
 .saved{
 	background-color: #f1f1f1;
 }
-#add_the_bill_link span{
-	font-style: oblique;
-	text-decoration: underline;
-	cursor: pointer;
-}
-#add_the_bill_link span:hover{
-	text-decoration: none;
-}
+
 #cabinet_general_content table tr th.buh_uchet{
 	text-align: center;
 }
@@ -752,21 +746,37 @@ span.buch_comments.only_read {
 #container_from_the_bill{
 	padding: 9px 0 3px;
 }
-#container_from_the_bill .container_from_the_bill{
+
+#container_from_the_bill .container_from_the_bill,
+#container_from_the_bill .container_from_the_payment{
 	padding: 5px 0;
 }
-#container_from_the_bill .container_from_the_bill.deleted{
+
+#container_from_the_bill .container_from_the_bill.deleted,
+#container_from_the_bill .container_from_the_payment.deleted{
 	color: #b1b1b1;
 }
-#add_the_bill_link{
+
+#add_the_bill_link,
+#add_the_payment_order_link{
 	margin-top: 11px;
+}
+#add_the_bill_link span,
+#add_the_payment_order_link span{
+	font-style: oblique;
+	text-decoration: underline;
+	cursor: pointer;
+}
+#add_the_bill_link span:hover,
+#add_the_payment_order_link:hover{
+	text-decoration: none;
 }
 
 .deleted_note{
 	display: none;
 }
 .why_this_doc_deleted{
-	cursor: pointer;
+	/*cursor: pointer;*/
 	color: rgba(255, 0, 0, 0.49);
 }
 #container_from_the_bill table {
@@ -778,4 +788,10 @@ span.buch_comments.only_read {
 .onlyread{
 	border: 1px solid #f1f1f1;
 	padding: 15px;
+}
+.deleted_bill_option{
+	background-color: #b1b1b1;
+}
+#replace_the_dialog_window{
+	float: right;
 }

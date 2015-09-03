@@ -1,3 +1,191 @@
+//////////////////////////////////
+//	СТАНДАРТНЫЕ ФУНКЦИИ  -- start
+//////////////////////////////////
+	//стандартный обработчик ответа AJAX
+	function standard_response_handler(data){
+		if(data['response']=='show_form_moderate_window'){
+			// ОБРАБОТКА НЕКАТАЛОЖНОГО ТОВАРА
+			// вызов формы заведения не каталожного товара и генерации вариантов
+			show_dialog(Base64.decode(data['html']));
+			// объявляем работу датапикера для полей даты
+			create_datepicker_for_variant_cont();
+		}
+		if(data['response']=='show_new_window'){
+			title = data['title'];// для генерации окна всегда должен передаваться title
+			var height = (data['height'] !== undefined)?data['height']:'auto';
+			var width = (data['width'] !== undefined)?data['width']:'auto';
+			show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
+		}
+		if(data['response']=='show_new_window_2'){
+			title = data['title'];// для генерации окна всегда должен передаваться title
+			var height = (data['height'] !== undefined)?data['height']:'auto';
+			var width = (data['width'] !== undefined)?data['width']:'auto';
+			show_dialog_and_send_POST_window_2(Base64.decode(data['html']),title,height,width);
+		}
+		if(data['response']=='show_new_window_simple'){
+			title = data['title'];// для генерации окна всегда должен передаваться title
+			var height = (data['height'] !== undefined)?data['height']:'auto';
+			var width = (data['width'] !== undefined)?data['width']:'auto';
+			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
+		}
+		if(data['function'] !== undefined){ // вызов функции... если требуется
+			window[data['function']](data);
+		}
+		if(data['response'] != "OK"){ // вывод при ошибке
+			console.log(data);
+		}
+		if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
+			alert(data['error']);
+		}
+		window_preload_del();
+	}
+
+
+	// показать анимацию загрузки траницы
+	function window_preload_add(){
+		if(!$('#preloader_window_block').length){
+			var object = $('<div/>').attr('id','preloader_window_block'); object.appendTo('body')
+		}	
+	}
+	// скрыть анимацию загрузки траницы
+	function window_preload_del(){
+		if($('#preloader_window_block').length){
+			$('#preloader_window_block').remove();
+		}	
+	}
+
+	//////////////////////////
+	// ОКНА
+	//////////////////////////
+		// показать окно № 1
+		function show_dialog_and_send_POST_window(html,title,height,width){
+			height_window = height || 'auto';
+			width = width || '1000';
+			title = title || '*** Название окна ***';
+			var buttons = new Array();
+			buttons.push({
+			    text: 'OK',
+			    click: function() {
+			    	var serialize = $('#dialog_gen_window_form form').serialize();
+			    	
+			    	$('#general_form_for_create_product .pad:hidden').remove();
+				    $.post('', serialize, function(data, textStatus, xhr) {
+				    	
+				    	
+						$('#dialog_gen_window_form').html('');
+						$('#dialog_gen_window_form').dialog( "destroy" );				
+						
+						standard_response_handler(data);
+
+					},'json');				    	
+			    }
+			});
+
+			if($('#dialog_gen_window_form').length==0){
+				$('body').append('<div id="dialog_gen_window_form"></div>');
+			}
+			$('#dialog_gen_window_form').html(html);
+			$('#dialog_gen_window_form').dialog({
+		          width: width,
+		          height: height_window,
+		          modal: true,
+		          title : title,
+		          autoOpen : true,
+		          buttons: buttons          
+		        });
+		}
+
+		// показать окно № 2  
+		// используется в случае, когда нужно 2(два) одновременно открытых окна
+		function show_dialog_and_send_POST_window_2(html,title,height,width){
+			height_window = height || 'auto';
+			width = width || '1000';
+			title = title || '*** Название окна ***';
+			var buttons = new Array();
+			buttons.push({
+			    text: 'OK',
+			    click: function() {
+			    	var serialize = $('#dialog_gen_window_form2 form').serialize();
+			    	
+			    	$('#general_form_for_create_product .pad:hidden').remove();
+				    $.post('', serialize, function(data, textStatus, xhr) {
+				    	$('#dialog_gen_window_form2').html('');
+						$('#dialog_gen_window_form2').dialog( "destroy" );				
+						
+						standard_response_handler(data);
+					},'json');				    	
+			    }
+			});
+
+			if($('#dialog_gen_window_form2').length==0){
+				$('body').append('<div id="dialog_gen_window_form2"></div>');
+			}
+			$('#dialog_gen_window_form2').html(html);
+			$('#dialog_gen_window_form2').dialog({
+		          width: width,
+		          height: height_window,
+		          modal: true,
+		          title : title,
+		          autoOpen : true,
+		          buttons: buttons          
+		        });
+		}
+
+		// простое диалоговое окно с кнопкой закрыть
+		function show_simple_dialog_window(html,title,height,width){
+			var window_num = $('.ui-dialog').length;
+
+			height_window = height || 'auto';
+			width = width || '1000';
+			title = title || '*** Название окна ***';
+			var buttons = new Array();
+			buttons.push({
+			    text: 'Закрыть',
+			    click: function() {
+					// подчищаем за собой
+					$('#dialog_gen_window_form_'+window_num+'').html('');
+					$('#dialog_gen_window_form_'+window_num+'').dialog( "destroy" );
+			    }
+			});			
+
+			$('body').append('<div id="dialog_gen_window_form_'+window_num+'"></div>');			
+			$('#dialog_gen_window_form_'+window_num+'').html(html);
+			$('#dialog_gen_window_form_'+window_num+'').dialog({
+		          width: width,
+		          height: height_window,
+		          modal: true,
+		          title : title,
+		          autoOpen : true,
+		          buttons: buttons          
+		        });
+		}		
+
+	////////////////////////////////////////////////
+	//	функции вызываемые из PHP  --- start ---  //
+	////////////////////////////////////////////////
+
+		// вывод сообщения из PHP в alert
+		function php_message(data){
+			alert(data.text);
+		}
+
+		function php_message_alert(data){
+			console.log(data);
+			alert(Base64.decode(data['message']));
+		}
+		// вывод сообщения из PHP в модальное окно
+		function php_message_dialog(data){ // а оно еще нужно ???
+			// show_simple_dialog_window(Base64.decode(data['message']),data['title']);
+			show_simple_dialog_window('Необходимо переделать на стандартный выход.<br> Алексей',data['title']);
+		}
+		// перезагрузка окна
+		function window_reload(data) {
+			location.reload();
+		}
+//////////////////////////////////
+//	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
+//////////////////////////////////
+
 // radio button
 
 function create_datepicker_for_variant_cont(){
@@ -135,9 +323,10 @@ $(document).on('click','#create_new_position',function(e) {
 			AJAX:'to_chose_the_type_product_form'
 		}, function(data, textStatus, xhr) {
 			// вызов окна выбора типа продукции
-			show_dialog_chosen_type_product(data);			
+			// show_dialog_chosen_type_product(data);
+			standard_response_handler(data);			
 			//alert(data);
-		});
+		},'json');
 	// }
 });
 
@@ -160,9 +349,7 @@ function show_dialog_chosen_type_product(html){
 					}else{
 						// ОБРАБОТКА НЕКАТАЛОЖНОГО ТОВАРА
 						// вызов формы заведения не каталожного товара и генерации вариантов
-						show_dialog(Base64.decode(data['html']));
-						// объявляем работу датапикера для полей даты
-						create_datepicker_for_variant_cont();
+						show_dialog(Base64.decode(data['html']));						
 					}
 				}else{
 					alert('Что-то пошло не так');
@@ -293,71 +480,71 @@ function show_dialog_var(html){
 
 }
 
-// стандартный обработчик ответа AJAX
-function standard_response_handler(data){
-	if(data['function'] !== undefined){ // вызов функции... если требуется
-		window[data['function']](data);
-	}
-	if(data['response'] != "OK"){ // вывод при ошибке
-		console.log(data);
-	}
-	if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
-		alert(data['error']);
-	}
-	if(data['response']=='show_new_window'){
-		title = data['title'];// для генерации окна всегда должен передаваться title
-		show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
-	}
-}
+// // стандартный обработчик ответа AJAX
+// function standard_response_handler(data){
+// 	if(data['function'] !== undefined){ // вызов функции... если требуется
+// 		window[data['function']](data);
+// 	}
+// 	if(data['response'] != "OK"){ // вывод при ошибке
+// 		console.log(data);
+// 	}
+// 	if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
+// 		alert(data['error']);
+// 	}
+// 	if(data['response']=='show_new_window'){
+// 		title = data['title'];// для генерации окна всегда должен передаваться title
+// 		show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
+// 	}
+// }
 
 
 // показать окно № 1
-function show_dialog_and_send_POST_window(html,title,height,width){
-	height_window = height || 'auto';
-	width = width || '1000';
-	title = title || '*** Название окна ***';
-	var buttons = new Array();
-	buttons.push({
-	    text: 'OK',
-	    click: function() {
-	    	var serialize = $('#dialog_gen_window_form form').serialize();
+// function show_dialog_and_send_POST_window(html,title,height,width){
+// 	height_window = height || 'auto';
+// 	width = width || '1000';
+// 	title = title || '*** Название окна ***';
+// 	var buttons = new Array();
+// 	buttons.push({
+// 	    text: 'OK',
+// 	    click: function() {
+// 	    	var serialize = $('#dialog_gen_window_form form').serialize();
 	    	
-	    	$('#general_form_for_create_product .pad:hidden').remove();
-		    $.post('', serialize, function(data, textStatus, xhr) {
-		    	// если из PHP было передано название какой либо функции
-		    	// выполняем её
-		    	if(data['function'] !== undefined){
-		    		window[data['function']](data);
-		    	}
+// 	    	$('#general_form_for_create_product .pad:hidden').remove();
+// 		    $.post('', serialize, function(data, textStatus, xhr) {
+// 		    	// если из PHP было передано название какой либо функции
+// 		    	// выполняем её
+// 		    	if(data['function'] !== undefined){
+// 		    		window[data['function']](data);
+// 		    	}
 
-				if(data['response']=='show_new_window'){
-					title = data['title'];// для генерации окна всегда должен передаваться title
-					show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
-				}else{
-					// подчищаем за собой
-					$('#dialog_gen_window_form').html('');
-					$('#dialog_gen_window_form').dialog( "destroy" );
-					// тут можно расположить какие либо действия в зависимости от ответа
-					// с сервера					
-				}
-			},'json');				    	
-	    }
-	});
+// 				if(data['response']=='show_new_window'){
+// 					title = data['title'];// для генерации окна всегда должен передаваться title
+// 					show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
+// 				}else{
+// 					// подчищаем за собой
+// 					$('#dialog_gen_window_form').html('');
+// 					$('#dialog_gen_window_form').dialog( "destroy" );
+// 					// тут можно расположить какие либо действия в зависимости от ответа
+// 					// с сервера					
+// 				}
+// 			},'json');				    	
+// 	    }
+// 	});
 
-	if($('#dialog_gen_window_form').length==0){
-		$('body').append('<div id="dialog_gen_window_form"></div>');
-	}
-	$('#dialog_gen_window_form').html(html);
-	$('#dialog_gen_window_form').dialog({
-          width: width,
-          height: height_window,
-          modal: true,
-          title : title,
-          autoOpen : true,
-          buttons: buttons          
-        });
+// 	if($('#dialog_gen_window_form').length==0){
+// 		$('body').append('<div id="dialog_gen_window_form"></div>');
+// 	}
+// 	$('#dialog_gen_window_form').html(html);
+// 	$('#dialog_gen_window_form').dialog({
+//           width: width,
+//           height: height_window,
+//           modal: true,
+//           title : title,
+//           autoOpen : true,
+//           buttons: buttons          
+//         });
 
-}
+// }
 
 $(document).on('change keyup', '#add_new_articul_in_rt', function(event) {
 	var art = $(this).val();
@@ -407,3 +594,83 @@ function window_reload(){
 	location.reload();
 }
 //	15610440.34
+
+
+//	обновить окно
+$(document).on('click', '#replace_from_window button', function(event) {
+	event.preventDefault();
+	window_preload_add();
+	var type_product = $(this).parent().attr('data-type');
+	$.post('', {
+		AJAX:'get_form_Html',
+		type_product:type_product
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+
+});
+
+
+
+//////////////////////////
+//	АДМИНИСТРИРОВАНИЕ ФОРМЫ
+//////////////////////////
+
+
+// добавить новое поле в корень группы
+$(document).on('click', '.add_input_in_group.redactor_buttons', function(event) {
+	// event.preventDefault();
+	var id_row = $(this).attr('data-id');
+	var type_product = $(this).attr('data-type_product');
+	var name_group_en = $(this).attr('data-name_group_en');
+	$.post('', {
+		AJAX: 'get_form_width_add_input',
+		type_product:type_product,
+		row_id_group_inputs: id_row,
+		name_group_inputs_en:name_group_en,
+		parent_name:name_group_en
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+		$('#cirillic_name_input').liTranslit({
+			elAlias: $('#eng_name_input')
+		});
+
+	},'json');
+});
+// прикрепить новое поле к родителю
+$(document).on('click', '.add_input_in_form.redactor_buttons', function(event) {
+	event.preventDefault();
+	var parent_id = $(this).attr('data-id');
+	var parent_name = $(this).attr('data-parent_name');
+	var type_product = $(this).attr('data-type_product');
+	var name_group_en = $(this).attr('data-name_group_en');
+	var row_id_group_inputs = $(this).attr('data-group_inputs_row_id');
+	$.post('', {
+		AJAX: 'get_form_width_add_input',
+		type_product:type_product,
+		parent_id: parent_id,
+		row_id_group_inputs:row_id_group_inputs,
+		name_group_inputs_en:name_group_en,
+		parent_name:parent_name
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+		$('#cirillic_name_input').liTranslit({
+			elAlias: $('#eng_name_input')
+		});
+
+	},'json');
+});
+
+// удалить поле
+$(document).on('click', '.delete_input_width_form.redactor_buttons', function(event) {
+	event.preventDefault();
+	var row_id = $(this).attr('data-id');
+
+	$.post('', {
+		AJAX: 'delete_input_width_form',
+		row_id:row_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
