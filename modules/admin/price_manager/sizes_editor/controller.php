@@ -33,13 +33,13 @@
 			
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
-		       $query2 ="UPDATE `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` SET place_id='".$val[1]."', print_id='".$usluga_id."' , size='".$val[2]."', percentage='".$val[3]."' WHERE id = '".$val[0]."'";
+		       $query2 ="UPDATE `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` SET place_id='".$val[1]."', print_id='".$usluga_id."' , size='".$val[2]."', val='".$val[3]."', type='".$val[4]."', target='".$val[5]."' WHERE id = '".$val[0]."'";
 			  //echo $query2;
 			   $mysqli->query($query2)or die($mysqli->error);
 			}
 			else{
 			  
-			   $query2 ="INSERT INTO `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` VALUES('','".$val[1]."','".$usluga_id."','".$val[2]."','".$val[3]."')";
+			   $query2 ="INSERT INTO `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` VALUES('','".$val[1]."','".$usluga_id."','".$val[2]."','','".$val[3]."','".$val[4]."','".$val[5]."')";
 			   //echo $query2;
 			   $mysqli->query($query2)or die($mysqli->error);
 			}
@@ -113,7 +113,10 @@
 			 $row_tpl .= $td1.$placesSelect.$td2;
 			 //$row_tpl .= $td1.$row['place_id'].$td2;
 			 $row_tpl .= $td1.$row['size'].$td2;
-			 $row_tpl .= $td1.$row['percentage'].$td2;
+			 //$row_tpl .= $td1.$row['percentage'].$td2;
+			 $row_tpl .= $td1.$row['val'].$td2;
+			 $row_tpl .= $td1.$row['type'].$td2;
+			 $row_tpl .= $td1.$row['target'].$td2;
 			 $row_tpl .= $td1.'<span class="deleteElementBtn" onclick="deleteRowFromTable(this,\''.$type.'\');">&#215;</span>'.$td2;
 			 $row_tpl .= $tr2;
 			// 
@@ -126,11 +129,11 @@
 	if(!isset($tbl_rows)){
 	    $placesSelect='<select>'.implode('',$placesOpions).'</select>';
 		
-		$row_tpl = array($placesSelect, '','1.00','<span class="deleteElementBtn" onclick="deleteRowFromTable(this,\''.$type.'\');">&#215;</span>');
+		$row_tpl = array($placesSelect, '','1.00','','','<span class="deleteElementBtn" onclick="deleteRowFromTable(this,\''.$type.'\');">&#215;</span>');
 		$tbl_rows[] = $tr1.$td1_hidden.''.$td2.$td1.implode($td_td,$row_tpl).$td2.$tr2;	
 	}
 	
-	$row =array('','место нанесения','варианты размеров','коэффициент','');	
+	$row =array('','место нанесения','варианты размеров','величина','тип<br>(coeff/addition)','применение<br>(price/summ)','');	
     array_unshift($tbl_rows,$tr1.$td1_hidden.implode($td_td_unedit,$row).$td2.$tr2);	
 	
 	
