@@ -403,7 +403,7 @@ class Position_no_catalog{
 					
 					// контент для отправки поставщику
 					$no_cat_json = json_decode($value2['no_cat_json'],true);
-					$text_for_send_mail_name_product = $no_cat_json['name_product'];
+					$text_for_send_mail_name_product = $no_cat_json['naimenovanie'];
 					$text_for_send_mail .= $this->send_mail_for_supplier_Html($value2);
 					$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id'],$uslugi,$uslugi_arr,$status_snab);
 					
@@ -531,9 +531,11 @@ class Position_no_catalog{
 		return number_format(round($num, 2), 2, '.', '');
 	}
 
+
+	
 	private function send_mail_for_supplier_Html($arr){
 		// список разрешённых для вывода в письмо полей
-		$send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
+		// $send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
 
 
 		
@@ -543,14 +545,16 @@ class Position_no_catalog{
 		
 		$html = '';
 		// если у нас есть описание заявленного типа товара
-		if(isset($this->FORM->form_type[$this->type_product])){
-			$names = $this->FORM->form_type[$this->type_product]; // массив описания хранится в классе форм
+		$type_product_arr_from_form = $this->FORM->get_names_form_type($this->type_product);
+
+		if(isset($type_product_arr_from_form)){
+			$names = $type_product_arr_from_form; // массив описания хранится в классе форм
 			$html .= '<div class="get_top_funcional_byttun_for_user_Html table">';
 			foreach ($dop_info_no_cat as $key => $value) {
-				if(!isset($send_info_enabled[$key])){continue;}
+				// if(!isset($send_info_enabled[$key])){continue;}
 				$html .= '
 					<div class="row">
-						<div class="cell" >'.$names[$key]['name'].'</div>
+						<div class="cell" >'.$names[$key]['name_ru'].'</div>
 						<div class="cell">'.$value.'</div>
 					</div>
 				';
@@ -561,9 +565,9 @@ class Position_no_catalog{
 			// echo '</pre>';
 			return $html;
 		}else{// в случае исключения выводим массив, дабы было видно куда копать
-			echo '<pre>';
-			print_r($arr);
-			echo '</pre>';
+			// echo '<pre>';
+			// print_r($arr);
+			// echo '</pre>';
 		}
 	}
 
@@ -1146,13 +1150,15 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		$html = '';
 
 		// если у нас есть описание заявленного типа товара
-		if(isset($FORM->form_type[$type_product])){
-			$names = $FORM->form_type[$type_product]; // массив описания хранится в классе форм
+		$type_product_arr_from_form = $this->FORM->get_names_form_type($this->type_product);
+
+		if(isset($type_product_arr_from_form)){
+			$names = $type_product_arr_from_form; // массив описания хранится в классе форм
 			$html .= '<div class="table inform_for_variant">';
 			foreach ($arr as $key => $value) {
 				$html .= '
 					<div class="row">
-						<div class="cell" >'.$names[$key]['name'].'</div>
+						<div class="cell" >'.$names[$key]['name_ru'].'</div>
 						<div class="cell" data-type="'.$key.'" '.$this->edit_admin.$this->edit_snab.'>';
 				$html .= $value;
 				$html .='</div>

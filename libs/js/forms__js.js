@@ -620,7 +620,7 @@ $(document).on('click', '#replace_from_window button', function(event) {
 // добавить новое поле в корень группы
 $(document).on('click', '.add_input_in_group.redactor_buttons', function(event) {
 	// event.preventDefault();
-	var id_row = $(this).attr('data-id');
+	var id_row = $(this).attr('data-form_group_id');
 	var type_product = $(this).attr('data-type_product');
 	var name_group_en = $(this).attr('data-name_group_en');
 	$.post('', {
@@ -638,19 +638,17 @@ $(document).on('click', '.add_input_in_group.redactor_buttons', function(event) 
 	},'json');
 });
 // прикрепить новое поле к родителю
-$(document).on('click', '.add_input_in_form.redactor_buttons', function(event) {
+$(document).on('click', '.add_element.redactor_buttons', function(event) {
 	event.preventDefault();
 	var parent_id = $(this).attr('data-id');
-	var parent_name = $(this).attr('data-parent_name');
+	var parent_name = $(this).attr('data-name_en');
 	var type_product = $(this).attr('data-type_product');
-	var name_group_en = $(this).attr('data-name_group_en');
 	var row_id_group_inputs = $(this).attr('data-group_inputs_row_id');
 	$.post('', {
 		AJAX: 'get_form_width_add_input',
 		type_product:type_product,
 		parent_id: parent_id,
 		row_id_group_inputs:row_id_group_inputs,
-		name_group_inputs_en:name_group_en,
 		parent_name:parent_name
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
@@ -662,7 +660,7 @@ $(document).on('click', '.add_input_in_form.redactor_buttons', function(event) {
 });
 
 // удалить поле
-$(document).on('click', '.delete_input_width_form.redactor_buttons', function(event) {
+$(document).on('click', '.group_del.redactor_buttons', function(event) {
 	event.preventDefault();
 	var row_id = $(this).attr('data-id');
 
