@@ -760,3 +760,30 @@ span.snab_comment {
   font-size: 18px;
   color: #33823F;
 }
+
+
+#get_form_width_add_input .block{
+  border: 1px solid #f1f1f1;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#get_form_width_add_input .head_texter{
+  font-size: 14px;
+  font-weight: bold;
+  color: #278031;
+}
+#change_the_font_size{
+  display: none;
+}
+
+#general_form_for_create_product number{
+    font-size: 12px;
+}
+#add_auto_key {
+  border: 1px solid grey;
+  padding: 2px 5px;
+  color: grey;
+  cursor: pointer;
+  margin-left: 15px;
+}

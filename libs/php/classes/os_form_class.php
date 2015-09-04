@@ -324,7 +324,7 @@ PS было бы неплохо взять взять это за правило
                     global $mysqli;
                     $query = "DELETE FROM `".FORM_INPUTS."` WHERE `id`='".(int)$_POST['row_id']."';";
                     $result = $mysqli->query($query) or die($mysqli->error);
-                    echo '{"response":"OK"}';
+                    echo '{"response":"OK","function":"update_form"}';
                }
 
                //////////////////////////
@@ -350,17 +350,30 @@ PS было бы неплохо взять взять это за правило
                     //  запись поля в базу
                     //////////////////////////
                     global $mysqli;
+
+                    $command = isset($_POST['update_form'])?'UPDATE':'INSERT INTO';
+                    $where = isset($_POST['update_form'])?" WHERE `id` = '".$_POST['row_id']."'":"";
+
+
                     // $html = $this->print_arr($_POST);
-                    $query ="INSERT INTO `".FORM_INPUTS."` SET
+                    $query = $command." `".FORM_INPUTS."` SET
                          `name_ru` = '".trim($_POST['name_ru'])."',
                          `name_en` = '".trim($_POST['name_en'])."',
-                         `note` = '".trim($_POST['note'])."',
                          `placeholder` = '".trim($_POST['placeholder'])."',
                          `parent_name` = '".trim($_POST['parent_name'])."',
                          `type` = '".trim($_POST['type'])."',
                          `author_id` = '".trim($_POST['author_id'])."',
                          `author_access` = '".trim($_POST['author_access'])."',
                          `type_product` = '".trim($_POST['type_product'])."'";  
+                    if (isset($_POST['the_small_text_on'])) {
+                         $query .= ",`note` = '<span style=\'font-size:".(int)$_POST['change_the_font_size']."px\'>".trim($_POST['note'])."</span>'";
+                    }else{
+                         $query .= ",`note` = '".trim($_POST['note'])."'";
+                    }
+
+
+
+
                     if(isset($_POST['parent_id'])){
                          $query .= ",`parent_id` = '".trim($_POST['parent_id'])."'";
                     }
@@ -368,7 +381,7 @@ PS было бы неплохо взять взять это за правило
                          $query .= ",`val` = '".trim($_POST['val'])."'";
                     }                  
                     if(isset($_POST['cancel_selection'])){
-                         $query .= ",`cancel_selection` = '".trim($_POST['cancel_selection'])."'";
+                         $query .= ",`cancel_selection` = '1'";
                     }                  
                     if(isset($_POST['moderate'])){
                          $query .= ",`moderate` = '1'";
@@ -379,10 +392,26 @@ PS было бы неплохо взять взять это за правило
                     if(isset($_POST['btn_add_val'])){
                          $query .= ",`btn_add_val` = '1'";
                     }
+                    $query .= $where;
                    
                     $result = $mysqli->query($query) or die($mysqli->error);
 
-                    echo '{"response":"OK"}';
+                    echo '{"response":"OK","function":"update_form"}';
+               }
+
+
+               //////////////////////////
+               //  форма редактирования старого поля
+               //////////////////////////
+               private function edit_input_width_form_AJAX(){
+                    $this->input = $this->get_child_listing_Database_Array((int)$_POST['row_id']);
+
+                    if(isset($this->input[0])){
+                         echo '{"response":"show_new_window_2","function":"update_form","html":"'.base64_encode($this->get_form_width_add_input_AJAX()).'","title":"Редактор поля"}'; 
+                    }else{
+                         echo '{"response":"php_message_alert","message":"поле не найдено"}';
+                    }
+
                }
 
                //////////////////////////
@@ -391,51 +420,90 @@ PS было бы неплохо взять взять это за правило
                private function get_form_width_add_input_AJAX(){
 
                     $html = '';
+                    $html .= '<div id="get_form_width_add_input">';
+                         $html .= '<form>';
+                         unset($_POST['AJAX']);
+                         foreach ($_POST as $key => $value) {
+                              $html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+                         }
 
-                    $html .= '<form>';
-                    unset($_POST['AJAX']);
-                    foreach ($_POST as $key => $value) {
-                         $html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+                         $html .='<div class="block">';
+                              $html .= '<div class="head_texter">Общая информация</div>';
+                              $html .= 'Название<br>';
+                              $html .= '<input type="text" name="name_ru" id="cirillic_name_input" '.((isset($this->input[0]['name_ru']))?'value="'.$this->input[0]['name_ru'].'"':'').((isset($_POST['name_ru']))?'value="'.$_POST['name_ru'].'"':'').'><br>';
+                              $html .= 'Пояснения к названию(мелкий шрифт)<br>';
+                              $html .= '<input type="text" name="note"  value="'.(isset($this->input[0]['note'])?strip_tags($this->input[0]['note'],"<span>"):'').(isset($_POST['note'])?$_POST['note']:'').'">';
+                              $html .= '<br>';
+
+                              $html .= '<input type="checkbox" name="the_small_text_on" id="the_small_text_on">';
+                              $html .= '<label for="the_small_text_on" id="the_small_text_on_label">Изменить размер текста в пояснении</label>';
+                              $html .= '<br>';
+                              $html .= '<select id="change_the_font_size" name="change_the_font_size">';
+                                   $html .= '<option value="10">8</option>';
+                                   $html .= '<option value="10">9</option>';
+                                   $html .= '<option value="10" selected="selected">10</option>';
+                                   $html .= '<option value="10">11</option>';
+                                   $html .= '<option value="10">12 стандартно</option>';
+                              $html .= '</select>';
+                              
+                              $html .= '<br>';
+                              $html .= '<br>';
+                              $html .= 'Название на англ.<br>';
+                              // т.к. в большинстве случаев ключ нужен отличный от остальных - генерим такой
+                              // исключение из правил зарезервированные системой названия
+                              $name_engl = md5(time());
+                              $html .= '<input type="text" name="name_en" id="eng_name_input" value="'.(isset($this->input[0]['name_en'])?$this->input[0]['name_en']:'').(isset($_POST['name_en'])?$_POST['name_en']:'').'"><span id="add_auto_key" data-key="'.$name_engl.'">Подставить ключ</span><br>';
+                              // $html .= '<input type="text" name="name_en" id="eng_name_input" value="'..'"><br>';
+                         $html .='</div>';
+
+                         $html .='<div class="block">';
+                              $html .= '<div class="head_texter">Выберите тип поля</div>';
+                              $html .= '<select name="type" id="check_the_type_of_input">';
+                                   $html .= '<option value=""></option>';//
+                                   $html .= '<option value="checkbox" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="checkbox")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="checkbox")?'selected="selected"':'').'>Галка</option>';
+                                   $html .= '<option value="radio" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="radio")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="radio")?'selected="selected"':'').'>Радио</option>';
+                                   $html .= '<option value="text" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="text")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="text")?'selected="selected"':'').'>текстовое поле</option>';
+                                   $html .= '<option value="textarea" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="textarea")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="textarea")?'selected="selected"':'').'>большое текстовое поле</option>';
+                                   $html .= '<option value="big_header" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="big_header")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="big_header")?'selected="selected"':'').'>Заголовок большой</option>';                         
+                                   $html .= '<option value="small_header" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="small_header")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="small_header")?'selected="selected"':'').'>Заголовок малый</option>';
+                              $html .= '</select><br>';
+                         $html .='</div>';
+
+
+                         $html .='<div class="block">';
+                              $html .= '<div class="head_texter">Настройки для текстовых полей:</div>';
+                              $html .= 'Подсказка внутри текстогого поля.<br>';
+                              $html .= '<input type="text" name="placeholder" value="'.(isset($this->input[0]['placeholder'])?$this->input[0]['placeholder']:'').(isset($_POST['placeholder'])?$_POST['placeholder']:'').'"><br><br>';
+                              $html .= 'Предвведённый текст <span style="font-size:11px;color:red;">(может быть использован только для текстовых полей)</span><br>'; 
+                              $html .= '<input type="text" name="val" id="val_name_input" value="'.(isset($this->input[0]['val'])?$this->input[0]['val']:'').(isset($_POST['val'])?$_POST['val']:'').'"><br>';
+                         $html .='</div>';
+
+                         // $html .= 'Настройки для заголо';
+                         $html .='<div class="block">';
+                              $html .= '<div class="head_texter">Настройки заголовка:</div>';
+                                   $html .= '<input type="checkbox" name="moderate" id="moderate_id" '.((isset($this->input[0]['moderate']) and $this->input[0]['moderate'] == 1)?'checked':'').(isset($_POST['moderate'])?'checked':'').'><label for="moderate_id">Модерация</label><br>';
+                                   $html .= '<input type="checkbox" name="btn_add_var" id="btn_add_var_id" '.((isset($this->input[0]['btn_add_var']) and $this->input[0]['btn_add_var'] == 1)?'checked':'').(isset($_POST['btn_add_var'])?'checked':'').'><label for="btn_add_var_id">Кнопка "добавить свой вариант"</label><br>';
+                                   $html .= '<input type="checkbox" name="btn_add_val" id="btn_add_val_id" '.((isset($this->input[0]['btn_add_val']) and $this->input[0]['btn_add_val'] == 1)?'checked':'').(isset($_POST['btn_add_val'])?'checked':'').'><label for="btn_add_val_id">Кнопка "добавить своё значение"</label><br>';
+                                   $html .= '<input type="checkbox" name="cancel_selection" id="cancel_selection_id" '.((isset($this->input[0]['cancel_selection']) and $this->input[0]['cancel_selection'] == 1)?'checked':'').(isset($_POST['cancel_selection'])?'checked':'').'><label for="cancel_selection_id">Кнопка "отменить выбранное"</label><br>';
+                         $html .='</div>';
+                         
+
+                         
+
+                         $html .= '<input type="hidden" name="author_id" value="'.$this->user_id.'">';
+                         $html .= '<input type="hidden" name="author_access" value="'.$this->user_access.'">';
+                         if(isset($this->input)){// если мы редактируем поле
+                              $html .= '<input type="hidden" name="update_form" value="1">';
+                         }
+                         $html .= '<input type="hidden" name="AJAX" value="greate_new_input">';
+                                                 
+
+                         $html .= '<form>';
+                    $html .'</div>';
+
+                    if(isset($this->input)){// если мы редактируем поле - возвращаем простой html
+                         return $html;
                     }
-                    $html .= 'Название<br>';
-                    $html .= '<input type="text" name="name_ru" id="cirillic_name_input" '.((isset($_POST['name_ru']))?'value="'.$_POST['name_ru'].'"':'').'><br>';
-                    $html .= 'Пояснения к названию(мелкий шрифт)<br>';
-                    $html .= '<input type="text" name="note"  value="'.(isset($_POST['note'])?$_POST['note']:'').'"><br>';
-                    
-                    $html .= 'Выберите тип поля<br>';
-                    $html .= '<select name="type" id="check_the_type_of_input">';
-                         $html .= '<option value=""></option>';//
-                         $html .= '<option value="checkbox" '.((isset($_POST['type']) && $_POST['type']=="checkbox")?'selected="selected"':'').'>Галка</option>';
-                         $html .= '<option value="radio" '.((isset($_POST['type']) && $_POST['type']=="radio")?'selected="selected"':'').'>Радио</option>';
-                         $html .= '<option value="text" '.((isset($_POST['type']) && $_POST['type']=="text")?'selected="selected"':'').'>текстовое поле</option>';
-                         $html .= '<option value="textarea" '.((isset($_POST['type']) && $_POST['type']=="textarea")?'selected="selected"':'').'>большое текстовое поле</option>';
-                         $html .= '<option value="big_header" '.((isset($_POST['type']) && $_POST['type']=="big_header")?'selected="selected"':'').'>Заголовок большой</option>';                         
-                         $html .= '<option value="small_header" '.((isset($_POST['type']) && $_POST['type']=="small_header")?'selected="selected"':'').'>Заголовок малый</option>';
-                    $html .= '</select><br>';
-
-                    $html .= 'Название на англ.<br>';
-                    $html .= '<input type="text" name="name_en" id="eng_name_input" value="'.(isset($_POST['name_en'])?$_POST['name_en']:'').'"><br>';
-                    $html .= 'Подсказка внутри текстогого поля.<br>';
-                    $html .= '<input type="text" name="placeholder" value="'.(isset($_POST['placeholder'])?$_POST['placeholder']:'').'"><br><br>';
-                    $html .= 'Предвведённый текст <span style="font-size:11px;color:red;">(может быть использован только для текстовых полей)</span><br>'; 
-                    $html .= '<input type="text" name="val" id="val_name_input" value="'.(isset($_POST['val'])?$_POST['val']:'').'"><br>';
-
-                    // $html .= 'Настройки для заголо';
-                    $html .= '<input type="checkbox" name="moderate" id="moderate_id" '.(isset($_POST['moderate'])?'checked':'').'><label for="moderate_id">Модерация</label><br>';
-                    $html .= '<input type="checkbox" name="btn_add_var" id="btn_add_var_id" '.(isset($_POST['btn_add_var'])?'checked':'').'><label for="btn_add_var_id">Кнопка "добавить свой вариант"</label><br>';
-                    $html .= '<input type="checkbox" name="btn_add_val" id="btn_add_val_id" '.(isset($_POST['btn_add_val'])?'checked':'').'><label for="btn_add_val_id">Кнопка "добавить своё значение"</label><br>';
-                    $html .= '<input type="checkbox" name="cancel_selection" id="cancel_selection_id" '.(isset($_POST['cancel_selection'])?'checked':'').'><label for="cancel_selection_id">Кнопка "отменить выбранное"</label><br>';
-                    
-                    
-
-                    
-
-                    $html .= '<input type="hidden" name="author_id" value="'.$this->user_id.'">';
-                    $html .= '<input type="hidden" name="author_access" value="'.$this->user_access.'">';
-                    $html .= '<input type="hidden" name="AJAX" value="greate_new_input">';
-
-                    $html .= '<form>';
-
                     echo '{"response":"show_new_window_2","html":"'.base64_encode($html).'","title":"Создание поля"}';
                }
 
@@ -550,7 +618,7 @@ PS было бы неплохо взять взять это за правило
                     //  собираем Html формы
                     //////////////////////////
                          $html = '';
-                         $html .= '<div id="general_form_for_create_product">';
+                         $html .= '<div id="general_form_for_create_product" data-type_product="'.$this->type_product.'">';
                               $html .= '<form>';
                               
                                    //////////////////////////
@@ -558,6 +626,8 @@ PS было бы неплохо взять взять это за правило
                                    //////////////////////////
                                         if($this->user_access_real == 1){
                                              $html .= '<div id="replace_from_window" data-type="'.$type_product.'"><button type="button">Обновить</botton></div>';
+
+                                             
                                         }
                                    
                                    //////////////////////////
@@ -573,7 +643,60 @@ PS было бы неплохо взять взять это за правило
                               if($this->user_access == 1){
                                    $html .= '<br><span class="add_element redactor_buttons" data-id="0" data-name_en="'.$this->type_product.'" data-type_product="'.$this->type_product.'">Добавить поле</span>';
                               }
+
+                         //////////////////////////
+                         //  Правила добавления полей
+                         //////////////////////////
+                         if($this->user_access == 1){
+                                             /*
+                                                  naimenovanie
+                                                  product_dop_text
+                                                  quantity
+                                             */
+                                             $html .= '<div style="background-color: rgba(255, 0, 0, 0.12);margin-top:15px; padding:15px;">';
+                                             $html .= '<strong>Правила добавления полей</strong><br>';
+                                             $html .= '<div>В каждой форме должны содержаться 4 обязательных поля</div>';
+                                             $html .= '<ul>';
+                                             $html .= '<li>
+
+                                                            <table style="border:none">
+                                                                 <tr>
+                                                                      <td>№</td>
+                                                                      <td>Русский</td>
+                                                                      <td>- английский</td>
+                                                                 </tr>
+                                                                 <tr>
+                                                                      <td>1</td>
+                                                                      <td>наименование</td>
+                                                                      <td>- <strong>naimenovanie</strong></td>
+                                                                 </tr>
+                                                                 <tr>
+                                                                      <td>2</td>
+                                                                      <td>доп. название</td>
+                                                                      <td>- <strong>product_dop_text</strong></td>
+                                                                 </tr>
+                                                                 <tr>
+                                                                      <td>3</td>
+                                                                      <td>тираж</td>
+                                                                      <td>- <strong>quantity</strong></td>
+                                                                 </tr>
+                                                                 <tr>
+                                                                      <td>4</td>
+                                                                      <td>дата (календарь)<br>тип поля - текстовое поле</td>
+                                                                      <td>- <strong>date</strong></td>
+                                                                 </tr>
+                                                             </table>
+                                                       </li>';
+                                             
+                                             $html .= '</ul>';
+
+                                             $html .= '</div>';
+                         }
                          $html .= '</div>';
+
+
+
+                         
 
                     return $html;
                }
@@ -747,7 +870,7 @@ PS было бы неплохо взять взять это за правило
                                    // echo $this->form_type[$type_product][$input['parent_name']]['btn_add_var'];
                                    // if($input['type']=='checkbox' && isset($this->form_type[$type_product][$input['parent_name']]['btn_add_var']) && !$this->form_type[$type_product][$input['parent_name']]['btn_add_var']){
                                    // if($row_inputs['type']=='checkbox' && isset($inputs_arr[$row_inputs['parent_name']]['btn_add_var']) && !$inputs_arr[$row_inputs['parent_name']]['btn_add_var']){
-                                   if($row_inputs['type']=='checkbox' && $button_var_on>0){
+                                   if($row_inputs['type']=='checkbox' && $button_var_on==0){
                                         $p_name = $row_inputs['parent_name'].'[][]';
                                    }else{
                                         $p_name = $row_inputs['parent_name'].'[0][]';
@@ -763,7 +886,7 @@ PS было бы неплохо взять взять это за правило
                                    }
 
 
-                                   $p_name = $parent.(($num>2)?'['.$row_inputs['parent_name'].']':'').'[]';
+                                   $p_name = $parent.(($num>1)?'['.$row_inputs['parent_name'].']':'').'[]';
                                    // $p_name = $parent.'['.$row_inputs['parent_name'].']'.'[]';
                                    // $p_name = $parent.''.'[]';
                               }
@@ -796,15 +919,14 @@ PS было бы неплохо взять взять это за правило
 
                               switch ($row_inputs['type']) {
                                    case 'small_header':
-                                        // if(isset($big_header['type']) && $big_header['type'] != $row_inputs['parent_id']){
-                                        //      $html .= '</div>';
-                                        //      $html .= $big_header_buttons;$big_header_buttons = '';    
-                                        // }
                                         // закрываем предыдущий div, если он был открыт
-                                        if(isset($small_header['type']) && $small_header['type']>0){
+                                        // закрываем div small_heaer
+                                        if(isset($small_header) && $small_header > 0){
                                              $html .= '</div>';
-                                             $html .= $small_header_buttons;$small_header_buttons = '';
+                                             $html .= $small_header_buttons;
+                                             $small_header = 0;
                                         }
+
 
                                         
 
@@ -815,9 +937,9 @@ PS было бы неплохо взять взять это за правило
                                         //////////////////////////
                                              if($row_inputs['btn_add_var'] == 1 || $row_inputs['btn_add_val'] == 1 || $row_inputs['cancel_selection'] == 1){
                                                   $small_header_buttons = '<div class="buttons_form">';
-                                                       $small_header_buttons .= ($row_inputs['btn_add_var'])?'<span class="btn_add_var">+ вариант</span>':'';
-                                                       $small_header_buttons .= ($row_inputs['btn_add_val'])?'<span class="btn_add_val">+ значение</span>':'';
-                                                       $small_header_buttons .= ($row_inputs['cancel_selection'])?'<span class="cancel_selection">отменить</span>':'';
+                                                       $small_header_buttons .= ($row_inputs['btn_add_var'])?'<span class="btn_add_var">+ Добавить вариант</span>':'';
+                                                       $small_header_buttons .= ($row_inputs['btn_add_val'])?'<span class="btn_add_val">+ Нет в списке</span>':'';
+                                                       $small_header_buttons .= ($row_inputs['cancel_selection'])?'<span class="cancel_selection">Сбросить выбранное</span>':'';
                                                   $small_header_buttons .= '</div>';
                                              }else{
                                                  $small_header_buttons = ''; 
@@ -836,14 +958,12 @@ PS было бы неплохо взять взять это за правило
                                         break;
                                    case 'big_header':
 
-                                        if(isset($small_header['type']) && $small_header['type'] != $row_inputs['parent_id']){
-                                             $html .= '</div>';
-                                             $html .= $small_header_buttons;    
-                                        }
                                         // закрываем предыдущий div, если он был открыт
-                                        if(isset($big_header['type']) && $big_header['type']>0){
+                                        // закрываем div big_header
+                                        if(isset($big_header) && $big_header > 0){
                                              $html .= '</div>';
                                              $html .= $big_header_buttons;
+                                             $big_header = 0;
                                         }
 
                                         // запоминаем, что унас открыт div big_header
@@ -911,6 +1031,20 @@ PS было бы неплохо взять взять это за правило
                                         $html .= '<div class="pad" '.(($this->user_access == 1)?' style="display: block;"':'').'>';
                                              $html .= $this->generate_form_Database_Array($row_inputs['child'],$row_inputs['type'],($num + 1),$p_name,$button_var_on);
                                         $html .= '</div>';
+                                   }
+
+                                   // закрываем div small_heaer
+                                   if(isset($small_header) && $small_header > 0){
+                                        $html .= '</div>';
+                                        $html .= $small_header_buttons;
+                                        $small_header = 0;
+                                   }
+
+                                   // закрываем div big_header
+                                   if(isset($big_header) && $big_header > 0){
+                                        $html .= '</div>';
+                                        $html .= $big_header_buttons;
+                                        $big_header = 0;
                                    }
 
                                         
@@ -1070,6 +1204,7 @@ PS было бы неплохо взять взять это за правило
                     // print_r($arr);
                     // echo '</pre>';
                     global $mysqli;     
+
 
                     $query ="INSERT INTO `".RT_MAIN_ROWS."` SET
                          `query_num` = '".$query_num_i."',

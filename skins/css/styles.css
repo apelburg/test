@@ -2364,7 +2364,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
   font-size: 12px;
 }
 #preloader_window_block{
-  background: #fff;
+  /*background: #fff;
   position: fixed;
   width: 100%;
   height: 100%;
@@ -2373,7 +2373,16 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
   opacity: 0.8;
   background-image: url(../images/img_design/preloader.gif);
   background-repeat: no-repeat;
-  background-position: 50%;
+  background-position: 50%;*/
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  z-index: 101;
+  background: url(../images/img_design/preloader.gif),url(../images/img_design/apl_pattern.png);
+  opacity: .8;
+  background-repeat: no-repeat,repeat;
+  background-position: 50%,0;
 }
 
 .planner_razdel { color: #626060;}

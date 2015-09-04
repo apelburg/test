@@ -256,21 +256,39 @@ $(document).on('click', '.answer_table .delete_user_val', function(event) {
 
 // кнопка добавления вариантов
 $(document).on('click', '.btn_add_var', function(event) {
+	// клонируем объект
 	var obj = $(this).parent().prev().clone();
+	// получаем класс
 	var get_class_clone_obj = obj.attr('data-type');
-	var num_var = $('.'+get_class_clone_obj).length;
+	// подсчитываем количесвто уже созданных классов
+	var num_var = $('#general_form_for_create_product .'+get_class_clone_obj).length;
+	// получаем порядковый номер создаваемого нами варианта
 	var num_var_new = num_var+1;
 	// меняем название для опознания варианта
-	obj.find('strong').html($('.'+get_class_clone_obj).find('strong').html()+' '+num_var);
+	
+	// console.log('num_var = '+num_var);
+	if($(this).parent().prev().find('strong number').length == 0){ // если 
+		var text = $('.'+get_class_clone_obj).find('strong').html();
+		$(this).parent().prev().find('strong').html(text+' <number>(Вариант '+num_var+')</number>');
+		obj.find('strong').html(text+' <number>(Вариант '+(Number(num_var)+1)+')</number>');
+	}else{
+		obj.find('strong number').html((Number(num_var)+1));
+	}
+	
+	
 
 	
 
 	obj.find('input[type="checkbox"],input[type="radio"],input[type="text"],select').each(function(index, el) {
-		var new_name = $(this).attr('name')+'_'+num_var_new;
+		// var new_name = $(this).attr('name')+'_'+num_var_new;
+		// получаем новый id
 		var new_id = $(this).attr('id')+'_'+num_var_new;
-
+		// подставляем id
 		$(this).attr('id',new_id);//.attr('name',new_name);
+		
+		// получаем старое имя
 		var str = $(this).attr('name');
+
 		str = str.replace('['+(num_var-1)+']', '['+num_var+']');
 		console.log(str);
 		$(this).attr('name',str)
@@ -662,13 +680,64 @@ $(document).on('click', '.add_element.redactor_buttons', function(event) {
 // удалить поле
 $(document).on('click', '.group_del.redactor_buttons', function(event) {
 	event.preventDefault();
-	var row_id = $(this).attr('data-id');
+	if(confirm('Вы уверены ???')){
+		var row_id = $(this).attr('data-id');
+		
+		// удаляем кнопку Ред.
+		$(this).prev().remove();
+		// удаляем кнопку Добавить.
+		$(this).next().remove();
+		// удаляем данную кнопку
+		$(this).remove().removeClass('group_del').html('удалено').css({"border":"none"});
 
-	$.post('', {
-		AJAX: 'delete_input_width_form',
-		row_id:row_id
-	}, function(data, textStatus, xhr) {
-		standard_response_handler(data);
-	},'json');
+
+		$.post('', {
+			AJAX: 'delete_input_width_form',
+			row_id:row_id
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');
+	}
 });
 
+
+// кнопка редактировать
+$(document).on('click', '.group_edit.redactor_buttons', function(event) {
+	event.preventDefault();
+	var type_product = $('#general_form_for_create_product').attr('data-type_product');
+	var row_id = $(this).attr('data-id');
+	var parent_name = $(this).attr('data-name_en');
+	$.post('', {
+			AJAX: 'edit_input_width_form',
+			row_id:row_id,
+			parent_name:parent_name,
+			type_product:type_product
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');
+});
+
+
+function update_form(){
+	var type_product = $('#general_form_for_create_product').attr('data-type_product');
+	// var type_product = $(this).parent().attr('data-type');
+	$.post('', {
+		AJAX:'get_form_Html',
+		type_product:type_product
+	}, function(data, textStatus, xhr) {
+		if(data['response'] == "show_form_moderate_window"){
+			$('#general_form_for_create_product').replaceWith(Base64.decode(data['html']));
+		}
+	},'json');
+}
+
+// показываем настройки размера текста пояснений
+$(document).on('click', '#the_small_text_on_label', function(event) {
+	$('#change_the_font_size').toggle('fast');
+});
+
+
+$(document).on('click', '#add_auto_key', function(event) {
+	var key = $(this).attr('data-key')
+	$(this).prev().val(key);
+});
