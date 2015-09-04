@@ -210,11 +210,14 @@ var rtCalculator = {
 								   rtCalculator.changes_in_process = true;
 								}
 								tds_arr[j].onkeyup = function(e){
+									
 								   //if(!rtCalculator.cur_cell) location.reload();
 								   if(rtCalculator.cur_cell  &&  rtCalculator.cur_cell.hasAttribute('type') && rtCalculator.cur_cell.getAttribute('type')== 'quantity'){
+									   // alert(1);
 									   rtCalculator.checkQuantity();
 								   }
 								   else{
+									   // alert(2);
 									   rtCalculator.check();
 									   // запускаем таймер по истечению которого вызываем функцию rtCalculator.complite_input
 									   // отправляющую данные на сервер
@@ -231,7 +234,7 @@ var rtCalculator = {
 								tds_arr[j].setAttribute("contenteditable",true);
 								tds_arr[j].style.outline="none";
 							}
-							if(tds_arr[j].getAttribute('discount_fieid')){
+							if(tds_arr[j].getAttribute('discount_fieid') && !block){
 								tds_arr[j].onclick = this.show_discount_window;//(this,'.$dop_key.','.$client_id.')
 							}
 							if(tds_arr[j].getAttribute('expel')){
@@ -1716,9 +1719,15 @@ var rtCalculator = {
 	}
 	,
 	show_discount_window:function(e){
-	     alert(1);
-		 
-	    //(element,row_id,client_id)
+	    
+		e = e || window.event;
+		var element = e.target;
+		
+		var client_id = (element.parentNode.parentNode.nodeName == 'TBODY')? element.parentNode.parentNode.parentNode.getAttribute('client_id'):element.parentNode.parentNode.getAttribute('client_id');
+		
+		var row_id = element.parentNode.getAttribute('row_id');
+	    //alert(client_id);alert(row_id);
+		
 	    if(document.getElementById("BNODYUF0WE38")) document.getElementById("BNODYUF0WE38").parentNode.removeChild(document.getElementById("BNODYUF0WE38"));
 	
 	   // создаем всплывающее окно

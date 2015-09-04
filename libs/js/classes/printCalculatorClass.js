@@ -210,7 +210,7 @@ var printCalculator = {
 	,
 	evoke_calculator:function(){
 		
-		// отправляем запрос чтобы получить описание параметров возможного калькулятора для данного ариткула
+		// отправляем запрос чтобы получить описание параметров дефолтных параметров калькулятора для данного ариткула
 	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+printCalculator.dataObj_toEvokeCalculator.art_id+'","type":"'+printCalculator.dataObj_toEvokeCalculator.cell.parentNode.getAttribute('calc_btn')+'"}');
 		printCalculator.send_ajax(url,callback);
 		//alert(last_val);
@@ -220,6 +220,11 @@ var printCalculator = {
 			if(typeof printCalculator.calculatorParamsObj !== 'undefined') delete printCalculator.calculatorParamsObj;
 			
             printCalculator.calculatorParamsObj = JSON.parse(response_calculatorParamsData);
+			
+			console.log('>>> ИЗНАЧАЛЬНЫЕ ПАРАМЕТРЫ КАЛЬКУЛЯТОРА (ПО ДЕФОЛТУ) то из чего мы выбираем при первом открытии');
+	   	    console.log(' printCalculator.calculatorParamsObj',printCalculator.calculatorParamsObj);
+		    console.log('<<< ИЗНАЧАЛЬНЫЕ ПАРАМЕТРЫ КАЛЬКУЛЯТОРА (ПО ДЕФОЛТУ)');
+			
 			// строим калькулятор
 			printCalculator.build_print_calculator();
 			// открываем окно с калькулятором
@@ -480,6 +485,7 @@ var printCalculator = {
 			printCalculator.currentCalculationData =  printCalculator.currentCalculationData[printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id];
 			printCalculator.currentCalculationData.dop_data_row_id = printCalculator.dataObj_toEvokeCalculator.dop_data_row_id;
 			
+			
 			if(typeof printCalculator.currentCalculationData.dop_row_id !== 'undefined') delete printCalculator.currentCalculationData.dop_row_id;
 			if(typeof printCalculator.currentCalculationData.price_in !== 'undefined') delete printCalculator.currentCalculationData.price_in;
 			if(typeof printCalculator.currentCalculationData.price_out !== 'undefined') delete printCalculator.currentCalculationData.price_out;
@@ -492,22 +498,12 @@ var printCalculator = {
 			printCalculator.currentCalculationData.print_details.dop_params = {};
 		}
 		
-	    console.log('>>> build_print_calculator');
+	    console.log('>>> ДАННЫЕ КОНКРЕТНОГО ТЕКУЩЕГО РАСЧЕТА (если это новый расчет то это просто подготовленный для заполнения праметрами скелет, если это открыт существующий расчет то тогда он содержит его праметры)');
 		console.log(' printCalculator.currentCalculationData',printCalculator.currentCalculationData);
-		console.log('<<< build_print_calculator');
-        console.log('>>>  printCalculator.calculatorParamsObj', printCalculator.calculatorParamsObj,'<<<  printCalculator.calculatorParamsObj');
+		console.log('<<< ДАННЫЕ КОНКРЕТНОГО ТЕКУЩЕГО РАСЧЕТА');
+        // console.log('>>> ИЗНАЧАЛЬНЫЕ ПАРАМЕТРЫ КАЛЬКУЛЯТОРА (ПО ДЕФОЛТУ) то из чего мы выбираем при первом открытии', printCalculator.calculatorParamsObj,'<<<  ИЗНАЧАЛЬНЫЕ ПАРАМЕТРЫ КАЛЬКУЛЯТОРА (ПО ДЕФОЛТУ)');
 		// строим интерфейс калькулятора
 		
-		//return;
-		// console.log('>>> calculatorParamsObj',printCalculator.calculatorParamsObj,'<<< calculatorParamsObj');
-		
-		// структура элемента data.places
-		// [places] => Array([0] => ключ соответсвует id места нанесения (если id = 0 - "Стандартное" место )неограниченное количество элементов
-		//					Array (
-		//						  [name] => "Стандартно" или "грудь (00х00)" - строка описывающая место нанесения
-		//						  [data] => Array([0] => 13,[1] => 23) массив значения - id видов нанесения 
-		//					       )
-        //                   )
 		
 		var dialogBox = document.createElement('DIV');
 		dialogBox.id = "calculatorDialogBox";
@@ -959,14 +955,14 @@ var printCalculator = {
 			printSizesSelectDiv.className = "printSizesSelectDiv";
 			
 			printSizesSelect.onchange = function(){
-				printCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':this.options[this.selectedIndex].getAttribute('item_id'),'coeff':this.options[this.selectedIndex].value}
+				printCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':this.options[this.selectedIndex].getAttribute('item_id'),'coeff':this.options[this.selectedIndex].value,'val':this.options[this.selectedIndex].getAttribute('val'),'type':this.options[this.selectedIndex].getAttribute('type'),'target':this.options[this.selectedIndex].getAttribute('target')}
 				
 				printCalculator.makeProcessing();
 			}
 			for(var id in CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id]){
 				if(typeof printCalculator.currentCalculationData.print_details.dop_params.sizes === 'undefined'){
 					printCalculator.currentCalculationData.print_details.dop_params.sizes = [];
-					printCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id'],'coeff':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['percentage']};
+					printCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id'],'coeff':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['percentage'],'val':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['val'],'type':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['type'],'target':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['target']};
 				}
 				
 				
@@ -977,6 +973,11 @@ var printCalculator = {
 				// id значения (размер нанесения) который будет сохранен в базу данных и по нему будет отстроен калькулятор 
 				// в случае вызова по кокретному нанесению
 				option.setAttribute("item_id",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id']);
+				option.setAttribute("val",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['val']);
+				option.setAttribute("type",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['type']);
+				option.setAttribute("target",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['target']);
+				
+				
 				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['size']));
 				printSizesSelect.appendChild(option);
 				
@@ -1185,7 +1186,9 @@ var printCalculator = {
 					  printCalculator.currentCalculationData.print_details.dop_params[glob_type] = {};
 			    if(typeof printCalculator.currentCalculationData.print_details.dop_params[glob_type][target] === 'undefined')
 					printCalculator.currentCalculationData.print_details.dop_params[glob_type][target] = {};
-			    if(typeof printCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type] === 'undefined')
+			        // ячейку каждый раз создаем заново тем самым очищая её 
+					// потому что если в ней уже есть какие-то данные, то новые данные от селекта с большим количеством значений
+					// добавятся дополнительно вместо того чтобы замениться
 					printCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type] = [];
 				
 				var obj = {"value": parseFloat(this.options[this.selectedIndex].value),"id": this.options[this.selectedIndex].getAttribute('item_id')};
@@ -1208,9 +1211,15 @@ var printCalculator = {
 
 		}
 		
+		
+		// ОБРАБОТКА МУЛЬТИЗНАЧНЫХ ПАРАМЕТРОВ (МУЛЬТИЗНАЧНЫЕ СЕЛЕКТЫ)
+		// Удаляем первый элемент массива потому что он используется только в качестве заголовка параметра 
+		// нам надо чтобы он не попал в селект
+		if(data.data.length>1) data.data.shift();
+		
 		for(var index in data.data){
 			var option = document.createElement('OPTION');
-			option.innerHTML = 'Применить';
+			option.innerHTML = (data.data.length>1)? data.data[index].title :'Применить';
 			if(data.data[index].coeff) option.value = data.data[index].coeff;
 			if(data.data[index].value) option.value = data.data[index].value;
 			if(data.data[index].item_id) option.setAttribute("item_id",data.data[index].item_id);
@@ -1261,14 +1270,14 @@ var printCalculator = {
 		// по значению параметра printCalculator.currentCalculationData.print_details.priceOut_tblYindex
 		// и выбираем нужную ячейку 
 		// по значению параметра printCalculator.currentCalculationData.print_details.priceOut_tblXindex
-		// console.log('>>> printCalculator.currentCalculationData <<<');
-		// console.log( printCalculator.currentCalculationData);
-		// console.log('>>><<<');
-		//alert(printCalculator.currentCalculationData.print_details.priceIn_tblXindex+' ++ '+printCalculator.currentCalculationData.print_details.priceOut_tblXindex);
+		console.log('>>> ДАННЫЕ КОНКРЕТНОГО ТЕКУЩЕГО РАСЧЕТА перед расчетом в методе makeProcessing');
+		console.log(' printCalculator.currentCalculationData',printCalculator.currentCalculationData);
+		console.log('<<< ДАННЫЕ КОНКРЕТНОГО ТЕКУЩЕГО РАСЧЕТА');
+		// return;
 		// снимаем значение price с таблицы прайса
 		
-		console.log('>>> priceOut_tbl <<<');
-		console.log( printCalculator.calculatorParamsObj.print_types[printCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0] );
+		//console.log('>>> priceOut_tbl <<<');
+		//console.log( printCalculator.calculatorParamsObj.print_types[printCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0] );
 		//alert(printCalculator.currentCalculationData.print_details.priceOut_tblXindex);
 		var priceOut_tblYindex = (typeof printCalculator.currentCalculationData.print_details.dop_params.YPriceParam !== 'undefined')? printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length:1;
 		var priceIn_tblYindex = (typeof printCalculator.currentCalculationData.print_details.dop_params.YPriceParam !== 'undefined')? printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length:1;
@@ -1312,20 +1321,47 @@ var printCalculator = {
 		//console.log('>>> YPriceParam.length  --   priceIn_tblXindex  priceOut_tblXindex  --  price_in  price_out <<<');
 		//console.log( printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length + ' -- '+printCalculator.currentCalculationData.print_details.priceIn_tblXindex + ' '+ printCalculator.currentCalculationData.print_details.priceOut_tblXindex+' -- '+ price_in + ' '+ price_out );
 		
+		// КОЭФФИЦИЕНТЫ И НАДБАВКИ
+		var price_coeff = summ_coeff = 1;
+		var price_coeff_list  = summ_coefficient_list = '';
+		var price_addition = summ_addition = 0;
+		var price_additions_list = summ_additions_list = '';
+		
 		// КОЭФФИЦИЕНТЫ НА ПРАЙС
 		// КОЭФФИЦИЕНТЫ НА ИТОГОВУЮ СУММУ
 		// перебираем printCalculator.currentCalculationData.print_details.
 		// в нем содержатся коэффициенты по Y параметру таблицы прайса и по размеру нанесения
-		var price_coeff = summ_coeff = 1;
-		var price_coeff_list  = summ_coefficient_list = '';
 		for(glob_type in printCalculator.currentCalculationData.print_details.dop_params){
-			if(glob_type=='YPriceParam' || glob_type=='sizes'){
+			if(glob_type=='YPriceParam'){
 				var set = printCalculator.currentCalculationData.print_details.dop_params[glob_type];
 				for(var i = 0;i < set.length;i++){ 
 				    // подстраховка
 				    if(set[i].coeff == 0) set[i].coeff = 1;
 					price_coeff *= set[i].coeff;
 					price_coeff_list += glob_type +' - '+ set[i].coeff+', ';
+				}
+			}
+			if(glob_type=='sizes'){
+				var set = printCalculator.currentCalculationData.print_details.dop_params[glob_type];
+				for(var i = 0;i < set.length;i++){ 
+				    if(set[i].type == 'coeff'){
+						// подстраховка
+						if(set[i].val == 0) set[i].val = 1;
+						if(set[i].target == 'price') price_coeff *= set[i].val;
+						if(set[i].target == 'summ') summ_coeff *= set[i].val;
+						
+						if(set[i].target == 'price') price_coeff_list += glob_type +' - '+ set[i].val+', ';
+						if(set[i].target == 'summ') summ_coeff_list += glob_type +' - '+ set[i].val+', ';
+					}
+					if(set[i].type == 'addition'){
+						
+						if(set[i].target == 'price') price_addition += parseFloat(set[i].val);
+						if(set[i].target == 'summ') summ_addition +=  parseFloat(set[i].val);
+						// alert(price_addition+' - '+summ_addition)
+						
+						if(set[i].target == 'price') price_additions_list += glob_type +' - '+ set[i].val+', ';
+						if(set[i].target == 'summ') summ_additions_list += glob_type +' - '+ set[i].val+', ';
+					}
 				}
 			}
 			if(glob_type=='coeffs'){
@@ -1367,8 +1403,6 @@ var printCalculator = {
 	
 	    // НАДБАВКИ НА ИТОГОВУЮ СУММУ
 		// перебираем printCalculator.currentCalculationData.print_details.
-		var price_addition = summ_addition = 0;
-		var price_additions_list = summ_additions_list = '';
 		for(glob_type in printCalculator.currentCalculationData.print_details.dop_params){
 			if(glob_type=='additions'){
 				var data = printCalculator.currentCalculationData.print_details.dop_params[glob_type];

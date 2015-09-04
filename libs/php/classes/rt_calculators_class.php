@@ -802,13 +802,37 @@
 			// НАДБАВКИ НА ИТОГОВУЮ СУММУ
 			foreach($print_dop_params as $glob_type => $set){
 				
-				if($glob_type=='YPriceParam' || $glob_type=='sizes'){
+				if($glob_type=='YPriceParam'){
 					foreach($set as $data){
 					    // подстраховка
 						if($data->coeff == 0) $data->coeff = 1;
 						
 						//echo "coeff ".$data->coeff."\r\n";
 						$price_coeff *= (float)$data->coeff;
+					}
+				}
+				if($glob_type=='sizes'){
+					/*foreach($set as $data){
+					    // подстраховка
+						if($data->coeff == 0) $data->coeff = 1;
+						
+						//echo "coeff ".$data->coeff."\r\n";
+						$price_coeff *= (float)$data->coeff;
+					}*/
+					foreach($set as $data){ 
+					    if(isset($data->type)){
+							if($data->type == 'coeff'){
+								// подстраховка
+								if($data->val == 0) $data->val = 1;
+								if($data->target == 'price') $price_coeff *=  (float)$data->val;
+								if($data->target == 'summ') $summ_coeff *=  (float)$data->val;
+							}
+							if($data->type == 'addition'){
+								
+								if($data->target == 'price') $price_addition +=(float)$data->val;
+								if($data->target == 'summ') $summ_addition += (float)$data->val;
+							}
+						}
 					}
 				}
 				if($glob_type=='coeffs'){
