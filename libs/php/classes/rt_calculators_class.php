@@ -116,7 +116,6 @@
 		static function get_related_art_and_print_types($art_id){
 		    global $mysqli;  
 			$out_put = array();
-
 			
 			//UPDATE `new__base__print_mode` SET `print_id`=13 WHERE `print` = 'шелкография'
 			// получаем данные о типах нанесений соответсвующих данному артикулу на прямую
@@ -139,8 +138,7 @@
 				}
 				$gotResult = false;
 			}
-			else $gotResult = false;	
-
+			$gotResult = false;
 			
 			return  array('out_put'=>$out_put,'result1'=>$gotResult);
 		}
