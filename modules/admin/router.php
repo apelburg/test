@@ -21,6 +21,10 @@
 		include 'places_editor/router.php';
 		break;
 		
+		case 'prints_manager':
+		include 'prints_manager/router.php';
+		break;
+		
 		case 'form_edit':
 		include 'form_edit/router.php';
 		break;

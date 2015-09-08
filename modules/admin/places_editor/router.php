@@ -1,5 +1,5 @@
 <?php
-    $place = ' > <a href="?page=admin&section=places_editor">УПРАВЛЕНИЕ МЕСТАМИ НАНЕСЕНИЯ</a>';
+    $place = ' > <a href="?page=admin&section=places_editor">РАСПРЕДЕЛЕНИЕ МЕСТ НАНЕСЕНИЯ</a>';
  	
 	include 'controller.php';
 	
