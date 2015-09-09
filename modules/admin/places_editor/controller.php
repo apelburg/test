@@ -13,17 +13,18 @@
         // удаляем последний ряд содержащий кнопки удаления колонок
 		unset($data->tbl_data[0]);
 	    echo '<pre>'; print_r($data);echo '</pre>';
-		
-		
+	
 		
 		if(!empty($_POST['dataBufferForDeleting'])){
 		    $toDeleteArr = explode('|',trim($_POST['dataBufferForDeleting'],'|'));
 		    echo '<pre>'; print_r($toDeleteArr);echo '</pre>';////
+			
 			foreach($toDeleteArr as $place_id ){
 			    // раздел меню может быть не конечным а родительским поэтому проверяем нет ли дочерних элементов
 		        $menuIdsArr =  get_child_menu_items($menu_id);
 			
 				// выбираем артикулы которые надо будет удалить
+				// выбираем именно те которые находятся в интересующем нас раделе(разделах)
 				$query ="SELECT tbl2.art_id  art_id FROM `".BASE_ARTS_CATS_RELATION."` tbl1 LEFT JOIN 
 										 `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl2 
 										 ON tbl1.article_id = tbl2.art_id 
@@ -215,20 +216,30 @@
 		$menuIdsArr =  get_child_menu_items($menu_id);
 		
 		$output = array();
-	    $query ="SELECT tbl2.place_id place_id, tbl3.name name, tbl3.comment comment, COUNT(tbl1.article_id) count FROM `".BASE_ARTS_CATS_RELATION."` tbl1 LEFT JOIN 
+	      // Изначально запрос был с COUNT(tbl1.article_id) и GROUP BY tbl2.place_id.
+		// В итоге получалось не верное количество артикулов из-за встречавшихся повторений 
+		// поэтому сделал через сохранение в массив 
+	    $query ="SELECT tbl2.place_id place_id, tbl3.name name, tbl3.comment comment, tbl1.article_id art_id  FROM `".BASE_ARTS_CATS_RELATION."` tbl1 LEFT JOIN 
 			                     `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl2 
 								 ON tbl1.article_id = tbl2.art_id INNER JOIN 
 			                     `".BASE__PRINT_PLACES_TYPES_TBL."` tbl3 
 								 ON tbl3.id = tbl2.place_id
-			                     WHERE tbl1.category_id IN ('".implode("','",$menuIdsArr)."') GROUP BY tbl2.place_id";
+			                     WHERE tbl1.category_id IN ('".implode("','",$menuIdsArr)."')";
 		$result = $mysqli->query($query)or die($mysqli->error);
 	    if($result->num_rows>0)
 		{
-			while($item = $result->fetch_assoc())
+			/*while($item = $result->fetch_assoc())
 			{ 
 				$output[] ="<tr><td>".$item['place_id']."</td><td>".$item['name'].'  &nbsp;&nbsp;['.$item['comment'].']</td><td>'.$item['count'].' </td><td  class="pointer" onclick="deleteRowFromTable();">&#215;</td></tr>';
-			}	
-		
+			}	*/
+			while($item = $result->fetch_assoc())
+			{ 
+				$arr[$item['place_id']][$item['art_id']]=$item;
+			}
+			// echo '<pre>$arr'; print_r($arr);echo '</pre>';
+			foreach($arr as $data){	
+		        $output[] ="<tr><td>".$data[key($data)]['place_id']."</td><td>".$data[key($data)]['name'].'  &nbsp;&nbsp;['.$data[key($data)]['comment'].']</td><td>'.count($data).' </td><td  class="pointer" onclick="deleteRowFromTable();">&#215;</td></tr>';
+			}
 		}
 		return $output;
 	

@@ -14,20 +14,20 @@
 		unset($data->tbl_data[0]);
 	    echo '<pre>'; print_r($data);echo '</pre>';
 		
-		
-		
 		if(!empty($_POST['dataBufferForDeleting'])){
 		    $toDeleteArr = explode('|',trim($_POST['dataBufferForDeleting'],'|'));
 		    echo '<pre>'; print_r($toDeleteArr);echo '</pre>';////
-			foreach($toDeleteArr as $place_id ){
+			
+			foreach($toDeleteArr as $print_id ){
 			    // раздел меню может быть не конечным а родительским поэтому проверяем нет ли дочерних элементов
 		        $menuIdsArr =  get_child_menu_items($menu_id);
 			
 				// выбираем артикулы которые надо будет удалить
+				// выбираем именно те которые находятся в интересующем нас раделе(разделах)
 				$query ="SELECT tbl2.art_id  art_id FROM `".BASE_ARTS_CATS_RELATION."` tbl1 LEFT JOIN 
-										 `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl2 
+										 `".BASE_PRINT_MODE_TBL."` tbl2 
 										 ON tbl1.article_id = tbl2.art_id 
-										 WHERE tbl1.category_id IN ('".implode("','",$menuIdsArr)."') AND  tbl2.place_id = '".$place_id."' GROUP BY tbl2.art_id";
+										 WHERE tbl1.category_id IN ('".implode("','",$menuIdsArr)."') AND  tbl2.print_id = '".$print_id."' GROUP BY tbl2.art_id";
 				$result = $mysqli->query($query)or die($mysqli->error);
 				if($result->num_rows>0)
 				{
@@ -35,12 +35,13 @@
 					{ 
 						$idsArtsToDelete[] = $item['art_id'];
 					}	
-				    echo '<pre>$idsArtsToDelete'; print_r($idsArtsToDelete);echo '</pre>';////
+				    
 					if(isset($idsArtsToDelete) && count($idsArtsToDelete)>0){
-					      $query ="DELETE FROM `".BASE__ART_PRINT_PLACES_REL_TBL."` WHERE art_id IN ('".implode("','",$idsArtsToDelete)."') AND place_id = '".$place_id."'";
-						  echo  $query;
+					      $query ="DELETE FROM `".BASE_PRINT_MODE_TBL."` WHERE art_id IN ('".implode("','",$idsArtsToDelete)."') AND print_id = '".$print_id."'";
+						  // echo  $query;
 						  $mysqli->query($query)or die($mysqli->error);
 				    }
+					//echo '<pre>$idsArtsToDelete'; print_r($idsArtsToDelete);echo '</pre>'; exit;////
 					unset($idsArtsToDelete);
 				}
 			}
@@ -52,12 +53,12 @@
 			// echo '<pre>$menuIdsArr'; print_r($menuIdsArr);echo '</pre>';
 		    // exit;
 			
-		    // сначала выбираем артикулы которым уже присвоено данное место нанесения
+		    // сначала выбираем артикулы которым уже присвоено данный тип нанесения
 			// и сохраняем его в массив, затем мы добавим в таблицу артикулы которые не буду в ходить в этот массив
 		    $query ="SELECT tbl1.article_id article_id FROM `".BASE_ARTS_CATS_RELATION."` tbl1 LEFT JOIN 
-			                     `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl2 
+			                     `".BASE_PRINT_MODE_TBL."` tbl2 
 								 ON tbl1.article_id = tbl2.art_id
-			                     WHERE tbl1.category_id IN ('".implode("','",$menuIdsArr)."') AND  tbl2.place_id = '".$val[0]."'  GROUP BY tbl2.art_id";
+			                     WHERE tbl1.category_id IN ('".implode("','",$menuIdsArr)."') AND  tbl2.print_id = '".$val[0]."'  GROUP BY tbl2.art_id";
 			echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
@@ -86,8 +87,8 @@
 			if(isset($allArtsIdsArr) && count($allArtsIdsArr)>0){
 			    echo "bb";
 				foreach($allArtsIdsArr as $art_id){
-					$query2 ="INSERT INTO `".BASE__ART_PRINT_PLACES_REL_TBL."`
-									 SET art_id = '".$art_id."', place_id = '".$val[0]."'";
+					$query2 ="INSERT INTO `".BASE_PRINT_MODE_TBL."`
+									 SET art_id = '".$art_id."', print_id = '".$val[0]."'";
 					$mysqli->query($query2)or die($mysqli->error);
 				}
 			}
@@ -144,7 +145,7 @@
 							    <span style='color:#AEC7EC;'>(ID ".$item['id'].")</span>
 							</td>
 							<td  width='270' style='padding:1px 1px 1px ".(40*($level-1))."px;'>
-							   <a href='?page=admin&section=places_editor&menu_id=".$item['id']."' class=".$class.">".$item['name']."</a>
+							   <a href='?page=admin&section=prints_manager&menu_id=".$item['id']."' class=".$class.">".$item['name']."</a>
 							</td>
 							</tr>"
 							.rendering($item['id'],$level);
@@ -170,7 +171,7 @@
 							<span style='color:#AEC7EC;'>(ID ".$item['id'].")</span>
 						</td>
 						<td  width='270' style='padding:1px 1px 1px ".(40*($level-1))."px;'>
-						   <a href='?page=admin&section=places_editor&menu_id=".$item['id']."' class='active'>".$item['name']."</a>
+						   <a href='?page=admin&section=prints_manager&menu_id=".$item['id']."' class='active'>".$item['name']."</a>
 						</td>
 					</tr>";
 		}
@@ -182,19 +183,20 @@
 			
 			
 	
-	function buildPlacesSelectInterface()
+	function buildPrintsSelectInterface()
 	{
 		
-		function buildPlacesSelect(){	
+		function buildPrintsSelect(){	
 			global $mysqli;
 			
-			$query ="SELECT*FROM `".BASE__PRINT_PLACES_TYPES_TBL."` ORDER BY id";
+			$query ="SELECT*FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '6' ORDER BY id";
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0)
 			{
 				while($item = $result->fetch_assoc())
 				{ 
-					$options[]= "<option value=".$item['id'].">".$item['name'].'   &nbsp;&nbsp;['.$item['comment']."]</option>";
+					//$options[]= "<option value=".$item['id'].">".$item['name'].'   &nbsp;&nbsp;['.$item['comment']."]</option>";
+					$options[]= "<option value=".$item['id'].">".$item['name']."</option>";
 				}	
 			
 			}
@@ -202,12 +204,12 @@
 		    return $select;
 	    }
 		
-		return  buildPlacesSelect();	
+		return  buildPrintsSelect();	
 		//return '<table class="catalogMenu">'.$td.'</table>';
 	
 	}
 	
-	function buildExistsPlacesRows($menu_id)
+	function buildExistsPrintsRows($menu_id)
 	{
 	    global $mysqli;
 		
@@ -215,20 +217,27 @@
 		$menuIdsArr =  get_child_menu_items($menu_id);
 		
 		$output = array();
-	    $query ="SELECT tbl2.place_id place_id, tbl3.name name, tbl3.comment comment, COUNT(tbl1.article_id) count FROM `".BASE_ARTS_CATS_RELATION."` tbl1 LEFT JOIN 
-			                     `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl2 
+		// Изначально запрос был с COUNT(tbl1.article_id) и GROUP BY tbl2.print_id.
+		// В итоге получалось не верное количество артикулов из-за встречавшихся повторений 
+		// поэтому сделал через сохранение в массив 
+	    $query ="SELECT tbl2.print_id print_id, tbl3.name name,tbl1.article_id art_id FROM `".BASE_ARTS_CATS_RELATION."` tbl1 LEFT JOIN 
+			                     `".BASE_PRINT_MODE_TBL."` tbl2 
 								 ON tbl1.article_id = tbl2.art_id INNER JOIN 
-			                     `".BASE__PRINT_PLACES_TYPES_TBL."` tbl3 
-								 ON tbl3.id = tbl2.place_id
-			                     WHERE tbl1.category_id IN ('".implode("','",$menuIdsArr)."') GROUP BY tbl2.place_id";
+			                     `".OUR_USLUGI_LIST."` tbl3 
+								 ON tbl3.id = tbl2.print_id
+			                     WHERE tbl1.category_id IN ('".implode("','",$menuIdsArr)."')";
+		
 		$result = $mysqli->query($query)or die($mysqli->error);
 	    if($result->num_rows>0)
 		{
 			while($item = $result->fetch_assoc())
 			{ 
-				$output[] ="<tr><td>".$item['place_id']."</td><td>".$item['name'].'  &nbsp;&nbsp;['.$item['comment'].']</td><td>'.$item['count'].' </td><td  class="pointer" onclick="deleteRowFromTable();">&#215;</td></tr>';
-			}	
-		
+				$arr[$item['print_id']][$item['art_id']]=$item;
+			}
+			// echo '<pre>$arr'; print_r($arr);echo '</pre>';
+			foreach($arr as $data){	
+		        $output[] ="<tr><td>".$data[key($data)]['print_id']."</td><td>".$data[key($data)]['name'].'</td><td>'.count($data).' </td><td  class="pointer" onclick="deleteRowFromTable();">&#215;</td></tr>';
+			}
 		}
 		return $output;
 	
@@ -238,14 +247,14 @@
 	
 	if($menu_id){
 	   
-	    $placesSelectInterface = '<div class="affected_subparts">Затрагиваемые разделы:'.rendering_menu($menu_id).'</div>';
-	    $placesSelectInterface .= '<div>Добавьте место нанесения выбрав из списка:</div>';
-	    $placesSelectInterface .= buildPlacesSelectInterface();
-		$placesSelectInterface .= '<form method="POST">';
+	    $printsSelectInterface = '<div class="affected_subparts">Затрагиваемые разделы:'.rendering_menu($menu_id).'</div>';
+	    $printsSelectInterface .= '<div>Добавьте тип нанесения выбрав из списка:</div>';
+	    $printsSelectInterface .= buildPrintsSelectInterface();
+		$printsSelectInterface .= '<form method="POST">';
 		
-		$existsPlacesRows = buildExistsPlacesRows($menu_id);
+		$existsPlacesRows = buildExistsPrintsRows($menu_id);
 		
-		$placesSelectInterface .= '<table id="containsDataTbl" class="containsDataTbl" style="display:'.((count($existsPlacesRows)>0)?'block':'none').'">
+		$printsSelectInterface .= '<table id="containsDataTbl" class="containsDataTbl" style="display:'.((count($existsPlacesRows)>0)?'block':'none').'">
 									   <tr>
 										   <td></td>
 										   <td width="330">место нанесения / коммент</td>
@@ -256,12 +265,12 @@
 								   '</table>';
 	
 		 
-        $placesSelectInterface .= '<input type="hidden" name="dataBufferForDeleting" id="dataBufferForDeleting" value="">';
-		$placesSelectInterface .= '<input type="hidden" name="tblDataBuffer" id="tblDataBuffer" value="">';
-		$placesSelectInterface .= '<input type="button"  class="pointer" onclick="placesEditorSendDataToBase(this.form,{\'menu_id\':\''.$menu_id.'\',\'tblId\':\'containsDataTbl\',\'bufferId\':\'tblDataBuffer\'});" value="сохранить">';
-		$placesSelectInterface .= '</form>';
+        $printsSelectInterface .= '<input type="hidden" name="dataBufferForDeleting" id="dataBufferForDeleting" value="">';
+		$printsSelectInterface .= '<input type="hidden" name="tblDataBuffer" id="tblDataBuffer" value="">';
+		$printsSelectInterface .= '<input type="button"  class="pointer" onclick="placesEditorSendDataToBase(this.form,{\'menu_id\':\''.$menu_id.'\',\'tblId\':\'containsDataTbl\',\'bufferId\':\'tblDataBuffer\'});" value="сохранить">';
+		$printsSelectInterface .= '</form>';
 	}
-	else  $placesSelectInterface = 'выберите раздел меню';
+	else  $printsSelectInterface = 'выберите раздел меню';
 	
 	//this.form,{\'type\':\'price\',\'bufferId\':\'tblDataBuffer'.$type.$count.'\',\'tblId\':\'tbl'.$type.$count.'\',\'price_type\':\''.$type.'\',\'print_type_id\':\''.$usluga_id.'\',\'count\':\''.$count.'\'}
     
