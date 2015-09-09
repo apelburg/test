@@ -116,7 +116,6 @@
 		static function get_related_art_and_print_types($art_id){
 		    global $mysqli;  
 			$out_put = array();
-
 			
 			//UPDATE `new__base__print_mode` SET `print_id`=13 WHERE `print` = 'шелкография'
 			// получаем данные о типах нанесений соответсвующих данному артикулу на прямую
@@ -139,8 +138,7 @@
 				}
 				$gotResult = false;
 			}
-			else $gotResult = false;	
-
+			$gotResult = false;
 			
 			return  array('out_put'=>$out_put,'result1'=>$gotResult);
 		}
@@ -243,7 +241,7 @@
 				
 				
 				// выбираем данные по размерам нанесения в соответствии с типом и местом нанесения
-				$query="SELECT*FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE `print_id` = '".$print_id."'";
+				$query="SELECT*FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE `print_id` = '".$print_id."' ORDER by id";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){
@@ -259,7 +257,7 @@
 				
 				
 				// выбираем данные по коэффициэнтам влияющим на цену товара
-				$query="SELECT*FROM `".BASE__CALCULATORS_COEFFS."` WHERE `print_id` = '".$print_id."'";
+				$query="SELECT*FROM `".BASE__CALCULATORS_COEFFS."` WHERE `print_id` = '".$print_id."' ORDER by id";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){
@@ -273,7 +271,7 @@
 				}
 				
 				// выбираем данные по надбавкам влияющим на цену товара
-				$query="SELECT*FROM `".BASE__CALCULATORS_ADDITIONS."` WHERE `print_id` = '".$print_id."'";
+				$query="SELECT*FROM `".BASE__CALCULATORS_ADDITIONS."` WHERE `print_id` = '".$print_id."' ORDER by id";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){
