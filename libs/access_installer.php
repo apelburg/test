@@ -94,9 +94,11 @@
 												'subsection'=>array( // 2
 													// 'all' => array('access'=>true),
 													'create_spec' => array('access'=>true),
-													'signed' => array('access'=>true),
+													// 'signed' => array('access'=>true),
 													'requested_the_bill' => array('access'=>true),
-													'expense' => array('access'=>true)	
+													'expense' => array('access'=>true),
+													'payment_the_bill' => array('access'=>true),
+													'the_order_is_create' => array('access'=>true)	
 													)
 												), 
 											'orders'=> array(
@@ -191,10 +193,16 @@
 											'paperwork'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'create_spec' => array('access'=>true),
-													'signed' => array('access'=>true),
+													// 'requested_the_bill' => array('access'=>true),
+													// 'expense' => array('access'=>true),
+													// 'create_spec' => array('access'=>true),
+													// // 'signed' => array('access'=>true)
+													// 'signed' => array('access'=>true),
+													
 													'requested_the_bill' => array('access'=>true),
-													'expense' => array('access'=>true)													
+													'expense' => array('access'=>true),
+													'payment_the_bill' => array('access'=>true),
+													'the_order_is_create' => array('access'=>true)																										
 													)
 												), 
 											'orders'=> array(
@@ -281,9 +289,13 @@
 											'paperwork'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
+													// 'all' => array('access'=>true),
 													'create_spec' => array('access'=>true),
-													'signed' => array('access'=>true),
-													'expense' => array('access'=>true)
+													// 'signed' => array('access'=>true),
+													'requested_the_bill' => array('access'=>true),
+													'expense' => array('access'=>true),
+													'payment_the_bill' => array('access'=>true),
+													'the_order_is_create' => array('access'=>true)	
 													)
 												), 
 											'orders'=> array(

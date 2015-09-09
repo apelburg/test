@@ -86,7 +86,7 @@
 				'prihodnik_on_bail_ofr_samples' => 'залог за образцы ???', 
 				'letter_of_guarantee' => 'гарантийное письмо', // -> перевод в заказ = in_operation
 				// 'cancelled'=>'Аннулирован',	//-> статус предзаказа =  cancelled_paperwork
-				'returns_client_collateral' => 'возврат залога клиенту', 
+				'returns_client_collateral' => 'возврат залога клиенту',
 				'refund_in_a_row' => 'возврат денег по счёту', 
 				'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ', // -> статус предзаказа =  'shipped'
 				'return_order_in_paperorder' => 'вернуть заказ в предзаказ' 	    		
@@ -95,7 +95,7 @@
 	    	protected $buch_status_service = array(
 	    		'request_expense'=>'Запрошен счёт',
 	    		'reget_the_bill' => 'перевыставить счёт', 
-				'get_the_dop_bill' => 'запрошен доп. счёт'
+				'get_the_pko' => 'запрошен ПКО'
 	    	);
 			
 			// комманды менеджера  (при клике на статус буха меню)
@@ -109,21 +109,25 @@
 	    	// типы счетов которые мы можем запросить
 	    	protected $type_the_bill =array(
 	    		'the_bill' => array(
-	    			'счёт',// кто, что
-	    			'счёта' // кого, чего
+	    			'счёт на оплату',// кто, что
+	    			'счёта на оплату' // кого, чего
 	    			),
-	    		'the_bill_offer' => array(
+	    		'the_bill_offer' => array( 
+	    			/*
+						в будущем должен создаваться минуя алгоритм создания спецификации
+						НА ОБСУЖДЕНИЕ С АНДРЕЕМ !!!!!!
+	    			*/
 	    			'счёт - оферта',// кто, что
 	    			'счёта - оферты' // кого, чего
 	    			),
-	    		'the_bill_for_simples' => array(
-	    			'счёт на образцы',
-	    			'счёта на образцы'
-	    			),
-	    		'prihodnik' => array(
-	    			'приходник',
-	    			'приходника
-	    			'),
+	    		// 'the_bill_for_simples' => array(
+	    		// 	'счёт на образцы',
+	    		// 	'счёта на образцы'
+	    		// 	),
+	    		// 'prihodnik' => array(
+	    		// 	'приходник',
+	    		// 	'приходника
+	    		// 	'),
 	    		);
 
 
@@ -205,16 +209,16 @@
 				*/
 
 				// статус БУХ -> статус Заказа/Предзаказа
-		    	protected $CONSEQUENCES_of_status_buch = array(
-		    		'return_order_in_paperorder' => 'being_prepared', // вернуть заказ в предзаказ -> предзаказ ожидает обработки
-		    		'score_exhibited' => 'waiting_for_payment', // счёт выставлен -> ждём оплаты
-		    		'payment' => 'in_operation', // оплачен -> кнопка "Запуск в работу"
-		    		'partially_paid' => 'in_operation', // чатично оплачен -> кнопка "Запуск в работу"
-		    		'collateral_received' => 'in_operation', // принят залог -> кнопка "Запуск в работу"
-		    		'letter_of_guarantee' => 'in_operation', // гарантийное -> кнопка "Запуск в работу"
+		    	// protected $CONSEQUENCES_of_status_buch = array(
+		    	// 	'return_order_in_paperorder' => 'being_prepared', // вернуть заказ в предзаказ -> предзаказ ожидает обработки
+		    	// 	'score_exhibited' => 'waiting_for_payment', // счёт выставлен -> ждём оплаты
+		    	// 	'payment' => 'in_operation', // оплачен -> кнопка "Запуск в работу"
+		    	// 	'partially_paid' => 'in_operation', // чатично оплачен -> кнопка "Запуск в работу"
+		    	// 	'collateral_received' => 'in_operation', // принят залог -> кнопка "Запуск в работу"
+		    	// 	'letter_of_guarantee' => 'in_operation', // гарантийное -> кнопка "Запуск в работу"
 		    		
-		    		'ogruzochnye_accepted' => 'shipped'// отгрузочные приняты ???
-		    	);
+		    	// 	'ogruzochnye_accepted' => 'shipped'// отгрузочные приняты ???
+		    	// );
 
 		    	// // статус склад -> статус снаб
 		    	// protected $CONSEQUENCES_of_status_sklad = array(
@@ -656,6 +660,8 @@
 				}					
 			}
 
+			//buh_uchet
+
 
 			// создать строку пустого счёта
 			protected function create_a_new_bill(){
@@ -665,45 +671,46 @@
 				$date_for_html = date("d.m.Y",$time);
 
 
-				$query ="INSERT INTO `".CAB_BILL_TBL."` SET 
-					`order_id` = '".$_POST['order_id']."',
+				$query ="UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET 
 					`type_the_bill` = '".$_POST['type_the_bill']."',
-					`date_create` = '".$date_for_base."'";
+					`order_date_account` = '".$date_for_base."'";// дата заказа счёта
 					if(isset($_POST['comment_text'])){
 						$query .= ",`comments` = '".$_POST['comment_text']."'";
 					}
+
+					$query .= " WHERE `id` = '".$_POST['order_id']."'";
 
 				$result = $mysqli->query($query) or die($mysqli->error);
 				// запоминаем новый id
 
 
-				$insert_id = $mysqli->insert_id;
-				$html = '<tr class="container_from_the_bill">';
-					$html .= '<td>';
-						$html .= '<span class="change_order_type" data-id="'.$insert_id.'">№ '.$this->type_the_bill[$_POST['type_the_bill']][1].'</span>';
-					$html .= '</td>';
-					$html .= '<td>';		
-						// поле редактирования номера
-						$html .= '&nbsp;<input type="text" data-id="'.$insert_id.'" name="number" class="number_the_bill" value="">';
+				// $insert_id = $mysqli->insert_id;
+				// $html = '<tr class="container_from_the_bill">';
+				// 	$html .= '<td>';
+				// 		$html .= '<span class="change_order_type" data-id="'.$insert_id.'">№ '.$this->type_the_bill[$_POST['type_the_bill']][1].'</span>';
+				// 	$html .= '</td>';
+				// 	$html .= '<td>';		
+				// 		// поле редактирования номера
+				// 		$html .= '&nbsp;<input type="text" data-id="'.$insert_id.'" name="number" class="number_the_bill" value="">';
 							
-						$html .= '<span>';
-						$html .= 'Дата: ';
-						// дата создания счёта
-							$html .= '<input type="text" data-id="'.$insert_id.'" name="date_create" class="date_create_the_bill" value="'.$date_for_html.'">';
-						$html .= '</span>';
-						$html .= '<span>';
-							$html .= 'На сумму: ';
-							// дата создания счёта
-							$html .= '<input type="text" data-id="'.$insert_id.'" name="for_price" class="for_price_the_bill" value=""> р';
-						$html .= '</span>';
-					$html .= '</td>';
-					$html .= '<td>';
-						$html .= '<span class="buch_comments"  data-id="'.$insert_id.'"></span>';
-					$html .= '</td>';
-					$html .= '<td>';
-						$html .= '<span class="button usl_del" data-id="'.$insert_id.'">X</span>';
-					$html .= '</td>';
-				$html .= '</tr>';
+				// 		$html .= '<span>';
+				// 		$html .= 'Дата: ';
+				// 		// дата создания счёта
+				// 			$html .= '<input type="text" data-id="'.$insert_id.'" name="date_create" class="date_create_the_bill" value="'.$date_for_html.'">';
+				// 		$html .= '</span>';
+				// 		$html .= '<span>';
+				// 			$html .= 'На сумму: ';
+				// 			// дата создания счёта
+				// 			$html .= '<input type="text" data-id="'.$insert_id.'" name="for_price" class="for_price_the_bill" value=""> р';
+				// 		$html .= '</span>';
+				// 	$html .= '</td>';
+				// 	$html .= '<td>';
+				// 		$html .= '<span class="buch_comments"  data-id="'.$insert_id.'"></span>';
+				// 	$html .= '</td>';
+				// 	$html .= '<td>';
+				// 		$html .= '<span class="button usl_del" data-id="'.$insert_id.'">X</span>';
+				// 	$html .= '</td>';
+				// $html .= '</tr>';
 				return $html;
 			}
 
@@ -827,9 +834,10 @@
 					// меняем статус бух и заказа
 					$this->buch_status_select($_POST['status_buch'],$_POST['order_id']);
 					// заводим счёт
-					$this->create_a_new_bill();						
+					//$this->create_a_new_bill();						
 					// вывод окна бух учёта
-					$this->get_window_buh_uchet_AJAX();
+					echo '{"response":"OK"}';
+					//$this->get_window_buh_uchet_AJAX();
 					// echo '{"response":"show_new_window_simple", "html":"'.base64_encode($this->get_window_buh_uchet()).'","title":"Бухгалтерский учёт:","width":"1100"}';				
 				}
 			}
@@ -842,9 +850,9 @@
 				// $html .= date("Y-m-d",strtotime($_POST['date']));
 				global $mysqli;
 
-				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
+				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
 					`date_specification_signed` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
-					WHERE  `id` ='".(int)$_POST['order_id']."';";
+					WHERE  `id` ='".(int)$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
 
@@ -855,7 +863,7 @@
 			protected function change_date_create_the_bill_AJAX(){
 				global $mysqli;
 
-				$query = "UPDATE  `".CAB_BILL_TBL."`  SET  
+				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
 					`date_create` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
 					WHERE  `id` ='".(int)$_POST['id_row']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
@@ -870,9 +878,9 @@
 				// $html .= date("Y-m-d",strtotime($_POST['date']));
 				global $mysqli;
 
-				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
-					`date_specification_signed` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
-					WHERE  `id` ='".(int)$_POST['order_id']."';";
+				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
+					`date_return_width_specification_signed` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
+					WHERE  `id` ='".(int)$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
 				//echo '{"response":"show_new_window_simple", "html":"'.base64_encode("Запрос нужно делать").'","title":"Разработчику!!!"}';
@@ -927,84 +935,39 @@
 			}
 
 			//получить все счета по заказу в Html для бух учёта
-			protected function get_the_bill_for_order_Html($order){
-				global $mysqli;
-				// типы счетов которые мы можем запросить
-		    	// $this->type_the_bill 
-
-				// запрашиваем
-				$this->the_bill_arr = $this->get_the_bill_for_order_Database($order['id']);
-				if(empty($this->the_bill_arr)){return '<table></table>';}
+			protected function get_the_bill_for_order_Html($the_bill){
+				if(trim($the_bill['type_the_bill']) == ""){return '';} // счет не выставлен
 
 				$html = '';
 
 				$html .='<table>';
-				foreach ($this->the_bill_arr as $key => $the_bill) {
-					switch ($the_bill['deleted']) { // проверка не удален ли
-						case '0': // не удалён
-							// номер чего
-							$html .= '<tr class="container_from_the_bill">';
-								$html .='<td>';
-										$html .= '<span class="change_order_type" data-id="'.$the_bill['id'].'">№ '.$this->type_the_bill[$the_bill['type_the_bill']][1].'</span>';
-								$html .='</td>';
-								$html .='<td>';
-									// поле редактирования номера
-									$html .= '&nbsp;<input type="text" data-id="'.$the_bill['id'].'" name="number" class="number_the_bill" value="'.$the_bill['number'].'">';
-									$html .= '<span>';
-										$html .= 'Дата: ';
-										// дата создания счёта
-										$html .= '<input type="text" data-id="'.$the_bill['id'].'" name="date_create" class="date_create_the_bill" value="'.$the_bill['date_create'].'">';
-									$html .= '</span>';
-									$html .= '<span>';
-										$html .= 'На сумму: ';
-										// дата создания счёта
-										$html .= '<input type="text" data-id="'.$the_bill['id'].'" name="for_price" class="for_price_the_bill" value="'.$the_bill['for_price'].'"> р';
-									$html .= '</span>';
-								$html .= '</td>';
-								$html .= '<td>';
-									$html .= '<span class="'.(($the_bill['comments']=="")?'tz_text_new':'buch_comments').'"  data-id="'.$the_bill['id'].'"></span>';
-								$html .= '</td>';
-								$html .= '<td>';
-									$html .= '<span class="button usl_del" data-id="'.$the_bill['id'].'">X</span>';
-								$html .='</td>';
-							$html .= '</tr>';
-							break;
-						
-						default: // удалён и запрещён к редактированию
-							// номер чего
-							$html .= '<tr class="container_from_the_bill deleted">';
-								$html .='<td>';
-									$html .= '<span class="change_order_type only_read" data-id="'.$the_bill['id'].'">№ '.$this->type_the_bill[$the_bill['type_the_bill']][1].'</span>';										
-								$html .='</td>';
-								$html .='<td>';
-									$html .= '<div class="deleted_note">'.$the_bill['deleted_note'].'</div>';
-									// поле номера
-									$html .= '&nbsp;'.$the_bill['number'];
-									$html .= '<span>';
-										$html .= 'Дата: ';
-										// дата создания счёта
-										$html .= $the_bill['date_create'];
-									$html .= '</span>';
-									$html .= '<span>';
-										$html .= 'На сумму: ';
-										// дата создания счёта
-										$html .= $the_bill['for_price']. ' р';
-									$html .= '</span>';
-									$html .= '<span class="why_this_doc_deleted">';
-										$html .= 'Удален';
-									$html .= '</span>';
-								$html .= '</td>';
-								$html .= '<td>';
-									$html .= '<span class="buch_comments only_read"  data-id="'.$the_bill['id'].'"></span>';
-								$html .= '</td>';
-								$html .= '<td>';
-								$html .='</td>';
-							$html .= '</tr>';
-
-							break;
-					}
-					
-				}
+				$html .= '<tr class="container_from_the_bill deleted">';
+					// номер чего
+					$html .= '<tr class="container_from_the_bill">';
+						$html .='<td>';
+							$html .= '<span class="change_order_type" data-id="'.$the_bill['id'].'">№ '.$the_bill['type_the_bill'].'</span>';
+						$html .='</td>';
+						$html .='<td>';
+							// поле редактирования номера
+							$html .= '&nbsp;<input type="text" data-id="'.$the_bill['id'].'" name="number" class="number_the_bill" value="'.$the_bill['number'].'">';
+							$html .= '<span>';
+								$html .= 'Дата: ';
+								// дата создания счёта
+								$html .= '<input type="text" data-id="'.$the_bill['id'].'" name="date_create" class="date_create_the_bill" value="'.$the_bill['date_create'].'">';
+							$html .= '</span>';
+							$html .= '<span>';
+								$html .= 'На сумму: ';
+								// дата создания счёта
+								$html .= '<input type="text" data-id="'.$the_bill['id'].'" name="for_price" class="for_price_the_bill" value="'.$the_bill['for_price'].'"> р';
+							$html .= '</span>';
+						$html .= '</td>';
+						$html .= '<td>';
+							$html .= '<span class="'.(($the_bill['comments']=="")?'tz_text_new':'buch_comments').'"  data-id="'.$the_bill['id'].'"></span>';
+						$html .= '</td>';
+						$html .= '<td>';
+							$html .= '<span class="button usl_del" data-id="'.$the_bill['id'].'">X</span>';
+						$html .='</td>';
+					$html .= '</tr>';				
 				$html .= '</table>';
 				return $html;
 
@@ -1017,11 +980,97 @@
 				echo '{"response":"show_new_window_simple", "html":"'.base64_encode($this->get_window_buh_uchet()).'","title":"Бухгалтерский учёт:","width":"1100"}';
 			}
 
+			
+			//получаем информацию по спецификации
+			protected function get_info_for_spec($spec_id){
+				global $mysqli;
+				
+				//получаем информацию по спецификации
+				$query = "SELECT *,
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`create_time`,'%d.%m.%Y')  AS `create_time`,
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_specification_signed`,'%d.%m.%Y')  AS `date_specification_signed`,
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_return_width_specification_signed`,'%d.%m.%Y')  AS `date_return_width_specification_signed`
+				 FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `id` IN ('".(int)$spec_id."');";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$Specificate_arr = array();
+				
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$Specificate_arr[] = $row;
+					}
+				}
+				return $Specificate_arr;
+			}
+
+			// окно бух учета для спецификации
+			protected function get_buh_uchet_for_spec_AJAX(){
+				$html_head = '<ul>';
+				$gen_info = '';
+				$html = '';
+						
+				//получаем информацию по спецификации
+				$Specificate_arr = $this->get_info_for_spec($_POST['spec_id']);
+				
+				//echo '{"response":"show_new_window_simple","html":"'.base64_encode($this->print_arr($Specificate_arr)).'","title":"Бух. учёт","function":"included_the_tab"}';return;
+
+				foreach ($Specificate_arr as $key => $Specificate) {
+					// формируем id блока
+					$id = 'tabs_'.($key);
+
+					$html_head .= '<li class="check_the_anather_spec '.($key==0?' checked':'').'" data-id="'.$id.'"><strong>Спецификация</strong> '.$this->get_specification_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</li>';
+					// общая информация для всех спецификаций
+					if($gen_info==""){
+						$gen_info .= '<div class="general_info_for_order">';
+							include_once './libs/php/classes/manager_class.php';					
+							$gen_info .= '&nbsp;<span>Менеджер: '.Manager::get_snab_name_for_query_String($Specificate['manager_id']).'</span>';
+							$gen_info .= '&nbsp;<span>Компания: '.$this->get_client_name_simple_Database($Specificate['client_id'],1).'</span>';
+						$gen_info .= '</div>';
+					}
+					
+
+					// запррос информации по договору
+					$agreement_arr = $this->get_info_for_agreement_Database($Specificate['agreement_id']);
+					
+					// номер заказа, менеджер, компания
+					$html .= '<div class="spec_div" id="'.$id.'"'.($key>0?' style="display:none"':'').'>';
+						// договор
+						$html .= '<div class="buh_window" data-specification_id="'.$Specificate['id'].'">';
+							$html .= '<span><strong>Юр. Лицо клиента:</strong><br> '.$agreement_arr['client_comp_full_name'].'</span><br>';
+							$html .= '<span>по договору: '.$this->get_agreement_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</span>';
+							$html .= '&nbsp;<span>подписана  <input data-id="'.$Specificate['id'].'" type="text" value="'.$Specificate['date_specification_signed'].'" class="date_specification_signed"></span>';
+							$html .= '&nbsp;<span>возвращена с подписью <input data-id="'.$Specificate['id'].'" type="text" value="'.$Specificate['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>'; 
+						$html .= '</div>';
+					$html .= '</div>';					
+
+					// // номер заказа, менеджер, компания
+					// $html .= '<div class="spec_div" id="'.$id.'"'.($key>0?' style="display:none"':'').'>';
+					// 	$html .= '<div class="buh_window" data-specification_id="'.$Specificate['id'].'">';
+					// 		$html .= '<span><strong>Спецификация и счёт </strong></span><br>';
+					// 		$html .= '<span>Юр. Лицо клиента: '.$agreement_arr['client_comp_full_name'].'</span>';//спецификация
+					// 		$html .= '<span>для договора: '.$this->get_agreement_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</span>';
+					// 		$html .= '&nbsp;<span>подписана: <input data-id="'.$Specificate['id'].'" type="text" value="'.$Specificate['date_specification_signed'].'" class="date_specification_signed"></span>';
+					// 		$html .= '&nbsp;<span>возвращена с подписью: <input data-id="'.$Specificate['id'].'" type="text" value="'.$Specificate['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>'; 
+					// 	$html .= '</div>';
+					// $html .= '</div>';
+				}
+				$html_head .= '</ul>';
+
+				$html = '<div id="tabs">'.$gen_info.$html_head.$html.'</div>';
+
+				// $html = 'Ghbdtn vbh';
+				echo '{"response":"show_new_window_simple","function":"windows_on","html":"'.base64_encode($html).'","title":"Бух. учёт"}';
+				// echo '{"response":"show_new_window","title":"Комментарии для Бухгалтерии:" "html":"'..'"}';
+			}
+
+
 			// окно бух учёта
 			protected function get_window_buh_uchet(){
 				$html = '';
 				// строка заказ, менеджер, Компания
 				$this->Order = $this->get_one_order_row_Database((int)$_POST['order_id']);
+
+				// получаем массив спецификаций счетов
+				$this->Specification_arr = $this->get_specification_arr((int)$_POST['order_id']); 
 
 				// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
 				$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
@@ -1037,33 +1086,71 @@
 				$html .= '</div>';
 
 
-				// Спецификация и счёт
-				$html .= '<div class="buh_window">';
-					$html .= '<span><strong>Спецификация и счёт </strong></span><br>';
-					$html .= '<span>Спецификация: '.$this->get_specification_link($this->Order).'</span>';
-					$html .= '&nbsp;<span>подписана: <input data-order_id="'.$this->Order['id'].'" type="text" value="'.$this->Order['date_specification_signed'].'" class="date_specification_signed"></span>';
-					$html .= '&nbsp;<span>возвращена с подписью: <input data-order_id="'.$this->Order['id'].'" type="text" value="'.$this->Order['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>';
-					$html .= '&nbsp;<span>Для договора: '.$this->get_agreement_link($this->Order).'</span>';
+				// вывод всех спецификаций прикреплённых к заказу
+				foreach ($this->Specification_arr as $key => $this->Specification) {
 
-					// счета
-					$html .= '<div id="container_from_the_bill">';
-						$html .= $this->get_the_bill_for_order_Html($this->Order);
-						$html .= '<div id="add_the_bill_link" data-id="'.$this->Order['id'].'">';
-							$html.= '<span>добавить строчку для доп счёта</span>';
-						$html .= '</div>';
-					$html .= '</div>';				
-				$html .= '</div>';
+					$html .= '<div class="buh_window" data-specification_id="'.$this->Specification['id'].'">';
+						// 
+						$html .= '<table>';
+						switch ($this->Specification['type_the_bill']) {
+							case 'the_bill_offer': // счёт оферта
+								$html .= '<tr>';
+									$html .= '<td  class="check_the_specification">';
+										$html .= '<span><input type="checkbox" name="" ></span>';	
+									$html .= '</td>';
+									$html .= '<td>';
+										// счёт оферта не имеет спецификации и договора, поэтому выводим только строку счёта
+										$html .= '<div id="container_from_the_bill">';
+											$html .= $this->get_the_bill_for_order_Html($this->Specification);
+										$html .= '</div>';
+									$html .= '</td>';
+								$html .= '</tr>';
+								break;
+							
+							default:// остальные
+								$html .= '<tr>';
+									$html .= '<td  class="check_the_specification">';
+										$html .= '<span><input type="checkbox" name="" ></span>';	
+									$html .= '</td>';
+									$html .= '<td>';
+										// для всех строк кроме счёта=оферты выводим строку с указанием спецификации
+										$html .= '<span><strong>Спецификация и счёт </strong></span><br>';
+										$html .= '<span>Спецификация: '.$this->get_specification_link($this->Specification,$this->Order['client_id'],$this->Order['create_time']).'</span>';
+										$html .= '<span>для договора: '.$this->get_agreement_link($this->Specification).'</span>';
+										$html .= '&nbsp;<span>подписана: <input data-id="'.$this->Specification['id'].'" type="text" value="'.$this->Specification['date_specification_signed'].'" class="date_specification_signed"></span>';
+										$html .= '&nbsp;<span>возвращена с подписью: <input data-id="'.$this->Specification['id'].'" type="text" value="'.$this->Specification['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>';
+									$html .= '</td>';
+									$html .= '<td>';
+										// счета
+										$html .= '<div id="container_from_the_bill">';
+											$html .= $this->get_the_bill_for_order_Html($this->Specification);
+										$html .= '</div>';	
+									$html .= '</td>';
+								$html .= '</tr>';
+								break;
+						}
+						$html .= '</table>';
+					$html .= '</div>';
+				}
 
-				// оплата
-				$html .= '<div class="buh_window">';
-					$html .= '<span><strong>Оплата</strong></span><br>';
-					$html .= '<div id="container_from_the_payment">';
-						$html .= $this->get_the_payment_order_for_bill_Html($this->Order);
-						$html .= '<div id="add_the_payment_order_link" data-id="'.$this->Order['id'].'">';
-							$html.= '<span>добавить строчку платежа</span>';
-						$html .= '</div>';	
-					$html .= '</div>';				
+				// кнопки управления
+				$html .= '<div id="buch_window_optional_buttons">';
+					$html .= '<button>Заказать счёт</button>';
+					$html .= '<button>Выставить счёт на всё</button>';
+					$html .= '<button>Приходник на залог</button>';
 				$html .= '</div>';
+				
+
+				// // оплата
+				// $html .= '<div class="buh_window">';
+				// 	$html .= '<span><strong>Оплата</strong></span><br>';
+				// 	$html .= '<div id="container_from_the_payment">';
+				// 		$html .= $this->get_the_payment_order_for_bill_Html($this->Order);
+				// 		$html .= '<div id="add_the_payment_order_link" data-id="'.$this->Order['id'].'">';
+				// 			$html.= '<span>добавить строчку платежа</span>';
+				// 		$html .= '</div>';	
+				// 	$html .= '</div>';				
+				// $html .= '</div>';
 
 				$html .= $this->print_arr($this->Order);				
 				$html .= $this->print_arr($_POST);
@@ -1187,9 +1274,7 @@
 				global $mysqli;
 				$query = "SELECT 
 				`".CAB_ORDER_ROWS."`.*, 
-				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`,
-				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`date_specification_signed`,'%d.%m.%Y %H:%i:%s')  AS `date_specification_signed`,
-				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`date_return_width_specification_signed`,'%d.%m.%Y %H:%i:%s')  AS `date_return_width_specification_signed`
+				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
 				FROM `".CAB_ORDER_ROWS."`";
 				$query .= " WHERE `".CAB_ORDER_ROWS."`.`id` = '".$order_id."'";
 
@@ -1206,6 +1291,20 @@
 			}
 
 
+			// заказ нового счёта 
+			protected function order_a_new_account_AJAX(){
+				$html = $this->print_arr($_POST);
+				global $mysqli;
+				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET";
+
+				$query .= "`type_the_bill` = '".$_POST['type_the_bill']."',";
+				$query .= "`buch_status` = 'request_expense',";//date_order_the_bill
+				$query .= "`date_order_the_bill` = NOW()";//
+				$query .= " WHERE `id` = '".$_POST['specificate_row_id']."'";
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK","function":"window_reload"}';
+			}
 
 			// запрос из кнопки выставить счёт
 			protected function get_listing_type_the_bill_AJAX(){
@@ -1220,10 +1319,10 @@
 					$n++;
 				}
 				$html .= '<input type="hidden" name="type_the_bill" value="'.$first_val.'">';	
-				$html .= '<input type="hidden" name="AJAX" value="create_the_new_bill">';	
+				$html .= '<input type="hidden" name="AJAX" value="order_a_new_account">';	
 				$html .= '</ul>';
 				// если информации о статусе бух не пришло
-				if(!isset($_POST['status_buch'])){$html .= '<input type="hidden" name="status_buch" value="get_the_bill">';}
+				if(!isset($_POST['status_buch'])){$html .= '<input type="hidden" name="status_buch" value="request_expense">';}
 				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
 				unset($_POST['AJAX']);
 				// перебираем остальные значения для передачи их далее
@@ -1235,39 +1334,41 @@
 				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите тип счёта:","width":"230"}';
 			}
 
-			// вывод меню выбора запроса счёта 
-			protected function get_commands_men_for_buch_AJAX(){
-				$html = '';
-				$n = 0;
-				$html .= '<ul id="get_commands_men_for_buch" class="check_one_li_tag">';
-				$first_val = '';
-				foreach ($this->commands_men_for_buch as $name_en => $name_ru) {
-					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
-					if($n==0){$first_val = $name_en;}
-					$n++;
-
-				}
-				$html .= '</ul>';
+			// // вывод меню выбора запроса счёта 
+			// protected function get_commands_men_for_buch_AJAX(){
 
 
-				$html .= '<form>';
+			// 	$html = '';
+			// 	$n = 0;
+			// 	$html .= '<ul id="get_commands_men_for_buch" class="check_one_li_tag">';
+			// 	$first_val = '';
+			// 	foreach ($this->commands_men_for_buch as $name_en => $name_ru) {
+			// 		$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+			// 		if($n==0){$first_val = $name_en;}
+			// 		$n++;
 
-				$html .= '<input type="hidden" name="status_buch" value="'.$first_val.'">';	
-				$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
+			// 	}
+			// 	$html .= '</ul>';
 
-				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
-				unset($_POST['AJAX']);
-				// перебираем остальные значения для передачи их далее
-				foreach ($_POST as $key => $value) {
-					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-				}
 
-				$html .= '</form>';
+			// 	$html .= '<form>';
 
-				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:","width":"230"}';
-				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-				// echo 'base';
-			}	
+			// 	$html .= '<input type="hidden" name="status_buch" value="'.$first_val.'">';	
+			// 	$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
+
+			// 	// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+			// 	unset($_POST['AJAX']);
+			// 	// перебираем остальные значения для передачи их далее
+			// 	foreach ($_POST as $key => $value) {
+			// 		$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+			// 	}
+
+			// 	$html .= '</form>';
+
+			// 	echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:","width":"230"}';
+			// 	// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+			// 	// echo 'base';
+			// }	
 
 			// правим дату сдачи заказа
 			protected function change_date_of_delivery_of_the_order_AJAX(){
@@ -1715,7 +1816,20 @@
 						- если запись есть - заказ развёрнут
 
 				*/
-				$tbl = (isset($_GET['section']) && $_GET['section'] == 'requests')?RT_LIST:CAB_ORDER_ROWS;
+				$tbl = CAB_ORDER_ROWS;
+				if(isset($_GET['section'])){
+					switch ($_GET['section']) {
+						case 'requests':
+							$tbl = RT_LIST;
+							break;
+						case 'paperwork':
+							$tbl = CAB_BILL_AND_SPEC_TBL;
+							break;						
+						default:
+							break;
+					}
+				}
+				//$tbl = (isset($_GET['section']) && $_GET['section'] == 'requests')?RT_LIST:CAB_ORDER_ROWS;
 
 
 				// делаем запрос на хранящуюся у нас в базе информацию по данной строке заказа
@@ -1952,12 +2066,12 @@
 			//////////////////////////
 				protected function buch_status_select($value,$row_id){
 					global $mysqli;
-					$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `buch_status` =  '".$value."' ";
-					// если есть следствия влияющие на статус заказа
-					if(isset($this->CONSEQUENCES_of_status_buch[trim($value)])){
-						// меняем статус ПРЕДЗАКАЗА / ЗАКАЗА
-						$query .= " , `global_status` =  '".$this->CONSEQUENCES_of_status_buch[trim($value)]."'";
-					} 
+					$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  `buch_status` =  '".$value."' ";
+					// // если есть следствия влияющие на статус заказа
+					// if(isset($this->CONSEQUENCES_of_status_buch[trim($value)])){
+					// 	// меняем статус ПРЕДЗАКАЗА / ЗАКАЗА
+					// 	$query .= " , `global_status` =  '".$this->CONSEQUENCES_of_status_buch[trim($value)]."'";
+					// } 
 
 					$query .= "WHERE  `id` ='".$row_id."';";
 					$result = $mysqli->query($query) or die($mysqli->error);
@@ -2626,6 +2740,136 @@
 		//   -----  END  -----  General Template (общие для всех шаблоны) -----  END  -----
 		////////////////////////////////////////////////////////////////////////////////////
 		
+		//////////////////////////
+			//	методы запроса данных из базы для paperwork
+			//////////////////////////
+				// запрос спецификаций из базы
+				protected function get_the_specificate_paperworck_Database($id_row=0){
+					$where = 0;
+					global $mysqli;
+
+
+					$query = "SELECT 
+						`".CAB_BILL_AND_SPEC_TBL."`.*, 
+						DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`create_time`,'%d.%m.%Y ')  AS `create_time`,
+						DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_order_the_bill`,'%d.%m.%Y')  AS `date_order_the_bill`
+						FROM `".CAB_BILL_AND_SPEC_TBL."`";
+					
+					if($id_row){
+						//////////////////////////
+						//	выборка одной строки 	
+						//////////////////////////	
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`id` = '".$id_row."'";
+							$where = 1;
+					}else{
+						/////////////////////////////////////////////////////////////////
+						// выбираем из базы только предзаказы (заказы не показываем)
+						/////////////////////////////////////////////////////////////////
+							// получаем статусы предзаказа
+							$paperwork_status_string = '';
+							foreach (array_keys($this->paperwork_status) as $key => $status) {
+								$paperwork_status_string .= (($key>0)?",":"")."'".$status."'";
+							}
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`global_status` IN (".$paperwork_status_string.")";
+							$where = 1;
+						//////////////////////////
+						//	выборка по клиенту
+						//////////////////////////
+						if(isset($_GET['client_id'])){
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`client_id` = '".$_GET['client_id']."'";
+							$where = 1;
+						}
+
+
+						// выборка по статусу
+						if(isset($_GET['subsection'])){
+							switch ($_GET['subsection']) {
+								case 'create_spec': // спецификация создана
+									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'is_pending'";
+									break;
+								case 'requested_the_bill': // запрошен счёт
+									$paperwork_status_string = '';
+									foreach (array_keys($this->buch_status_service) as $key => $status) {
+										$paperwork_status_string .= (($key>0)?",":"")."'".$status."'";
+									}
+									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'request_expense'";
+									break;
+								case 'expense': // счёт выставлен
+									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'score_exhibited'";
+									break;
+								case 'payment_the_bill': // счёт оплачен
+									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'score_exhibited'";
+									break;
+								
+								default:
+									# code...
+									break;
+
+									$where = 1;
+							}
+
+						// фильтрация по менеджеру
+						if(isset($_GET['manager_id'])){
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".(int)$_GET['manager_id']."'";
+							$where = 1;
+						}
+
+						// фильтрация по менеджеру
+						if($this->user_access == 5){
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".$this->user_id."'";
+							$where = 1;
+						}
+							
+							
+						}
+					}
+
+					
+					
+					
+					//////////////////////////
+					//	sorting
+					//////////////////////////
+					$query .= ' ORDER BY `id` DESC';
+					// echo $query;
+					$result = $mysqli->query($query) or die($mysqli->error);
+					$this->Specificate_arr = array();
+					
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$this->Specificate_arr[] = $row;
+						}
+					}
+				}
+
+				// получаем позиции к спецификациям из базы
+				protected function get_the_position_with_specificate_Database($id){
+					global $mysqli;
+					$query = "
+						SELECT 
+							`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
+							`".CAB_ORDER_DOP_DATA."`.`quantity`,	
+							`".CAB_ORDER_DOP_DATA."`.`price_out`,	
+							`".CAB_ORDER_DOP_DATA."`.`print_z`,	
+							`".CAB_ORDER_DOP_DATA."`.`zapas`,	
+							DATE_FORMAT(`".CAB_ORDER_MAIN."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
+							`".CAB_ORDER_MAIN."`.*
+							FROM `".CAB_ORDER_MAIN."` 
+							INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`
+							WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`the_bill_id` = '".$id."'";
+						
+					$query .= " ORDER BY `".CAB_ORDER_MAIN."`.`id` DESC";
+						// echo $query;
+
+					$result = $mysqli->query($query) or die($mysqli->error);
+					$position_arr = array();
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$position_arr[] = $row;
+						}
+					}
+					return $position_arr;
+				}
 
 		/*
 			декодируем поле json для некаталога в читабельный вид
@@ -2911,7 +3155,12 @@
 			$name = '';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$name = '<div'.(($no_edit==0)?' class="attach_the_client"':' class="dop__info"').' data-id="'.$row['id'].'">'.$row['company'].'</div>';
+					if($no_edit == 1){
+						$name= '<a href="./?page='.$_GET['page'].(isset($_GET['section'])?'&section='.$_GET['section']:'').'&client_id='.$row['id'].'"><div class="dop__info" data-id="'.$row['id'].'">'.$row['company'].'</div></a>';
+					}else{
+						$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';
+					}
+					
 				}
 			}else{
 				$name = '<div'.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</div>';
@@ -3445,6 +3694,25 @@
 			return $percent;
 		}
 
+		// получаем массив строк счетов/спецификаций по id заказа
+		protected function get_specification_arr($order_id){
+			global $mysqli;
+			$query = "SELECT `".CAB_BILL_TBL."`.*,
+					DATE_FORMAT(`".CAB_BILL_TBL."`.`date_specification_signed`,'%d.%m.%Y %H:%i:%s')  AS `date_specification_signed`,
+					DATE_FORMAT(`".CAB_BILL_TBL."`.`date_return_width_specification_signed`,'%d.%m.%Y %H:%i:%s')  AS `date_return_width_specification_signed`
+					 FROM `".CAB_BILL_TBL."` WHERE  `order_id` = '".$order_id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+
+			$arr = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+			
+			return $arr;
+		}
+
 		
 
 		// получаем список пользователей по номеру подразделения
@@ -3537,7 +3805,6 @@
 				$message .= 'Реальный уровень допуска пользователя: '.$this->get_user_access_Database_Int($_SESSION['come_back_in_own_profile']).'<br>';
 				$message .= 'Реальный ID пользователя: '.$_SESSION['come_back_in_own_profile'].'<br>';
 				$message .= isset($_GET)?'ID пользователя: '.$this->user_id.'<br>':'';	
-
 			}else{
 				$message .= 'Пользователь '.$user_name.' перешёл по адресу http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].' и наткнулся на ошибку.';
 				$message .= 'Уровень допуска пользователя: '.$this->user_access.'<br>';
@@ -3579,28 +3846,28 @@
 		//	получение информации по спецификациям и договорам
 		//////////////////////////
 			// возвращает ссылку на спецификацию по строке заказа
-			protected function get_specification_link($order_row){
+			protected function get_specification_link($Specification,$client_id,$create_time){
 				// если нет информации по спецификации 
-				if($order_row['specification_num'] ==0 ){return 'не указано';}
+				if($Specification['specification_num'] ==0 ){return 'не указано';}
 
 				// получаем информацию по договору
-				$agrement_arr = $this->get_info_for_agreement_Database($order_row['agreement_id']);
+				$agrement_arr = $this->get_info_for_agreement_Database($Specification['agreement_id']);
 				if(empty($agrement_arr)){return 'не найдена информация по договору';}
 					
-				$html = '<a href="?page=agreement&section=agreement_editor&client_id='.$order_row['client_id'].'&agreement_id='.$order_row['agreement_id'].'&agreement_type='.$agrement_arr['agreement_type'].'&open=specification&specification_num='.$order_row['specification_num'].'">№ '.$order_row['specification_num'].' от '.$order_row['create_time'].'</a>';
+				$html = '<a target="_blank" href="?page=agreement&section=agreement_editor&client_id='.$client_id.'&agreement_id='.$Specification['agreement_id'].'&agreement_type='.$agrement_arr['type'].'&open=specification&specification_num='.$Specification['specification_num'].'">№ '.$Specification['specification_num'].' от '.$create_time.'</a>';
 				return $html;
 			}
 
 			// возвращает ссылку на договор по строке заказа
-			protected function get_agreement_link($order_row){
+			protected function get_agreement_link($Specification,$client_id,$create_time){
 				// если нет информации по договору
-				if($order_row['agreement_id'] ==0 ){return 'не указан';}
+				if($Specification['agreement_id'] ==0 ){return 'не указан';}
 
 				// получаем информацию по договору
-				$agrement_arr = $this->get_info_for_agreement_Database($order_row['agreement_id']);
+				$agrement_arr = $this->get_info_for_agreement_Database($Specification['agreement_id']);
 				if(empty($agrement_arr)){return 'не найден';}
-
-				$html = '<a href="?page=agreement&section=agreement_editor&client_id='.$order_row['client_id'].'&agreement_id='.$order_row['agreement_id'].'&agreement_type='.$agrement_arr['agreement_type'].'&open=empty">'.$agrement_arr['agreement_num'].'</a>';
+				// return $this->print_arr($agrement_arr);
+				$html = '<a href="?page=agreement&section=agreement_editor&client_id='.$client_id.'&agreement_id='.$Specification['agreement_id'].'&agreement_type='.$agrement_arr['type'].'&open=empty">'.$agrement_arr['agreement_num'].'</a>';
 				return $html;
 			}
 	

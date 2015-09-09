@@ -418,9 +418,9 @@ function show_dialog(html){
 	    			});
 
 	    			if(moder===true){
-	    				$(this).css({'border':'none'});	    				
+	    				$(this).css({'border':'none'}).removeClass('disabled_moderation');	    				
 	    			}else{
-	    				$(this).css({'border':'1px solid red'});
+	    				$(this).css({'border':'1px solid red'}).addClass('disabled_moderation');
 	    				moderate = 1;
 	    			}
 	    			// console.log(moder);
@@ -439,6 +439,9 @@ function show_dialog(html){
 					$('#general_form_for_create_product').remove();
 				});
 			}else{
+				$("body,html").animate({scrollTop:($('.disabled_moderation').eq(0).offset().top}, 800);return false;
+				
+
 				alert('Исправьте ошибки заполнения');
 			}
 			//general_form_for_create_product();	    	
