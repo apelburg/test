@@ -787,6 +787,7 @@ body{
   white-space: nowrap;
   text-overflow: ellipsis;
   height:auto; 
+  margin-left: 18px;
 }
 
 
@@ -2555,4 +2556,17 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #choose_one_of_several_articles tr.checked td,
 #choose_the_size tr.checked td{
   background-color: #C5C5C5;
+}
+
+#back_without_client{
+  float: left;
+    width: 25px;
+    height: 16px;
+    background: url('../../skins/images/img_design/back_art2.png') no-repeat;
+    /*background-color: red;*/
+    background-position: 4px;
+    margin-top: -5px;
+    padding: 3px 7px 7px 3px;
+    position: absolute;
+    left: 0;
 }

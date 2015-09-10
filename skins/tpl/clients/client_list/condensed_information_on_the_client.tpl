@@ -8,6 +8,11 @@
 <table id="details_tbl" class="details_tbl">
 <tr>
         <td class="company">
+            <?php 
+                if($_GET['page'] == 'cabinet'){
+                    echo $back_without_client;
+                }
+            ?>
             <div class="container">
                 <a href="?page=clients&amp;section=client_folder&amp;subsection=client_card_table&amp;client_id=<?php echo $_GET['client_id']; ?>" target="_blank">  
                         <?php echo $company_name; ?></a>

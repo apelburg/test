@@ -1969,7 +1969,7 @@ function windows_on(data){
 			});	
 }
 
-
+// вкладки спецификаций в окне бух. учёт
 $(document).on('click', '#tabs ul li', function(event) {
 	$('.spec_div').css({"display":"none"});
 	var id = $(this).attr('data-id');
@@ -1977,3 +1977,197 @@ $(document).on('click', '#tabs ul li', function(event) {
 	$(this).addClass('checked');
 	$('#'+id).css({'display':'block'});
 });
+
+// показать кнопку счёт выставлен в окне бух. учёт
+$(document).on('keyup', '.buh_window input', function(event) {
+	event.preventDefault();
+	if ($(this).parent().find('.the_bill_is_ready').length) {
+		$(this).parent().find('.the_bill_is_ready').show();
+	}
+	/* Act on the event */
+});
+
+// нажатие на кнопку счёт выставлен
+$(document).on('click', '.the_bill_is_ready', function(event) {
+	event.preventDefault();
+	var row_id = $(this).attr('data-id');
+	$.post('', {
+		AJAX: 'the_bill_is_ready',
+		row_id:row_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+// перезагрузка главной таблицы в paperwork
+function reload_paperwork_tbl(){
+	$('#cabinet_general_content_row').load(' #cabinet_general_content_row');
+	// .replaceWith('ajax/');
+}
+
+//////////////////////////
+// добавить ПП
+//////////////////////////
+	$(document).on('click', '#add_pp', function(event) {
+		event.preventDefault();
+		var row_id = $(this).parent().attr('data-specification_id');
+		$.post('', {
+			AJAX: 'create_row_pp',
+			row_id:row_id
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');	
+	});
+
+	function show_new_row_pp(data){
+		// находим активную вкладку спецификации
+		var obj = $('.spec_div:visible'); 
+		$('.buh_window.add_pp').css({"display":"block"});
+		var new_pp = obj.find('.document_pp_hidden').clone();
+		new_pp = new_pp.removeClass('document_pp_hidden').addClass('document_pp').attr('data-id',data['id']);
+		obj.find('.buh_window.add_pp').append(new_pp)
+	}
+//////////////////////////
+//	удалить ПП
+//////////////////////////
+	$(document).on('click', '.del_pp', function(event) {
+		var obj = $(this).parent();
+		event.preventDefault();
+		var row_id = $(this).parent().attr('data-id'); // id для строки ПП
+
+		// проверяем на заполненность
+		var deleting = 1;
+		$(this).parent().find('input').each(function(index, el) {
+			
+			if($(this).val() != ''){
+				deleting = 0;
+			}		
+		});
+
+		if(deleting==0){
+			// confirm(message)
+			if(confirm('В полях ПП содержится информация. Вы уверены, что хотите удалить строку ПП.')){
+				
+				obj.remove();
+				if($('.spec_div:visible .document_pp').length == 0){
+					$('.spec_div:visible .buh_window.add_pp').css({"display":"none"});
+				}
+				$.post('', {
+					AJAX:'delete_PP',
+					row_id:row_id
+				}, function(data, textStatus, xhr) {
+					standard_response_handler(data);
+				});
+			}
+		}else{
+			
+			obj.remove();
+			if($('.spec_div:visible .document_pp').length == 0){
+				$('.spec_div:visible .buh_window.add_pp').css({"display":"none"});
+			}
+			$.post('', {
+				AJAX:'delete_PP',
+				row_id:row_id
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			});			
+		}
+	});
+
+
+//////////////////////////
+// добавить ПКО
+//////////////////////////
+	$(document).on('click', '#add_pko', function(event) {
+		event.preventDefault();
+		var row_id = $(this).parent().attr('data-specification_id');
+		$.post('', {
+			AJAX: 'create_row_pko',
+			row_id:row_id
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');	
+	});
+
+	function show_new_row_pko(data){
+		// находим активную вкладку спецификации
+		var obj = $('.spec_div:visible'); 
+		$('.buh_window.add_pko').css({"display":"block"});
+		var new_pp = obj.find('.document_pko_hidden').clone();
+		new_pp = new_pp.removeClass('document_pko_hidden').addClass('document_pko').attr('data-id',data['id']);
+		obj.find('.buh_window.add_pko').append(new_pp)
+	}
+//////////////////////////
+//	удалить ПКО
+//////////////////////////
+	$(document).on('click', '.del_pko', function(event) {
+		var obj = $(this).parent();
+		event.preventDefault();
+		var row_id = $(this).parent().attr('data-id'); // id для строки ПП
+
+		// проверяем на заполненность
+		var deleting = 1;
+		$(this).parent().find('input').each(function(index, el) {
+			
+			if($(this).val() != ''){
+				deleting = 0;
+			}		
+		});
+
+		if(deleting==0){
+			// confirm(message)
+			if(confirm('В полях ПKO содержится информация. Вы уверены, что хотите удалить строку ПKO.')){
+				obj.remove();
+				if($('.spec_div:visible .document_pko').length == 0){
+					$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
+				}
+
+				$.post('', {
+					AJAX:'delete_PKO',
+					row_id:row_id
+				}, function(data, textStatus, xhr) {
+					standard_response_handler(data);
+				});
+			}
+		}else{
+			obj.remove();
+			if($('.spec_div:visible .document_pko').length == 0){
+				$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
+			}
+
+			$.post('', {
+				AJAX:'delete_PKO',
+				row_id:row_id
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			});			
+		}
+	});
+
+//////////////////////////
+//	редактировать ПКО
+//////////////////////////
+	$(document).on('keyup', '.number_the_bill', function(event) {
+		 timing_save_input('number_the_bill',$(this))
+	});
+
+	function number_the_bill(obj){// на вход принимает object input
+	    var row_id = obj.attr('data-id');
+	    $.post('', {
+	        AJAX:'change_number_the_bill',
+	        row_id:row_id,
+	        value:obj.val()
+	    }, function(data, textStatus, xhr) {
+	    	standard_response_handler(data);
+	        if(data['response']=="OK"){
+	            // php возвращает json в виде {"response":"OK"}
+	            // если ответ OK - снимаем класс saved
+	            obj.removeClass('saved');
+	        }else{
+	            console.log('Данные не были сохранены.');
+	        }
+	    },'json');
+	}
+
+
+

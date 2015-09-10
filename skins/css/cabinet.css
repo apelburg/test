@@ -698,15 +698,18 @@ input.calendar_date_work{
 	background-color: #f1f1f1;
 }
 
-#cabinet_general_content table tr th.buh_uchet{
+#cabinet_general_content table tr th.buh_uchet,
+#cabinet_general_content table tr th.buh_uchet_for_spec{
 	text-align: center;
 }
-#cabinet_general_content table tr td.buh_uchet{
+#cabinet_general_content table tr td.buh_uchet,
+#cabinet_general_content table tr td.buh_uchet_for_spec{
 	background-image: url('../../skins/images/img_design/open_buch_uchet.png');
 	background-position: 50%;
 	background-repeat: no-repeat;
 }
-.buh_uchet:hover{
+.buh_uchet:hover,
+.buh_uchet_for_spec:hover{
 	background-color: #BBCE91;
     cursor: pointer;
 }
@@ -745,6 +748,15 @@ span.buch_comments.only_read {
     border: 1px solid #ddd;
     color: grey;
     cursor: pointer;
+}
+.del_pp,
+.del_pko,
+.del_ttn{
+	padding: 1px 5px 0 5px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: grey;
+    cursor: pointer;	
 }
 #container_from_the_bill{
 	padding: 9px 0 3px;
@@ -841,4 +853,23 @@ span.buch_comments.only_read {
 }
 #tabs ul li.checked:hover{
 	background: #fff;
+}
+.the_bill_is_ready{
+	display: none;
+}
+button#add_pp,
+button#add_pko,
+button#add_ttn{
+	margin-right: 20px;
+	margin-top: 15px;
+}
+.document_pp_hidden,
+.document_pko_hidden,
+.document_ttn_hidden{
+	display: none;
+}
+.document_pp,
+.document_pko,
+.document_ttn{
+    padding: 7px 0px;
 }
