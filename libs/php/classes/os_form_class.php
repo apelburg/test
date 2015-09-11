@@ -382,21 +382,30 @@ PS было бы неплохо взять взять это за правило
                     }                  
                     if(isset($_POST['cancel_selection'])){
                          $query .= ",`cancel_selection` = '1'";
-                    }                  
+                    }else{
+                         $query .= ",`cancel_selection` = '0'";
+                    }            
                     if(isset($_POST['moderate'])){
                          $query .= ",`moderate` = '1'";
-                    }                  
+                    }else{
+                         $query .= ",`moderate` = '0'";
+                    }
                     if(isset($_POST['btn_add_var'])){
                          $query .= ",`btn_add_var` = '1'";
-                    }                  
+                    }else{
+                         $query .= ",`btn_add_var` = '0'";
+                    }                 
                     if(isset($_POST['btn_add_val'])){
                          $query .= ",`btn_add_val` = '1'";
+                    }else{
+                         $query .= ",`btn_add_val` = '0'";
                     }
                     $query .= $where;
                    
                     $result = $mysqli->query($query) or die($mysqli->error);
 
                     echo '{"response":"OK","function":"update_form"}';
+                    // echo '{"response":"show_new_window_2","html":"'.base64_encode($this->print_arr($_POST)).'","title":"Проверяем что проиходит"}'; 
                }
 
 
@@ -424,12 +433,13 @@ PS было бы неплохо взять взять это за правило
                          $html .= '<form>';
                          unset($_POST['AJAX']);
                          foreach ($_POST as $key => $value) {
-                              if($key == "parent_name"){
-                                   $html .= '<input type="text" name="'.$key.'" value="'.$value.'" >';
-                              }else{
+                              // if($key == "parent_name"){
+                              //      $html .= '<input type="text" name="'.$key.'" value="'.$value.'" >';
+                              // }else{
                                    $html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-                              }
+                              // }
                          }
+
 
                          $html .='<div class="block">';
                               $html .= '<div class="head_texter">Общая информация</div>';

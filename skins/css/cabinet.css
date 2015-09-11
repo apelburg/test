@@ -691,7 +691,11 @@ input.calendar_date_work{
 	width: 83px;
 	cursor: default;
 }
-.buh_window .for_price_the_bill{
+.buh_window .for_price_the_bill,
+.document_pp .payment_date,
+.document_pko .payment_date,
+.document_ttn .ttn_date,
+.document_ttn .date_return{
 	width: 85px;
 }
 .saved{
@@ -872,4 +876,40 @@ button#add_ttn{
 .document_pko,
 .document_ttn{
     padding: 7px 0px;
+}
+#export_in_order_div{
+	position: fixed;
+	display: none;
+	bottom: 0;
+	height: 100px;
+	border-top: 2px dashed #898989;
+	z-index: 101;
+  	background: url(../images/img_design/apl_pattern.png);
+  	width: 100%;
+    left: 0;
+    opacity: 0;
+}
+#create_the_order.checked{
+    background: #AFAFAF;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+#export_in_order_div ul{
+	margin: 0 auto;
+    float: left;
+    width: 100%;
+    text-align: center;
+    margin-top: 30px;
+}
+#export_in_order_div ul li{
+    list-style: none;
+    display: inline;
+    padding: 11px 60px 9px 60px;
+    border: 3px solid #FFFFFF;
+    background-color: #CD2328;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 27px;
+
 }
