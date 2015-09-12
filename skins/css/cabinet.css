@@ -217,7 +217,21 @@ tr.cat_8 td {
 	font-size: 12px;
 }
 #general_panel_orders_tbl .order_head_row td{
-	background-color: #e8e8e8;
+    background-color: #c8db9e;
+}
+#general_panel_orders_tbl .specificate_rows td{
+	background-color: #e9f1ff;
+}
+#general_panel_orders_tbl .specificate_rows td .greyText a{
+	color: #6d6e72;
+}
+#general_panel_orders_tbl .specificate_rows td  a{
+	color: #3d3ddf;
+	text-decoration: underline;
+}
+
+#general_panel_orders_tbl .specificate_rows td a:hover{
+	text-decoration: none;
 }
 .orders_info{
 	font-size: 12px;
@@ -268,7 +282,8 @@ tr.cat_8 td {
 #cabinet_general_content #general_panel_orders_tbl tr.positions_rows{
 	display: none;
 }
-#cabinet_general_content #general_panel_orders_tbl tr.positions_rows td{
+#cabinet_general_content #general_panel_orders_tbl tr.positions_rows td,
+#cabinet_general_content #general_panel_orders_tbl tr.specificate_rows td{
 	border: 1px solid #e8e8e8;
 }
 #cabinet_general_content #general_panel_orders_tbl tr.positions_rows.position_general_row td{
@@ -703,17 +718,20 @@ input.calendar_date_work{
 }
 
 #cabinet_general_content table tr th.buh_uchet,
-#cabinet_general_content table tr th.buh_uchet_for_spec{
+#cabinet_general_content table tr th.buh_uchet_for_spec,
+#cabinet_general_content table tr th.buh_uchet_for_щквук{
 	text-align: center;
 }
 #cabinet_general_content table tr td.buh_uchet,
-#cabinet_general_content table tr td.buh_uchet_for_spec{
+#cabinet_general_content table tr td.buh_uchet_for_spec,
+#cabinet_general_content table tr td.buh_uchet_for_order{
 	background-image: url('../../skins/images/img_design/open_buch_uchet.png');
 	background-position: 50%;
 	background-repeat: no-repeat;
 }
 .buh_uchet:hover,
-.buh_uchet_for_spec:hover{
+.buh_uchet_for_spec:hover,
+#cabinet_general_content .buh_uchet_for_order:hover{
 	background-color: #BBCE91;
     cursor: pointer;
 }

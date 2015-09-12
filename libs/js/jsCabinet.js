@@ -1292,6 +1292,7 @@ function check_loading_ajax(){
 
 $(document).on('click', '#general_panel_orders_tbl tr td.price_for_the_position', function(event) {
 	var dop_data_id = $(this).attr('data-cab_dop_data_id');
+	var specificate_id = $(this).attr('data-specificate_id');
 	var id = $(this).attr('data-id');
 	var order_num_user = $(this).attr('data-order_num_user');
 	var order_num = $(this).attr('data-order_num');
@@ -1303,7 +1304,8 @@ $(document).on('click', '#general_panel_orders_tbl tr td.price_for_the_position'
 		dop_data_id: dop_data_id,
 		id:id,
 		order_num:order_num,
-		order_id:order_id
+		order_id:order_id,
+		specificate_id:specificate_id
 	}, function(data, textStatus, xhr) {
 		if(data['function'] !== undefined){ // на всякий
 			window[data['function']](data);
@@ -1853,10 +1855,13 @@ $(document).on('click', '#create_the_order', function(event) {
 $(document).on('click', '#create_in_order_button', function(event) {
 	var checked_spec_id = '';
 	var n = 0;
+	var manager_id = 0;
 	$('.masterBtnContainer input:checkbox:checked').each(function(index, el) {
+
 		if(n>0){
 			checked_spec_id += ",'"+$(this).parent().attr('data-id')+"'";
 		}else{
+			manager_id = $(this).parent().attr('data-manager_id');
 			checked_spec_id += "'"+$(this).parent().attr('data-id')+"'";
 		}
 		
@@ -1869,6 +1874,7 @@ $(document).on('click', '#create_in_order_button', function(event) {
 			$('#create_the_order').click();
 			$.post('', {
 				AJAX: 'create_new_order',
+				manager_id:manager_id,
 				checked_spec_id:checked_spec_id
 			}, function(data, textStatus, xhr) {
 				standard_response_handler(data);
@@ -1912,19 +1918,31 @@ $(document).keydown(function(e) {
 	}	
 });
 
-
+// запрос бух учета по спецификации
 $(document).on('click', '.buh_uchet_for_spec', function(event) {
-	// event.preventDefault();
 	window_preload_add();
 	var spec_id = $(this).attr('data-id');
 	$.post('', {
 		AJAX: 'get_buh_uchet_for_spec',
 		spec_id:spec_id
 	}, function(data, textStatus, xhr) {
-		standard_response_handler(data);
-		
+		standard_response_handler(data);		
 	},'json');
 });
+
+// запрос бух учета по спецификации
+$(document).on('click', '.buh_uchet_for_order', function(event) {
+	window_preload_add();	
+	var order_num = $(this).attr('data-id');
+	$.post('', {
+		AJAX: 'get_buh_uchet_for_order',
+		order_num: order_num
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);		
+	},'json');
+});
+
+// 
 function windows_on(data){
 		//////////////////////////
 		//	дата подписания спецификации
@@ -2119,11 +2137,17 @@ function windows_on(data){
 
 // вкладки спецификаций в окне бух. учёт
 $(document).on('click', '#tabs ul li', function(event) {
-	$('.spec_div').css({"display":"none"});
 	var id = $(this).attr('data-id');
+	console.log('#'+id);
+	$('.spec_div').each(function(index, el) {
+		if($(this).attr('id') != id){
+			$(this).css({"display":"none"});
+		}		
+	});
 	$('#tabs ul li').removeClass('checked');
 	$(this).addClass('checked');
-	$('#'+id).css({'display':'block'});
+
+	$('#tabs #'+id).css({"display":"block"});
 });
 
 // показать кнопку счёт выставлен в окне бух. учёт
