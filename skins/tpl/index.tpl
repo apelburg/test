@@ -104,6 +104,9 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
 	
     <?php 
     if(isset($_GET['page']) && $_GET['page']=='samples'){include('sample/bar_tbl.tpl');}
+    ?>
+    <div id="apl-notification_center"></div>
+    <?php
     echo $content; 
     ?>
 </div>

@@ -27,8 +27,7 @@
 					<?php echo $CABINET->menu_top_center_Html; ?>
 				</ul>
 			</div>
-			<div id="cabinet_general_content">
-				
+			<div id="cabinet_general_content">				
 				<?php echo $content; ?> 				
 				</table>
 			</div>

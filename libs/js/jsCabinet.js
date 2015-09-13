@@ -158,6 +158,29 @@
 			alert(data.text);
 		}
 
+		// вывод системного сообщения 
+		function echo_message(data){
+
+			$("<li/>", {
+			      "class": data.message_type,
+			      text: data.message,
+			      "css":{"opacity":1,"top":0},
+			      click: function(){
+			          $(this).animate({opacity:0},'1000',function(){$(this).remove()});
+			      }
+			}).appendTo("#apl-notification_center").fadeIn('slow', 
+		        function(){
+		            var el = jQuery(this);
+		            setTimeout(function(){
+		                el.fadeOut('slow',
+		                    function(){
+		                        jQuery(this).remove();
+		                    });
+		            }, 7000);
+		    });
+
+		}	
+
 		function php_message_alert(data){
 			console.log(data);
 			alert(Base64.decode(data['message']));
@@ -205,6 +228,36 @@ $(document).ready(function() {
 			//alert($input.attr('class'));
 			$.post('', {
 				AJAX: 'change_date_of_delivery_of_the_order',
+				row_id: row_id,
+				date: date
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+
+			},'json');
+		},
+	 	format:'d.m.Y',	 	
+	});
+
+	// дата сдачи товара по спецификации
+	$('.date_of_delivery_of_the_specificate').datetimepicker({
+		minDate:new Date(),
+		// disabledDates:['07.05.2015'],
+		timepicker:false,
+	 	dayOfWeekStart: 1,
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		closeOnDateSelect:true,
+		onChangeDateTime: function(dp,$input){// событие выбора даты
+			// получение данных для отправки на сервер
+			var row_id = $input.attr('data-id');
+			var date = $input.val();
+
+			//alert($input.attr('class'));
+			$.post('', {
+				AJAX: 'date_of_delivery_of_the_specificate',
 				row_id: row_id,
 				date: date
 			}, function(data, textStatus, xhr) {

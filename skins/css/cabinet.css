@@ -538,7 +538,7 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
     font-size: 17px;
     color: #6F5B5B;
 }
-.date_of_delivery_of_the_order,.approval_date{
+.date_of_delivery_of_the_order,.approval_date,.date_of_delivery_of_the_specificate{
 	width: 65px
 }
 
@@ -930,4 +930,7 @@ button#add_ttn{
     display: inline-block;
     margin: 0 27px;
 
+}
+#cabinet_general_content table#general_panel_orders_tbl  table.curator_on_request tr td{
+	border: none;
 }
