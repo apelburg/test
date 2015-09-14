@@ -1002,7 +1002,7 @@
 
 			// счёт оплачен
 			protected function paperwork_payment_the_bill_Template($id_row=0){
-				if(isset($_GET['client_id']) and $this->user_access != 2){
+				if(isset($_GET['client_id']) AND $this->user_access != 2){
 					global $quick_button;
 					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add">Создать заказ</a></div>';	
 				}
@@ -1169,7 +1169,7 @@
 
 			// счёт выставлен
 			protected function paperwork_expense_Template($id_row=0){
-				if(isset($_GET['client_id']) and $this->user_access != 1){
+				if(isset($_GET['client_id']) AND $this->user_access != 2){
 					global $quick_button;
 					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add">Создать заказ</a></div>';	
 				}
@@ -1472,7 +1472,7 @@
 					// стоимость
 					$html2_body .= '<td><span>'.$this->Price_of_position.'</span> р.</td>';
 					// статус
-					$html2_body .= '<td class="buch_status_select'.((isset($_GET['section']) && $_GET['section']=='paperwork')?$_GET['section']:'').'">'.$this->decoder_statuslist_buch($Specificate['buch_status']).'</td>';
+					$html2_body .= '<td class="buch_status_select">'.$this->decoder_statuslist_buch($Specificate['buch_status']).'</td>';
 
 
 					$html3 = '</tr>';
