@@ -2570,3 +2570,39 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
     position: absolute;
     left: 0;
 }
+div#apl-notification_center {
+    position: fixed;
+    width: 100%;
+    min-width: 960px;
+    z-index: 1110;
+    /*top: 84px;*/
+    left: 0;
+    overflow: hidden;
+    /*background-color: red;*/
+    /*height: 150px;*/
+}
+div#apl-notification_center li{
+    color: #fff;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    font: 15px 'Open Sans',sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    -webkit-transition: top .5s ease-in-out,opacity .7s;
+    -moz-transition: top .5s ease-in-out,opacity .7s;
+    transition: top .5s ease-in-out,opacity .7s;
+    top: -100px;
+    opacity: 0;
+    margin-bottom: 1px;
+    padding: 8px 10px;
+}
+div#apl-notification_center li.system_message{
+    background-color: #ffc40d;
+}
+div#apl-notification_center li.error_message{
+    background-color: red;
+}
+div#apl-notification_center li.successful_message{
+    background-color: #29AB33;
+}
