@@ -55,9 +55,9 @@
 				// 'request_expense'=>'Запрошен счёт',
 				'in_operation'=>'Запуск в работу',
 				// 'requeried_expense'=>'Перевыставить счёт',
-				'waiting_for_payment' => 'ждём оплаты', // сервисный
-				'paused_paperwork'=>'Предзаказ приостановлен',		
-				'cancelled_paperwork'=>'Предзаказ аннулирован'
+				'waiting_for_payment' => 'ждём оплаты' // сервисный
+				// 'paused_paperwork'=>'Предзаказ приостановлен',		
+				// 'cancelled_paperwork'=>'Предзаказ аннулирован'
 				);
 
 	    	// глобальные статусы ЗАКАЗА
@@ -72,37 +72,48 @@
 				);
 	    	protected $order_service_status = array(
 	    		'maket_without_payment' =>'Макет без оплаты',
-	    		'paused'=>'Заказ приостановлен',	
-				'cancelled'=>'Заказ аннулирован'
+	    		'paused'=>'Заказ приостановлен',
+	    		'cancelled'=>'Аннулирован'
+				
 	    		);
 
 			// статусы БУХ - вывод в select
 	    	protected $buch_status = array(
-	    		'is_pending' => 'предзаказ ожидает обработки', //-> статус предзаказа = being_prepared (в обработке)
-	    		'score_exhibited' => 'счёт выставлен ', //-> статус предзаказа = waiting_for_payment (ожидает оплаты)
-				'payment' => 'оплачен',//дата в таблицу // -> перевод в заказ
-				'partially_paid' => 'частично оплачен',//дата в таблицу	// -> перевод в заказ	
-				'collateral_received' => 'залог принят', //  -> перевод в заказ = in_operation
-				'bail_refunded' => 'залог возвращен', 
-				'prihodnik_on_bail_ofr_samples' => 'залог за образцы ???', 
-				'letter_of_guarantee' => 'гарантийное письмо', // -> перевод в заказ = in_operation
+	    		'is_pending' => 'ожидает обработки', 
+	    		'score_exhibited' => 'счёт выставлен ',
+				'payment' => 'оплачен',//дата в таблицу 
+				'partially_paid' => 'частично оплачен',//дата в таблицу	
+				// 'collateral_received' => 'залог принят'
+				// 'bail_refunded' => 'залог возвращен', 
+				// 'prihodnik_on_bail_ofr_samples' => 'залог за образцы ???', 
+				'letter_of_guarantee' => 'гарантийное письмо', 
 				// 'cancelled'=>'Аннулирован',	//-> статус предзаказа =  cancelled_paperwork
-				'returns_client_collateral' => 'возврат залога клиенту',
-				'refund_in_a_row' => 'возврат денег по счёту', 
+				
+				
 				'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ', // -> статус предзаказа =  'shipped'
-				'return_order_in_paperorder' => 'вернуть заказ в предзаказ' 	    		
+				// 'return_order_in_paperorder' => 'вернуть заказ в предзаказ' 	    		
 	    	);
 			// статусы БУХ - сервисные (если уже не выставлены) 
 	    	protected $buch_status_service = array(
 	    		'request_expense'=>'Запрошен счёт',
 	    		'reget_the_bill' => 'перевыставить счёт', 
-				'get_the_pko' => 'запрошен ПКО'
+	    		'refund_in_a_row' => 'возврат денег по счёту', 
+				'get_the_pko' => 'запрошен ПКО',
+				'returns_client_collateral' => 'возврат залога клиенту',
+				'cancelled'=>'Аннулирован',
+				// 'uslovno_oplachen' => 'Условно оплачен' //
+				'maket_without_payment' =>'Макет без оплаты'
 	    	);
 			
 			// комманды менеджера  (при клике на статус буха меню)
 			protected $commands_men_for_buch = array(
 				'reget_the_bill' => 'перевыставить счёт', 
-				'get_the_dop_bill' => 'запросить доп. счёт'
+				// 'get_the_dop_bill' => 'запросить доп. счёт',
+				'returns_client_collateral' => 'вернуть залог клиенту',
+				'refund_in_a_row' => 'вернуть денеги по счёту', 
+				// 'uslovno_oplachen' => 'статус "Условно оплачен"',
+				// 'maket_without_payment' =>'статус "Макет без оплаты"',
+				'cancelled'=>'статус "Аннулировано"'
 			);
 
 			
@@ -135,7 +146,7 @@
 	    	
 			// статусы склад
 			protected $statuslist_sklad = array(
-				'no_goods' => 'нет в наличии', 
+				'no_goods' => 'нет в наличии',
 				// 'waiting' => 'ожидаем',
 				'goods_in_stock' => 'принято на склад', // ->
 				'sended_on_outsource' => 'отправлено на аутсорсинг',
@@ -437,6 +448,8 @@
 					$status_arr = $this->paperwork_status;
 				}else if (array_key_exists($real_val, $this->order_status)){
 					$status_arr = $this->order_status;
+				}else if (array_key_exists($real_val, $this->order_service_status)){
+					$status_arr = $this->order_service_status;
 				}else{
 					return $real_val.' (статус не известен)';// статус не известен
 				}
@@ -690,11 +703,12 @@
 					return $html;
 				}
 
+				// шаблон строки спецификации
 				protected function get_order_specificate_Html_Template(){
 					$this->rows_num++;
 					$html = '';
-					$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.'>';
-						$html .= '<td colspan="5">';
+					$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.' data-id="'.$this->specificate['id'].'">';
+						$html .= '<td colspan="4">';
 							// спецификация
 							$html .= 'Спецификация '.$this->specificate_item;
 							// ссылка на спецификацию
@@ -706,14 +720,19 @@
 
 						$html .='</td>';
 						$html .= '<td>';
+							$html .= 'сч: '.$this->specificate['number_the_bill'];
+						$html .= '</td>';
+						$html .= '<td>';
 							$html .= '<span>'.$this->price_specificate.'</span>р';
 						$html .= '</td>';
 						$html .= '<td>';
+							// % оплаты
+							$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %';
+
 						$html .= '</td>';
 						$html .= '<td>';
 						$html .= '</td>';
-						$html .= '<td>';
-						$html .= '</td>';
+						$html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
 						$html .= '<td>';
 							$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
 						$html .= '</td>';
@@ -822,7 +841,7 @@
                     return $html;
                 }	
 
-				// получаем спецификации к заказу 
+				// получаем спецификации к заказу
 				protected function table_specificate_for_order_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
@@ -853,7 +872,6 @@
 						echo 'фильтр не найден';
 					}
 				}
-
 
 				// шаблон заказ создан
 				protected function paperwork_the_order_is_create_Template($id_row=0){
@@ -950,7 +968,7 @@
 
 
 					// ПЕРЕБОР ЗАКАЗОВ
-					foreach ($this->Order_arr as $this->Order) {
+					foreach ($this->Order_arr as $this->Order) {						
 						$this->price_order = 0;// стоимость заказа 
 
 						//////////////////////////
@@ -972,7 +990,9 @@
 						$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
 
 						// запрашиваем информацию по позициям
-						$this->position_item = 1;
+						$this->order_deadline = ''; // дата отгрузки заказа (из спецификации)
+						$this->order_date_of_delivery = ''; // количество рабочих дней на работу над заказом (из спецификации)
+						$this->position_item = 1; // порядковый номер позиции
 						$table_order_positions_rows = $this->table_specificate_for_order_Html();
 						// $table_order_positions_rows = '';
 						
@@ -1038,11 +1058,14 @@
 								// 	$table_order_row2_body .= '<span class="redText">НЕ ОПЛАЧЕН</span>';
 								// }
 							$table_order_row2_body .= '</td>';
-								
-							$table_order_row2_body .= '<td contenteditable="true" class="deadline">'.$this->Order['deadline'].'</td>';
+								/*
+										$this->order_deadline = ''; // дата отгрузки заказа (из спецификации)
+						$this->order_date_of_delivery = ''; // количество рабочих дней на работу над заказом (из спецификации)
+								*/
+							$table_order_row2_body .= '<td></td>';
 							$table_order_row2_body .= '<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>';
 							$table_order_row2_body .= '<td><span class="greyText">заказа: </span></td>';
-							$table_order_row2_body .= '<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+							$table_order_row2_body .= '<td class="order_status_chenge">'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
 						
 						/////////////////////////////////////
 						//	тело строки заказа -- end ---
@@ -2123,7 +2146,7 @@
 				global $mysqli;
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET";
 
-				$query .= "`payment_status` = '".$pp_summ."',";
+				$query .= "`payment_status` = '".$pp_summ."'";
 				
 				$query .= " WHERE `id` = '".$spec_id."'";
 				// echo $query;
@@ -2164,6 +2187,8 @@
 						$query .= " WHERE `id` = '".$_POST['row_id']."'";
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
+						
+						$this->calculate_the_pyment_price((int)$_POST['specification_id']);
 						echo '{"response":"OK"}';
 					}
 					// редактирование комментариев
@@ -2290,6 +2315,7 @@
 						$query .= " WHERE `id` = '".$_POST['row_id']."'";
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
+						$this->calculate_the_pyment_price((int)$_POST['specification_id']);
 						echo '{"response":"OK"}';
 					}
 					// редактирование комментариев
@@ -2869,14 +2895,22 @@
 
 			// заказ нового счёта 
 			protected function order_a_new_account_AJAX(){
-				$html = $this->print_arr($_POST);
+				// $html = $this->print_arr($_POST);
 				global $mysqli;
+				// поправка по старым скриптам
+				if(isset($_POST['specificate_row_id'])){
+					$id = $_POST['specificate_row_id'];
+				}else if (isset($_POST['order_id'])) {
+					$id = $_POST['order_id'];
+				}
+
+				
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET";
 
 				$query .= "`type_the_bill` = '".$_POST['type_the_bill']."',";
 				$query .= "`buch_status` = 'request_expense',";//date_order_the_bill
 				$query .= "`date_order_the_bill` = NOW()";//
-				$query .= " WHERE `id` = '".$_POST['specificate_row_id']."'";
+				$query .= " WHERE `id` = '".$id."'";
 				// echo $query;
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK","function":"window_reload"}';
@@ -2884,6 +2918,13 @@
 
 			// запрос из кнопки выставить счёт
 			protected function get_listing_type_the_bill_AJAX(){
+				if(isset($_POST['status_buch']) &&  isset($this->commands_men_for_buch[trim($_POST['status_buch'])])){
+					$this->buch_status_select($_POST['status_buch'],$_POST['order_id']);
+					echo '{"response":"OK","function":"reload_paperwork_tbl"}';return;
+				}
+
+
+
 				$html = '';
 				$html .= '<form>';
 				$html .= '<ul id="get_listing_type_the_bill" class="check_one_li_tag">';
@@ -2910,41 +2951,84 @@
 				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите тип счёта:","width":"230"}';
 			}
 
-			// // вывод меню выбора запроса счёта 
-			// protected function get_commands_men_for_buch_AJAX(){
+			// вывод меню комманд по спецификации 
+			protected function get_commands_men_for_buch_AJAX(){
 
 
-			// 	$html = '';
-			// 	$n = 0;
-			// 	$html .= '<ul id="get_commands_men_for_buch" class="check_one_li_tag">';
-			// 	$first_val = '';
-			// 	foreach ($this->commands_men_for_buch as $name_en => $name_ru) {
-			// 		$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
-			// 		if($n==0){$first_val = $name_en;}
-			// 		$n++;
+				$html = '';
+				$n = 0;
+				$html .= '<ul id="get_commands_men_for_buch" class="check_one_li_tag">';
+				$first_val = '';
+				foreach ($this->commands_men_for_buch as $name_en => $name_ru) {
+					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+					if($n==0){$first_val = $name_en;}
+					$n++;
 
-			// 	}
-			// 	$html .= '</ul>';
+				}
+				$html .= '</ul>';
 
 
-			// 	$html .= '<form>';
+				$html .= '<form>';
 
-			// 	$html .= '<input type="hidden" name="status_buch" value="'.$first_val.'">';	
-			// 	$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
+				$html .= '<input type="hidden" name="status_buch" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
 
-			// 	// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
-			// 	unset($_POST['AJAX']);
-			// 	// перебираем остальные значения для передачи их далее
-			// 	foreach ($_POST as $key => $value) {
-			// 		$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-			// 	}
+				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+				unset($_POST['AJAX']);
+				// перебираем остальные значения для передачи их далее
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
 
-			// 	$html .= '</form>';
+				$html .= '</form>';
 
-			// 	echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:","width":"230"}';
-			// 	// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-			// 	// echo 'base';
-			// }	
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
+				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+				// echo 'base';
+			}	
+
+			// вывод меню комманд по спецификации 
+			protected function get_commands_for_order_status_AJAX(){
+				$html = '';
+				$n = 0;
+				$html .= '<ul id="get_commands_men_for_order" class="check_one_li_tag">';
+				$first_val = '';
+				foreach ($this->order_service_status as $name_en => $name_ru) {
+					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+					if($n==0){$first_val = $name_en;}
+					$n++;
+
+				}
+				$html .= '</ul>';
+
+
+				$html .= '<form>';
+
+				$html .= '<input type="hidden" name="status_order" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="AJAX" value="command_for_change_status_order">';	
+
+				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+				unset($_POST['AJAX']);
+				// перебираем остальные значения для передачи их далее
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
+
+				$html .= '</form>';
+
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
+				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+				// echo 'base';
+			}	
+
+			protected function command_for_change_status_order_AJAX(){
+				global $mysqli;
+				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['status_order']."' ";
+				$query .= "WHERE  `id` ='".$_POST['order_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				// echo '{"response":"OK", "function":"window_reload"}';
+				echo '{"response":"OK","function":"reload_paperwork_tbl"}';
+			}
 
 			// правим дату сдачи заказа
 			protected function change_date_of_delivery_of_the_order_AJAX(){
@@ -3018,7 +3102,7 @@
 			// правим срок по дс
 			protected function change_deadline_value_AJAX(){
 				global $mysqli;
-				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
+				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
 					`deadline` =  '".$_POST['value']."' 
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
@@ -3384,7 +3468,7 @@
 					// rowspan / data-rowspan
 					$this->open_close_rowspan = "data-rowspan";
 					// стили для строк которые скрываем или показываем
-					$this->open_close_tr_style = '"';
+					$this->open_close_tr_style = '';
 					return false;
 				}
 			}
@@ -3408,9 +3492,12 @@
 						case 'requests':
 							$tbl = RT_LIST;
 							break;
-						// case 'paperwork':
-						// 	$tbl = CAB_ORDER_ROWS;
-						// 	break;						
+						case 'paperwork':
+							// исключение для работы по спецификациям
+							if(isset($_GET['subsection']) && $_GET['subsection'] != 'the_order_is_create'){
+								$tbl = CAB_BILL_AND_SPEC_TBL;	
+							}							
+							break;						
 						default:
 							break;
 					}

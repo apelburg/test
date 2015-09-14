@@ -735,8 +735,8 @@ input.calendar_date_work{
 	background-color: #BBCE91;
     cursor: pointer;
 }
-.buch_status_select:hover{
-	background-color: #BBCE91;
+#cabinet_general_content table tr td.buch_status_select:hover{
+	background-color: #D7E4FB;;
     cursor: pointer;
 }
 .tz_text_new {
@@ -933,4 +933,14 @@ button#add_ttn{
 }
 #cabinet_general_content table#general_panel_orders_tbl  table.curator_on_request tr td{
 	border: none;
+}
+#cabinet_general_content #general_panel_orders_tbl tr.specificate_rows{
+	display: none;
+}
+#cabinet_general_content table#general_panel_orders_tbl tr td.order_status_chenge{
+    cursor: pointer;
+}
+
+#cabinet_general_content table#general_panel_orders_tbl tr td.order_status_chenge:hover{
+    background-color: #BBD288;
 }

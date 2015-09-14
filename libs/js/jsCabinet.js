@@ -1882,6 +1882,12 @@ $(window).load(function() {
 		$('#dialog_gen_window_form input[name="status_buch"]').val($(this).attr('data-name_en'));
 	});
 
+	$(document).on('click', '#get_commands_men_for_order li', function(event) {
+		$('#dialog_gen_window_form input[name="status_order"]').val($(this).attr('data-name_en'));
+	});
+
+
+
 /////////////////////////////
 //	выставить счёт  -- start
 /////////////////////////////
@@ -2331,10 +2337,12 @@ function reload_paperwork_tbl(){
 		});
 		function price_from_pyment_pp(obj){// на вход принимает object input
 		    var row_id = obj.parent().attr('data-id');
+		    var specification_id = obj.parent().parent().attr('data-specification_id');
 		    $.post('', {
 		        AJAX:'pp_edit_payment_summ',
 		        row_id:row_id,
-		        value:obj.val()
+		        value:obj.val(),
+		        specification_id:specification_id
 		    }, function(data, textStatus, xhr) {
 		    	standard_response_handler(data);
 		        if(data['response']=="OK"){
@@ -2422,12 +2430,15 @@ function reload_paperwork_tbl(){
 		$(document).on('keyup', '.document_pko .price_from_pyment', function(event) {
 			 timing_save_input('price_from_pyment_pko',$(this))
 		});
+
 		function price_from_pyment_pko(obj){// на вход принимает object input
 		    var row_id = obj.parent().attr('data-id');
+		    var specification_id = obj.parent().parent().attr('data-specification_id');
 		    $.post('', {
 		        AJAX:'pko_edit_payment_summ',
 		        row_id:row_id,
-		        value:obj.val()
+		        value:obj.val(),
+		        specification_id:specification_id
 		    }, function(data, textStatus, xhr) {
 		    	standard_response_handler(data);
 		        if(data['response']=="OK"){
@@ -2627,6 +2638,18 @@ function reload_paperwork_tbl(){
 			}
 		});
 
-
+// запрос на изменение статуса заказа в макет без оплаты
+$(document).on('click', '.order_status_chenge', function(event) {
+	event.preventDefault();
+	if($(this).find('select').length == 0 && $(this).find('input').length == 0){
+		var order_id = $(this).parent().attr('data-id');
+		$.post('', {
+			AJAX: 'get_commands_for_order_status',
+			order_id:order_id
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');
+	}	
+});
 
 
