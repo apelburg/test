@@ -49,7 +49,10 @@
 			'fully_shipped' => 'Полностью',
 			'partially_shipped' => 'Частично отгружен',
 			'the_order_is_create' => 'Заказ сформирован',
-			'payment_the_bill' => 'Счёт оплачен'												
+			'payment_the_bill' => 'Счёт оплачен',	
+			'refund_in_a_row' => 'возврат средств по счёту',
+			'cancelled' => 'Счёт аннулирован',
+			'all_the_bill' => 'Все счёта'											
 		); 
 
 		// protected $user_id;

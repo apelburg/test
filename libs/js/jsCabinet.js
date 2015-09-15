@@ -21,6 +21,17 @@
 			window[data['function']](data);
 			window_preload_del();
 		}
+
+		if(data['function2'] !== undefined){ // вызов функции 2... если требуется
+			window[data['function2']](data);
+			window_preload_del();
+		}
+
+		if(data['function3'] !== undefined){ // вызов функции 3... если требуется
+			window[data['function3']](data);
+			window_preload_del();
+		}
+
 		if(data['response'] != "OK"){ // вывод при ошибке
 			console.log(data);
 		}
@@ -163,12 +174,11 @@
 
 			$("<li/>", {
 			      "class": data.message_type,
-			      text: data.message,
 			      "css":{"opacity":1,"top":0},
 			      click: function(){
 			          $(this).animate({opacity:0},'1000',function(){$(this).remove()});
 			      }
-			}).appendTo("#apl-notification_center").fadeIn('slow', 
+			}).append(Base64.decode(data.message)).appendTo("#apl-notification_center").fadeIn('slow', 
 		        function(){
 		            var el = jQuery(this);
 		            setTimeout(function(){
@@ -436,10 +446,9 @@ $(document).on('change','.buch_status_select select',function(){
 			row_id:row_id,
 			value:value
 		}, function(data, textStatus, xhr) {
-			console.log(data);
-			reload_paperwork_tbl();
-			// replace_query_row_obj(obj);
-		});
+			// console.log(data);
+			standard_response_handler(data);
+		},'json');
 	});
 
 // схраняем статус заказа
@@ -2232,8 +2241,18 @@ $(document).on('click', '.the_bill_is_ready', function(event) {
 
 // перезагрузка главной таблицы в paperwork
 function reload_paperwork_tbl(){
-	$('#cabinet_general_content_row').load(' #cabinet_general_content_row');
-	// .replaceWith('ajax/');
+	window_preload_add();
+	$('#cabinet_general_content_row').load(' #cabinet_general_content_row',function(){
+		window_preload_del();
+	});
+}
+
+// перезагрузка таблицы заказов
+function reload_order_tbl(){
+	window_preload_add();
+	$('#general_panel_orders_tbl').load(' #general_panel_orders_tbl',function(){
+		window_preload_del();
+	});	
 }
 
 //////////////////////////

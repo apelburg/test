@@ -2604,5 +2604,5 @@ div#apl-notification_center li.error_message{
     background-color: red;
 }
 div#apl-notification_center li.successful_message{
-    background-color: #29AB33;
+    background-color: rgba(41, 171, 51, 0.95);
 }

@@ -42,7 +42,10 @@
 		'fully_shipped' => 'Полностью',
 		'requested_the_bill' => 'Счёт запрошен',
 		'the_order_is_create' => 'Заказ сформирован',
-		'payment_the_bill' => 'Счёт оплачен',								
+		'payment_the_bill' => 'Счёт оплачен',	
+		'refund_in_a_row' => 'возврат средств по счёту',
+		'cancelled' => 'Счёт аннулирован',
+		'all_the_bill' => 'Все счёта'										
 		); 
 
 		// название подраздела кабинета

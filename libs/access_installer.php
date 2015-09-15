@@ -98,7 +98,10 @@
 													'requested_the_bill' => array('access'=>true),
 													'expense' => array('access'=>true),
 													'payment_the_bill' => array('access'=>true),
-													'the_order_is_create' => array('access'=>true)	
+													'the_order_is_create' => array('access'=>true),
+													'refund_in_a_row' => array('access'=>true),
+													'cancelled' => array('access'=>true),	
+													'all_the_bill' => array('access'=>true)
 													)
 												), 
 											'orders'=> array(
@@ -202,7 +205,10 @@
 													'requested_the_bill' => array('access'=>true),
 													'expense' => array('access'=>true),
 													'payment_the_bill' => array('access'=>true),
-													'the_order_is_create' => array('access'=>true)																										
+													'the_order_is_create' => array('access'=>true),
+													'refund_in_a_row' => array('access'=>true),
+													'cancelled' => array('access'=>true),	
+													'all_the_bill' => array('access'=>true)																											
 													)
 												), 
 											'orders'=> array(
@@ -295,7 +301,10 @@
 													'requested_the_bill' => array('access'=>true),
 													'expense' => array('access'=>true),
 													'payment_the_bill' => array('access'=>true),
-													'the_order_is_create' => array('access'=>true)	
+													'the_order_is_create' => array('access'=>true),
+													'refund_in_a_row' => array('access'=>true),
+													'cancelled' => array('access'=>true),	
+													'all_the_bill' => array('access'=>true)		
 													)
 												), 
 											'orders'=> array(

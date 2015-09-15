@@ -757,7 +757,7 @@
             /////////////////////////////       
 
                 // КОПИРУЕМ СТРОКУ ЗАКАЗА из таблицы запросов
-                $query = "INSERT INTO `".CAB_BILL_AND_SPEC_TBL."`  (`manager_id`, `client_id`, `snab_id`, `query_num` )
+                $query = "INSERT INTO `".CAB_BILL_AND_SPEC_TBL."` (`manager_id`, `client_id`, `snab_id`, `query_num` )
                     SELECT `manager_id`, `client_id`, `snab_id`, `query_num`
                     FROM `".RT_LIST."` 
                     WHERE  `query_num` = '".$query_num."';
@@ -771,12 +771,33 @@
             //  СОЗДАНИЕ СТРОКИ с информацией по группе товаров в спецификации -- start
             /////////////////////////////
 
+            //////////////////////////
+            //	Запрашиваем информацию по специяикацииии -- start
+            //////////////////////////
+                $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE `agreement_id` = '".$agreement_id."' AND `specification_num` = '".$specification_num."'";
+
+                $result = $mysqli->query($query) or die($mysqli->error);
+
+				$specificate_rows = array();
+					
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$specificate_rows[] = $row;
+					}
+				}
+			//////////////////////////
+            //	Запрашиваем информацию по спец-ии -- end
+            //////////////////////////
+				
+
+
             ////////////////////////////////////
             //	Сохраняем данные о спецификации  -- start
             ////////////////////////////////////
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET ";
 				$query .= " `specification_num` = '".(int)$specification_num."',";
-				$query .= " `agreement_id` = '".(int)$agreement_id."' ";
+				$query .= " `agreement_id` = '".(int)$agreement_id."', ";
+				$query .= " `prepayment` = '".(int)$specificate_rows[0]['prepayment']."'";
 				$query .= " WHERE `id` = '".$the_bill_id."'";
 				// выполняем запрос
 				echo $query;
