@@ -451,256 +451,256 @@
 
 
 
-		//////////////////////////
-		//	Section - Заказы
-		//////////////////////////
-		protected function orders_Template($id_row=0){
-			$where = 0;
-			$html = '';
-			$table_head_html = '
-				<table id="general_panel_orders_tbl">
-				<tr>
-					<th colspan="3">Артикул/номенклатура/печать</th>
-					<th>тираж<br>запас</th>
-					<th>поставщик товара и резерв</th>
-					<th>подрядчик печати</th>
-					<th>сумма</th>
-					<th>тех + доп инфо</th>
-					<th>дата утв. макета</th>
-					<th>срок ДС</th>
-					<th>дата сдачи</th>
-					<th></th>
-					<th>статус</th>
-				</tr>
-			';
+		// //////////////////////////
+		// //	Section - Заказы
+		// //////////////////////////
+		// protected function orders_Template($id_row=0){
+		// 	$where = 0;
+		// 	$html = '';
+		// 	$table_head_html = '
+		// 		<table id="general_panel_orders_tbl">
+		// 		<tr>
+		// 			<th colspan="3">Артикул/номенклатура/печать</th>
+		// 			<th>тираж<br>запас</th>
+		// 			<th>поставщик товара и резерв</th>
+		// 			<th>подрядчик печати</th>
+		// 			<th>сумма</th>
+		// 			<th>тех + доп инфо</th>
+		// 			<th>дата утв. макета</th>
+		// 			<th>срок ДС</th>
+		// 			<th>дата сдачи</th>
+		// 			<th></th>
+		// 			<th>статус</th>
+		// 		</tr>
+		// 	';
 
-			global $mysqli;
+		// 	global $mysqli;
 
-			$query = "SELECT 
-				`".CAB_ORDER_ROWS."`.*, 
-				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
-				FROM `".CAB_ORDER_ROWS."`";
+		// 	$query = "SELECT 
+		// 		`".CAB_ORDER_ROWS."`.*, 
+		// 		DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+		// 		FROM `".CAB_ORDER_ROWS."`";
 			
-			if($id_row){
-				$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
-				$where = 1;
-			}else{
-				// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = ''";
-			}
+		// 	if($id_row){
+		// 		$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
+		// 		$where = 1;
+		// 	}else{
+		// 		// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = ''";
+		// 	}
 
-			if(isset($_GET['client_id'])){
-				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
-				$where = 1;
-			}
+		// 	if(isset($_GET['client_id'])){
+		// 		$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
+		// 		$where = 1;
+		// 	}
 
-			// // отфильтровываем по статусам ПРЕДЗАКАЗЫ от заказов, выводим только заказы
-			// $query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` = '".implode(",", array_keys($this->order_status))."'";
+		// 	// // отфильтровываем по статусам ПРЕДЗАКАЗЫ от заказов, выводим только заказы
+		// 	// $query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` = '".implode(",", array_keys($this->order_status))."'";
 			
-			$query .= ' ORDER BY `id` DESC';
-			// echo $query;
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$this->Order_arr = array();
+		// 	$query .= ' ORDER BY `id` DESC';
+		// 	// echo $query;
+		// 	$result = $mysqli->query($query) or die($mysqli->error);
+		// 	$this->Order_arr = array();
 			
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$this->Order_arr[] = $row;
-				}
-			}
+		// 	if($result->num_rows > 0){
+		// 		while($row = $result->fetch_assoc()){
+		// 			$this->Order_arr[] = $row;
+		// 		}
+		// 	}
 
-			$table_order_row = '';		
-			// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
-			// error_reporting(E_ALL);
-			//include '../os_form_class.php';
-			// создаем экземпляр класса форм
-			$this->FORM = new Forms();
+		// 	$table_order_row = '';		
+		// 	// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
+		// 	// error_reporting(E_ALL);
+		// 	//include '../os_form_class.php';
+		// 	// создаем экземпляр класса форм
+		// 	$this->FORM = new Forms();
 
-			// ПЕРЕБОР ЗАКАЗОВ
-			foreach ($this->Order_arr as $this->Order) {
-				// цена заказа
-				$this->price_order = 0;
+		// 	// ПЕРЕБОР ЗАКАЗОВ
+		// 	foreach ($this->Order_arr as $this->Order) {
+		// 		// цена заказа
+		// 		$this->price_order = 0;
 
-				//////////////////////////
-				//	open_close   -- start
-				//////////////////////////
-					// получаем флаг открыт/закрыто
-					$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
+		// 		//////////////////////////
+		// 		//	open_close   -- start
+		// 		//////////////////////////
+		// 			// получаем флаг открыт/закрыто
+		// 			$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
 					
-					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
-					// class для кнопки показать / скрыть
-					#$this->open_close_class = "";
-					// rowspan / data-rowspan
-					#$this->open_close_rowspan = "rowspan";
-					// стили для строк которые скрываем или показываем
-					#$this->open_close_tr_style = ' style="display: table-row;"';
+		// 			// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
+		// 			// class для кнопки показать / скрыть
+		// 			#$this->open_close_class = "";
+		// 			// rowspan / data-rowspan
+		// 			#$this->open_close_rowspan = "rowspan";
+		// 			// стили для строк которые скрываем или показываем
+		// 			#$this->open_close_tr_style = ' style="display: table-row;"';
 
-				//////////////////////////
-				//	open_close   -- end
-				//////////////////////////
+		// 		//////////////////////////
+		// 		//	open_close   -- end
+		// 		//////////////////////////
 
-				// запоминаем обрабатываемые номера заказа и запроса
-				// номер запроса
-				$this->query_num = $this->Order['query_num'];
-				// номер заказа
-				$this->order_num = $this->Order['order_num'];
+		// 		// запоминаем обрабатываемые номера заказа и запроса
+		// 		// номер запроса
+		// 		$this->query_num = $this->Order['query_num'];
+		// 		// номер заказа
+		// 		$this->order_num = $this->Order['order_num'];
 
-				// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
-				$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
+		// 		// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
+		// 		$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
 
-				// запрашиваем информацию по позициям
-				$table_order_positions_rows = $this->table_order_positions_rows_Html();
+		// 		// запрашиваем информацию по позициям
+		// 		$table_order_positions_rows = $this->table_order_positions_rows_Html();
 				
-				// формируем строку с информацией о заказе
-				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
+		// 		// формируем строку с информацией о заказе
+		// 		$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
 				
-				$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>
-						<td colspan="4" class="orders_info">
-							<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
-							'.$this->get_client_name_link_Database($this->Order['client_id']).'
-							<span class="greyText">счёт№:'.$this->Order['number_pyament_list'].'</span>
-						</td>
-						<td>
-							<!--// comments -->
-							<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	
-						</td>
-						<td><span class="show_the_full_information">'.$this->price_order.'</span> р.</td>
-						<td colspan="2">
-							<span class="greyText">оплачен: </span>'.$this->Order['payment_date'].'
-							<span class="greyText">в размере: </span> '.$this->Order['payment_status'].' р.
-						</td>
-						<td contenteditable="true" class="deadline">'.$this->Order['deadline'].'</td>
-						<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>
-						<td><span class="greyText">заказа: </span></td>
-						<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
-				$table_order_row2 = '</tr>';
-				// включаем вывод позиций 
-				$table_order_row .= $table_order_row2_body.$table_order_row2.$table_order_positions_rows;
+		// 		$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>
+		// 				<td colspan="4" class="orders_info">
+		// 					<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
+		// 					'.$this->get_client_name_link_Database($this->Order['client_id']).'
+		// 					<span class="greyText">счёт№:'.$this->Order['number_pyament_list'].'</span>
+		// 				</td>
+		// 				<td>
+		// 					<!--// comments -->
+		// 					<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	
+		// 				</td>
+		// 				<td><span class="show_the_full_information">'.$this->price_order.'</span> р.</td>
+		// 				<td colspan="2">
+		// 					<span class="greyText">оплачен: </span>'.$this->Order['payment_date'].'
+		// 					<span class="greyText">в размере: </span> '.$this->Order['payment_status'].' р.
+		// 				</td>
+		// 				<td contenteditable="true" class="deadline">'.$this->Order['deadline'].'</td>
+		// 				<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>
+		// 				<td><span class="greyText">заказа: </span></td>
+		// 				<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+		// 		$table_order_row2 = '</tr>';
+		// 		// включаем вывод позиций 
+		// 		$table_order_row .= $table_order_row2_body.$table_order_row2.$table_order_positions_rows;
 
-				// запрос по одной строке без подробностей
-				if($id_row){return $table_order_row2_body;}
-			}
+		// 		// запрос по одной строке без подробностей
+		// 		if($id_row){return $table_order_row2_body;}
+		// 	}
 
 			
 
-			$html = $table_head_html.$table_order_row.'</table>';
-			echo $html;
-		}
+		// 	$html = $table_head_html.$table_order_row.'</table>';
+		// 	echo $html;
+		// }
 
 		
-		// возвращает html строки позиций
-		private function table_order_positions_rows_Html(){			
-			/////////////////////////////
-			//	фильтр позиций  -- start
-			/////////////////////////////
-				// готов к отгрузке
-				if(isset($_GET['subsection']) && $_GET['subsection']=='ready_for_shipment'){
-					$this->filter_position = " AND `".CAB_ORDER_MAIN."`.`status_snab` = 'ready_for_shipment'";
-				}
-				// готов к отгрузке
-				if (isset($_GET['subsection']) && $_GET['subsection']=='partially_shipped') {
-					$this->filter_position = " AND `".CAB_ORDER_MAIN."`.`status_sklad` = 'goods_shipped_for_client'";	
-				}
-			/////////////////////////////
-			//	фильтр позиций  -- end
-			/////////////////////////////
+		// // возвращает html строки позиций
+		// private function table_order_positions_rows_Html(){			
+		// 	/////////////////////////////
+		// 	//	фильтр позиций  -- start
+		// 	/////////////////////////////
+		// 		// готов к отгрузке
+		// 		if(isset($_GET['subsection']) && $_GET['subsection']=='ready_for_shipment'){
+		// 			$this->filter_position = " AND `".CAB_ORDER_MAIN."`.`status_snab` = 'ready_for_shipment'";
+		// 		}
+		// 		// готов к отгрузке
+		// 		if (isset($_GET['subsection']) && $_GET['subsection']=='partially_shipped') {
+		// 			$this->filter_position = " AND `".CAB_ORDER_MAIN."`.`status_sklad` = 'goods_shipped_for_client'";	
+		// 		}
+		// 	/////////////////////////////
+		// 	//	фильтр позиций  -- end
+		// 	/////////////////////////////
 
-			// получаем позиции по заказу
-			$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
-			$html = '';	
+		// 	// получаем позиции по заказу
+		// 	$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
+		// 	$html = '';	
 
-			$this->position_item = 1;// порядковый номер позиции
-			// формируем строки позиций	(перебор позиций)		
-			foreach ($positions_rows as $key => $position) {
-				$this->Position_status_list = array(); // в переменную заложим все статусы
+		// 	$this->position_item = 1;// порядковый номер позиции
+		// 	// формируем строки позиций	(перебор позиций)		
+		// 	foreach ($positions_rows as $key => $position) {
+		// 		$this->Position_status_list = array(); // в переменную заложим все статусы
 
-				$this->id_dop_data = $position['id_dop_data'];
-				////////////////////////////////////
-				//	Расчёт стоимости позиций START  
-				////////////////////////////////////
-					/*
-						!!!!!!!!    ОПИСАНИЕ    !!!!!!!!!
+		// 		$this->id_dop_data = $position['id_dop_data'];
+		// 		////////////////////////////////////
+		// 		//	Расчёт стоимости позиций START  
+		// 		////////////////////////////////////
+		// 			/*
+		// 				!!!!!!!!    ОПИСАНИЕ    !!!!!!!!!
 
-						стоимость товара
-						$this->Price_for_the_goods;	// $price_out
-						стоимость услуг печати
-						$this->Price_of_printing;
-						стоимость услуг не относящихся к печати
-						$this->Price_of_no_printing;
-						общаяя цена позиции включает в себя стоимость услуг и товара
-						$this->Price_for_the_position;
-					*/
+		// 				стоимость товара
+		// 				$this->Price_for_the_goods;	// $price_out
+		// 				стоимость услуг печати
+		// 				$this->Price_of_printing;
+		// 				стоимость услуг не относящихся к печати
+		// 				$this->Price_of_no_printing;
+		// 				общаяя цена позиции включает в себя стоимость услуг и товара
+		// 				$this->Price_for_the_position;
+		// 			*/
 				
-				$this->GET_PRICE_for_position($position);				
+		// 		$this->GET_PRICE_for_position($position);				
 					
-				////////////////////////////////////
-				//	Расчёт стоимости позиций END
-				////////////////////////////////////			
+		// 		////////////////////////////////////
+		// 		//	Расчёт стоимости позиций END
+		// 		////////////////////////////////////			
 				
-				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>';
-				// порядковый номер позиции в заказе
-				$html .= '<td><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
-				// описание позиции
-				$html .= '<td>';
-				// комментарии
-				// наименование товара
-				$html .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
+		// 		$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>';
+		// 		// порядковый номер позиции в заказе
+		// 		$html .= '<td><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
+		// 		// описание позиции
+		// 		$html .= '<td>';
+		// 		// комментарии
+		// 		// наименование товара
+		// 		$html .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
 					
-				// добавляем доп описание
-				// для каталога и НЕкаталога способы хранения и получения данной информации различны
-				if(trim($position['type'])!='cat' && trim($position['type'])!=''){
-					// доп инфо по некаталогу берём из json 
-					$html .= $this->decode_json_no_cat_to_html($position);
-				}else if(trim($position['type'])!=''){
-					// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
-					$html .= '';
-				}
+		// 		// добавляем доп описание
+		// 		// для каталога и НЕкаталога способы хранения и получения данной информации различны
+		// 		if(trim($position['type'])!='cat' && trim($position['type'])!=''){
+		// 			// доп инфо по некаталогу берём из json 
+		// 			$html .= $this->decode_json_no_cat_to_html($position);
+		// 		}else if(trim($position['type'])!=''){
+		// 			// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
+		// 			$html .= '';
+		// 		}
 
 
-				$html .= '</td>';
-				// тираж, запас, печатать/непечатать запас
-				$html .= '<td>';
-				$html .= '<div class="quantity">'.$position['quantity'].'</div>';
-				$html .= '<div class="zapas">'.(($position['zapas']!=0 && trim($position['zapas'])!='')?'+'.$position['zapas']:'').'</div>';
-				$html .= '<div class="print_z">'.(($position['zapas']!=0 && trim($position['zapas'])!='')?(($position['print_z']==0)?'НПЗ':'ПЗ'):'').'</div>';
-				$html .= '</td>';
+		// 		$html .= '</td>';
+		// 		// тираж, запас, печатать/непечатать запас
+		// 		$html .= '<td>';
+		// 		$html .= '<div class="quantity">'.$position['quantity'].'</div>';
+		// 		$html .= '<div class="zapas">'.(($position['zapas']!=0 && trim($position['zapas'])!='')?'+'.$position['zapas']:'').'</div>';
+		// 		$html .= '<div class="print_z">'.(($position['zapas']!=0 && trim($position['zapas'])!='')?(($position['print_z']==0)?'НПЗ':'ПЗ'):'').'</div>';
+		// 		$html .= '</td>';
 				
-				// поставщик товара и номер резерва для каталожной продукции 
-				$html .= '<td>
-						<div class="supplier">'.$this->get_supplier_name($position['art']).'</div>
-						<div class="number_rezerv">'.$position['number_rezerv'].'</div>
-						</td>';
-				// подрядчк печати 
-				$html .= '<td class="change_supplier"  data-id="'.$position['suppliers_id'].'" data-id_dop_data="'.$position['id_dop_data'].'">'.$position['suppliers_name'].'</td>';
-				// сумма за позицию включая стоимость услуг 
+		// 		// поставщик товара и номер резерва для каталожной продукции 
+		// 		$html .= '<td>
+		// 				<div class="supplier">'.$this->get_supplier_name($position['art']).'</div>
+		// 				<div class="number_rezerv">'.$position['number_rezerv'].'</div>
+		// 				</td>';
+		// 		// подрядчк печати 
+		// 		$html .= '<td class="change_supplier"  data-id="'.$position['suppliers_id'].'" data-id_dop_data="'.$position['id_dop_data'].'">'.$position['suppliers_name'].'</td>';
+		// 		// сумма за позицию включая стоимость услуг 
 
-				$html .= '<td data-order_id="'.$this->Order['id'].'" data-id="'.$position['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-cab_dop_data_id="'.$position['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';
-				// всплывающее окно тех и доп инфо
-				// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
-				// думаю есть смысл хранения в json 
-				// обязательные поля:
-				// {"comments":" ","technical_info":" ","maket":" "}
-				$html .= $this->grt_dop_teh_info($position);
+		// 		$html .= '<td data-order_id="'.$this->Order['id'].'" data-id="'.$position['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-cab_dop_data_id="'.$position['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';
+		// 		// всплывающее окно тех и доп инфо
+		// 		// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
+		// 		// думаю есть смысл хранения в json 
+		// 		// обязательные поля:
+		// 		// {"comments":" ","technical_info":" ","maket":" "}
+		// 		$html .= $this->grt_dop_teh_info($position);
 				
-				// дата утверждения макета
-				$this->Position_approval_date = $position['approval_date'];
-				$html .= '<td><input type="text" class="approval_date" value="'.$this->Position_approval_date.'"></td>';
+		// 		// дата утверждения макета
+		// 		$this->Position_approval_date = $position['approval_date'];
+		// 		$html .= '<td><input type="text" class="approval_date" value="'.$this->Position_approval_date.'"></td>';
 
-				$html .= '<td><!--// срок по ДС по позиции --></td>';
+		// 		$html .= '<td><!--// срок по ДС по позиции --></td>';
 
-				// дата сдачи
-				// тут м.б. должна быть дата сдачи позиции ... но вроде как мы все позиции по умолчанию сдаём в срок по заказу, а если нет, то отгружаем частично по факту готовности, а следовательно нам нет необходимости вставлять для позиций редактируемое поле с датой сдачи
-				$html .= '<td><!--// дата сдачи по позиции --></td>';
+		// 		// дата сдачи
+		// 		// тут м.б. должна быть дата сдачи позиции ... но вроде как мы все позиции по умолчанию сдаём в срок по заказу, а если нет, то отгружаем частично по факту готовности, а следовательно нам нет необходимости вставлять для позиций редактируемое поле с датой сдачи
+		// 		$html .= '<td><!--// дата сдачи по позиции --></td>';
 
 
-				// получаем статусы участников заказа в две колонки: отдел - статус
-				$html .= $this->position_status_list_Html($position);
-				$html .= '</tr>';	
+		// 		// получаем статусы участников заказа в две колонки: отдел - статус
+		// 		$html .= $this->position_status_list_Html($position);
+		// 		$html .= '</tr>';	
 
-				// добавляем стоимость позиции к стоимости заказа
-				$this->price_order += $this->Price_for_the_position;
-				$this->position_item++;
-			}				
-			return $html;
-		}		
+		// 		// добавляем стоимость позиции к стоимости заказа
+		// 		$this->price_order += $this->Price_for_the_position;
+		// 		$this->position_item++;
+		// 	}				
+		// 	return $html;
+		// }		
 
 
 		//////////////////////////

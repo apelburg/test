@@ -209,6 +209,8 @@
 					echo $this->wrap_text_in_warning_message($text);
 					break;
 			}
+
+			$this->CLASS->check_the_filtres(); // обсчитываем включённые фильтры
 		}
 
 		############################################
@@ -589,14 +591,27 @@
 			## обрабатываем массив разрешённых разделов
 			$menu = "";
 			// echo 'dwedfewfewqf wqe fqwe qefe q';
-				
+			// echo '<pre>';
+			// print_r($this->CLASS->filtres_html);
+			// echo '</pre>';
+			$filters = '';
+			if(is_array($this->CLASS->filtres_html)){
+				foreach ($this->CLASS->filtres_html as $key => $value) {
+					$filters .= '&'.$key.'='.$_GET[$key];
+				}	
+			}
+			// т.к. фильтр по клиенту не входит в общий список фильтров - пишем его отдельно
+			if(isset($_GET['client_id']) && $_GET['client_id']!=''){
+				$filters .= '&client_id='.$_GET['client_id'];
+			}
+			
 			foreach ($this->ACCESS['cabinet']['section'] as $key => $value) {
 				if($value['access']){
-					$menu .= '<li '.((isset($_GET["section"]) && $_GET["section"]==$key)?'class="selected"':'').'>
-										<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section='.$key.'&subsection='.key($value['subsection']).''.(isset($_GET["client_id"])?'&client_id='.$_GET["client_id"]:'').'">
-											'.$this->CLASS->menu_name_arr[$key].'
-										</a>
-									<li>';
+					$menu .= '<li '.((isset($_GET["section"]) && $_GET["section"]==$key)?'class="selected"':'').'>';
+						$menu .= '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section='.$key.'&subsection='.key($value['subsection']).$filters.'">';
+							$menu .= $this->CLASS->menu_name_arr[$key];
+						$menu .= '</a>';
+					$menu .= '<li>';
 									
 				}
 			}
@@ -607,16 +622,23 @@
 		private function get_menu_top_center_Html(){
 			// ЦЕНТРАЛЬНОЕ МЕНЮ СВЕРХУ
 			$menu = "";
-			// echo '<pre>';
-			// print_r($this->ACCESS);
-			// echo '</pre>';
 				
 			$menu_central_arr = (array_key_exists($_GET["section"], $this->ACCESS['cabinet']['section']))?$this->ACCESS['cabinet']['section'][$_GET["section"]]['subsection']:array();
 			
+			$filters = '';
+			if(is_array($this->CLASS->filtres_html)){
+				foreach ($this->CLASS->filtres_html as $key => $value) {
+					$filters .= '&'.$key.'='.$_GET[$key];
+				}	
+			}
+			// т.к. фильтр по клиенту не входит в общий список фильтров - пишем его отдельно
+			if(isset($_GET['client_id']) && $_GET['client_id']!=''){
+				$filters .= '&client_id='.$_GET['client_id'];
+			}
 			foreach ($menu_central_arr as $key2 => $value2) {
 				$menu .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'>';
-					$menu .= '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.''.(isset($_GET["client_id"])?'&client_id='.$_GET["client_id"]:'').'">';
-						$menu .= $this->CLASS->menu_name_arr[$key2].'';
+					$menu .= '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.$filters.'">';
+						$menu .= $this->CLASS->menu_name_arr[$key2];
 					$menu .= '</a>';
 				$menu .= '<li>';
 			}

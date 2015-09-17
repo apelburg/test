@@ -252,7 +252,7 @@ tr.cat_8 td {
 }
 
 .show_the_full_information{ 
-	text-decoration: underline; 
+	/*text-decoration: underline; */
 	cursor: default;
 }
 
@@ -943,4 +943,41 @@ button#add_ttn{
 
 #cabinet_general_content table#general_panel_orders_tbl tr td.order_status_chenge:hover{
     background-color: #BBD288;
+}
+div#cabinet_filtres {
+    padding: 6px 9px;
+    color: grey;
+}
+#cabinet_filtres_list ul {
+    padding: 1px 1px;
+    margin: 0;
+    list-style: none;
+    float: left;
+    width: 100%;
+}
+
+#cabinet_filtres_list ul li {
+    display: table-cell;
+    padding: 5px 5px 0px 5px;
+    font-size: 14px;
+    padding-right: 0;
+    background-color: #C8DB9E;
+    float: left;
+    margin-right: 2px;
+    border: 1px solid #B7B8BB;
+}
+#cabinet_filtres_list a.close {
+    background-color: #B7B8BB;
+    padding: 3px 9px;
+    /* position: absolute; */
+    margin-top: -6px;
+    margin-left: 6px;
+    color: #fff;
+    font-size: 19px;
+    cursor: pointer;
+    text-decoration: none;
+    float: right;
+}
+#cabinet_filtres_list a.close:hover {
+    background-color: #939496;
 }

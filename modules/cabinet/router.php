@@ -23,8 +23,8 @@
 
 
 	ob_start();	
-	$CABINET = new Cabinet_general();
-	$content = ob_get_contents();
+		$CABINET = new Cabinet_general();
+		$content = ob_get_contents();
 	ob_get_clean();
 
 
@@ -36,10 +36,12 @@
 	/////////////////////////////////
 	//	крткая информация по клиенту
 	/////////////////////////////////
-	if(isset($_GET['client_id']) && $_GET['client_id']!=""){
-		include_once './libs/php/classes/client_class.php';
-		Client::get_client__information($_GET['client_id']);
-	}
+		if(isset($_GET['client_id']) && $_GET['client_id']!=""){
+			include_once './libs/php/classes/client_class.php';
+			Client::get_client__information($_GET['client_id']);
+		}
+
+	
 
 	//////////////////////////
 	//	Cabinet template

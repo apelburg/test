@@ -1,5 +1,8 @@
 <?php
     class Cabinet{
+    	// содержит html фильтров по кабинету
+    	public $filtres_html; // array();
+
     	// услуга с которой работает система в данный момент времени, содержит массив строки из 
     	protected $Service; // array();
 
@@ -26,11 +29,15 @@
 			'9' => 'Дизайнер' 
 		);
 
-
-		protected $filter_order = ' '; // status_global и status_buch
-		protected $filter_position = ' '; // status_sklad и status_snab
-		protected $filter_uslugi = ' ';// uslugi_id и performer_status и performer
-
+		/*
+			вывод системных сообщений сообщений
+			echo_message - имя функции вывода
+			$message - текст сообщения (контент кодируем bsae64)
+			$message_type - тип сообщения
+				- system_message (orange)
+				- error_message  (red)
+				- successful_message (green)
+		*/
 
     	////////////////////////////////////////////////////////////////////////////////////
     	// -- START -- СТАТУСЫ ПОДРАЗДЕЛЕНИЙ ПО ПОЗИЦИЯМ, ЗАКАЗУ И ПРЕДЗАКАЗУ -- START -- //
@@ -48,16 +55,10 @@
 			);
 
 			// глобальные статусы ПРЕДЗАКАЗА(заказа)
-	    	// содержится в базе в `os__cab_orders_list` в global_status
 	    	protected $paperwork_status = array(
 	    		// ПРЕДЗАКАЗ
 				'being_prepared'=>'В оформлении',
-				// 'request_expense'=>'Запрошен счёт',
 				'in_operation'=>'Запуск в работу',
-				// 'requeried_expense'=>'Перевыставить счёт',
-				'waiting_for_payment' => 'ждём оплаты' // сервисный
-				// 'paused_paperwork'=>'Предзаказ приостановлен',		
-				// 'cancelled_paperwork'=>'Предзаказ аннулирован'
 				);
 
 	    	// глобальные статусы ЗАКАЗА
@@ -248,10 +249,30 @@
     	// -- END -- СТАТУСЫ ПОДРАЗДЕЛЕНИЙ ПО ПОЗИЦИЯМ, ЗАКАЗУ И ПРЕДЗАКАЗУ -- END -- //
     	////////////////////////////////////////////////////////////////////////////////
 
-		########   КОНСТРУКТОР   ########
-    	function __consturct(){
-		}
+		function __consturct(){			
+    	}
 
+    	//////////////////////////
+    	//	фильтры
+    	//////////////////////////
+	    	public function check_the_filtres(){
+				// проверяем на наличие фильтра по заказу
+				if(isset($_GET['order_num']) && $_GET['order_num'] != ''){
+					$this->filtres_html['order_num'] = '<li>заказ №'.self::show_order_num($_GET['order_num']).'<a href="'.$this->link_exit_out_filters('order_num').'" class="close">x</a></li>';	
+				}
+				
+				// проверяем на наличие фильтра по заказу
+				if(isset($_GET['manager_id']) && $_GET['manager_id'] != ''){
+					$meneger_name_for_order = $this->get_name_employee_Database_Html($_GET['manager_id']);
+					$this->filtres_html['manager_id'] = '<li>мен: '.$meneger_name_for_order.'<a href="'.$this->link_exit_out_filters('manager_id').'" class="close">x</a></li>';	
+				}
+
+				// проверяем на наличие фильтра по заказу
+				if(isset($_GET['snab_id']) && $_GET['snab_id'] != ''){
+					$snab_name_for_order = $this->get_name_employee_Database_Html($_GET['snab_id']);
+					$this->filtres_html['snab_id'] = '<li>снаб: '.$snab_name_for_order.'<a href="'.$this->link_exit_out_filters('snab_id').'" class="close">x</a></li>';	
+				}
+	    	}
 
 		
 		/////////////////////////////////////////////////////////////////////////////////////
@@ -460,25 +481,28 @@
 				// проверяем на разрешение смены статуса
 				// if($this->user_access == 2 || $this->user_access == 1 || $enable_selection || ($this->user_access == 5 && isset($this->paperwork_status[$real_val]) )){ 
 				if($this->user_access == 1 || $enable_selection){ 
-					if($real_val == 'in_operation' && ($this->user_access == 1 || $this->user_access == 5)){
+					$html .= '<select class="choose_statuslist_order_and_paperwork">';
+						foreach ($status_arr as $name_en => $name_ru) {
+							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
+							$html .= $option;
+							$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
+						}
+					$html .= '</select>';
+					
+				}else{
+					if($real_val == 'in_operation' && ($this->user_access == 5)){
 						$html = '<input type="button" name="'.$real_val.'" class="'.$real_val.'" value="'.$status_arr[$real_val].'">';
 					}else{
-						$html .= '<select class="choose_statuslist_order_and_paperwork">';
-							foreach ($status_arr as $name_en => $name_ru) {
-								$is_checked = ($name_en == $real_val)?'selected="selected"':'';
-								$html .= $option;
-								$html .= '<option value="'.$name_en.'" '.$is_checked.'>'.$name_ru.'</option>';
-							}
-						$html .= '</select>';
+						if(isset($status_arr[$real_val])){
+							$html .='<span class="greyText">'.$status_arr[$real_val].'</span>';
+						}else if(isset($this->order_service_status[$real_val])){
+							$html .='<span class="greyText">'.$this->order_service_status[$real_val].'</span>';
+						}else{
+							$html .='<span class="greyText">'.$real_val.'</span>';
+						}
 					}
-				}else{
-					if(isset($status_arr[$real_val])){
-						$html .='<span class="greyText">'.$status_arr[$real_val].'</span>';
-					}else if(isset($this->order_service_status[$real_val])){
-						$html .='<span class="greyText">'.$this->order_service_status[$real_val].'</span>';
-					}else{
-						$html .='<span class="greyText">'.$real_val.'</span>';
-					}
+
+					
 					
 				}
 				// возвращаем
@@ -494,7 +518,12 @@
 				
 				if(array_key_exists($this->Order['global_status'], $search_glob_status_arr)){
 					 // если в созданном нами массиве попался текущий статус заказа - возвращаем html
-					return '<td style="width: 78px;"><span class="greyText">Отделы<!-- // раньше было Подразделения, слишком длинно пришлось поменять --></span></td><td><span>Ожидают запуска заказа</span></td>';
+					return '<td style="width: 78px;">
+								<span class="greyText">Отделы</span>
+							</td>
+							<td>
+								<span>Ожидают запуска заказа</span>
+							</td>';
 				}
 
 				// убиваем массив поиска
@@ -672,676 +701,66 @@
 		//   -----  END  -----     ДЕКОДЕРЫ СТАТУСОВ ПОДРАЗДЕЛЕНИЙ 	    -----  END  -----
 		///////////////////////////////////////////////////////////////////////////////////
 
-		//////////////////////////
-		//	Section - Предзаказ  -- start
-		//////////////////////////
 
-
-			//////////////////////////
-			//	заказ создан
-			//////////////////////////
-
-				// получаем HTML спецификации
-				protected function table_specificate_for_order_Html(){
-					$this->spec_arr = $this->table_specificate_for_order_Database($this->Order['id']);
-
-					$html = '';
-					$this->rows_num = 0;// порядковый номер строки
-					$this->position_num = 1;// порядковый номер позиции
-					$this->specificate_item = 0;// порядковый номер спецификации
-
-					// обход массива спецификаций
-					foreach ($this->spec_arr as $key => $this->specificate) {
-						// стоимость по спецификации (НАЧАЛЬНАЯ)
-						$this->price_specificate = 0; 
-
-						// подсчет номер спецификаций
-						$this->specificate_item++;
-
-						// вывод html строк позиций по спецификации 
-						// запрашивается раньше спец-ии, чтобы подсчитать её стоимость
-						$positions_rows = $this->table_order_positions_rows_Html();
-
-						// получаем html строку со спецификацией
-						$html .= $this->get_order_specificate_Html_Template();
-
-						// если хранящаяся в базу стоимость 
-						// не совпадает со стоимостью которая была выщетана - перезаписываем её на правильную 
-						// необходимо для записи там, где пусто
-						if ($this->price_specificate != $this->specificate['spec_price']) {
-							$this->save_price_specificate($this->specificate['id'],$this->price_specificate);
-						}
-
-						// подсчёт стоимости заказа
-						$this->price_order += $this->price_specificate;
-
-						// строки позиций идут под спецификацией
-						$html .= $positions_rows;
-												
-					}
-					return $html;
-				}
-
-				protected function save_price_specificate($id,$price_specificate){
-					global $mysqli;
-					$query ="UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET 
-					`spec_price` = '".$price_specificate."'";
-					$query .= " WHERE `id` = '".$id."'";
-
-					$result = $mysqli->query($query) or die($mysqli->error);
-					return;
-				}
-
-				// шаблон строки спецификации
-				protected function get_order_specificate_Html_Template(){
-					$this->rows_num++;
-					$html = '';
-					$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.' data-id="'.$this->specificate['id'].'">';
-						$html .= '<td colspan="4">';
-							// спецификация
-							$html .= 'Спецификация '.$this->specificate_item;
-							// ссылка на спецификацию
-							$html .= '&nbsp; '.$this->get_specification_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
-							// номер запроса
-							$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
-							// снабжение
-							$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
-
-						$html .='</td>';
-						$html .= '<td>';
-							$html .= 'сч: '.$this->specificate['number_the_bill'];
-						$html .= '</td>';
-						$html .= '<td>';
-							$html .= '<span>'.$this->price_specificate.'</span>р';
-						$html .= '</td>';
-						$html .= '<td>';
-							// % оплаты
-							$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %';
-
-						$html .= '</td>';
-						$html .= '<td>';
-						$html .= '</td>';
-						$html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
-						$html .= '<td>';
-							$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
-						$html .= '</td>';
-						$html .= '<td>Бух.</td>';
-						$html .= '<td class="buch_status_select">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
-					$html .= '</tr>';
-					return $html;
-				}
-
-				// вывод позиций по заказу
-				private function table_order_positions_rows_Html(){    
-                    // получаем массив позиций заказа
-                    $positions_rows = $this->positions_rows_Database($this->specificate['id']);
-                         
-                    $html = '';    
-
-                    $this->position_item = 1;// порядковый номер позиции
-                    foreach ($positions_rows as $key => $this->position) {
-                        $this->rows_num++;
-                        $this->Position_status_list = array(); // в переменную заложим все статусы
-
-                        $this->id_dop_data = $this->position['id_dop_data'];
-                        ////////////////////////////////////
-                        //   Расчёт стоимости позиций START  
-                        ////////////////////////////////////                             
-                              
-                        	$this->GET_PRICE_for_position($this->position);                   
-                                   
-                        ////////////////////////////////////
-                        //   Расчёт стоимости позиций END
-                        ////////////////////////////////////              
-                              
-                        $html .= $this->get_order_specificate_position_Html_Template();  
-
-                        // добавляем стоимость позиции к стоимости заказа
-                        $this->price_specificate += $this->Price_for_the_position;
-                        $this->position_item++;
-                        $this->position_num++;
-                        }
-						return $html;
-                    }
-
-                // шаблон вывода позиций для заказа со спецификацией
-                protected function get_order_specificate_position_Html_Template(){
-                	$html = '';
-                    $html .= '<tr class="positions_rows row__'.$this->position_num.'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
-                    // порядковый номер позиции в заказе
-                    $html .= '<td><span class="orders_info_punct">'.$this->position_num.'п</span></td>';
-                    // описание позиции
-                    $html .= '<td>';
-                    // комментарии
-                    // наименование товара
-                    $html .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';
-                                   
-                    // добавляем доп описание
-                    // для каталога и НЕкаталога способы хранения и получения данной информации различны
-                    if(trim($this->position['type'])!='cat' && trim($this->position['type'])!=''){
-                        // доп инфо по некаталогу берём из json 
-                        $html .= $this->decode_json_no_cat_to_html($this->position);
-                    }else if(trim($this->position['type'])!=''){
-                        // доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
-                        $html .= '';
-                    }
-
-
-                    $html .= '</td>';
-                    // тираж, запас, печатать/непечатать запас
-                    $html .= '<td>';
-                    $html .= '<div class="quantity">'.$this->position['quantity'].'</div>';
-                    $html .= '<div class="zapas">'.(($this->position['zapas']!=0 && trim($this->position['zapas'])!='')?'+'.$this->position['zapas']:'').'</div>';
-                    $html .= '<div class="print_z">'.(($this->position['zapas']!=0 && trim($this->position['zapas'])!='')?(($this->position['print_z']==0)?'НПЗ':'ПЗ'):'').'</div>';
-                    $html .= '</td>';
-                            
-                    // поставщик товара и номер резерва для каталожной продукции 
-                    $html .= '<td>
-                            <div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
-                            <div class="number_rezerv">'.$this->position['number_rezerv'].'</div>
-                            </td>';
-                    // подрядчк печати 
-                    $html .= '<td class="change_supplier"  data-id="'.$this->position['suppliers_id'].'" data-id_dop_data="'.$this->position['id_dop_data'].'">'.$this->position['suppliers_name'].'</td>';
-                    // сумма за позицию включая стоимость услуг 
-
-                    $html .= '<td data-order_id="'.$this->Order['id'].'" data-id="'.$this->position['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-specificate_id="'.$this->specificate['id'].'" data-cab_dop_data_id="'.$this->position['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';
-                    // всплывающее окно тех и доп инфо
-                    // т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
-                    // думаю есть смысл хранения в json 
-                    // обязательные поля:
-                    // {"comments":" ","technical_info":" ","maket":" "}
-                    $html .= $this->grt_dop_teh_info($this->position);
-                              
-                    // дата утверждения макета
-                    $html .= '<td>';
-                        $html .= $this->get_Position_approval_date( $this->Position_approval_date = $this->position['approval_date'], $this->position['id'] );
-                    $html .= '</td>';
-
-                    $html .= '<td><!--// срок по ДС по позиции --></td>';
-
-                    // дата сдачи
-                         // тут м.б. должна быть дата сдачи позиции ... но вроде как мы все позиции по умолчанию сдаём в срок по заказу, а если нет, то отгружаем частично по факту готовности, а следовательно нам нет необходимости вставлять для позиций редактируемое поле с датой сдачи
-                    $html .= '<td><!--// дата сдачи по позиции --></td>';
-
-
-                    // получаем статусы участников заказа в две колонки: отдел - статус
-                    $html .= $this->position_status_list_Html($this->position);
-                    $html .= '</tr>'; 
-                    return $html;
-                }	
-
-				// получаем спецификации к заказу
-				protected function table_specificate_for_order_Database($id){
-					global $mysqli;
-					$query = "SELECT *,
-					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_of_delivery`,'%d.%m.%Y %H:%i:%s')  AS `date_of_delivery` FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
-					$result = $mysqli->query($query) or die($mysqli->error);
-
-					$spec_arr = array();
-					
-					if($result->num_rows > 0){
-						while($row = $result->fetch_assoc()){
-							$spec_arr[] = $row;
-						}
-					}
-					return $spec_arr;
-				}			
-
-				// роутер по предзаказу
-				protected function paperwork_Template($id_row=0){
-					$method_template = $_GET['section'].'_'.$_GET['subsection'].'_Template';
-					// $method_template = $_GET['section'].'_Template';
-					echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
-
-					// если в этом классе существует такой метод - выполняем его
-					if(method_exists($this, $method_template)){
-						$this->$method_template($id_row);				
-					}else{
-						// обработка ответа о неправильном адресе
-						echo 'фильтр не найден';
-					}
-				}
-
-				// шаблон заказ создан
-				protected function paperwork_the_order_is_create_Template($id_row=0){
-
-					$where = 0;
-					$html = '';
-					$table_head_html = '
-						<table id="general_panel_orders_tbl">
-						<tr>
-							<th colspan="3">Артикул/номенклатура/печать</th>
-							<th>тираж<br>запас</th>
-							<th>поставщик товара и резерв</th>
-							<th>подрядчик печати</th>
-							<th>сумма</th>
-							<th>тех + доп инфо</th>
-							<th>дата утв. макета</th>
-							<th>срок ДС</th>
-							<th>дата сдачи</th>
-							<th></th>
-							<th>статус</th>
-						</tr>
-					';
-
-					$this->collspan = 12;
-
-					global $mysqli;
-
-					$query = "SELECT 
-						`".CAB_ORDER_ROWS."`.*, 
-						DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
-						FROM `".CAB_ORDER_ROWS."`";
-					
-					// вывод только строки заказа
-					if($id_row){
-						$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
-						$where = 1;
-					}else{
-						// если знаем id клиента - выводим только заказы по клиенту
-						if(isset($_GET['client_id'])){
-							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".$_GET['client_id']."'";
-							$where = 1;
-						}
-
-						// если это МЕН - выводим только его заказы
-						if($this->user_access ==5){
-							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
-							$where = 1;
-						}
-
-						/*
-							// // получаем статусы заказа
-							// $order_status_string = '';
-							// foreach (array_keys($this->order_status) as $key => $status) {
-							// 	$order_status_string .= (($key>0)?",":"")."'".$status."'";
-							// }	
-						*/		
-						// выбираем из базы только заказы being_prepared (в оформлении)
-						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` IN ('being_prepared','in_operation','maket_without_payment')";
-						$where = 1;
-					}
-					//////////////////////////
-					//	sorting
-					//////////////////////////
-					$query .= ' ORDER BY `id` DESC';
-					
-					//////////////////////////
-					//	check the query
-					//////////////////////////
-					// echo '*** $query = '.$query.'<br>';
-
-
-					//////////////////////////
-					//	query for get data
-					//////////////////////////
-					$result = $mysqli->query($query) or die($mysqli->error);
-
-					$this->Order_arr = array();
-					
-					if($result->num_rows > 0){
-						while($row = $result->fetch_assoc()){
-							$this->Order_arr[] = $row;
-						}
-					}
-
-
-					$table_order_row = '';		
-
-					// создаем экземпляр класса форм
-					$this->FORM = new Forms();
-
-
-					// тут будут храниться операторы
-					$this->Order['operators_listiong'] = '';
-
-
-					// ПЕРЕБОР ЗАКАЗОВ
-					foreach ($this->Order_arr as $this->Order) {						
-						$this->price_order = 0;// стоимость заказа 
-
-						//////////////////////////
-						//	open_close   -- start
-						//////////////////////////
-							// получаем флаг открыт/закрыто
-							$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
-						//////////////////////////
-						//	open_close   -- end
-						//////////////////////////
-
-						// запоминаем обрабатываемые номера заказа и запроса
-						// номер запроса
-						$this->query_num = $this->Order['query_num'];
-						// номер заказа
-						$this->order_num = $this->Order['order_num'];
-
-						// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
-						$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
-
-						// запрашиваем информацию по позициям
-						$this->order_deadline = ''; // дата отгрузки заказа (из спецификации)
-						$this->order_date_of_delivery = ''; // количество рабочих дней на работу над заказом (из спецификации)
-						$this->position_item = 1; // порядковый номер позиции
-						$table_order_positions_rows = $this->table_specificate_for_order_Html();
-						// $table_order_positions_rows = '';
-						
-						// формируем строку с информацией о заказе
-						$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
-						
-
-						//////////////////////////
-						//	тело строки заказа -- start ---
-						//////////////////////////
-							$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.($this->rows_num+1).'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
-							$table_order_row2_body .= '<td colspan="3" class="orders_info">';
-								$table_order_row2_body .= '<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText">';
-									// добавляем ссылку на клиента
-									$table_order_row2_body .= $this->get_client_name_link_Database($this->Order['client_id']);
-									
-									// исполнители заказа
-									$table_order_row2_body .= '<br>';
-									$table_order_row2_body .= '<table class="curator_on_request">';
-										$table_order_row2_body .= '<tr>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">мен: '.$this->get_name_employee_Database_Html($this->Order['manager_id']).'</span>';
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">дизайнер: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-											$table_order_row2_body .= '</td>';
-										$table_order_row2_body .= '</tr>';	
-										$table_order_row2_body .= '<tr>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span>';
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">оператор: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-											$table_order_row2_body .= '</td>';
-										$table_order_row2_body .= '</tr>';	
-									$table_order_row2_body .= '</table>';								
-
-							$table_order_row2_body .= '</td>';
-							// комментарии
-							$table_order_row2_body .= '<td>';								
-								$table_order_row2_body .= '<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>';
-							$table_order_row2_body .= '</td>';
-							
-							$table_order_row2_body .= '<td></td>';
-							
-							// стоимость заказа
-							$table_order_row2_body .= '<td><span class="show_the_full_information">'.$this->price_order.'</span> р.</td>';
-							
-							// бух учет
-							$table_order_row2_body .= '<td class="buh_uchet_for_order" data-id="'.$this->Order['order_num'].'"></td>';
-							
-							// платёжная информация
-							$this->Order_payment_percent = $this->calculation_percent_of_payment($this->price_order, $this->Order['payment_status']);
-
-							$table_order_row2_body .= '<td>';
-								// // если был оплачен.... и % оплаты больше нуля
-								// if ((int)$this->Order_payment_percent > 0) {
-								// 	// когда оплачен
-								// 	$table_order_row2_body .= '<span class="greyText">оплачен: </span>'.$this->Order['payment_date'].'<br>';
-								// 	// сколько оплатили в %
-								// 	$table_order_row2_body .= '<span class="greyText">в размере: </span> '. $this->Order_payment_percent .' %';
-								// }else{
-								// 	$table_order_row2_body .= '<span class="redText">НЕ ОПЛАЧЕН</span>';
-								// }
-							$table_order_row2_body .= '</td>';
-								/*
-										$this->order_deadline = ''; // дата отгрузки заказа (из спецификации)
-						$this->order_date_of_delivery = ''; // количество рабочих дней на работу над заказом (из спецификации)
-								*/
-							$table_order_row2_body .= '<td></td>';
-							$table_order_row2_body .= '<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>';
-							$table_order_row2_body .= '<td><span class="greyText">заказа: </span></td>';
-							$table_order_row2_body .= '<td class="order_status_chenge">'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
-						
-						/////////////////////////////////////
-						//	тело строки заказа -- end ---
-						/////////////////////////////////////
-
-						$table_order_row2 = '</tr>';
-						// включаем вывод позиций 
-						$table_order_row .= $table_order_row2_body.$table_order_row2.$table_order_positions_rows;
-
-						// запрос по одной строке без подробностей
-						if($id_row != 0){return $table_order_row2_body;}						
-					}
-
-					
-					
-
-					$html = $table_head_html.$table_order_row.'</table>';
-					echo $html;
-				}
-
-			// счёт оплачен
-			protected function paperwork_payment_the_bill_Template($id_row=0){
-				if(isset($_GET['client_id']) AND $this->user_access != 2){
-					global $quick_button;
-					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add">Создать заказ</a></div>';	
-				}
-
-				$this->get_specificate_rows_Template();
-			}
-
-			// счёт выставлен
-			protected function paperwork_expense_Template($id_row=0){
-				if(isset($_GET['client_id']) AND $this->user_access != 2){
-					global $quick_button;
-					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add">Создать заказ</a></div>';	
-				}
-
-				$this->get_specificate_rows_Template();
-			}
+		/////////////////////////////////////////////////////////////////////////////////////
+		//	-----  START  -----  Вывод данных  -----  START  -----
+		/////////////////////////////////////////////////////////////////////////////////////
 			
-			// счёт заннулирован
-			protected function paperwork_cancelled_Template($id_row=0){
-				$this->get_specificate_rows_Template();
+			
+
+			// роутер по предзаказу
+			protected function paperwork_Template($id_row=0){
+				include_once './libs/php/classes/cabinet/cabinet_paperwork_class.php';
+				new Paperwork($id_row,$this->user_access,$this->user_id);					
 			}
 
-			// возврат средств по счёту
-			protected function paperwork_refund_in_a_row_Template($id_row=0){
-				$this->get_specificate_rows_Template();
-			}
-
-			// все счета
-			protected function paperwork_all_the_bill_Template($id_row=0){
-				$this->get_specificate_rows_Template();
-			}
-
-			// счёт запрошен
-			protected function paperwork_requested_the_bill_Template($id_row=0){
-				$this->get_specificate_rows_Template();
-			}
-
-			// спецификация создана
-			protected function paperwork_create_spec_Template($id_row=0){
-				$this->get_specificate_rows_Template();
-			}
-
-			// шаблон выгрузки счетов (спецификаций)
-			protected function get_specificate_rows_Template(){
-				// запрос по спецификациям
-				$this->get_the_specificate_paperworck_Database($id_row=0);
-				
-				// собираем html строк-предзаказов
-				$html1 = '';
-				if(count($this->Specificate_arr)==0){return 1;}
-
-				$table_head_html = '
-					<table class="cabinet_general_content_row" id="cabinet_general_content_row">
-								<tr>
-									<th id="show_allArt"></th>
-									<th class="check_show_me"></th>
-									<th>Дата/время заведения</th>
-									<th>Заказ</th>
-									<th>Компания</th>	
-									<th>Спецификация:</th>
-									<th class="buh_uchet">Бух. учет</th>					
-									<th class="invoice_num">Счёт</th>
-									<th>Дата опл-ты</th>
-									<th>% оплаты</th>
-									<th>Оплачено</th>
-									<th>стоимость в спец.</th>
-									<th>статус БУХ</th>
-								</tr>';
-
-				foreach ($this->Specificate_arr as $Specificate) {
-
-
-
-					$invoice_num = $Specificate['number_the_bill']; // номер счёта
-
-						// получаем флаг открыт/закрыто
-						$this->open__close = $this->get_open_close_for_this_user($Specificate['open_close']);
-						
-					//////////////////////////
-					//	open_close   -- end
-					//////////////////////////
-
-					// получаем массив позиций к спецификации
-					$position_arr = $this->get_the_position_with_specificate_Database($Specificate['id']);
-
-					// СОБИРАЕМ ТАБЛИЦУ
-					###############################
-					// строка с артикулами START
-					###############################
-					$html = '<tr class="query_detail" '.$this->open_close_tr_style.'>';
-					//$html .= '<td class="show_hide"><span class="this->cabinett_row_hide"></span></td>';
-					$html .= '<td colspan="14" class="each_art" >';
-					
-					
-					// ВЫВОД позиций
-					$html .= '<table class="cab_position_div">';
-					
-					// шапка таблицы позиций заказа
-					$html .= '<tr>
-							<th>артикул</th>
-							<th>номенклатура</th>
-							<th>тираж</th>
-							<th>цены:</th>
-							<th>товар</th>
-							<th>печать</th>
-							<th>доп. услуги</th>
-						<th>в общем</th>
-						<th></th>
-						<th></th>
-							</tr>';
-
-
-					$this->Price_of_position = 0; // общая стоимость заказа
-					foreach ($position_arr as $position) {
-						
-						
-						////////////////////////////////////
-						//	Расчёт стоимости позиций START  
-						////////////////////////////////////
-						
-							$this->GET_PRICE_for_position($position);				
-						
-						////////////////////////////////////
-						//	Расчёт стоимости позиций END
-						////////////////////////////////////
-
-						$html .= '<tr  data-id="'.$Specificate['id'].'">
-						<td> '.$position['art'].'</td>
-						<td>'.$position['name'].'</td>
-						<td>'.($position['quantity']+$position['zapas']).'</td>
-						<td></td>
-						<td><span>'.$this->Price_for_the_goods.'</span> р.</td>
-						<td><span>'.$this->Price_of_printing.'</span> р.</td>
-						<td><span>'.$this->Price_of_no_printing.'</span> р.</td>
-						<td><span>'.$this->Price_for_the_position.'</span> р.</td>
-						<td></td>
-						<td></td>
-								</tr>';
-						$this->Price_of_position +=$this->Price_for_the_position; // прибавим к общей стоимости
-					}
-
-					$html .= '</table>';
-					$html .= '</td>';
-					$html .= '</tr>';
-					###############################
-					// строка с артикулами END
-					###############################
-
-					// получаем % оплаты
-					$percent_payment = ($this->Price_of_position!=0)?round($Specificate['payment_status']*100/$this->Price_of_position,2):'0.00';		
-					// собираем строку заказа
-					
-					$html2 = '<tr data-id="'.$Specificate['id'].'" >';
-					$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
-					//'.$this->get_manager_name_Database_Html($Specificate['manager_id']).'
-					
-					$html2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$rowspan.'"><span class="cabinett_row_hide'.$this->open_close_class.'"></span></td>';
-					
-					$enable_check_for_order = '';
-					if($this->user_access == 1 || ($Specificate['order_num'] == 0  and $this->user_access == 5)){
-						$enable_check_for_order = '<div class="masterBtnContainer" data-manager_id="'.$Specificate['manager_id'].'" data-id="'.$Specificate['id'].'">';
-							$enable_check_for_order .= '<input type="checkbox" name="masterBtn" id="masterBtn'.$Specificate['id'].'"><label for="masterBtn'.$Specificate['id'].'"></label>';
-						$enable_check_for_order .= '</div>';	
-					}
-					
-					/////////////////////////
-					// если хранящаяся в базу стоимость 
-					// не совпадает со стоимостью которая была выщетана - перезаписываем её на правильную 
-					// необходимо для записи там, где пусто
-					/////////////////////////////////
-					if ($this->Price_of_position != $Specificate['spec_price']) {
-						$this->save_price_specificate($Specificate['id'],$this->Price_of_position);
-					}
-
-					// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
-					$this->order_num_for_User = Cabinet::show_order_num($Specificate['order_num']);
-
-					$html2_body .= '<td  class="check_show_me">'.$enable_check_for_order.'</td>
-								<td>'.$Specificate['create_time'].'<br>'.$this->get_manager_name_Database_Html($Specificate['manager_id'],1).'</td>
-								<td>'.$this->order_num_for_User.'</td>
-								<td>'.$this->get_client_name_Database($Specificate['client_id'],1).'</td>
-								<td>'.$this->get_specification_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</td>
-								<td class="buh_uchet_for_spec" data-id="'.$Specificate['id'].'"></td>
-								<td class="invoice_num">'.$Specificate['number_the_bill'].'</td>
-								<td><input type="text" class="payment_date" readonly="readonly" Specificate="'.$Specificate['payment_date'].'"></td>
-								
-								<td><span>'.$percent_payment.'</span> %</td>
-								<td><span class="payment_status_span edit_span">'.$Specificate['payment_status'].'</span>р</td>
-								<td><span>'.$this->Price_of_position.'</span> р.</td>
-								<td class="buch_status_select">'.$this->decoder_statuslist_buch($Specificate['buch_status']).'</td>';
-					$html3 = '</tr>';
-
-
-					$html1 .= $html2 .$html2_body.$html3. $html;
-					// запрос по одной строке без подробностей
-					if($id_row){return $html2_body;}
-				}
-
-				// добавляем скрытую кнопку для объединения выбранных счётов/спецификаций в заказ
-				$html1 .= '<div id="export_in_order_div">';
-					$html1 .= '<ul>';
-						$html1 .= '<li id="create_in_order_button">Создать заказ</li>';
-						// для админа добавляем возможность приркрепления спецификации уже к существующему заказу
-						if($this->user_access == 1){
-							$html1 .= '<li id="add_for_other_order">Добавть к существующему заказу</li>';
-						}
-					$html1 .= '</ul>';
-				$html1 .= '</div>';
-
-
-				echo $table_head_html;
-				echo $html1;
-
-				echo '</table>';
+			// роутер по заказу
+			protected function orders_Template($id_row=0){
+				include_once './libs/php/classes/cabinet/cabinet_order_class.php';
+				new Order($id_row,$this->user_access,$this->user_id);
 			}
 
 			
+			// ссылка на фильтр по номеру заказа
+			protected function link_enter_to_filters($keyName,$newVal){
+				$link = 'http://'.$_SERVER['HTTP_HOST'].'/os/';
+
+				$n = 0;
+				foreach ($_GET as $key => $value) {
+					if($key!=$keyName){
+						$link .= (($n>0)?'&':'?').$key.'='.$value;
+						$n++;
+					}
+				}
+				$link .= (($n>0)?'&':'?').$keyName.'='.$newVal;				
+				return $link;
+			}
+			// ссылка выхода из фильтра
+			protected function link_exit_out_filters($keyName){
+				//$this->order_num;
+					
+				$link = 'http://'.$_SERVER['HTTP_HOST'].'/os/';
+
+				$n = 0;
+				foreach ($_GET as $key => $value) {
+					if($key!=$keyName){
+						$link .= (($n>0)?'&':'?').$key.'='.$value;
+						$n++;
+					}
+				}
+
+				return $link;
+			}
+			
+
+
+		//////////////////////////////////////////////////////////////////////////////////
+		//   -----  END  -----  Вывод данных  -----  END  -----
+		///////////////////////////////////////////////////////////////////////////////////
 
 
 
-		//////////////////////////
-		//	Section - Предзаказ  -- end
-		//////////////////////////
-
+		
 
 		/////////////////////////////////////////////////////////////
 		//	-----  START  -----  МЕТОДЫ AJAX  -----  START  -----  //
@@ -1821,7 +1240,7 @@
 								}
 							}
 
-							$message = (isset($message)?$message.'<br>':'').$gorder_go_start.'<br>'.$order_status.'<br>'.(!isset($this->order_status[$order_status])?1:0);
+							//$message = (isset($message)?$message.'<br>':'').$gorder_go_start.'<br>'.$order_status.'<br>'.(!isset($this->order_status[$order_status])?1:0);
 
 							// если статус получен и заказ еще в разделе предзаказа
 							if($order_status != '' && !isset($this->order_status[$order_status])){
@@ -1870,7 +1289,14 @@
 						$query .= " WHERE `id` = '".$_POST['row_id']."'";
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
-						echo '{"response":"OK"}';
+
+						$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET";
+						$query .= "`payment_date` = '".date("Y-m-d",strtotime($_POST['value']))."'";
+						$query .= " WHERE `id` = '".$_POST['spec_id']."'";
+						// echo $query;
+						$result = $mysqli->query($query) or die($mysqli->error);
+
+						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode('Дата оплаты по счёту успешно изменена на '.$_POST['value']).'"}';
 					}
 					// редактирование суммы
 					protected function pp_edit_payment_summ_AJAX(){
@@ -1998,7 +1424,15 @@
 						$query .= " WHERE `id` = '".$_POST['row_id']."'";
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
-						echo '{"response":"OK"}';
+
+						
+						$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET";
+						$query .= "`payment_date` = '".date("Y-m-d",strtotime($_POST['value']))."'";
+						$query .= " WHERE `id` = '".$_POST['spec_id']."'";
+						// echo $query;
+						$result = $mysqli->query($query) or die($mysqli->error);
+
+						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode('Дата оплаты по счёту успешно изменена на '.$_POST['value']).'"}';
 					}
 					// редактирование суммы
 					protected function pko_edit_payment_summ_AJAX(){
@@ -2874,7 +2308,7 @@
 
 				}
 
-				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"php_message_alert", "title":"Сообщение из ОС"}';
+				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"echo_message","message_type":"system_message"}';
 			}
 
 			// присваиваем значение поля логотип (в окне доп. тех. инфо) ко всем услугам по текущему заказу
@@ -2886,12 +2320,23 @@
 					$this->Services_list_arr = $this->get_all_services_Database();
 				}
 
+				// запрос спецификаций 
+				$query = "SELECT * FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_num` = '".(int)$_POST['order_num']."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$spec_id = '';
+				$n = 0;
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$spec_id .= (($n>0)?',':'')."'".$row['id']."'";
+					}
+				}
 
-				// запрашиваем позиции прикреплённые к зауазу
+
+				// запрашиваем позиции прикреплённые к спецификации
 				$query = "SELECT *, `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data` 
 				FROM `".CAB_ORDER_DOP_DATA."` 
 				INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
-				WHERE `".CAB_ORDER_MAIN."`.`order_num` = '".(int)$_POST['order_num']."'";
+				WHERE `".CAB_ORDER_MAIN."`.`the_bill_id` IN (".$spec_id.")";
 				$dop_row_id_str = '';
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$n = 0;
@@ -2950,7 +2395,7 @@
 						WHERE  `id` IN (".$id_s_str.");";
 					$result = $mysqli->query($query) or die($mysqli->error);
 					// формируем ответ
-					$Message = 'Значение проля логотип успешно прикреплено ко всем услугам заказа № '.$_POST['order_num'].'.';
+					$Message = 'Значение проля логотип успешно прикреплено ко всем услугам заказа № '.Cabinet::show_order_num($_POST['order_num']).'.';
 					
 					// echo $query;
 				}else{
@@ -2959,7 +2404,7 @@
 
 				}
 
-				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"php_message_alert","title":"Сообщение из ОС"}';
+				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"echo_message","message_type":"system_message"}';
 			}
 
 			// сохранение пути к макету
@@ -3420,7 +2865,19 @@
 			// смена глобального статуса ЗАКАЗА
 			protected function choose_statuslist_order_and_paperwork_AJAX(){
 				$this->chenge_order_status($_POST['value'], $_POST['row_id']);
-				echo '{"response":"OK","function":"reload_order_tbl"}';
+				if(isset($this->order_status[$_POST['value']])){
+					$status = $this->order_status[$_POST['value']];
+				}else if(isset($this->paperwork_status[$_POST['value']])){
+					$status = $this->paperwork_status[$_POST['value']];
+				}elseif (isset($this->order_service_status[$_POST['value']])) {
+					$status = $this->order_service_status[$_POST['value']];
+				}else{
+					$status = $_POST['value'];
+				}
+
+				$message = "Статус заказа изменён на \"".$status."\"";
+
+				echo '{"response":"OK","function":"reload_order_tbl","function2":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';
 			}
 			// смена статуса заказа
 			protected function chenge_order_status($status,$row_id){
@@ -3444,7 +2901,17 @@
 
 				protected function buch_status_select_AJAX(){
 					$this->buch_status_select($_POST['value'],$_POST['row_id']);
-					echo '{"response":"OK","function":"reload_order_tbl"}';
+
+					if(isset($this->buch_status_service[$_POST['value']])){
+						$status = $this->buch_status_service[$_POST['value']];
+					}else if(isset($this->buch_status[$_POST['value']])){
+						$status = $this->buch_status[$_POST['value']];
+					}else{
+						$status = $_POST['value'];
+					}
+
+					$message = "Статус бухгалтерии по спецификации (счёту) изменён на \"".$status."\"";
+					echo '{"response":"OK","function":"reload_order_tbl","function2":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';
 				}
 
 
@@ -4170,145 +3637,7 @@
 		//   -----  END  -----  General Template (общие для всех шаблоны) -----  END  -----
 		////////////////////////////////////////////////////////////////////////////////////
 		
-			//////////////////////////
-			//	методы запроса данных из базы для paperwork
-			//////////////////////////
-
-				// запрос спецификаций из базы
-				protected function get_the_specificate_paperworck_Database($id_row=0){
-					$where = 0;
-					global $mysqli;
-
-
-					$query = "SELECT 
-						`".CAB_BILL_AND_SPEC_TBL."`.*, 
-						DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`create_time`,'%d.%m.%Y ')  AS `create_time`,
-						DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_order_the_bill`,'%d.%m.%Y')  AS `date_order_the_bill`
-						FROM `".CAB_BILL_AND_SPEC_TBL."`";
-					
-					if($id_row){
-						//////////////////////////
-						//	выборка одной строки 	
-						//////////////////////////	
-							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`id` = '".$id_row."'";
-							$where = 1;
-					}else{
-						/////////////////////////////////////////////////////////////////
-						// выбираем из базы только предзаказы (заказы не показываем)
-						/////////////////////////////////////////////////////////////////
-							// получаем статусы предзаказа
-							$paperwork_status_string = '';
-							foreach (array_keys($this->paperwork_status) as $key => $status) {
-								$paperwork_status_string .= (($key>0)?",":"")."'".$status."'";
-							}
-							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`global_status` IN (".$paperwork_status_string.")";
-							$where = 1;
-						//////////////////////////
-						//	выборка по клиенту
-						//////////////////////////
-						if(isset($_GET['client_id'])){
-							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`client_id` = '".$_GET['client_id']."'";
-							$where = 1;
-						}
-
-
-						// выборка по статусу
-						if(isset($_GET['subsection'])){
-							switch ($_GET['subsection']) {
-								case 'create_spec': // спецификация создана
-									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'is_pending'";
-									break;
-								case 'requested_the_bill': // запрошен счёт
-									$paperwork_status_string = '';
-									foreach (array_keys($this->buch_status_service) as $key => $status) {
-										$paperwork_status_string .= (($key>0)?",":"")."'".$status."'";
-									}
-									$query .= " ".(($where)?'AND':'WHERE')." (`".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'request_expense' OR `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'reget_the_bill')";
-									break;
-								case 'expense': // счёт выставлен
-									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'score_exhibited'";
-									break;
-								case 'payment_the_bill': // счёт оплачен
-									$query .= " ".(($where)?'AND':'WHERE')." (`".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'payment' OR `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'collateral_received' OR `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'partially_paid') ";
-									break;
-								case 'cancelled': // счёт аннулирован
-									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'cancelled' ";
-									break;
-
-								case 'refund_in_a_row': // возврат денег по счёту
-									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'refund_in_a_row'";
-									break;
-								
-								
-								default:
-									# code...
-									break;
-
-									$where = 1;
-							}
-
-						// фильтрация по менеджеру
-						if(isset($_GET['manager_id'])){
-							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".(int)$_GET['manager_id']."'";
-							$where = 1;
-						}
-
-						// фильтрация по менеджеру
-						if($this->user_access == 5){
-							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".$this->user_id."'";
-							$where = 1;
-						}
-							
-							
-						}
-					}
-
-					
-					
-					
-					//////////////////////////
-					//	sorting
-					//////////////////////////
-					$query .= ' ORDER BY `id` DESC';
-					// echo $query;
-					$result = $mysqli->query($query) or die($mysqli->error);
-					$this->Specificate_arr = array();
-					
-					if($result->num_rows > 0){
-						while($row = $result->fetch_assoc()){
-							$this->Specificate_arr[] = $row;
-						}
-					}
-				}
-
-				// получаем позиции к спецификациям из базы
-				protected function get_the_position_with_specificate_Database($id){
-					global $mysqli;
-					$query = "
-						SELECT 
-							`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
-							`".CAB_ORDER_DOP_DATA."`.`quantity`,	
-							`".CAB_ORDER_DOP_DATA."`.`price_out`,	
-							`".CAB_ORDER_DOP_DATA."`.`print_z`,	
-							`".CAB_ORDER_DOP_DATA."`.`zapas`,	
-							DATE_FORMAT(`".CAB_ORDER_MAIN."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
-							`".CAB_ORDER_MAIN."`.*
-							FROM `".CAB_ORDER_MAIN."` 
-							INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`
-							WHERE `".CAB_ORDER_DOP_DATA."`.`row_status` NOT LIKE 'red' AND `".CAB_ORDER_MAIN."`.`the_bill_id` = '".$id."'";
-						
-					$query .= " ORDER BY `".CAB_ORDER_MAIN."`.`id` DESC";
-						// echo $query;
-
-					$result = $mysqli->query($query) or die($mysqli->error);
-					$position_arr = array();
-					if($result->num_rows > 0){
-						while($row = $result->fetch_assoc()){
-							$position_arr[] = $row;
-						}
-					}
-					return $position_arr;
-				}
+			
 
 		/*
 			декодируем поле json для некаталога в читабельный вид
@@ -4338,9 +3667,7 @@
 						</div>
 					';
 				}
-
 				$html .= '</div>';
-
 				return $html;
 			}else{// в случае исключения выводим массив, дабы было видно куда копать
 				// return $this->print_arr($arr);
@@ -5222,7 +4549,7 @@
 			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
 			
 
-			$query .= $this->filter_position; 
+			// $query .= $this->filter_position; 
 
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){

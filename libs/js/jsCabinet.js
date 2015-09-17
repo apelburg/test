@@ -176,7 +176,7 @@
 			      "class": data.message_type,
 			      "css":{"opacity":1,"top":0},
 			      click: function(){
-			          $(this).animate({opacity:0},'1000',function(){$(this).remove()});
+			          $(this).animate({opacity:0},'fast',function(){$(this).remove()});
 			      }
 			}).append(Base64.decode(data.message)).appendTo("#apl-notification_center").fadeIn('slow', 
 		        function(){
@@ -1863,7 +1863,7 @@ $(window).load(function() {
 	});
 
 	// кнопка выставить счёт
-	$(document).on('click', '.buch_status_selectpaperwork input.query_the_bill', function(event) {
+	$(document).on('click', '.buch_status_select input.query_the_bill', function(event) {
 		event.preventDefault();
 		var specificate_row_id = $(this).parent().parent().attr('data-id');
 		var AJAX = 'get_listing_type_the_bill';
@@ -1938,7 +1938,7 @@ $(document).on('click', '#create_in_order_button', function(event) {
 	if(n==0){
 		alert('Для создания заказа, необходимо выбрать хотя бы одну спецификацию.');
 	}else{
-		if(confirm('Вы уверены, что хотите объеденить '+n+' спецификацию(ий) в заказ?')){
+		if(confirm('Вы уверены, что хотите объединить '+n+' спецификацию(ий) в заказ?')){
 			$('#create_the_order').click();
 			$.post('', {
 				AJAX: 'create_new_order',

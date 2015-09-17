@@ -51,63 +51,7 @@
 		//////////////////////////
 		//	фильтры по разделам для кнопок подраздела
 		//////////////////////////
-		protected $filtres = array(
-			'orders' => array(
-				'waits_products' => array(
-					'order' => array(
-						'global_status' => 'in_work' // фильтр по глобальному статусу заказа
-						),
-					'position' => array(),
-					'orders' => array()
-					),
-				'waits_products' => array(
-					'order' => array(
-						'global_status' => 'in_work' // фильтр по глобальному статусу заказа
-						),
-                    'position' => array(
-                        'status_snab' => 'waits_products'
-                        ),
-                    'usluga' => array()
-					),
-                'goods_in_stock' => array(
-                    'order' => array(
-                       	'global_status' => 'in_work'// фильтр по глобальному статусу заказа
-                    	),
-                    'position' => array(
-                       	'status_sklad' => 'goods_in_stock'
-                    	),
-                    'usluga' => array()                      
-                    ),    
-                'sended_on_outsource' => array(
-                	'order' => array(
-                        'global_status' => 'in_work'// фильтр по глобальному статусу заказа
-                    	),
-                    'position' => array(
-                        'status_sklad' => 'sended_on_outsource'
-                    	),
-                    'usluga' => array()
-                    ),    
-                'pclosing_documents' => array(
-                	'order' => array(
-                    	'global_status' => 'in_work'// фильтр по глобальному статусу заказа
-                        ),
-                    'position' => array(
-                    	'status_sklad' => 'pclosing_documents'
-                        ),
-                    'usluga' => array()
-                    ),
-                'goods_shipped_for_client' => array(
-                    'order' => array(
-                    	'global_status' => 'in_work'// фильтр по глобальному статусу заказа
-                        ),
-                    'position' => array(
-                    	'status_sklad' => 'goods_shipped_for_client'
-                        ),
-                    'usluga' => array()
-                    )
-				)
-			);
-
+		
 		// название подраздела кабинета
 		private $sub_subsection;
 
@@ -150,247 +94,248 @@
 		//////////////////////////
 		//	Section - Заказы
 		//////////////////////////
-		private function orders_Template($id_row=0){
+		/*
+			private function orders_Template($id_row=0){
 
-			$this->get_filters();
-			$where = 0;
-			// скрываем левое меню
-			$html = '';
-			$table_head_html = '<style type="text/css" media="screen">
-									#cabinet_left_coll_menu{display:none;}
-								</style>';
-			// $html = '';
-			$table_head_html .= '
-				<table id="general_panel_orders_tbl">
-				<tr>
-					<th colspan="3">Артикул/номенклатура/печать</th>
-					<th>тираж</th>
-					<th>логотип</th>
-					<th>поставщик товара</th>
-					<th>№ резерва</th>
-					<th>подрядчик печати</th>
-					<th>дата отгрузки</th>
-					<th>статус товара</th>
-					<th>статус заказа</th>
-				</tr>
-			';
+				$this->get_filters();
+				$where = 0;
+				// скрываем левое меню
+				$html = '';
+				$table_head_html = '<style type="text/css" media="screen">
+										#cabinet_left_coll_menu{display:none;}
+									</style>';
+				// $html = '';
+				$table_head_html .= '
+					<table id="general_panel_orders_tbl">
+					<tr>
+						<th colspan="3">Артикул/номенклатура/печать</th>
+						<th>тираж</th>
+						<th>логотип</th>
+						<th>поставщик товара</th>
+						<th>№ резерва</th>
+						<th>подрядчик печати</th>
+						<th>дата отгрузки</th>
+						<th>статус товара</th>
+						<th>статус заказа</th>
+					</tr>
+				';
 
-			global $mysqli;
+				global $mysqli;
 
-			$query = "SELECT 
-				`".CAB_ORDER_ROWS."`.*, 
-				DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
-				FROM `".CAB_ORDER_ROWS."`";
-			
-			if($id_row){
-				$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
-				$where = 1;
-			}else{
-
-
-				// filters for the client id
-				if(isset($_GET['client_id'])){
-					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".(int)$_GET['client_id']."'";
+				$query = "SELECT 
+					`".CAB_ORDER_ROWS."`.*, 
+					DATE_FORMAT(`".CAB_ORDER_ROWS."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+					FROM `".CAB_ORDER_ROWS."`";
+				
+				if($id_row){
+					$query .=" ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`id` = '".$id_row."'";
 					$where = 1;
+				}else{
+
+
+					// filters for the client id
+					if(isset($_GET['client_id'])){
+						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`client_id` = '".(int)$_GET['client_id']."'";
+						$where = 1;
+					}
+
+					// filters 
+					if(isset($_GET['order_num'])){
+						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`order_num` = '".(int)$_GET['order_num']."'";
+						$where = 1;
+					}
+
+
+
+
+					// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = ''";
 				}
 
-				// filters 
-				if(isset($_GET['order_num'])){
-					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`order_num` = '".(int)$_GET['order_num']."'";
-					$where = 1;
+				
+				
+				//////////////////////////
+				//	sorting
+				//////////////////////////
+				$query .= ' ORDER BY `id` DESC';
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$this->Order_arr = array();
+				
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->Order_arr[] = $row;
+					}
 				}
 
+				$table_order_row = '';		
+				// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
+				// создаем экземпляр класса форм
+				// $this->FORM = new Forms();
 
+				// ПЕРЕБОР ЗАКАЗОВ
+				foreach ($this->Order_arr as $this->Order) {
+					// цена заказа
+					$this->price_order = 0;
 
+					//////////////////////////
+					//	open_close   -- start
+					//////////////////////////
+						// получаем флаг открыт/закрыто
+						$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
+						
+						// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
+						// class для кнопки показать / скрыть
+						#$this->open_close_class = "";
+						// rowspan / data-rowspan
+						#$this->open_close_rowspan = "rowspan";
+						// стили для строк которые скрываем или показываем
+						#$this->open_close_tr_style = ' style="display: table-row;"';
 
-				// $query .=" WHERE `".CAB_ORDER_ROWS."`.`global_status` = ''";
-			}
+					//////////////////////////
+					//	open_close   -- end
+					//////////////////////////
 
-			
-			
-			//////////////////////////
-			//	sorting
-			//////////////////////////
-			$query .= ' ORDER BY `id` DESC';
-			// echo $query;
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$this->Order_arr = array();
-			
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$this->Order_arr[] = $row;
-				}
-			}
+					// запоминаем обрабатываемые номера заказа и запроса
+					// номер запроса
+					$this->query_num = $this->Order['query_num'];
+					// номер заказа
+					$this->order_num = $this->Order['order_num'];
 
-			$table_order_row = '';		
-			// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
-			// создаем экземпляр класса форм
-			// $this->FORM = new Forms();
+					// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
+					$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
 
-			// ПЕРЕБОР ЗАКАЗОВ
-			foreach ($this->Order_arr as $this->Order) {
-				// цена заказа
-				$this->price_order = 0;
-
-				//////////////////////////
-				//	open_close   -- start
-				//////////////////////////
-					// получаем флаг открыт/закрыто
-					$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
-					
-					// выполнение метода get_open_close_for_this_user - вернёт 3 переменные в object
-					// class для кнопки показать / скрыть
-					#$this->open_close_class = "";
-					// rowspan / data-rowspan
-					#$this->open_close_rowspan = "rowspan";
-					// стили для строк которые скрываем или показываем
-					#$this->open_close_tr_style = ' style="display: table-row;"';
-
-				//////////////////////////
-				//	open_close   -- end
-				//////////////////////////
-
-				// запоминаем обрабатываемые номера заказа и запроса
-				// номер запроса
-				$this->query_num = $this->Order['query_num'];
-				// номер заказа
-				$this->order_num = $this->Order['order_num'];
-
-				// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
-				$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
-
-				// запрашиваем информацию по позициям
-				$table_order_positions_rows = $this->table_order_positions_rows_Html();
-				if($table_order_positions_rows == ''){ continue; }
-				// формируем строку с информацией о заказе
-				$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
-					$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
-											<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
+					// запрашиваем информацию по позициям
+					$table_order_positions_rows = $this->table_order_positions_rows_Html();
+					if($table_order_positions_rows == ''){ continue; }
+					// формируем строку с информацией о заказе
+					$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
+						$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
+												<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
+											</td>';
+						$table_order_row .= '<td colspan="6" class="orders_info">
+											<span class="greyText">Заказ №: </span><a href="?page=cabinet'.(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$this->Order['client_id'].'&order_num='.$this->order_num_for_User.'">'.$this->order_num_for_User.'</a> 
+											<span class="greyText">,&nbsp;&nbsp;&nbsp;   Кампания : </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'
+											<span class="greyText">,&nbsp;&nbsp;&nbsp;   Юр.лицо : в разработке</span>
+											<span class="greyText">,&nbsp;&nbsp;&nbsp;   менеджер: '.$this->get_manager_name_Database_Html($this->Order['manager_id'],1).'</span>
+											<span class="greyText">,&nbsp;&nbsp;&nbsp;   снабжение: '.$this->get_name_employee_Database_Html($this->Order['snab_id']).'</span>
 										</td>';
-					$table_order_row .= '<td colspan="6" class="orders_info">
-										<span class="greyText">Заказ №: </span><a href="?page=cabinet'.(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$this->Order['client_id'].'&order_num='.$this->order_num_for_User.'">'.$this->order_num_for_User.'</a> 
-										<span class="greyText">,&nbsp;&nbsp;&nbsp;   Кампания : </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'
-										<span class="greyText">,&nbsp;&nbsp;&nbsp;   Юр.лицо : в разработке</span>
-										<span class="greyText">,&nbsp;&nbsp;&nbsp;   менеджер: '.$this->get_manager_name_Database_Html($this->Order['manager_id'],1).'</span>
-										<span class="greyText">,&nbsp;&nbsp;&nbsp;   снабжение: '.$this->get_name_employee_Database_Html($this->Order['snab_id']).'</span>
-									</td>';
-					$table_order_row .= '<td>
-										<!--// comments -->
-										<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	
-									</td>';
-					// $table_order_row .= '<td><strong>'.$this->Order['date_of_delivery_of_the_order'].'</strong></td>';
-									$table_order_row .= '<td><strong></strong></td>';
-					$table_order_row .= '<td><span class="greyText">заказа: </span></td>';
-					$table_order_row .= '<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
-				$table_order_row .= '</tr>';
-				// включаем вывод позиций 
-				$table_order_row .= $table_order_positions_rows;
-			}		
+						$table_order_row .= '<td>
+											<!--// comments -->
+											<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	
+										</td>';
+						// $table_order_row .= '<td><strong>'.$this->Order['date_of_delivery_of_the_order'].'</strong></td>';
+										$table_order_row .= '<td><strong></strong></td>';
+						$table_order_row .= '<td><span class="greyText">заказа: </span></td>';
+						$table_order_row .= '<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+					$table_order_row .= '</tr>';
+					// включаем вывод позиций 
+					$table_order_row .= $table_order_positions_rows;
+				}		
 
-			$html = $table_head_html.$table_order_row.'</table>';
-			echo $html;
-		}
+				$html = $table_head_html.$table_order_row.'</table>';
+				echo $html;
+			}
 
-		private function get_filters(){
-			$this->filter_order = ' '; // status_global и status_buch
-			$this->filter_position = ' '; // status_sklad и status_snab
-			$this->filter_uslugi = ' ';// uslugi_id и performer_status и performer
+			private function get_filters(){
+				$this->filter_order = ' '; // status_global и status_buch
+				$this->filter_position = ' '; // status_sklad и status_snab
+				$this->filter_uslugi = ' ';// uslugi_id и performer_status и performer
 
 
-			if (isset($_GET['subsection'])) {
-				switch ($_GET['section'].'_'.$_GET['subsection']) {
-						case 'orders_waits_products': // взять в работу
-							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_snab` = \'waits_products\'';
-							break;
-						case 'orders_goods_in_stock': // на складе
-							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'goods_in_stock\'';
-							break;
-						case 'orders_sended_on_outsource': // у поставщика в пр-ве
-							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'sended_on_outsource\'';
-							break;
-						case 'orders_checked_and_packed': // у поставщика в пр-ве
-							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'checked_and_packed\'';
-							break;
-						case 'orders_goods_shipped_for_client': // у поставщика в пр-ве
-							$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'goods_shipped_for_client\'';
-							break;
+				if (isset($_GET['subsection'])) {
+					switch ($_GET['section'].'_'.$_GET['subsection']) {
+							case 'orders_waits_products': // взять в работу
+								$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_snab` = \'waits_products\'';
+								break;
+							case 'orders_goods_in_stock': // на складе
+								$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'goods_in_stock\'';
+								break;
+							case 'orders_sended_on_outsource': // у поставщика в пр-ве
+								$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'sended_on_outsource\'';
+								break;
+							case 'orders_checked_and_packed': // у поставщика в пр-ве
+								$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'checked_and_packed\'';
+								break;
+							case 'orders_goods_shipped_for_client': // у поставщика в пр-ве
+								$this->filter_position = ' AND `'.CAB_ORDER_MAIN.'`.`status_sklad` = \'goods_shipped_for_client\'';
+								break;
 
 
-						default:
-							# code...
-							break;
-					}	
-			}			
-		}
+							default:
+								# code...
+								break;
+						}	
+				}			
+			}
 
-		// возвращает html строки позиций
-		private function table_order_positions_rows_Html(){			
-			// получаем массив позиций заказа
-			$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
-			$html = '';	
+			// возвращает html строки позиций
+			private function table_order_positions_rows_Html(){			
+				// получаем массив позиций заказа
+				$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
+				$html = '';	
 
-			$this->position_item = 1;// порядковый номер позиции
-			// формируем строки позиций	(перебор позиций)		
-			foreach ($positions_rows as $key => $position) {
-				$this->Position_status_list = array(); // в переменную заложим все статусы
+				$this->position_item = 1;// порядковый номер позиции
+				// формируем строки позиций	(перебор позиций)		
+				foreach ($positions_rows as $key => $position) {
+					$this->Position_status_list = array(); // в переменную заложим все статусы
 
-				$this->id_dop_data = $position['id_dop_data'];
+					$this->id_dop_data = $position['id_dop_data'];
 
-				$this->logotip = $this->get_content_logotip($this->id_dop_data);
+					$this->logotip = $this->get_content_logotip($this->id_dop_data);
+					
+					$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>';
+					// // порядковый номер позиции в заказе
+					$html .= '<td><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
+					// // описание позиции
+					$html .= '<td>';
+					
+					// наименование товара
+					$html .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
 				
-				$html .= '<tr class="positions_rows row__'.$this->position_item.'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>';
-				// // порядковый номер позиции в заказе
-				$html .= '<td><span class="orders_info_punct">'.$this->position_item.'п</span></td>';
-				// // описание позиции
-				$html .= '<td>';
-				
-				// наименование товара
-				$html .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
-			
-				$html .= '</td>';
-				// тираж
-				$html .= '<td>';
-					$html .= '<div class="quantity">'.($position['quantity']+$position['zapas']).'</div>';
-				$html .= '</td>';
-
-
-				// логотип
-				$html .= '<td><span class="greyText">'.$this->logotip.'</span></td>';
-				
-				// поставщик товара  
-				$html .= '<td>
-							<div class="supplier">'.$this->get_supplier_name($position['art']).'</div>
-						</td>';
-				// № резерва
-				$html .= '<td>
-							<div class="number_rezerv">'.$position['number_rezerv'].'</div>
-						</td>';
-
-				// подрядчик печати
-				$html .= '<td>
-							<div>'.$position['suppliers_name'].'</div>
-						</td>';
-
-				// дата отгрузки
-				$html .= '<td>';
-					// $html .= '<div>'.$this->Order['date_of_delivery_of_the_order'].'</div>';
+					$html .= '</td>';
+					// тираж
+					$html .= '<td>';
+						$html .= '<div class="quantity">'.($position['quantity']+$position['zapas']).'</div>';
 					$html .= '</td>';
 
-				// статус товара
-				$html .= '<td>
-							<div>'.$this->decoder_statuslist_sklad($position['status_sklad'],$position['id']).'</div>
-						</td>';
-				// статус снабжение
-				$html .= '<td>
-							<div>'.$this->decoder_statuslist_snab($position['status_snab'],$position['date_delivery_product'],0,$position['id']).'</div>
-						</td>';
 
-				$html .= '</tr>';	
-				$this->position_item++;
-			}				
-			return $html;
-		}		
+					// логотип
+					$html .= '<td><span class="greyText">'.$this->logotip.'</span></td>';
+					
+					// поставщик товара  
+					$html .= '<td>
+								<div class="supplier">'.$this->get_supplier_name($position['art']).'</div>
+							</td>';
+					// № резерва
+					$html .= '<td>
+								<div class="number_rezerv">'.$position['number_rezerv'].'</div>
+							</td>';
 
+					// подрядчик печати
+					$html .= '<td>
+								<div>'.$position['suppliers_name'].'</div>
+							</td>';
+
+					// дата отгрузки
+					$html .= '<td>';
+						// $html .= '<div>'.$this->Order['date_of_delivery_of_the_order'].'</div>';
+						$html .= '</td>';
+
+					// статус товара
+					$html .= '<td>
+								<div>'.$this->decoder_statuslist_sklad($position['status_sklad'],$position['id']).'</div>
+							</td>';
+					// статус снабжение
+					$html .= '<td>
+								<div>'.$this->decoder_statuslist_snab($position['status_snab'],$position['date_delivery_product'],0,$position['id']).'</div>
+							</td>';
+
+					$html .= '</tr>';	
+					$this->position_item++;
+				}				
+				return $html;
+			}		
+		*/
 
 		
 		

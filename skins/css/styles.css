@@ -1650,7 +1650,7 @@ ul#cabinet_left_menu li a{  padding: 0 5%; padding-top: 10px;padding-bottom: 10p
 ul#cabinet_left_menu li a:hover,ul#cabinet_left_menu li.selected a{background-color: #92b73e}
 ul#central_menu {list-style: none; padding: 0; margin: 0;}
 ul#central_menu li {padding: 0; margin: 0; display: inline-block;}
-ul#central_menu li a { font-size: 14px;color: #000;padding: 6px 26px;float: left;text-decoration: none;
+ul#central_menu li a { font-size: 14px;color: #000;padding: 6px 10px;float: left;text-decoration: none;
   margin: 0;}
 ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   background-color: #6d6e71;}
 .table{display:table}
@@ -2575,7 +2575,7 @@ div#apl-notification_center {
     width: 100%;
     min-width: 960px;
     z-index: 1110;
-    /*top: 84px;*/
+    top: 0px;
     left: 0;
     overflow: hidden;
     /*background-color: red;*/

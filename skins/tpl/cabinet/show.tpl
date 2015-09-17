@@ -16,12 +16,22 @@
 <div class="table" id="cabinet">
 	<div class="row">
 		<div class="cell" id="cabinet_left_coll_menu">
+			<?php echo (isset($CABINET->CLASS->filtres_html) && is_array($CABINET->CLASS->filtres_html))?'<div id="cabinet_filtres">Фильтры:</div>':'';?>
 			<div id="cabinet_top_menu1"></div>
-			<ul id="cabinet_left_menu">
+			<ul id="cabinet_left_menu">				
 				<?php echo $CABINET->menu_left_Html; ?>
 			</ul>
 		</div>
 		<div class="cell" id="cabinet_central_panel">
+			<?php 
+				if(isset($CABINET->CLASS->filtres_html) && is_array($CABINET->CLASS->filtres_html)){
+					echo '<div id="cabinet_filtres_list"><ul>';
+					foreach ($CABINET->CLASS->filtres_html as $key => $value) {
+						echo $value;
+					}					
+					echo '</ul></div>';
+				}
+			?>
 			<div id="cabinet_top_menu">
 				<ul id="central_menu">
 					<?php echo $CABINET->menu_top_center_Html; ?>
