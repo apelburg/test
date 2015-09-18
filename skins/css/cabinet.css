@@ -28,7 +28,7 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 
 #cabinet_general_content .cab_position_div tr td{ border:none; padding: 2px}
 #cabinet_general_content .cab_position_div tr:hover td,
-#general_panel_orders_tbl tr.positions_rows:hover td{ background-color: #f1f1f1; cursor: default;}
+/*#general_panel_orders_tbl tr.position-row:hover td{ background-color: #f1f1f1; cursor: default;}*/
 #cabinet_general_content .cab_position_div tr th:nth-of-type(1){ padding-left: 5px;width: 85px;}
 #cabinet_general_content .cab_position_div tr td:nth-of-type(1){ padding-left: 5px;}
 #cabinet_general_content .cab_position_div tr th:nth-of-type(2){/* width: 340px;*/}
@@ -279,14 +279,14 @@ tr.cat_8 td {
 	background: #fff;
 	cursor: pointer;
 }
-#cabinet_general_content #general_panel_orders_tbl tr.positions_rows{
+#cabinet_general_content #general_panel_orders_tbl tr.position-row{
 	display: none;
 }
-#cabinet_general_content #general_panel_orders_tbl tr.positions_rows td,
+#cabinet_general_content #general_panel_orders_tbl tr.position-row td,
 #cabinet_general_content #general_panel_orders_tbl tr.specificate_rows td{
 	border: 1px solid #e8e8e8;
 }
-#cabinet_general_content #general_panel_orders_tbl tr.positions_rows.position_general_row td{
+#cabinet_general_content #general_panel_orders_tbl tr.position-row.position-row-production td{
 	border-bottom: 1px solid #D1D1D1;
 	border-top: 1px solid #D1D1D1;
 }
@@ -587,20 +587,21 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
     border: 1px solid #AAAAAA;
     background-color: #D2D2D2;
 }
-#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production{
 	display: none; /*скрыть позиции*/
 }
 #cabinet_general_content table#general_panel_orders_tbl tr.order_head_row td{
 	border-top: 1px solid #6d6e72;
 }
-#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production td{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td{
 	border: 1px solid #f1f1f1;
 }
 
-#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production:hover td.show_backlight{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production:hover td.show-backlight{
 	background-color: #f1f1f1;
 }
-#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production:hover td.show_dialog_tz_for_production:hover{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.js-modal--tz-prodaction:hover,
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.position-row-production__service-name:hover{
 	background-color: #BBCE91;
 	cursor: pointer;
 }

@@ -58,7 +58,14 @@
 			'films_for_withdrawal' => 'Плёнки на вывод',
 			'on_foreign_production' => 'На чужое производство',
 			'in_the_production_apelburg' => 'В производстве Апельбург',
-			'in_the_production_supplier' => 'В производстве подрядчик'
+			'in_the_production_supplier' => 'В производстве подрядчик',
+			// заказы
+			'order_all' => 'Все заказы',
+			'order_start' => 'Запуск в работу (заказ)',
+			'order_in_work' => 'Заказы в работе',
+			'design_all' => 'Дизайн ВСЕ',
+			'design_for_one_men' => 'Дизайн МОЁ',
+			'production' => 'Производство'		
 
 		); 
 

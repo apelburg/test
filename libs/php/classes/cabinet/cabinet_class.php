@@ -272,6 +272,18 @@
 					$snab_name_for_order = $this->get_name_employee_Database_Html($_GET['snab_id']);
 					$this->filtres_html['snab_id'] = '<li>снаб: '.$snab_name_for_order.'<a href="'.$this->link_exit_out_filters('snab_id').'" class="close">x</a></li>';	
 				}
+
+				// фильтр по услуге
+				if(isset($_GET['service_id']) && $_GET['service_id'] != ''){
+					if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
+						$this->Services_list_arr = $this->get_all_services_Database();
+					}
+					// получаем наименование услуги
+					$this->Service_name = (isset($this->Services_list_arr[ $_GET['service_id'] ]['name'])?$this->Services_list_arr[ $_GET['service_id'] ]['name']:'данная услуга в базе не найдена');
+
+					$this->filtres_html['service_id'] = '<li>услуга: '.$this->Service_name.'<a href="'.$this->link_exit_out_filters('service_id').'" class="close">x</a></li>';	
+					// $this->filtres_html['service_name'] = $this->print_arr($this->Services_list_arr);
+				}
 	    	}
 
 		
@@ -801,63 +813,63 @@
 				return $html;
 			}
 
-			// получаем комментарии к счёту
-			protected function get_the_comment_width_the_bill_AJAX(){
-				global $mysqli;
-				// типы счетов которые мы можем запросить
-		    	/*
-		    		$type_the_bill =array(
-		    		'the_bill' => 'счёт',
-		    		'the_bill_offer' => 'счёт - оферта',
-		    		'the_bill_for_simples' => 'счёт на образцы',
-		    		'prihodnik' => 'приходник',
-		    		);
-		    	*/
+			// // получаем комментарии к счёту
+			// protected function get_the_comment_width_the_bill_AJAX(){
+			// 	global $mysqli;
+			// 	// типы счетов которые мы можем запросить
+		 //    	/*
+		 //    		$type_the_bill =array(
+		 //    		'the_bill' => 'счёт',
+		 //    		'the_bill_offer' => 'счёт - оферта',
+		 //    		'the_bill_for_simples' => 'счёт на образцы',
+		 //    		'prihodnik' => 'приходник',
+		 //    		);
+		 //    	*/
 
-				$query = "SELECT *
-				 FROM `".CAB_BILL_TBL."` WHERE `id` = '".$_POST['row_id']."'";
-				// echo $query;
-				$result = $mysqli->query($query) or die($mysqli->error);
-				$the_bill = array();				
-				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						$the_bill = $row;
-					}
-				}				
+			// 	$query = "SELECT *
+			// 	 FROM `".CAB_BILL_TBL."` WHERE `id` = '".$_POST['row_id']."'";
+			// 	// echo $query;
+			// 	$result = $mysqli->query($query) or die($mysqli->error);
+			// 	$the_bill = array();				
+			// 	if($result->num_rows > 0){
+			// 		while($row = $result->fetch_assoc()){
+			// 			$the_bill = $row;
+			// 		}
+			// 	}				
 
-				$html = '';
-					$html .= '<form>';
-					//////////////////////////////
-					//	форма комментария для БУХ
-					//////////////////////////////
-					$html .= '<input type="hidden" value="save_the_comment_for_the_bill" name="AJAX">';
-					$html .= '<input type="hidden" value="'.(int)$_POST['row_id'].'" name="row_id">';
-					$html .= '<div class="comment table">';
-						$html .= '<div class="row">';
-							$html .= '<div class="cell comment_text">';
-								// исключение для only read
-								if(isset($_POST['onlyread']) && $_POST['onlyread'] ==  1){
-									$html .= '<strong>Комментарий к счёту:</strong><br><br>';
-									$html .= '<div class="onlyread">';
-									$html .= $the_bill['comments'];
-									$html .= '</div>';
-								}else{
-									$html .= '<textarea name="comment_text">'.$the_bill['comments'].'</textarea>';
-								}									
-							$html .= '</div>';
-						$html .= '</div>';
-					$html .= '</div>';
-					$html .= '</form>';
-					// исключение для only read
-					if(isset($_POST['onlyread']) && $_POST['onlyread'] ==  1){
-						echo '{"response":"show_new_window_simple", "html":"'.base64_encode($html).'","title":"Комментарии для Бухгалтерии:","width":"600"}';
-					}else{
-						echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Комментарии для Бухгалтерии:","width":"600"}';
-					}
+			// 	$html = '';
+			// 		$html .= '<form>';
+			// 		//////////////////////////////
+			// 		//	форма комментария для БУХ
+			// 		//////////////////////////////
+			// 		$html .= '<input type="hidden" value="save_the_comment_for_the_bill" name="AJAX">';
+			// 		$html .= '<input type="hidden" value="'.(int)$_POST['row_id'].'" name="row_id">';
+			// 		$html .= '<div class="comment table">';
+			// 			$html .= '<div class="row">';
+			// 				$html .= '<div class="cell comment_text">';
+			// 					// исключение для only read
+			// 					if(isset($_POST['onlyread']) && $_POST['onlyread'] ==  1){
+			// 						$html .= '<strong>Комментарий к счёту:</strong><br><br>';
+			// 						$html .= '<div class="onlyread">';
+			// 						$html .= $the_bill['comments'];
+			// 						$html .= '</div>';
+			// 					}else{
+			// 						$html .= '<textarea name="comment_text">'.$the_bill['comments'].'</textarea>';
+			// 					}									
+			// 				$html .= '</div>';
+			// 			$html .= '</div>';
+			// 		$html .= '</div>';
+			// 		$html .= '</form>';
+			// 		// исключение для only read
+			// 		if(isset($_POST['onlyread']) && $_POST['onlyread'] ==  1){
+			// 			echo '{"response":"show_new_window_simple", "html":"'.base64_encode($html).'","title":"Комментарии для Бухгалтерии:","width":"600"}';
+			// 		}else{
+			// 			echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Комментарии для Бухгалтерии:","width":"600"}';
+			// 		}
 					
 
-				//comments
-			}
+			// 	//comments
+			// }
 
 			// создаем пустой счёт
 			protected function create_the_new_bill_AJAX(){
@@ -2116,16 +2128,34 @@
 
 			// вывод меню комманд по спецификации 
 			protected function get_commands_for_order_status_AJAX(){
+				global $mysqli;
+				$query = "SELECT * FROM `".CAB_ORDER_ROWS."` WHERE `id` = '".(int)$_POST['order_id']."';";
+				$this->Order = array();
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->Order = $row;
+					}
+				}
+
+
 				$html = '';
 				$n = 0;
 				$html .= '<ul id="get_commands_men_for_order" class="check_one_li_tag">';
 				$first_val = '';
 				foreach ($this->order_service_status as $name_en => $name_ru) {
+					if($this->Order['global_status'] == 'paused' && $name_en == 'paused'){
+						$html .= '<li data-name_en="in_work">статус "В работе"</li>';
+						$n++;
+						continue;
+					}
 					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
 					if($n==0){$first_val = $name_en;}
 					$n++;
-
 				}
+
+
 				$html .= '</ul>';
 
 
@@ -2764,7 +2794,7 @@
 					foreach ($this->print_details_dop as $key => $text) {
 						$html .= '<div class="separation_container">';
 							$html .= '<strong>'.$this->dop_inputs_listing[$key]['name_ru'].'</strong>:<br>';
-							$html .= '<div class="data_info">'.$text.'</div>';		
+							$html .= '<div class="data_info">'.base64_decode($text).'</div>';		
 						$html .= '</div>';			
 					}
 				}
@@ -3844,6 +3874,7 @@
 
 		// выбираем данные о доп услугах для заказа
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
+			$where = 0;
 			// ВНИМАНИЕ !!!!!!!!!!
 			// данный метод используется (специально заточен) для просчёта стоимости заказа и запроса
 			// нежелательно его модифицировать для других нужд !!!!!
@@ -3870,14 +3901,16 @@
 			$query .= (isset($_GET['section']) && $_GET['section'] == 'requests')?"":", DATE_FORMAT(`".$tbl."`.`date_ready`,'%d.%m.%Y')  AS `date_ready`";
 			$query .= (isset($_GET['section']) && $_GET['section'] == 'requests')?"":",DATE_FORMAT(`".$tbl."`.`date_work`,'%d.%m.%Y')  AS `date_work`";
 			$query .= " FROM `".$tbl."` 
-			LEFT JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` = `".$tbl."`.`uslugi_id` 
-			WHERE `".$tbl."`.`dop_row_id` = '".$dop_row_id."'";
+			LEFT JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` = `".$tbl."`.`uslugi_id`"; 
+			
+			$query .= " ".(($where)?'AND':'WHERE')." `".$tbl."`.`dop_row_id` = '".$dop_row_id."'";
+			$where = 1;
+
 			$query .= " ORDER BY `".OUR_USLUGI_LIST."`.`id` ASC";
 
 			//$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$arr = array();
-
 			// echo $query;
 
 			if($result->num_rows > 0){
@@ -4691,6 +4724,10 @@
 				}
 
 				return $agreement_info_arr;
+			}
+
+			protected function hl(){
+				echo "Hellow World =)";
 			}
 
 		

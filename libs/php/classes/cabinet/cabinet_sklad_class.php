@@ -45,7 +45,14 @@
 			'checked_and_packed'  => 'Заказы на отгрузку',
 			'goods_shipped_for_client' => 'Отгруженные',
 			'otgrugen' => 'Отгруженные',
-			'we_are_waiting_the_products' => 'Ожидается'											
+			'we_are_waiting_the_products' => 'Ожидается',
+			// заказы
+			'order_all' => 'Все заказы',
+			'order_start' => 'Запуск в работу (заказ)',
+			'order_in_work' => 'Заказы в работе',
+			'design_all' => 'Дизайн ВСЕ',
+			'design_for_one_men' => 'Дизайн МОЁ',
+			'production' => 'Производство'													
 		); 
 
 		//////////////////////////

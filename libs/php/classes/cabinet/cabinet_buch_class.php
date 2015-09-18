@@ -45,7 +45,14 @@
 		'payment_the_bill' => 'Счёт оплачен',	
 		'refund_in_a_row' => 'возврат средств по счёту',
 		'cancelled' => 'Счёт аннулирован',
-		'all_the_bill' => 'Все счёта'										
+		'all_the_bill' => 'Все счёта',
+		// заказы
+			'order_all' => 'Все заказы',
+			'order_start' => 'Запуск в работу (заказ)',
+			'order_in_work' => 'Заказы в работе',
+			'design_all' => 'Дизайн ВСЕ',
+			'design_for_one_men' => 'Дизайн МОЁ',
+			'production' => 'Производство'											
 		); 
 
 		// название подраздела кабинета
@@ -391,12 +398,6 @@
 		
 
 
-		//////////////////////////
-		//	Section - Заказы
-		//////////////////////////
-		protected function orders_Template($id_row=0){
-			echo $this->wrap_text_in_warning_message('Привет мир !');
-		}
 
 		//////////////////////////
 		//	Section - На отгрузку

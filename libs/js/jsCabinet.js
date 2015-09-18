@@ -1640,7 +1640,7 @@ $(document).on('change', '.get_statuslist_uslugi', function(event) {
 //////////////////////////
 //	ПР-ВО
 //////////////////////////
-$(document).on('click', '.show_dialog_tz_for_production', function(event) {
+$(document).on('click', '.js-modal--tz-prodaction', function(event) {
 	$.post('', {
 		AJAX: 'get_dialog_tz_for_production',
 		row_id:$(this).attr('data-id')
@@ -1653,6 +1653,12 @@ $(document).on('click', '.show_dialog_tz_for_production', function(event) {
 		}
 	},'json');
 });
+
+// $(document).on('click', '.position-row-production__service-name', function(event) {
+// 	event.preventDefault();
+// 	var href = $(this).attr('data-href');
+// 	window.location.href = href;		
+// });
 
 
 //////////////////////////
@@ -2672,3 +2678,69 @@ $(document).on('click', '.order_status_chenge', function(event) {
 });
 
 
+jQuery(function($){
+	var processFile = '';
+	var link = $('#modal');
+	
+	app = {
+		
+    'initModal' : function() {
+			if ($('.modal-window').length == 0) {
+				return $('<div>').hide().addClass('modal-window').appendTo('body');
+			} else {
+				return $('.modal-window');
+			}
+		},
+    
+		'boxin' : function(data, modal) {
+			$('<div>').hide().addClass('modal-overlay').click(function(e) {
+				app.boxout(e);
+			})
+      .appendTo('body');
+      
+      modal.append(data).click(function(e) {
+				app.boxout(e);
+			});
+      
+			$('.modal-window,.modal-overlay').fadeIn('slow');
+		},
+    
+    'boxout' : function(e) {
+			if (e != undefined) {
+				e.preventDefault();
+			}
+			
+			$('.modal-window,.modal-overlay').fadeOut('slow', function() {
+				$(this).remove();
+			});
+		},
+    
+    'handler' : function(key) {
+			
+      $.ajax({
+        type: 'POST',
+        url: processFile,
+        dataType: 'html',
+        data: 'secret=' + key
+      })
+      .done(function(response) {
+        // console.log(response);
+        app.boxin(response, app.initModal());
+      })
+      .fail(app.error);
+      
+		},
+		
+		'error' : function(jqXHR, textStatus) {
+			console.log('Request failed: ' + textStatus);
+			// console.log(jqXHR);
+		}
+    
+	}
+	
+  link.click(function(e) {
+    e.preventDefault();
+    app.handler('get_list_users');
+  });
+  
+});
