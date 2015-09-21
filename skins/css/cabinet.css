@@ -27,7 +27,7 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 }
 
 #cabinet_general_content .cab_position_div tr td{ border:none; padding: 2px}
-#cabinet_general_content .cab_position_div tr:hover td,
+/*#cabinet_general_content .cab_position_div tr:hover td,*/
 /*#general_panel_orders_tbl tr.position-row:hover td{ background-color: #f1f1f1; cursor: default;}*/
 #cabinet_general_content .cab_position_div tr th:nth-of-type(1){ padding-left: 5px;width: 85px;}
 #cabinet_general_content .cab_position_div tr td:nth-of-type(1){ padding-left: 5px;}
@@ -619,9 +619,14 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
 	background-color: #fff;
 }
 input.calendar_date_work{
-	width: 65px;
+	width: 114px;
 	text-align: center;
 	cursor: pointer;
+}
+input.calendar_date_ready {
+    width: 114px;
+    text-align: center;
+    cursor: pointer;
 }
 .percentage_of_readiness.saved{
 	background-color: #D4C28E;

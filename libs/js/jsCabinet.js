@@ -1677,18 +1677,24 @@ $(document).on('click', '.start_statuslist_uslugi', function(event) {
 
 // выставление даты работы над услугой
 // дата сдачи заказа
-jQuery(document).ready(function($) {
-	$('.show_backlight .calendar_date_work').datetimepicker({
+$(document).ready(function($) {
+	$('.show-backlight .calendar_date_work').datetimepicker({
 		minDate:new Date(),
+
 		// disabledDates:['07.05.2015'],
-		timepicker:false,
+		timepicker:true,
 	 	dayOfWeekStart: 1,
+	 	allowTimes:[
+		  '9:00', '10:00', '11:00', 
+		  '12:00', '13:00', '14:00', '15:00', '16:00',
+		  '17:00', '18:00', '19:00', '20:00'
+		 ],
 	 	onGenerate:function( ct ){
 			$(this).find('.xdsoft_date.xdsoft_weekend')
 				.addClass('xdsoft_disabled');
 			$(this).find('.xdsoft_date');
 		},
-		closeOnDateSelect:true,
+		// closeOnDateSelect:true,
 		onChangeDateTime: function(dp,$input){// событие выбора даты
 			// получение данных для отправки на сервер
 			var row_id = $input.attr('data-id');
@@ -1704,8 +1710,59 @@ jQuery(document).ready(function($) {
 			},'json');
 			check_loading_ajax();
 		},
-	 	format:'d.m.Y',	 	
+	 	format:'d.m.Y H:i',	 	
 	});
+});
+
+$(document).ready(function($) {
+	$('.show-backlight .calendar_date_ready').datetimepicker({
+		minDate:new Date(),
+
+		// disabledDates:['07.05.2015'],
+		timepicker:true,
+	 	dayOfWeekStart: 1,
+	 	allowTimes:[
+		  '9:00', '10:00', '11:00', 
+		  '12:00', '13:00', '14:00', '15:00', '16:00',
+		  '17:00', '18:00', '19:00', '20:00'
+		 ],
+	 	onGenerate:function( ct ){
+			$(this).find('.xdsoft_date.xdsoft_weekend')
+				.addClass('xdsoft_disabled');
+			$(this).find('.xdsoft_date');
+		},
+		// closeOnDateSelect:true,
+		onChangeDateTime: function(dp,$input){// событие выбора даты
+			// получение данных для отправки на сервер
+			var row_id = $input.attr('data-id');
+			var date = $input.val();
+
+			//alert($input.attr('class'));
+			$.post('', {
+				AJAX: 'change_date_ready_of_service',
+				row_id: row_id,
+				date: date
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			},'json');
+			check_loading_ajax();
+		},
+	 	format:'d.m.Y H:i',	 	
+	});
+});
+
+// select станок
+$(document).on('change', '.machine_type', function(event) {
+	var row_id = $(this).attr('data-id');
+	var value = $(this).val();
+	$.post('', {
+		AJAX: 'change_machine_type',
+		row_id:row_id,
+		value:value
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+	check_loading_ajax();
 });
 
 // взять в работу услугу
