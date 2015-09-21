@@ -94,17 +94,25 @@
 												'subsection'=>array( // 2
 													// 'all' => array('access'=>true),
 													'create_spec' => array('access'=>true),
-													'signed' => array('access'=>true),
+													// 'signed' => array('access'=>true),
 													'requested_the_bill' => array('access'=>true),
-													'expense' => array('access'=>true)	
+													'expense' => array('access'=>true),
+													'payment_the_bill' => array('access'=>true),
+													'the_order_is_create' => array('access'=>true),
+													'refund_in_a_row' => array('access'=>true),
+													'cancelled' => array('access'=>true),	
+													'all_the_bill' => array('access'=>true)
 													)
 												), 
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													// 'in_work' => array('access'=>true),
-													// 'start' => array('access'=>true),
+													'order_all' => array('access'=>true),
+													'order_start' => array('access'=>true),
+													'order_in_work' => array('access'=>true),
+													'design_all' =>  array('access'=>true),
+													'design_for_one_men' =>  array('access'=>true),
+													'production' =>  array('access'=>true)
 													// 'production' => array('access'=>true),
 													// 'my_orders_diz' => array('access'=>true),
 													// 'all_orders_diz' => array('access'=>true),
@@ -191,18 +199,30 @@
 											'paperwork'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'create_spec' => array('access'=>true),
-													'signed' => array('access'=>true),
+													// 'requested_the_bill' => array('access'=>true),
+													// 'expense' => array('access'=>true),
+													// 'create_spec' => array('access'=>true),
+													// // 'signed' => array('access'=>true)
+													// 'signed' => array('access'=>true),
+													
 													'requested_the_bill' => array('access'=>true),
-													'expense' => array('access'=>true)													
+													'expense' => array('access'=>true),
+													'payment_the_bill' => array('access'=>true),
+													'the_order_is_create' => array('access'=>true),
+													'refund_in_a_row' => array('access'=>true),
+													'cancelled' => array('access'=>true),	
+													'all_the_bill' => array('access'=>true)																											
 													)
 												), 
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'in_work' => array('access'=>true),
-													'paused' => array('access'=>true),
-													'all' => array('access'=>true)
+													'order_all' => array('access'=>true),
+													'order_start' => array('access'=>true),
+													'order_in_work' => array('access'=>true),
+													'design_all' =>  array('access'=>true),
+													'design_for_one_men' =>  array('access'=>true),
+													'production' =>  array('access'=>true)
 													)
 												),
 											'for_shipping'=> array(
@@ -249,7 +269,8 @@
 													'tampoo' => array('access'=>true),
 													'tisnenie' => array('access'=>true),
 													'dop_uslugi' => array('access'=>true),
-													'plenki_and_klishe' => array('access'=>true)
+													'plenki_and_klishe' => array('access'=>true),
+													'production' =>  array('access'=>true)
 													)
 												)
 											)
@@ -281,17 +302,27 @@
 											'paperwork'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
+													// 'all' => array('access'=>true),
 													'create_spec' => array('access'=>true),
-													'signed' => array('access'=>true),
-													'expense' => array('access'=>true)
+													// 'signed' => array('access'=>true),
+													'requested_the_bill' => array('access'=>true),
+													'expense' => array('access'=>true),
+													'payment_the_bill' => array('access'=>true),
+													'the_order_is_create' => array('access'=>true),
+													'refund_in_a_row' => array('access'=>true),
+													'cancelled' => array('access'=>true),	
+													'all_the_bill' => array('access'=>true)		
 													)
 												), 
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'in_work' => array('access'=>true),
-													'paused' => array('access'=>true),
-													'all' => array('access'=>true)
+													'order_all' => array('access'=>true),
+													'order_start' => array('access'=>true),
+													'order_in_work' => array('access'=>true),
+													'design_all' =>  array('access'=>true),
+													'design_for_one_men' =>  array('access'=>true),
+													'production' =>  array('access'=>true)
 													)
 												),
 											'for_shipping'=> array(
@@ -423,14 +454,12 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													'start' => array('access'=>true),
-													'purchase' => array('access'=>true),
-													'design' => array('access'=>true),
-													'production' => array('access'=>true),
-													'ready_for_shipment' => array('access'=>true),
-													'paused' => array('access'=>true)
-													
+													'order_all' => array('access'=>true),
+													'order_start' => array('access'=>true),
+													'order_in_work' => array('access'=>true),
+													'design_all' =>  array('access'=>true),
+													'design_for_one_men' =>  array('access'=>true),
+													'production' =>  array('access'=>true)												
 													)
 												),
 											'for_shipping'=> array(

@@ -382,21 +382,30 @@ PS было бы неплохо взять взять это за правило
                     }                  
                     if(isset($_POST['cancel_selection'])){
                          $query .= ",`cancel_selection` = '1'";
-                    }                  
+                    }else{
+                         $query .= ",`cancel_selection` = '0'";
+                    }            
                     if(isset($_POST['moderate'])){
                          $query .= ",`moderate` = '1'";
-                    }                  
+                    }else{
+                         $query .= ",`moderate` = '0'";
+                    }
                     if(isset($_POST['btn_add_var'])){
                          $query .= ",`btn_add_var` = '1'";
-                    }                  
+                    }else{
+                         $query .= ",`btn_add_var` = '0'";
+                    }                 
                     if(isset($_POST['btn_add_val'])){
                          $query .= ",`btn_add_val` = '1'";
+                    }else{
+                         $query .= ",`btn_add_val` = '0'";
                     }
                     $query .= $where;
                    
                     $result = $mysqli->query($query) or die($mysqli->error);
 
                     echo '{"response":"OK","function":"update_form"}';
+                    // echo '{"response":"show_new_window_2","html":"'.base64_encode($this->print_arr($_POST)).'","title":"Проверяем что проиходит"}'; 
                }
 
 
@@ -424,8 +433,13 @@ PS было бы неплохо взять взять это за правило
                          $html .= '<form>';
                          unset($_POST['AJAX']);
                          foreach ($_POST as $key => $value) {
-                              $html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+                              // if($key == "parent_name"){
+                              //      $html .= '<input type="text" name="'.$key.'" value="'.$value.'" >';
+                              // }else{
+                                   $html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+                              // }
                          }
+
 
                          $html .='<div class="block">';
                               $html .= '<div class="head_texter">Общая информация</div>';
@@ -451,7 +465,7 @@ PS было бы неплохо взять взять это за правило
                               $html .= 'Название на англ.<br>';
                               // т.к. в большинстве случаев ключ нужен отличный от остальных - генерим такой
                               // исключение из правил зарезервированные системой названия
-                              $name_engl = md5(time());
+                              $name_engl = 'apl'.md5(time());
                               $html .= '<input type="text" name="name_en" id="eng_name_input" value="'.(isset($this->input[0]['name_en'])?$this->input[0]['name_en']:'').(isset($_POST['name_en'])?$_POST['name_en']:'').'"><span id="add_auto_key" data-key="'.$name_engl.'">Подставить ключ</span><br>';
                               // $html .= '<input type="text" name="name_en" id="eng_name_input" value="'..'"><br>';
                          $html .='</div>';
@@ -721,7 +735,7 @@ PS было бы неплохо взять взять это за правило
                     //////////////////////////
                     //  возвращаем форму
                     //////////////////////////
-                    return $this->generate_form_Database_Array($this->inputs).$html;
+                    return $this->generate_form_Database_Array($this->inputs,$this->type_product).$html;
                }
 
                // получаем группы товаров и их секции с описанием
@@ -850,7 +864,7 @@ PS было бы неплохо взять взять это за правило
                }
 
                // геенератор ФОРМ
-               private function generate_form_Database_Array($inputs_arr,$parent_type ='' ,$num = 0, $parent = '', $button_var_on = 0){
+               private function generate_form_Database_Array($inputs_arr,$parent_name = '' ,$parent_type ='',$num = 0, $parent = '', $button_var_on = 0){
                     // return $this->print_arr($inputs_ar);
                     $html = '';
                     $redactor_buttons = '';
@@ -858,8 +872,10 @@ PS было бы неплохо взять взять это за правило
                     $big_header_buttons = ''; // кнопки для форм
                     if(is_array($inputs_arr)){
 
-
+                         // $this->name_en01 = '';
                          foreach ($inputs_arr as $name_en => $row_inputs) {
+
+                              
                               if($this->user_access ==1){
                                    $html .= '<br>';
                               }
@@ -891,6 +907,15 @@ PS было бы неплохо взять взять это за правило
                                    // $p_name = $parent.''.'[]';
                               }
 
+                              if($this->user_access == 1 && $this->user_id == 425){
+                                   $html .= '<span style="color:#92B3DC">
+                                             id = '.$row_inputs['id'].'; parent_name = '.$row_inputs['parent_name'].'; <br>
+                                             type = '.$row_inputs['type'].'; parent_type = '.$parent_type.'; <br>
+                                             p_name = "'.$p_name.'"; $button_var_on = "'.$button_var_on.'";
+                                             </span><br>';
+                              }
+
+
 
                               //закрываем DIV
                               $id = $this->generate_id_Strintg($row_inputs['name_en']);
@@ -904,7 +929,7 @@ PS было бы неплохо взять взять это за правило
                                    // т.к. для select доаольно трудоёмко исполнить поле редактирование, кнопку "Редактировать" не выводим 
                                   $redactor_buttons = '';
                                    // Ред временно  ( пока не готово ) отключил
-                                   $redactor_buttons .= ($row_inputs['type']!="select")?'&nbsp;<span class="group_edit redactor_buttons" data-id="'.$row_inputs['id'].'" data-name_en="'.$row_inputs['name_en'].'">Ред.</span>':'';
+                                   $redactor_buttons .= ($row_inputs['type']!="select")?'&nbsp;<span class="group_edit redactor_buttons" data-id="'.$row_inputs['id'].'" data-name_en="'.$parent_name.'">Ред.</span>':'';
                                    $redactor_buttons .= '<span class="group_del redactor_buttons" data-id="'.$row_inputs['id'].'" data-name_en="'.$row_inputs['name_en'].'">Удалить</span>';
                                    $redactor_buttons .= ($row_inputs['type']!="select")?'<span class="add_element redactor_buttons" data-id="'.$row_inputs['id'].'" data-name_en="'.$row_inputs['name_en'].'"  data-type_product="'.$this->type_product.'">Добавить поле</span>':'';
                               }
@@ -916,7 +941,7 @@ PS было бы неплохо взять взять это за правило
                               //  вычисляем название поля
                               ////////////////////////// 
                               // $p_name = '';
-
+                              
                               switch ($row_inputs['type']) {
                                    case 'small_header':
                                         // закрываем предыдущий div, если он был открыт
@@ -997,7 +1022,7 @@ PS было бы неплохо взять взять это за правило
                                         break;
                                    case 'textarea':
                                              // выводполя
-                                             $html .= '<textarea data-id="'.$row_inputs['id'].'" id="'.$id.'" name="'.$p_name.'">'.$row_inputs['val'].'</textarea>'.$redactor_buttons.'<br>';
+                                             $html .= '<textarea data-id="'.$row_inputs['id'].'" id="'.$id.'" name="'.$p_name.'" placeholder="'.$row_inputs['placeholder'].'">'.$row_inputs['val'].'</textarea>'.$redactor_buttons.'<br>';
                                         break;
 
                                    case 'checkbox':
@@ -1022,14 +1047,15 @@ PS было бы неплохо взять взять это за правило
                                         $html .= '';
                                         break;
                               }
+
                               if(!empty($row_inputs['child'])){
-                                   $button_var_on = ($row_inputs['btn_add_var'] == 1)?$row_inputs['btn_add_var']:$button_var_on;
+                                   // $button_var_on = ($row_inputs['btn_add_var'] == 1)?$row_inputs['btn_add_var']:$button_var_on;
 
                                    if($row_inputs['type'] == 'small_header' || $row_inputs['type'] == 'big_header'){
-                                        $html .= $this->generate_form_Database_Array($row_inputs['child'],$row_inputs['type'],($num + 1),$row_inputs['name_en'],$button_var_on);
+                                        $html .= $this->generate_form_Database_Array($row_inputs['child'],$row_inputs['name_en'],$row_inputs['type'],($num + 1),$row_inputs['name_en'],$row_inputs['btn_add_var']);
                                    }else{
                                         $html .= '<div class="pad" '.(($this->user_access == 1)?' style="display: block;"':'').'>';
-                                             $html .= $this->generate_form_Database_Array($row_inputs['child'],$row_inputs['type'],($num + 1),$p_name,$button_var_on);
+                                             $html .= $this->generate_form_Database_Array($row_inputs['child'],$row_inputs['name_en'],$row_inputs['type'],($num + 1),$p_name,$row_inputs['btn_add_var']);
                                         $html .= '</div>';
                                    }
 
@@ -1378,7 +1404,7 @@ PS было бы неплохо взять взять это за правило
      				$html .= '</td>';
      				$html .= '<td>';
      				foreach ($variant as $key1 => $value1) {
-     					$bold = (isset($prev_variant[$key1]) && $prev_variant[$key1]!=$value1)?'bold':'normaol';
+     					$bold = (isset($prev_variant[$key1]) && $prev_variant[$key1]!=$value1)?'bold':'normal';
      					$html .= '<span style="font-weight:'.$bold.'">'.$product_options[$key1]['name'].'</span>: '.$value1.'<br>';
      				}
      				$html .= '</td>';

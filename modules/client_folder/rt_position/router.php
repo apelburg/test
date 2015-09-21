@@ -101,37 +101,10 @@
 			include 'controller_cat.php';
 			$tpl_style = 'cat';
 			break;
-		case 'pol':// полиграфия полиграфия листовая
-			include 'controller_no_cat.php';
-			$tpl_style = 'no_cat';
-			break;
-		case 'pol_many':// полиграфия многолистовая
-			include 'controller_no_cat.php';
-			$tpl_style = 'no_cat';
-			break;
-		case 'calendar':// календарь
-			include 'controller_no_cat.php';
-			$tpl_style = 'no_cat';
-			break;
-		case 'packing':// упаковка картон
-			include 'controller_no_cat.php';
-			$tpl_style = 'no_cat';
-			break;
-		case 'packing_other':// упаковка другая
-			include 'controller_no_cat.php';
-			$tpl_style = 'no_cat';
-			break;
-		case 'ext'://сувениры под заказ
-			include 'controller_no_cat.php';
-			$tpl_style = 'no_cat';
-			break;
-		case 'ext_cl'://сувениры клиента
-			include 'controller_no_cat.php';
-			$tpl_style = 'no_cat';
-			break;
 		
 		default:
-			echo 'Не известный тип продукции.';exit;
+			include 'controller_no_cat.php';
+			$tpl_style = 'no_cat';
 			break;
 	}
 

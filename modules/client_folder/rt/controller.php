@@ -335,6 +335,10 @@
 				 $extra_panel = '<div class="pos_plank pol">
 								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 								 </div>';
+			 }else{
+			 	$extra_panel = '<div class="pos_plank pol">
+								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
+								 </div>';
 			 }
 
 			 $block = (isset($dop_row['status_snab']) && ($dop_row['status_snab']=='on_calculation_snab' || $dop_row['status_snab']=='on_recalculation_snab' || $dop_row['status_snab']=='in_calculation'))?1:0;

@@ -743,8 +743,6 @@
             global $mysqli;
 
 
-            // echo $rows_data.' - '.$client_id.' - '.$query_num.' - '.$specification_num.' - '.$agreement_id;
-            // = json_decode($rows_data,true);
             $user_id = $_SESSION['access']['user_id'];
 
             // убиваем пустые позиции
@@ -753,24 +751,13 @@
             		$positions_arr[] = $value;
             	}
             }
-            // echo $rows_data;
-            // echo '<pre>';
-            // print_r($positions_arr);
-            // echo '</pre>';
             	
             /////////////////////////////
-            //  СОЗДАНИЕ ЗАКАЗА -- START
+            //  СОЗДАНИЕ СТРОКИ с информацией по группе товаров в спецификации -- START
             /////////////////////////////       
 
-                // определяем номер заказа
-                $query = "SELECT MAX(order_num) max FROM `".CAB_ORDER_ROWS."`";                                 
-                $result = $mysqli->query($query) or die($mysqli->error);
-                $order_num_data = $result->fetch_assoc();
-                $order_num = ($order_num_data['max']==0)? 00001:$order_num_data['max']+1;
-                //echo $query_num;
-
                 // КОПИРУЕМ СТРОКУ ЗАКАЗА из таблицы запросов
-                $query = "INSERT INTO `".CAB_ORDER_ROWS."`  (`manager_id`, `client_id`, `snab_id`, `query_num` )
+                $query = "INSERT INTO `".CAB_BILL_AND_SPEC_TBL."` (`manager_id`, `client_id`, `snab_id`, `query_num` )
                     SELECT `manager_id`, `client_id`, `snab_id`, `query_num`
                     FROM `".RT_LIST."` 
                     WHERE  `query_num` = '".$query_num."';
@@ -778,70 +765,84 @@
                 // выполняем запрос
                 $result = $mysqli->query($query) or die($mysqli->error);
                 // получаем id нового заказа... он же номер
-                $order_id = $mysqli->insert_id; 
-                // пишем номер заказа в созданную строку
-                $query = "UPDATE  `".CAB_ORDER_ROWS."` SET
-                            `order_num` =  '".(int)$order_num."' ,
-                            `specification_num` = '".(int)$specification_num."',
-                            `agreement_id` = '".(int)$agreement_id."'
-                            WHERE  `id` ='".$order_id."';";
-                // выполняем запрос
+                $the_bill_id = $mysqli->insert_id; 
+               
+            /////////////////////////////
+            //  СОЗДАНИЕ СТРОКИ с информацией по группе товаров в спецификации -- start
+            /////////////////////////////
+
+            //////////////////////////
+            //	Запрашиваем информацию по специяикацииии -- start
+            //////////////////////////
+                $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE `agreement_id` = '".$agreement_id."' AND `specification_num` = '".$specification_num."'";
+
                 $result = $mysqli->query($query) or die($mysqli->error);
 
-                /*
-                    на выходе имеем order_id - id строки заказа
-                    и $order_num - номер заказа
-                */
-            /////////////////////////////
-            //  СОЗДАНИЕ ЗАКАЗА -- START
-            /////////////////////////////
+				$specificate_rows = array();
+					
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$specificate_rows[] = $row;
+					}
+				}
+			//////////////////////////
+            //	Запрашиваем информацию по спец-ии -- end
+            //////////////////////////
+				
+
+
+            ////////////////////////////////////
+            //	Сохраняем данные о спецификации  -- start
+            ////////////////////////////////////
+				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET ";
+				$query .= " `specification_num` = '".(int)$specification_num."',";
+				$query .= " `agreement_id` = '".(int)$agreement_id."', ";
+				$query .= " `prepayment` = '".(int)$specificate_rows[0]['prepayment']."'";
+				$query .= " WHERE `id` = '".$the_bill_id."'";
+				// выполняем запрос
+				echo $query;
+                $result = $mysqli->query($query) or die($mysqli->error);
+			////////////////////////////////////
+            //	Сохраняем данные о спецификации  -- end
+            ////////////////////////////////////
 
             // echo '<br>'.$order_num.'<br>';
             // перебираем принятые данные по позициям
 
-            $query1 = '';//запрос копирования услуг
             foreach ($positions_arr as $position) {
-            	// if(empty($position)){echo 'пусто<br>';continue(2);}else{echo '<pre>';
-            	// print_r($position);
-            	// echo '</pre>';
-            	// 	}
-                // ЗАВОДИМ ПОЗИЦИИ К НОВОМУ ЗАКАЗУ
+            	//////////////////////////
+            	//	заведение позиций
+            	//////////////////////////
+	                $query = "INSERT INTO `".CAB_ORDER_MAIN."`  (`master_btn`,`type`,`art`,`art_id`,`name`)
+	                    SELECT `master_btn`,`type`,`art`,`art_id`,`name`
+	                    FROM `".RT_MAIN_ROWS."` 
+	                    WHERE  `query_num` = '".$query_num."' 
+	                    AND `id` = '".$position['pos_id']."';
+	                ";
 
-                //`dop_info_no_cat` не копируем т.к. это общая информация обовсех вариантах
-                $query = "INSERT INTO `".CAB_ORDER_MAIN."`  (`master_btn`, `order_num`,`type`,`art`,`art_id`,`name`)
-                    SELECT `master_btn`,`query_num`,`type`,`art`,`art_id`,`name`
-                    FROM `".RT_MAIN_ROWS."` 
-                    WHERE  `query_num` = '".$query_num."' 
-                    AND `id` = '".$position['pos_id']."';
-                ";
+	                // выполняем запрос
+	                $result = $mysqli->query($query) or die($mysqli->error);
+	                // id новой позиции
+	                $main_row_id = $mysqli->insert_id;
 
-                // выполняем запрос
-                $result = $mysqli->query($query) or die($mysqli->error);
-                // id новой позиции
-                $main_row_id = $mysqli->insert_id;
-
-                // echo $query.'<br>';
-
-                // выбираем id строки расчёта
-                // КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
-                $query = "INSERT INTO `" . CAB_ORDER_DOP_DATA . "`  (
-                    `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
-                    `print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
-                    )
-                    SELECT `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
-                    `print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
-                    FROM `".RT_DOP_DATA."` 
-                    WHERE  `id` = '".$position['row_id']."'
-                ";
-                $result = $mysqli->query($query) or die($mysqli->error);
                 
-                $dop_data_row_id = $mysqli->insert_id; // id нового расчёта... он же номер
 
-                // echo $dop_data_row_id.'<br>';
+	                // выбираем id строки расчёта
+	                // КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
+	                $query = "INSERT INTO `" . CAB_ORDER_DOP_DATA . "`  (
+	                    `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
+	                    `print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
+	                    )
+	                    SELECT `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
+	                    `print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
+	                    FROM `".RT_DOP_DATA."` 
+	                    WHERE  `id` = '".$position['row_id']."'
+	                ";
+	                $result = $mysqli->query($query) or die($mysqli->error);
+	                
+	                $dop_data_row_id = $mysqli->insert_id; // id нового расчёта... он же номер
 
-                // echo $query.'<br>';
-
-                // echo '$dop_data_row_id = '.$dop_data_row_id;
+                
 
 
                 // правим row_id на полученный из созданной строки позиции
@@ -852,7 +853,7 @@
                 
                 // правим order_num на новый номер заказа
                 $query = "UPDATE  `".CAB_ORDER_MAIN."` 
-                        SET  `order_num` =  '".$order_num ."' 
+                        SET  `the_bill_id` =  '".$the_bill_id ."' 
                         WHERE  `id` ='".$main_row_id."';";
                 $result = $mysqli->query($query) or die($mysqli->error);
 
@@ -908,39 +909,9 @@
                 //////////////////////////////////////////////////////
                 //    КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ -- end  //
                 //////////////////////////////////////////////////////
-                /*      
-                        пока не знаю нужно ли копировать id создателя услуги из запроса в заказ.
-                        пока что не копируем
-                        `author_id_added_services` = '".$row['creator_id']."',      
-                */
-
-                /*if($result->num_rows > 0){
-                    while($row = $result->fetch_assoc()){
-                        $arr_dop_uslugi[] = $row;
-                    }
                 
-                    $query1 =''; 
-                    foreach ($arr_dop_uslugi as $usluga) {
-                        $query1 .= "INSERT INTO `".CAB_DOP_USLUGI."` SET
-                        `dop_row_id` =  '".$dop_data_row_id."',
-                        `uslugi_id` = '".$usluga['uslugi_id']."',
-                        `glob_type` = '".$usluga['glob_type']."',
-                        `type` = '".$usluga['type']."',
-                        `quantity` = '".$usluga['quantity']."',
-                        `price_in` = '".$usluga['price_in']."',
-                        `price_out` = '".$usluga['price_out']."',
-                        `for_how` = '".$usluga['for_how']."',
-                        `tz` = '".$usluga['tz']."',
-                        `print_details` = '".$usluga['print_details']."';";
-                    }
-                }*/
 
             }
-/*
-            if($query1!=''){// в случае наличия доп услуг
-                    $result = $mysqli->multi_query($query1) or die($mysqli->error); 
-                }
-            return 1;*/
         }  
     }
 ?>

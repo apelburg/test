@@ -193,7 +193,16 @@ class Client {
 		// print_r($contacts);
 		// echo '</pre>';			
 
-		
+		$get_str = '';
+		$n = 0;
+		foreach ($_GET as $key => $value) {
+			if($key != 'client_id'){
+				$get_str .= ($n==0)?'?':'&';
+				$get_str .= $key.'='.$value;
+				$n++;
+			}
+		}
+		$back_without_client = '<a id="back_without_client" href="./'.$get_str.'"></a>';
 
 		$phone = '';
 		$email = '';

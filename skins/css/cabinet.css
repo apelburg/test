@@ -28,7 +28,7 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 
 #cabinet_general_content .cab_position_div tr td{ border:none; padding: 2px}
 #cabinet_general_content .cab_position_div tr:hover td,
-#general_panel_orders_tbl tr.positions_rows:hover td{ background-color: #f1f1f1; cursor: default;}
+/*#general_panel_orders_tbl tr.position-row:hover td{ background-color: #f1f1f1; cursor: default;}*/
 #cabinet_general_content .cab_position_div tr th:nth-of-type(1){ padding-left: 5px;width: 85px;}
 #cabinet_general_content .cab_position_div tr td:nth-of-type(1){ padding-left: 5px;}
 #cabinet_general_content .cab_position_div tr th:nth-of-type(2){/* width: 340px;*/}
@@ -46,6 +46,9 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 .cabinet_general_content_row tr th:nth-last-child(3){width: 100px; padding: 0}
 .cabinet_general_content_row tr th:nth-last-child(2){width: 120px;padding: 0}
 .cabinet_general_content_row tr th:nth-last-child(1){width: 120px;padding: 0}
+#cabinet_general_content_row tr td:nth-last-child(3){font-size: 12px;}
+#cabinet_general_content_row tr th:nth-last-child(2){width: 120px;padding: 0}
+#cabinet_general_content_row tr th:nth-last-child(1){width: 150px;padding: 0}
 .cabinet_general_content_row tr th:nth-of-type(2){width: 60px;padding: 0}
 
 #cabinet_general_content .cab_position_div tr th:nth-last-child(3){width: 100px;padding: 2px}
@@ -214,7 +217,21 @@ tr.cat_8 td {
 	font-size: 12px;
 }
 #general_panel_orders_tbl .order_head_row td{
-	background-color: #e8e8e8;
+    background-color: #c8db9e;
+}
+#general_panel_orders_tbl .specificate_rows td{
+	background-color: #e9f1ff;
+}
+#general_panel_orders_tbl .specificate_rows td .greyText a{
+	color: #6d6e72;
+}
+#general_panel_orders_tbl .specificate_rows td  a{
+	color: #3d3ddf;
+	text-decoration: underline;
+}
+
+#general_panel_orders_tbl .specificate_rows td a:hover{
+	text-decoration: none;
 }
 .orders_info{
 	font-size: 12px;
@@ -235,7 +252,7 @@ tr.cat_8 td {
 }
 
 .show_the_full_information{ 
-	text-decoration: underline; 
+	/*text-decoration: underline; */
 	cursor: default;
 }
 
@@ -262,13 +279,14 @@ tr.cat_8 td {
 	background: #fff;
 	cursor: pointer;
 }
-#cabinet_general_content #general_panel_orders_tbl tr.positions_rows{
+#cabinet_general_content #general_panel_orders_tbl tr.position-row{
 	display: none;
 }
-#cabinet_general_content #general_panel_orders_tbl tr.positions_rows td{
+#cabinet_general_content #general_panel_orders_tbl tr.position-row td,
+#cabinet_general_content #general_panel_orders_tbl tr.specificate_rows td{
 	border: 1px solid #e8e8e8;
 }
-#cabinet_general_content #general_panel_orders_tbl tr.positions_rows.position_general_row td{
+#cabinet_general_content #general_panel_orders_tbl tr.position-row.position-row-production td{
 	border-bottom: 1px solid #D1D1D1;
 	border-top: 1px solid #D1D1D1;
 }
@@ -520,7 +538,7 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
     font-size: 17px;
     color: #6F5B5B;
 }
-.date_of_delivery_of_the_order,.approval_date{
+.date_of_delivery_of_the_order,.approval_date,.date_of_delivery_of_the_specificate{
 	width: 65px
 }
 
@@ -569,20 +587,21 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
     border: 1px solid #AAAAAA;
     background-color: #D2D2D2;
 }
-#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production{
 	display: none; /*скрыть позиции*/
 }
 #cabinet_general_content table#general_panel_orders_tbl tr.order_head_row td{
 	border-top: 1px solid #6d6e72;
 }
-#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production td{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td{
 	border: 1px solid #f1f1f1;
 }
 
-#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production:hover td.show_backlight{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production:hover td.show-backlight{
 	background-color: #f1f1f1;
 }
-#cabinet_general_content table#general_panel_orders_tbl tr.position_for_production:hover td.show_dialog_tz_for_production:hover{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.js-modal--tz-prodaction:hover,
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.position-row-production__service-name:hover{
 	background-color: #BBCE91;
 	cursor: pointer;
 }
@@ -688,27 +707,37 @@ input.calendar_date_work{
 	width: 83px;
 	cursor: default;
 }
-.buh_window .for_price_the_bill{
+.buh_window .for_price_the_bill,
+.document_pp .payment_date,
+.document_pko .payment_date,
+.document_ttn .ttn_date,
+.document_ttn .date_return{
 	width: 85px;
 }
 .saved{
 	background-color: #f1f1f1;
 }
 
-#cabinet_general_content table tr th.buh_uchet{
+#cabinet_general_content table tr th.buh_uchet,
+#cabinet_general_content table tr th.buh_uchet_for_spec,
+#cabinet_general_content table tr th.buh_uchet_for_щквук{
 	text-align: center;
 }
-#cabinet_general_content table tr td.buh_uchet{
+#cabinet_general_content table tr td.buh_uchet,
+#cabinet_general_content table tr td.buh_uchet_for_spec,
+#cabinet_general_content table tr td.buh_uchet_for_order{
 	background-image: url('../../skins/images/img_design/open_buch_uchet.png');
 	background-position: 50%;
 	background-repeat: no-repeat;
 }
-.buh_uchet:hover{
+.buh_uchet:hover,
+.buh_uchet_for_spec:hover,
+#cabinet_general_content .buh_uchet_for_order:hover{
 	background-color: #BBCE91;
     cursor: pointer;
 }
-.buch_status_select:hover{
-	background-color: #BBCE91;
+#cabinet_general_content table tr td.buch_status_select:hover{
+	background-color: #D7E4FB;;
     cursor: pointer;
 }
 .tz_text_new {
@@ -742,6 +771,15 @@ span.buch_comments.only_read {
     border: 1px solid #ddd;
     color: grey;
     cursor: pointer;
+}
+.del_pp,
+.del_pko,
+.del_ttn{
+	padding: 1px 5px 0 5px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: grey;
+    cursor: pointer;	
 }
 #container_from_the_bill{
 	padding: 9px 0 3px;
@@ -794,4 +832,153 @@ span.buch_comments.only_read {
 }
 #replace_the_dialog_window{
 	float: right;
+}
+
+#buch_window_optional_buttons {
+    text-align: right;
+    padding-top: 15px;
+}
+#buch_window_optional_buttons button {
+    margin-left: 15px;
+}
+
+#cabinet_general_content_row .check_show_me{
+	display: none;
+}
+#cabinet_general_content_row .check_show_me.show{
+	display: table-cell;
+}
+#tabs ul{
+	border-top: 1px solid;
+    padding: 13px 3px 10px 3px;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    border-color: #2f6439;
+    background-color: #e2e2e4;
+}
+#tabs ul li{
+	list-style: none;
+    display: initial;
+    cursor: pointer;
+    padding: 9px;
+    color: #5a5c61;
+    border: 1px solid #2f6439;
+    border-radius: 5px 5px 0 0;
+        font-size: 10px;
+}
+#tabs ul li.checked{
+	color: #000;
+	border-bottom: 1px solid #fff;
+	background-color:#fff; 
+}
+#tabs ul li:hover{
+	background: #f4f4f4;
+}
+#tabs ul li.checked:hover{
+	background: #fff;
+}
+.the_bill_is_ready{
+	display: none;
+}
+button#add_pp,
+button#add_pko,
+button#add_ttn{
+	margin-right: 20px;
+	margin-top: 15px;
+}
+.document_pp_hidden,
+.document_pko_hidden,
+.document_ttn_hidden{
+	display: none;
+}
+.document_pp,
+.document_pko,
+.document_ttn{
+    padding: 7px 0px;
+}
+#export_in_order_div{
+	position: fixed;
+	display: none;
+	bottom: 0;
+	height: 100px;
+	border-top: 2px dashed #898989;
+	z-index: 101;
+  	background: url(../images/img_design/apl_pattern.png);
+  	width: 100%;
+    left: 0;
+    opacity: 0;
+}
+#create_the_order.checked{
+    background: #AFAFAF;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+#export_in_order_div ul{
+	margin: 0 auto;
+    float: left;
+    width: 100%;
+    text-align: center;
+    margin-top: 30px;
+}
+#export_in_order_div ul li{
+    list-style: none;
+    display: inline;
+    padding: 11px 60px 9px 60px;
+    border: 3px solid #FFFFFF;
+    background-color: #CD2328;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 27px;
+
+}
+#cabinet_general_content table#general_panel_orders_tbl  table.curator_on_request tr td{
+	border: none;
+}
+#cabinet_general_content #general_panel_orders_tbl tr.specificate_rows{
+	display: none;
+}
+#cabinet_general_content table#general_panel_orders_tbl tr td.order_status_chenge{
+    cursor: pointer;
+}
+
+#cabinet_general_content table#general_panel_orders_tbl tr td.order_status_chenge:hover{
+    background-color: #BBD288;
+}
+div#cabinet_filtres {
+    padding: 6px 9px;
+    color: grey;
+}
+#cabinet_filtres_list ul {
+    padding: 1px 1px;
+    margin: 0;
+    list-style: none;
+    float: left;
+    width: 100%;
+}
+
+#cabinet_filtres_list ul li {
+    display: table-cell;
+    padding: 5px 5px 0px 5px;
+    font-size: 14px;
+    padding-right: 0;
+    background-color: #C8DB9E;
+    float: left;
+    margin-right: 2px;
+    border: 1px solid #B7B8BB;
+}
+#cabinet_filtres_list a.close {
+    background-color: #B7B8BB;
+    padding: 3px 9px;
+    /* position: absolute; */
+    margin-top: -6px;
+    margin-left: 6px;
+    color: #fff;
+    font-size: 19px;
+    cursor: pointer;
+    text-decoration: none;
+    float: right;
+}
+#cabinet_filtres_list a.close:hover {
+    background-color: #939496;
 }
