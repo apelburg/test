@@ -9,6 +9,9 @@ function addInputField(selectNode){
    //alert(tbody);
    
    var tr = document.createElement("TR");
+   var td0 = document.createElement("TD");
+   td0.innerHTML = "<input type='checkbox' checked>";
+   
    var td1 = document.createElement("TD");
    td1.innerHTML = id;
    
@@ -22,6 +25,7 @@ function addInputField(selectNode){
    td4.className = 'pointer';
    td4.onclick = deleteRowFromTable;
    
+   tr.appendChild(td0);
    tr.appendChild(td1);
    tr.appendChild(td2);
    tr.appendChild(td3);
@@ -38,14 +42,39 @@ function addInputField(selectNode){
    return false;
 }
 
+function _deleteRowFromTable(e){
+   e = e || window.event;
+   var cell = e.target || e.srcElement;
+   var tr = cell.parentNode;
+   document.getElementById('dataBufferForDeleting').value+='|'+tr.firstChild.nextSibling.innerHTML;//
+   var tbl = tr.parentNode;
+   tbl.removeChild(tr);
+   if(tbl.getElementsByTagName('TR').length < 2) tbl.style.display = 'none';
+   
+}
+
 function deleteRowFromTable(e){
    e = e || window.event;
    var cell = e.target || e.srcElement;
    var tr = cell.parentNode;
-   document.getElementById('dataBufferForDeleting').value+='|'+tr.firstChild.innerHTML;//
-   var tbl = tr.parentNode;
-   tbl.removeChild(tr);
-   if(tbl.getElementsByTagName('TR').length < 2) tbl.style.display = 'none';
+   var table = tr.parentNode;
+   var id = tr.firstChild.nextSibling.innerHTML;
+   //проверяем таблицу если в таблице осталось еще строчка с данным типом нанесения то не будем её удалять(не добавляем в dataBufferForDeleting)
+   var entriesCount = 0; // считаем количество вхождений если будет больше 1 не удаляем
+   var rows = table.getElementsByTagName('TR');
+   for(var i=1;i<rows.length;i++){
+	   var cels = rows[i].getElementsByTagName('TD');
+	   for(var j=0;j<cels.length-1;j++){
+		   if(j==1){
+		       //alert(cels[j].innerHTML+' == '+id);
+		       if(cels[j].innerHTML == id) entriesCount++; 
+		   }
+	   }
+   }
+	
+   if(entriesCount==1) document.getElementById('dataBufferForDeleting').value+='|'+id;//
+   table.removeChild(tr);
+   if(table.getElementsByTagName('TR').length < 2) table.style.display = 'none';
    
 }
 
@@ -59,13 +88,18 @@ function placesEditorSendDataToBase(form,data_obj){
    dataForBuffer.menu_id = data_obj.menu_id;
    dataForBuffer.tbl_data = [];
    
-   for(var i=0;i<rows.length;i++){
+   loop:
+   for(var i=1;i<rows.length;i++){
 	   var cels = rows[i].getElementsByTagName('TD');
 	   var celsData=[];
 	   for(var j=0;j<cels.length-1;j++){
-		   celsData[j] = cels[j].innerHTML;
+		   if(j==0){
+		       if(cels[j].getElementsByTagName('INPUT')[0].checked == false) continue loop;
+			   continue; 
+		   }
+		   else celsData.push(cels[j].innerHTML);
 	   }
-	   dataForBuffer.tbl_data[i] = celsData;
+	   if(celsData.length>0)dataForBuffer.tbl_data.push(celsData);
    }
    document.getElementById(data_obj.bufferId).value =  JSON.stringify(dataForBuffer);
    form.submit();
@@ -94,7 +128,7 @@ function placesEditorSendDataToBase(form,data_obj){
 При запуске калькулятора система смотрит есть ли у данного артикула совпадения между нанесениями прикрепленными напрямую и прикрепленными к "местам нанесения".<br />
  - если система находит совпадения, то те которые прикреплены напрямую игнорируются<br />
  - если после проверки остаются какие-либо непроигнорированные нанесения прикрепленные напрямую, создается место нанесения "Стандартно" и они добавляются в него. В Итоге в калькуляторе в добавление к имеющимся у артикула местам нанесения выводится пункт "Стандартно" в котором указываются непроигнорированные "оригинальные" нанесения(из числа прикрепленных напрямую) более нигде не указанные для данного артикула<br />
- - если у артикула нет присвоенных мест нанесения, то создается место нанесения "Стандартно" и все артикулы присвоенные напрямую добавляются в него и он единственный выводится в калькуляторе.<br />
+ - если у артикула нет присвоенных мест нанесения, то создается место нанесения "Стандартно" и все типы нанесений присвоенные напрямую добавляются в него и он единственный выводится в калькуляторе.<br />
  - если у артикула нет ни прикрепленных напрямую нанесений, ни присвоенных "мест нанесений", или если это не артикул из каталога то создается место нанесения "Стандартно" и в нем выводятся все имеющиеся у нас типы нанесений<br />
  <br />
  <br />

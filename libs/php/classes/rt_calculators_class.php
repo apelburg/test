@@ -42,7 +42,7 @@
 			
 			
 			// в результате действия метода будет получен массив всех данных для артикула необходимых для совершения
-			// расчетов в калькуляторе
+			// расчетов в калькуляторе JavaScript метод вызывающий данную функцию называется evoke_calculator()
 			// массив 
 			// 
             //  Array  (
@@ -55,33 +55,34 @@
 			//          )
            
 			
-			// если есть id артикула
-			if(isset($data->art_id) && (int)$data->art_id!=0){ 
-				// ищем типы нанесения присвоенные данному артикулу на прямую
-				// возврашаемое значение: массив содержащий один элемент обозначающий (имитирующий)
-				// стандартное (дефолтное) место нанесения с вложенными в него типами нанесения 
-			    // $out_put_data = self::get_related_art_and_print_types($data->art_id);
-				$out_put_data = array('out_put'=> array(),'result1'=>false);
-				$result1 = $out_put_data['result1'];
-		 
-				// получаем (если установленны) данные о конкретных местах нанесения для данного артикула
-				// если были найдены места добавляем их в масив $out_put
-				// и заполняем их данным о присвоенных местам типам нанесиния 
-                $out_put_data = self::get_related_print_places($out_put_data['out_put'],$data->art_id);
-				$out_put_data['result1'] = $result1;
-			}
-			//echo $out_put_data['result1'].'-';
-			//echo $out_put_data['result2'];
-			// !! если id аритикула не известно присваиваем "стандартное" место нанесения и присваимваем все возможные типы нанесения 
-			// и если до этого не были никакие типы и места нанесения
-			if(!(isset($data->art_id) && (int)$data->art_id!=0) || (!$out_put_data['result1'] && !$out_put_data['result2'])){ 
-			    //echo 'all_sizes_in_one_place';
+			// если id артикула равно 0 или id артикула совсем не передано добавляем все имеющиеся виды во вкладку Стандартно
+			if((int)$data->art_id==0 || !isset($data->art_id)){ 
 			    $all_sizes_in_one_place = TRUE;
-				$out_put = self::get_all_print_types();
+			    $out_put = self::get_all_print_types(); 
 			}
-			else{
-			   $all_sizes_in_one_place = FALSE;
-			   $out_put = $out_put_data['out_put'];
+			else if(isset($data->art_id) && (int)$data->art_id!=0){ 
+			    $all_sizes_in_one_place = FALSE;
+			    // получаем (если установленны) данные о конкретных местах нанесения для данного артикула
+				// создаем дополнительный (служебный) массив из id типов нанесения, который мы будем использовать 
+				// на следующем этапе чтобы отфильтровать повторяющиеся типы нанесения
+				//
+                $out_put_data1 = self::get_related_print_places($data->art_id);
+				$out_put = $out_put_data1['out_put'];
+				
+				// ищем типы нанесения присвоенные данному артикулу на прямую
+				// при этом проверяем на совпадение с уже ранее добавленными в $out_put типами нанесения 
+				// если есть совпадение то пропускаем такой тип нанесения
+				// если были найдены какието оригинальные типы нанесения добавляем их в $out_put внутри 
+				// места нанесения "Стандартно"
+			    $out_put = self::get_related_art_and_print_types($out_put,$data->art_id,$out_put_data1['print_types_ids']);
+
+				// если до этого момента никакой информации небыо найдено 
+				// добавляем все имеющиеся виды во вкладку Стандартно
+				if(count($out_put)==0){
+				    $all_sizes_in_one_place = TRUE;
+		            $out_put = self::get_all_print_types(); 
+				}
+				
 			}
 			
 			// получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
@@ -90,6 +91,82 @@
 			//print_r($out_put);
 			echo json_encode($out_put);
 		
+		}
+		static function get_related_art_and_print_types($out_put,$art_id,$print_types_ids){
+		    global $mysqli;  
+						
+			//UPDATE `new__base__print_mode` SET `print_id`=13 WHERE `print` = 'шелкография'
+			// получаем данные о типах нанесений соответсвующих данному артикулу на прямую
+			// $query="SELECT*FROM `".BASE_PRINT_MODE_TBL."`  WHERE `art_id` = '".$art_id."'";
+			
+			$query="SELECT tbl1.`print_id` print_id, tbl2.`name` name FROM `".BASE_PRINT_MODE_TBL."` tbl1  INNER JOIN 
+			                    `".OUR_USLUGI_LIST."` tbl2   ON tbl1.`print_id`  = tbl2.`id`
+			                    WHERE tbl1.`art_id` = '".$art_id."'";
+			
+			 
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows>0){
+				$print_types = array();
+				
+			    while($row = $result->fetch_assoc()){
+				    if($row['print_id']!=0 && !in_array($row['print_id'],$print_types_ids)){
+					
+					    // создаем элемент (массив) с ключом равным id типа нанесения, дальше в этот массив будет добавленна подробная 
+						// информация об этом нанесении с помощью функции get_print_types_related_data()
+				        if(!isset($out_put['print_types'][$row['print_id']])) $out_put['print_types'][$row['print_id']] = array();
+					    $print_types[$row['print_id']] = $row['name'];		
+					}
+				}
+				// если после фильтрации были найдены данные 
+                // добавляем результат в итоговый массив ключем устанавливаем 0 (чтобы данное место нанесения выводилось первым)
+				// в остальных случаях используется id места нанесения (оно не может быть 0 поэтому не будет конфликта)
+				if(count($print_types)>0){
+				    $out_put['places'][0]['name'] = 'Стандартно';
+					$out_put['places'][0]['prints'] = $print_types;	
+				}
+			}
+			return $out_put;
+		}
+		static function get_related_print_places($art_id){
+		    global $mysqli;  
+			
+			$out_put = $print_types_ids = array();
+			
+			// получаем данные о местах нанесений соответсвующих данному артикулу
+			$query="SELECT tbl1.`place_id` place_id, tbl2.`name` name  FROM `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl1 
+			        INNER JOIN  `".BASE__PRINT_PLACES_TYPES_TBL."` tbl2 
+					ON tbl1.`place_id`  = tbl2.`id`
+                    WHERE tbl1.`art_id` = '".$art_id."'";
+			//echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows>0){
+			    while($row = $result->fetch_assoc()){
+				    // получаем данные о типах нанесений соответсвующих данному месту
+					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` tbl1
+					          INNER JOIN  `".OUR_USLUGI_LIST."` tbl2 
+					          ON tbl1.`print_id`  = tbl2.`id` 
+							  WHERE tbl1.`place_id` = '".$row['place_id']."' GROUP BY tbl1.print_id";
+					
+					$result_2 = $mysqli->query($query_2)or die($mysqli->error);
+					if($result_2->num_rows>0){
+					    $print_types = array();
+						while($row_2 = $result_2->fetch_assoc()){
+						    // создаем элемент (массив) с ключом равным id типа нанесения, дальше в этот массив будет добавленна подробная 
+						    // информация об этом нанесении с помощью функции get_print_types_related_data()
+						    if(!isset($out_put['print_types'][$row_2['print_id']])) $out_put['print_types'][$row_2['print_id']] = array();	
+						    $print_types[$row_2['print_id']] = $row_2['name'];
+							// служебный для следующего этапа
+							$print_types_ids[] = $row_2['print_id'];
+						}
+						// добавляем результат в итоговый массив ключем устанавливаем id места нанесения
+						$out_put['places'][$row['place_id']]['name'] = $row['name'];
+						$out_put['places'][$row['place_id']]['prints'] = $print_types;		
+					}			
+				}
+			}
+			
+			return array('out_put'=>$out_put,'print_types_ids'=>$print_types_ids);
 		}
 		static function get_all_print_types(){
 		    global $mysqli; 
@@ -112,73 +189,6 @@
 				$out_put['places'][0]['prints'] = $print_types;		
 			}	
 			return $out_put;		
-		}
-		static function get_related_art_and_print_types($art_id){
-		    global $mysqli;  
-			$out_put = array();
-			
-			//UPDATE `new__base__print_mode` SET `print_id`=13 WHERE `print` = 'шелкография'
-			// получаем данные о типах нанесений соответсвующих данному артикулу на прямую
-			$query="SELECT*FROM `".BASE_PRINT_MODE_TBL."` WHERE `art_id` = '".$art_id."'";
-			//echo $query;
-			$result = $mysqli->query($query)or die($mysqli->error);/**/
-			if($result->num_rows>0){
-			    
-			   
-				
-			    while($row = $result->fetch_assoc()){
-				    if($row['print_id']!=0){
-				        if(!isset($out_put['print_types'][$row['print_id']])) $out_put['print_types'][$row['print_id']] = array();
-					    $out_put['places'][0]['prints'][$row['print_id']] = $row['print'];		
-					}
-				}
-				if(isset($out_put['print_types'])){
-					$out_put['places'][0]['name'] = 'Стандартно';
-					$gotResult = true;
-				}
-				$gotResult = false;
-			}
-			$gotResult = false;
-			
-			return  array('out_put'=>$out_put,'result1'=>$gotResult);
-		}
-		static function get_related_print_places($out_put,$art_id){
-		    global $mysqli;  
-			 
-			
-			// получаем данные о местах нанесений соответсвующих данному артикулу
-			$query="SELECT tbl1.`place_id` place_id, tbl2.`name` name  FROM `".BASE__ART_PRINT_PLACES_REL_TBL."` tbl1 
-			        INNER JOIN  `".BASE__PRINT_PLACES_TYPES_TBL."` tbl2 
-					ON tbl1.`place_id`  = tbl2.`id`
-                    WHERE tbl1.`art_id` = '".$art_id."'";
-			//echo $query;
-			$result = $mysqli->query($query)or die($mysqli->error);/**/
-			if($result->num_rows>0){
-			    while($row = $result->fetch_assoc()){
-				    // получаем данные о типах нанесений соответсвующих данному месту
-					$query_2="SELECT  tbl1.print_id print_id,tbl2.name name FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` tbl1
-					          INNER JOIN  `".OUR_USLUGI_LIST."` tbl2 
-					          ON tbl1.`print_id`  = tbl2.`id` 
-							  WHERE tbl1.`place_id` = '".$row['place_id']."' GROUP BY tbl1.print_id";
-					
-					$result_2 = $mysqli->query($query_2)or die($mysqli->error);/**/
-					if($result_2->num_rows>0){
-					    $print_types = array();
-						while($row_2 = $result_2->fetch_assoc()){
-						    if(!isset($out_put['print_types'][$row_2['print_id']])) $out_put['print_types'][$row_2['print_id']] = array();	
-							
-						    $print_types[$row_2['print_id']] = $row_2['name'];
-						}
-						// добавляем результат в итоговый массив ключем устанавливаем id места нанесения
-						$out_put['places'][$row['place_id']]['name'] = $row['name'];
-						$out_put['places'][$row['place_id']]['prints'] = $print_types;		
-					}			
-				}
-				$gotResult = true;
-			}
-			else $gotResult = false;
-			
-			return array('out_put'=>$out_put,'result2'=>$gotResult);
 		}
 		static function get_print_types_related_data($out_put,$all_sizes_in_one_place){
 		    global $mysqli;  

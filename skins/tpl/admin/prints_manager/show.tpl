@@ -9,6 +9,9 @@ function addInputField(selectNode){
    //alert(tbody);
    
    var tr = document.createElement("TR");
+   var td0 = document.createElement("TD");
+   td0.innerHTML = "<input type='checkbox' checked>";
+   
    var td1 = document.createElement("TD");
    td1.innerHTML = id;
    
@@ -22,6 +25,7 @@ function addInputField(selectNode){
    td4.className = 'pointer';
    td4.onclick = deleteRowFromTable;
    
+   tr.appendChild(td0);
    tr.appendChild(td1);
    tr.appendChild(td2);
    tr.appendChild(td3);
@@ -42,10 +46,24 @@ function deleteRowFromTable(e){
    e = e || window.event;
    var cell = e.target || e.srcElement;
    var tr = cell.parentNode;
-   document.getElementById('dataBufferForDeleting').value+='|'+tr.firstChild.innerHTML;//
-   var tbl = tr.parentNode;
-   tbl.removeChild(tr);
-   if(tbl.getElementsByTagName('TR').length < 2) tbl.style.display = 'none';
+   var table = tr.parentNode;
+   var id = tr.firstChild.nextSibling.innerHTML;
+   //проверяем таблицу если в таблице осталось еще строчка с данным типом нанесения то не будем её удалять(не добавляем в dataBufferForDeleting)
+   var entriesCount = 0; // считаем количество вхождений если будет больше 1 не удаляем
+   var rows = table.getElementsByTagName('TR');
+   for(var i=1;i<rows.length;i++){
+	   var cels = rows[i].getElementsByTagName('TD');
+	   for(var j=0;j<cels.length-1;j++){
+		   if(j==1){
+		       //alert(cels[j].innerHTML+' == '+id);
+		       if(cels[j].innerHTML == id) entriesCount++; 
+		   }
+	   }
+   }
+	
+   if(entriesCount==1) document.getElementById('dataBufferForDeleting').value+='|'+id;//
+   table.removeChild(tr);
+   if(table.getElementsByTagName('TR').length < 2) table.style.display = 'none';
    
 }
 
@@ -59,14 +77,20 @@ function placesEditorSendDataToBase(form,data_obj){
    dataForBuffer.menu_id = data_obj.menu_id;
    dataForBuffer.tbl_data = [];
    
-   for(var i=0;i<rows.length;i++){
+   loop:
+   for(var i=1;i<rows.length;i++){
 	   var cels = rows[i].getElementsByTagName('TD');
 	   var celsData=[];
-	   for(var j=0;j<cels.length-1;j++){
-		   celsData[j] = cels[j].innerHTML;
+	    for(var j=0;j<cels.length-1;j++){
+		   if(j==0){
+		       if(cels[j].getElementsByTagName('INPUT')[0].checked == false) continue loop;
+			   continue; 
+		   }
+		   else celsData.push(cels[j].innerHTML);
 	   }
-	   dataForBuffer.tbl_data[i] = celsData;
+	   if(celsData.length>0)dataForBuffer.tbl_data.push(celsData);
    }
+   // alert(JSON.stringify(dataForBuffer));
    document.getElementById(data_obj.bufferId).value =  JSON.stringify(dataForBuffer);
    form.submit();
 }

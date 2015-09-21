@@ -10,9 +10,7 @@
 	    
 	    $data = json_decode($_POST['tblDataBuffer']);
 		
-        // удаляем последний ряд содержащий кнопки удаления колонок
-		unset($data->tbl_data[0]);
-	    echo '<pre>'; print_r($data);echo '</pre>';
+	    // echo '<pre>'; print_r($data);echo '</pre>';
 		
 		if(!empty($_POST['dataBufferForDeleting'])){
 		    $toDeleteArr = explode('|',trim($_POST['dataBufferForDeleting'],'|'));
@@ -209,6 +207,27 @@
 	
 	}
 	
+	function getEntireArtsNum($menu_id)
+	{
+	    global $mysqli;
+		
+		// раздел меню может быть не конечным а родительским поэтому проверяем нет ли дочерних элементов
+		$menuIdsArr =  get_child_menu_items($menu_id);
+		
+		$output = array();
+	    // Изначально запрос был с COUNT(tbl1.article_id) и GROUP BY tbl2.place_id.
+		// В итоге получалось неверное количество артикулов из-за встречавшихся повторений 
+		// поэтому сделал через сохранение в массив 
+	    $query ="SELECT article_id  FROM `".BASE_ARTS_CATS_RELATION."`
+			                     WHERE category_id IN ('".implode("','",$menuIdsArr)."')";//
+		$result = $mysqli->query($query)or die($mysqli->error);
+	    if($result->num_rows>0){
+		    while($item = $result->fetch_assoc()) $out_put[$item['article_id']]=1;
+		    return count($out_put);
+		}
+		else return 0;
+	}
+	
 	function buildExistsPrintsRows($menu_id)
 	{
 	    global $mysqli;
@@ -236,7 +255,7 @@
 			}
 			// echo '<pre>$arr'; print_r($arr);echo '</pre>';
 			foreach($arr as $data){	
-		        $output[] ="<tr><td>".$data[key($data)]['print_id']."</td><td>".$data[key($data)]['name'].'</td><td>'.count($data).' </td><td  class="pointer" onclick="deleteRowFromTable();">&#215;</td></tr>';
+		        $output[] ="<tr><td><input type='checkbox'></td><td>".$data[key($data)]['print_id']."</td><td>".$data[key($data)]['name'].'</td><td>'.count($data).' </td><td  class="pointer" onclick="deleteRowFromTable();">&#215;</td></tr>';
 			}
 		}
 		return $output;
@@ -256,9 +275,10 @@
 		
 		$printsSelectInterface .= '<table id="containsDataTbl" class="containsDataTbl" style="display:'.((count($existsPlacesRows)>0)?'block':'none').'">
 									   <tr>
+									       <td></td>
 										   <td></td>
 										   <td width="330">место нанесения / коммент</td>
-										   <td>кол-во артикулов</td>
+										   <td>кол-во артикулов ( всего в разделе(ах) - '.getEntireArtsNum($menu_id).' )</td>
 										   <td></td>
 									   </tr>'
 									   .implode('',$existsPlacesRows).
