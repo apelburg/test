@@ -987,3 +987,6 @@ div#cabinet_filtres {
 #cabinet_filtres_list a.close:hover {
     background-color: #939496;
 }
+.statuslist_film_photos{
+	width: 100px;
+}
