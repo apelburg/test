@@ -35,17 +35,13 @@ class Position_catalog{
 
 	}
 
-	/////////////////  AJAX START ///////////////// 
 	private function _AJAX_(){
 		$method_AJAX = $_POST['AJAX'].'_AJAX';
-
-		// если в этом классе существует такой метод - выполняем его и выходим
 		if(method_exists($this, $method_AJAX)){
 			$this->$method_AJAX();
 			exit;
 		}		
 	}
-	/////////////////  AJAX METHODs  ///////////////// 
 
 
 
@@ -317,7 +313,11 @@ class Position_catalog{
 		$this->info = 0;
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				$arr[] = $row['print'];
+				// echo '<pre>';
+				// print_r($row);
+				// echo '</pre>';
+					
+				$arr[] = $row['print_id'];
 			}
 		}
 		return $arr;

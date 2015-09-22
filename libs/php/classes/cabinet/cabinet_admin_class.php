@@ -280,7 +280,7 @@
 						if($name_product != $position['name']){$name_product = $position['name']; $name_count = 1;}
 						$variant_row .= '<tr data-id_dop_data="'.$position['id_dop_data'].'" class="'.$position['type'].'_1">
 							<td>'.$position['art'].'</td>
-							<td><a class="go_to_position_card_link" href="./?page=client_folder&section=rt_position&id='.$position['id'].'">'.$position['name'].'</a> <span class="variant_comments_dop">( Вариант '.$name_count++.' )</span></td>
+							<td><a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Zapros['client_id'].'&section=rt_position&id='.$position['id'].'">'.$position['name'].'</a> <span class="variant_comments_dop">( Вариант '.$name_count++.' )</span></td>
 							<td>'.$position['quantity'].'</td>
 							<td></td>
 							<td>'.$this->Price_for_the_goods.'</td>
