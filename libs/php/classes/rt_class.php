@@ -762,6 +762,8 @@
                     FROM `".RT_LIST."` 
                     WHERE  `query_num` = '".$query_num."';
                     ";
+
+                    echo $query;
                 // выполняем запрос
                 $result = $mysqli->query($query) or die($mysqli->error);
                 // получаем id нового заказа... он же номер
@@ -775,7 +777,7 @@
             //	Запрашиваем информацию по специяикацииии -- start
             //////////////////////////
                 $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE `agreement_id` = '".$agreement_id."' AND `specification_num` = '".$specification_num."'";
-
+echo $query;
                 $result = $mysqli->query($query) or die($mysqli->error);
 
 				$specificate_rows = array();
@@ -825,7 +827,8 @@
 	                // id новой позиции
 	                $main_row_id = $mysqli->insert_id;
 
-                
+                	
+
 
 	                // выбираем id строки расчёта
 	                // КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)

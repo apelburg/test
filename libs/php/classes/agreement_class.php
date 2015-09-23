@@ -450,6 +450,16 @@
 			else return false;
 		
 		}
+		static function getSpecificationsDates($inDataArr){
+			global $mysqli;
+			
+			// print_r($inDataArr);
+			 $inDataArr = (array)$inDataArr;
+			 foreach($inDataArr['ids'] as $key => $data){
+				echo $data->row_id.' - <br>';
+				//print_r($data);echo ' - <br>';
+			 }
+		}
     }
 
 ?>

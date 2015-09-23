@@ -47,6 +47,15 @@
 		 exit;
     }
 	////////////////////////  AJAX  //////////////////////// 
+	
+	
+	if(isset($_GET['getSpecificationsDates'])){
+	     require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+		 Agreement::getSpecificationsDates(json_decode($_GET['getSpecificationsDates']));
+		 exit;
+	}
+	
+	
 	if(isset($_GET['save_rt_changes'])){
 	     //print_r(json_decode($_GET['save_rt_changes']));
 		 RT::save_rt_changes(json_decode($_GET['save_rt_changes']));

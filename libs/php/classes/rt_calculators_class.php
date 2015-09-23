@@ -846,7 +846,8 @@
 				if($glob_type=='coeffs'){
 					foreach($set as $target => $data){
 					    foreach($data as $type => $details){
-							for($i = 0;$i < count($details);$i++){ 
+						    $count = count($details);
+							for($i = 0;$i < $count;$i++){ 
 							    // подстраховка
 							    if((isset($details[$i]->multi)) && $details[$i]->multi == 0) $details[$i]->multi = 1;
 								if($details[$i]->value == 0) $details[$i]->value = 1;
@@ -866,7 +867,8 @@
 				if($glob_type=='additions'){
 					foreach($set as $target => $data){
 					    foreach($data as $type => $details){
-							for($i = 0;$i < count($details);$i++){ 
+						    $count = count($details);
+							for($i = 0;$i < $count;$i++){ 
 							    // подстраховка
 							    if((isset($details[$i]->multi)) && $details[$i]->multi == 0) $details[$i]->multi = 1;
 								
