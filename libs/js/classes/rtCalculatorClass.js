@@ -1694,12 +1694,13 @@ var rtCalculator = {
 		// 1. Получение дат отгрузки товара или количества рабочих дней необходимых на изготовление исходя из установленных
 		// в карточках товара
 		// 2. формирование диалога на основании полученных данных
-		//   2.1 если хотя бы в одном товаре не указан срок изготовления в рабочих днях спецификация не может быть создана вообще
+		//   2.1 - если хотя бы в одном товаре не указан срок изготовления в рабочих днях спецификация не может быть создана вообще
 		//       2.1.1 если указаны разные значения используется большее значение
 		//   2.2 если хотя бы в одном товаре указана точная календарная дата изготовления заказа оповещаем что будет создана 
 		//       спецификация тип 2
-		//     2.2.1 если указаны разные даты то берем самую максимальную, при этом предлагаем выбрать другие установленные даты 
-		//           при этом учитывая смогут ли они удовлетворить диапазону установленных рабочих дней            
+		//     2.2.1 - если все даты истекли то останавливаем формирование спецификации и оповещаем 
+		//     2.2.2 - если указаны разные даты то берем самую максимальную, при этом предлагаем выбрать другие установленные даты 
+		//           при этом учитывая смогут ли они удовлетворить диапазону установленных рабочих дней   
 		//     2.2.2 проверяем установленную дату и срок изготовления так чтобы они были валидными(чтобы дата минус срок 
 		//           изготовления и другие доп дни  в итоге не были раньше текущего числа)
 		//   3. В случае наличия точной даты определить и предложить оптимальную дату исходя из максимального значения срока 
@@ -1709,7 +1710,7 @@ var rtCalculator = {
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('getSpecificationsDates={"ids":'+JSON.stringify(idsArr)+'}');
 		make_ajax_request(url,callback);
 		function callback(response){ 
-		    // alert(response);
+		    alert(response);
 		    try { 
 				   var dataObj = JSON.parse(response);
 			}
@@ -1726,19 +1727,63 @@ var rtCalculator = {
 		    box.id = "specificationsPreWin";
 		    box.style.display = "none";
 			var content = '';
-		    			
-		    if(dataObj.undefined_days_warn){
+		    
+			// если хотя бы в одном товаре не указан срок изготовления в рабочих днях
+		   /* if(dataObj.undefined_days_warn){
 				content += 'Спецификация не может быть создана!<BR>Для следующих товарных позиций не указан срок изготовления:';
 				for(var key in dataObj.data){
 					if(dataObj.data[key]['day_num']=='') content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+dopInfObj[dataObj.data[key]['row_id']]['name'];
 				}
+			} * /
+			// если все указанные даты истекли
+		    if(dataObj.expired_date){
+				content += 'Вы указали точную дату изготовления заказа, но Спецификация тип 2, не может быть создана!<BR><BR>Максимально установленная дата изготовления заказа является днем предшествующим текущей дате<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+'<BR><BR>Вами установленны следующие даты:';
+				for(var key in dataObj.data){
+					if(dataObj.data[key]['date']>'1970-01-01'){
+						var date = ((dataObj.data[key]['date'].split('-')).reverse()).join('.');
+						content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+date;
+					}
+				}
+				content += '<BR><BR><button>Сделать спецификацию тип 1</button><button>Я поменяю даты изготовления</button>';
+			} */
+			// если есть валидная дата изготовления
+		    if(dataObj.defined_date){
+				content += 'Вы указали точную дату изготовления заказа,<BR><BR>Будет создана Спецификация тип 2<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+' указанная Вами (максимальная) дата '+((dataObj['max_date'].split('-')).reverse()).join('.')+'<BR><BR> Все указанные Вами даты:';
+				for(var key in dataObj.data){
+					if(dataObj.data[key]['date']>'1970-01-01'){
+						var date = ((dataObj.data[key]['date'].split('-')).reverse()).join('.');
+						content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+date;
+					}
+				}
+				content += '<BR><BR><button>Ок</button><button>Отмена</button><button>Я поменяю даты изготовления</button>';
 			} 
-			
+			else{
+				content += 'Будет создана Спецификация тип 1<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+' указанная Вами (максимальная) срок изготовления заказа '+((dataObj['max_date'].split('-')).reverse()).join('.')+'<BR><BR> Все указанные Вами даты:';
+				for(var key in dataObj.data){
+					if(dataObj.data[key]['date']>'1970-01-01'){
+						var date = ((dataObj.data[key]['date'].split('-')).reverse()).join('.');
+						content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+date;
+					}
+				}
+				content += '<BR><BR><button>Ок</button><button>Отмена</button><button>Я поменяю даты изготовления</button>';
+			} 
+			/**/
 			box.innerHTML = content;
 			document.body.appendChild(box);
-			$("#specificationsPreWin").dialog({autoOpen: false ,title: "Печать для этой позиции",modal:true,width: 600,close: function() {this.remove();$("#specificationsPreWin").remove();}});
+			$("#specificationsPreWin").dialog({autoOpen: false ,title: "Создание спецификации",modal:true,width: 600,close: function() {this.remove();$("#specificationsPreWin").remove();}});
 		    $("#specificationsPreWin").dialog("open");
-		   		    /*if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
+		   		   
+				   
+				   
+				   
+				   
+				   
+				   
+				   
+				   
+				   
+				   
+				   /*if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
 		    console.log(response); 
 			close_processing_timer(); closeAllMenuWindows();
 			

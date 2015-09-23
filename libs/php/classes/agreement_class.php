@@ -466,13 +466,28 @@
 				 $result = $mysqli->query($query)or die($mysqli->error);
 				 if($result->num_rows>0){
 					 $day_num_count = 0;
+					 $max_date = '1970-01-01';
+					 $max_day_num = '0';
+					 $defined_date = $expired_date = false;
+					 $cur_date = '2015-11-21';//date("Y-m-d");    
 					 while($row = $result->fetch_assoc()){
 					     if($row['standart']!='' && $row['standart']!='0') $day_num_count++;
 						 $dataArr[$row['id']] = array('row_id'=> $row['row_id'],'date'=> $row['shipping_date'],'time'=> $row['shipping_time'],'day_num'=> $row['standart']);
+						 if($row['day_num']>$max_day_num) $max_day_num = $row['day_num'];
+						 if($row['shipping_date']>$max_date) $max_date = $row['shipping_date'];
+						 
 					 }
 					 $outDataArr['data'] = $dataArr;
 					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
 					 if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
+					 // если определенна хотябы одна дата 
+					 if($defined_date) $outDataArr['defined_date'] = 1;
+					 if($cur_date > $max_date){
+					     $outDataArr['cur_date'] = $cur_date;
+					     $outDataArr['expired_date'] = 1;
+					 }
+					 $outDataArr['max_day_num'] = $max_day_num;
+					 $outDataArr['max_date'] = $max_date;
 				 }
 				 
 			 }
