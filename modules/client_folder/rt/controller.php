@@ -328,7 +328,7 @@
 			 }
 			 else if($row['row_type'] == 'ext'){
 				 $extra_panel = '<div class="pos_plank ext">
-								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
+								   <a href="?page=client_folder&client_id='.$_GET['client_id'].'&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 								 </div>';
 			 }
 			 else if($row['row_type'] == 'pol'){
@@ -337,7 +337,7 @@
 								 </div>';
 			 }else{
 			 	$extra_panel = '<div class="pos_plank pol">
-								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
+								   <a href="?page=client_folder&client_id='.$_GET['client_id'].'&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 								 </div>';
 			 }
 

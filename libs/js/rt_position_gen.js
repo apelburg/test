@@ -305,7 +305,11 @@ function show_dialog_and_send_POST_window(html,title,height){
 					$('#dialog_gen_window_form').dialog( "destroy" );
 					// меняем иконку добавления ТЗ на редактировать
 					if(data['name'] == 'save_tz_text_AJAX'){
-						$('#'+data['increment_id']).attr('class','tz_text_edit').removeAttr('id');
+						$('#'+data.increment_id).attr('class','tz_text_edit').removeAttr('id');
+					}
+					// меняем иконку добавления ТЗ на пустое
+					if(data['name'] == 'save_empty_tz_text_AJAX'){
+						$('#'+data.increment_id).attr('class','tz_text_new').removeAttr('id');
 					}
 
 					if(data['name'] == 'chose_supplier_end'){

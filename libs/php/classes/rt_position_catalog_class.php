@@ -212,7 +212,7 @@ class Position_catalog{
 		// узнаем количество строк
 		$query = "SELECT COUNT( * ) AS `num`
 				FROM  `os__rt_dop_data` 
-				WHERE  `row_id` ='1'";  /// !!!! править тут !!!!
+				WHERE  `row_id` ='".$_POST['row_id']."'";  /// !!!! править тут !!!!
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){

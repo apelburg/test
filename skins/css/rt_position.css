@@ -102,11 +102,12 @@
 
 .variant_status_sv{
   float: right;
-  width: 5px;
+  width: 14px;
   height: 24px;
   position: absolute;
-  margin-left: 12px;
+  margin-left: 6px;
   margin-top: -5px;
+  cursor: pointer;
   /* margin-top: 4px; */
 }
 #menu_for_variants_status{

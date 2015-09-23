@@ -168,7 +168,13 @@ class Position_general_Class{
 		$result = $mysqli->query($query) or die($mysqli->error);
 
 		// echo '{"response":"OK" , "name":"save_tz_text_AJAX","increment_id":"'.$_POST['increment_id'].'"}';
-		echo '{"response":"OK" , "name":"save_tz_text_AJAX"}';
+		
+		if(trim($_POST['tz'])==''){
+			echo '{"response":"OK" , "name":"save_empty_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';
+		}else{
+			echo '{"response":"OK" , "name":"save_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';	
+		}
+		
 	}
 	// добавить доп услугу для варианта
 	public function add_new_usluga_AJAX(){
