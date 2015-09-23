@@ -326,12 +326,12 @@
 				 // дополнительная скрытая инфа 
 		        if($counter==0 &&  count($row['dop_details'])>0)  $dop_details['allowed_prints'] = $row['dop_details'];
 			 }
-			 if($row['row_type'] == 'ext'){
+			 else if($row['row_type'] == 'ext'){
 				 $extra_panel = '<div class="pos_plank ext">
 								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 								 </div>';
 			 }
-			 if($row['row_type'] == 'pol'){
+			 else if($row['row_type'] == 'pol'){
 				 $extra_panel = '<div class="pos_plank pol">
 								   <a href="?page=client_folder&client_id='.$_GET['client_id'].'&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 								 </div>';

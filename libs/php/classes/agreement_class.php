@@ -453,21 +453,31 @@
 		static function getSpecificationsDates($inDataArr){
 			global $mysqli;
 			
-			// print_r($inDataArr);
+			 //print_r($inDataArr);
 			 $inDataArr = (array)$inDataArr;
+			 
 			 foreach($inDataArr['ids'] as $key => $data){
 				//echo $data->row_id.' - <br>';
-				$idsArr[] = $data->row_id;
+				$dataArr[$data->row_id] = $data->row_id;
 			 }
 			 
-			 $query="SELECT shipping_date, shipping_time, standart FROM `".RT_DOP_DATA."` WHERE `row_id` IN('".implode("','",$idsArr)."')";
-			 $result = $mysqli->query($query)or die($mysqli->error);
-			 if($result->num_rows>0){
-				 while($row = $result->fetch_assoc()){
-				    //$expel_dop_data_id = 
-					echo $row['shipping_date'].' '.$row['shipping_time'].' '.$row['standart'].'<br>';
+			 if(isset($dataArr)){
+				 $query="SELECT id, row_id, shipping_date, shipping_time, standart FROM `".RT_DOP_DATA."` WHERE `id` IN('".implode("','",$dataArr)."')";
+				 $result = $mysqli->query($query)or die($mysqli->error);
+				 if($result->num_rows>0){
+					 $day_num_count = 0;
+					 while($row = $result->fetch_assoc()){
+					     if($row['standart']!='' && $row['standart']!='0') $day_num_count++;
+						 $dataArr[$row['id']] = array('row_id'=> $row['row_id'],'date'=> $row['shipping_date'],'time'=> $row['shipping_time'],'day_num'=> $row['standart']);
+					 }
+					 $outDataArr['data'] = $dataArr;
+					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
+					 if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
 				 }
+				 
 			 }
+			 // print_r($outDataArr);
+			 return json_encode($outDataArr);
 		}
     }
 

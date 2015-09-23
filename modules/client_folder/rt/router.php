@@ -51,7 +51,7 @@
 	
 	if(isset($_GET['getSpecificationsDates'])){
 	     require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
-		 Agreement::getSpecificationsDates(json_decode($_GET['getSpecificationsDates']));
+		 echo Agreement::getSpecificationsDates(json_decode($_GET['getSpecificationsDates']));
 		 exit;
 	}
 	

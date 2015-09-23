@@ -141,7 +141,7 @@
 				   var response_obj = JSON.parse(response);
 				}
                 catch (e) { 
-				    alert('kpManager.sendKpByMail() ошибка JSON.parse(response)');
+				    alert('неправильный формат данных in kpManager.sendKpByMail() ошибка JSON.parse(response)');
 				}
 
 				kpManager.details = response_obj;
