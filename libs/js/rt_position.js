@@ -53,10 +53,10 @@ function create_timepicker_for_variant_cont(){
 	 format:'H:i',
 	 closeOnDateSelect:true,
 	 onChangeDateTime: function(dp,$input){// событие выбора даты
-			// меняем html
+			// // меняем html
 			var id_variant = $('#variants_name .variant_name.checked ').attr('data-cont_id');
-			$('#'+id_variant+' .fddtime_rd2').val('');
-			$('#'+id_variant+' .btn_var_std[name="std"]').removeClass('checked');
+			// $('#'+id_variant+' .fddtime_rd2').val('');
+			// $('#'+id_variant+' .btn_var_std[name="std"]').removeClass('checked');
 
 			// получение данных для отправки на сервер
 			var id = $('#variants_name .variant_name.checked ').attr('data-id');
@@ -100,8 +100,8 @@ function create_datepicker_for_variant_cont(){
 			// меняем html
 			var id_variant = $('#variants_name .variant_name.checked ').attr('data-cont_id');
 			$('#'+id_variant+' .timepicker2').show().val(''); // показать поле время
-			$('#'+id_variant+' .fddtime_rd2').val('');
-			$('#'+id_variant+' .btn_var_std[name="std"]').removeClass('checked');		
+			// $('#'+id_variant+' .fddtime_rd2').val('');
+			// $('#'+id_variant+' .btn_var_std[name="std"]').removeClass('checked');		
 
 
 			// получение данных для отправки на сервер
@@ -1064,8 +1064,8 @@ function save_standart_day(){
 	var id = $('#variants_name .variant_name.checked ').attr('data-id');
 	var row_id = $('#claim_number').attr('data-order');	
 	var id_variant = $('#variants_name .variant_name.checked ').attr('data-cont_id');
-	$('#'+id_variant+' .timepicker2').hide(); // показать поле время
-	$('#'+id_variant+' .datepicker2, #'+id_variant+' .timepicker2').val('');
+	// $('#'+id_variant+' .timepicker2').hide(); // показать поле время
+	// $('#'+id_variant+' .datepicker2, #'+id_variant+' .timepicker2').val('');
 	var standart = $('#'+id_variant+' .fddtime_rd2[name="fddtime_rd2"]').val();
 	// var time = $input.val()+':00';
 	// alert($input.attr('class'));

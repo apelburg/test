@@ -243,10 +243,12 @@
 $(document).on('click', '.add_usl', function(event) {
 	$.post('', 
 		{
-			AJAX:"get_uslugi_list_Database_Html"
+			AJAX:"get_uslugi_list_Database_Html",
+			client_id:$(this).attr('data-client_id'),
+			query_num:$(this).attr('data-query_num')
+
 		}, function(data, textStatus, xhr) {
-		show_dialog_and_send_POST_window(data,'Выберите услугу', 800);
-		
+		show_dialog_and_send_POST_window(data,'Выберите услугу', 800);		
 	});
 	
 });
@@ -415,12 +417,12 @@ $(document).on('click', '.del_row_variants', function(event) {
 	
 });
 
-$(document).on('click', '.calc_icon_chose', function(event) {
-	// снимаем выделение с остальных услуг
-	$('#dialog_gen_window_form form .may_bee_checked').removeClass('checked');
+// $(document).on('click', '.calc_icon_chose', function(event) {
+// 	// снимаем выделение с остальных услуг
+// 	$('#dialog_gen_window_form form .may_bee_checked').removeClass('checked');
 
-	alert('хотим калькулятор '+$(this).find('.name_text').html()+', type = '+$(this).attr('data-type')+', id = '+$(this).attr('data-id'));
-});
+// 	alert('хотим калькулятор\n '+$(this).attr('data-client_id').html()+', type = '+$(this).attr('data-type')+', id = '+$(this).attr('data-id'));
+// });
 
 
 // редактируем входящую цену за услугу
