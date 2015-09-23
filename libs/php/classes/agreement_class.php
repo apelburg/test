@@ -450,6 +450,25 @@
 			else return false;
 		
 		}
+		static function getSpecificationsDates($inDataArr){
+			global $mysqli;
+			
+			// print_r($inDataArr);
+			 $inDataArr = (array)$inDataArr;
+			 foreach($inDataArr['ids'] as $key => $data){
+				//echo $data->row_id.' - <br>';
+				$idsArr[] = $data->row_id;
+			 }
+			 
+			 $query="SELECT shipping_date, shipping_time, standart FROM `".RT_DOP_DATA."` WHERE `row_id` IN('".implode("','",$idsArr)."')";
+			 $result = $mysqli->query($query)or die($mysqli->error);
+			 if($result->num_rows>0){
+				 while($row = $result->fetch_assoc()){
+				    //$expel_dop_data_id = 
+					echo $row['shipping_date'].' '.$row['shipping_time'].' '.$row['standart'].'<br>';
+				 }
+			 }
+		}
     }
 
 ?>

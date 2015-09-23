@@ -630,7 +630,7 @@
 				foreach ($this->CLASS->filtres_html as $key => $value) {
 					$filters .= '&'.$key.'='.$_GET[$key];
 				}	
-			}
+			}  /*45*/
 			// т.к. фильтр по клиенту не входит в общий список фильтров - пишем его отдельно
 			if(isset($_GET['client_id']) && $_GET['client_id']!=''){
 				$filters .= '&client_id='.$_GET['client_id'];

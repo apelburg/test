@@ -1687,35 +1687,49 @@ var rtCalculator = {
 			else if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
 			return;
 		}
+		// промежуточное диалоговое окно 
+		// Выводит информацию по типу создаваемой спецификации, и срокам выполнения заказа указываемым в спецификации
+		// 1. Получение дат отгрузки товара или количества рабочих дней необходимых на изготовление исходя из установленных
+		// в карточках товара
+		// 2. формирование диалога на основании полученных данных
+		//   2.1 если не хотя бы в одном товаре не указан срок изготовления в рабочих днях спецификация не может быть создана вообще
+		//       2.1.1 если указаны разные значения используется большее значение
+		//   2.2 если хотя бы в одном товаре указана точная календарная дата изготовления заказа оповещаем что будет создана 
+		//       спецификация тип 2
+		//     2.2.1 если указаны разные даты то берем самую максимальную, при этом предлагаем выбрать другие установленные даты 
+		//           при этом учитывая смогут ли они удовлетворить диапазону установленных рабочих дней            
+		//     2.2.2 проверяем установленную дату и срок изготовления так чтобы они были валидными(чтобы дата минус срок 
+		//           изготовления и другие доп дни  в итоге не были раньше текущего числа)
+		//   3. В случае наличия точной даты определить и предложить оптимальную дату исходя из максимального значения срока 
+		//      в рабочих днях
 		
-	    show_processing_timer();
-		var tbl = document.getElementById('rt_tbl_body');
-		var client_id = tbl.getAttribute('client_id');
-		var query_num = tbl.getAttribute('query_num');
-		if(client_id==''){
-		   alert('не удалось определить клиента');
-		   return;
-		}
-		if(query_num==''){
-		   alert('не удалось номер заявки');
-		   return;
-		}
-		
-		location = "?page=agreement&section=presetting&client_id=" + client_id + "&ids=" +JSON.stringify(idsArr)+'&query_num='+query_num;
-		
-		
-	    // формируем url для AJAX запроса
-		/*var url = OS_HOST+'?' + addOrReplaceGetOnURL('makeSpecAndPreorder={"ids":'+JSON.stringify(idsObj)+',"client_id":"'+client_id+'","query_num":"'+query_num+'"}');
 		// AJAX запрос
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('getSpecificationsDates={"ids":'+JSON.stringify(idsArr)+'}');
 		make_ajax_request(url,callback);
-		//alert(last_val);
 		function callback(response){ 
-		   
-		    / *if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;* /
+		   alert(response); 
+		    /*if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
 		    console.log(response); 
-			close_processing_timer(); closeAllMenuWindows();
-		}	*/  
-
+			close_processing_timer(); closeAllMenuWindows();*/
+			
+			
+			/*show_processing_timer();
+			var tbl = document.getElementById('rt_tbl_body');
+			var client_id = tbl.getAttribute('client_id');
+			var query_num = tbl.getAttribute('query_num');
+			if(client_id==''){
+			   alert('не удалось определить клиента');
+			   return;
+			}
+			if(query_num==''){
+			   alert('не удалось номер заявки');
+			   return;
+			}
+			
+			location = "?page=agreement&section=presetting&client_id=" + client_id + "&ids=" +JSON.stringify(idsArr)+'&query_num='+query_num;
+			}	  */
+		}
+		
 	}
 	,
 	show_discount_window:function(e){
