@@ -466,28 +466,42 @@
 				 $result = $mysqli->query($query)or die($mysqli->error);
 				 if($result->num_rows>0){
 					 $day_num_count = 0;
-					 $max_date = '1970-01-01';
+					 $max_date = '1970-01-01 00:00:01';
 					 $max_day_num = '0';
 					 $defined_date = $expired_date = false;
-					 $cur_date = '2015-11-21';//date("Y-m-d");    
+					 $cur_date = '2015-11-21 00:00:01';//date("Y-m-d H:i:s");    
 					 while($row = $result->fetch_assoc()){
 					     if($row['standart']!='' && $row['standart']!='0') $day_num_count++;
 						 $dataArr[$row['id']] = array('row_id'=> $row['row_id'],'date'=> $row['shipping_date'],'time'=> $row['shipping_time'],'day_num'=> $row['standart']);
-						 if($row['day_num']>$max_day_num) $max_day_num = $row['day_num'];
-						 if($row['shipping_date']>$max_date) $max_date = $row['shipping_date'];
+						 // определяем максимальное значение установленных рабочих дней в $row['standart']
+						 if($row['standart']>$max_day_num) $max_day_num = $row['standart'];
+						
+						 $some_date = $row['shipping_date'].' '.$row['shipping_time'];
+						 // если определенна хотябы одна дата 
+						 if($some_date>'1970-01-01') $defined_date = true;
+						 // определяем максимальное значение установленных дат в $row['shipping_date'] и $row['shipping_time']
+						 if($some_date>$max_date) $max_date = $some_date;
 						 
 					 }
 					 $outDataArr['data'] = $dataArr;
 					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
 					 if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
 					 // если определенна хотябы одна дата 
-					 if($defined_date) $outDataArr['defined_date'] = 1;
-					 if($cur_date > $max_date){
-					     $outDataArr['cur_date'] = $cur_date;
-					     $outDataArr['expired_date'] = 1;
+					 if($defined_date){
+					     $outDataArr['defined_date'] = 1;
+						 // определяем количество дней между текущей и максимальной датой
+						 $outDataArr['working_days_range'] = getWorkingDays($cur_date,$max_date);
+						 // если количество рабочих дней между текущей и максимальной датой меньше 
+						 // максимального установленного срока в рабочих днях то устанавливаем флаг 
+						 if($max_day_num > $outDataArr['working_days_range']) $outDataArr['expired_date'] = 1;
 					 }
+					 // это скорее всего не нужно if($cur_date > $max_date) $outDataArr['expired_date'] = 1;
+					 // мексмальное установленное количество рабочих дней 
 					 $outDataArr['max_day_num'] = $max_day_num;
+					 // мексмально установленная дата
 					 $outDataArr['max_date'] = $max_date;
+					 $outDataArr['cur_date'] = $cur_date;
+					 
 				 }
 				 
 			 }
