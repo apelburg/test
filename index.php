@@ -31,7 +31,13 @@
 	
 	  
 	   
-	   case 'cabinet':
+	   	case 'cabinet':
+		// главный класс по позициям
+		include_once './libs/php/classes/rt_position_gen_class.php';
+		// класс работы с позициями каталога
+		include_once './libs/php/classes/rt_position_catalog_class.php';
+		// класс работы с позициями не каталога
+		include_once './libs/php/classes/rt_position_no_catalog_class.php';
 	   include 'modules/cabinet/router.php';
 	   break;
 

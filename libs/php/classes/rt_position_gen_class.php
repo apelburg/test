@@ -257,12 +257,14 @@ class Position_general_Class{
 			$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
 			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
 			$html .= '</form>';
+			
 			echo $html;
 		}
 	}
 
 
-	private function get_uslugi_list_Database_Html($id=0,$pad=30){	
+	private function get_uslugi_list_Database_Html( $id=0, $pad=30){	
+
 		global $mysqli; 
 		$html = '';
 		$apl_services = '';
@@ -274,8 +276,10 @@ class Position_general_Class{
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$price = '<div class="echo_price_uslug"><span></span><span></span></div>';
-				// отлавливаем услуги не апельбург
 				if($row['id']==2){
+					/**
+					 *	услуги оутсорс 		
+					 */
 					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
 					
 					$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
@@ -283,22 +287,30 @@ class Position_general_Class{
 					// присваиваем конечным услугам класс may_bee_checked
 					$supplier_services.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
 				}else if($row['id']!=6 && $row['parent_id']!=6){// исключаем нанесение apelburg
-					# Это услуги НЕ из КАЛЬКУЛЯТОРА
-					// запрос на детей
-					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+					/**
+					 *	услуги АПЛ	
+					 */
+					$child = '';
+					// if($row['parent_id']==0){
+					// 	// кнопка калькулятора
+					// 	$child .= '<div data-id="'.$row['id'].'" data-client_id="'.$_POST['client_id'].'"  data-client_id="'.$_POST['query_num'].'" data-type="'.$row['type'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">КАЛЬКУЛЯТОР</span></div>';
+					// }
+					$child .= $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+					
 					
 					$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
 					
 					// присваиваем конечным услугам класс may_bee_checked
 					$apl_services.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
 				}else{
+
 					// Это услуги из КАЛЬКУЛЯТОРА
 					// запрос на детей
-					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+					// $child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
 
-					$price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
-					// присваиваем конечным услугам класс may_bee_checked
-					$calc_services.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+					// $price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+					// // присваиваем конечным услугам класс may_bee_checked
+					//$apl_services.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
 				}
 			}
 		}

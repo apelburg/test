@@ -10,6 +10,14 @@
 					<span class="btn_var_std <?php echo $print_z_no; ?>" name="npz">НПЗ</span>
 				</td>
 				<td>
+					<strong>Изготовление р/д:</strong>
+					<!-- <span class="btn_var_std <?php echo $std_time_print;?>" name="std">Стандартно</span>  -->
+					<input type="text" class="fddtime_rd2" name="fddtime_rd2" value="<?php echo $value['standart']; ?>"> р/д
+
+					
+					
+				</td>
+				<td>
 					<strong>Дата отгрузки:</strong>
 					<!-- <span class="btn_var_std">Стандартно</span> -->
 					<input type="text" class="datepicker2" name="datepicker2" value="<?php echo ($value['shipping_date']!="00.00.0000")?$value['shipping_date']:''; ?>"> 
@@ -27,10 +35,6 @@
 					?>
 					
 				</td>
-				<td>
-					<strong>Изготовление р/д:</strong>
-					<span class="btn_var_std <?php echo $std_time_print;?>" name="std">Стандартно</span> 
-					<input type="text" class="fddtime_rd2" name="fddtime_rd2" value="<?php echo $value['standart']; ?>"> р/д</td>
 			<tr>
 		</table>
 	</div>
@@ -76,7 +80,9 @@
 										echo $POSITION_GEN->POSITION_CATALOG->uslugi_template_cat_Html($uslugi);
 									?>
 									<tr>
-										<th colspan="7"  class="type_row_calc_tbl"><div class="add_usl">Добавить ещё услуги</div></th>
+										<th colspan="7"  class="type_row_calc_tbl">
+											<div class="add_usl">Добавить ещё услуги</div>
+										</th>
 									</tr>
 									<tr>
 										<td colspan="7" class="table_spacer"> </td>
