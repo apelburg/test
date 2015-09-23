@@ -55,26 +55,26 @@ class Position_catalog{
 		$this->$method_AJAX();
 	}
 
-	private function get_uslugi_list_Database_Html_7777($id=0){	
-		global $mysqli;
-		$html = '';
+	// private function get_uslugi_list_Database_Html_7777($id=0){	
+	// 	global $mysqli;
+	// 	$html = '';
 		
-		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."' AND `deleted` = '0'";
-		$result = $mysqli->query($query) or die($mysqli->error);
-		if($result->num_rows > 0){
-			$html .= '<ul>';
-			while($row = $result->fetch_assoc()){
-				if($row['id']!=6){// исключаем нанесение apelburg
-				// запрос на детей
-				$child = $this->get_uslugi_list_Database_Html_($row['id']);
-				// присваиваем конечным услугам класс may_bee_checked
-				$html.= '<li data-id="'.$row['id'].'" '.(($child=='')?'class="may_bee_checked"':'').'>'.$row['name'].' '.$child.'</li>';
-				}
-			}
-			$html.= '</ul>';
-		}
-		return $html;
-	}
+	// 	$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."' AND `deleted` = '0'";
+	// 	$result = $mysqli->query($query) or die($mysqli->error);
+	// 	if($result->num_rows > 0){
+	// 		$html .= '<ul>';
+	// 		while($row = $result->fetch_assoc()){
+	// 			if($row['id']!=6){// исключаем нанесение apelburg
+	// 			// запрос на детей
+	// 			$child = $this->get_uslugi_list_Database_Html_($row['id']);
+	// 			// присваиваем конечным услугам класс may_bee_checked
+	// 			$html.= '<li data-id="'.$row['id'].'" '.(($child=='')?'class="may_bee_checked"':'').'>'.$row['name'].' '.$child.'</li>';
+	// 			}
+	// 		}
+	// 		$html.= '</ul>';
+	// 	}
+	// 	return $html;
+	// }
 
 	private function save_price_in_out_for_one_price_AJAX(){
 		global $mysqli;
