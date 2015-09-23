@@ -261,16 +261,16 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													'get_in_work' => array('access'=>true),
-													'stencil_shelk_and_transfer' => array('access'=>true),
-													'shelk' => array('access'=>true),
-													'transfer' => array('access'=>true),
-													'tampoo' => array('access'=>true),
-													'tisnenie' => array('access'=>true),
-													'dop_uslugi' => array('access'=>true),
-													'plenki_and_klishe' => array('access'=>true),
-													'production' =>  array('access'=>true)
+													'production' => array('access'=>true),
+													'production_get_in_work' => array('access'=>true),
+													'production_stencil_shelk_and_transfer' => array('access'=>true),
+													'production_shelk' => array('access'=>true),
+													'production_transfer' => array('access'=>true),
+													'production_tampoo' => array('access'=>true),
+													'production_tisnenie' => array('access'=>true),
+													'production_dop_uslugi' => array('access'=>true),
+													'production_plenki_and_klishe' => array('access'=>true),
+													// 'production' =>  array('access'=>true) 
 													)
 												)
 											)

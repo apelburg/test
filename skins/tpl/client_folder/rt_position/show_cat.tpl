@@ -107,7 +107,7 @@ $(document).ready(function() {
 				?>
 			</div>
 			<div class="cell" id="order_art_edit_centr">
-				<div id="edit_option_content">
+				<div id="edit_option_content"  style="display:block">
 					<div class="table" id="characteristics_and_delivery">
 						<div class="row">
 							<div class="cell  b_r" >

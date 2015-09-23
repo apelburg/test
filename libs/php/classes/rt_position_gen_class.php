@@ -263,7 +263,7 @@ class Position_general_Class{
 
 
 	private function get_uslugi_list_Database_Html($id=0,$pad=30){	
-		global $mysqli;
+		global $mysqli; 
 		$html = '';
 		
 		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";

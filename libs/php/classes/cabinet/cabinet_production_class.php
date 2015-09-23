@@ -49,21 +49,23 @@
 			'delivery' => 'Доставка',
 			'pclosing_documents' => 'Закрывающие документы',
 			'otgrugen' => 'Отгруженные',
-			'get_in_work' => 'Взять в работу',
-			'stencil_shelk_and_transfer' => 'Трафарет(Ш+Т)',
-			'shelk' => 'Шелкография',
-			'transfer' => 'Термотрансфер',
-			'tampoo' => 'Тампопечать',
-			'tisnenie' => 'Тиснение',
-			'dop_uslugi' => 'Доп. услуги',
-			'plenki_and_klishe' => 'Проверка плёнок/клише',
+
+			'production_get_in_work' => 'Взять в работу',
+			'production_stencil_shelk_and_transfer' => 'Трафарет(Ш+Т)',
+			'production_shelk' => 'Шелкография',
+			'production_transfer' => 'Термотрансфер',
+			'production_tampoo' => 'Тампопечать',
+			'production_tisnenie' => 'Тиснение',
+			'production_dop_uslugi' => 'Доп. услуги',
+			'production_plenki_and_klishe' => 'Проверка плёнок/клише',
 			// заказы
 			'order_all' => 'Все заказы',
 			'order_start' => 'Запуск в работу (заказ)',
 			'order_in_work' => 'Заказы в работе',
 			'design_all' => 'Дизайн ВСЕ',
 			'design_for_one_men' => 'Дизайн МОЁ',
-			'production' => 'Производство'		
+			'production' => 'Всё'
+
 		); 
 
 		// название подраздела кабинета

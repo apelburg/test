@@ -16,6 +16,22 @@
     	// содержит массив всех существующих услуг содержащихся в OUR_USLUGI_LIST (все предоставляемые услуги)
     	protected $Services_list_arr; // array();
 
+    	// список станков
+    	protected $machine_list = array(   
+			'poluavtomat' => 'Полуавтомат', 
+    		'paketnik' => 'Ручник плоский',		
+    		'karusel_6' => 'Карусель 6 цв.',
+    		'karusel_8' => 'Карусель 8 цв.',
+    		'tampo_1' => 'Winon',
+    		'tampo_2' => 'Kent',
+    		'termopress_a5_1' => 'Kепочник 1',
+    		'termopress_a5_2' => 'Kепочник 2',
+    		'termopress_a3_insta' => 'Пресс-плоский Insta',
+    		'termopress_a3_china' => 'Пресс-плоский китай',
+    		'tisnenie' => 'Тic'
+    		);
+
+
     	// исполнитель услуг по правам
     	protected $performer = array(
     		'0' => 'noname', // ответственный не указан
@@ -290,6 +306,39 @@
 		/////////////////////////////////////////////////////////////////////////////////////
 		//	-----  START  ----- 	ДЕКОДЕРЫ СТАТУСОВ ПОДРАЗДЕЛЕНИЙ 	-----  START  -----
 		/////////////////////////////////////////////////////////////////////////////////////
+
+	    	// вывод выбранного станка на протизводстве
+	    	protected function get_machine_list($real_val,$row_id){
+	    		$html = '';
+	    		$select_html = '';
+
+	    		// провкерка допуска на редактирование
+	    		if($this->user_access == 1 || $this->user_access == 4){
+	    			$html .='<select class="machine_type" data-id="'.$row_id.'">';
+	    			if(!isset($this->user_access[$real_val])){
+	    				$is_checked = 'selected="selected"';
+	    				$select_html .= '<option value=\''.$real_val.'\' '.$is_checked.'>'.$real_val.'</option>';
+	    			}
+	    			foreach ($this->machine_list as $key => $value) {
+						if ($key == $real_val) {
+							$is_checked = 'selected="selected"';
+						}else{
+							$is_checked = '';
+						}							
+						$select_html .= '<option value=\''.$key.'\' '.$is_checked.'>'.$value.'</option>';
+					}
+					$html .= $select_html.'</select>';
+	    		}else{
+	    			if(isset($this->machine_list[$real_val])){
+	    				$html = $this->machine_list[$real_val];	    				
+	    			}else{
+	    				$html = $real_val;
+	    			}
+	    		}
+	    		return $html;
+	    	}
+
+
 			// вывод статусов плёнок
 			protected function get_statuslist_film_photos($real_val,$cab_uslugi_id){
 				$html = '';
@@ -2468,7 +2517,7 @@
 				echo '{"response":"OK"}'; 	
 			}
 
-			// редактирование даты работы над услугой
+			// редактирование даты и времени начала работы над услугой
 			protected function change_date_work_of_service_AJAX(){
 				
 				// проверка принятых значений даты
@@ -2478,13 +2527,45 @@
 
 				global $mysqli;
 				//записываем дату в базу
-				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `date_work` =  '".date("Y-m-d",$timestamp)."' ";
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `date_work` =  '".date("Y-m-d H:i:s",$timestamp)."' ";
 				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				
 				// echo $query;
 				echo '{"response":"OK"}'; 	
-			}			
+			}	
+
+			// редактирование даты и времени окончания работы над услугой	
+			protected function change_date_ready_of_service_AJAX(){
+				
+				// проверка принятых значений даты
+				if (($timestamp = strtotime($_POST['date'])) === false) {
+				    return '{"error":"Строка ('.$_POST['date'].') недопустима"}';
+				}
+
+				global $mysqli;
+				//записываем дату в базу
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `date_ready` =  '".date("Y-m-d H:i:s",$timestamp)."' ";
+				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				
+				// echo $query;
+				echo '{"response":"OK"}'; 	
+			}
+
+
+			// сохранение типа/названия станка на котором будет выполняться работ
+			protected function change_machine_type_AJAX(){
+				
+				global $mysqli;
+				//записываем дату в базу
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `machine` =  '".$_POST['value']."' ";
+				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				
+				// echo $query;
+				echo '{"response":"OK"}'; 	
+			}
 
 			// запуск услуг в работу
 			protected function start_services_in_processed_AJAX(){
@@ -3898,8 +3979,8 @@
 			$query = "SELECT 
 			`".$tbl."`.*,
 			`".OUR_USLUGI_LIST."`.`name`";
-			$query .= (isset($_GET['section']) && $_GET['section'] == 'requests')?"":", DATE_FORMAT(`".$tbl."`.`date_ready`,'%d.%m.%Y')  AS `date_ready`";
-			$query .= (isset($_GET['section']) && $_GET['section'] == 'requests')?"":",DATE_FORMAT(`".$tbl."`.`date_work`,'%d.%m.%Y')  AS `date_work`";
+			$query .= (isset($_GET['section']) && $_GET['section'] == 'requests')?"":",DATE_FORMAT(`".$tbl."`.`date_work`,'%d.%m.%Y %H:%i')  AS `date_work`";
+			$query .= (isset($_GET['section']) && $_GET['section'] == 'requests')?"":", DATE_FORMAT(`".$tbl."`.`date_ready`,'%d.%m.%Y %H:%i')  AS `date_ready`";
 			$query .= " FROM `".$tbl."` 
 			LEFT JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` = `".$tbl."`.`uslugi_id`"; 
 			
