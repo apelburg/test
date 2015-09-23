@@ -1608,8 +1608,10 @@ var rtCalculator = {
 							else pos_id = false;
 						}
 						if(type == 'name'){ 
-						   var article = tdsArr[j].getElementsByTagName('DIV')[0].getElementsByTagName('A')[0].innerHTML;
-						   var name = tdsArr[j].getElementsByTagName('DIV')[tdsArr[j].getElementsByTagName('DIV').length-1].innerHTML;
+						   // если ячейка содержит более одного елемента значит это каталожный товар и в первом елементе 
+						   // размещен артикул, для остальных товаров в этом(единственном и последнем) элементе размешено имя
+						   var article = (tdsArr[j].getElementsByTagName('DIV').length>1)? tdsArr[j].getElementsByTagName('DIV')[0].getElementsByTagName('A')[0].innerHTML:'';
+						   var name = $(tdsArr[j].getElementsByTagName('DIV')[tdsArr[j].getElementsByTagName('DIV').length-1]).text();
 						   if(typeof dopInfObj[pos_id] ==='undefined') dopInfObj[pos_id]= {};
 						   dopInfObj[pos_id]['name'] = article+' '+name;
 						}
@@ -1692,7 +1694,7 @@ var rtCalculator = {
 		// 1. Получение дат отгрузки товара или количества рабочих дней необходимых на изготовление исходя из установленных
 		// в карточках товара
 		// 2. формирование диалога на основании полученных данных
-		//   2.1 если не хотя бы в одном товаре не указан срок изготовления в рабочих днях спецификация не может быть создана вообще
+		//   2.1 если хотя бы в одном товаре не указан срок изготовления в рабочих днях спецификация не может быть создана вообще
 		//       2.1.1 если указаны разные значения используется большее значение
 		//   2.2 если хотя бы в одном товаре указана точная календарная дата изготовления заказа оповещаем что будет создана 
 		//       спецификация тип 2
@@ -1707,10 +1709,38 @@ var rtCalculator = {
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('getSpecificationsDates={"ids":'+JSON.stringify(idsArr)+'}');
 		make_ajax_request(url,callback);
 		function callback(response){ 
-		   alert(response); 
-		    /*if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
+		    // alert(response);
+		    try { 
+				   var dataObj = JSON.parse(response);
+			}
+			catch (e) { 
+				alert('неправильный формат данных in calculatorClass.makeSpecAndPreorder2() ошибка JSON.parse(response)');
+				return;
+			}
+			/*console.log(dataObj);
+			console.log(idsObj);
+		    console.log(dopInfObj);*/
+			
+		
+		 	var box = document.createElement('DIV');
+		    box.id = "specificationsPreWin";
+		    box.style.display = "none";
+			var content = '';
+		    			
+		    if(dataObj.undefined_days_warn){
+				content += 'Спецификация не может быть создана!<BR>Для следующих товарных позиций не указан срок изготовления:';
+				for(var key in dataObj.data){
+					if(dataObj.data[key]['day_num']=='') content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+dopInfObj[dataObj.data[key]['row_id']]['name'];
+				}
+			} 
+			
+			box.innerHTML = content;
+			document.body.appendChild(box);
+			$("#specificationsPreWin").dialog({autoOpen: false ,title: "Печать для этой позиции",modal:true,width: 600,close: function() {this.remove();$("#specificationsPreWin").remove();}});
+		    $("#specificationsPreWin").dialog("open");
+		   		    /*if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
 		    console.log(response); 
-			close_processing_timer(); closeAllMenuWindows();*/
+			close_processing_timer(); closeAllMenuWindows();
 			
 			
 			/*show_processing_timer();
