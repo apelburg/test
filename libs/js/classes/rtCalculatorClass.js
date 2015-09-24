@@ -1729,14 +1729,14 @@ var rtCalculator = {
 			var content = '';
 		    
 			// если хотя бы в одном товаре не указан срок изготовления в рабочих днях
-		   /* if(dataObj.undefined_days_warn){
+		   if(dataObj.undefined_days_warn){
 				content += 'Спецификация не может быть создана!<BR>Для следующих товарных позиций не указан срок изготовления:';
 				for(var key in dataObj.data){
 					if(dataObj.data[key]['day_num']=='') content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+dopInfObj[dataObj.data[key]['row_id']]['name'];
 				}
-			} * /
+			}
 			// если все указанные даты истекли
-		    if(dataObj.expired_date){
+		    else if(dataObj.expired_date){
 				content += 'Вы указали точную дату изготовления заказа, но Спецификация тип 2, не может быть создана!<BR><BR>Максимально установленная дата изготовления заказа является днем предшествующим текущей дате<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+'<BR><BR>Вами установленны следующие даты:';
 				for(var key in dataObj.data){
 					if(dataObj.data[key]['date']>'1970-01-01'){
@@ -1745,9 +1745,9 @@ var rtCalculator = {
 					}
 				}
 				content += '<BR><BR><button>Сделать спецификацию тип 1</button><button>Я поменяю даты изготовления</button>';
-			} */
+			} 
 			// если есть валидная дата изготовления
-		    if(dataObj.defined_date){
+		    else if(dataObj.defined_date){
 				content += 'Вы указали точную дату изготовления заказа,<BR><BR>Будет создана Спецификация тип 2<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+' указанная Вами (максимальная) дата '+((dataObj['max_date'].split('-')).reverse()).join('.')+'<BR><BR> Все указанные Вами даты:';
 				for(var key in dataObj.data){
 					if(dataObj.data[key]['date']>'1970-01-01'){
@@ -1756,16 +1756,16 @@ var rtCalculator = {
 					}
 				}
 				content += '<BR><BR><button>Ок</button><button>Отмена</button><button>Я поменяю даты изготовления</button>';
-			} 
+			}
 			else{
-				content += 'Будет создана Спецификация тип 1<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+' указанная Вами (максимальная) срок изготовления заказа '+((dataObj['max_date'].split('-')).reverse()).join('.')+'<BR><BR> Все указанные Вами даты:';
+				content += 'Будет создана Спецификация тип 1<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+' указанная Вами (максимальный) срок изготовления заказа '+dataObj['max_day_num']+'<BR><BR> Все указанные Вами даты:';
 				for(var key in dataObj.data){
 					if(dataObj.data[key]['date']>'1970-01-01'){
 						var date = ((dataObj.data[key]['date'].split('-')).reverse()).join('.');
 						content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+date;
 					}
 				}
-				content += '<BR><BR><button>Ок</button><button>Отмена</button><button>Я поменяю даты изготовления</button>';
+				content += '<BR><BR><button>Ок</button><button>Отмена</button>';
 			} 
 			/**/
 			box.innerHTML = content;
