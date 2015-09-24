@@ -2596,6 +2596,7 @@ div#apl-notification_center li{
     opacity: 0;
     margin-bottom: 1px;
     padding: 8px 10px;
+    padding-left: 30px;
 }
 div#apl-notification_center li.system_message{
     background-color: #ffc40d;

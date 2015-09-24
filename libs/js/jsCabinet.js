@@ -1968,7 +1968,26 @@ $(window).load(function() {
 
 // показать скрыть checkbox в спецификациях
 $(document).on('click', '#create_the_order', function(event) {
-	
+	var message = 'сначала выберите Имя Клиента в столбике "Компания"';
+	if($(this).hasClass('disabled')){
+		$("<li/>", {
+			      "class": 'error_message',
+			      "css":{"opacity":1,"top":0},
+			      click: function(){
+			          $(this).animate({opacity:0},'fast',function(){$(this).remove()});
+			      }
+			}).append(message).appendTo("#apl-notification_center").fadeIn('slow', 
+		        function(){
+		            var el = jQuery(this);
+		            setTimeout(function(){
+		                el.fadeOut('slow',
+		                    function(){
+		                        jQuery(this).remove();
+		                    });
+		            }, 7000);
+		    });
+		return false;
+	}
 	$('#cabinet_general_content_row .check_show_me').each(function(index, el) {
 		if($(this).hasClass('show')){
 			$(this).removeClass('show');
@@ -1981,6 +2000,8 @@ $(document).on('click', '#create_the_order', function(event) {
 		}		
 	});
 });
+
+
 
 // выбор спецификаций для формирования заказа
 $(document).on('click', '#create_in_order_button', function(event) {
@@ -2030,7 +2051,7 @@ $(document).on('click', '#add_for_other_order', function(event) {
 	if(n==0){
 		alert('Для создания заказа, необходимо выбрать хотя бы одну спецификацию.');
 	}else{
-		if(confirm('Вы уверены, что хотите объеденить '+n+' спецификацию(ий) в заказ?')){
+		if(confirm('Вы уверены, что хотите объединить '+n+' спецификацию(ий) в заказ?')){
 			$('#create_the_order').click();
 			$.post('', {
 				AJAX: 'attach_the_specification_for_other_order',
@@ -2801,3 +2822,5 @@ jQuery(function($){
   });
   
 });
+
+// клик по неактивной кнопке

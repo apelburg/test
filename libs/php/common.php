@@ -181,6 +181,18 @@
 	   }
 	   else return '';
 	}
+
+	function identify_supplier_href($article){// 
+	   global $suppliers_data_by_prefix;					   
+	   $prefix = substr($article,0,2);
+	   
+	   if(isset($suppliers_data_by_prefix[$prefix])){
+	      $article_orig_name = substr($article,2);
+	      return $suppliers_data_by_prefix[$prefix]['link'].$article_orig_name;
+		  
+	   }
+	   else return '';
+	}
 	/*   Чтение директрорий  */
 	function read_Dir($path){
 	     $dir = opendir($path);
