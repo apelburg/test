@@ -39,7 +39,7 @@ body {
 	vertical-align: baseline;
 }
 
-.sevrice_button_size_table{ padding-top: 15px}
+.sevrice_button_size_table{ padding-top: 15px; text-align: right;}
 #order_art_edit_content_table{padding: 10px 0 150px 0}
 #order_art_edit_content_table .cell.b_r{border-right: 1px solid #adacab}
 #edit_option_content{padding: 0 10px}
@@ -64,7 +64,7 @@ body {
 .btn_var_std{ margin-left: 5px; cursor: pointer; padding: 4px 10px; border:1px solid #e2e2e4; color:#e2e2e4;}
 .btn_var_std.checked{ background-color: #c7c8ca; border-color: #c7c8ca; color:#000; }
 #fddtime_rd,.fddtime_rd2{ width: 30px}
-.input_disabled,#edit_variants_content .variant_info .size_card table tr td .input_disabled{ border:1px solid #c7c8ca; background-color: #fff; color:#c7c8ca; padding: 2px 1px}
+.input_disabled,#edit_variants_content .variant_info .size_card table tr td .input_disabled{ border:1px solid #fff; background-color: #fff; color:#c7c8ca; padding: 2px 1pxж}
 #status_art_z{ float: right;}
 
 #status_art_z div{color: #5a5c61; font-size: 10px;}
@@ -98,8 +98,18 @@ body {
 #variants_name ul li.show_archive,#variants_name2 ul li.show_archive{opacity: 0.5}
 .variants_dop_info{ padding: 15px 5px 10px 5px}
 .variants_dop_info table{ width: 100%}
-.variants_dop_info .tirage_var{width: 60px; padding: 0px 5px; text-align: right;}
-.variants_dop_info .dop_tirage_var{width: 15px;padding: 0px 5px; text-align: right;}
+.variants_dop_info .tirage_var{width: 60px;
+    padding: 3px 5px 4px 5px;
+
+    text-align: right;
+    /* border-color: #f1f1f1; */
+    border: 1px solid #EAE6E6;}
+.variants_dop_info .dop_tirage_var{width: 15px;
+    padding: 3px 5px 4px 5px;
+    text-align: right;
+    /* border-color: #f1f1f1; */
+    border: 1px solid #EAE6E6;
+  }
 
 
 .variant_status_sv{
@@ -244,7 +254,7 @@ body {
 .variant_status_sv.green{
   background: rgb(86, 190, 86);
 }
-.variant_status_sv.sgree{
+.variant_status_sv.sgreen{
   background: #497314;
 }
 
@@ -327,7 +337,7 @@ body {
 }
 .variant_info table tr td .edit_row_variants:hover,.variant_info table tr td .del_row_variants:hover{border-color: #E8E8E8;}
 
-.variant_info table tr td input[type="text"]{background-color: #c7c8ca; border: none; text-align: right; width: 70px }
+.variant_info table tr td input[type="text"]{background-color: #fff; border:1px solid #EAE6E6; text-align: right; width: 70px }
 
 .variant_info .size_card table tr td:nth-of-type(3){ color: #5a5c61; font-size: 10px;}
 .variant_info .size_card table tr td:nth-of-type(2){ color: #5a5c61; font-size: 10px;}
@@ -344,15 +354,31 @@ body {
 .variant_info table tr td:nth-of-type(2){  text-align: left; }
 .variant_info table tr th:nth-of-type(2){min-width: 50px;text-align: left;}
 .variant_info table tr th:nth-of-type(1){
-  font-weight: bold; text-align: left; font-size: 12px; color:#000;/*padding-left: 15px*/}
+  /*font-weight: bold;*/ text-align: left; font-size: 10px; color:#000;/*padding-left: 15px*/}
 .variant_info table.calkulate_table tr th:nth-of-type(1){
  /* padding-left: 24px*/
 }
-
+.cell.size_card table tr th:nth-of-type(1),
+.cell.size_card table tr td:nth-of-type(1){
+  border-right: 10px solid #fff;
+}
 .variant_info table.calkulate_table tr th.type_row_calc_tbl,
 .variant_info table.calkulate_table tr td.type_row_calc_tbl{
     padding: 0;
   height: 21px;
+}
+
+
+#rezerv_save,
+.type_specificate-info input[type="text"]{ 
+    padding: 3px 5px 4px 5px;
+    /* border-color: #f1f1f1; */
+    border: 1px solid #EAE6E6;
+
+}
+
+.saved,.rezerv_save_new{
+  background-color: #f1f1f1;
 }
 .calkulate_table span{
   padding: 3px 2px 3px 5px;
@@ -824,7 +850,7 @@ span.snab_comment {
 #position_menu_absolute ul li.grey{
   background-image: url(http://www.apelburg.ru/os//skins/images/img_design/rt_svetofor_grey.png);
 }
-#position_menu_absolute ul li.sgree{
+#position_menu_absolute ul li.sgreen{
   background-image: url(http://www.apelburg.ru/os//skins/images/img_design/rt_svetofor_sgreen.png);
 }
 
@@ -922,3 +948,4 @@ span.snab_comment {
       border: 1px solid #F69679;
     background-color: #F69679;
 }
+.tirage_buttons{ width: 400px}

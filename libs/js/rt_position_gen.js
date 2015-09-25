@@ -228,8 +228,57 @@
 			location.reload();
 		}
 
+// $(document).on('keyup', '#rezerv_save', function(event) {
+// 	// event.preventDefault();
+// 	console.log($(this).val());
+// 	timing_save_input('reserv_save',$(this));
+// });
 
+$(document).on('keyup', '#rezerv_save', function(event) {
+	 timing_save_input('rezerv_save_new',$(this));
+});
 
+function rezerv_save_new(obj){
+
+	var row_id = obj.attr('data-id');
+	$.post('', {
+	    AJAX:'reserv_save',
+	    row_id:row_id,
+	    value:obj.val()
+	}, function(data, textStatus, xhr) {
+	  	standard_response_handler(data);
+	    if(data['response']=="OK"){
+	        // php возвращает json в виде {"response":"OK"}
+	        // если ответ OK - снимаем класс saved
+	        obj.removeClass('saved');
+	    }else{
+	        console.log('Данные не были сохранены.');
+	    }
+	},'json');
+}
+
+function timing_save_input(fancName,obj){
+    //если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
+    if(!obj.hasClass('saved')){
+        window[fancName](obj);
+        obj.addClass('saved');                  
+    }else{// стоит запрет, проверяем очередь по сейву данной функции        
+        if(obj.hasClass(fancName)){ //стоит в очереди на сохранение
+            // стоит очередь, значит мимо... всё и так сохранится
+        }else{
+            // не стоит в очереди, значит ставим
+            obj.addClass(fancName);
+            // вызываем эту же функцию через n времени всех очередей
+            var time = 2000;
+            $('.'+fancName).each(function(index, el) {
+                console.log($(this).html());
+                
+                setTimeout(function(){timing_save_input(fancName,$('.'+fancName).eq(index));// обнуляем очередь
+        if(obj.hasClass(fancName)){obj.removeClass(fancName);}}, time); 
+            });         
+        }       
+    }
+}
 
 
 
@@ -241,11 +290,13 @@
 
 
 $(document).on('click', '.add_usl', function(event) {
+	var for_all = ($(this).hasClass('all'))?1:0;
 	$.post('', 
 		{
 			AJAX:"get_uslugi_list_Database_Html",
 			client_id:$(this).attr('data-client_id'),
-			query_num:$(this).attr('data-query_num')
+			query_num:$(this).attr('data-query_num'),
+			for_all:for_all
 
 		}, function(data, textStatus, xhr) {
 		show_dialog_and_send_POST_window(data,'Выберите услугу', 800);		
@@ -635,7 +686,7 @@ $(document).on('click', '.tz_text_new', function(event) {
 
 	$(this).attr('id',id);
 	// окно редактирования ТЗ
-	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ',600);
+	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ');
 });
 
 $(document).on('keyup', '.tz_taxtarea_edit', function(event) {

@@ -76,6 +76,20 @@ class Position_catalog{
 		return $html;
 	}
 
+	// сохранение типа даты отгрузки (р/д + дата VS р/д)
+	private function save_shipping_type_AJAX(){
+		global $mysqli;
+		$query = "UPDATE ".RT_DOP_DATA." SET 
+		`shipping_type`='".$_POST['value']."', 
+		`shipping_redactor_id`='".$this->user_id."',
+		`shipping_redactor_access`='".$this->user_access."' 
+		WHERE `id`='".$_POST['row_id']."';";
+		
+		$result = $mysqli->query($query) or die($mysqli->error);
+		echo '{"response":"OK"}';
+		exit;
+	}
+
 	private function save_price_in_out_for_one_price_AJAX(){
 		global $mysqli;
 		$query = "UPDATE ".RT_DOP_DATA." SET 
@@ -167,7 +181,7 @@ class Position_catalog{
 			$color = $_POST['color'];
 			
 			$query  = "UPDATE `".RT_DOP_DATA."` SET `row_status` = '".$color."' WHERE  `id` IN (".$id_in.");";
-			// echo $query;
+			echo $query;
 			// echo '<pre>';
 			// print_r($_POST);
 			// echo '</pre>';
@@ -203,18 +217,65 @@ class Position_catalog{
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
 	}
+
+	// копируем услуги варианта
+	private function copy_services_row_for_variant($dop_row_reference_id, $dop_row_new_id){
+		global $mysqli;
+		$query = "SELECT * FROM  `".RT_DOP_USLUGI."`
+				WHERE  `dop_row_id` ='".$dop_row_reference_id."'";  /// !!!! править тут !!!!
+		$services_arr = array();
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$services_arr[] = $row;
+			}
+		}
+		// echo $query;
+		if(count($services_arr)>0){
+			
+			foreach ($services_arr as $key => $service) {
+				$query = '';
+				$query .= "INSERT INTO `".RT_DOP_USLUGI."` SET";
+				$n = 0;
+				foreach ($service as $name_column => $value) {
+					if($name_column=="id"){continue;}
+					if($name_column!='dop_row_id'){
+						$query .= (($n>0)?',':'')." `".$name_column."`='".$value."' ";
+					}else{
+						$query .= (($n>0)?',':'')." `".$name_column."`='".$dop_row_new_id."' ";
+					}
+					$n++;
+				}
+				$query .= '; ';
+				$result = $mysqli->query($query) or die($mysqli->error);
+			}
+			// echo $query;
+			
+		}
+		return;
+	}
+
+	// создаём сопию варианта
 	private function new_variant_AJAX(){
 		global $mysqli;
 
+		$reference_id = (int)$_POST['id'];
 		// собираем запрос, копируем строку в БД
-		$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id']."')";
+		$query = "INSERT INTO `".RT_DOP_DATA."` 
+		(row_id, quantity,price_in, price_out,discount,tirage_json) 
+		(SELECT row_id, quantity,price_in, price_out,discount,tirage_json 
+			FROM `".RT_DOP_DATA."` WHERE id = '".$reference_id."')";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		// запоминаем новый id
 		$insert_id = $mysqli->insert_id;
 
+		if(isset($_POST['services']) && $_POST['services'] == 'true'){
+			// копируем услуги
+			$this->copy_services_row_for_variant($reference_id, $insert_id);
+		}
 		// узнаем количество строк
 		$query = "SELECT COUNT( * ) AS `num`
-				FROM  `os__rt_dop_data` 
+				FROM  `".RT_DOP_DATA."`
 				WHERE  `row_id` ='".$_POST['row_id']."'";  /// !!!! править тут !!!!
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
@@ -222,6 +283,9 @@ class Position_catalog{
 				$num_rows = $row['num'];
 			}
 		}
+
+
+
 		echo '{ "response":"1",
 				"text":"test",
 				"new_id":"'.$insert_id.'",
@@ -268,6 +332,17 @@ class Position_catalog{
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$this->info = $row;
+				
+			}
+		}
+
+		$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".(int)$_GET['id']."'";
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$this->info_main = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$this->info_main = $row;
 				
 			}
 		}
@@ -461,49 +536,80 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		}
 		return $arr;
 	}
+
+	/**
+	 * Меню выбора типа спецификации в карточке (дата/рд)	
+	 *
+	 * 		    
+	 */
+	public static function get_select_shipping_type($var){
+		$html = '<select style="padding: 2px 5px 3px 5px;border: 1px solid #EAE6E6;" class="js-edit-type_specificate" data-id="'.$var['id'].'">';
+		
+		$option_arr = array(
+			'none' => 'отгрузка...',
+			'date' => 'по дате',
+			'rd' => 'по рд'
+		);
+
+		foreach ($option_arr as $key => $name_ru) {
+			$selected = ($var['shipping_type'] == $key)?' selected="selected"':'';
+			$html .= '<option value="'.$key.'" '.$selected.'>'.$name_ru.'</option>';
+		}
+
+		$html .= '</select>';
+		return $html;						
+	}
+
+
+	public function get_variants_arr_sort_for_type($variants_arr){
+		if(!isset($this->variants_arr_sort_for_type)){
+			$this->variants_arr_sort_for_type = array();
+			foreach ($variants_arr as $key => $variant) {
+				$this->variants_arr_sort_for_type[$variant['row_status']] = $variant['id'];
+			}
+		}
+		return $this->variants_arr_sort_for_type;
+	}
 	
-	public function generate_variants_menu($variants,$dop_enable){		
+	public function generate_variants_menu($variants){		
 		$html = ''; // контент функции
 		
 		$ch = 0; // счетчик количества выбранных элементов, может не больше одного
 		
-		// проверяем наличие green расчётов
-		$isset_green = $dop_enable[0];
-		// проверяем наличие grey расчётов
-		$isset_grey = $dop_enable[1];
+		
+		$arr_for_type = $this->get_variants_arr_sort_for_type($variants);
+		
 
-		$isset_sgree = $dop_enable[2];
 		
 		for ($i=0; $i < count($variants); $i++) { 
 			$checked = ''; // имя класса для выбранного элемента
 
-			$var = $variants[$i]['row_status'];
+			$row_status = $variants[$i]['row_status'];
 
 			// если это зона записи red, а архив нам не нужно показывать переходим к следующей интерации цикла
-			if((!isset($_GET['show_archive']) && ($isset_green || $isset_grey || $isset_sgree)) && $var=='red'){ continue;}
+			if(!isset($_GET['show_archive']) && $row_status=='red'){ continue;}
 
-			switch ($var) {
+			switch ( $row_status ) {
+				case 'sgreen':// не история - рабочий вариант расчёта
+					if($ch < 1){$checked='checked';$ch++;}					
+					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
+					break;
+
 				case 'green':// не история - рабочий вариант расчёта
-					// может входить в КП
-					if($ch < 1){$checked='checked';$ch++;}					
+					if($ch < 1 && @count($arr_for_type['sgreen']) == 0){$checked='checked';$ch++;}					
 					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
-				break;
-				case 'sgree':// не история - рабочий вариант расчёта
-					// может входить в КП
-					if($ch < 1){$checked='checked';$ch++;}					
-					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
-				break;
+					break;				
 				
 				case 'grey':// не история - вариант расчёта не учитывается в РТ
-					// вариант расчёта не входит в КП	
-				  	if (!$isset_green && $ch == 0){$checked='checked';$ch++;}
+					if ($ch == 0 && @count($arr_for_type['green']) == 0 && @count($arr_for_type['sgreen']) == 0){$checked='checked';$ch++;}
 					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
-				break;			
+					break;			
 				
 				default: // вариант расчёта red (архив), остальное не важно
-					if (!$isset_green && !$isset_grey && $ch == 0){$checked='checked';$ch++;}
+					
+					if ($ch == 0 && @count($arr_for_type['green']) == 0 && @count($arr_for_type['sgreen']) == 0 && @count($arr_for_type['grey']) == 0){$checked='checked';$ch++;}
 					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name show_archive">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
-				break;
+					break;
 			}
 		}
 		return $html;
@@ -525,11 +631,11 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		$html = '
 			<table>
 				<tr>
-					<th>Размеры</th>
+					<th>Размер</th>
 					<th>на складе</th>
 					<th>свободно</th>
 					<th>тираж</th>
-					<th>пригон</th>
+					<th>запас</th>
 				</tr>
 		';
 		
