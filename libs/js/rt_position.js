@@ -253,14 +253,11 @@ $(document).ready(function() {
 
 
 
-function destroy_datetimepicker_for_variant_cont(){
-	$('#edit_variants_content .datepicker2').datetimepicker('destroy');
-	$('#edit_variants_content .timepicker2').datetimepicker('destroy');
-}
+
 
 // меню манипуляций с вариантом
 $(document).on('click', '.variant_status_sv', function(event) {
-	// event.preventDefault();
+	$(this).parent().click();
 	
 	/**
 	 *	пункты меню
@@ -272,15 +269,32 @@ $(document).on('click', '.variant_status_sv', function(event) {
 			edit_variants('one','green');
 			window_preload_del();
 		}
-	}).append('поставить маркер КП');
+	}).append('Использовать в КП');
+
+	var li_5 = $('<li/>',{
+		"class":"grey",
+		click: function(){
+			window_preload_add();		
+			edit_variants('one','grey');
+			window_preload_del();
+		}
+	}).append('Подумать, но не удалять');
 
 	var li_1 = $('<li/>',{
 		click: function(){
 			window_preload_add();	
-			copy_variant();
+			copy_variant(false);
 			window_preload_del();
 		}
-	}).append('скопировать');
+	}).append('Скопировать товар');
+
+	var li_6 = $('<li/>',{
+		click: function(){
+			window_preload_add();	
+			copy_variant(true);
+			window_preload_del();
+		}
+	}).append('Скопировать товар + услуги');
 
 	var li_2 = $('<li/>',{
 		"class":"red",
@@ -289,21 +303,47 @@ $(document).on('click', '.variant_status_sv', function(event) {
 			edit_variants('one','red');
 			window_preload_del();
 		}
-	}).append('удалить');
+	}).append('Отказанный, нет в наличии');
 
 	var li_3 = $('<li/>',{
-		"class":"sgree",
+		"class":"sgreen",
 		click: function(){		
 			window_preload_add();		
-			edit_variants('one','sgree');
+			edit_variants('one','sgreen');
 			edit_variants('any','red');
 			window_preload_del();
 		}
-	}).append('выбрать окончательный');
+	}).append('Окончательный - использовать в СПФ');
 	
-	var obj = $('<ul/>').append(li_1,li_4, li_2, li_3);
+	var obj = $('<ul/>').append(li_1,li_6,li_5,li_4, li_2, li_3);
 
 	get_position_menu_absolute(event,obj);
+});
+
+
+$(document).on('click', '.js-edit-type_specificate', function(event) {
+	var value = $(this).val();
+	var row_id = $(this).attr('data-id');
+	switch(value){
+		case 'none':
+			$(this).parent().find('.type_specificate-info').hide();
+			break;
+		case 'date':
+			$(this).parent().find('.type_specificate-info').show();
+			$(this).parent().find('.type_specificate-info.rd').hide();
+			break;
+		default:
+			$(this).parent().find('.type_specificate-info.rd').show();
+			$(this).parent().find('.type_specificate-info.date').hide();
+			break;
+	}
+	$.post('', {
+		AJAX:"save_shipping_type",
+		value:value,
+		row_id:row_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	});
 });
 
 // редактировать вриант
@@ -311,7 +351,7 @@ function edit_variants(anyone, row_status) {
 	var id_in = new Array();
 	var id_in_row = '';
 	//var anyone; // any, one
-	//var row_status; // green, grey, red, sgree
+	//var row_status; // green, grey, red, sgreen
 	// console.log(anyone);
 	// console.log(row_status);
 	var i = 0;
@@ -347,13 +387,14 @@ function edit_variants(anyone, row_status) {
 	});
 }
 // копирование варианта
-function copy_variant(){
+function copy_variant(services){
 	var id = $('#variants_name .variant_name.checked ').attr('data-id');
 	var row_id = $('#claim_number').attr('data-order');	
 	$.post('',{
 		AJAX: 'new_variant',
 		id:id,
-		row_id:row_id
+		row_id:row_id,
+		services:services
 		
 	}, function(data, textStatus, xhr) {
 		if(data['response']=='1'){
@@ -397,10 +438,17 @@ function copy_variant(){
 
 
 
+$(document).on('click', 'body', function(event) {
+	if($("#position_menu_absolute").length){
+		$("#position_menu_absolute").remove();		
+	}
+});
+
 
 // меню
 function get_position_menu_absolute(event,content){
-	if($("#position_menu_absolute").length){$("#variant_menu").remove();}
+	event.stopPropagation();
+	if($("#position_menu_absolute").length){$("#position_menu_absolute").remove();}
 	$("<div/>", {
 			      "css":{"opacity":1,"top":(event.pageY-25),"left":(event.pageX-25)},
 			      "id":"position_menu_absolute",
@@ -408,6 +456,10 @@ function get_position_menu_absolute(event,content){
 			          $(this).animate({opacity:0},'fast',function(){$(this).remove()});
 			      }
 			}).append(content).appendTo('body').fadeIn('slow');
+}
+function destroy_datetimepicker_for_variant_cont(){
+	$('#edit_variants_content .datepicker2').datetimepicker('destroy');
+	$('#edit_variants_content .timepicker2').datetimepicker('destroy');
 }
 
 function create_timepicker_for_variant_cont(){
@@ -487,55 +539,6 @@ function create_datepicker_for_variant_cont(){
 	 	
 	});
 }
-
-
-/* 
-// устарело
-$(document).on('click','#new_variant',function(){
-	var id = $('#variants_name .variant_name.checked ').attr('data-id');
-	var row_id = $('#claim_number').attr('data-order');	
-	$.post('',{
-		global_change: 'AJAX',
-		change_name: 'new_variant',
-		id:id,
-		row_id:row_id
-		
-	}, function(data, textStatus, xhr) {
-		if(data['response']=='1'){
-			// клонируем html вкладки текущего расчета
-			var menu_li = $('#variants_name .variant_name.checked ').clone();
-			// ставим название и на всякий подчищаем архивный класс, если он есть
-			menu_li.html(data['num_row_for_name']+'<span class="variant_status_sv green"></span>').removeClass('show_archive');		
-			// получаем id текущего пблока расчёта
-			var id_div = menu_li.attr('data-cont_id');
-			// меняем id для для работы вкладки с новым блоком 
-			menu_li.attr('data-cont_id','variant_content_block_'+data['num_row']);
-			// убираем класс "выбрано" со всех вкладок
-			$('#variants_name .variant_name').removeClass('checked');
-			// вставляем html
-			$('#variants_name .variant_name:last-of-type').after(menu_li);
-			// post запрос для названия вкладки и получения id для склонированного контента
-
-			// клонируем html текущего расчёта со всеми данными
-			var div_html = $('#'+id_div).clone();
-			// id на новый
-			div_html.attr('id','variant_content_block_'+data['num_row']);
-			// подчищаем архивный класс, если есть
-			div_html.removeClass('archiv_opacity');
-			// скрываем все видимые блоки расчета
-			$('#edit_variants_content .variant_content_block').css({'display':'none'})
-			// вставляем html
-			$('#edit_variants_content .variant_content_block:last-of-type').after(div_html);
-
-			// убиваем календари 
-			destroy_datetimepicker_for_variant_cont()
-			// создаем календари для всех по новой
-			create_datepicker_for_variant_cont();// ДАТА
-			create_timepicker_for_variant_cont();// ВРЕМЯ
-			
-		}
-	},"json");
-});*/
 
 
 // обработка кнопок ПЗ, НПЗ
@@ -1459,18 +1462,18 @@ $(document).on('click','.btn_var_std[name="std"]',function(){
 });
 
 
-
 $(document).on('keyup','.fddtime_rd2',function(){
-	if($(this).val()!='10'){
-		$(this).prev().removeClass('checked');
-	}else{
-		if(!$(this).prev().hasClass('checked')){
-			$(this).prev().addClass('checked');
-		}		
-	}
+	// if($(this).val()!='10'){
+	// 	$(this).prev().removeClass('checked');
+	// }else{
+	// 	if(!$(this).prev().hasClass('checked')){
+	// 		$(this).prev().addClass('checked');
+	// 	}		
+	// }
 	// сохраняемся и меняем html
 	save_standart_day();
 });
+
 
 
 // отслеживание нажатий функциональных клавиш с клавиатуры

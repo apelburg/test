@@ -10,29 +10,37 @@
 					<span class="btn_var_std <?php echo $print_z_no; ?>" name="npz">НПЗ</span>
 				</td>
 				<td>
-					<strong>Изготовление р/д:</strong>
-					<!-- <span class="btn_var_std <?php echo $std_time_print;?>" name="std">Стандартно</span>  -->
-					<input type="text" class="fddtime_rd2" name="fddtime_rd2" value="<?php echo $value['standart']; ?>"> р/д
+					
+					<?php echo Position_catalog::get_select_shipping_type($variant) ?>						
+					<span class="type_specificate-info date" <?php echo $shipping_type__show_date;?>>
+						<!-- <strong>Дата отгрузки:</strong> -->
+						<!-- <span class="btn_var_std">Стандартно</span> -->
+						<input type="text" class="datepicker2" name="datepicker2" value="<?php echo ($variant['shipping_date']!="00.00.0000")?$variant['shipping_date']:''; ?>"  placeholder="дата"> 
+						<?php
+						if($variant['shipping_date']!="00.00.0000"){
+							if($variant['shipping_time']!="00:00:00"){
+								echo '<input type="text" class="timepicker2" placeholder="время" name="timepicker2" value="'.$variant['shipping_time'].'">';
+							}else{
+								echo '<input type="text" placeholder="время" class="timepicker2" name="timepicker2" value="">';
+							}
+						}else{
+							echo '<input type="text" class="timepicker2" name="timepicker2" value=""  placeholder="время" style="display:none">';
+						}
+
+						?>
+					</span>
+
+					<span class="type_specificate-info rd" <?php echo $shipping_type__show_rd;?>>
+						<!-- <strong>Изготовление р/д:</strong> -->
+						<!-- <span class="btn_var_std <?php echo $std_time_print;?>" name="std">Стандартно</span>  -->
+						<input type="text" class="fddtime_rd2" name="fddtime_rd2" value="<?php echo $variant['standart']; ?>"> р/д
+					</span>
 
 					
 					
 				</td>
 				<td>
-					<strong>Дата отгрузки:</strong>
-					<!-- <span class="btn_var_std">Стандартно</span> -->
-					<input type="text" class="datepicker2" name="datepicker2" value="<?php echo ($value['shipping_date']!="00.00.0000")?$value['shipping_date']:''; ?>"> 
-					<?php
-					if($value['shipping_date']!="00.00.0000"){
-						if($value['shipping_time']!="00:00:00"){
-							echo '<input type="text" class="timepicker2" name="timepicker2" value="'.$value['shipping_time'].'">';
-						}else{
-							echo '<input type="text" class="timepicker2" name="timepicker2" value="">';
-						}
-					}else{
-						echo '<input type="text" class="timepicker2" name="timepicker2" value="" style="display:none">';
-					}
-
-					?>
+					
 					
 				</td>
 			<tr>
@@ -53,16 +61,16 @@
 									</tr>
 									<tr class="tirage_and_price_for_one">
 										<td>1 шт.</td>
-										<td class="row_tirage_in_one price_in"><span contenteditable="true" class="edit_span" ><?php echo $value['price_in']; ?></span> р.</td>
+										<td class="row_tirage_in_one price_in"><span contenteditable="true" class="edit_span" ><?php echo $variant['price_in']; ?></span> р.</td>
 										<td rowspan="2"  class="percent_nacenki">
 											<span contenteditable="true" class="edit_span"><?php 
-											$per = ($value['price_in']!= 0)?$value['price_in']:0.09;
-											echo round((($value['price_out']-$value['price_in'])*100/$per),2);
+											$per = ($variant['price_in']!= 0)?$variant['price_in']:0.09;
+											echo round((($variant['price_out']-$variant['price_in'])*100/$per),2);
 											?></span>%
 
 										</td>
-										<td  class="row_price_out_one price_out"><span class="edit_span" contenteditable="true"><?php echo $value['price_out']; ?></span> р.</td>
-										<td class="row_pribl_out_one pribl"><span><?php echo ($value['price_out']-$value['price_in']); ?></span> р.</td>
+										<td  class="row_price_out_one price_out"><span class="edit_span" contenteditable="true"><?php echo $variant['price_out']; ?></span> р.</td>
+										<td class="row_pribl_out_one pribl"><span><?php echo ($variant['price_out']-$variant['price_in']); ?></span> р.</td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
@@ -76,13 +84,13 @@
 									</tr>
 									<?php 
 									
-									$uslugi = $POSITION_GEN->POSITION_NO_CATALOG->get_uslugi_Database_Array($value['id']);
+									$uslugi = $POSITION_GEN->POSITION_NO_CATALOG->get_uslugi_Database_Array($variant['id']);
 										echo $POSITION_GEN->POSITION_CATALOG->uslugi_template_cat_Html($uslugi);
 									?>
 									<tr>
-										<th colspan="7"  class="type_row_calc_tbl">
-											<div class="add_usl">Добавить ещё услуги</div>
-										</th>
+										<th colspan="7" class="type_row_calc_tbl">
+											<div class="add_usl">Добавить услуги к этому варианту</div>
+											<!-- <div class="add_usl all">Добавить услуги ко всем рабочим вариантам</div></th> -->
 									</tr>
 									<tr>
 										<td colspan="7" class="table_spacer"> </td>

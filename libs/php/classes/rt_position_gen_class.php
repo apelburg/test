@@ -181,6 +181,7 @@ class Position_general_Class{
 		$id_uslugi = $_POST['id_uslugi'];
 		$dop_row_id = $_POST['dop_row_id'];
 		$quantity = $_POST['quantity'];
+		$for_all = $_POST['for_all'];
 
 		global $mysqli;
 		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` = '".$id_uslugi."'";
@@ -194,6 +195,7 @@ class Position_general_Class{
 
 		// если массив услуг пуст
 		if(empty($usluga)){return 'такой услуги не существует';}
+
 
 
 
@@ -249,6 +251,19 @@ class Position_general_Class{
 		echo '{"response":"close_window","name":"add_uslugu'.$dop.'","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
 	}
 
+	// сохранение информации по резерву
+	private function reserv_save_AJAX(){
+		global $mysqli;
+
+		$query = "UPDATE `".RT_MAIN_ROWS."` 
+					SET 
+					`rezerv` =  '".base64_encode($_POST['value'])."'
+					WHERE  `id` ='".$_POST['row_id']."'";	
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+
+		echo '{"response":"OK"}';
+	}
 
 	private function get_uslugi_list_Database_Html_AJAX(){
 		global $type_product;
@@ -257,6 +272,7 @@ class Position_general_Class{
 			$html = '<form>';
 			$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
 			$html .= $this->get_uslugi_list_Database_Html();
+			$html .= '<input type="hidden" name="for_all" value="'.$_POST['for_all'].'">';
 			$html .= '<input type="hidden" name="id_uslugi" value="">';
 			$html .= '<input type="hidden" name="dop_row_id" value="">';
 			$html .= '<input type="hidden" name="quantity" value="">';
