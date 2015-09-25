@@ -38,29 +38,31 @@
 
 	// варианты просчётов
 	ob_start();		
-	$dop_enable = array(0,0);
+	$dop_enable = array(0,0,0);
 	foreach ($variants as $k => $v) {
 		//if($v['draft']=='0' && $v['row_status']!='red'/*исключение на возможную ошибку в базе*/){$dop_enable[0] = 1;}			
 		if($v['row_status']=="green"){$dop_enable[0] = 1;}		
 		if($v['row_status']=="grey"){$dop_enable[1] = 1;}	
+		if($v['row_status']=="sgree"){$dop_enable[2] = 1;}	
 	}	
 	$isset_green = $dop_enable[0];
 	$isset_grey = $dop_enable[1];
-	// echo '<pre>';
-	// print_r($variants);
-	// echo '</pre>';
-	
-	// print_r($dop_enable);
+	$isset_sgree = $dop_enable[2];
+
 
 	$ch = 0;
 	foreach ($variants as $key => $value) {
 		// по умолчанию блоки скрыты
 		$display_this_block = ' style="display:none"';
 		// если это зона записи red, а архив нам не нужно показывать переходим к следующей интерации цикла
-		if((!isset($_GET['show_archive']) && ($isset_green || $isset_grey)) && $value['row_status']=='red'){ continue;}
+		if((!isset($_GET['show_archive']) && ($isset_green || $isset_grey || $isset_sgree)) && $value['row_status']=='red'){ continue;}
 
 		// если это зона записи red, добавляем класс запрещающий редактирование данного блока
-		if($value['row_status']=='red'){$show_archive_class = " archiv_opacity";}else{$show_archive_class ='';}
+		if($value['row_status']=='red'){
+			$show_archive_class = " archiv_opacity";
+		}else{
+			$show_archive_class ='';
+		}
 
 		///////// ВАРИАНТЫ СВЕТОФОР  ///////
 		$var = $value['row_status'];
@@ -69,14 +71,23 @@
 				// может входить в КП
 				if($ch < 1){$display_this_block=' style="display:block"';$ch++;}				
 			break;
+			case 'sgree':// 
+				if($ch < 1){
+					$display_this_block=' style="display:block"';$ch++;
+				}				
+			break;
 			
 			case 'grey':// не история - вариант расчёта не учитывается в РТ
 				// серый вариант расчёта не входит в КП	
-				if (!$isset_green && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
+				if (!$isset_green && !$isset_sgree && $ch== 0){
+					$display_this_block=' style="display:block"';$ch++;
+				}
 			break;						
 			
 			default: // вариант расчёта red (архив), остальное не важно
-				if (!$isset_green && !$isset_grey && $ch== 0){$display_this_block=' style="display:block"';$ch++;}
+				if (!$isset_green && !$isset_grey && !$isset_sgree && $ch== 0){
+					$display_this_block=' style="display:block"';$ch++;
+				}
 			break;
 		}
 		

@@ -162,15 +162,18 @@ class Position_catalog{
 	}
 	private function change_status_row_AJAX(){
 		global $mysqli;
-
-		$color = $_POST['color'];
 		$id_in = $_POST['id_in'];
-		$query  = "UPDATE `".RT_DOP_DATA."` SET `row_status` = '".$color."' WHERE  `id` IN (".$id_in.");";
-		echo $query;
-		// echo '<pre>';
-		// print_r($_POST);
-		// echo '</pre>';
-		$result = $mysqli->query($query) or die($mysqli->error);
+		if(trim($id_in)!=''){
+			$color = $_POST['color'];
+			
+			$query  = "UPDATE `".RT_DOP_DATA."` SET `row_status` = '".$color."' WHERE  `id` IN (".$id_in.");";
+			// echo $query;
+			// echo '<pre>';
+			// print_r($_POST);
+			// echo '</pre>';
+			$result = $mysqli->query($query) or die($mysqli->error);	
+		}
+		
 		echo '{"response":"1","text":"test"}';
 		exit;
 	}
@@ -204,7 +207,7 @@ class Position_catalog{
 		global $mysqli;
 
 		// собираем запрос, копируем строку в БД
-		$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, row_status,quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, row_status,quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id']."')";
+		$query = "INSERT INTO `".RT_DOP_DATA."` (row_id, quantity,price_in, price_out,discount,tirage_json) (SELECT row_id, quantity,price_in, price_out,discount,tirage_json FROM `".RT_DOP_DATA."` WHERE id = '".$_POST['id']."')";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		// запоминаем новый id
 		$insert_id = $mysqli->insert_id;
@@ -468,6 +471,8 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		$isset_green = $dop_enable[0];
 		// проверяем наличие grey расчётов
 		$isset_grey = $dop_enable[1];
+
+		$isset_sgree = $dop_enable[2];
 		
 		for ($i=0; $i < count($variants); $i++) { 
 			$checked = ''; // имя класса для выбранного элемента
@@ -475,10 +480,15 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 			$var = $variants[$i]['row_status'];
 
 			// если это зона записи red, а архив нам не нужно показывать переходим к следующей интерации цикла
-			if((!isset($_GET['show_archive']) && ($isset_green || $isset_grey)) && $var=='red'){ continue;}
+			if((!isset($_GET['show_archive']) && ($isset_green || $isset_grey || $isset_sgree)) && $var=='red'){ continue;}
 
 			switch ($var) {
 				case 'green':// не история - рабочий вариант расчёта
+					// может входить в КП
+					if($ch < 1){$checked='checked';$ch++;}					
+					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
+				break;
+				case 'sgree':// не история - рабочий вариант расчёта
 					// может входить в КП
 					if($ch < 1){$checked='checked';$ch++;}					
 					$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
@@ -491,7 +501,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				break;			
 				
 				default: // вариант расчёта red (архив), остальное не важно
-					if (!$isset_green && !$isset_grey && $ch== 0){$checked='checked';$ch++;}
+					if (!$isset_green && !$isset_grey && $ch == 0){$checked='checked';$ch++;}
 					$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name show_archive">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
 				break;
 			}

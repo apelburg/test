@@ -117,7 +117,7 @@ $(document).ready(function() {
 										<div class="cell">
 											<div class="table">
 												<div class="row">
-													<div class="cell">Артикул</div>
+													<div class="cell"><a target="_blank" href="<?php echo identify_supplier_href($articul['art']);  ?>">Артикул</a></div>
 													<div class="cell"><?php echo $articul['art']; ?></div>
 												</div>
 												<div class="row">
@@ -188,11 +188,11 @@ $(document).ready(function() {
 					<div id="variants_name">
 						<table>
 							<tr>
-								<td>
+								<!-- <td>
 									<ul id="new_variant_UL">
 										<li id="new_variant">&nbsp;</li>
 									</ul>
-								</td>
+								</td> -->
 								<td>
 									<ul id="all_variants_menu">
 										<!-- вставка кнопок вариантов -->
@@ -201,7 +201,7 @@ $(document).ready(function() {
 								</td>
 								<td>
 									<ul>
-										<li id="choose_end_variant"><span class="chenged_text">Редактор вариантов</span>
+										<!-- <li id="choose_end_variant"><span class="chenged_text">Редактор вариантов</span>
 											<div id="menu_for_variants_status">
 												<div class="menu_for_variants_status_menu_name">Применить для текущего</div>
 												<div>
@@ -250,16 +250,17 @@ $(document).ready(function() {
 													</ul>
 												</div>
 											</div>
-										</li>
+										</li> -->
 										<li id="show_archive">
 											<?php
 												if(isset($_GET['show_archive'])){
-													echo '<a data-true="1" href="'.str_replace('&show_archive', '', $_SERVER['REQUEST_URI']).'">Скрыть архив</a></li>';
+													echo '<a data-true="1" href="'.str_replace('&show_archive', '', $_SERVER['REQUEST_URI']).'">Скрыть архив</a>';
 												}else{
-													echo '<a data-true="0" href="'.$_SERVER['REQUEST_URI'].'&show_archive">Показать архив </a></li>';
+													echo '<a data-true="0" href="'.$_SERVER['REQUEST_URI'].'&show_archive">Показать архив </a>';
 
 												}
-											?>										
+											?>	
+										</li>									
 									</ul>
 								</td>
 							</tr>

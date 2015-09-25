@@ -446,7 +446,7 @@
 				// ШАБЛОН вывода позиций для заказа со спецификацией
 				private function get_order_specificate_position_Html_Template(){
 					$html = '';
-					$html .= '<tr class="positions_rows row__'.$this->position['sequence_number'].'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
+					$html .= '<tr class="position-row position-row-production" id="position_row_'.$this->position['sequence_number'].'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
 					// порядковый номер позиции в заказе
 					$html .= '<td><span class="orders_info_punct">'.$this->position['sequence_number'].'п</span></td>';
 					// описание позиции
@@ -762,6 +762,9 @@
 				if(isset($_GET['client_id']) AND $this->user_access != 2){
 					global $quick_button;
 					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add">Создать заказ</a></div>';	
+				}else{
+					global $quick_button;
+					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add disabled">Создать заказ</a></div>';	
 				}
 
 				$this->get_paperwork_specificate_rows_Template();
@@ -772,6 +775,9 @@
 				if(isset($_GET['client_id']) AND $this->user_access != 2){
 					global $quick_button;
 					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add">Создать заказ</a></div>';	
+				}else{
+					global $quick_button;
+					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add disabled">Создать заказ</a></div>';	
 				}
 
 				$this->get_paperwork_specificate_rows_Template();

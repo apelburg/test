@@ -990,3 +990,6 @@ div#cabinet_filtres {
 .statuslist_film_photos{
 	width: 100px;
 }
+.quick_bar_tbl td .quick_button_div .button.add.disabled {
+    background-color: #BCBCBC;
+}

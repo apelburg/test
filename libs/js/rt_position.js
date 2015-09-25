@@ -201,7 +201,7 @@
 			show_simple_dialog_window('Необходимо переделать на стандартный выход.<br> Алексей',data['title']);
 		}
 		// перезагрузка окна
-		function window_reload(data) {
+		function window_reload(data) {			
 			location.reload();
 		}
 //////////////////////////////////
@@ -251,9 +251,163 @@ $(document).ready(function() {
 	create_timepicker_for_variant_cont();
 });
 
+
+
 function destroy_datetimepicker_for_variant_cont(){
 	$('#edit_variants_content .datepicker2').datetimepicker('destroy');
 	$('#edit_variants_content .timepicker2').datetimepicker('destroy');
+}
+
+// меню манипуляций с вариантом
+$(document).on('click', '.variant_status_sv', function(event) {
+	// event.preventDefault();
+	
+	/**
+	 *	пункты меню
+	 */
+	var li_4 = $('<li/>',{
+		"class":"green",
+		click: function(){	
+			window_preload_add();		
+			edit_variants('one','green');
+			window_preload_del();
+		}
+	}).append('поставить маркер КП');
+
+	var li_1 = $('<li/>',{
+		click: function(){
+			window_preload_add();	
+			copy_variant();
+			window_preload_del();
+		}
+	}).append('скопировать');
+
+	var li_2 = $('<li/>',{
+		"class":"red",
+		click: function(){
+			window_preload_add();	
+			edit_variants('one','red');
+			window_preload_del();
+		}
+	}).append('удалить');
+
+	var li_3 = $('<li/>',{
+		"class":"sgree",
+		click: function(){		
+			window_preload_add();		
+			edit_variants('one','sgree');
+			edit_variants('any','red');
+			window_preload_del();
+		}
+	}).append('выбрать окончательный');
+	
+	var obj = $('<ul/>').append(li_1,li_4, li_2, li_3);
+
+	get_position_menu_absolute(event,obj);
+});
+
+// редактировать вриант
+function edit_variants(anyone, row_status) { 
+	var id_in = new Array();
+	var id_in_row = '';
+	//var anyone; // any, one
+	//var row_status; // green, grey, red, sgree
+	// console.log(anyone);
+	// console.log(row_status);
+	var i = 0;
+
+	if(anyone=="one"){
+		id_in[i] = $('#all_variants_menu .variant_name.checked').attr('data-id');
+		$('#all_variants_menu .variant_name.checked span').attr('class','variant_status_sv').addClass(row_status);
+	}else{
+		$('#all_variants_menu .variant_name').each(function(index, el) {
+			console.log($(this).hasClass('checked'));
+			if($(this).hasClass('checked') || $(this).hasClass('show_archive')){
+				return true;
+			}else{
+				id_in[i] = $(this).attr('data-id');i++;
+				$(this).find('span').attr('class','variant_status_sv').addClass(row_status);
+			}
+		});
+	}
+	//var color = row_status; 
+	id_in_row = id_in.join(', '); // id_in
+
+
+	$.post('', {
+		global_change: 'AJAX',
+		change_name: 'change_status_row',
+		id_in:id_in_row,
+		color:row_status
+
+	}, function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+		console.log(data);
+		if(row_status == 'red'){window_reload();}
+	});
+}
+// копирование варианта
+function copy_variant(){
+	var id = $('#variants_name .variant_name.checked ').attr('data-id');
+	var row_id = $('#claim_number').attr('data-order');	
+	$.post('',{
+		AJAX: 'new_variant',
+		id:id,
+		row_id:row_id
+		
+	}, function(data, textStatus, xhr) {
+		if(data['response']=='1'){
+			// клонируем html вкладки текущего расчета
+			var menu_li = $('#variants_name .variant_name.checked ').clone();
+			// ставим название и на всякий подчищаем архивный класс, если он есть
+			menu_li.html(data['num_row_for_name']+'<span class="variant_status_sv green"></span>').removeClass('show_archive');		
+			// получаем id текущего пблока расчёта
+			var id_div = menu_li.attr('data-cont_id');
+			// меняем id для для работы вкладки с новым блоком 
+			menu_li.attr('data-cont_id','variant_content_block_'+data['num_row']);
+			// убираем класс "выбрано" со всех вкладок
+			$('#variants_name .variant_name').removeClass('checked');
+			// вставляем html
+			$('#variants_name .variant_name:last-of-type').after(menu_li);
+			// post запрос для названия вкладки и получения id для склонированного контента
+
+			// клонируем html текущего расчёта со всеми данными
+			var div_html = $('#'+id_div).clone();
+			// id на новый
+			div_html.attr('id','variant_content_block_'+data['num_row']);
+			// подчищаем архивный класс, если есть
+			div_html.removeClass('archiv_opacity');
+			// скрываем все видимые блоки расчета
+			$('#edit_variants_content .variant_content_block').css({'display':'none'})
+			// вставляем html
+			$('#edit_variants_content .variant_content_block:last-of-type').after(div_html);
+
+			// убиваем календари 
+			destroy_datetimepicker_for_variant_cont()
+			// создаем календари для всех по новой
+			create_datepicker_for_variant_cont();// ДАТА
+			create_timepicker_for_variant_cont();// ВРЕМЯ
+			window_reload();
+			
+		}
+	},"json");
+}
+
+
+
+
+
+
+// меню
+function get_position_menu_absolute(event,content){
+	if($("#position_menu_absolute").length){$("#variant_menu").remove();}
+	$("<div/>", {
+			      "css":{"opacity":1,"top":(event.pageY-25),"left":(event.pageX-25)},
+			      "id":"position_menu_absolute",
+			      click: function(){
+			          $(this).animate({opacity:0},'fast',function(){$(this).remove()});
+			      }
+			}).append(content).appendTo('body').fadeIn('slow');
 }
 
 function create_timepicker_for_variant_cont(){
@@ -335,7 +489,8 @@ function create_datepicker_for_variant_cont(){
 }
 
 
-
+/* 
+// устарело
 $(document).on('click','#new_variant',function(){
 	var id = $('#variants_name .variant_name.checked ').attr('data-id');
 	var row_id = $('#claim_number').attr('data-order');	
@@ -380,7 +535,7 @@ $(document).on('click','#new_variant',function(){
 			
 		}
 	},"json");
-});
+});*/
 
 
 // обработка кнопок ПЗ, НПЗ
@@ -846,7 +1001,7 @@ function recalculate_table_price_Itogo(){
 	per += Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .percent_nacenki span').html());
 	$('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.percent_usl span').each(function(index, el){
 		per += Number($(this).html());	
-		console.log(Number($(this).html()));
+		// console.log(Number($(this).html()));
 		i++;	
 	});
 
@@ -855,14 +1010,14 @@ function recalculate_table_price_Itogo(){
 	price_in += Number($(id_active_variant+' .calkulate_table span.price_in_all').html());
 	$('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.price_in span').each(function(index, el){
 		price_in += Number($(this).html());	
-		console.log(Number($(this).html()));
+		// console.log(Number($(this).html()));
 	});
 
 	//    price out
 	price_out += Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .row_price_out_one.price_out span').html());
 	$('.calkulate_table:visible .uslugi_class.price_out_men span').each(function(index, el){
 		price_out += Number($(this).html());	
-		console.log(Number($(this).html()));
+		// console.log(Number($(this).html()));
 	});
 
 
@@ -870,7 +1025,7 @@ function recalculate_table_price_Itogo(){
 	pribl += Number($(id_active_variant+' .calkulate_table .row_pribl_out_gen.pribl span').html());
 	$('.calkulate_table:visible .row_pribl_out_gen.uslugi_class.pribl span').each(function(index, el){
 		pribl += Number($(this).html());	
-		console.log(Number($(this).html()));
+		// console.log(Number($(this).html()));
 	});
 
 
@@ -882,7 +1037,7 @@ function recalculate_table_price_Itogo(){
 
 
 
-	console.log(per);
+	// console.log(per);
 	// заполняем ИТОГО
 	// цена входящая за тираж или услугу
 	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(2) span').html(Math.ceil((price_in)*100)/100);

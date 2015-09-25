@@ -1,4 +1,6 @@
-
+body {
+  font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px
+}
 
 
 #order_art_edit{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px}
@@ -83,7 +85,7 @@
 #variants_name,#variants_name2{ background-color:#cbdfa7; color: #5a5c61 }
 #variants_name table,#variants_name2 table{border-collapse: collapse; width: 100%; margin: 10px 0 0 0;}
 #variants_name table tr td,#variants_name2 table tr td{ padding: 0; margin:0; height: 20px}
-#variants_name table tr td:nth-of-type(1),#variants_name2 table tr td:nth-of-type(1){ /*padding-left: 30px*/ width: 25px}
+#variants_name table tr td:nth-of-type(1),#variants_name2 table tr td:nth-of-type(1){ /*padding-left: 30px*/ /*width: 25px*/}
 #variants_name ul,#variants_name2 ul { padding: 0; margin: 0; /*padding-left: 5px*/}
 #variants_name ul li,#variants_name2 ul li{ display: inline-block;padding: 5px 26px;background-color: #BAD28E; cursor:default}
 #variants_name ul li#new_variant,#variants_name2 ul li#new_variant2{  /*cursor: default;*/padding: 5px 10px; background: url('../images/img_design/plus_variant.png') no-repeat;}
@@ -241,6 +243,9 @@
 }
 .variant_status_sv.green{
   background: rgb(86, 190, 86);
+}
+.variant_status_sv.sgree{
+  background: #497314;
 }
 
 .variant_status_sv.grey{
@@ -787,4 +792,133 @@ span.snab_comment {
   color: grey;
   cursor: pointer;
   margin-left: 15px;
+}
+
+#position_menu_absolute{
+  opacity: 1;
+  position: absolute;
+  padding: 0;
+  background: rgb(255, 253, 253);
+  /* padding: 5px; */
+  border: 1px solid #DCDADA;
+}
+
+#position_menu_absolute ul{
+  padding: 2px;
+}
+#position_menu_absolute ul li{
+  list-style: none;
+  margin: 0;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  padding-left: 40px;
+  background-repeat: no-repeat;
+}
+#position_menu_absolute ul li.green{
+  background-image: url(http://www.apelburg.ru/os//skins/images/img_design/rt_svetofor_green.png);
+}
+#position_menu_absolute ul li.red{
+  background-image: url(http://www.apelburg.ru/os//skins/images/img_design/rt_svetofor_red.png);
+}
+#position_menu_absolute ul li.grey{
+  background-image: url(http://www.apelburg.ru/os//skins/images/img_design/rt_svetofor_grey.png);
+}
+#position_menu_absolute ul li.sgree{
+  background-image: url(http://www.apelburg.ru/os//skins/images/img_design/rt_svetofor_sgreen.png);
+}
+
+#position_menu_absolute ul li:hover{
+  background-color: #CBDFA7; 
+}
+
+#position_menu_absolute span.traffic_lights_green,#position_menu_absolute span.traffic_lights_grey,#menu_for_variants_status span.traffic_lights_red{
+  width: 20px;
+  height: 20px;
+  float: left;
+    position: absolute;
+  margin-left: -28px;
+  margin-top: -4px;
+}
+#position_menu_absolute span.traffic_lights_green span,#position_menu_absolute span.traffic_lights_grey span, #menu_for_variants_status span.traffic_lights_red span{
+    width: 14px;
+    height: 14px;
+    margin: 2px 0 0 2px;
+    float: left;
+    border-radius: 15px;
+}
+
+#position_menu_absolute span.traffic_lights_green,#position_menu_absolute span.traffic_lights_grey,#edit_variants_content #variant_of_snab span.traffic_lights_red{
+  width: 17px;
+  height: 17px;
+  float: left;
+ /*   position: absolute;
+  margin-left: -28px;*/
+  margin-left: 10px;
+  margin-top: -4px;
+}
+#position_menu_absolute span.traffic_lights_green span,#position_menu_absolute span.traffic_lights_grey span, #edit_variants_content #variant_of_snab span.traffic_lights_red span{
+    width: 7px;
+    height: 7px;
+    margin: 4px 0 0 4px;
+    float: left;
+    border-radius: 15px;
+}
+
+/*
+////////////////////
+*/
+#position_menu_absolute span.traffic_lights_green{
+  border: 2px solid green;
+}
+#position_menu_absolute span.traffic_lights_green span{
+    border: 1px solid #92B73E;
+    background-color: #92B73E;
+}
+
+#position_menu_absolute span.traffic_lights_grey{
+    border: 2px solid #E3E5E5;
+}
+#position_menu_absolute span.traffic_lights_grey span{
+      border: 1px solid #E3E5E5;
+}
+
+#position_menu_absolute span.traffic_lights_red{
+    border: 2px solid #F69679;
+}
+#position_menu_absolute span.traffic_lights_red span{
+      border: 1px solid #F69679;
+}
+
+
+
+
+#edit_variants_content #variant_of_snab span.traffic_lights_green{
+  border: 1px solid #92B73E;
+    margin-top: 2px;
+  margin-bottom: 2px;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_green span{
+    border: 1px solid #92B73E;
+    background-color: #92B73E;
+}
+
+#edit_variants_content #variant_of_snab span.traffic_lights_grey{
+    border: 1px solid #E3E5E5;
+      margin-top: 2px;
+  margin-bottom: 2px;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_grey span{
+      border: 1px solid #E3E5E5;
+    background-color: #E3E5E5;
+}
+
+#edit_variants_content #variant_of_snab span.traffic_lights_red{
+    border: 1px solid #F69679;
+      margin-top: 2px;
+  margin-bottom: 2px;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_red span{
+      border: 1px solid #F69679;
+    background-color: #F69679;
 }
