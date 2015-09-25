@@ -64,6 +64,10 @@ body{
   -webkit-box-shadow:  0px 0px 1px 1px #EEE;
   background-image:url(../images/img_design/some_btn_bg.png)
 }
+button.CommonRightBtn{
+   float:right;
+   margin:20px 5px 10px 5px;
+}
 .someBtn a{ }
 .alert_window_btn{
   float:left;
@@ -2606,3 +2610,18 @@ div#apl-notification_center li.error_message{
 div#apl-notification_center li.successful_message{
     background-color: rgba(41, 171, 51, 0.95);
 }
+.specificationsPreWin {}
+.specificationsPreWin .cap{ text-align:center; font-size:13px}
+.specificationsPreWin .info{ margin: 40px 0 10px 0;text-align:center; font-size:13px; color:#999999}
+.specificationsPreWin .dataTbl{ margin: 12px 0 10px 0;border-collapse:collapse;width:100%;}
+.specificationsPreWin .dataTbl th{ color:#3051BC; font-weight:100;}
+.specificationsPreWin .dataTbl td{ text-align:center; border:#CCC solid 0px}
+.specificationsPreWin .dataTbl td.first{ text-align:left;width:80px;padding-left:20px;}
+.specificationsPreWin .datepicker{ width:130px;}
+.specificationsPreWin .timepicker{ width:30px;}
+.specificationsPreWin .time_rd{ width:30px;}
+.specificationsPreWin .limitInput{margin: 40px 0 10px 0;text-align:center;}
+
+
+
+

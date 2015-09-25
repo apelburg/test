@@ -462,45 +462,71 @@
 			 }
 			 
 			 if(isset($dataArr)){
-				 $query="SELECT id, row_id, shipping_date, shipping_time, standart FROM `".RT_DOP_DATA."` WHERE `id` IN('".implode("','",$dataArr)."')";
+				 $query="SELECT id, row_id, shipping_date, shipping_time, standart, shipping_redactor_access FROM `".RT_DOP_DATA."` WHERE `id` IN('".implode("','",$dataArr)."')";
 				 $result = $mysqli->query($query)or die($mysqli->error);
 				 if($result->num_rows>0){
-					 $day_num_count = 0;
+				 
+					 // не понадобилось
+					 // $day_num_count = 0;
+					 // $max_day_num = '0';
+					 // $defined_date = $expired_date = false;
+					 
 					 $max_date = '1970-01-01 00:00:01';
-					 $max_day_num = '0';
-					 $defined_date = $expired_date = false;
-					 $cur_date = '2015-11-21 00:00:01';//date("Y-m-d H:i:s");    
+					 $cur_date = '2015-10-21 00:00:01';//date("Y-m-d H:i:s");    
 					 while($row = $result->fetch_assoc()){
-					     if($row['standart']!='' && $row['standart']!='0') $day_num_count++;
-						 $dataArr[$row['id']] = array('row_id'=> $row['row_id'],'date'=> $row['shipping_date'],'time'=> $row['shipping_time'],'day_num'=> $row['standart']);
+					     // не понадобилось
+					     //if($row['standart']!='' && $row['standart']!='0') $day_num_count++;
+						 $value = $shablon = $shablon_en = ''; 
+						 $who = ($row['shipping_redactor_access']=='0' || $row['shipping_redactor_access']=='5')?'вы':'СНАБ';
+						 // если установленна дата выбираем её, иначе количество рабочих дней
+						 if($row['shipping_date']>'1970-01-01' || $row['standart']!=''){
+						 	 if($row['shipping_date']>'1970-01-01'){
+								 $value = $row['shipping_date']; 
+								 $shablon = 'дата'; 
+								 $shablon_en = 'date'; 
+							 }
+							 else if($row['standart']!=''){
+								 $value = $row['standart']; 
+								 $shablon = 'р/д'; 
+								 $shablon_en = 'days'; 
+							 }
+							 $dataArr[$row['id']] = array('row_id'=> $row['row_id'],'value'=> $value,'shablon'=> $shablon,'shablon_en'=> $shablon_en, 'who'=> $who);
+						 }
+						 else unset($dataArr[$row['id']]);
+						 // не понадобилось
 						 // определяем максимальное значение установленных рабочих дней в $row['standart']
-						 if($row['standart']>$max_day_num) $max_day_num = $row['standart'];
+						 // if($row['standart']>$max_day_num) $max_day_num = $row['standart'];
 						
-						 $some_date = $row['shipping_date'].' '.$row['shipping_time'];
+						 // $some_date = $row['shipping_date'].' '.$row['shipping_time'];
 						 // если определенна хотябы одна дата 
-						 if($some_date>'1970-01-01') $defined_date = true;
+						 // if($some_date>'1970-01-01') $defined_date = true;
 						 // определяем максимальное значение установленных дат в $row['shipping_date'] и $row['shipping_time']
-						 if($some_date>$max_date) $max_date = $some_date;
+						 // if($some_date>$max_date) $max_date = $some_date;
 						 
 					 }
 					 $outDataArr['data'] = $dataArr;
+					 $outDataArr['all_positions'] = $result->num_rows;
+					 $outDataArr['defined_positions'] = count($dataArr);
 					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
-					 if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
+					 // if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
 					 // если определенна хотябы одна дата 
-					 if($defined_date){
+					/* if($defined_date){
 					     $outDataArr['defined_date'] = 1;
-						 // определяем количество дней между текущей и максимальной датой
-						 $outDataArr['working_days_range'] = getWorkingDays($cur_date,$max_date);
+						 
 						 // если количество рабочих дней между текущей и максимальной датой меньше 
 						 // максимального установленного срока в рабочих днях то устанавливаем флаг 
-						 if($max_day_num > $outDataArr['working_days_range']) $outDataArr['expired_date'] = 1;
-					 }
-					 // это скорее всего не нужно if($cur_date > $max_date) $outDataArr['expired_date'] = 1;
+						 if($cur_date > $max_date) $outDataArr['expired_date'] = 1;
+						 else{
+						     // определяем количество дней между текущей и максимальной датой
+						     $outDataArr['working_days_range'] = getWorkingDays($cur_date,$max_date);
+						     if($max_day_num > $outDataArr['working_days_range']) $outDataArr['expired_date'] = 1;
+						 }
+					 }*/
 					 // мексмальное установленное количество рабочих дней 
-					 $outDataArr['max_day_num'] = $max_day_num;
+					 // $outDataArr['max_day_num'] = $max_day_num;
 					 // мексмально установленная дата
-					 $outDataArr['max_date'] = $max_date;
-					 $outDataArr['cur_date'] = $cur_date;
+					 // $outDataArr['max_date'] = substr($max_date,0,10);
+					 // $outDataArr['cur_date'] = substr($cur_date,0,10);
 					 
 				 }
 				 

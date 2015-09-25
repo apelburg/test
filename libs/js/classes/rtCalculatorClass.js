@@ -1561,6 +1561,13 @@ var rtCalculator = {
 		e = e || window.event;
 		var element = e.target;
         
+		
+		var tbl = document.getElementById('rt_tbl_body');
+		var client_id = tbl.getAttribute('client_id');
+		var query_num = tbl.getAttribute('query_num');
+		if(client_id==''){ alert('не удалось определить клиента'); return;}
+		if(query_num==''){ alert('не удалось номер заявки'); return; }
+		
 		// обходим РТ чтобы 
 		// 1. определить какие Мастер Кнопки были нажаты 
 		// 2. если Мастер Кнопка нажата проверяем светофор - должна быть нажата только одна зеленая кнопка (если больше или ни одна прерываемся)
@@ -1689,6 +1696,166 @@ var rtCalculator = {
 			else if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
 			return;
 		}
+		
+		////////////
+		// Промежуточный интерфейс настройки типа спецификации, дат и сроков изготовления
+		//////////////////////////////////////////////////////////////////////////////////
+		
+		
+		function launch_set_window(id,title,content){
+			var box = document.createElement('DIV');
+		    box.id = id;
+		    box.style.display = "none";
+		    box.appendChild(content);
+		    document.body.appendChild(box);
+		    $("#"+id).dialog({autoOpen: false ,title: title,modal:true,width: 600,close: function() {this.remove();$("#"+id).remove();}});
+		    $("#"+id).dialog("open");
+		}
+		
+		// 1. Выбор типа спецификации
+		//var content = document.createDocumentFragment();
+		var content = document.createElement('DIV');
+		var winId ="specificationsPreWin1";
+		content.innerHTML = '<div><label><input type="radio" name="radio" value="spec" checked>Спецификация</label><br><label><input type="radio" name="radio" value="oferta">Оферта</label></div>';
+		var button = document.createElement('BUTTON');
+		button.className="CommonRightBtn";
+
+		var button1 = button.cloneNode();
+		button1.onclick=function(){ $("#"+winId).remove(); step2();}
+		button1.innerHTML ="Далее";
+		var button2 = button.cloneNode();
+		button2.onclick= function(){ $("#"+winId).remove(); }
+		button2.innerHTML ="Отмена";
+		
+		content.appendChild(button1);
+		content.appendChild(button2);
+		
+		launch_set_window(winId,"Выбор типа документа",content);
+		
+		function step2(e){
+		    e = e || window.event;
+		    var container = e.target.parentNode;
+			var doc_type = '';
+			$(container).find('input').each(function(key,val){ if(val.checked == true){  doc_type = val.value; }}); //alert(type);
+			if(type != ''){
+				// alert(doc_type);
+			    var url = OS_HOST+'?' + addOrReplaceGetOnURL('getSpecificationsDates={"ids":'+JSON.stringify(idsArr)+'}');
+		        make_ajax_request(url,callback);
+				function callback(response){ 
+					// alert(response);
+					try {  var dataObj = JSON.parse(response); }
+					catch (e) { 
+						alert('неправильный формат данных in calculatorClass.makeSpecAndPreorder2() ошибка JSON.parse(response)');
+						return;
+					}
+					/*console.log(dataObj);console.log(idsObj);console.log(dopInfObj);*/
+					
+                    var content = document.createElement('DIV');
+					content.className = "specificationsPreWin";
+					var winId ="specificationsPreWin2";
+					
+					content.innerHTML += '<div class="cap">Укажите срок сдачи, либо срок изготовления Вашего заказ в рабочих днях.<div>'; 
+					content.innerHTML += '<div class="info">В запрос были введены следующие даты и р/д:<br>(всего-'+dataObj['all_positions']+', установленно-'+dataObj['defined_positions']+')<div>';
+					
+                    var tbl = '<table id="preWindataTbl" class="dataTbl"><tr class="cap"><th>позиция</th><th>шаблон</th><th></th><th>кто</th><th></th></tr>';
+				    for(var key in dataObj.data){
+						 var value = (dataObj.data[key]['shablon_en']=='date')?((dataObj.data[key]['value'].split('-')).reverse()).join('.'):dataObj.data[key]['value'];
+						 
+						 tbl += '<tr><td class="first">Арт № '+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'</td>';
+						 tbl += '<td>'+dataObj.data[key]['shablon']+'</td><td>'+value+'</td>';
+						 tbl += '<td>'+dataObj.data[key]['who']+'</td><td><input type="radio" name="radio" data_type="'+dataObj.data[key]['shablon_en']+'" value="'+value+'"></td></tr>';
+					}
+				
+					tbl += '<tr><td class="first"></td>';
+					tbl += '<td>';
+					tbl +='<select onchange="$(this).parent().parent().find(\'span\').hide(); $(\'#\'+this.options[this.selectedIndex].value).show(); $(\'#alternate_date\')[0].checked=true; " ><option value="" selected="selected"></option><option value="date_block">по дате</option><option value="rd_block">по рд</option></select></td>';					
+					tbl +='<td><span id="date_block" style="display:none"><input type="text" class="datepicker" id="datepicker"><!--<input type="text" class="timepicker" id="timepicker">--></span>';
+					tbl +='<span id="rd_block" class="rd" style="display:none"><input type="text" onkeyup="$(\'#alternate_date\')[0].checked=true; $(\'#alternate_date\')[0].setAttribute(\'data_type\',\'days\'); $(\'#alternate_date\')[0].value=this.value;" class="time_rd" id="rd" value=""> р/д</span></td>';
+					tbl += '<td></td>';
+					tbl += '<td><input id="alternate_date" type="radio" name="radio" data_type="" value=""></td></tr>';
+					tbl += '</table>';
+					content.innerHTML += tbl;
+
+                    content.innerHTML+= '<BR>';
+					var button1 = button.cloneNode();
+					button1.onclick=function(){
+						 var data_type='';
+						 var value='';
+						 $(content).find('input').each(function(key,val){ if(val.checked == true){ data_type= val.getAttribute("data_type"); value = val.value; }}); 
+						 if(value==''){
+							 alert('Вы не выбрали значение');
+						     return;
+					     }
+						 $("#"+winId).remove(); 
+						 step3(doc_type,data_type,value);/**/
+					}
+					button1.innerHTML ="ОК";
+					var button2 = button.cloneNode();
+					button2.onclick= function(){ $("#"+winId).remove(); }
+					button2.innerHTML ="Отмена";
+					content.appendChild(button1);
+					content.appendChild(button2);
+					launch_set_window(winId,"Выбор сроков сдачи заказа",content);
+					
+					$('#datepicker').datetimepicker({format:'d.m.Y H:i',dayOfWeekStart: 1,minDate:0,
+					   onChangeDateTime: function(dp,$input){$('#alternate_date')[0].checked=true;$('#alternate_date')[0].setAttribute('data_type','date');$('#alternate_date')[0].value=$input.val();},closeOnDateSelect:true,
+					   onGenerate:function( ct ){$(this).find('.xdsoft_date.xdsoft_weekend').addClass('xdsoft_disabled');$(this).find('.xdsoft_date');},allowTimes:['00:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00','15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00']});
+					/*$('#timepicker').datetimepicker({datepicker:false,format:'H:i',closeOnDateSelect:true,
+						  onChangeDateTime:function(dp,$input){$('#alternate_date')[0].checked=true;$('#alternate_date')[0].setAttribute('data_type','date');$('#alternate_date')[0].value=$input.val()+':00';},allowTimes:['00:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00','15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00']});*/
+			
+			    }
+			}
+			else{ alert('не удалось определить тип документа in calculatorClass.makeSpecAndPreorder2() '); return;}
+			
+			function step3(doc_type,data_type,datetime){
+				
+				// alert(doc_type+value+data_type);
+				 
+				 var content = document.createElement('DIV');
+			     content.className = "specificationsPreWin";
+				 var winId ="specificationsPreWin3";
+				 var date = datetime.slice(0,10);
+				 var time = datetime.slice(11,16);
+				 time = (time!='')?time:'22:00';
+					
+				 if(data_type=='date'){
+					 content.innerHTML += '<div class="cap"> укажите лимит<br>(до какого числа клиент обязуется оплатить заказ и подписать макет)<div>';
+					 //content.innerHTML +='doc_type-'+ doc_type+' date-'+date+' time-'+time+' data_type-'+data_type+'<br>';
+					 content.innerHTML += '<div class="limitInput"><input  id="datepicker" type="text"><input id="final_date" style="display:none" type="text"><div>';
+					 
+				 }
+				 if(data_type=='days'){
+					step4({'doc_type':doc_type,'data_type':data_type,'datetime':datetime});
+					return;
+				 }
+				 var button1 = button.cloneNode();
+				 button1.onclick=function(){
+					 if($('#final_date')[0].value==''){alert('Установите дату');return;} 
+					 step4({'doc_type':doc_type,'data_type':data_type,'datetime':datetime,'final_date':$('#final_date')[0].value,'winId':winId});
+				 }
+				 button1.innerHTML ="Далее";
+				 var button2 = button.cloneNode();
+				 button2.onclick= function(){ $("#"+winId).remove(); }
+				 button2.innerHTML ="Отмена";
+				 content.appendChild(button1);
+		         content.appendChild(button2);
+		
+				 launch_set_window(winId,"Установка лимита",content);
+				 
+				 $('#datepicker').datetimepicker({format:'d.m.Y H:i',dayOfWeekStart: 1,minDate:0,maxDate:((date.split('.')).reverse()).join('/'),maxTime:time,
+					   onChangeDateTime: function(dp,$input){$('#final_date')[0].value=$input.val();},closeOnDateSelect:true,
+					   onGenerate:function( ct ){$(this).find('.xdsoft_date.xdsoft_weekend').addClass('xdsoft_disabled');$(this).find('.xdsoft_date');},allowTimes:['00:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00','15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00']});
+			}
+			
+			function step4(dataObj){
+				 if(dataObj.winId) $("#"+dataObj.winId).remove();
+				 //console.log(dataObj);
+				 location = "?page=agreement&section=presetting&client_id=" + client_id + "&ids=" +JSON.stringify(idsArr)+'&query_num='+query_num+'&dateData='+JSON.stringify(dataObj);
+			}
+		}
+		
+		return;
+		// Всего 4 ситуации
 		// промежуточное диалоговое окно 
 		// Выводит информацию по типу создаваемой спецификации, и срокам выполнения заказа указываемым в спецификации
 		// 1. Получение дат отгрузки товара или количества рабочих дней необходимых на изготовление исходя из установленных
@@ -1705,106 +1872,7 @@ var rtCalculator = {
 		//           изготовления и другие доп дни  в итоге не были раньше текущего числа)
 		//   3. В случае наличия точной даты определить и предложить оптимальную дату исходя из максимального значения срока 
 		//      в рабочих днях
-		
-		// AJAX запрос
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('getSpecificationsDates={"ids":'+JSON.stringify(idsArr)+'}');
-		make_ajax_request(url,callback);
-		function callback(response){ 
-		    alert(response);
-		    try { 
-				   var dataObj = JSON.parse(response);
-			}
-			catch (e) { 
-				alert('неправильный формат данных in calculatorClass.makeSpecAndPreorder2() ошибка JSON.parse(response)');
-				return;
-			}
-			/*console.log(dataObj);
-			console.log(idsObj);
-		    console.log(dopInfObj);*/
-			
-		
-		 	var box = document.createElement('DIV');
-		    box.id = "specificationsPreWin";
-		    box.style.display = "none";
-			var content = '';
-		    
-			// если хотя бы в одном товаре не указан срок изготовления в рабочих днях
-		   if(dataObj.undefined_days_warn){
-				content += 'Спецификация не может быть создана!<BR>Для следующих товарных позиций не указан срок изготовления:';
-				for(var key in dataObj.data){
-					if(dataObj.data[key]['day_num']=='') content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+dopInfObj[dataObj.data[key]['row_id']]['name'];
-				}
-			}
-			// если все указанные даты истекли
-		    else if(dataObj.expired_date){
-				content += 'Вы указали точную дату изготовления заказа, но Спецификация тип 2, не может быть создана!<BR><BR>Максимально установленная дата изготовления заказа является днем предшествующим текущей дате<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+'<BR><BR>Вами установленны следующие даты:';
-				for(var key in dataObj.data){
-					if(dataObj.data[key]['date']>'1970-01-01'){
-						var date = ((dataObj.data[key]['date'].split('-')).reverse()).join('.');
-						content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+date;
-					}
-				}
-				content += '<BR><BR><button>Сделать спецификацию тип 1</button><button>Я поменяю даты изготовления</button>';
-			} 
-			// если есть валидная дата изготовления
-		    else if(dataObj.defined_date){
-				content += 'Вы указали точную дату изготовления заказа,<BR><BR>Будет создана Спецификация тип 2<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+' указанная Вами (максимальная) дата '+((dataObj['max_date'].split('-')).reverse()).join('.')+'<BR><BR> Все указанные Вами даты:';
-				for(var key in dataObj.data){
-					if(dataObj.data[key]['date']>'1970-01-01'){
-						var date = ((dataObj.data[key]['date'].split('-')).reverse()).join('.');
-						content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+date;
-					}
-				}
-				content += '<BR><BR><button>Ок</button><button>Отмена</button><button>Я поменяю даты изготовления</button>';
-			}
-			else{
-				content += 'Будет создана Спецификация тип 1<BR><BR>Сегоднящняя дата - '+((dataObj['cur_date'].split('-')).reverse()).join('.')+' указанная Вами (максимальный) срок изготовления заказа '+dataObj['max_day_num']+'<BR><BR> Все указанные Вами даты:';
-				for(var key in dataObj.data){
-					if(dataObj.data[key]['date']>'1970-01-01'){
-						var date = ((dataObj.data[key]['date'].split('-')).reverse()).join('.');
-						content += '<BR><BR>'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'). '+date;
-					}
-				}
-				content += '<BR><BR><button>Ок</button><button>Отмена</button>';
-			} 
-			/**/
-			box.innerHTML = content;
-			document.body.appendChild(box);
-			$("#specificationsPreWin").dialog({autoOpen: false ,title: "Создание спецификации",modal:true,width: 600,close: function() {this.remove();$("#specificationsPreWin").remove();}});
-		    $("#specificationsPreWin").dialog("open");
-		   		   
-				   
-				   
-				   
-				   
-				   
-				   
-				   
-				   
-				   
-				   
-				   /*if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
-		    console.log(response); 
-			close_processing_timer(); closeAllMenuWindows();
-			
-			
-			/*show_processing_timer();
-			var tbl = document.getElementById('rt_tbl_body');
-			var client_id = tbl.getAttribute('client_id');
-			var query_num = tbl.getAttribute('query_num');
-			if(client_id==''){
-			   alert('не удалось определить клиента');
-			   return;
-			}
-			if(query_num==''){
-			   alert('не удалось номер заявки');
-			   return;
-			}
-			
-			location = "?page=agreement&section=presetting&client_id=" + client_id + "&ids=" +JSON.stringify(idsArr)+'&query_num='+query_num;
-			}	  */
-		}
-		
+
 	}
 	,
 	show_discount_window:function(e){
