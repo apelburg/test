@@ -9,10 +9,10 @@
        
         <hr />
         <div style="margin:20px 0px 0px 0px;">
-            <div class="prepayment_row"><a href="?<?php echo addOrReplaceGetOnURL('section=delivery').'&prepayment=100'; ?>">предоплата 100%</a></div>
-            <div class="prepayment_row"><a href="?<?php echo addOrReplaceGetOnURL('section=delivery').'&prepayment=70'; ?>">предоплата 70% - 30%</a></div>
-            <div class="prepayment_row"><a href="?<?php echo addOrReplaceGetOnURL('section=delivery').'&prepayment=50'; ?>">предоплата 50% - 50%</a></div>
-            <div class="prepayment_row"><a href="?<?php echo addOrReplaceGetOnURL('section=delivery').'&prepayment=30'; ?>">предоплата 30% - 70%</a></div>
+            <div class="prepayment_row"><a href='?<?php echo addOrReplaceGetOnURL("section=delivery")."&prepayment=100"; ?>'>предоплата 100%</a></div>
+            <div class="prepayment_row"><a href='?<?php echo addOrReplaceGetOnURL("section=delivery")."&prepayment=70"; ?>'>предоплата 70% - 30%</a></div>
+            <div class="prepayment_row"><a href='?<?php echo addOrReplaceGetOnURL("section=delivery")."&prepayment=50"; ?>'>предоплата 50% - 50%</a></div>
+            <div class="prepayment_row"><a href='?<?php echo addOrReplaceGetOnURL("section=delivery")."&prepayment=30"; ?>'>предоплата 30% - 70%</a></div>
         </div>
         <!-- save_agreement
 

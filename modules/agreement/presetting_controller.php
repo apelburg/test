@@ -3,8 +3,7 @@
    $_SESSION['data_for_specification'] = $_GET['ids'];
    
 
-    print_r($_GET);
-	exit;
+    // print_r($_GET);
     header('Location:?'.addOrReplaceGetOnURL('section=choice','data&ids'));
 
 ?>

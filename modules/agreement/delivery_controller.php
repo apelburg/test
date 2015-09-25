@@ -26,7 +26,7 @@
 		 //$adress = ($adress!='')? $adress:'адрес не указан';
 		 if($adress=='') continue;
 	
-	    $addresses .= '<div class="prepayment_row" style="margin:10px 0px 0px 10px;"><a href="?'.addOrReplaceGetOnURL('section=short_description').'&address='.urlencode($adress).'">'.$adress.'</a></div>';
+	    $addresses .= "<div class='prepayment_row' style='margin:10px 0px 0px 10px;'><a href='?".addOrReplaceGetOnURL("section=short_description")."&address=".urlencode($adress)."'>".$adress."</a></div>";
 	}
 	
     include './skins/tpl/agreement/delivery_setting.tpl';

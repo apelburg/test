@@ -150,11 +150,13 @@
 	
 		}
 		
-		static function add_items_for_specification($specification_num,$rows_data,$client_id,$agreement_id,$agreement_date, $our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$date,$short_description,$address,$prepayment/**/){
+		static function add_items_for_specification($dateDataObj,$specification_num,$rows_data,$client_id,$agreement_id,$agreement_date, $our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$date,$short_description,$address,$prepayment/**/){
 		
 			global $mysqli;
 			
-
+             
+			 // print_r($dateDataObj);
+			// exit;
 			if(!$specification_num){
 				$query = "SELECT MAX(specification_num) specification_num FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."'";
 				$result = $mysqli->query($query)or die($mysqli->error);
@@ -203,11 +205,7 @@
 						 }
 					
 						 $summ_out = $dop_data['quantity']*$dop_data['price_out'];
-						 $name= (($main_data['art']!='')? 'арт.'.$main_data['art']:'')." ".$main_data['name'];
-						 
-						 //
-						 if($dop_data['shipping_date'].' '.$dop_data['shipping_time'] > $shipping) $shipping = $dop_data['shipping_date'].' '.$dop_data['shipping_time'];
-						 
+						 $name= (($main_data['art']!='')? 'арт.'.$main_data['art']:'')." ".$main_data['name'];					 
 						   
 						 // $price = ($dop_data['discount'] != 0 )? round((($summ_out/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round($summ_out/$dop_data['quantity'],2) ;
 						 $price = ($dop_data['discount'] != 0 )? round(($dop_data['price_out']/100)*(100 + $dop_data['discount']),2) :  $dop_data['price_out'] ;
@@ -252,7 +250,7 @@
 						 }
 						 
 				         // записываем ряд
-						 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date);
+						 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date,$dateDataObj);
 						 
 						 
 						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type DESC";
@@ -266,7 +264,7 @@
 									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
 									 // записываем ряд
-									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);
+									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date,$dateDataObj);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
 									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
@@ -275,7 +273,7 @@
 									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
 									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
 									 // записываем ряд
-									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date);
+									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$date,$dateDataObj);
 								 }/**/
 								 
 								  
@@ -286,11 +284,6 @@
 				    }
 				}
 			}	
-		    
-            // если дата изготовления товара меньше даты  спецификации то уравниваем их
-			$shipping = ($shipping<$date.' 00:00:00')? $date.' 00:00:00': $shipping;
-			$query="UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET  `shipping_date_time` = '".$shipping."'  WHERE `id` IN('".implode("','", $specIdsArr)."')";
-			$mysqli->query($query)or die($mysqli->error);
 			
 			// exit;	
 		
@@ -360,7 +353,9 @@
 				exit;
 			}
 	
-			$origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/specification.tpl';
+			if($dateDataObj->data_type=='days') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/specification.tpl';
+			if($dateDataObj->data_type=='date') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/specification_type2_by_date.tpl';
+			
 			$fd_origin = fopen($origin_file_name,'r');
 			$file_content = fread($fd_origin,filesize($origin_file_name));
 			fclose($fd_origin);
@@ -371,7 +366,7 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
-			RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id);
+			//RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id);
 			
 			return $specification_num;
 
@@ -389,8 +384,43 @@
 			else return false;
 	
 	    }
-		static function insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$quantity,$price,$date){
+		static function insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$quantity,$price,$date,$dateDataObj){
 			global $mysqli;
+			
+			// настройки в завасимости от типа спецификации
+			if($dateDataObj->data_type=='days'){
+			    $specification_type = 'days';
+			    $shipping_date_time = '';
+				$final_date_time = '';
+				$item_production_term = $dateDataObj->datetime.'()';
+			}
+			if($dateDataObj->data_type=='date'){
+			    $specification_type = 'date';
+				
+			    echo $dateDataObj->datetime;echo '<br>';
+			    $shipping_date_time_arr = explode(' ',$dateDataObj->datetime);
+				$shipping_date_time_arr[0] = implode('-',array_reverse(explode('.',$shipping_date_time_arr[0])));
+				if(isset($shipping_date_time_arr[1])){
+				     if(strlen($shipping_date_time_arr[1])==0 || strlen($shipping_date_time_arr[1])>8) $shipping_date_time_arr[1] = '00:00:00';
+				     if(strlen($shipping_date_time_arr[1])==2) $shipping_date_time_arr[1] = $shipping_date_time_arr[1].':00:00';
+				     if(strlen($shipping_date_time_arr[1])==5) $shipping_date_time_arr[1] = $shipping_date_time_arr[1].':00';
+				}
+				else $shipping_date_time_arr[1] = '00:00:00';
+			    $shipping_date_time = implode(' ',$shipping_date_time_arr);
+				echo $shipping_date_time;echo '<br>';
+				echo $dateDataObj->final_date;echo '<br>';
+				$final_date_time_arr = explode(' ',$dateDataObj->final_date);
+				$final_date_time_arr[0] = implode('-',array_reverse(explode('.',$final_date_time_arr[0])));
+				if(isset($shipping_date_time_arr[1])){
+					if(strlen($final_date_time_arr[1])==0 || strlen($final_date_time_arr[1])>8) $final_date_time_arr[1] = '00:00:00';
+					if(strlen($final_date_time_arr[1])==2) $final_date_time_arr[1] = $final_date_time_arr[1].':00:00';
+					if(strlen($final_date_time_arr[1])==5) $final_date_time_arr[1] = $final_date_time_arr[1].':00';
+				}
+				else $final_date_time_arr[1] = '00:00:00';
+				$final_date_time = implode(' ',$final_date_time_arr);
+				echo $final_date_time;
+				$item_production_term = '';
+			}
 			
 			$query = "INSERT INTO `".GENERATED_SPECIFICATIONS_TBL."` SET 
 						  client_id='".$client_id."',
@@ -406,10 +436,13 @@
 						  client_chief_position_in_padeg='".$client_firm_acting_manegement_face['position_in_padeg']."',
 						  client_basic_doc='".$client_firm_acting_manegement_face['basic_doc']."',
 						  specification_num='".$specification_num."',
+						  specification_type='".$specification_type."',
 						  short_description='".$short_description."',
 						  address='".$address."',
 						  prepayment='".$prepayment."',
 						  date = '".$date."',
+						  shipping_date_time='".$shipping_date_time."',
+						  final_date_time='".$final_date_time."',
 						  name='".$name."',
 						  makets_delivery_term='5 (пяти)',
 						  item_production_term='10 (десять)',
@@ -418,7 +451,8 @@
 						  summ='".$quantity*$price."'
 						  ";
 						  
-			// echo $query4;		  
+			  //echo $query;	
+			  //exit;	  
 			  $result = $mysqli->query($query)or die($mysqli->error);
 			  return $mysqli->insert_id;
 		
