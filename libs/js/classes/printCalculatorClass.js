@@ -66,7 +66,11 @@ var printCalculator = {
 		
 		}
 		else if(calculator_type == 'extra'){
-			// console.log(cell);
+			/**
+			 *	запрос окна добавления доп услуги
+			 *  @author  Алексей	
+			 *	@versoin 18:44 МСК 27.09.2015 		
+			 */
 			$.post(location.href+'&id='+cell.parentNode.getAttribute("data-id"), 
 				{
 					AJAX:"get_uslugi_list_Database_Html",
@@ -79,7 +83,6 @@ var printCalculator = {
 					standard_response_handler(data);			
 			},'json');
 			
-		    //alert('для добавления дополнительной услуги, перейдите в карточку позиции');	
 		}
 		
 	}
