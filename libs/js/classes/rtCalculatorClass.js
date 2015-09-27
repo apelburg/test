@@ -1850,7 +1850,7 @@ var rtCalculator = {
 			function step4(dataObj){
 				 if(dataObj.winId) $("#"+dataObj.winId).remove();
 				 //console.log(dataObj);
-				 location = "?page=agreement&section=presetting&client_id=" + client_id + "&ids=" +JSON.stringify(idsArr)+'&query_num='+query_num+'&dateData='+JSON.stringify(dataObj);
+				 location = "?page=agreement&section=presetting&client_id=" + client_id + "&ids=" +JSON.stringify(idsArr)+'&query_num='+query_num+'&dateDataObj='+JSON.stringify(dataObj);
 			}
 		}
 		

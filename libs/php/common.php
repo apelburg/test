@@ -75,7 +75,7 @@
 		
 		foreach($pairs_arr as $param => $val) $itog_pairs[] = $param.'='.$val;
 	    
-		// 
+		// htmlspecialchars()
 		return implode('&',$itog_pairs);
     }
 	
@@ -2139,7 +2139,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 			 list($prop,$val) = explode('=',$pair);
              if(in_array($prop,$ignore)) continue;
 			 if(array_key_exists($prop, $change)) $val = $change[$prop];
-			 $data .= '<input type="hidden" name="'.$prop.'" value="'.$val.'">'."\r\n";
+			 $data .= '<input type="hidden" name="'.$prop.'" value="'.htmlspecialchars($val).'">'."\r\n";
 			
 		 }
 		 return $data;

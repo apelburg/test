@@ -1,5 +1,5 @@
 <?php
-    
+    // print_r($_GET); exit;
     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
 	
@@ -100,7 +100,9 @@
 			//echo $_SESSION['data_for_specification'];//exit;
 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
-	        $specification_num = Agreement::add_items_for_specification($spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
+			
+			$dateDataObj = json_decode($_GET['dateDataObj']);
+	        $specification_num = Agreement::add_items_for_specification($dateDataObj,$spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
 	
 			 
 			//unset($_SESSION['data_for_specification']);  
@@ -226,7 +228,35 @@
 				/*$production_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $specifications_arr[$key][0][\'item_production_term\']; ?>&nbsp;</span>';*/
 				$production_term = '<span bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $production_term_in_days.\' (\'.$production_term_in_days_word.\')\'; ?>&nbsp;</span>';
 				
-				$prepayment_term = '<?php include ($_SERVER[\'DOCUMENT_ROOT\'].\'/os/modules/agreement/agreements_templates/\'.$specifications_arr[$key][0][\'prepayment\'].\'_prepaiment_conditions.tpl\'); ?>';
+				if($specifications_arr[$key][0]['specification_type'] == 'days'){
+				    $prepayment_term = '<?php include ($_SERVER[\'DOCUMENT_ROOT\'].\'/os/modules/agreement/agreements_templates/\'.$specifications_arr[$key][0][\'prepayment\'].\'_prepaiment_conditions.tpl\'); ?>';
+				
+				}
+				if($specifications_arr[$key][0]['specification_type'] == 'date'){
+				    $delivery_date_arr = explode(' ',$specifications_arr[$key][0]['shipping_date_time']); 
+				    $delivery_date_arr[0] = implode('.',array_reverse(explode('-',$delivery_date_arr[0])));
+					$delivery_date_arr[1] = explode(':',$delivery_date_arr[1]);
+					$delivery_date_arr[1] = $delivery_date_arr[1][0].' часов '.$delivery_date_arr[1][1].' минут ';
+					
+				    $delivery_date = '<?php echo $delivery_date_arr[1].$delivery_date_arr[0]."г."; ?>';
+					
+					
+					$final_date_time_arr = explode(' ',$specifications_arr[$key][0]['final_date_time']); 
+				    $final_date_time_arr[0] = implode('.',array_reverse(explode('-',$final_date_time_arr[0])));
+					$final_date_time_arr[1] = explode(':',$final_date_time_arr[1]);
+					$final_date_time_arr[1] = $final_date_time_arr[1][0].' часов '.$final_date_time_arr[1][1].' минут ';
+					
+					$maket_handing_date = '<?php echo $final_date_time_arr[1].$final_date_time_arr[0]."г."; ?>';
+					$maket_sign_date = '<?php echo $final_date_time_arr[1].$final_date_time_arr[0]."г."; ?>';
+					$paymnet_date = $final_date_time_arr[1].$final_date_time_arr[0].'г.';
+				
+				     
+					$prepayment_term_tpl_path = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/'.$specifications_arr[$key][0]['prepayment'].'_prepaiment_conditions_type2_by_date.tpl';
+					$fd = fopen($prepayment_term_tpl_path,'rb');
+					$prepayment_term = fread($fd,filesize($prepayment_term_tpl_path));
+					fclose($fd);
+					$prepayment_term = str_replace('[PAYMENT_DATE]',$paymnet_date,$prepayment_term );
+				}
 				
 				$delivery_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="makets_delivery_term" file_link="1"><?php echo $specifications_arr[$key][0][\'makets_delivery_term\']; ?>&nbsp;</span>';
 				
@@ -240,7 +270,8 @@
 					fclose($fd);
 					$delivery_adderss = str_replace('[DELIVERY_ADDRESS]',$specifications_arr[$key][0]['address'],$delivery_adderss_string );
 				}
-
+                
+				
 				
 				$our_comp_full_name = '<?php echo $agreement[\'our_comp_full_name\']; ?>';
 				$client_comp_full_name = '<?php echo $agreement[\'client_comp_full_name\']; ?>';
@@ -301,7 +332,13 @@
                 $client_basic_doc =  '<?php echo $specifications_arr[$key][0][\'client_basic_doc\']; ?>';
 
 			    
-               
+                if($specifications_arr[$key][0]['specification_type'] == 'date'){
+				    $content = str_replace('[PAYMENT_DATE]',$paymnet_date,$content );
+				    $content = str_replace('[DELIVERY_DATE]',$delivery_date,$content );
+					$content = str_replace('[MAKET_HANDING_DATE]',$maket_handing_date,$content );
+					$content = str_replace('[MAKET_SIGN_DATE]',$maket_sign_date,$content );
+					
+				}
 				$content = str_replace('[SPECIFICATION_NUM]',$specification_num,$content );
 				$content = str_replace('[SPECIFICATION_DATE]',$specificationDate,$content );
 				$content = str_replace('[AGREEMENT_NUM]',$agreement_num,$content );

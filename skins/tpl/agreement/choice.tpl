@@ -120,6 +120,7 @@
         <input type="hidden" name="page" value="<?php echo $page; ?>">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <input type="hidden" name="section" value="choice_2">
+        <input type="hidden" name="dateDataObj" value="<?php echo htmlspecialchars($_GET['dateDataObj']); ?>">
         <input id="hiddenSetDateField"  type="hidden" name="date" value="<?php echo date('d.m.Y'); ?>">
         <!-- -->
         <?php echo $specification_section; ?>
