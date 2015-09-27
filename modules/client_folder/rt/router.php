@@ -11,9 +11,13 @@
 	
 	
 	include ROOT.'/libs/php/classes/rt_class.php';
+	new RT;
 
+
+	
 	// класс работы с формами
 	include './libs/php/classes/os_form_class.php';
+
 
 	// класс комментов к запросу
 	include './libs/php/classes/comments_class.php';

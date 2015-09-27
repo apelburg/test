@@ -3329,7 +3329,9 @@
 				$html .= '<div class="container_form">';
 				$html .= '<div class="green_inform_block">Информация для снабжения</div>';
 				$html .= 'Резерв<br>';
-				$html .= '<input type="text" class="rezerv_info_input" name="rezerv_info" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value="'.$this->get_cab_dop_data_position_Database($_POST['id_dop_data']).'">';
+				$position = $this->get_cab_position_Database($_POST['position_id']);
+				// $html .= $this->print_arr($position);
+				$html .= '<input type="text" class="rezerv_info_input" name="rezerv_info" data-id="'.$_POST['position_id'].'" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value="'.base64_decode($position[0]['number_rezerv']).'">';
 				$html .= '</div>';
 
 				// подгружаем форму по заполнению поля логотип для всех услуг
@@ -3467,9 +3469,9 @@
 			protected function save_rezerv_info_AJAX(){
 				global $mysqli;
 
-				$query = "UPDATE  `".CAB_ORDER_DOP_DATA."`  SET  
-					`number_rezerv` =  '".$_POST['text']."' 
-					WHERE  `id` ='".$_POST['cab_dop_data_id']."';";
+				$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
+					`number_rezerv` =  '".base64_encode($_POST['text'])."' 
+					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
 			}
@@ -4275,18 +4277,19 @@
 		}
 
 		// получаем информацию из cab_dop_data
-		protected function get_cab_dop_data_position_Database($id){
+		protected function get_cab_position_Database($id){
 			global $mysqli;
 			$arr = array();
-		    $query="SELECT `number_rezerv` FROM `".CAB_ORDER_DOP_DATA."`  WHERE `id` = '".(int)$id."'";
-		    $result = $mysqli->query($query)or die($mysqli->error);
-		    $str = '';
-		    if($result->num_rows>0){
-				foreach($result->fetch_assoc() as $key => $val){
-				   $str = $val;
+		    $query="SELECT * FROM `".CAB_ORDER_MAIN."`  WHERE `id` = '".(int)$id."'";
+		   
+		    $postion_arr = array();
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$postion_arr[] = $row;
 				}
-		    }
-		    return $str;
+			}
+			return $postion_arr;
 		}
 
 		

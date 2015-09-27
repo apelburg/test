@@ -1,6 +1,8 @@
 <!-- begin skins/tpl/client_folder/rt/show.tpl --> 
 <link href="<?php  echo HOST; ?>/skins/css/rt_position.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/standard_response_handler.js"></script>
+<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/attach_dop_serv.js"></script>
 
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/calendar_consturctor.js"></script>
@@ -12,7 +14,9 @@
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jquery.liTranslit.js"></script><!-- транслитерация-->
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/forms__js.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/scrolledTableSizeFixing.js"></script>
+
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/rtCalculatorClass.js"></script>
+
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/printCalculatorClass.js"></script>
 <script type="text/javascript" src="./libs/js/up_window_consructor.js"></script>
 <div class="scrolled_tbl_container"> 

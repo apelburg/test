@@ -131,7 +131,7 @@ $(document).ready(function() {
 												<div class="row">
 													<div class="cell">Резерв</div>
 													<div class="cell">
-														<input type="text" id="rezerv_save" data-id="<?php echo $info_main['id']; ?>" value="<?php echo base64_decode($info_main['rezerv']); ?>" placeholder="№ резерва">
+														<input type="text" id="rezerv_save" data-id="<?php echo $info_main['id']; ?>" value="<?php echo base64_decode($info_main['number_rezerv']); ?>" placeholder="№ резерва">
 														</div>
 												</div>
 											</div>

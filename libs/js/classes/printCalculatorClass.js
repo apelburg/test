@@ -66,7 +66,20 @@ var printCalculator = {
 		
 		}
 		else if(calculator_type == 'extra'){
-		    alert('для добавления дополнительной услуги, перейдите в карточку позиции');	
+			// console.log(cell);
+			$.post(location.href+'&id='+cell.parentNode.getAttribute("data-id"), 
+				{
+					AJAX:"get_uslugi_list_Database_Html",
+					quantity:quantity,
+					dop_row_id:dop_data_row_id,
+					art_id:art_id,
+					for_all:1
+
+				}, function(data, textStatus, xhr) {
+					standard_response_handler(data);			
+			},'json');
+			
+		    //alert('для добавления дополнительной услуги, перейдите в карточку позиции');	
 		}
 		
 	}
