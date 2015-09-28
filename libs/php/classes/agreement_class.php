@@ -149,7 +149,35 @@
 			return $last_agreement_id;
 	
 		}
+		static function create_oferta($dateDataObj,$rows_data,$client_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$short_description,$address,$prepayment){
 		
+		    $date = date("Y-m-d");
+			$time = date("H:i:s");
+			$defalut_num = 10000;
+
+		    // OFFERTS_ROWS_TBL 
+			//ОПРЕДЕЛЯЕМ НОМЕР ОФЕРТЫ
+			$query = "SELECT MAX(num) oferta_num FROM `".OFFERTS_TBL."` WHERE LEFT(date_time,4) = '".$date."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows > 0){
+			    $row = $result->fetch_assoc();
+				$oferta_num = ($row['oferta_num']!=0)?(int)$row['oferta_num']++:$defalut_num;
+			}
+			else $oferta_num = $defalut_num;
+			
+		    //echo $oferta_num;
+			
+			
+			$agreement_num_arr = explode('/',$agreement_num);
+			if($agreement_num_arr[0] == 0) $agreement_num_arr[0] = 100;
+			$agreement_num = ((int)$agreement_num_arr[0]+1).'/'.$date_arr[1].substr($date_arr[0],2); 
+			
+		    // ЗАПИСЫВАЕМ ДАННЫЕ ОБ ОФЕРТЕ
+			
+			
+			// ЗАПИСЫВАЕМ ТАБЛИЧНЫЕ ДАННЫЕ ОФЕРТЫ
+		
+		}
 		static function add_items_for_specification($dateDataObj,$specification_num,$rows_data,$client_id,$agreement_id,$agreement_date, $our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$date,$short_description,$address,$prepayment/**/){
 		
 			global $mysqli;

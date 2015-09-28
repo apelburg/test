@@ -84,6 +84,8 @@
 	define("OUR_AGREEMENTS_TBL","os__agreements"); // таблица типов договоров
 	define("GENERATED_AGREEMENTS_TBL","os__generated_agreements"); // таблица созданных договоров
 	define("GENERATED_SPECIFICATIONS_TBL","os__generated_specifications"); // таблица созданных договоров
+	define("OFFERTS_TBL","os__offerts"); // таблица созданных договоров
+	define("OFFERTS_ROWS_TBL","os__offerts_rows"); // таблица созданных договоров
 	define("PLANNER","os__planner"); // 
 	
 	// заказы в кабинете

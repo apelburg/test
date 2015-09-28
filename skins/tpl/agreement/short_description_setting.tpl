@@ -6,12 +6,12 @@
         <input type="hidden" name="query_num" value="<?php echo $_GET['query_num']; ?>">
         <input type="hidden" name="page" value="<?php echo $page; ?>">
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <input type="hidden" name="agreement_type" value="<?php echo $_GET['agreement_type']; ?>">
         <input type="hidden" name="address" value="<?php echo $_GET['address']; ?>">
         <input type="hidden" name="prepayment" value="<?php echo $_GET['prepayment']; ?>">
-        <input type="hidden" name="date" value="<?php echo $_GET['date']; ?>">
         <input type="hidden" name="section" value="<?php echo $section; ?>">
         <input type="hidden" name="dateDataObj" value="<?php echo htmlspecialchars($_GET['dateDataObj']); ?>">
+        <?php if(isset($_GET['agreement_type'])) echo '<input type="hidden" name="requisit_id" value="'.$_GET['agreement_type'].'">'; ?>
+        <?php if(isset($_GET['date'])) echo '<input type="hidden" name="requisit_id" value="'.$_GET['date'].'">'; ?>
         <?php if(isset($_GET['requisit_id'])) echo '<input type="hidden" name="requisit_id" value="'.$_GET['requisit_id'].'">'; ?>
         <?php if(isset($_GET['our_firm_id'])) echo '<input type="hidden" name="our_firm_id" value="'.$_GET['our_firm_id'].'">'; ?>
         <?php if(isset($_GET['agreement_id'])) echo '<input type="hidden" name="agreement_id" value="'.$_GET['agreement_id'].'">'; ?>

@@ -1,5 +1,9 @@
 <?php
-    // print_r($_GET); exit;
+
+    //print_r($_GET); exit;
+	 
+	$dateDataObj = json_decode($_GET['dateDataObj']);
+
     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
 	
@@ -74,23 +78,15 @@
 	
     unset($_SESSION['back_url']);
 	
-	
-	
-	
-	if($agreement_id)
+	// создаем спецификацию, если создаваемый документ спецификация($dateDataObj->doc_type=='spec') и есть номер договора 
+	if($dateDataObj->doc_type=='spec' && $agreement_id)
 	{
+	
+	    // создаем спецификацию
+		// после того как создадим перезагружаем страницу с указанием номера и флагом open = specification
 	    if((isset($_GET['agreement_type']) && $_GET['agreement_type'] == 'long_term') && isset($_SESSION['data_for_specification']) && !isset($_GET['open']))
 		{  
-		    //echo '<br><br><br><br><br><br><br><br><br><br><br><br>'.'3'; exit;
-	
-
-		    /*
-			if(!isset($_GET['short_description']))
-			{
-				include '../../skins/tpl/admin/order_manager/agreement/specification_short_description_setting.tpl';
-				exit;
-			}
-			*/
+		
 			$agreement = Agreement::fetch_agreement_content($agreement_id);
 			$our_firm_acting_manegement_face = our_firm_acting_manegement_face($agreement['our_requisit_id']);
 			$client_firm_acting_manegement_face = Client::requisites_acting_manegement_face_details($agreement['client_requisit_id']);
@@ -104,31 +100,41 @@
 			$dateDataObj = json_decode($_GET['dateDataObj']);
 	        $specification_num = Agreement::add_items_for_specification($dateDataObj,$spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
 	
-			 
 			//unset($_SESSION['data_for_specification']);  
+			
+			// создали спецификацию перезагружаем страницу с указанием номера и флагом open = specification
 			header('Location:?'.addOrReplaceGetOnURL('open=specification&specification_num='.$specification_num,'short_description&conrtol_num')); 
 			exit;    
 		}
 		
-		$agreement = Agreement::fetch_agreement_content($agreement_id);
+		// ОТКРЫВАЕМ СПЕЦИФИКАЦИЮ
 		
+		// получаем договор 
+		$agreement = Agreement::fetch_agreement_content($agreement_id);
 		$date_arr = explode('-',$agreement['date']);
 	    $agreement_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';
 		$agreement_year_folder = $date_arr[0];
-		
 	    //print_r($form_data);
 		$date_arr = explode('-',$agreement['expire_date']);
 	    $agreement_expire_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';
 		
+		// наши реквизиты
 		$our_firm = fetch_our_certain_firm_data($agreement['our_requisit_id']);
 	    // $client_firm = get_client_requisites($agreement['client_requisit_id']);
 	    // echo '<pre>'; print_r($client_firm); echo '</pre>';
 		
+		// реквизиты клиента 
 		$client_firm =  Client::fetch_requisites($agreement['client_requisit_id']);
 		// echo '<pre>'; print_r($agreement); echo '</pre>';
 		// echo '<pre>'.$agreement['client_requisit_id']; print_r($client_firm); echo '</pre>';
 		// exit; 
 		
+		
+		
+		
+		
+		
+		// если флаг открыть - открываем все или одну спецификацию
 		if(isset($_GET['open']))
 		{
 		
@@ -163,6 +169,8 @@
 			*/
 			$specifications = '';
 			$table ='';
+			
+			// строим вывод спецификации(ий)
 			foreach($specifications_arr as $key => $val)
 			{
 			  
@@ -213,11 +221,6 @@
 				fclose($fd);
 				//$content = strip_tags($content,'<p><a><span><table><tr><td><tbody><div><strong><br /><br>');
 		 
-				
-				
-				
-                 
-                
                 $specification_num = '<?php echo $key; ?>';
 				$agreement_num = '<?php echo $agreement[\'agreement_num\']; ?>';
 				$agreementDate = '<?php echo $agreement_date; ?>';
@@ -418,14 +421,47 @@
 		}
 
 	}
-	else
+	if($dateDataObj->doc_type=='oferta')
 	{
+	    
+		// создаем оферту 
+		if(!isset($_GET['oferta_num']) && isset($_SESSION['data_for_specification']))
+		{  
+			
+		    echo 1111111111111;
+		/*	$agreement = Agreement::fetch_agreement_content($agreement_id);
+			
+			
+			//echo '<pre>'; print_r($client_firm_acting_manegement_face); echo '</pre>';
+            $spec_num = (!empty($_GET['existent_agreement_spec_num']))? $_GET['existent_agreement_spec_num']: false;
+			
+			//echo $_SESSION['data_for_specification'];//exit;
+
+			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+			
+			$dateDataObj = json_decode($_GET['dateDataObj']);
+	        $specification_num = 
+	*/
+			
+			$our_firm_acting_manegement_face = our_firm_acting_manegement_face($agreement['our_requisit_id']);
+			$client_firm_acting_manegement_face = Client::requisites_acting_manegement_face_details($agreement['client_requisit_id']);
+			
+		    Agreement::create_oferta($dateDataObj,$_SESSION['data_for_specification'],$client_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
+			unset($_SESSION['data_for_specification']);
+			
+		    // создали оферту перезагружаем страницу с указанием номера
+			header('Location:?'.addOrReplaceGetOnURL('open=specification&specification_num='.$specification_num,'short_description&conrtol_num')); 
+			exit;    
+		}
 		
+		echo 222222222222222222;	
 	}
 	
      ob_start();
-			 
-	if(isset($_GET['requisit_id']) || (isset($_GET['open']) && $_GET['open']!= 'specification')){
+	 
+	// если $dateDataObj->doc_type=='spec' и есть $_GET['requisit_id'] ИЛИ есть $_GET['open'] но он не равен 'specification'
+	// - открываем договор		 
+	if($dateDataObj->doc_type=='spec' && isset($_GET['requisit_id']) || (isset($_GET['open']) && $_GET['open']!= 'specification')){
 
 	   if((boolean)$agreement['standart'] && !(boolean)$agreement['existent']){
 		
