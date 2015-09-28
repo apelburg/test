@@ -149,33 +149,331 @@
 			return $last_agreement_id;
 	
 		}
-		static function create_oferta($dateDataObj,$rows_data,$client_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$short_description,$address,$prepayment){
+		static function create_oferta($dateDataObj,$rows_data,$client_id,$our_requisit_id,$client_requisit_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$short_description,$address,$prepayment){
 		
-		    $date = date("Y-m-d");
+		    global $mysqli;
+			
+		    $dateDataObj = json_decode($_GET['dateDataObj']);
+			$year = date("Y");
+			$date = date("Y-m-d");
 			$time = date("H:i:s");
 			$defalut_num = 10000;
 
-		    // OFFERTS_ROWS_TBL 
 			//ОПРЕДЕЛЯЕМ НОМЕР ОФЕРТЫ
-			$query = "SELECT MAX(num) oferta_num FROM `".OFFERTS_TBL."` WHERE LEFT(date_time,4) = '".$date."'";
+			$query = "SELECT MAX(oferta_num) oferta_num FROM `".OFFERTS_TBL."`"; //WHERE LEFT(date_time,4) = '".$year."'
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows > 0){
 			    $row = $result->fetch_assoc();
-				$oferta_num = ($row['oferta_num']!=0)?(int)$row['oferta_num']++:$defalut_num;
+				$oferta_num = ($row['oferta_num']==0)?$defalut_num:((int)$row['oferta_num'])+1;
 			}
 			else $oferta_num = $defalut_num;
+		    echo '--'.$oferta_num.'--';
 			
-		    //echo $oferta_num;
-			
-			
-			$agreement_num_arr = explode('/',$agreement_num);
-			if($agreement_num_arr[0] == 0) $agreement_num_arr[0] = 100;
-			$agreement_num = ((int)$agreement_num_arr[0]+1).'/'.$date_arr[1].substr($date_arr[0],2); 
-			
+			$dates_data = self::date_terms_convert($dateDataObj);
 		    // ЗАПИСЫВАЕМ ДАННЫЕ ОБ ОФЕРТЕ
-			
+			$query = "INSERT INTO `".OFFERTS_TBL."` SET 
+						  oferta_num='".$oferta_num."',
+						  oferta_type='". $dateDataObj->data_type."',
+						  client_id='".$client_id."',
+						  our_requisit_id='".$our_requisit_id."',
+						  client_requisit_id='".$client_requisit_id."',		  
+						  date_time = '".$date." ".$time."',
+						  our_chief='".$our_firm_acting_manegement_face['name']."',
+						  client_chief='".$client_firm_acting_manegement_face['name']."',
+						  short_description='".$short_description."',
+						  address='".$address."',
+						  prepayment='".$prepayment."', 
+						  makets_delivery_term='',
+						  item_production_term='".$dates_data['item_production_term']."',
+						  shipping_date_time='".$dates_data['shipping_date_time']."',
+						  final_date_time='".$dates_data['final_date_time']."'
+						  ";
+						  
+			echo $query;	
+			////exit;	  
+			$result = $mysqli->query($query)or die($mysqli->error);
+			$oferta_id = $mysqli->insert_id;
 			
 			// ЗАПИСЫВАЕМ ТАБЛИЧНЫЕ ДАННЫЕ ОФЕРТЫ
+			$rows_data_arr = json_decode($rows_data);
+		    foreach($rows_data_arr as $data_arr){
+			
+				if(count($data_arr)==0) continue;
+				
+			    $summ_out = 0;
+                $uslugi_summ_out = 0;
+				
+				$main_id = $data_arr->pos_id;
+				$dop_id = $data_arr->row_id;
+				 
+				$query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$main_id."'";
+				// echo $query."\r\n";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+				    // 1). main_data
+				    $main_data = $result->fetch_assoc();
+					
+					$query2="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_id."'";
+					// echo $query."\r\n";
+					$result2 = $mysqli->query($query2)or die($mysqli->error);
+					if($result2->num_rows>0){
+					     // 2). dop_data
+					     $dop_data = $result2->fetch_assoc();
+						 $expel = array ("main"=>0,"print"=>0,"dop"=>0);
+						 if(@$dop_data['expel']!=''){
+							 $obj = @json_decode($dop_data['expel']);
+							 foreach($obj as $expel_key => $expel_val) $expel[$expel_key] = $expel_val;
+						 }
+					
+						 $summ_out = $dop_data['quantity']*$dop_data['price_out'];
+						 $name= (($main_data['art']!='')? 'арт.'.$main_data['art']:'')." ".$main_data['name'];					 
+						   
+						 // $price = ($dop_data['discount'] != 0 )? round((($summ_out/$dop_data['quantity'])/100)*(100 + $dop_data['discount']),2) :  round($summ_out/$dop_data['quantity'],2) ;
+						 $price = ($dop_data['discount'] != 0 )? round(($dop_data['price_out']/100)*(100 + $dop_data['discount']),2) :  $dop_data['price_out'] ;
+						 // прежде чем записать ряд в спецификацию сверим совпадает ли количество в расчете и в услугах
+						 // для этого делаем дополнительный запрос к таблице RT_DOP_USLUGI, далее после добавления ряда 
+						 // будет такойже запрос к таблице RT_DOP_USLUGI но уже чтобы добавить доп услуги в спецификацию
+						 $query2_dop="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type";
+						 // echo $query."\r\n";
+						 $result2_dop = $mysqli->query($query2_dop)or die($mysqli->error);
+						 if($result2_dop->num_rows>0){
+						     while($uslugi_data = $result2_dop->fetch_assoc()){
+							     if($uslugi_data['glob_type']=='print' && ($uslugi_data['quantity']!=$dop_data['quantity'])){
+									 $reload['flag'] = true;
+									 //echo $dop_data['quantity'];
+									 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+									 $json_out =  rtCalculators::change_quantity_and_calculators($dop_data['quantity'],$dop_data['id'],'true','false');
+									 $json_out_obj =  json_decode($json_out);
+									 
+									 // если расчет не может быть произведен по причине outOfLimit или needIndividCalculation
+									 // сбрасываем количество тиража и нанесения до 1шт.
+									 if(isset($json_out_obj->print->outOfLimit) || isset($json_out_obj->print->needIndividCalculation)){
+										 rtCalculators::change_quantity_and_calculators(1,$dop_data['id'],'true','false');
+										 
+										 $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '1'  WHERE `id` = '".$dop_data['id']."'";
+										 $result = $mysqli->query($query)or die($mysqli->error);
+									 }
+									 
+			
+								 } /**/
+								 if($uslugi_data['glob_type']=='extra' && ($uslugi_data['quantity']!=$dop_data['quantity'])){
+									  $query="UPDATE `".RT_DOP_USLUGI."` SET  `quantity` = '".$dop_data['quantity']."'  WHERE `id` = '".$uslugi_data['id']."'";
+									  $result = $mysqli->query($query)or die($mysqli->error);
+									  $uslugi_data['quantity'] = $dop_data['quantity'];
+									 
+			
+								 }
+							 }
+						 }
+						 if(isset($reload['flag']) && $reload['flag'] == true){
+							 header('Location:'.HOST.'/?'.$_SERVER['QUERY_STRING']);
+							 exit;
+						 }
+						 
+				         // записываем ряд
+						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$dop_data['quantity'],$price_out);
+						 
+						 
+						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type DESC";
+						 // echo $query."\r\n";
+						 $result3 = $mysqli->query($query3)or die($mysqli->error);
+						 if($result3->num_rows>0){
+						     
+						     while($uslugi_data = $result3->fetch_assoc()){
+					            // 3). uslugi_data
+								 if($uslugi_data['glob_type'] == 'print' && !(!!$expel["print"])){
+									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
+									 // записываем ряд
+									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
+								 }
+								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
+									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
+									 $name = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
+									 
+									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
+									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
+									 // записываем ряд
+									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
+								 }/**/
+								 
+								  
+						       
+						 
+						    }
+					    }
+				    }
+				}
+			}	
+		    
+			
+			// этап создания отдельного файла оферты и сохраниения его на диск
+			// проверяем существует ли папка данного клиента если нет создаем её
+			// если происходит ошибка выводим отчет
+	
+			
+			// проверяем есть папка данного клента, если её нет то создаем её
+			$client_dir_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.strval($client_id);
+			//chmod("data/com_offers/", 0775);
+			
+			if(!file_exists($client_dir_name)){
+				if(!mkdir($client_dir_name, 0775)){
+					echo 'ошибка создания папки клиента (4)'.$client_dir_name;
+					exit;
+				}
+			}
+			
+			// папка обозначающая год (название папки - название года)
+			$year_dir_name = $client_dir_name.'/'.$year;
+			if(!file_exists($year_dir_name)){
+				if(!mkdir($year_dir_name, 0775)){
+					echo 'ошибка создания папки с именем года'.$year_dir_name;
+					exit;
+				}
+			}
+			
+			// папка содержащая оферты
+			$type_dir_name = $year_dir_name.'/offerts';
+			if(!file_exists($type_dir_name)){
+				if(!mkdir($type_dir_name, 0775)){
+					echo 'ошибка создания папки "offerts" '.$type_dir_name;
+					exit;
+				}
+			}
+			
+			// папка для выбранных сторон
+			$full_dir_name = $type_dir_name.'/'.$our_requisit_id.'_'.$client_requisit_id;
+			if(!file_exists($full_dir_name)){
+				if(!mkdir($full_dir_name, 0775)){
+					echo 'ошибка создания папки для выбранных сторон'.$full_dir_name;
+					exit;
+				}
+			}
+			
+
+			// записываем файл
+			$file_name = $full_dir_name.'/'.$oferta_num.'.tpl';
+			//echo $file_name;
+			//$file_name = $dir_name_full.'/com_pred_1_1.doc';
+			if(file_exists($file_name)){
+				echo 'файл с таким именем уже существует (2)';
+				exit;
+			}
+	
+			if($dateDataObj->data_type=='days') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/oferta.tpl';
+			if($dateDataObj->data_type=='date') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/oferta_type2_by_date.tpl';
+			
+			$fd_origin = fopen($origin_file_name,'r');
+			$file_content = fread($fd_origin,filesize($origin_file_name));
+			fclose($fd_origin);
+			
+			$fd = fopen($file_name,'w');
+			$write_result = fwrite($fd,$file_content); //\r\n
+			fclose($fd);
+		
+			return $oferta_id;
+		}
+		
+		static function fetch_oferta_data($oferta_id){
+			global $mysqli;
+			
+			$oferta_id = (!is_array($oferta_id))? array($oferta_id):$oferta_id; 
+			$query = "SELECT*FROM `".OFFERTS_ROWS_TBL."` WHERE oferta_id IN('".implode("','",$oferta_id)."')";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			$array = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$array[] = $row;
+				}
+			}
+			return $array;
+		
+		}
+		
+		static function fetch_oferta_common_data($oferta_id){
+			global $mysqli;
+			
+			$query = "SELECT*FROM `".OFFERTS_TBL."` WHERE id = '".$oferta_id."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows > 0){
+				return $result->fetch_assoc();
+			}
+			return false;
+		
+		}
+		
+		static function build_specification_tbl($table,$data){	
+		        $itogo=0;
+				$nds=0;
+				$table .= '<table id="spec_tbl" class="spec_tbl"><tr class="bold_font"><td>№</td><td>Наименование и<br>описание продукции</td><td>Кол-во продукции</td><td colspan="2">стоимость за штуку</td><td colspan="2">Общая стоимость</td>';
+				
+				foreach($data as $key2 => $val2)
+				{
+				    $table .= '</tr><tr><td class="num">'.($key2+1).'</td><td class="name">'.$data[$key2]['name'].'</td><td class="quantity">'.$data[$key2]['quantity'].'</td><td class="price">'.$data[$key2]['price'].'</td><td class="currensy">р.</td><td class="price">'.$data[$key2]['summ'].'</td><td class="currensy">р.</td>';
+					$itogo += (float)$data[$key2]['summ'];
+					$nds += round(($data[$key2]['summ']/118*18), 2);
+				}
+				$table .= '</tr>';
+				$table .= '<tr class="bold_font"><td colspan="5">Итого с НДС</td><td class="price">'.number_format($itogo,"2",".",'').'</td><td class="currensy">р.</td></tr>';
+				$table .= '<tr class="bold_font"><td colspan="5">Из них НДС (18%)</td><td class="price">'.number_format($nds,"2",".",'').'</td><td class="currensy">р.</td></tr>';
+				$table .= '</table>';
+				
+				return $table;
+		}
+		static function insert_row_in_oferta($oferta_id,$num,$name,$quantity,$price){
+			global $mysqli;
+			
+			$query = "INSERT INTO `".OFFERTS_ROWS_TBL."` SET 
+						  oferta_id='".$oferta_id."',
+						  oferta_num='".$num."',
+						  name='".$name."',
+						  quantity='".$quantity."',
+						  price='".$price."',
+						  summ='".$quantity*$price."'
+						  ";
+						  
+			  echo $query;	
+			  //exit;	  
+			  $result = $mysqli->query($query)or die($mysqli->error);
+			  return $mysqli->insert_id;
+		
+		}
+		static function date_terms_convert($dateDataObj){
+		// настройки в завасимости от типа оферта
+			if($dateDataObj->data_type=='days'){
+			    $specification_type = 'days';
+			    $shipping_date_time = '';
+				$final_date_time = '';
+				$item_production_term = $dateDataObj->datetime.'()';
+			}
+			if($dateDataObj->data_type=='date'){
+			    $specification_type = 'date';
+				
+			    echo $dateDataObj->datetime;echo '<br>';
+			    $shipping_date_time_arr = explode(' ',$dateDataObj->datetime);
+				$shipping_date_time_arr[0] = implode('-',array_reverse(explode('.',$shipping_date_time_arr[0])));
+				if(isset($shipping_date_time_arr[1])){
+				     if(strlen($shipping_date_time_arr[1])==0 || strlen($shipping_date_time_arr[1])>8) $shipping_date_time_arr[1] = '00:00:00';
+				     if(strlen($shipping_date_time_arr[1])==2) $shipping_date_time_arr[1] = $shipping_date_time_arr[1].':00:00';
+				     if(strlen($shipping_date_time_arr[1])==5) $shipping_date_time_arr[1] = $shipping_date_time_arr[1].':00';
+				}
+				else $shipping_date_time_arr[1] = '00:00:00';
+			    $shipping_date_time = implode(' ',$shipping_date_time_arr);
+				echo $shipping_date_time;echo '<br>';
+				echo $dateDataObj->final_date;echo '<br>';
+				$final_date_time_arr = explode(' ',$dateDataObj->final_date);
+				$final_date_time_arr[0] = implode('-',array_reverse(explode('.',$final_date_time_arr[0])));
+				if(isset($shipping_date_time_arr[1])){
+					if(strlen($final_date_time_arr[1])==0 || strlen($final_date_time_arr[1])>8) $final_date_time_arr[1] = '00:00:00';
+					if(strlen($final_date_time_arr[1])==2) $final_date_time_arr[1] = $final_date_time_arr[1].':00:00';
+					if(strlen($final_date_time_arr[1])==5) $final_date_time_arr[1] = $final_date_time_arr[1].':00';
+				}
+				else $final_date_time_arr[1] = '00:00:00';
+				$final_date_time = implode(' ',$final_date_time_arr);
+				echo $final_date_time;
+				$item_production_term = '';
+			}
+			return array('shipping_date_time'=>$shipping_date_time,'final_date_time'=>$final_date_time,'item_production_term'=>$item_production_term);
 		
 		}
 		static function add_items_for_specification($dateDataObj,$specification_num,$rows_data,$client_id,$agreement_id,$agreement_date, $our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$date,$short_description,$address,$prepayment/**/){
@@ -416,39 +714,7 @@
 			global $mysqli;
 			
 			// настройки в завасимости от типа спецификации
-			if($dateDataObj->data_type=='days'){
-			    $specification_type = 'days';
-			    $shipping_date_time = '';
-				$final_date_time = '';
-				$item_production_term = $dateDataObj->datetime.'()';
-			}
-			if($dateDataObj->data_type=='date'){
-			    $specification_type = 'date';
-				
-			    echo $dateDataObj->datetime;echo '<br>';
-			    $shipping_date_time_arr = explode(' ',$dateDataObj->datetime);
-				$shipping_date_time_arr[0] = implode('-',array_reverse(explode('.',$shipping_date_time_arr[0])));
-				if(isset($shipping_date_time_arr[1])){
-				     if(strlen($shipping_date_time_arr[1])==0 || strlen($shipping_date_time_arr[1])>8) $shipping_date_time_arr[1] = '00:00:00';
-				     if(strlen($shipping_date_time_arr[1])==2) $shipping_date_time_arr[1] = $shipping_date_time_arr[1].':00:00';
-				     if(strlen($shipping_date_time_arr[1])==5) $shipping_date_time_arr[1] = $shipping_date_time_arr[1].':00';
-				}
-				else $shipping_date_time_arr[1] = '00:00:00';
-			    $shipping_date_time = implode(' ',$shipping_date_time_arr);
-				echo $shipping_date_time;echo '<br>';
-				echo $dateDataObj->final_date;echo '<br>';
-				$final_date_time_arr = explode(' ',$dateDataObj->final_date);
-				$final_date_time_arr[0] = implode('-',array_reverse(explode('.',$final_date_time_arr[0])));
-				if(isset($shipping_date_time_arr[1])){
-					if(strlen($final_date_time_arr[1])==0 || strlen($final_date_time_arr[1])>8) $final_date_time_arr[1] = '00:00:00';
-					if(strlen($final_date_time_arr[1])==2) $final_date_time_arr[1] = $final_date_time_arr[1].':00:00';
-					if(strlen($final_date_time_arr[1])==5) $final_date_time_arr[1] = $final_date_time_arr[1].':00';
-				}
-				else $final_date_time_arr[1] = '00:00:00';
-				$final_date_time = implode(' ',$final_date_time_arr);
-				echo $final_date_time;
-				$item_production_term = '';
-			}
+			$dates_data = self::date_terms_convert($dateDataObj);
 			
 			$query = "INSERT INTO `".GENERATED_SPECIFICATIONS_TBL."` SET 
 						  client_id='".$client_id."',
@@ -464,16 +730,16 @@
 						  client_chief_position_in_padeg='".$client_firm_acting_manegement_face['position_in_padeg']."',
 						  client_basic_doc='".$client_firm_acting_manegement_face['basic_doc']."',
 						  specification_num='".$specification_num."',
-						  specification_type='".$specification_type."',
+						  specification_type='".$dateDataObj->data_type."',
 						  short_description='".$short_description."',
 						  address='".$address."',
 						  prepayment='".$prepayment."',
 						  date = '".$date."',
-						  shipping_date_time='".$shipping_date_time."',
-						  final_date_time='".$final_date_time."',
+						  shipping_date_time='".$dates_data['shipping_date_time']."',
+						  final_date_time='".$dates_data['final_date_time']."',
 						  name='".$name."',
 						  makets_delivery_term='5 (пяти)',
-						  item_production_term='10 (десять)',
+						  item_production_term='".$dates_data['item_production_term']."',
 						  quantity='".$quantity."',
 						  price='".$price."',
 						  summ='".$quantity*$price."'
