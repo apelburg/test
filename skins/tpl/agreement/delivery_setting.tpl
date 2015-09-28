@@ -7,7 +7,7 @@
         <div class="cap">Условия доставки продукции:</div>
         <hr />
         <div style="margin:20px 0px 0px 0px;">
-            <div class="prepayment_row"><a href="?<?php echo addOrReplaceGetOnURL('section=short_description').'&address=samo_vivoz'; ?>">Самовывоз покупателем со склада: Санкт-Петербург, ул. Чугунная, д. 14, корп.1</a></div>
+            <div class="prepayment_row"><a href='?<?php echo addOrReplaceGetOnURL("section=short_description")."&address=samo_vivoz"; ?>'>Самовывоз покупателем со склада: Санкт-Петербург, ул. Чугунная, д. 14, корп.1</a></div>
             <?php echo $addresses; ?>
             <div class="prepayment_row" style="margin:10px 0px 0px 10px;"><a href="#"  style="text-decoration:underline;" onclick="var result = prompt('введите адрес доставки'); var regexp = /%20/g; if(result) location = location.pathname + '?'+addOrReplaceGetOnURL('section=short_description')+'&address='+encodeURIComponent(result).replace(regexp,'+') ; return false;">Добавить адрес доставки</a></div>
            

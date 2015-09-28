@@ -1,5 +1,4 @@
 <?php
-    
     // print_r($_POST);
      echo '<pre>';
 	print_r($_GET);
@@ -12,7 +11,9 @@
 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
 	
-	if(!$agreement_id)
+	// если тип документа спецификация() и еще нет договора (нет $agreement_id), то создается новый договор
+	$dateDataObj = json_decode($_GET['dateDataObj']);
+	if($dateDataObj->doc_type=='spec' && !$agreement_id)
 	{
 	    $our_firm = fetch_our_certain_firm_data($_GET['our_firm_id']);
 		$our_firm_acting_manegement_face = our_firm_acting_manegement_face($_GET['our_firm_id']);

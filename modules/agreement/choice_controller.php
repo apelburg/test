@@ -1,12 +1,16 @@
 <?php
 
-     
+	 $dateDataObj = json_decode($_GET['dateDataObj']);
+	 
+
+	 // получаем данные о созданных договорах и выводим списком реквизиты между которыми созданны договора
+	 // также выводим кнопку "переход" для создания договоров, если договоров еще не было выводим только её
 	 $long_term_agreements = fetch_client_agreements_by_type('long_term',$client_id);
 	 
 	 
 	 if($long_term_agreements['results_num'] > 0)
 	 {
-	     $specification_section ='<div class="subsection">спецификацию для:</div>';
+		 $specification_section ='<div class="subsection">спецификацию для:</div>';
 		 while($row =mysql_fetch_assoc($long_term_agreements['result']))
 		 {
 			 //echo '<pre>'; print_r($row); echo '</pre>';
@@ -21,14 +25,13 @@
 	 }
 	 else if($long_term_agreements['results_num'] == 0)
 	 {
-         $specification_section ='';
+		 $specification_section ='';
 	 }
 	 else
 	 {
-	     echo $long_term_agreements['result'];
+		 echo $long_term_agreements['result'];
 	 }
- 
-	 
+
 	 
 	 
      include('./skins/tpl/agreement/choice.tpl');
