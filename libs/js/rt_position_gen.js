@@ -449,26 +449,31 @@ $(document).on('click', '.del_row_variants', function(event) {
 	console.log('клик на удаление услуги');
 	console.log($(this).parent().parent().prev().find('th').length);
 	console.log($(this).parent().parent().next().find('th').length);
-	//если это последняя услуга в своём разделе, удаляем имя раздела
-	if($(this).parent().parent().next().find('th').length){
-		if($(this).parent().parent().prev().find('th').length){
-			$(this).parent().parent().prev().remove();
-		}
-	}
-
-	var dop_uslugi_id = $(this).parent().parent().attr('data-dop_uslugi_id');
-	$(this).parent().parent().remove();
+	
 	// подсчёт ИТОГО
-	$.post('', 
-		{
-			AJAX: 'delete_usl_of_variant',
-			uslugi_id: dop_uslugi_id
-		}, function(data, textStatus, xhr) {
-		console.log(data);
-	});
+	if(confirm('Вы уверены, что хотите удалить услугу?')){
+		//если это последняя услуга в своём разделе, удаляем имя раздела
+		if($(this).parent().parent().next().find('th').length){
+			if($(this).parent().parent().prev().find('th').length){
+				$(this).parent().parent().prev().remove();
+			}
+		}
+
+		var dop_uslugi_id = $(this).parent().parent().attr('data-dop_uslugi_id');
+		$(this).parent().parent().remove();
+		
+		$.post('', 
+			{
+				AJAX: 'delete_usl_of_variant',
+				uslugi_id: dop_uslugi_id
+			}, function(data, textStatus, xhr) {
+			console.log(data);
+		});
 
 
-	recalculate_table_price_Itogo();	
+		recalculate_table_price_Itogo();		
+	}
+	
 	
 });
 

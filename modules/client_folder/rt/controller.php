@@ -375,7 +375,7 @@
                            <td type="print_exists_flag" class="hidden">'.$print_exists_flag.'</td>
 			               <td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden '.$expel_class_print.'">'.$print_in_summ_format.$currency.'</td> 
 			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.$expel_class_print.'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
-			               <td width="25" class="calc_btn" calc_btn="extra" '.$extra_exists_flag.'>'.$dop_uslugi_btn.'</td>';
+			               <td width="25" class="calc_btn" calc_btn="extra" '.$extra_exists_flag.' data-id="'.$key.' ">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden '.$expel_class_dop.'">'.$dop_uslugi_in_summ_format.$currency.'</td>';
 			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border '.$expel_class_dop.'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>

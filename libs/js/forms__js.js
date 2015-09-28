@@ -1,3 +1,4 @@
+
 //////////////////////////////////
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- start
 //////////////////////////////////
@@ -187,6 +188,10 @@
 //////////////////////////////////
 
 // radio button
+
+// jQuery(document).ready(function($) {
+// 	alert('hellow Workd');
+// });
 
 function create_datepicker_for_variant_cont(){
 	$('#date_1').datetimepicker({
@@ -439,7 +444,8 @@ function show_dialog(html){
 					$('#general_form_for_create_product').remove();
 				});
 			}else{
-				$("body,html").animate({scrollTop:($('.disabled_moderation').eq(0).offset().top}, 800);return false;
+				$("body,html").animate({scrollTop:($('.disabled_moderation').eq(0).offset().top)}, 800);
+				return false;
 				
 
 				alert('Исправьте ошибки заполнения');

@@ -1177,11 +1177,11 @@ $(document).on('click', '#services_listing_each .lili', function(event) {
 // редактирование поля резерв в доп тех инфо
 $(document).on('keyup','#dialog_gen_window_form .rezerv_info_input', function(event) {
 	
-	var cab_dop_data_id = $(this).attr('data-cab_dop_data_id');
+	var row_id = $(this).attr('data-id');
 
 	$.post('', {
 		AJAX:'save_rezerv_info',
-		cab_dop_data_id: cab_dop_data_id,
+		row_id: row_id,
 		text : $(this).val()
 	}, function(data, textStatus, xhr) {
 		if(data['response']!="OK"){

@@ -85,6 +85,7 @@
 				break;
 		}
 		
+		// размерная таблица
 		$get_size_table = $POSITION_GEN->POSITION_CATALOG->get_size_table($art_dop_params,$variant);
 	
 		// тираж

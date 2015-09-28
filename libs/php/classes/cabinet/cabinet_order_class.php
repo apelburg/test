@@ -385,7 +385,7 @@
 					// поставщик товара и номер резерва для каталожной продукции 
 					$html .= '<td>
 							<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
-							<div class="number_rezerv">'.$this->position['number_rezerv'].'</div>
+							<div class="number_rezerv">'.base64_decode($this->position['number_rezerv']).'</div>
 							</td>';
 					// подрядчк печати 
 					$html .= '<td class="change_supplier"  data-id="'.$this->position['suppliers_id'].'" data-id_dop_data="'.$this->position['id_dop_data'].'">'.$this->position['suppliers_name'].'</td>';

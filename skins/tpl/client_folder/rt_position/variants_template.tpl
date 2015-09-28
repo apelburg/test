@@ -85,7 +85,8 @@
 									<?php 
 									
 									$uslugi = $POSITION_GEN->POSITION_NO_CATALOG->get_uslugi_Database_Array($variant['id']);
-										echo $POSITION_GEN->POSITION_CATALOG->uslugi_template_cat_Html($uslugi);
+
+									echo $POSITION_GEN->POSITION_CATALOG->uslugi_template_cat_Html($uslugi);
 									?>
 									<tr>
 										<th colspan="7" class="type_row_calc_tbl">

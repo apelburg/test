@@ -405,12 +405,8 @@ class Position_catalog{
 	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
 	// $pause - флаг запрета редактирования
 	// названия группы услуги
-	//public function uslugi_template_cat_Html($arr=array(), $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
+	// public function uslugi_template_cat_Html($arr=array(), $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
 	public function uslugi_template_cat_Html($arr, $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
-		
-		// echo '<pre>';
-		// print_r($arr);
-		// echo '</pre>';
 		// определяем редакторов для полей (html тегов)
 		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
@@ -447,30 +443,40 @@ class Position_catalog{
 
 		// делаем запрос по услугам
 		global $mysqli;
-		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,`".OUR_USLUGI_LIST."`.`tz`,`".OUR_USLUGI_LIST."`.`edit_pr_in`,`".OUR_USLUGI_LIST."`.`price_out`,`".OUR_USLUGI_LIST."`.`for_how`,`".OUR_USLUGI_LIST."`.`id`,`".OUR_USLUGI_LIST."`.`name`,`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' FROM ".OUR_USLUGI_LIST."
+		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,
+		`".OUR_USLUGI_LIST."`.`tz`,
+		`".OUR_USLUGI_LIST."`.`edit_pr_in`,
+		`".OUR_USLUGI_LIST."`.`price_out`,
+		`".OUR_USLUGI_LIST."`.`for_how`,
+		`".OUR_USLUGI_LIST."`.`id`,
+		`".OUR_USLUGI_LIST."`.`name`,
+		`".OUR_USLUGI_LIST."_par`.`name` AS 'parent_name' 
+		FROM ".OUR_USLUGI_LIST."
 inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_LIST."`.`parent_id`=`".OUR_USLUGI_LIST."_par`.`id` WHERE `".OUR_USLUGI_LIST."`.`id` IN (".$id_s.") ORDER BY  `os__our_uslugi_par`.`name` ASC ";
 		// $query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id_s.")";
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);				
-		$name_uslugi = array();
+		$services_arr = array();
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				foreach ($arr as $key => $value) {
-						$name_uslugi[$row['id']] = $row;
+					$services_arr[$row['id']] = $row;
 				}
 			}
 		}
 
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+
 		$uslname = '';
-		foreach ($name_uslugi as $key => $value) {
+		foreach ($services_arr as $key => $service) {
 			// $NO_show_head добавлен как необязательная переменная для отключения вывода 
 			// названия группы услуги
 
-			if($uslname!=$value['parent_name'] && !$NO_show_head){
-				$html .= '<tr  class="group_usl_name" data-usl_id="'.$value['parent_id'].'">
-		 				<th colspan="7">'.$value['parent_name'].'</th>
+			if($uslname != $service['parent_name'] && !$NO_show_head){
+				$html .= '<tr  class="group_usl_name" data-usl_id="'.$service['parent_id'].'">
+		 				<th colspan="7">'.$service['parent_name'].'</th>
  				</tr>';
- 				$uslname = $value['parent_name'];
+ 				$uslname = $service['parent_name'];
 			}
 			foreach ($arr as $key2 => $value2) {
 				if($value2['uslugi_id']==$key){
@@ -481,10 +487,19 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					$pribl = ($value2['for_how']=="for_all")?($value2['price_out']-$value2['price_in']):($value2['price_out']*$value2['quantity']-$value2['price_in']*$value2['quantity']);
 					$dop_inf = ($value2['for_how']=="for_one")?'(за тираж '.$value2['quantity'].' шт.)':'';
 					
+					// информация из калькулятора
+					$calc_info = '';$calc_class= '';
+					if($service['parent_id'] == 6){
+						$calc_class = ' service-calculator';
+						$calc_info = '<span class="calc_info">/ '.printCalculator::convert_print_details($value2['print_details']).' /</span>';	
+					}
+					
+
+
 					$price_out_snab = ($value2['for_how']=="for_all")?$value2['price_out_snab']:$value2['price_out_snab']*$value2['quantity'];
 
 
-					$real_price_out = ($value['for_how']=="for_all")?$value['price_out']:$value['price_out']*$value2['quantity'];
+					$real_price_out = ($service['for_how']=="for_all")?$service['price_out']:$service['price_out']*$value2['quantity'];
 
 
 
@@ -492,13 +507,13 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					$buttons_tz = (trim($value2['tz'])=='')?'<span class="tz_text_new"></span>':'<span class="tz_text_edit"></span>';
 
 
-					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'" data-our_uslugi_parent_id="'.trim($value['parent_id']).'"  data-for_how="'.trim($value['for_how']).'">
-										<td>'.$value['name'].' '.$dop_inf.'</td>
-										<td class="row_tirage_in_gen uslugi_class price_in"><span '.(($value['edit_pr_in'] == '1')?$this->edit_admin.$this->edit_snab.$this->edit_men:'').'>'.$this->round_money($price_in).'</span> р.</td>
+					$html .= '<tr class="calculate calculate_usl " data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$service['id'].'" data-our_uslugi_parent_id="'.trim($service['parent_id']).'"  data-for_how="'.trim($service['for_how']).'">
+										<td><div class="'.$calc_class.'">'.$service['name'].' '.$dop_inf.' <br> '.$calc_info.'</div></td>
+										<td class="row_tirage_in_gen uslugi_class price_in"><span '.(($service['edit_pr_in'] == '1')?$this->edit_admin.$this->edit_snab.$this->edit_men:'').'>'.$this->round_money($price_in).'</span> р.</td>
 										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$this->edit_admin.$this->edit_snab.$this->edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
 										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$this->edit_admin.$this->edit_men.'>'.$this->round_money($price_out_men).'</span> р.</td>
 										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span> р.</td>
-										<td class="usl_tz">'.$buttons_tz.'<span class="tz_text">'.base64_decode($value2['tz']).'</span><span class="tz_text_shablon">'.$value['tz'].'</span></td>';
+										<td class="usl_tz">'.$buttons_tz.'<span class="tz_text">'.base64_decode($value2['tz']).'</span><span class="tz_text_shablon">'.$service['tz'].'</span></td>';
 
 					$html .= ($this->user_id == $value2['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';
 					// $html .= $value2['creator_id'];
