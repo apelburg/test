@@ -655,7 +655,7 @@ span.snab_comment {
   color: #5a5c61; }
 .variant_info .table_extended_info td{padding: 0}
 
-#inform_for_variant_head{ font-weight: bold; text-decoration: underline;}
+.inform_for_variant_head{ font-weight: bold; text-decoration: underline;}
 .edit_snab_comment,.change_srok{ min-height: 15px; border:1px solid grey; background: #fff; font-size: 12px; color: black; padding: 3px}
 .edit_snab_comment.saved,
 .save_comment_snab,
@@ -753,7 +753,7 @@ span.snab_comment {
   правки по замечаниям Славы   START
 *****************************************/
 #edit_option_content{
-  display: none;
+  /*display: none;*/
 }
 #variant_of_snab table.calkulate_table tr td:nth-of-type(1){
   width: auto;
@@ -962,4 +962,31 @@ span.calc_info {
     background-position-y: 1px;
     padding-left: 27px;
     background-position-x: -3px;
+}
+
+#query_theme_block input.save,
+#query_theme_block input.save_query_theme{
+  background-color: #000;
+}
+#attaching_names_of_print_types span{
+  background-color: #A6CC8B;
+  color: #fff;
+  padding: 2px 3px;
+  margin-right: 10px;
+}
+.hidden_archive_variants{
+  display: none;
+}
+.warning_message {
+  padding: 5px;
+  border: 1px solid red;
+  margin-bottom: 15px;
+}
+.warning_message div{
+  padding: 5px;
+}
+.warning_message div:nth-of-type(1){
+  font-weight: bold;
+  color: #FF0000;
+    
 }

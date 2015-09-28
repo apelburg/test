@@ -132,6 +132,9 @@ class Position_catalog{
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
 	}
+
+
+
 	private function size_in_var_all_AJAX(){
 		global $mysqli;
 		// echo "<pre>";
@@ -216,6 +219,71 @@ class Position_catalog{
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
+	}
+
+
+	/**
+	 *	Преобразует массив содержащий id услуг нанесения прикреплённых к артикулу 
+	 *	в массив названий этих нанесений
+	 *
+	 *	@param 	 object get_print_mode
+	 *	@return  array()	
+	 *	@author  Алексей	
+	 *	@version 11:00 28.09.2015  OBSOLETE
+	 */
+	public function get_print_names_array(){
+		$name_ru_arr = array();
+
+		// получаем id нанесений
+		if(isset($this->get_print_mode) && !empty($this->get_print_mode)){
+			$n = 0; $id = '';
+			foreach ($this->get_print_mode as $key => $value) {
+				$id .= (($n>0)?",":"")."'".$value."'";
+				$n++;
+			}
+			// делаем запрос по этим нанесениям
+			global $mysqli;
+			$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id.")";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name_ru_arr[] = $row['name'];
+				}
+			}
+		}		
+		return $name_ru_arr;
+	}
+
+	/**
+	 *	Преобразует массив содержащий id услуг нанесения прикреплённых к артикулу 
+	 *	в строку названий этих нанесений
+	 *
+	 *	@param 	 object get_print_mode
+	 *	@return  string	
+	 *	@author  Алексей	
+	 *	@version 11:00 28.09.2015
+	 */
+	public function get_print_names_string(){
+		$name_ru_arr = '';
+		// получаем id нанесений
+		if(isset($this->get_print_mode) && !empty($this->get_print_mode)){
+			$n = 0; $id = '';
+			foreach ($this->get_print_mode as $key => $value) {
+				$id .= (($n>0)?", ":"")."'".$value."'";
+				$n++;
+			}
+			// делаем запрос по этим нанесениям
+			global $mysqli;
+			$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id.")";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name_ru_arr .= '<span>'.$row['name'].'</span>';
+					$n++;
+				}
+			}
+		}		
+		return '<div id="attaching_names_of_print_types">'.$name_ru_arr.'</div>';
 	}
 
 	// копируем услуги варианта

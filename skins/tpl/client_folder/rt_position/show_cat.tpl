@@ -59,16 +59,16 @@ $(document).ready(function() {
 	<div id="info_string_on_query">
 		<ul>
 			<li id="back_to_string_of_claim"><a href="?page=client_folder&query_num=<?php echo  $order_num; ?>&client_id=<?php echo $client_id; ?>"></a></li>
-			<li id="claim_number" data-order="<?php echo  $order_num_id; ?>">Запрос № <?php echo  $order_num; ?></li>
-			<li id="claim_date"><span>от <?php echo $order_num_date; ?></span></li>
+			<li id="claim_number" data-order="<?=$order_num_id;?>">Запрос № <?=$order_num;?></li>
+			<li id="claim_date"><span>от <?=$order_num_date;?></span></li>
 			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
-			<li id="art_name_topic"><span>Тема:</span> <?php echo $articul['name']; ?></li>
+			<li id="query_theme_block"><span>Тема:</span> <input id="query_theme_input" class="query_theme" data-id="<?=$Order['RT_LIST_ID'];?>" type="text" value="<?=$Order['theme']?>" onclick="fff(this,'Введите тему');"></li>
 			<li style="float:right"><span data-rt_list_query_num="<?php  echo $order_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($order_num); ?> "></span></li>
 		</ul>
 	</div>
 	<div id="number_position_and_type">
-		<ul>
-			<li title="порядковый номер позиции в заказе">Позиция № 1</li>
+		<ul><!-- 
+			<li title="порядковый номер позиции в заказе">Позиция № 1</li> -->
 			<li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span>Каталог</li>
 			<li id="status_art_z"><div>Статус <span>В работе</span></div></li>
 		</ul>
@@ -117,7 +117,7 @@ $(document).ready(function() {
 										<div class="cell">
 											<div class="table">
 												<div class="row">
-													<div class="cell"><a target="_blank" href="<?php echo identify_supplier_href($articul['art']);  ?>">Артикул</a></div>
+													<div class="cell"><a target="_blank" href="<?php echo identify_supplier_href($articul['art']);  ?>">Артикул</a> <?=$link_of_the_site;?></div>
 													<div class="cell"><?php echo $articul['art']; ?></div>
 												</div>
 												<div class="row">
@@ -148,7 +148,7 @@ $(document).ready(function() {
 												</div>
 												<div class="row">
 													<div class="cell">вид нанесения</div>
-													<div class="cell"><?php echo $art_get_print_mode; ?></div>
+													<div class="cell"><?php echo $print_names; ?></div>
 												</div>
 											</div>
 										</div>
@@ -210,9 +210,9 @@ $(document).ready(function() {
 										<li id="show_archive">
 											<?php
 												if(isset($_GET['show_archive'])){
-													echo '<a data-true="1" href="'.str_replace('&show_archive', '', $_SERVER['REQUEST_URI']).'">Скрыть архив</a>';
+													echo '<a data-true="1" href="'.str_replace('&show_archive', '', $_SERVER['REQUEST_URI']).'">Скрыть отказанные</a>';
 												}else{
-													echo '<a data-true="0" href="'.$_SERVER['REQUEST_URI'].'&show_archive">Показать архив </a>';
+													echo '<a data-true="0" href="'.$_SERVER['REQUEST_URI'].'&show_archive">Показать отказанные</a>';
 
 												}
 											?>	

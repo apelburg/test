@@ -1,5 +1,4 @@
 <?php
-
 // удалить insert_copied_rows_old
     class RT{
 	    //public $val = NULL;

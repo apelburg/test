@@ -1,3 +1,4 @@
+// выбор группы вариантов по статусам
 $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) {
 	$('.variant_name').removeClass('checked');
 	$(this).addClass('checked');
@@ -18,17 +19,14 @@ $(document).on('click', '#all_variants_menu_pol .variant_name', function(event) 
 // клик по первому варианту при загрузке страницы
 $(document).ready(function() {
 	var obj = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id') + ' .show_table tr:nth-of-type(2) td:nth-of-type(2)');
-
 	obj.click();
-	$('#inform_for_variant_number').html(obj.html());
+	// $('#inform_for_variant_number').html(obj.html());
 });
 
 // клик по варианту расчёта
 $(document).on('click', '#variant_of_snab table.show_table tr td', function(event) {
 	// скрываем все блоки с расширенной информацие о варианте
 	$('.variant_info').css({'display':'none'});
-	
-
 
 	// выделяем выбранный вариант
 	$(this).parent().parent().find('.checked').removeClass('checked');
@@ -43,10 +41,10 @@ $(document).on('click', '#variant_of_snab table.show_table tr td', function(even
 	$('#variant_info_'+id_row).css({'display':'block'});
 
 	// трасляция подробной информации в правом верхнем углу экрана, отмечаем id строки dop_data в хар-ках изделия
-	$('#inform_for_variant').html($('#variant_info_'+id_row+ ' .table.inform_for_variant').parent().html()).attr('data-id',id_row);
+	//$('#inform_for_variant').html($('#variant_info_'+id_row+ ' .table.inform_for_variant').parent().html()).attr('data-id',id_row);
 
 	// пишем номер варианта в хар-ках изделия
-	$('#inform_for_variant_number').html($(this).parent().find('td').eq(1).html());
+	//$('#inform_for_variant_number').html($(this).parent().find('td').eq(1).html());
 
 });
 
@@ -772,7 +770,7 @@ jQuery(document).ready(function($) {
 
 
 // редактирование полей описания варианта
-$(document).on('keyup', '#inform_for_variant .inform_for_variant .cell', function(event) {
+$(document).on('keyup', '.inform_for_variant .cell', function(event) {
 	// save_no_cat_json($(this).parent().parent().parent())
 	timing_save_no_cat_json('save_no_cat_json',$(this).parent().parent().parent())
 	
@@ -791,7 +789,7 @@ function save_no_cat_json(obj){
 	// var type = $(this).attr('data-type');
 	var dop_data_id = obj.attr('data-id');
 	// копируем отредактированную таблицу в скрытую область html
-	$('#variant_info_'+dop_data_id+' .inform_for_variant').html(obj.find('.inform_for_variant').html())
+	//$('#variant_info_'+dop_data_id+' .inform_for_variant').html(obj.find('.inform_for_variant').html())
 
 
 	$.post('', {
@@ -873,15 +871,12 @@ $(document).on('click', '.status_art_right_class', function(event) {
 	$.post('', {
 		AJAX: 'change_status_gl',
 		variants_arr: get_activ_tbl_variants_id(),
-		new_status:new_status
+		new_status:new_status,
+		old_status:$('#all_variants_menu_pol li.checked').attr('data-status'),
+		query_id:$('#info_string_on_query').attr('data-id'),
+
 	}, function(data, textStatus, xhr) {
-		// В ВЕРСИИ 1.1 будем вносить правки в html в соответствии с ответом от сервера
-		// сейчас при получении ответа - просто перегружаем страницу яваскриптом
-		if(data['response']=='OK'){
-			location.reload();
-		}else{
-			alert('что-то пошло не так');
-		}
+		standard_response_handler(data);	
 	},'json');
 });
 
