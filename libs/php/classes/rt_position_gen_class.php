@@ -173,9 +173,22 @@ class Position_general_Class{
 			echo '{"response":"OK" , "name":"save_empty_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';
 		}else{
 			echo '{"response":"OK" , "name":"save_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';	
-		}
-		
+		}		
 	}
+
+	// редактирование темы в запросе
+	private function save_query_theme_AJAX(){
+		global $mysqli;
+		$query = "UPDATE `".RT_LIST."` SET";
+		$query .= " `theme` = '".$_POST['value']."'";
+		$query .= " WHERE id='".(int)$_POST['row_id']."'";
+		$result = $mysqli->query($query) or die($mysqli->error);
+
+		echo '{"response":"OK"}';
+		// echo '{"response":"show_new_window","html":"'.base64_encode($query).'"}';	
+	}
+
+
 	// добавить доп услугу для варианта
 	public function add_new_usluga_AJAX(){
 		$id_uslugi = $_POST['id_uslugi'];
@@ -249,7 +262,7 @@ class Position_general_Class{
 				$html = $this->POSITION_NO_CATALOG->uslugi_template_Html($NEW_usl, $flag);
 				break;
 		}
-		echo '{"response":"close_window","name":"add_uslugu'.$dop.'","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
+		echo '{"response":"close_window","function":"window_reload","name":"add_uslugu'.$dop.'","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
 	}
 
 	// сохранение информации по резерву

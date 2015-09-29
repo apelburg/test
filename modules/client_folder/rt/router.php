@@ -9,7 +9,8 @@
 	save_way_back(array('page=client_folder','section=rt_position','section=agreement_editor','section=agreements','section=business_offers','section=planner'),'?page=cabinet&client_id='.$client_id);
 	$quick_button_back = get_link_back();
 	
-	
+	include ROOT.'/libs/php/classes/rt_position_no_catalog_class.php';
+	$Position_no_catalog = new Position_no_catalog;
 	include ROOT.'/libs/php/classes/rt_class.php';
 	new RT;
 

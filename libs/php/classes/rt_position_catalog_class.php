@@ -132,6 +132,9 @@ class Position_catalog{
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
 	}
+
+
+
 	private function size_in_var_all_AJAX(){
 		global $mysqli;
 		// echo "<pre>";
@@ -216,6 +219,71 @@ class Position_catalog{
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		exit;
+	}
+
+
+	/**
+	 *	Преобразует массив содержащий id услуг нанесения прикреплённых к артикулу 
+	 *	в массив названий этих нанесений
+	 *
+	 *	@param 	 object get_print_mode
+	 *	@return  array()	
+	 *	@author  Алексей	
+	 *	@version 11:00 28.09.2015  OBSOLETE
+	 */
+	public function get_print_names_array(){
+		$name_ru_arr = array();
+
+		// получаем id нанесений
+		if(isset($this->get_print_mode) && !empty($this->get_print_mode)){
+			$n = 0; $id = '';
+			foreach ($this->get_print_mode as $key => $value) {
+				$id .= (($n>0)?",":"")."'".$value."'";
+				$n++;
+			}
+			// делаем запрос по этим нанесениям
+			global $mysqli;
+			$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id.")";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name_ru_arr[] = $row['name'];
+				}
+			}
+		}		
+		return $name_ru_arr;
+	}
+
+	/**
+	 *	Преобразует массив содержащий id услуг нанесения прикреплённых к артикулу 
+	 *	в строку названий этих нанесений
+	 *
+	 *	@param 	 object get_print_mode
+	 *	@return  string	
+	 *	@author  Алексей	
+	 *	@version 11:00 28.09.2015
+	 */
+	public function get_print_names_string(){
+		$name_ru_arr = '';
+		// получаем id нанесений
+		if(isset($this->get_print_mode) && !empty($this->get_print_mode)){
+			$n = 0; $id = '';
+			foreach ($this->get_print_mode as $key => $value) {
+				$id .= (($n>0)?", ":"")."'".$value."'";
+				$n++;
+			}
+			// делаем запрос по этим нанесениям
+			global $mysqli;
+			$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id.")";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name_ru_arr .= '<span>'.$row['name'].'</span>';
+					$n++;
+				}
+			}
+		}		
+		return '<div id="attaching_names_of_print_types">'.$name_ru_arr.'</div>';
 	}
 
 	// копируем услуги варианта
@@ -509,10 +577,10 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 					$html .= '<tr class="calculate calculate_usl " data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$service['id'].'" data-our_uslugi_parent_id="'.trim($service['parent_id']).'"  data-for_how="'.trim($service['for_how']).'">
 										<td><div class="'.$calc_class.'">'.$service['name'].' '.$dop_inf.' <br> '.$calc_info.'</div></td>
-										<td class="row_tirage_in_gen uslugi_class price_in"><span '.(($service['edit_pr_in'] == '1')?$this->edit_admin.$this->edit_snab.$this->edit_men:'').'>'.$this->round_money($price_in).'</span> р.</td>
-										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$this->edit_admin.$this->edit_snab.$this->edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
-										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$this->edit_admin.$this->edit_men.'>'.$this->round_money($price_out_men).'</span> р.</td>
-										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span> р.</td>
+										<td class="row_tirage_in_gen uslugi_class price_in"><span '.(($service['edit_pr_in'] == '1')?$this->edit_admin.$this->edit_snab.$this->edit_men:'').'>'.$this->round_money($price_in).'</span></td>
+										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$this->edit_admin.$this->edit_snab.$this->edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span></td>
+										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$this->edit_admin.$this->edit_men.'>'.$this->round_money($price_out_men).'</span></td>
+										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span></td>
 										<td class="usl_tz">'.$buttons_tz.'<span class="tz_text">'.base64_decode($value2['tz']).'</span><span class="tz_text_shablon">'.$service['tz'].'</span></td>';
 
 					$html .= ($this->user_id == $value2['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';

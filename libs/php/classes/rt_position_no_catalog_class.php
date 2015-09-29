@@ -41,7 +41,12 @@ class Position_no_catalog{
 	public $status_snab = array(
 
 		'on_calculation' => array( //на расчёт мен
-			'name' => 'В работе менеджер',
+			'name' => array(
+				1 => 'В работе менеджер',				
+				5 => 'В работе менеджер',
+				8 => 'Обрабатывается менеджером'
+				),
+
 			'buttons' =>  array( // кнопки для данного статуса
 				'on_calculation_snab' => array(// статус позиции или даже запроса
 					'name' => 'Запросить расчёт',
@@ -52,8 +57,12 @@ class Position_no_catalog{
 			),
 
 
-		'on_calculation_snab' => array( 
-			'name' => 'Запрошен расчёт', // в снабжение
+		'on_calculation_snab' => array( // в снабжение
+			'name' => array(
+				1 => 'Отправлено в СНАБ',				
+				5 => 'Отправлено в СНАБ',
+				8 => 'Запрошен расчёт'
+				),
 			'buttons' =>  array( // кнопки для данного статуса
 				'in_calculation' => array(		
 					'name' => 'Принять в работу',
@@ -69,7 +78,77 @@ class Position_no_catalog{
 			),
 
 		'on_recalculation_snab' => array(
-			'name' => 'На перерасчёт',
+			'name' => array(
+				1 => 'Отправлено на перерасчёт',				
+				5 => 'Отправлено на перерасчёт',
+				8 => 'На перерасчёт'
+				),
+			'buttons' =>  array( // кнопки для данного статуса
+				'in_calculation' => array(		
+					'name' => 'Принять в работу',
+					'class' => 'status_art_right_class',// класс кнопки для смены статуса
+					'access' => '8'
+					),
+				'tz_is_not_correct_on_recalculation' => array( // статус снабжения по позиции
+					'name' => 'ТЗ не корректно',
+					'class' => 'status_art_right_class',// класс кнопки для смены статуса
+					'access' => '8'
+					)
+				)
+			),
+
+		'tz_is_not_correct_on_recalculation' => array(
+			// 'name' => 'ТЗ исправлено',
+			'name' => array(
+				1 => 'ТЗ не корректно',				
+				5 => 'ТЗ не корректно',
+				8 => 'ТЗ не корректно'
+				),
+			'buttons' =>  array( // кнопки для данного статуса
+				// 'in_calculation' => array(		
+				// 	'name' => 'Принять в работу',
+				// 	'class' => 'status_art_right_class',// класс кнопки для смены статуса
+				// 	'access' => '8'
+				// 	),
+				// 'tz_is_not_correct' => array( // статус снабжения по позиции
+				// 	'name' => 'ТЗ не корректно',
+				// 	'class' => 'status_art_right_class',// класс кнопки для смены статуса
+				// 	'access' => '8'
+				// 	),
+				'tz_is_correct_on_recalculation' => array( // статус снабжения по позиции
+					'name' => 'ТЗ исправлено',
+					'class' => 'status_art_right_class',// класс кнопки для смены статуса
+					'access' => '5'
+					)
+				)
+			),
+		'tz_is_correct_on_recalculation' => array(
+			// 'name' => 'ТЗ исправлено',
+			'name' => array(
+				1 => 'ТЗ исправлено',				
+				5 => 'ТЗ исправлено',
+				8 => 'ТЗ исправлено'
+				),
+			'buttons' =>  array( // кнопки для данного статуса
+				'in_calculation' => array(		
+					'name' => 'Принять в работу',
+					'class' => 'status_art_right_class',// класс кнопки для смены статуса
+					'access' => '8'
+					),
+				'tz_is_not_correct' => array( // статус снабжения по позиции
+					'name' => 'ТЗ не корректно',
+					'class' => 'status_art_right_class',// класс кнопки для смены статуса
+					'access' => '8'
+					)
+				)
+			),
+
+		'tz_is_correct' => array(
+			'name' => array(
+				1 => 'ТЗ исправлено',				
+				5 => 'ТЗ исправлено',
+				8 => 'ТЗ исправлено'
+				),
 			'buttons' =>  array( // кнопки для данного статуса
 				'in_calculation' => array(		
 					'name' => 'Принять в работу',
@@ -85,10 +164,15 @@ class Position_no_catalog{
 			),
 
 		'tz_is_not_correct' => array( // статус снабжения по позиции
-			'name' => 'ТЗ не корректно',
+			// 'name' => 'ТЗ не корректно',
+			'name' => array(
+				1 => 'ТЗ не корректно',				
+				5 => 'ТЗ не корректно',
+				8 => 'ТЗ не корректно'
+				),
 			'buttons' =>  array( // кнопки для данного статуса
-				'on_recalculation_snab' => array( // 
-					'name' => 'Запросить расчёт',
+				'tz_is_correct' => array( // 
+					'name' => 'ТЗ исправлено',
 					'class' => 'status_art_right_class',// класс кнопки для смены статуса
 					'access' => '5'
 					)
@@ -96,7 +180,11 @@ class Position_no_catalog{
 			
 			),
 		'in_calculation' => array(
-			'name' => 'В расчёте снабжение',
+			'name' => array(
+				1 => 'В расчёте снабжение',				
+				5 => 'В расчёте снабжение',
+				8 => 'В расчёте снабжение'
+				),
 			'buttons' =>  array( // кнопки для данного статуса
 				'calculate_is_ready' => array(
 					'name' => 'Расчёт готов',
@@ -111,11 +199,36 @@ class Position_no_catalog{
 				)
 			),
 
+		'edit_and_query_the_recalculate' =>array(
+			'name' => array(
+				1 => 'Изменение ТЗ для перерасчёта',				
+				5 => 'Изменение ТЗ для перерасчёта',
+				8 => 'Изменение ТЗ для перерасчёта'
+				),
+			'buttons' =>  array(
+				'on_recalculation_snab' => array( // статус снабжения по позиции
+					'name' => 'Отправить в СНАБ на перерасчёт',
+					'class' => 'status_art_right_class',// класс кнопки для смены статуса
+					'access' => '5'
+					)
+				)
+			),
+
 		'calculate_is_ready' => array(
-			'name' => 'Расчёт от снабжения',
+			'name' => array(
+				1 => 'Рассчитано снабжением',				
+				5 => 'Рассчитано снабжением',
+				8 => 'Расчёт готов'
+				),
 			'buttons' =>  array( // кнопки для данного статуса
-				'on_recalculation_snab' => array( // 
-					'name' => 'Запросить перерасчёт',
+				// 'on_recalculation_snab' => array( // 
+				// 	'name' => 'Запросить перерасчёт',
+				// 	'access' => '5'
+				// 	)
+				// )
+				'edit_and_query_the_recalculate' => array( // статус снабжения по позиции
+					'name' => 'Перерасчёт',
+					'class' => 'status_art_right_class',// класс кнопки для смены статуса
 					'access' => '5'
 					)
 				)
@@ -138,6 +251,11 @@ class Position_no_catalog{
 		if(isset($_GET['AJAX'])){
 			$this->_AJAX_();
 		}
+
+		// echo '<pre>';
+		// print_r($this->user_access);
+		// echo '</pre>';
+			
 	}
 
 
@@ -155,6 +273,7 @@ class Position_no_catalog{
 	/////////////////  AJAX METHODs  ///////////////// 
 	
 	private function change_status_gl_AJAX(){
+
 		// меняем статус для группы вариантов
 		$this->change_status_gl_Database();
 	}
@@ -223,8 +342,9 @@ class Position_no_catalog{
 		$html .= '<input type="hidden" name="suppliers_id" value="">';
 		$html .= '<input type="hidden" name="suppliers_name" value="">';
 		$html .= '</form>';
-		echo $html;
-		exit;	
+		// echo $html;
+		echo '{"response":"show_new_window","title":"Выберите поставщика","height":"800","html":"'.base64_encode($html).'"}';
+		// exit;	
 	}
 
 	private function change_supliers_info_dop_data_AJAX(){
@@ -275,10 +395,12 @@ class Position_no_catalog{
 
 
 	// имя вкладки вариантов
-	private function get_name_group($status_snab){
+	public function get_name_group($status_snab){
+		// $this->status_snab[$status_snab]['name'][$_SESSION['access']['access']];
+			
 		// получаем имя вкладки
-			if(isset($this->status_snab[$status_snab])){				
-				$name_group = $this->status_snab[$status_snab]['name'];				
+			if(isset($this->status_snab[$status_snab]['name'][$_SESSION['access']['access']])){				
+				$name_group = $this->status_snab[$status_snab]['name'][$_SESSION['access']['access']];				
 			}else{
 
 				// ТАКЖЕ СУЩЕСТВУЮТ ЕЩЕ ВАРИАНТЫ ПОСТАВЛЕННЫЕ НА ПАУЗУ _pause
@@ -294,48 +416,100 @@ class Position_no_catalog{
 	}
 
 
+	private function get_info_for_this_position_Databse($id){
+		global $mysqli;
+		$query = "SELECT * FROM `".RT_MAIN_ROWS."`";
+		$query .= " WHERE `id` = '".$id."';";
+
+		$position = array();
+		// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$position = $row;				
+			}
+		}
+		return $position;
+	}
+
+
+	private function tz_is_not_correct_comments_Template($text){
+		$html = '<div class="warning_message">';
+			$html .= '<div>';	
+				$html .= 'ТЗ не корректно:';
+			$html .= '</div>';
+			$html .= '<div>';	
+				$html .= $text;
+			$html .= '</div>';
+		$html .= '</div>';
+		return $html;
+	}
+
 	// выводит все варианты по группам, 
 	// по сути является главной функцией вывода основного контента
-	public function get_all_on_calculation_Html($type_product){
+	public function get_all_on_calculation_Html($type_product)
+	{	
+
+		$variants_group_menu_Html = '';
 		//сохраняем тип продукта
 		$this->type_product = $type_product;
 	// !!!!!!!!!!!!!!!!!!!!!!!!!
 	// **
+
+		// получаем информацию по позициии
+		$this->position = $this->get_info_for_this_position_Databse((int)$_GET['id']);
+		if(trim($this->position['tz_is_not_correct_comments']) != ''){
+			$variants_group_menu_Html .= $this->tz_is_not_correct_comments_Template(base64_decode($this->position['tz_is_not_correct_comments']));
+		}
+		// получаем варинты
 		$variants_array = $this->get_all_variants_Database_Array();
+
 		$variants_array_GROUP_status_snab = $this->get_all_variants_Group_Database_Array();
 		
-		$variants_group_menu_Html = '<div id="variants_name"><ul id="all_variants_menu_pol">';
+		$variants_group_menu_Html .= '<div id="variants_name">';
+			$variants_group_menu_Html .= '<ul id="all_variants_menu_pol">';
 
-		$html = '<div id="variant_of_snab">';
+			$html = '<div id="variant_of_snab">';
 
-		### перебираем все статусы снабжения
-		foreach ($variants_array_GROUP_status_snab as $key => $value) {
+			### перебираем все статусы снабжения
+			foreach ($variants_array_GROUP_status_snab as $key => $this->variant) {
 
-			# групируем по статусу в разные вкладки
-			// ПОЛУЧАЕМ ИМЯ ВКЛАДКИ
-			$name_group = $this->get_name_group($value['status_snab']);
+				# групируем по статусу в разные вкладки
+				// ПОЛУЧАЕМ ИМЯ ВКЛАДКИ
+				$name_group = $this->get_name_group($this->variant['status_snab']);
 
-			
-			// считаем количество вариантов во вкладке
-			$number_variants = 0;
-			foreach ($variants_array as $key2 => $value2) {
-				if ($value['status_snab']==$value2['status_snab']) {
-					$number_variants++;
+				if(is_array($name_group)){
+					$name_group = $name_group[$this->user_access];
 				}
+				// считаем количество вариантов во вкладке
+				$number_variants = 0;
+				foreach ($variants_array as $key2 => $value2) {
+					if ($this->variant['status_snab']==$value2['status_snab']) {
+						$number_variants++;
+					}
+				}
+
+				// добавляем вкладку в список
+				$variants_group_menu_Html .= '<li data-cont_id="variant_content_table_'.$key.'" class="variant_name '.(($key==0)?'checked':'').'" data-status="'.$this->variant['status_snab'].'">'.$name_group.' ('.$number_variants.')</li>';
+				
+				// шаблон для вкладки "на расчет"
+				$html .= '<div id="variant_content_table_'.$key.'" class="variant_content_table " '.(($key==0)?'style="display:block"':'style="display:none"').'>';
+				
+				// подгружаем таблицу со списком вариантов
+				$html .= $this->get_variants_list_Html($variants_array,$this->variant['status_snab']);	
+				$html .= "</div>";				
 			}
 
-			// добавляем вкладку в список
-			$variants_group_menu_Html .= '<li data-cont_id="variant_content_table_'.$key.'" class="variant_name '.(($key==0)?'checked':'').'" data-status="'.$value['status_snab'].'">'.$name_group.' ('.$number_variants.')</li>';
 			
-			// шаблон для вкладки "на расчет"
-			$html .= '<div id="variant_content_table_'.$key.'" class="variant_content_table" '.(($key==0)?'style="display:block"':'style="display:none"').'>';
-			
-			// подгружаем таблицу со списком вариантов
-			$html .= $this->get_variants_list_Html($variants_array,$value['status_snab']);	
-			$html .= "</div>";				
-		}
 
-		$variants_group_menu_Html .= '</ul></div>';
+			if(isset($_GET['show_archive'])){
+				$variants_group_menu_Html .= '<li id="show_archive"><a data-true="1" href="'.str_replace('&show_archive', '', $_SERVER['REQUEST_URI']).'">Скрыть отказанные</a></li>';
+			}else{
+				$variants_group_menu_Html .= '<li id="show_archive"><a data-true="0" href="'.$_SERVER['REQUEST_URI'].'&show_archive">Показать отказанные </a></li>';
+			}
+			$variants_group_menu_Html .= '</ul>';
+
+		$variants_group_menu_Html .= '</div>';
 		//echo $variants_group_menu_Html;
 		return $variants_group_menu_Html.$html;
 	}
@@ -343,128 +517,198 @@ class Position_no_catalog{
 
 
 	// возвращает таблицу со списком вариантов
-	private function get_variants_list_Html($variants_array,$status_snab){
-		// сохраняем статус 
-		$status_snab_whith_pause = $status_snab;
+	private function get_variants_list_Html($variants_array,$status_snab)
+	{
 
 		// определяем редакторов для полей (html тегов
 		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
 		$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
-		// '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
-
+		
 		$html = '';
 		$extended_info = '';// расширенная информация по каждому варианту
 		$html .= "<table class='show_table'>";
 			$html .= "<tr>
-									<th></th>
-									<th>варианты</th>
-									<th>тираж</th>
-									<th>$ входящая</th>
-									<th>$ МИН исходящая</th>
-									<th>$ исходящая</th>
-									<th>подрядчик</th>
-									<th>макет к</th>
-									<th>срок р/д</th>
-									<th>комментарий снабжения</th>
-								</tr>";
+						<th></th>
+						<th>варианты</th>
+						<th>тираж</th>
+						<th>$ входящая(Руб)</th>
+						<th>$ МИН исходящая(Руб)</th>
+						<th>$ исходящая(Руб)</th>
+						<th>подрядчик</th>
+						<th>макет к</th>
+						<th>срок р/д</th>
+						<th>комментарий снабжения</th>
+					</tr>";
 
-			### выбираем все строки по каждуму статусу снабжения
-			$n = 1;
+		### выбираем все строки по каждуму статусу снабжения
+		$n = 1;
 
-			$status_snab_whith_pause = $status_snab;
+		$status_snab_whith_pause = $status_snab;
 
-			$text_for_send_mail = '';
-			$text_for_send_mail_name_product = '';
-			foreach ($variants_array as $key2 => $value2) {
-				if ($status_snab_whith_pause==$value2['status_snab']) {
-					// наличие паузы ограничивает редактирование для снаба и мена, 
-					// мен может снять паузу
-					$pause = substr_count($value2['status_snab'], '_pause');
+		$text_for_send_mail = '';
+		$text_for_send_mail_name_product = '';
+		foreach ($variants_array as $value2) {
+			if ($status_snab==$value2['status_snab']) {
+				$this->pause = substr_count($value2['status_snab'], '_pause');
+				// если перебираем историю - $edit_true = false
+				$this->is_History = substr_count($value2['status_snab'], 'ё')?true:false;
 
-					// генеральное разрешение.... проверяет не история ли это
-					$edit_true = substr_count($status_snab, 'ё')?false:true;
+				
+				$this->snab_extended_rights_for_manager = $value2['extended_rights_for_manager'];
+				// проверка прав редактирования
+				$this->check_edit_acces($value2['status_snab'],'variant_rows');
+
+				if($this->is_History){// если работаем с HISTORY - получаем услуги из другого места
+					$uslugi = $this->get_uslugi_history_Database_Array($value2['id']);
+				}else{// если работаем НЕ с HISTORY
+					// получаем услуги для данного варианта
+					$uslugi = $this->get_uslugi_Database_Array($value2['id']);
+				}
+
+				// расчёт стоимостей услуг
+				$uslugi_arr = $this->calclate_summ_uslug_arr($uslugi);
 					
-					if($edit_true){// если работаем НЕ с HISTORY			
-						// получаем услуги для данного варианта
-						$uslugi = $this->get_uslugi_Database_Array($value2['id']);
-					}else{// если работаем с HISTORY
-						$uslugi = $this->get_uslugi_history_Database_Array($value2['id']);
-					}
-					// расчёт стоимостей услуг
-					$uslugi_arr = $this->calclate_summ_uslug_arr($uslugi);
+				// получаем реальный статус (буз паузы)
+				$status_snab = ($this->pause)?str_replace('_pause', '', $value2['status_snab']):$value2['status_snab'];
+
+
+				// получаем всю инфу по варианту
+				$this->FORM = new Forms();//для вызова следующего метода нужна информация из сласса форм
 					
-					// получаем реальный статус (буз паузы)
-					$status_snab = ($pause)?str_replace('_pause', '', $value2['status_snab']):$value2['status_snab'];
+				// контент для отправки поставщику
+				$no_cat_json = json_decode($value2['no_cat_json'],true);
+				$text_for_send_mail_name_product = $no_cat_json['naimenovanie'];
+				$text_for_send_mail .= $this->send_mail_for_supplier_Html($value2);
+				
 
 
-					// получаем всю инфу по варианту
-					$this->FORM = new Forms();//для вызова следующего метода нужна информация из сласса форм
-					
-					// контент для отправки поставщику
-					$no_cat_json = json_decode($value2['no_cat_json'],true);
-					$text_for_send_mail_name_product = $no_cat_json['naimenovanie'];
-					$text_for_send_mail .= $this->send_mail_for_supplier_Html($value2);
-					$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id'],$uslugi,$uslugi_arr,$status_snab);
-					
+				// услуги и ТЗ
+				$extended_info .= $this->get_extended_info_for_variant_Html($value2,$value2['id'],$uslugi,$uslugi_arr,$status_snab,$n);
+			
+
+				// проверка прав редактирования для строки варианта
+				if($value2['status_snab'] == 'in_calculation')
+				{
+					$this->edit_snab = ' contenteditable="true" class="edit_span"';
+				}
+
+				if($value2['status_snab'] != 'on_calculation' and // расчёт мен
+					$value2['status_snab'] == 'tz_is_not_correct_on_recalculation' and // тз не корректно перерасчет
+					$value2['status_snab'] == 'tz_is_not_correct' and // тз не корректно расчёт
+					$value2['status_snab'] == 'edit_and_query_the_recalculate') // мен редактирует тз перед отправкой на перерасчёт
+				{					
+					$this->edit_men = ' contenteditable="true" class="edit_span"';
+				}
+				if($this->pause){
+					$this->edit_snab = '';
+					$this->edit_men = '';
+				}
+				if($this->is_History){
+					$this->edit_snab = '';
+					$this->edit_men = '';
+					$this->edit_admin = '';
+				}
 
 
-					// если работает снаб, ограничиваем права мена и наоборот
-					if($value2['status_snab']=='in_calculation' || $value2['status_snab']=='in_recalculation'){
-						$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
-						$this->edit_men = '';						
-					}else{
-						$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
-						$this->edit_snab = '';						
-					}
-
-					// обнуляем все права при $edit_true == false
-					if($edit_true == false){
-						$this->edit_men = '';
-						$this->edit_snab = '';
-						$this->edit_admin = '';
-						$pause = 1;
-					}
-
-
-					$html .= "<tr data-id='".$value2['id']."'>
-							<td><span class='traffic_lights_".(($value2['row_status']!='')?$value2['row_status']:'green')."'><span></span></span></td>
-							<td>".$n."</td>
-							<td><span>".$value2['quantity']."</span> шт</td>
-							<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span> р</td>
-							<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span> р</td>
-							<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span> р</td>
-							<td ".(( ($this->edit_snab!='' && $pause==0) || $this->edit_admin!='')?"class='change_supplier'":"")." data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
-							<td ".((($this->edit_snab!='' && $pause==0) || $this->edit_admin!='')?"class='chenge_maket_date'><input type='text' name='maket_date' value='".$value2['maket_date']."'>":">".$value2['maket_date'])."</td>
-							<td ><div ".((($this->edit_snab!='' && $pause==0) || $this->edit_admin!='')?"class='change_srok'":"")." ".$this->edit_snab.$this->edit_admin.">".$value2['work_days']."</div></td>";
+				$html .= "<tr data-id='".$value2['id']."' class='".((!isset($_GET['show_archive']) && $value2['row_status'] == 'red')?'hidden_archive_variants':'')."'>
+						<td><span class='traffic_lights_".(($value2['row_status']!='')?$value2['row_status']:'green')."'><span></span></span></td>
+						<td>".$n."</td>
+						<td><span>".$value2['quantity']."</span> шт</td>
+						<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span></td>
+						<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span></td>
+						<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span></td>
+						<td ".(($this->aditable_acccess(array(1,8))!='')?"class='change_supplier'":"")." data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
+						<td ".(($this->aditable_acccess(array(1,8))!='')?"class='chenge_maket_date'><input type='text' name='maket_date' value='".$value2['maket_date']."'>":">".$value2['maket_date'])."</td>
+						<td ><div ".(($this->aditable_acccess(array(1,8))!='')?"class='change_srok'":"")." ".$this->edit_snab.$this->edit_admin.">".$value2['work_days']."</div></td>";
 				
 				//$html .= ($this->user_access == 1 || $this->user_access == 8 || $value2['extended_rights_for_manager']==1)?"	<td><input type='text' value='".$value2['snab_comment']."'></td>
 				
-				$html .= ($this->user_access == 1 && $edit_true || $this->edit_snab!='' && $pause==0 || ($this->user_access == 5 && $value2['extended_rights_for_manager']==1 && $pause==0))?"	<td><div contenteditable='true' class='edit_snab_comment'> ".$value2['snab_comment']."</div></td>
+				$html .= ($this->aditable_acccess(array(1,8))!='')?"<td><div contenteditable='true' class='edit_snab_comment'> ".$value2['snab_comment']."</div></td>
 						":"<td>".$value2['snab_comment']."</td>";
 				$html .= "</tr>";
-				
+					
 				$n++;	
-				}
 			}
+		}
 			
-			$html .= "</table>";
-			// получаем набор кнопок управления данной вкладкой
-			$buttons_option = $this->get_top_funcional_byttun_for_user_Html($status_snab_whith_pause,$pause);
+		$html .= "</table>";
+		// получаем набор кнопок управления данной вкладкой
+		$buttons_option = $this->get_top_funcional_byttun_for_user_Html($status_snab_whith_pause);
 			
 
-			// составляем конечный текст письма
-			// оборачиваем text_for_send_mail в div
-			$text_for_send_mail = '<div class="text_for_send_mail">
-			Вариантов: '.$n.'<br>
-			Наименование товара: '.$text_for_send_mail_name_product.' 
-			'.$text_for_send_mail.'</div>';
+		// составляем конечный текст письма
+		// оборачиваем text_for_send_mail в div
+		$text_for_send_mail = '<div class="text_for_send_mail">
+		Вариантов: '.$n.'<br>
+		Наименование товара: '.$text_for_send_mail_name_product.' 
+		'.$text_for_send_mail.'</div>';
 
 
-			// составляем конечный html
-			$html = $html.$buttons_option.$text_for_send_mail.$extended_info;// прикрепляем расшириную инфу
+		// составляем конечный html
+		$html = $html.$buttons_option.$text_for_send_mail.$extended_info;// прикрепляем расшириную инфу
 			
 		return $html;			
+	}
+
+	private function check_edit_acces($status, $stage){
+		switch ($stage) {
+			case 'variant_rows':
+				// наличие паузы ограничивает редактирование для снаба и мена, 
+				
+				// если работает снаб, ограничиваем права мена и наоборот
+				if($status != 'on_calculation' and
+					$status != 'on_recalculation_snab' and
+					$status != 'tz_is_not_correct_on_recalculation' and
+					$status != 'tz_is_not_correct' and
+					$status != 'calculate_is_ready' and
+					$status != 'edit_and_query_the_recalculate'){
+					
+					$this->edit_snab = ' contenteditable="true" class="edit_span"';
+					
+					// если снаб переложил свои права на мена
+					//if($this->snab_extended_rights_for_manager==1){
+					//	$this->edit_men = $this->edit_snab;	
+					//}else{
+						$this->edit_men = '';
+				//	}					
+					
+				}else{
+					$this->edit_snab = '';
+					$this->edit_men = ' contenteditable="true" class="edit_span"';
+				}
+
+				$this->edit_admin = ' contenteditable="true" class="edit_span"';
+				// случается при паузе
+				if($this->is_History == true ){
+					$this->edit_men = '';
+					$this->edit_snab = '';
+					$this->edit_admin = '';
+				}
+
+				switch ($this->user_access) {
+					case 1:
+						$this->user_access_edit = $this->edit_admin;
+						break;
+					case 5:
+						$this->user_access_edit = $this->edit_men;
+						break;
+					case 8:
+						$this->user_access_edit = $this->edit_snab;
+						break;
+
+					default:
+						$this->user_access_edit = '';
+						break;
+				}
+				
+
+				break;
+			
+			default:
+				# code...
+				break;
+		}
 	}
 
 
@@ -473,7 +717,7 @@ class Position_no_catalog{
 		// пауза 
 		$html = '<div class="hidden_top_buttons">';
 		$pause_buttons = '';
-		if(!substr_count($status_snab, '_pause')){
+		if(!$this->pause){
 			if(!substr_count($status_snab, 'Расчёт от снабжения')){
 				if(($this->user_access == 1 || $this->user_access == 5) && ($status_snab == 'in_calculation' || $status_snab == 'on_recalculation_snab')){
 					$pause_buttons = '<li class="buttons_top_1 status_art_right_class_pause" data-send_status="1"><div><span>Поставить на паузу</span></div></li>';
@@ -501,7 +745,7 @@ class Position_no_catalog{
 		return $html;
 	}
 
-	// метод смены даты подач макета
+	// метод смены даты подачи макета
 	public function change_maket_date_Database(){
 		global $mysqli;
 		$query ="UPDATE `".RT_DOP_DATA."` SET
@@ -523,7 +767,7 @@ class Position_no_catalog{
 		             ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		
-		echo '{"response":"OK","name":"chose_supplier_end"}';
+		echo '{"response":"OK","name":"chose_supplier_end","function":"chose_supplier_end"}';
 	}
 
 	// форматируем денежный формат + округляем
@@ -573,48 +817,43 @@ class Position_no_catalog{
 
 
 	// возвращает расшириную информацию по варианту в Html
-	private function get_extended_info_for_variant_Html($arr,$id,$uslugi,$uslugi_arr,$status_snab){
+	private function get_extended_info_for_variant_Html($arr,$id,$uslugi,$uslugi_arr,$status_snab,$number_pos){
 		
 		// $arr - содержит всю информацию по данному варианту
-		// $id - порядковый номер варианта от 0 (нуля)
+		// $id - 
 		// $uslugi -  список услуг для данного варианта
 		// $uslugi_arr -  расчёт стоимостей услуг
 		// $status_snab -  статус снабжения
+		// $number_pos - порядковый номер варианта от 0 (нуля)
 
 
-		// если в статусе снабжения присутствует добавленное окончание _pause,
-		// все варианты во вкладке поставлены на паузу
-		$pause = substr_count($status_snab, '_pause');
-
-		// определяем редакторов для полей (html тегов)
-
-		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
-		// '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
-
-		// если работает снаб, ограничиваем права мена и наоборот
-		if($status_snab=='in_calculation' || $status_snab=='in_recalculation'){
-			$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
-			$this->edit_men = '';						
+		
+		if($status_snab == 'in_calculation')
+		{
+			$this->edit_snab = ' contenteditable="true" class="edit_span"';
 		}else{
-			$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
-			$this->edit_snab = '';						
-		}
-
-		// ограничиваем редактирование на паузе
-		if($pause){$this->edit_men = '';$this->edit_snab = '';}
-
-		// генеральное разрешение.... проверяет не история ли это
-		$edit_true = substr_count($status_snab, 'ё')?false:true;
-		// обнуляем все права при $edit_true == false
-		if($edit_true == false){
-			$this->edit_men = '';
 			$this->edit_snab = '';
-			$this->edit_admin = '';
-			$pause = 1;
 		}
-
+		if($status_snab == 'on_calculation' || // расчёт мен
+			$status_snab == 'calculate_is_ready' || // 
+			$status_snab == 'tz_is_not_correct_on_recalculation' || // тз не корректно перерасчет
+			$status_snab == 'tz_is_not_correct' || // тз не корректно расчёт
+			$status_snab == 'edit_and_query_the_recalculate') // мен редактирует тз перед отправкой на перерасчёт
+		{					
+			$this->edit_men = ' contenteditable="true" class="edit_span"';
+		}else{
+			$this->edit_men = '';
+		}
+		if($this->pause){
+			$this->edit_snab = '';
+			$this->edit_men = '';
+		}
+		if($this->is_History){
+			$this->edit_snab = '';
+			$this->edit_men = '';
+			$this->edit_admin = '';
+		}
+		
 
 
 
@@ -633,25 +872,25 @@ class Position_no_catalog{
 		$html .= '<table><tr><td  style="vertical-align: baseline;">';
 		$html .= '<table class="calkulate_table" data-save_enabled="">
 									<tbody><tr>
-										<th>Стоимость товара</th>
-										<th>$ вход.</th>
+										<th style="width: 316px;">Стоимость товара (Руб)</th>
+										<th>$ вход.(Руб)</th>
 										<th>%</th>
-										<th>$ МИН исход.</th>
-										<th>$ исход.</th>
-										<th>прибыль</th>
+										<th>$ МИН исход.(Руб)</th>
+										<th>$ исход.(Руб)</th>
+										<th>прибыль (Руб)</th>
 										<th class="edit_cell">ТЗ</th>
 										<th class="del_cell">del</th>
 									</tr>
 									<tr class="tirage_and_price_for_one" data-dop_data_id="'.$arr['id'].'">
 										<td>1 шт.</td>
-										<td class="row_tirage_in_one price_in"><span '.$this->edit_admin.$this->edit_snab.'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_in']/$arr['quantity']):0).'</span> р.</td>
+										<td class="row_tirage_in_one price_in"><span '.$this->aditable_acccess(array(1,8)).'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_in']/$arr['quantity']):0).'</span></td>
 										<td rowspan="2" class="percent_nacenki">
-											<span '.$this->edit_admin.$this->edit_snab.$this->edit_men.'>'.$percent.'</span>%
+											<span '.$this->aditable_acccess(array(1,8,5)).'>'.$percent.'</span>
 
 										</td>
-										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$this->edit_admin.$this->edit_snab.'>'.(($arr['quantity']!=0)?$this->round_money(($arr['price_out_snab']/$arr['quantity'])):0).'</span> р.</td>
-										<td class="row_price_out_one price_out_men"><span '.$this->edit_admin.$this->edit_men.'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_out']/$arr['quantity']):0).'</span> р.</td>
-										<td class="row_pribl_out_one pribl"><span>'.(($arr['quantity']!=0)?$this->round_money(($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])):0).'</span> р.</td>
+										<td class="row_price_out_one price_out_snab" style="color:red"><span '.$this->aditable_acccess(array(1,8)).'>'.(($arr['quantity']!=0)?$this->round_money(($arr['price_out_snab']/$arr['quantity'])):0).'</span></td>
+										<td class="row_price_out_one price_out_men"><span '.$this->aditable_acccess(array(1,5)).'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_out']/$arr['quantity']):0).'</span></td>
+										<td class="row_pribl_out_one pribl"><span>'.(($arr['quantity']!=0)?$this->round_money(($arr['price_out']/$arr['quantity'])-($arr['price_in']/$arr['quantity'])):0).'</span></td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
@@ -659,70 +898,99 @@ class Position_no_catalog{
 									</tr>
 									<tr class="tirage_and_price_for_all for_all" data-dop_data_id="'.$arr['id'].'">
 										<td>тираж</td>
-										<td class="row_tirage_in_gen price_in tir"><span '.$this->edit_admin.$this->edit_snab.'>'.$arr['price_in'].'</span> р.</td>
-										<td class="row_price_out_gen price_out_snab tirage" style="color:red"><span  '.$this->edit_admin.$this->edit_snab.'>'.$arr['price_out_snab'].'</span> р.</td>
-										<td class="row_price_out_gen price_out_men tirage"><span  '.$this->edit_admin.$this->edit_men.'>'.$arr['price_out'].'</span> р.</td>
-										<td class="row_pribl_out_gen pribl"><span>'.$this->round_money($arr['price_out']-$arr['price_in']).'</span> р.</td>
+										<td class="row_tirage_in_gen price_in tir"><span '.$this->aditable_acccess(array(1,8)).'>'.$arr['price_in'].'</span></td>
+										<td class="row_price_out_gen price_out_snab tirage" style="color:red"><span  '.$this->aditable_acccess(array(1,8)).'>'.$arr['price_out_snab'].'</span></td>
+										<td class="row_price_out_gen price_out_men tirage"><span  '.$this->aditable_acccess(array(1,5)).'>'.$arr['price_out'].'</span></td>
+										<td class="row_pribl_out_gen pribl"><span>'.$this->round_money($arr['price_out']-$arr['price_in']).'</span></td>
 										
 									</tr>
 									
-									'.$this->uslugi_template_Html($uslugi,0,$status_snab,$pause,$edit_true).'
+									'.$this->uslugi_template_Html($uslugi,0,$status_snab,$this->pause,$this->is_History).'
 
 									<tr>
-										<th colspan="8" class="type_row_calc_tbl">'.(($pause==0 || $this->user_access == 1 && $edit_true)?'<div class="add_usl">Добавить ещё услуги</div>':'').'</th>
+										<th colspan="8" class="type_row_calc_tbl">'.(($this->aditable_acccess(array(1,5,8)) !='' && !$this->is_History)?'<div class="add_usl">Добавить ещё услуги</div>':'').'</th>
 									</tr>
 									<tr>
 										<td colspan="8" class="table_spacer"> </td>
 									</tr>
 									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
-										<td><span>'.($uslugi_arr['summ_price_in']+$arr['price_in']).'</span> р.</td>
-										<td><span>'.$this->round_money(($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])).'</span> %</td>
-										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out_snab']).'</span> р.</td>
-										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']).'</span> р.</td>
-										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']-$uslugi_arr['summ_price_in']-$arr['price_in']).'</span> р.</td>
+										<td><span>'.($uslugi_arr['summ_price_in']+$arr['price_in']).'</span> </td>
+										<td><span>'.$this->round_money(($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])).'</span></td>
+										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out_snab']).'</span> </td>
+										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']).'</span> </td>
+										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']-$uslugi_arr['summ_price_in']-$arr['price_in']).'</span></td>
 										<td></td>
 										<td></td>
 									</tr>
 								</tbody></table>
 							';
-		$html .= '</td><td style="">'.$this->variant_no_cat_json_Html($dop_info_no_cat,$this->type_product,$pause,$edit_true).'</td></tr></table>';
+					$html .= '</td>';
+					$html .= '<td style="vertical-align: baseline;" data-id="'.$id.'">';
+						$html .= '<div class="inform_for_variant_head">Вариант № <span class="inform_for_variant_number">'.$number_pos.'</span>, характеристика изделия:</div>';
+						$html .= $this->variant_no_cat_json_Html($dop_info_no_cat,$this->type_product,$this->pause,$this->is_History,$status_snab);
+					$html .= '</td>';
+				$html .= '</tr>';
+			$html .= '</table>';
 		$html .= '</div>';
 
 		
 		return $html;
 	}
 
+	private function aditable_acccess($arr){
+		$str = '';
+		foreach ($arr as $key => $access) {
+			if($this->user_access != $access){continue;}
+			switch ($access) {
+				case 1:
+					$str .= $this->edit_admin;
+					break;
+				case 5:
+					$str .= $this->edit_men;
+					break;
+				case 8:
+					$str .= $this->edit_snab;
+					break;
+				
+				default:
+					# code...
+					break;
+			}
+		}
+		return $str;
+	}
+
 	// ВЫВОДИТ СПИСОК УСЛУГ ПРИКРЕПЛЁННЫХ ДЛЯ ВАРИАНТА
 	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
 	// $pause - флаг запрета редактирования
 	// названия группы услуги
-	public function uslugi_template_Html($arr, $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
+	public function uslugi_template_Html($arr, $NO_show_head = 0, $status_snab = '', $pause=0, $edit_true=true){
 
-		// echo '<pre>';
-		// print_r($arr);
-		// echo '</pre>';
-		// определяем редакторов для полей (html тегов)
-		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
-		// '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
-
-		// если работает снаб, ограничиваем права мена и наоборот
-		if($status_snab=='in_calculation' || $status_snab=='in_recalculation'){
-			$this->edit_snab = ($this->user_access == 8 && !$pause)?' contenteditable="true" class="edit_span"':'';
-			$this->edit_men = '';						
+		if($status_snab == 'in_calculation')
+		{
+			$this->edit_snab = ' contenteditable="true" class="edit_span"';
 		}else{
-			$this->edit_men = ($this->user_access == 5 && !$pause)?' contenteditable="true" class="edit_span"':'';
-			$this->edit_snab = '';						
-		}
-
-		// обнуляем все права при $edit_true == false
-		if($edit_true == false){
-			$this->edit_men = '';
 			$this->edit_snab = '';
+		}
+		if($status_snab == 'on_calculation' || // расчёт мен
+			$status_snab == 'calculate_is_ready' ||
+			$status_snab == 'tz_is_not_correct_on_recalculation' || // тз не корректно перерасчет
+			$status_snab == 'tz_is_not_correct' || // тз не корректно расчёт
+			$status_snab == 'edit_and_query_the_recalculate') // мен редактирует тз перед отправкой на перерасчёт
+		{					
+			$this->edit_men = ' contenteditable="true" class="edit_span"';
+		}else{
+			$this->edit_men = '';
+		}
+		if(isset($this->pause) && $this->pause){
+			$this->edit_snab = '';
+			$this->edit_men = '';
+		}
+		if(isset($this->is_History) && $this->is_History){
+			$this->edit_snab = '';
+			$this->edit_men = '';
 			$this->edit_admin = '';
-			$pause = 1;
 		}
 
 		$html ='';
@@ -743,17 +1011,18 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		// $query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `id` IN (".$id_s.")";
 		//echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);				
-		$name_uslugi = array();
+		$service_arr = array();
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				foreach ($arr as $key => $value) {
-						$name_uslugi[$row['id']] = $row;
+						$service_arr[$row['id']] = $row;
 				}
 			}
 		}
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 
 		$uslname = '';
-		foreach ($name_uslugi as $key => $value) {
+		foreach ($service_arr as $key => $value) {
 			// $NO_show_head добавлен как необязательная переменная для отключения вывода 
 			// названия группы услуги
 
@@ -771,7 +1040,13 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					
 					$pribl = ($value2['for_how']=="for_all")?($value2['price_out']-$value2['price_in']):($value2['price_out']*$value2['quantity']-$value2['price_in']*$value2['quantity']);
 					$dop_inf = ($value2['for_how']=="for_one")?'(за тираж '.$value2['quantity'].' шт.)':'';
-					
+					// информация из калькулятора
+					$calc_info = '';$calc_class= '';
+					if($value['parent_id'] == 6){
+						$calc_class = ' service-calculator';
+						$calc_info = '<span class="calc_info">/ '.printCalculator::convert_print_details($value2['print_details']).' /</span>';	
+					}
+
 					$price_out_snab = ($value2['for_how']=="for_all")?$value2['price_out_snab']:$value2['price_out_snab']*$value2['quantity'];
 
 
@@ -782,15 +1057,16 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 
 					$html .= '<tr class="calculate calculate_usl" data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$value['id'].'"  data-our_uslugi_parent_id="'.trim($value['parent_id']).'" data-for_how="'.trim($value['for_how']).'">
-										<td>'.$value['name'].' '.$dop_inf.'</td>
-										<td class="row_tirage_in_gen uslugi_class price_in"><span '.(($value['edit_pr_in'] == '1')?$this->edit_admin.$this->edit_snab:'').'>'.$this->round_money($price_in).'</span> р.</td>
-										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$this->edit_admin.$this->edit_snab.$this->edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span> %</td>
-										<td class="row_price_out_gen uslugi_class price_out_snab" style="color:red" data-real_min_price_for_one="'.$value['price_out'].'" data-real_min_price_for_all="'.$real_price_out.'"><span '.$this->edit_admin.$this->edit_snab.'>'.$this->round_money($price_out_snab).'</span> р.</td>
-										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$this->edit_admin.$this->edit_men.'>'.$this->round_money($price_out_men).'</span> р.</td>
-										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span> р.</td>
+										
+										<td><div class="'.$calc_class.'">'.$value['name'].' '.$dop_inf.' <br> '.$calc_info.'</div></td>
+										<td class="row_tirage_in_gen uslugi_class price_in"><span '.(($value['edit_pr_in'] == '1')?$this->aditable_acccess(array(1,8)):'').'>'.$this->round_money($price_in).'</span></td>
+										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$this->aditable_acccess(array(1,8,5)).'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span></td>
+										<td class="row_price_out_gen uslugi_class price_out_snab" style="color:red" data-real_min_price_for_one="'.$value['price_out'].'" data-real_min_price_for_all="'.$real_price_out.'"><span '.$this->aditable_acccess(array(1,8)).'>'.$this->round_money($price_out_snab).'</span></td>
+										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$this->aditable_acccess(array(1,5)).'>'.$this->round_money($price_out_men).'</span></td>
+										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span></td>
 										<td class="usl_tz">'.$buttons_tz.'<span class="tz_text">'.base64_decode($value2['tz']).'</span><span class="tz_text_shablon">'.$value['tz'].'</span></td>';
 
-					$html .= ($this->user_id == $value2['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';
+					$html .= ($this->user_id == $value2['creator_id'] )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';
 					// $html .= $value2['creator_id'];
 					$html .='</tr>';
 
@@ -884,10 +1160,15 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	// получаем все варианты
 	private function get_all_variants_Database_Array(){
 		global $mysqli;
-		$query = "SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."' 
-		 UNION SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".DOP_DATA_HIST."` WHERE row_id='".$this->id_position."' ORDER BY id ASC;";
-		// echo $query;
+		$query = "SELECT *, 
+		DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` 
+		FROM `".RT_DOP_DATA."` WHERE row_id = '".$this->id_position."' 
+		
+		UNION SELECT *, DATE_FORMAT(`maket_date`, '%m.%d.%Y') AS `maket_date` FROM `".DOP_DATA_HIST."` WHERE row_id='".$this->id_position."' ORDER BY id ASC;";
+		// echo '<br>'.$query.'<br>';
+		
 		$result = $mysqli->query($query) or die($mysqli->error);				
+		
 		$arr = array();
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
@@ -1048,44 +1329,105 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		}
 	}
 
+	/**
+	 *	Смена статусов в снабжение и обратно
+	 *
+	 *	@author  Алексей	
+	 *	@version 16:25 28.09.2015
+	 */
 	public function change_status_gl_Database(){
-		global $mysqli;
-		// получаем id dop_data строк в которых будем менять статус
-		$id_dop_data = implode(",", $_POST['variants_arr']); 
-		
 		// получаем новый статус
 		$new_status = $_POST['new_status'];
-		
-		// если снабжение взяло расчет в работу на расчёт 
-		if($new_status == 'in_calculation'){
-			//копируем все строки которые были отправлены на перерасчёт в таблицу HISTORY
-			$this->copy_variants_to_history_Database($id_dop_data);
-		}
+		// для статуса ТЗ не корректно спрашиваем юзера подробности о некорректном ТЗ
+		if( 
+			$this->user_access != 5 and 
+				(
+					(
+						$new_status == "tz_is_not_correct" || $new_status == "tz_is_not_correct_on_recalculation" 
+					) and (
+						!isset($_POST['comment']) || (isset($_POST['comment']) && $_POST['comment'] == '') 
+					)
+				)
+			){
+			$html = '<form>';
+			if(isset($_POST['comment']) && $_POST['comment'] == ''){
+				$html .= '<div style="color:red; padding:5px; margin-bottom: 10px;border:1px solid red;">Вы забыли написать тут что-нибудь =)</div>';	
+			}
+			foreach ($_POST as $key => $value) {
+				if($key == 'variants_arr'){
+					foreach ($value as $val){
+						$html .= '<input type="hidden" name="'.$key.'[]" value="'.$val.'">';
+					}
+					continue;
+				}
+				$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+			}
+			$html .= '<div>';
+				$html .= '<textarea name="comment"></textarea>';
+			$html .= '</div>';
+			$html .= '</form>';
 
-		// получаем кирилическое название
-		$new_status_rus = $this->status_snab[$new_status]['name'];
+			echo '{"response":"show_new_window","title":"В чём именно ТЗ не корректно?","html":"'.base64_encode($html).'","width":"600"}';
+		}else{
 
-		// меняем
-		$query = "UPDATE `".RT_DOP_DATA."` SET 
-		`status_snab`='".$new_status."'";
-		// если это конечный расчёт  от снаба, пишем дату этого расчёта
-		if($new_status == 'calculate_is_ready'){
-			$query .= ', `snab_end_work` = NOW()';
+			global $mysqli;
 
-		}
-		// вборка id
-		$query .= " WHERE `id` IN (".$id_dop_data.");";
 
-		// получаем новые функцианальные кнопки для нового статуса для данной в кладки
-		
-		$result = $mysqli->query($query) or die($mysqli->error);
-		
+			// ТЗ не корректно
+			if($new_status == "tz_is_not_correct" || $new_status == "tz_is_not_correct_on_recalculation"){
+				// записываем комментарии в позицию
+				$query = "UPDATE `".RT_MAIN_ROWS."` SET 
+				`tz_is_not_correct_comments`='".base64_encode($_POST['comment'])."'";
+				$query .= " WHERE `id` = '".(int)$_GET['id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+			}
 
-		//ФОРМИРУЕМ ОТВЕТ СЕРВЕРА ДЛЯ ИЗМЕНЕНИЯ html НА СТРАНИЦЕ
-		// echo '{"new_name":"'.$new_status_rus.'","new_status":"'.$new_status.'",new_buttons":"'.base64_encode($_GET_top_funcional_byttun_for_user_Html($new_status)).'"}';
-		// В ВЕРСИИ 1.1 будем вносить правки в html в соответствии с ответом от сервера
-		// сейчас при получении ответа - просто перегружаем страницу яваскриптом
-		echo '{"response":"OK"}';
+
+			// получаем id dop_data строк в которых будем менять статус
+			$id_dop_data = implode(",", $_POST['variants_arr']); 
+			
+			
+			
+			// если снабжение взяло расчет в работу на расчёт 
+			if($new_status == 'in_calculation'){
+				// копируем все строки которые были отправлены на перерасчёт в таблицу HISTORY
+				// если предыдущий статус не был - ТЗ исправлено
+				if($_POST['old_status'] != 'tz_is_correct'){
+					$this->copy_variants_to_history_Database($id_dop_data);
+				}
+
+				// запоминаем снаба, взявшего в работу запрос
+				$query = "UPDATE `".RT_LIST."` SET 
+				`snab_id`='".$this->user_id."'";
+				$query .= " WHERE `id` = '".$_POST['query_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+
+				// обнуляем комментарии по неправильному ТЗ
+				$query = "UPDATE `".RT_MAIN_ROWS."` SET 
+				`tz_is_not_correct_comments`=''";
+				$query .= " WHERE `id` = '".(int)$_GET['id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+			}
+
+			// получаем кирилическое название статуса
+			$new_status_rus = $this->status_snab[$new_status]['name'];
+
+			// меняем статус в вариантах рассчёта
+			$query = "UPDATE `".RT_DOP_DATA."` SET 
+			`status_snab`='".$new_status."'";
+			
+			// если Расчёт готов, запоминаем дату этого расчёта
+			if($new_status == 'calculate_is_ready'){
+				$query .= ', `snab_end_work` = NOW()';
+			}
+			// вборка id
+			$query .= " WHERE `id` IN (".$id_dop_data.");";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			
+			
+			echo '{"response":"OK","function":"window_reload"}';	
+			// echo '{"response":"OK"}';	
+		}		
 
 	}
 
@@ -1129,22 +1471,34 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 
 	// выводит общую информацию по ВАРИАНТУ из json
-	public function variant_no_cat_json_Html($arr,$type_product,$pause,$edit_true){
+	public function variant_no_cat_json_Html($arr,$type_product,$pause,$edit_true,$status_snab=''){
 
 		$FORM = $this->FORM; /*Экземпляр класса форм*/
 		// определяем редакторов для полей (html тегов)
-		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
-		$this->edit_snab = ($this->user_access == 8)?' contenteditable="true" class="edit_span"':'';
-		// '.$this->edit_admin.$this->edit_snab.$this->edit_men.'
-		if($pause){$this->edit_snab=$this->edit_men='';}
-
-		// обнуляем все права при $edit_true == false
-		if($edit_true == false){
-			$this->edit_men = '';
+		// echo '$edit_true = '.$edit_true;
+		if($status_snab == 'in_calculation')
+		{
+			$this->edit_snab = ' contenteditable="true" class="edit_span"';
+		}else{
 			$this->edit_snab = '';
+		}
+		if($status_snab == 'on_calculation' || // расчёт мен
+			$status_snab == 'tz_is_not_correct_on_recalculation' || // тз не корректно перерасчет
+			$status_snab == 'tz_is_not_correct' || // тз не корректно расчёт
+			$status_snab == 'edit_and_query_the_recalculate') // мен редактирует тз перед отправкой на перерасчёт
+		{					
+			$this->edit_men = ' contenteditable="true" class="edit_span"';
+		}else{
+			$this->edit_men = '';
+		}
+		if($this->pause){
+			$this->edit_snab = '';
+			$this->edit_men = '';
+		}
+		if($this->is_History){
+			$this->edit_snab = '';
+			$this->edit_men = '';
 			$this->edit_admin = '';
-			$pause = 1;
 		}
 		
 		$html = '';
@@ -1152,14 +1506,16 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 		// если у нас есть описание заявленного типа товара
 		$type_product_arr_from_form = $this->FORM->get_names_form_type($this->type_product);
 
+
 		if(isset($type_product_arr_from_form)){
 			$names = $type_product_arr_from_form; // массив описания хранится в классе форм
 			$html .= '<div class="table inform_for_variant">';
+			
 			foreach ($arr as $key => $value) {
 				$html .= '
 					<div class="row">
-						<div class="cell" >'.$names[$key]['name_ru'].'</div>
-						<div class="cell" data-type="'.$key.'" '.$this->edit_admin.$this->edit_snab.'>';
+						<div class="cell" style="text-align:left">'.$names[$key]['name_ru'].'</div>
+						<div class="cell" style="text-align:left" data-type="'.$key.'" '.((($this->aditable_acccess(array(1,8,5))!='') && !$this->is_History)?$this->aditable_acccess(array(1,8,5)):'').'>';
 				$html .= $value;
 				$html .='</div>
 					</div>
@@ -1207,9 +1563,17 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	}
 
 
-	// выводит общую информацию по позиции из json, 
-	// json был создан через класс форм заведения позициий
-	public function dop_info_no_cat_Html($arr,$type_product){
+	
+	/**
+	 *	выводит общую информацию по позиции из json, 
+	 *	json был создан через класс форм заведения позициий
+	 *
+	 *	@author  Алексей	
+	 *	@version %TIME  OBSOLETE
+	 */
+	public function dop_info_no_cat_Html($arr,$type_product)
+	{
+		return 'method dop_info_no_cat_Html is OBSOLETE'; // сообщение об устаревшем методе
 		$html = '';
 		
 		$this->FORM = new Forms($_GET,$_POST,$_SESSION);//для вызова следующего метода нужна информация из сласса форм
@@ -1229,20 +1593,23 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 				';
 			}
 			$html .= '</div>';
-			// echo '<pre>';
-			// print_r($arr);
-			// echo '</pre>';
 			return $html;
 		}else{// в случае исключения выводим массив, дабы было видно куда копать
 			echo '<pre>';
 			print_r($arr);
 			echo '</pre>';
 		}
-
 	}
 
-
-	static function get_uslugi_list_Database_Html($id=0){	
+	/**
+	 *	Вывод списка услуг в HTML
+	 *  Рекурсивная функция	
+	 *
+	 *	@author  Алексей	
+	 *	@version %TIME
+	 */
+	static function get_uslugi_list_Database_Html($id=0)
+	{	
 		global $mysqli;
 		$html = '';
 		

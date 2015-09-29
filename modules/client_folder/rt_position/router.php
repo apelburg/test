@@ -36,14 +36,19 @@
 	
 	$id = (isset($_GET['id']))?$_GET['id']:'none';
 
-
 	
 	// чеерез get параметр id мы получаем id 1 из строк запроса
 	// получаем основные хар-ки артикула из таблицы артикулов входящих в запрос
-	$query = "SELECT DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`, `query_num`, `name`,`id`,`dop_info_no_cat`, `art_id`, `type` FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."'";
+	$query = "SELECT `".RT_LIST."`.*,`".RT_LIST."`.`id` AS `RT_LIST_ID`, `".RT_MAIN_ROWS."`.*, DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`
+	  FROM `".RT_MAIN_ROWS."`
+	  INNER JOIN `".RT_LIST."`
+	  ON `".RT_LIST."`.`query_num` = `".RT_MAIN_ROWS."`.`query_num`
+
+	   WHERE `".RT_MAIN_ROWS."`.`id` = '".$id."'";
 	// echo $query;
 	$result = $mysqli->query($query) or die($mysqli->error);
 	// $this->info = 0;
+	$Order = array();
 	if($result->num_rows > 0){
 		while($row = $result->fetch_assoc()){
 			// id записи 
@@ -71,26 +76,13 @@
 			// нанесение на чужом сувенире /не определено
 			$type_tovar = $row['type']; 
 
+			$snab_id = $row['snab_id'];
+
 			// json no_cat
 			$dop_info_no_cat = ($row['dop_info_no_cat']!='')?json_decode($row['dop_info_no_cat']):array();
+			$Order = $row;
 		}
 	}
-
-	$query = "SELECT * FROM `".RT_LIST."` WHERE `query_num` = '".$order_num."';";
-	$result = $mysqli->query($query) or die($mysqli->error);
-	// $this->info = 0;
-	$snab_id = 0;
-	if($result->num_rows > 0){
-		while($row = $result->fetch_assoc()){
-			$snab_id = $row['snab_id'];
-		}
-	}
-
-	
-
-	
-
-
 
 
 	// если тип продукции не определен
@@ -108,7 +100,7 @@
 			break;
 	}
 
-
+	// echo 'asdsad';
 	//шаблон forum
 	if(isset($_GET['forum'])){
 		ob_start();	
@@ -118,7 +110,8 @@
 		$forum = ob_get_contents();
 		ob_get_clean();
 	}
-
+	
+		
 
 	// шаблон поиска
 	include'./skins/tpl/common/quick_bar.tpl';

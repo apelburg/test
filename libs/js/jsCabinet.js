@@ -205,6 +205,12 @@
 		function window_reload(data) {
 			location.reload();
 		}
+
+		$(document).keydown(function(e) {	
+			if(e.keyCode == 27){//ESC		
+				window_preload_del();
+			}	
+		});
 //////////////////////////////////
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
 //////////////////////////////////
@@ -2065,11 +2071,7 @@ $(document).on('click', '#add_for_other_order', function(event) {
 });
 
 
-$(document).keydown(function(e) {	
-	if(e.keyCode == 27){//ESC		
-		window_preload_del();
-	}	
-});
+
 
 // запрос бух учета по спецификации
 $(document).on('click', '.buh_uchet_for_spec', function(event) {

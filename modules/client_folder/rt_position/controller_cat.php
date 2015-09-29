@@ -21,11 +21,13 @@
 	// акртикул
 	$art = $articul['art'];
 	//цвет
-	$art_colors = implode(",", $POSITION_GEN->POSITION_CATALOG->color);
+	$art_colors = implode(", ", $POSITION_GEN->POSITION_CATALOG->color);
+	// ссылка на сайт 
+	$link_of_the_site = '<a target="_blank" href="http://'.$_SERVER['HTTP_HOST'].'/description/'.$info_main['art_id'].'"><img src="http://'.$_SERVER['HTTP_HOST'].'/os/skins/images/img_design/basic_site_link.png"></a>';
 	// материал
-	$art_materials = implode(",", $POSITION_GEN->POSITION_CATALOG->material);
+	$art_materials = implode(", ", $POSITION_GEN->POSITION_CATALOG->material);
 	// вид печати
-	$art_get_print_mode = implode(",", $POSITION_GEN->POSITION_CATALOG->get_print_mode);
+	$print_names = $POSITION_GEN->POSITION_CATALOG->get_print_names_string();
 	// получаем изображения артикула
 	$images_data = $POSITION_GEN->POSITION_CATALOG->fetch_images_for_article2($art_id,'1');
 	// получаем дополнительные параметры: размер, цену ...

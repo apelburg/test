@@ -205,6 +205,13 @@
 		function window_reload(data) {
 			location.reload();
 		}
+		// закрытие анимации предзагрузки на ESC
+		$(document).keydown(function(e) {	
+			if(e.keyCode == 27){//ESC		
+				window_preload_del();
+			}	
+		});
 //////////////////////////////////
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
 //////////////////////////////////
+
