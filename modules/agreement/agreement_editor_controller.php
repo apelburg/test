@@ -406,7 +406,7 @@
 				$specifications .= ob_get_contents();
 				ob_get_clean();
 				
-				$table ='';
+				//$table ='';
 
 			}
 			
@@ -452,12 +452,12 @@
 			exit;  
 		}
 		
-		$oferta_common_data =  Agreement::fetch_oferta_common_data($_GET['oferta_id']);
-        if(!$oferta_common_data){ echo 'не удалость получить данные оферты'; return; }
+		$general_data =  Agreement::fetch_oferta_common_data($_GET['oferta_id']);
+        if(!$general_data){ echo 'не удалость получить данные оферты'; return; }
 		
 		//!!!!!!!!!!!!!!!  oferta_num  oferta_type date_time
 		
-		echo '<pre>oferta_common_data'; print_r($oferta_common_data); echo '</pre>';
+		echo '<pre>general_data'; print_r($general_data); echo '</pre>';
 		
 		$oferta_tbl_data =  Agreement::fetch_oferta_data($_GET['oferta_id']);
 		echo '<pre>oferta_data'; print_r($oferta_tbl_data); echo '</pre>';
@@ -467,13 +467,28 @@
 		echo $table;
 		
 		// считываем файл оферты
-		$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.substr($oferta_common_data['date_time'],0,4).'/offerts/'.$oferta_common_data['our_requisit_id'].'_'.$oferta_common_data['client_requisit_id'].'/'.$oferta_common_data['oferta_num'].'.tpl';
+		$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.substr($general_data['date_time'],0,4).'/offerts/'.$general_data['our_requisit_id'].'_'.$general_data['client_requisit_id'].'/'.$general_data['oferta_num'].'.tpl';
 				
 		$fd = fopen($file_name,"r");
-		$content = fread($fd,filesize($file_name));
+		$doc = fread($fd,filesize($file_name));
 		fclose($fd);
+
+      
+		// наши реквизиты
+		$our_firm = fetch_our_certain_firm_data($general_data['our_requisit_id']);
+	    // echo '<pre>'; print_r($our_firm_data); echo '</pre>';
 		
-		echo $content;
+		// реквизиты клиента 
+		$client_firm =  Client::fetch_requisites($general_data['client_requisit_id']);
+	
+
+
+		
+		ob_start();
+			//echo '----------проба--------';					
+			eval('?>'.Agreement::prepare_general_doc($doc,$general_data).'<?php ');
+		$specifications .= ob_get_contents();
+		ob_get_clean();
 	}
 	
 	
