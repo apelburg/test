@@ -51,26 +51,25 @@
 							<div class="cell">
 								<table class="calkulate_table">
 									<tr>
-										<th>Стоимость товара</th>
-										<th>$ вход.</th>
+										<th  style="width: 316px;">Стоимость товара (Руб)</th>
+										<th>$ вход. (Руб)</th>
 										<th>%</th>
-										<th>$ исход.</th>
-										<th>прибыль</th>
+										<th>$ исход. (Руб)</th>
+										<th>прибыль (Руб)</th>
 										<th class="edit_cell">ТЗ</th>
 										<th class="del_cell">del</th>
 									</tr>
 									<tr class="tirage_and_price_for_one">
 										<td>1 шт.</td>
-										<td class="row_tirage_in_one price_in"><span contenteditable="true" class="edit_span" ><?php echo $variant['price_in']; ?></span> р.</td>
+										<td class="row_tirage_in_one price_in"><span contenteditable="true" class="edit_span" ><?php echo $variant['price_in']; ?></span></td>
 										<td rowspan="2"  class="percent_nacenki">
 											<span contenteditable="true" class="edit_span"><?php 
 											$per = ($variant['price_in']!= 0)?$variant['price_in']:0.09;
 											echo round((($variant['price_out']-$variant['price_in'])*100/$per),2);
-											?></span>%
-
+											?></span>
 										</td>
-										<td  class="row_price_out_one price_out"><span class="edit_span" contenteditable="true"><?php echo $variant['price_out']; ?></span> р.</td>
-										<td class="row_pribl_out_one pribl"><span><?php echo ($variant['price_out']-$variant['price_in']); ?></span> р.</td>
+										<td  class="row_price_out_one price_out"><span class="edit_span" contenteditable="true"><?php echo $variant['price_out']; ?></span></td>
+										<td class="row_pribl_out_one pribl"><span><?php echo ($variant['price_out']-$variant['price_in']); ?></span></td>
 										<td rowspan="2">
 											<!-- <span class="edit_row_variants"></span> -->
 										</td>
@@ -78,9 +77,9 @@
 									</tr>
 									<tr  class="tirage_and_price_for_all for_all">
 										<td>тираж</td>
-										<td class="row_tirage_in_gen price_in"><span class="price_in_all"><?php echo $sum_of_tirage_in;   ?></span> р.</td>
-										<td class="row_price_out_gen price_out"><span><?php echo $sum_of_tirage_out;  ?></span> р.</td>
-										<td class="row_pribl_out_gen pribl" ><span><?php echo $sum_prib_of_tirage; ?></span> р.</td>
+										<td class="row_tirage_in_gen price_in"><span class="price_in_all"><?php echo $sum_of_tirage_in;   ?></span></td>
+										<td class="row_price_out_gen price_out"><span><?php echo $sum_of_tirage_out;  ?></span></td>
+										<td class="row_pribl_out_gen pribl" ><span><?php echo $sum_prib_of_tirage; ?></span></td>
 									</tr>
 									<?php 
 									
@@ -98,10 +97,10 @@
 									</tr>
 									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
-										<td><span></span> р.</td>
-										<td><span></span> %</td>
-										<td><span></span> р.</td>
-										<td><span></span> р.</td>
+										<td><span></span></td>
+										<td><span></span></td>
+										<td><span></span></td>
+										<td><span></span></td>
 										<td></td>
 										<td></td>
 									</tr>

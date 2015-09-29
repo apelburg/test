@@ -262,7 +262,7 @@ class Position_general_Class{
 				$html = $this->POSITION_NO_CATALOG->uslugi_template_Html($NEW_usl, $flag);
 				break;
 		}
-		echo '{"response":"close_window","name":"add_uslugu'.$dop.'","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
+		echo '{"response":"close_window","function":"window_reload","name":"add_uslugu'.$dop.'","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
 	}
 
 	// сохранение информации по резерву

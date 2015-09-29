@@ -68,9 +68,13 @@ function proverka(input) {
 //###################################################################
 
 // КАЛЬКУЛЯЦИЯ
-
-// пересчет ИТОГО таблицы с ценами по варианту
 function recalculate_table_price_Itogo(){
+// пересчет ИТОГО таблицы с ценами по вариантrecalculate_table_price_Itogo	// if(window.timing_itogo==0){
+	// 	window.timing_itogo = 5000;
+	// 	setTimeout(function(){setTimeout(recalculate_table_price_Itogo, 1000);}, window.timing_itogo);
+	// }else{
+	// 	return;
+	// }
 	// находим таблицу расчёта текущего (активного) варианта
 	var itogo_price_in = 0;
 	var itogo_price_out_snab = 0;
@@ -150,9 +154,11 @@ function recalculate_table_price_Itogo(){
 // редактирование мин исходящей цены 1ед товара 
 $(document).on('keyup keypress', '.row_tirage_in_one.price_in span', function(event) {
 	calculate_price_out_tovars_Edit_start_price_for_one( $(this).parent().parent().parent());
+	// setTimeout(recalculate_table_price_Itogo, 1000);
 	// ПЕРЕСЧИТЫВАЕМ ИТОГО
-	recalculate_table_price_Itogo();
+	setTimeout(recalculate_table_price_Itogo, 1000);
 });
+
 // пересчёт исходящей стоимости при изменении начальной стоимости товара за 1
 // на вход принимает объект активной calkulate_table
 function calculate_price_out_tovars_Edit_start_price_for_one(object){
@@ -221,7 +227,7 @@ function calculate_price_out_tovars_Edit_start_price_for_one(object){
 $(document).on('keyup', '.row_tirage_in_gen.price_in.tir span', function(event) {
 	Edit_start_price_for_all($(this));
 	// ПЕРЕСЧИТЫВАЕМ ИТОГО
-	recalculate_table_price_Itogo();
+	setTimeout(recalculate_table_price_Itogo, 1000);
 });
 // пересчёт исходящей стоимости относительно начальной стоимости товара за тираж
 function Edit_start_price_for_all(object){
@@ -250,10 +256,10 @@ $(document).on('keyup', '.percent_nacenki span', function(event) {
 	
 	//  = Number($(this).html()):
 	var inter_percent = Number($(this).html());
-	if(Number($(this).html())<0){
-		var inter_percent = 0;
-		$(this).html(0);
-	}
+	// if(Number($(this).html())<0){
+	// 	var inter_percent = 0;
+	// 	$(this).html(0);
+	// }
 
 	var price_in_for_one = Number($(this).parent().parent().find('.row_tirage_in_one.price_in span').html());
 	var price_in_for_all = Number($(this).parent().parent().next().find('.row_tirage_in_gen.price_in span').html());
@@ -285,11 +291,6 @@ $(document).on('keyup', '.percent_nacenki span', function(event) {
 		price_out_for_one_snab = price_out_for_one_men = round_s((100+inter_percent)*price_in_for_one/100);
 		price_out_for_all_snab = price_out_for_all_men = round_s((100+inter_percent)*price_in_for_all/100);
 
-		console.log('price_out_for_one_snab =' + price_out_for_one_snab);
-		console.log('price_out_for_all_snab =' + price_out_for_all_snab);
-		console.log('price_in_for_all =' + price_in_for_all);
-		console.log('price_in_for_one =' + price_in_for_one);
-		console.log('inter_percent =' + inter_percent);
 
 		// устанавливаем исходящие цены
 		$(this).parent().next().find('span').html(price_out_for_one_snab).parent().next().find('span').html(price_out_for_one_snab);
@@ -298,7 +299,7 @@ $(document).on('keyup', '.percent_nacenki span', function(event) {
 		// подсчитываем прибыль
 		// $(this).parent().next().next().next().find('span').html(round_s(price_out_for_one_snab-price_in_for_one));
 		// $(this).parent().parent().next().find('.row_pribl_out_gen.pribl span').html(round_s(price_out_for_all_snab-price_in_for_all));
-		calc_percent();
+		//calc_percent();
 
 	}else{// работает менеджер
 
@@ -325,7 +326,7 @@ $(document).on('keyup', '.percent_nacenki span', function(event) {
 	}
 	calc_pribl_tir();
 
-	recalculate_table_price_Itogo();
+	setTimeout(recalculate_table_price_Itogo, 1000);
 
 
 	// сохраняем значения тиража в dop_data
@@ -338,7 +339,7 @@ $(document).on('keyup', '.percent_nacenki span', function(event) {
 // редактирование мин исходящей цены 1ед товара из тиража
 $(document).on('keyup', '.row_price_out_one.price_out_snab span', function(event) {
 	edit_price_out_one_snab($(this));
-	recalculate_table_price_Itogo();
+	setTimeout(recalculate_table_price_Itogo, 1000);
 });
 function edit_price_out_one_snab(obj){
 	// получим тираж
@@ -349,21 +350,19 @@ function edit_price_out_one_snab(obj){
 	// console.log(price_out_one_snab);
 	// console.log(price_in_one);
 	// если цена меньше, приравниваем её к минимальной
-	if(price_in_one>price_out_one_snab){
-		obj.html(price_in_one).parent().next().find('span').html(price_in_one);
-		price_out_one_snab=price_in_one;
+	// if(price_in_one > price_out_one_snab){
+		// obj.html(price_in_one).parent().next().find('span').html(price_in_one);
+		// price_out_one_snab=price_in_one;
 
-		var price_out_all_snab = Number(obj.parent().parent().next().find('.row_tirage_in_gen.price_in span').html());
-		console.log(price_out_all_snab);
-		obj.parent().parent().next().find('.row_price_out_gen.price_out_snab.tirage span').html(price_out_all_snab).parent().next().find('span').html(price_out_all_snab);
-	
-	}else{		
+		// var price_out_all_snab = Number(obj.parent().parent().next().find('.row_tirage_in_gen.price_in span').html());
+		// console.log(price_out_all_snab);
+		// obj.parent().parent().next().find('.row_price_out_gen.price_out_snab.tirage span').html(price_out_all_snab).parent().next().find('span').html(price_out_all_snab);
+		
+	// }else{		
 		price_out_all_snab = round_s(price_out_one_snab*quantity);
 		obj.parent().parent().next().find('.row_price_out_gen.price_out_snab.tirage span').html(price_out_all_snab).parent().next().find('span').html(price_out_all_snab);
 		obj.parent().next().find('span').html(price_out_one_snab);	
-		
-		
-	}
+	// }
 	// расчёт процентов товара	
 	calc_percent();
 	calc_pribl_tir();
@@ -377,7 +376,7 @@ function edit_price_out_one_snab(obj){
 // редактирование мин исходящей цены за тираж SNAB
 $(document).on('keyup', '.row_price_out_gen.price_out_snab.tirage span', function(event) {
 	edit_price_out_all_snab($(this));
-	recalculate_table_price_Itogo();
+	setTimeout(recalculate_table_price_Itogo, 1000);
 });
 function edit_price_out_all_snab(obj){
 	// получим тираж
@@ -389,9 +388,9 @@ function edit_price_out_all_snab(obj){
 	// входящая цена за тираж
 	var price_in_for_all = Number(table_obj.find('.row_tirage_in_gen.price_in span').html());
 
-	if(price_in_for_all>price_out_all_snab){
-		obj.html(price_in_for_all);price_out_all_snab = price_in_for_all;
-	}
+	// if(price_in_for_all>price_out_all_snab){
+	// 	obj.html(price_in_for_all);price_out_all_snab = price_in_for_all;
+	// }
 	// правим цену тиража для мена
 	obj.parent().next().find('span').html(price_out_all_snab);
 
@@ -415,7 +414,7 @@ function edit_price_out_all_snab(obj){
 // редактирование исходящей цены за ед из тиража MEN
 $(document).on('keyup', '.row_price_out_one.price_out_men span', function(event) {
 	edit_price_out_one_men($(this));
-	recalculate_table_price_Itogo();
+	setTimeout(recalculate_table_price_Itogo, 1000);
 });
 function edit_price_out_one_men(obj){
 	// получим тираж
@@ -425,9 +424,15 @@ function edit_price_out_one_men(obj){
 
 	// если стоимость меньше установленной снабом
 	if(price_out_one_snab>price_out_one_men){
-		price_out_one_men = price_out_one_snab;
-		obj.html(price_out_one_snab);
+		obj.css({'border':'1px solid red'});
+		obj.parent().parent().next().find('.row_price_out_gen.price_out_men span').css({'border':'1px solid red'});
+		// price_out_one_men = price_out_one_snab;
+		// obj.html(price_out_one_snab);
+	}else{
+		obj.css({'border':''});
+		obj.parent().parent().next().find('.row_price_out_gen.price_out_men span').css({'border':''});
 	}
+
 	var price_out_all_men = round_s(price_out_one_men*quantity);	
 	obj.parent().parent().next().find('.row_price_out_gen.price_out_men span').html(price_out_all_men);
 	
@@ -453,8 +458,19 @@ $(document).on('keyup', '.row_price_out_gen.price_out_men.tirage span', function
 	console.log(price_out_all_snab);
 	// если стоимость меньше установленной снабом
 	if(price_out_all_snab>price_out_all_men){
-		price_out_all_men = price_out_all_snab;
-		$(this).html(price_out_all_snab);
+		// price_out_all_men = price_out_all_snab;
+		// $(this).html(price_out_all_snab);
+		// подсветка неверно введённой цены
+		$(this).css({'border':'1px solid red'});
+
+		$(this).parent()
+			.parent()
+			.parent()
+			.find('.row_price_out_one.price_out_men span')
+			.css({'border':'1px solid red'});
+	}else{
+		$(this).css({'border':''});
+		$(this).parent().parent().parent().find('.row_price_out_one.price_out_men span').css({'border':''});
 	}
 
 	var price_out_one_men = round_s(price_out_all_men/quantity);
@@ -468,7 +484,7 @@ $(document).on('keyup', '.row_price_out_gen.price_out_men.tirage span', function
 	// посчёт прибыли
 	calc_pribl_tir();
 	// подсчёт ИТОГО
-	recalculate_table_price_Itogo();
+	setTimeout(recalculate_table_price_Itogo, 1000);
 
 	// сохраняем значения тиража в dop_data
 	time_to_save('save_dop_data',$('.calkulate_table:visible'));
@@ -525,15 +541,15 @@ $(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_snab span', f
 	var min_price_real_for_all = Number($(this).parent().attr('data-real_min_price_for_all'));
 
 	// если указанная цена меньше указанной в прайсе
-	if(price_out_snab<min_price_real_for_all){
-	console.log('65');
-		// меняем то, что навводил снаб на минимальное значение
-		$(this).html(min_price_real_for_all).parent().next().find('span').html(min_price_real_for_all);
-		//price_out_snab = min_price_real_for_all;
-	}else{
+	// if(price_out_snab<min_price_real_for_all){
+	// //console.log('65');
+	// 	// меняем то, что навводил снаб на минимальное значение
+	// 	$(this).html(min_price_real_for_all).parent().next().find('span').html(min_price_real_for_all);
+	// 	//price_out_snab = min_price_real_for_all;
+	// }else{
 		$(this).html(price_out_snab).parent().next().find('span').html(price_out_snab);
 
-	}
+	// }
 
 	// считаем прибыль
 	calc_usl_pribl($(this).parent().parent());
@@ -542,7 +558,7 @@ $(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_snab span', f
 	calc_usl_percent($(this).parent().parent());
 
 	// подсчёт ИТОГО
-	recalculate_table_price_Itogo();
+	setTimeout(recalculate_table_price_Itogo, 1000);
 
 	// добавляем маркер к строке которое мы отредактировали
 	$(this).parent().parent().addClass('editing');
@@ -618,7 +634,7 @@ function save_dop_dop_usluga(obj){
 
 
 // НАЗНАЧЕНИЕ ПОСТАВЩИКА
-$(document).on('click', '.change_supplier', function(event) {
+$(document).on('dblclick', '.change_supplier', function(event) {
 	$(this).attr('id', 'chose_supplier_id');
 	chose_supplier($(this));
 });
@@ -626,8 +642,9 @@ $(document).on('click', '.change_supplier', function(event) {
 function chose_supplier(obj){
 
 	$.post('', {AJAX:'chose_supplier',already_chosen:$('#chose_supplier_id').attr('data-id')}, function(data, textStatus, xhr) {
-		show_dialog_and_send_POST_window(data,'Выбирите поставщика',$(window).height()/100*90);
-	});
+		// show_dialog_and_send_POST_window(data,'Выбирите поставщика',$(window).height()/100*90);
+		standard_response_handler(data);
+	},'json');
 }
 $(document).on('click', '#chose_supplier_tbl tr td', function(event) {
 	if($(this).hasClass('checked')){

@@ -152,7 +152,10 @@ body {
   background: rgb(224, 224, 224);
 }
 
-#menu_for_variants_status span.traffic_lights_green,#menu_for_variants_status span.traffic_lights_grey,#menu_for_variants_status span.traffic_lights_red{
+#menu_for_variants_status span.traffic_lights_green,
+#menu_for_variants_status span.traffic_lights_sgreen,
+#menu_for_variants_status span.traffic_lights_grey,
+#menu_for_variants_status span.traffic_lights_red{
   width: 20px;
   height: 20px;
   float: left;
@@ -160,7 +163,10 @@ body {
   margin-left: -28px;
   margin-top: -4px;
 }
-#menu_for_variants_status span.traffic_lights_green span,#menu_for_variants_status span.traffic_lights_grey span, #menu_for_variants_status span.traffic_lights_red span{
+#menu_for_variants_status span.traffic_lights_green span,
+#menu_for_variants_status span.traffic_lights_sgreen span,
+#menu_for_variants_status span.traffic_lights_grey span, 
+#menu_for_variants_status span.traffic_lights_red span{
     width: 14px;
     height: 14px;
     margin: 2px 0 0 2px;
@@ -168,7 +174,10 @@ body {
     border-radius: 15px;
 }
 
-#edit_variants_content #variant_of_snab span.traffic_lights_green,#edit_variants_content #variant_of_snab span.traffic_lights_grey,#edit_variants_content #variant_of_snab span.traffic_lights_red{
+#edit_variants_content #variant_of_snab span.traffic_lights_green,
+#edit_variants_content #variant_of_snab span.traffic_lights_sgreen,
+#edit_variants_content #variant_of_snab span.traffic_lights_grey,
+#edit_variants_content #variant_of_snab span.traffic_lights_red{
   width: 17px;
   height: 17px;
   float: left;
@@ -177,7 +186,10 @@ body {
   margin-left: 10px;
   margin-top: -4px;
 }
-#edit_variants_content #variant_of_snab span.traffic_lights_green span,#edit_variants_content #variant_of_snab span.traffic_lights_grey span, #edit_variants_content #variant_of_snab span.traffic_lights_red span{
+#edit_variants_content #variant_of_snab span.traffic_lights_green span,
+#edit_variants_content #variant_of_snab span.traffic_lights_sgreen span,
+#edit_variants_content #variant_of_snab span.traffic_lights_grey span, 
+#edit_variants_content #variant_of_snab span.traffic_lights_red span{
     width: 7px;
     height: 7px;
     margin: 4px 0 0 4px;
@@ -194,6 +206,13 @@ body {
 #menu_for_variants_status span.traffic_lights_green span{
     border: 1px solid #92B73E;
     background-color: #92B73E;
+}
+#menu_for_variants_status span.traffic_lights_sgreen{
+  border: 2px solid #497314;
+}
+#menu_for_variants_status span.traffic_lights_sgreen span{
+    border: 1px solid #497314;
+    background-color: #497314;
 }
 
 #menu_for_variants_status span.traffic_lights_grey{
@@ -221,6 +240,15 @@ body {
 #edit_variants_content #variant_of_snab span.traffic_lights_green span{
     border: 1px solid #92B73E;
     background-color: #92B73E;
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_sgreen{
+  border: 1px solid #497314;
+    margin-top: 2px;
+  margin-bottom: 2px;497314
+}
+#edit_variants_content #variant_of_snab span.traffic_lights_sgreen span{
+    border: 1px solid #497314;
+    background-color: #497314;
 }
 
 #edit_variants_content #variant_of_snab span.traffic_lights_grey{
@@ -351,8 +379,8 @@ body {
   font-size: 10px; }
 .variant_info table tr th.del_cell,.variant_info table tr th.edit_cell{width: 32px; text-align: center;}
 .variant_info table tr td{  text-align: right; }
-.variant_info table tr td:nth-of-type(2){  text-align: left; }
-.variant_info table tr th:nth-of-type(2){min-width: 50px;text-align: left;}
+.variant_info table tr td:nth-of-type(2){  text-align: right; }
+.variant_info table tr th:nth-of-type(2){min-width: 50px;text-align: right;}
 .variant_info table tr th:nth-of-type(1){
   /*font-weight: bold;*/ text-align: left; font-size: 10px; color:#000;/*padding-left: 15px*/}
 .variant_info table.calkulate_table tr th:nth-of-type(1){
@@ -655,7 +683,7 @@ span.snab_comment {
   color: #5a5c61; }
 .variant_info .table_extended_info td{padding: 0}
 
-.inform_for_variant_head{ font-weight: bold; text-decoration: underline;}
+.inform_for_variant_head{ font-weight: bold; text-decoration: underline;text-align: left;}
 .edit_snab_comment,.change_srok{ min-height: 15px; border:1px solid grey; background: #fff; font-size: 12px; color: black; padding: 3px}
 .edit_snab_comment.saved,
 .save_comment_snab,
@@ -858,7 +886,9 @@ span.snab_comment {
   background-color: #CBDFA7; 
 }
 
-#position_menu_absolute span.traffic_lights_green,#position_menu_absolute span.traffic_lights_grey,#menu_for_variants_status span.traffic_lights_red{
+#position_menu_absolute span.traffic_lights_green,
+#position_menu_absolute span.traffic_lights_grey,
+#menu_for_variants_status span.traffic_lights_red{
   width: 20px;
   height: 20px;
   float: left;
@@ -963,6 +993,10 @@ span.calc_info {
     padding-left: 27px;
     background-position-x: -3px;
 }
+.calkulate_table .service-calculator span{
+  float: none;
+  width: auto;
+}
 
 #query_theme_block input.save,
 #query_theme_block input.save_query_theme{
@@ -989,4 +1023,9 @@ span.calc_info {
   font-weight: bold;
   color: #FF0000;
     
+}
+table.calkulate_table span {
+    width: 76%;
+    float: right;
+    margin-left: 0;
 }

@@ -120,6 +120,8 @@ function show_dialog_and_send_POST_window2(html,title,height){
 	    	
 	    	$('#general_form_for_create_product .pad:hidden').remove();
 		    $.post('', serialize, function(data, textStatus, xhr) {
+
+
 				if(data['response']=='show_new_window'){
 					title = data['title'];// для генерации окна всегда должен передаваться title
 					show_dialog_and_send_POST_window2(data['html'],title);
@@ -129,6 +131,11 @@ function show_dialog_and_send_POST_window2(html,title,height){
 					if(data['name'] == 'save_tz_text_AJAX'){
 						$('#'+data.increment_id).attr('class','tz_text_edit').removeAttr('id');
 					}
+					if(data['function'] == 'window_reload'){ // вызов функции... если требуется
+						location.reload();
+					}
+
+
 					// меняем иконку добавления ТЗ на пустое
 					if(data['name'] == 'save_empty_tz_text_AJAX'){
 						$('#'+data.increment_id).attr('class','tz_text_new').removeAttr('id');
@@ -212,6 +219,11 @@ function show_dialog_and_send_POST_window2(html,title,height){
           autoOpen : true,
           buttons: buttons          
         });
+}
+
+
+function chose_supplier_end(){
+	$('#chose_supplier_id').removeAttr('id');
 }
 
 // Удаление услуги
@@ -433,7 +445,10 @@ $(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_men span', fu
 
 	// если мен указал цену меньше, чем указал снаб
 	if(price_out_men<price_out_snab){
-		$(this).html(price_out_snab);
+		// $(this).html(price_out_snab);
+		$(this).css({'border':'1px solid red'});
+	}else{
+		$(this).css({'border':''});
 	}
 
 	// считаем прибыль
