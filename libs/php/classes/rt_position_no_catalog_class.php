@@ -57,7 +57,7 @@ class Position_no_catalog{
 			),
 
 
-		'on_calculation_snab' => array( // в снабжение
+		'on_calculation_snab' => array( // в снабжении
 			'name' => array(
 				1 => 'Отправлено в СНАБ',				
 				5 => 'Отправлено в СНАБ',
@@ -122,6 +122,7 @@ class Position_no_catalog{
 					)
 				)
 			),
+
 		'tz_is_correct_on_recalculation' => array(
 			// 'name' => 'ТЗ исправлено',
 			'name' => array(
@@ -179,6 +180,7 @@ class Position_no_catalog{
 				)
 			
 			),
+
 		'in_calculation' => array(
 			'name' => array(
 				1 => 'В расчёте снабжение',				
@@ -578,7 +580,7 @@ class Position_no_catalog{
 					
 				// контент для отправки поставщику
 				$no_cat_json = json_decode($value2['no_cat_json'],true);
-				$text_for_send_mail_name_product = $no_cat_json['naimenovanie'];
+				$text_for_send_mail_name_product = isset($no_cat_json['naimenovanie'])?$no_cat_json['naimenovanie']:"наименование не указано";
 				$text_for_send_mail .= $this->send_mail_for_supplier_Html($value2);
 				
 
@@ -792,13 +794,13 @@ class Position_no_catalog{
 		$type_product_arr_from_form = $this->FORM->get_names_form_type($this->type_product);
 
 		if(isset($type_product_arr_from_form)){
-			$names = $type_product_arr_from_form; // массив описания хранится в классе форм
+			// $names = $type_product_arr_from_form; // массив описания хранится в классе форм
 			$html .= '<div class="get_top_funcional_byttun_for_user_Html table">';
 			foreach ($dop_info_no_cat as $key => $value) {
 				// if(!isset($send_info_enabled[$key])){continue;}
 				$html .= '
 					<div class="row">
-						<div class="cell" >'.$names[$key]['name_ru'].'</div>
+						<div class="cell" >'.(isset($type_product_arr_from_form[$key]['name_ru'])?$type_product_arr_from_form[$key]['name_ru']:'<span style="color:red">имя не найдено</span>').'</div>
 						<div class="cell">'.$value.'</div>
 					</div>
 				';
@@ -1508,13 +1510,13 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 
 		if(isset($type_product_arr_from_form)){
-			$names = $type_product_arr_from_form; // массив описания хранится в классе форм
+			// $names = $type_product_arr_from_form; // массив описания хранится в классе форм
 			$html .= '<div class="table inform_for_variant">';
 			
 			foreach ($arr as $key => $value) {
 				$html .= '
 					<div class="row">
-						<div class="cell" style="text-align:left">'.$names[$key]['name_ru'].'</div>
+						<div class="cell" style="text-align:left">'.(isset($type_product_arr_from_form[$key]['name_ru'])?$type_product_arr_from_form[$key]['name_ru']:'<span style="color:red">имя не найдено</span>').'</div>
 						<div class="cell" style="text-align:left" data-type="'.$key.'" '.((($this->aditable_acccess(array(1,8,5))!='') && !$this->is_History)?$this->aditable_acccess(array(1,8,5)):'').'>';
 				$html .= $value;
 				$html .='</div>

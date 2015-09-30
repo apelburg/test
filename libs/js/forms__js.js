@@ -422,6 +422,14 @@ function show_dialog(html){
 		    			}
 	    			});
 
+	    			// проверка textarea
+	    			$(this).find('textarea').each(function(index, el) {		    				
+		    			// alert($(this).val());
+		    			if($(this).val()!=''){
+		    				moder = true;
+		    			}
+	    			});
+
 	    			if(moder===true){
 	    				$(this).css({'border':'none'}).removeClass('disabled_moderation');	    				
 	    			}else{
@@ -434,9 +442,37 @@ function show_dialog(html){
 	    		}	
 
 	    	});
-	    	console.log(moderate);
+	    	// console.log(moderate);
 	    	if(moderate==0){
-		    	$('#general_form_for_create_product .pad:hidden').remove();
+		    	// $('#general_form_for_create_product .pad:hidden').remove();
+		    	// убираем всё лишнее
+		    	// удаляем скрытые не заполненные поля
+				$('#general_form_for_create_product .pad:hidden').remove();
+				// убиваем не заполненные текстовые поля
+				$('#general_form_for_create_product input[type="text"]').each(function(index, el) {
+					if($(this).val()=='' && $(this).parent().attr('data-moderate')==0){
+						$(this).remove();
+					}
+				});
+
+					// убиваем не заполненные текстовые поля
+				$('#general_form_for_create_product textarea').each(function(index, el) {
+					if($(this).val()=='' && $(this).parent().attr('data-moderate')==0){
+						$(this).remove();
+					}
+				});
+
+				$('#general_form_for_create_product input[type="checkbox"]').each(function(index, el) {		    				
+					if(!$(this).prop('checked') && $(this).parent().attr('data-moderate')==0){		    					
+						$(this).remove();
+					}
+				});
+
+				$('#general_form_for_create_productinput[type="radio"]').each(function(index, el) {		    				
+					if(!$(this).prop('checked') && $(this).parent().attr('data-moderate')==0){		    					
+						$(this).remove();
+					}
+				});
 		    	$.post('', $('#general_form_for_create_product form').serialize(), function(data, textStatus, xhr) {
 					// alert(data);
 					// $('#dialog_gen_window_form').html(data)
@@ -469,6 +505,30 @@ function show_dialog(html){
 
 }
 
+// убираем всё лишнее
+function remove_all_unnecessary(){
+	// удаляем скрытые не заполненные поля
+	$('#general_form_for_create_product .pad:hidden').remove();
+	// убиваем не заполненные текстовые поля
+	$('#general_form_for_create_product input[type="text"]').each(function(index, el) {
+		if($(this).val()=='' && $(this).parent().attr('data-moderate')==0){
+			$(this).remove();
+		}
+	});
+
+	// убиваем не заполненные текстовые поля
+	$('#general_form_for_create_product textarea').each(function(index, el) {
+		if($(this).val()=='' && $(this).parent().attr('data-moderate')==0){
+			$(this).remove();
+		}
+	});
+
+	$('#general_form_for_create_product input[type="checkbox"], #general_form_for_create_productinput[type="radio"]').each(function(index, el) {		    				
+		if(!$(this).prop('checked') && $(this).parent().attr('data-moderate')==0){		    					
+			moder = true;
+		}
+	});
+}
 
 // создание диалогового окна с выбором заведённых вариантов
 function show_dialog_var(html){
@@ -476,9 +536,37 @@ function show_dialog_var(html){
 	buttons.push({
 	    text: 'OK',
 	    click: function() {
-	    	var serialize = $('#dialog_gen_window_form form').serialize();
 	    	
-	    	$('#general_form_for_create_product .pad:hidden').remove();
+	    	// убираем всё лишнее
+	    	// удаляем скрытые не заполненные поля
+			$('#general_form_for_create_product .pad:hidden').remove();
+			// убиваем не заполненные текстовые поля
+			$('#general_form_for_create_product input[type="text"]').each(function(index, el) {
+				if($(this).val()=='' && $(this).parent().attr('data-moderate')==0){
+					$(this).remove();
+				}
+			});
+
+				// убиваем не заполненные текстовые поля
+			$('#general_form_for_create_product textarea').each(function(index, el) {
+				if($(this).val()=='' && $(this).parent().attr('data-moderate')==0){
+					$(this).remove();
+				}
+			});
+
+			$('#general_form_for_create_product input[type="checkbox"]').each(function(index, el) {		    				
+				if(!$(this).prop('checked') && $(this).parent().attr('data-moderate')==0){		    					
+					$(this).remove();
+				}
+			});
+
+			$('#general_form_for_create_productinput[type="radio"]').each(function(index, el) {		    				
+				if(!$(this).prop('checked') && $(this).parent().attr('data-moderate')==0){		    					
+					$(this).remove();
+				}
+			});
+
+	    	var serialize = $('#dialog_gen_window_form form').serialize();
 		    $.post('', serialize, function(data, textStatus, xhr) {
 				
 				//$('#dialog_gen_window_form').append(data);
