@@ -101,8 +101,7 @@
 			$dateDataObj = json_decode($_GET['dateDataObj']);
 	        $specification_num = Agreement::add_items_for_specification($dateDataObj,$spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
 	
-			//unset($_SESSION['data_for_specification']);  
-			
+			unset($_SESSION['data_for_specification']);  
 			// создали спецификацию перезагружаем страницу с указанием номера и флагом open = specification
 			header('Location:?'.addOrReplaceGetOnURL('open=specification&specification_num='.$specification_num,'short_description&conrtol_num')); 
 			exit;    
@@ -185,7 +184,7 @@
 				$table .= '<tr class="bold_font"><td colspan="5">Итого с НДС</td><td class="price">'.number_format($itogo,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 				$table .= '<tr class="bold_font"><td colspan="5">Из них НДС (18%)</td><td class="price">'.number_format($nds,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 				$table .= '</table>';*/
-				echo '<pre>';print_r($val);echo '</pre>';
+				// echo '<pre>';print_r($val);echo '</pre>';
 				
 				$table_data = Agreement::build_specification_tbl($dateDataObj->doc_type,$val);
 				
