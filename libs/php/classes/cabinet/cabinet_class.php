@@ -3856,19 +3856,19 @@
 
 		// преобразует статус снабжения в читабельный вид
 		protected function show_cirilic_name_status_snab($status_snab){
-			if(substr_count($status_snab, '_pause')){
-				$status_snab = 'На паузе';
-			}
-
+			// if(substr_count($status_snab, '_pause')){
+			// 	$status_snab = 'На паузе';
+			// }
+			$status_snab = $this->POSITION_NO_CATALOG->get_name_group($status_snab);
 			// echo '<pre>';
 			// print_r($this->POSITION_NO_CATALOG->status_snab);
 			// echo '</pre>';
 						
-			if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
-				$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
-			}else{
-				$status_snab;
-			}
+			// if(isset($this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'])){
+			// 	$status_snab = $this->POSITION_NO_CATALOG->status_snab[$status_snab]['name'];
+			// }else{
+			// 	$status_snab;
+			// }
 			return $status_snab;
 		}
 
@@ -4236,6 +4236,13 @@
 
 				case 'calk_snab':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE 'calculate_is_ready' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
+					break;
+
+				case 'in_work_snab':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` IN ('on_calculation_snab','on_recalculation_snab','in_calculation') AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
+					break;
+				case 'denied':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` IN ('tz_is_not_correct_on_recalculation','tz_is_not_correct') AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
 
 				default:

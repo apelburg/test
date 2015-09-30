@@ -969,7 +969,8 @@ $(document).on('click', '.take_in_operation', function(event) {
 			if(data['response'] != 'OK'){
 				alert(data);
 			}else{
-				replace_query_row_obj(obj_row);
+				standard_response_handler(data)
+				// replace_query_row_obj(obj_row);
 			}
 	},'json');
 });
