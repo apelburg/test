@@ -44,7 +44,7 @@
             </td>
             <td align="right">
                 <?php 
-                    if(isset($_GET['open']) && $_GET['open']== 'specification')
+                    if($dateDataObj->doc_type=='spec' && isset($_GET['open']) && $_GET['open']== 'specification')
                     {
                 ?>
                 
@@ -53,7 +53,7 @@
                    <button type="button" onclick=" location = location.pathname + '?page=agreement&section=specification_editor&client_id=<?php echo $client_id; ?>&specification_num=<?php echo $key; ?>&agreement_id=<?php echo $agreement_id; ?>' ;" style="cursor:pointer;">редактировать СП</button>
                  <?php 
                     }
-                    else{
+                    else if($dateDataObj->doc_type=='spec'){
             
                         // if($user_status=='1' && ((boolean)$agreement['standart'])){
                        if((boolean)$agreement['standart']){
@@ -62,7 +62,7 @@
                 <?php 
                         }
                     }
-                    if(((boolean)$agreement['standart']) || (isset($_GET['open']) && $_GET['open'] == 'specification')){
+                    if($dateDataObj->doc_type=='spec' && ((boolean)$agreement['standart']) || (isset($_GET['open']) && $_GET['open'] == 'specification')){
                 ?>
                 <button type="button" onclick="conv_specification.start();print_agreement();" style="cursor:pointer;">распечатать</button>&nbsp;&nbsp;&nbsp;&nbsp;
                 <?php 

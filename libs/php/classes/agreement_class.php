@@ -401,7 +401,7 @@
 			return false;
 		
 		}
-		static function prepare_general_doc($doc,$general_data){
+		static function prepare_general_doc($doc,$general_data,$table){
 			//global $mysqli;
 			
 	
@@ -442,14 +442,14 @@
 				}
 			
 		
-			
+			/*
                 if($specifications_arr[$key][0]['specification_type'] == 'date'){
 				    $doc = str_replace('[PAYMENT_DATE]',$paymnet_date,$doc );
 				    $doc = str_replace('[DELIVERY_DATE]',$delivery_date,$doc );
 					$doc = str_replace('[MAKET_HANDING_DATE]',$maket_handing_date,$doc );
 					$doc = str_replace('[MAKET_SIGN_DATE]',$maket_sign_date,$doc );
 					
-				}
+				}*/
 				//$doc = str_replace('[SPECIFICATION_NUM]',$specification_num,$doc );
 				//$doc = str_replace('[SPECIFICATION_DATE]',$specificationDate,$doc );
 				//$doc = str_replace('[AGREEMENT_NUM]',$agreement_num,$doc );
@@ -470,7 +470,7 @@
 				$doc = str_replace('[OUR_DIRECTOR_POSITION_IN_PADEG]','<?php echo $general_data[\'our_chief\']; ?>',$doc );
 			    $doc = str_replace('[OUR_BASIC_DOC]','<?php echo $general_data[\'our_chief\']; ?>' ,$doc );
 				
-				$doc = str_replace('[CLIENT_DIRECTOR]',$client_director,$doc );
+				/*$doc = str_replace('[CLIENT_DIRECTOR]',$client_director,$doc );
 				$doc = str_replace('[CLIENT_DIRECTOR_IN_PADEG]',$client_director_in_padeg,$doc );
 		        $doc = str_replace('[CLIENT_DIRECTOR_POSITION]',$client_contface_position,$doc );
 				$doc = str_replace('[CLIENT_DIRECTOR_POSITION_IN_PADEG]',$client_contface_position_in_padeg,$doc );
@@ -481,7 +481,7 @@
 				$doc = str_replace('[CLIENT_DIRECTOR]',$client_director,$doc );
 				 
 			    $doc = str_replace('[OUR_COMP_FULL_NAME]',$our_comp_full_name,$doc );
-			    $doc = str_replace('[CLIENT_COMP_FULL_NAME]',$client_comp_full_name,$doc );
+			    $doc = str_replace('[CLIENT_COMP_FULL_NAME]',$client_comp_full_name,$doc );*/
 				 
 				
 				$doc = str_replace('[OUR_COMP_LEGAL_ADDRESS]','<?php echo $our_firm[\'legal_address\']; ?>',$doc );
@@ -507,18 +507,19 @@
 		
 		}
 		
-		static function build_specification_tbl($table,$data){	
+		static function build_specification_tbl($table,$doc_type,$data){	
 		        $itogo=0;
 				$nds=0;
-				$table .= '<table id="spec_tbl" class="spec_tbl"><tr class="bold_font"><td>№</td><td>Наименование и<br>описание продукции</td><td>Кол-во продукции</td><td colspan="2">стоимость за штуку</td><td colspan="2">Общая стоимость</td>';
-				
+				$table .= '<table id="spec_tbl" class="spec_tbl">';
+				if($doc_type=='spec') $table .= '<tr class="bold_font"><td>№</td><td>Наименование и<br>описание продукции</td><td>Кол-во продукции</td><td colspan="2">стоимость за штуку</td><td colspan="2">Общая стоимость</td></tr>';
+				if($doc_type=='oferta') $table .= '<tr class="bold_font"><td>№</td><td>Товары (работы, услуги)</td><td>Кол-во</td><td colspan="2">Цена</td><td colspan="2">Сумма</td></tr>';
+
 				foreach($data as $key2 => $val2)
 				{
-				    $table .= '</tr><tr><td class="num">'.($key2+1).'</td><td class="name">'.$data[$key2]['name'].'</td><td class="quantity">'.$data[$key2]['quantity'].'</td><td class="price">'.$data[$key2]['price'].'</td><td class="currensy">р.</td><td class="price">'.$data[$key2]['summ'].'</td><td class="currensy">р.</td>';
+				    $table .= '<tr><td class="num">'.($key2+1).'</td><td class="name">'.$data[$key2]['name'].'</td><td class="quantity">'.$data[$key2]['quantity'].'</td><td class="price">'.$data[$key2]['price'].'</td><td class="currensy">р.</td><td class="price">'.$data[$key2]['summ'].'</td><td class="currensy">р.</td></tr>';
 					$itogo += (float)$data[$key2]['summ'];
 					$nds += round(($data[$key2]['summ']/118*18), 2);
 				}
-				$table .= '</tr>';
 				$table .= '<tr class="bold_font"><td colspan="5">Итого с НДС</td><td class="price">'.number_format($itogo,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 				$table .= '<tr class="bold_font"><td colspan="5">Из них НДС (18%)</td><td class="price">'.number_format($nds,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 				$table .= '</table>';
