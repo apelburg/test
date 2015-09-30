@@ -914,6 +914,10 @@ echo $query;
 						// echo $query2.'<br><br>';exit;
 						$mysqli->query($query2) or die($mysqli->error);	
                         }
+
+
+
+                    	
                     }
 
 

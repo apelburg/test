@@ -889,8 +889,9 @@ $(document).on('click', '.attach_the_manager', function(event) {
 		manager_id:manager_id,
 		rt_list_id:rt_list_id
 	}, function(data, textStatus, xhr) {
-		show_dialog_and_send_POST_window(data,'Выбрать менеджера');
-	});
+		// show_dialog_and_send_POST_window(data,'Выбрать менеджера');
+		standard_response_handler(data);
+	},'json');
 });
 
 
@@ -907,10 +908,11 @@ $(document).on('click', '.attach_the_client', function(event) {
 		manager_id:manager_id,
 		rt_list_id:rt_list_id
 	}, function(data, textStatus, xhr) {
-		show_dialog_and_send_POST_window(data,'Выбрать клиента',750);
+		// show_dialog_and_send_POST_window(data,'Выбрать клиента',750);
+		standard_response_handler(data);
 		// replace_query_row_obj(obj);
 		// location.reload();
-	});
+	},'json');
 });
 
 
@@ -947,9 +949,9 @@ $(document).on('click', '#chose_client_tbl table tr td', function(event) {
 function change_attache_manager(data){
 	var id_row = '#rt_list_id_'+data['rt_list_id'];
 	$(id_row).find('.attach_the_manager').attr('data-id',data['manager_id']).html(data['manager_name']);
-	if ($('#dialog_gen_window_form').length) {
-		$('#dialog_gen_window_form').remove();
-	};
+	// if ($('#dialog_gen_window_form').length) {
+	// 	$('#dialog_gen_window_form').remove();
+	// };
 }
 
 

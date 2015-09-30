@@ -704,6 +704,9 @@ PS было бы неплохо взять взять это за правило
                          $html .= '<tr><td colspan="2"><div class="section_div">'.$section_product_array['name'].'</div></td></tr>'; // название раздела
                          
                          foreach ($section_product_array['sections'] as $key => $value) {
+                              if($this->user_access != 1 && $key == 'pol_many_temp'){
+                                   continue;
+                              }
                               if($value['access']){
                                    $readonly = ($value['readonly'])?'disabled':'';
                                    $readonly_style = ($value['readonly'])?'style="color:grey"':'';
@@ -1185,7 +1188,7 @@ PS было бы неплохо взять взять это за правило
                
                // возвращает таблицу всех возможных вариантов из множества, которое натыкал юзер
                private function greate_table_variants_Html($arr,$product_options){
-                    
+                    // удаляем дубли
                     $arr = $this->delete_identical_variants_Array($arr);
                     // поучаем массив вариантов
                     $array = $this->greate_array_variants_Array($arr);
