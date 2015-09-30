@@ -101,8 +101,7 @@
 			$dateDataObj = json_decode($_GET['dateDataObj']);
 	        $specification_num = Agreement::add_items_for_specification($dateDataObj,$spec_num,$_SESSION['data_for_specification'],$client_id,$agreement_id,$agreement['date'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['date'],$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);
 	
-			//unset($_SESSION['data_for_specification']);  
-			
+			unset($_SESSION['data_for_specification']);  
 			// создали спецификацию перезагружаем страницу с указанием номера и флагом open = specification
 			header('Location:?'.addOrReplaceGetOnURL('open=specification&specification_num='.$specification_num,'short_description&conrtol_num')); 
 			exit;    
@@ -169,8 +168,7 @@
 			echo '</pre>';
 			*/
 			$specifications = '';
-			$table ='';
-			
+
 			// строим вывод спецификации(ий)
 			foreach($specifications_arr as $key => $val)
 			{
@@ -180,16 +178,15 @@
 				foreach($val as $key2 => $val2)
 				{
 				    $table .= '</tr><tr><td class="num">'.($key2+1).'</td><td class="name">'.$val[$key2]['name'].'</td><td class="quantity">'.$val[$key2]['quantity'].'</td><td class="price">'.$val[$key2]['price'].'</td><td class="currensy">р.</td><td class="price">'.$val[$key2]['summ'].'</td><td class="currensy">р.</td>';
-					$itogo += (float)$val[$key2]['summ'];
-					$nds += round(($val[$key2]['summ']/118*18), 2);
+					
 				}
 				$table .= '</tr>';
 				$table .= '<tr class="bold_font"><td colspan="5">Итого с НДС</td><td class="price">'.number_format($itogo,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 				$table .= '<tr class="bold_font"><td colspan="5">Из них НДС (18%)</td><td class="price">'.number_format($nds,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 				$table .= '</table>';*/
-				echo '<pre>';print_r($val);echo '</pre>';
+				// echo '<pre>';print_r($val);echo '</pre>';
 				
-				$table .= Agreement::build_specification_tbl($table,$dateDataObj->doc_type,$val);
+				$table_data = Agreement::build_specification_tbl($dateDataObj->doc_type,$val);
 				
 				$date_arr = explode('-',$val[0]['date']);
 				$specification_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';
@@ -197,11 +194,11 @@
 				$production_term_in_days_word = (trim((int)$production_term_in_days)==0)? 'ноль' : trim(num_word_transfer((int)$production_term_in_days));
 				
 
-				list($first_part,$second_part) = explode('-',number_format($itogo,2,'-',''));
+				list($first_part,$second_part) = explode('-',number_format($table_data['itogo'],2,'-',''));
 				$for_pay = num_word_transfer($first_part);
 				$for_pay = strtr($for_pay,$desjatichn_word_transfer_arr);
 			
-				list($first_part_nds,$second_part_nds) = explode('-',number_format($nds,2,'-',''));
+				list($first_part_nds,$second_part_nds) = explode('-',number_format($table_data['nds'],2,'-',''));
 				//$for_pay_nds = num_word_transfer($first_part_nds);
 				//$for_pay_nds = strtr($for_pay_nds,$desjatichn_word_transfer_arr);
 				
@@ -226,7 +223,7 @@
 				$agreement_num = '<?php echo $agreement[\'agreement_num\']; ?>';
 				$agreementDate = '<?php echo $agreement_date; ?>';
 				$specificationDate = '<?php echo $specification_date; ?>';
-				$specification_table = '<?php echo $table; ?>';
+				$specification_table = '<?php echo $table_data[\'table\']; ?>';
 				
 				
 				/*$production_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $specifications_arr[$key][0][\'item_production_term\']; ?>&nbsp;</span>';*/
@@ -279,7 +276,7 @@
 				
 				$our_comp_full_name = '<?php echo $agreement[\'our_comp_full_name\']; ?>';
 				$client_comp_full_name = '<?php echo $agreement[\'client_comp_full_name\']; ?>';
-				$for_pay_summ = '<?php echo number_format($itogo,"2",".",""); ?>';
+				$for_pay_summ = '<?php echo number_format($table_data[\'itogo\'],"2",".",""); ?>';
 				$for_pay_text = '<?php echo $for_pay; ?>';
 				
 				 
@@ -459,18 +456,17 @@
         if(!$general_data){ echo 'не удалость получить данные оферты'; return; }
 		
 		//!!!!!!!!!!!!!!!  oferta_num  oferta_type date_time
-		
-		// echo '<pre>general_data'; print_r($general_data); echo '</pre>';
+		//
+		//  echo '<pre>general_data'; print_r($general_data); echo '</pre>';
 		
 		$oferta_tbl_data =  Agreement::fetch_oferta_data($_GET['oferta_id']);
 		// echo '<pre>oferta_data'; print_r($oferta_tbl_data); echo '</pre>';
 		
-		$table ='';
-		$table .= Agreement::build_specification_tbl($table,$dateDataObj->doc_type,$oferta_tbl_data);
-		// echo $table;
+		$table_data = Agreement::build_specification_tbl($dateDataObj->doc_type,$oferta_tbl_data);
+		//  echo '<pre>'; print_r($table); echo '</pre>';
 		
 		// считываем файл оферты
-		$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.substr($general_data['date_time'],0,4).'/offerts/'.$general_data['our_requisit_id'].'_'.$general_data['client_requisit_id'].'/'.$general_data['oferta_num'].'.tpl';
+		$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.substr($general_data['date_time'],0,4).'/offerts/'.$general_data['our_requisit_id'].'_'.$general_data['client_requisit_id'].'/'.$general_data['num'].'.tpl';
 				
 		$fd = fopen($file_name,"r");
 		$doc = fread($fd,filesize($file_name));
@@ -479,17 +475,17 @@
       
 		// наши реквизиты
 		$our_firm = fetch_our_certain_firm_data($general_data['our_requisit_id']);
-	    // echo '<pre>'; print_r($our_firm_data); echo '</pre>';
+	    // echo '<pre>'; print_r($our_firm); echo '</pre>';
 		
 		// реквизиты клиента 
 		$client_firm =  Client::fetch_requisites($general_data['client_requisit_id']);
-	
+	    // echo '<pre>'; print_r($client_firm); echo '</pre>';
 
 
 		
 		ob_start();
 			//echo '----------проба--------';					
-			eval('?>'.Agreement::prepare_general_doc($doc,$general_data,$table).'<?php ');
+			eval('?>'.Agreement::prepare_general_doc($doc,$general_data,$table_data).'<?php ');
 		$specifications .= ob_get_contents();
 		ob_get_clean();
 	}
