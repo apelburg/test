@@ -1,8 +1,11 @@
 <?php
 
-    print_r($_GET);// // exit;
-	 
-	$dateDataObj = json_decode($_GET['dateDataObj']);
+    //print_r($_GET); // exit;
+	
+	// ПРЕДПОЛАГАЕМ ЧТО ЕСЛИ НЕ БЫЛ ПЕРЕДАН ПАРАМЕТР  $_GET['dateDataObj'] ТО ЭТО ССЫЛКА НА СПЕЦИФИКАЦИЮ
+	// НАДО ПЕРЕДЕЛАТЬ ССЫЛКИ В СПИСКЕ
+	if(isset($_GET['dateDataObj'])) $dateDataObj = json_decode($_GET['dateDataObj']);
+	else $dateDataObj->doc_type = 'spec';
 
     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
@@ -186,7 +189,7 @@
 				$table .= '</table>';*/
 				echo '<pre>';print_r($val);echo '</pre>';
 				
-				$table .= Agreement::build_specification_tbl($table,$val);
+				$table .= Agreement::build_specification_tbl($table,$dateDataObj->doc_type,$val);
 				
 				$date_arr = explode('-',$val[0]['date']);
 				$specification_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';
@@ -425,9 +428,9 @@
 		// создаем оферту 
 		if(!isset($_GET['oferta_id']))
 		{  
-			// )&& isset($_SESSION['data_for_specification']
-		    echo 1111111111111;
-			echo '<pre>data_for_specification --'; print_r($_SESSION['data_for_specification']); echo '-- </pre>'; 
+			//)&& isset($_SESSION['data_for_specification']
+		   
+			// echo '<pre>data_for_specification --'; print_r($_SESSION['data_for_specification']); echo '-- </pre>'; 
 		/*	$agreement = Agreement::fetch_agreement_content($agreement_id);
 			
 			
@@ -452,28 +455,43 @@
 			exit;  
 		}
 		
-		$oferta_common_data =  Agreement::fetch_oferta_common_data($_GET['oferta_id']);
-        if(!$oferta_common_data){ echo 'не удалость получить данные оферты'; return; }
+		$general_data =  Agreement::fetch_oferta_common_data($_GET['oferta_id']);
+        if(!$general_data){ echo 'не удалость получить данные оферты'; return; }
 		
 		//!!!!!!!!!!!!!!!  oferta_num  oferta_type date_time
 		
-		echo '<pre>oferta_common_data'; print_r($oferta_common_data); echo '</pre>';
+		// echo '<pre>general_data'; print_r($general_data); echo '</pre>';
 		
 		$oferta_tbl_data =  Agreement::fetch_oferta_data($_GET['oferta_id']);
-		echo '<pre>oferta_data'; print_r($oferta_tbl_data); echo '</pre>';
+		// echo '<pre>oferta_data'; print_r($oferta_tbl_data); echo '</pre>';
 		
 		$table ='';
-		$table .= Agreement::build_specification_tbl($table,$oferta_tbl_data);
-		echo $table;
+		$table .= Agreement::build_specification_tbl($table,$dateDataObj->doc_type,$oferta_tbl_data);
+		// echo $table;
 		
 		// считываем файл оферты
-		$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.substr($oferta_common_data['date_time'],0,4).'/offerts/'.$oferta_common_data['our_requisit_id'].'_'.$oferta_common_data['client_requisit_id'].'/'.$oferta_common_data['oferta_num'].'.tpl';
+		$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.substr($general_data['date_time'],0,4).'/offerts/'.$general_data['our_requisit_id'].'_'.$general_data['client_requisit_id'].'/'.$general_data['oferta_num'].'.tpl';
 				
 		$fd = fopen($file_name,"r");
-		$content = fread($fd,filesize($file_name));
+		$doc = fread($fd,filesize($file_name));
 		fclose($fd);
+
+      
+		// наши реквизиты
+		$our_firm = fetch_our_certain_firm_data($general_data['our_requisit_id']);
+	    // echo '<pre>'; print_r($our_firm_data); echo '</pre>';
 		
-		echo $content;
+		// реквизиты клиента 
+		$client_firm =  Client::fetch_requisites($general_data['client_requisit_id']);
+	
+
+
+		
+		ob_start();
+			//echo '----------проба--------';					
+			eval('?>'.Agreement::prepare_general_doc($doc,$general_data,$table).'<?php ');
+		$specifications .= ob_get_contents();
+		ob_get_clean();
 	}
 	
 	
@@ -481,8 +499,7 @@
 	 
 	// если $dateDataObj->doc_type=='spec' и есть $_GET['requisit_id'] ИЛИ есть $_GET['open'] но он не равен 'specification'
 	// - открываем договор		 
-	if($dateDataObj->doc_type=='spec' && isset($_GET['requisit_id']) || (isset($_GET['open']) && $_GET['open']!= 'specification')){
-
+	if($dateDataObj->doc_type=='spec' && (isset($_GET['requisit_id']) || (isset($_GET['open']) && $_GET['open']!= 'specification'))){
 	   if((boolean)$agreement['standart'] && !(boolean)$agreement['existent']){
 		
 	     $file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.$agreement_year_folder.'/'.$_GET['agreement_type'].'/'.$agreement['our_requisit_id'].'_'.$agreement['client_requisit_id'].'/agreement.tpl';

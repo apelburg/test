@@ -401,19 +401,125 @@
 			return false;
 		
 		}
+		static function prepare_general_doc($doc,$general_data,$table){
+			//global $mysqli;
+			
+	
+				$delivery_adderss_tpl_path = ($general_data['address'] == 'samo_vivoz')? $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/samo_vivoz.tpl':$_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/nasha_dostavka.tpl';
+				$fd = fopen($delivery_adderss_tpl_path,'rb');
+				$delivery_adderss_string = fread($fd,filesize($delivery_adderss_tpl_path));
+				fclose($fd);
+				$delivery_adderss = str_replace('[DELIVERY_ADDRESS]',$general_data['address'],$delivery_adderss_string );
+			
+			   if($general_data['oferta_type'] == 'days'){
+				    $prepayment_term = '<?php include ($_SERVER[\'DOCUMENT_ROOT\'].\'/os/modules/agreement/agreements_templates/\'.$general_data[\'prepayment\'].\'_prepaiment_conditions.tpl\'); ?>';
+				
+				}
+				if($general_data['oferta_type'] == 'date'){
+				    $delivery_date_arr = explode(' ',$general_data['shipping_date_time']); 
+				    $delivery_date_arr[0] = implode('.',array_reverse(explode('-',$delivery_date_arr[0])));
+					$delivery_date_arr[1] = explode(':',$delivery_date_arr[1]);
+					$delivery_date_arr[1] = $delivery_date_arr[1][0].' часов '.$delivery_date_arr[1][1].' минут ';
+					
+				    $delivery_date = '<?php echo $delivery_date_arr[1].$delivery_date_arr[0]."г."; ?>';
+					
+					
+					$final_date_time_arr = explode(' ',$general_data['final_date_time']); 
+				    $final_date_time_arr[0] = implode('.',array_reverse(explode('-',$final_date_time_arr[0])));
+					$final_date_time_arr[1] = explode(':',$final_date_time_arr[1]);
+					$final_date_time_arr[1] = $final_date_time_arr[1][0].' часов '.$final_date_time_arr[1][1].' минут ';
+					
+					$maket_handing_date = '<?php echo $final_date_time_arr[1].$final_date_time_arr[0]."г."; ?>';
+					$maket_sign_date = '<?php echo $final_date_time_arr[1].$final_date_time_arr[0]."г."; ?>';
+					$paymnet_date = $final_date_time_arr[1].$final_date_time_arr[0].'г.';
+				
+				     
+					$prepayment_term_tpl_path = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/'.$general_data['prepayment'].'_prepaiment_conditions_type2_by_date.tpl';
+					$fd = fopen($prepayment_term_tpl_path,'rb');
+					$prepayment_term = fread($fd,filesize($prepayment_term_tpl_path));
+					fclose($fd);
+					$prepayment_term = str_replace('[PAYMENT_DATE]',$paymnet_date,$prepayment_term );
+				}
+			
 		
-		static function build_specification_tbl($table,$data){	
+			/*
+                if($specifications_arr[$key][0]['specification_type'] == 'date'){
+				    $doc = str_replace('[PAYMENT_DATE]',$paymnet_date,$doc );
+				    $doc = str_replace('[DELIVERY_DATE]',$delivery_date,$doc );
+					$doc = str_replace('[MAKET_HANDING_DATE]',$maket_handing_date,$doc );
+					$doc = str_replace('[MAKET_SIGN_DATE]',$maket_sign_date,$doc );
+					
+				}*/
+				//$doc = str_replace('[SPECIFICATION_NUM]',$specification_num,$doc );
+				//$doc = str_replace('[SPECIFICATION_DATE]',$specificationDate,$doc );
+				//$doc = str_replace('[AGREEMENT_NUM]',$agreement_num,$doc );
+				//$doc = str_replace('[AGREEMENT_DATE]',$agreementDate,$doc );
+				$doc = str_replace('[PRODUCTION_TERM]','<?php echo $general_data[\'item_production_term\']; ?>',$doc );
+				$doc = str_replace('[PREPAMENT_TERM]',$prepayment_term,$doc );
+				$doc = str_replace('[DELIVERY_TERM]','<?php echo $general_data[\'shipping_date_time\']; ?>',$doc );
+				$doc = str_replace('[DELIVERY_ADDRESS]',$delivery_adderss,$doc );
+				//$doc = str_replace('[FOR_PAY]',$for_pay_summ,$doc );
+				//$doc = str_replace('[FOR_PAY_TEXT]',$for_pay_text,$doc );
+				
+				$doc = str_replace('[SPECIFICATION_TABLE]',$table,$doc );
+
+
+                $doc = str_replace('[OUR_DIRECTOR]','<?php echo $general_data[\'our_chief\']; ?>',$doc );
+				$doc = str_replace('[OUR_DIRECTOR_IN_PADEG]','<?php echo $general_data[\'our_chief\']; ?>',$doc );
+		        $doc = str_replace('[OUR_DIRECTOR_POSITION]','<?php echo $general_data[\'our_chief\']; ?>',$doc );
+				$doc = str_replace('[OUR_DIRECTOR_POSITION_IN_PADEG]','<?php echo $general_data[\'our_chief\']; ?>',$doc );
+			    $doc = str_replace('[OUR_BASIC_DOC]','<?php echo $general_data[\'our_chief\']; ?>' ,$doc );
+				
+				/*$doc = str_replace('[CLIENT_DIRECTOR]',$client_director,$doc );
+				$doc = str_replace('[CLIENT_DIRECTOR_IN_PADEG]',$client_director_in_padeg,$doc );
+		        $doc = str_replace('[CLIENT_DIRECTOR_POSITION]',$client_contface_position,$doc );
+				$doc = str_replace('[CLIENT_DIRECTOR_POSITION_IN_PADEG]',$client_contface_position_in_padeg,$doc );
+			    $doc = str_replace('[CLIENT_BASIC_DOC]',$client_basic_doc ,$doc );
+	
+				
+				
+				$doc = str_replace('[CLIENT_DIRECTOR]',$client_director,$doc );
+				 
+			    $doc = str_replace('[OUR_COMP_FULL_NAME]',$our_comp_full_name,$doc );
+			    $doc = str_replace('[CLIENT_COMP_FULL_NAME]',$client_comp_full_name,$doc );*/
+				 
+				
+				$doc = str_replace('[OUR_COMP_LEGAL_ADDRESS]','<?php echo $our_firm[\'legal_address\']; ?>',$doc );
+				$doc = str_replace('[OUR_COMP_POSTAL_ADDRESS]','<?php echo $our_firm[\'postal_address\']; ?>',$doc );
+				$doc = str_replace('[OUR_COMP_INN]','<?php echo $our_firm[\'inn\']; ?>',$doc );
+				$doc = str_replace('[OUR_COMP_OGRN]','<?php echo $our_firm[\'ogrn\']; ?>',$doc ); 
+		        $doc = str_replace('[OUR_COMP_KPP]','<?php echo $our_firm[\'kpp\']; ?>',$doc );
+				$doc = str_replace('[OUR_COMP_R_ACCOUNT]','<?php echo $our_firm[\'r_account\']; ?>',$doc );
+				$doc = str_replace('[OUR_COMP_BANK]','<?php echo $our_firm[\'bank\']; ?>',$doc );
+				$doc = str_replace('[OUR_COMP_BIK]','<?php echo $our_firm[\'bik\']; ?>',$doc );
+				$doc = str_replace('[OUR_COMP_COR_ACCOUNT]','<?php echo $our_firm[\'cor_account\']; ?>',$doc );
+				 
+				$doc = str_replace('[CLIENT_COMP_LEGAL_ADDRESS]','<?php echo $client_firm[\'legal_address\']; ?>',$doc );
+				$doc = str_replace('[CLIENT_COMP_POSTAL_ADDRESS]','<?php echo $client_firm[\'postal_address\']; ?>',$doc );
+				$doc = str_replace('[CLIENT_COMP_INN]','<?php echo $client_firm[\'inn\']; ?>',$doc );
+				$doc = str_replace('[CLIENT_COMP_OGRN]','<?php echo $client_firm[\'ogrn\']; ?>',$doc );
+				$doc = str_replace('[CLIENT_COMP_KPP]','<?php echo $client_firm[\'kpp\']; ?>',$doc );
+				$doc = str_replace('[CLIENT_COMP_R_ACCOUNT]','<?php echo $client_firm[\'r_account\']; ?>',$doc );
+				$doc = str_replace('[CLIENT_COMP_BANK]','<?php echo $client_firm[\'bank\']; ?>',$doc );
+				$doc = str_replace('[CLIENT_COMP_BIK]','<?php echo $client_firm[\'bik\']; ?>',$doc );
+				$doc = str_replace('[CLIENT_COMP_COR_ACCOUNT]','<?php echo $client_firm[\'cor_account\']; ?>',$doc );/**/
+			return $doc;
+		
+		}
+		
+		static function build_specification_tbl($table,$doc_type,$data){	
 		        $itogo=0;
 				$nds=0;
-				$table .= '<table id="spec_tbl" class="spec_tbl"><tr class="bold_font"><td>№</td><td>Наименование и<br>описание продукции</td><td>Кол-во продукции</td><td colspan="2">стоимость за штуку</td><td colspan="2">Общая стоимость</td>';
-				
+				$table .= '<table id="spec_tbl" class="spec_tbl">';
+				if($doc_type=='spec') $table .= '<tr class="bold_font"><td>№</td><td>Наименование и<br>описание продукции</td><td>Кол-во продукции</td><td colspan="2">стоимость за штуку</td><td colspan="2">Общая стоимость</td></tr>';
+				if($doc_type=='oferta') $table .= '<tr class="bold_font"><td>№</td><td>Товары (работы, услуги)</td><td>Кол-во</td><td colspan="2">Цена</td><td colspan="2">Сумма</td></tr>';
+
 				foreach($data as $key2 => $val2)
 				{
-				    $table .= '</tr><tr><td class="num">'.($key2+1).'</td><td class="name">'.$data[$key2]['name'].'</td><td class="quantity">'.$data[$key2]['quantity'].'</td><td class="price">'.$data[$key2]['price'].'</td><td class="currensy">р.</td><td class="price">'.$data[$key2]['summ'].'</td><td class="currensy">р.</td>';
+				    $table .= '<tr><td class="num">'.($key2+1).'</td><td class="name">'.$data[$key2]['name'].'</td><td class="quantity">'.$data[$key2]['quantity'].'</td><td class="price">'.$data[$key2]['price'].'</td><td class="currensy">р.</td><td class="price">'.$data[$key2]['summ'].'</td><td class="currensy">р.</td></tr>';
 					$itogo += (float)$data[$key2]['summ'];
 					$nds += round(($data[$key2]['summ']/118*18), 2);
 				}
-				$table .= '</tr>';
 				$table .= '<tr class="bold_font"><td colspan="5">Итого с НДС</td><td class="price">'.number_format($itogo,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 				$table .= '<tr class="bold_font"><td colspan="5">Из них НДС (18%)</td><td class="price">'.number_format($nds,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 				$table .= '</table>';
