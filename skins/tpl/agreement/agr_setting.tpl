@@ -1,3 +1,4 @@
+<style> .main_menu_tbl{ display:none; } </style>
 <div  class="requisites_choice" style="margin-top:200px;">
     <div style="width:500px;padding:0px;margin:auto;border:1px solid #CCCCCC;box-shadow: 0 0 8px -1px #555555;-moz-box-shadow: 0 0 8px -1px #555555;-webkit-box-shadow: 0 0 8px -1px #555555;">
         <form method="GET" action="">
