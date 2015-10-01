@@ -271,7 +271,7 @@
 						 }
 						 
 				         // записываем ряд
-						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$dop_data['quantity'],$price_out);
+						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$dop_data['quantity'],$dop_data['price_out']);
 						 
 						 
 						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type DESC";
@@ -370,7 +370,11 @@
 			$fd = fopen($file_name,'w');
 			$write_result = fwrite($fd,$file_content); //\r\n
 			fclose($fd);
-		
+			
+			// создаем предзаказ 
+			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+		    RT::make_order($rows_data,$client_id,$_GET['query_num'],$oferta_num,0,$dateDataObj->doc_type,$dateDataObj->data_type);
+			
 			return $oferta_id;
 		}
 		
@@ -819,7 +823,7 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
-			//RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id);
+			RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id,$dateDataObj->doc_type,$dateDataObj->data_type);
 			
 			return $specification_num;
 

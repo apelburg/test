@@ -173,26 +173,12 @@
 			foreach($specifications_arr as $key => $val)
 			{
 			
-	/*			$table .= '<table id="spec_tbl" class="spec_tbl"><tr class="bold_font"><td>№</td><td>Наименование и<br>описание продукции</td><td>Кол-во продукции</td><td colspan="2">стоимость за штуку</td><td colspan="2">Общая стоимость</td>';
-				
-				foreach($val as $key2 => $val2)
-				{
-				    $table .= '</tr><tr><td class="num">'.($key2+1).'</td><td class="name">'.$val[$key2]['name'].'</td><td class="quantity">'.$val[$key2]['quantity'].'</td><td class="price">'.$val[$key2]['price'].'</td><td class="currensy">р.</td><td class="price">'.$val[$key2]['summ'].'</td><td class="currensy">р.</td>';
-					
-				}
-				$table .= '</tr>';
-				$table .= '<tr class="bold_font"><td colspan="5">Итого с НДС</td><td class="price">'.number_format($itogo,"2",".",'').'</td><td class="currensy">р.</td></tr>';
-				$table .= '<tr class="bold_font"><td colspan="5">Из них НДС (18%)</td><td class="price">'.number_format($nds,"2",".",'').'</td><td class="currensy">р.</td></tr>';
-				$table .= '</table>';*/
 				// echo '<pre>';print_r($val);echo '</pre>';
 				
 				$table_data = Agreement::build_specification_tbl($dateDataObj->doc_type,$val);
 				
 				$date_arr = explode('-',$val[0]['date']);
-				$specification_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';
-				$production_term_in_days = getWorkingDays($val[0]['date']." 00:00:00",$specifications_arr[$key][0]['shipping_date_time']);
-				$production_term_in_days_word = (trim((int)$production_term_in_days)==0)? 'ноль' : trim(num_word_transfer((int)$production_term_in_days));
-				
+				$specification_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';	
 
 				list($first_part,$second_part) = explode('-',number_format($table_data['itogo'],2,'-',''));
 				$for_pay = num_word_transfer($first_part);
@@ -227,10 +213,16 @@
 				
 				
 				/*$production_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $specifications_arr[$key][0][\'item_production_term\']; ?>&nbsp;</span>';*/
-				$production_term = '<span bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="item_production_term" file_link="1"><?php echo $production_term_in_days.\' (\'.$production_term_in_days_word.\')\'; ?>&nbsp;</span>';
+				$production_term = '<?php echo $production_term_in_days.\' (\'.$production_term_in_days_word.\')\'; ?>';
 				
 				if($specifications_arr[$key][0]['specification_type'] == 'days'){
 				    $prepayment_term = '<?php include ($_SERVER[\'DOCUMENT_ROOT\'].\'/os/modules/agreement/agreements_templates/\'.$specifications_arr[$key][0][\'prepayment\'].\'_prepaiment_conditions.tpl\'); ?>';
+					
+					
+					//$production_term_in_days = getWorkingDays($val[0]['date']." 00:00:00",$specifications_arr[$key][0]['shipping_date_time']);
+				    $production_term_in_days = $specifications_arr[$key][0]['item_production_term'];
+				    $production_term_in_days_word = (trim((int)$production_term_in_days)==0)? 'ноль' : trim(num_word_transfer((int)$production_term_in_days));
+					$production_delivery_term =  $production_term_in_days;//.'('. $production_term_in_days_word.')';
 				
 				}
 				if($specifications_arr[$key][0]['specification_type'] == 'date'){
@@ -259,7 +251,7 @@
 					$prepayment_term = str_replace('[PAYMENT_DATE]',$paymnet_date,$prepayment_term );
 				}
 				
-				$delivery_term = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="makets_delivery_term" file_link="1"><?php echo $specifications_arr[$key][0][\'makets_delivery_term\']; ?>&nbsp;</span>';
+				
 				
 				if($specifications_arr[$key][0]['id'] < 2755){ // не удалять для совместимости ( предыдущий вариант обработки адреса доставки )
 				    $delivery_adderss = '<span class="field_for_fill" managed="text" bd_row_id="<?php echo $specifications_arr[$key][0][\'id\']; ?>" bd_field="address" file_link="1"><?php echo $specifications_arr[$key][0][\'address\']; ?>&nbsp;</span>';
@@ -344,9 +336,9 @@
 				$content = str_replace('[SPECIFICATION_DATE]',$specificationDate,$content );
 				$content = str_replace('[AGREEMENT_NUM]',$agreement_num,$content );
 				$content = str_replace('[AGREEMENT_DATE]',$agreementDate,$content );
-				$content = str_replace('[PRODUCTION_TERM]',$production_term,$content );
+				$content = str_replace('[PRODUCTION_TERM]',$production_delivery_term,$content );
 				$content = str_replace('[PREPAMENT_TERM]',$prepayment_term,$content );
-				$content = str_replace('[DELIVERY_TERM]',$delivery_term,$content );
+				$content = str_replace('[DELIVERY_TERM]','5',$content );
 				$content = str_replace('[DELIVERY_ADDRESS]',$delivery_adderss,$content );
 				$content = str_replace('[FOR_PAY]',$for_pay_summ,$content );
 				$content = str_replace('[FOR_PAY_TEXT]',$for_pay_text,$content );
