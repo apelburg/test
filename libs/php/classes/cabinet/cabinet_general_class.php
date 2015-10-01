@@ -348,8 +348,15 @@
 				`status` = 'not_process'
 				 WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 				$result = $mysqli->query($query) or die($mysqli->error);	
-				echo '{"response":"OK"}';
-				return;		
+				// echo '{"response":"OK"}';
+
+				include_once ('./libs/php/classes/manager_class.php');
+				$manager = Manager::get_snab_name_for_query_String($_POST['manager_id']);
+				
+				$message = 'Запрос был перенаправлен менеджеру '.$manager.'';
+				
+				echo '{"response":"OK","function2":"change_attache_manager","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+						
 			}
 
 			// выводит форму со списоком клиентов для прикрепления к запросу 
@@ -410,7 +417,7 @@
 				$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
 				$html .= '<input type="hidden" value="'.$_POST['client_id'].'" name="client_id">';
 				$html .= '<form>';
-				echo $html;
+				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента","height":"800","width":"1000"}';
 			}
 
 			// прикрепляет клиента к запросу
@@ -444,7 +451,9 @@
 						`status` = 'not_process' 
 						WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 						$result = $mysqli->query($query) or die($mysqli->error);	
-						echo '{"response":"OK","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
+						$message = 'Запрос был перенаправлен менеджеру '.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'';
+						echo '{"response":"OK","function2":"change_attache_manager","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+						// echo '{"response":"OK","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
 
 						break;
 					
@@ -490,7 +499,15 @@
 						
 						// записываем на странице пользователя в строку с установленным клиентом имя первого куратора из списка
 						// затем даём выбрать из иставшихся
-						echo '{"response":"show_new_window","html":"'.base64_encode($html).'","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
+						
+						echo '{"response":"show_new_window",
+								"html":"'.base64_encode($html).'",
+								"title":"Выберите куратора", 
+								"function":"change_attache_manager",
+								"rt_list_id":"'.$_POST['rt_list_id'].'", 
+								"manager_id":"'.$managers_arr[0]['id'].'",
+								"manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"
+							}';
 						break;
 				}
 				// echo '<pre>';

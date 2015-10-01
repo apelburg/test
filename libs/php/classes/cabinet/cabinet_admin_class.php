@@ -371,8 +371,8 @@
 								<tr>
 									<th id="show_allArt"></th>
 									<th>Номер</th>
-									<th>отдан менеджеру</th>
-									<th>запрос от клиента</th>
+									<th>Куратор компании</th>
+									<th>Дата запроса</th>
 									<th>Коммент</th>
 									<th>Компания</th>
 									<th>Сумма</th>
@@ -396,7 +396,8 @@
 						break;
 					case 'no_worcked_snab':
 						//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
-						$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` = 'on_calculation_snab' OR `".RT_DOP_DATA."`.`status_snab` ='on_recalculation_snab')";
+						$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` IN ('on_calculation_snab','on_recalculation_snab','in_calculation')";
+						$where .= " AND `".RT_DOP_DATA."`.`row_status` <> 'red'";
 						break;
 					case 'history':
 						//$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от' OR `".RT_DOP_DATA."`.`status_snab` = 'on_calculation')";
@@ -404,11 +405,12 @@
 						$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."'";
 						break;
 					case 'in_work':
-						$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'on_calculation'";
+						$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' ";
+						$where .= " AND `".RT_DOP_DATA."`.`row_status` <> 'red'";
 						break;
 
 					case 'denied':
-						$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct'";
+						$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` IN ('tz_is_not_correct_on_recalculation','tz_is_not_correct')";
 						break;
 
 					case 'paused':

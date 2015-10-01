@@ -172,6 +172,7 @@ tr.cat_8 td {
 	padding: 5px;
 	border: 1px solid #92B73E;
 	cursor: default;
+	float: left;
 }
 .attach_the_manager:hover,
 .attach_the_client:hover,

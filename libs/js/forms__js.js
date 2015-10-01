@@ -230,9 +230,10 @@ function create_datepicker_for_variant_cont(){
 
 $(document).on('change', '.one_row_for_this_type input[type="radio"]', function(event) {
 	$(this).parent().find('div.pad').hide('fast');
-	$(this).parent().find('div.pad').find('input').prop('checked','false');
+	$(this).parent().find('div.pad').find('input[type="checkbox"],input[type="radio"]').prop('checked',false);
 	if($(this).next().next().next().hasClass('pad')){
 		$(this).next().next().next().show('fast');
+		$(this).next().next().next().find('input[type="checkbox"],input[type="radio"]').prop('checked',false);
 	}
 	
 });

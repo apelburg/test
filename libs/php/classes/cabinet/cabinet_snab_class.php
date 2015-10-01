@@ -301,6 +301,7 @@
 				//////////////////////////////////////
 					$status_or_button = (isset($this->name_cirillic_status[$this->Request['status']])?$this->name_cirillic_status[$this->Request['status']]:'статус не предусмотрен!!!!'.$this->Request['status']);
 
+					$status_or_button = ''; // Слава сказал не показывать статус запроса СНАБАМ
 					// если в массиве $_POST содержится значение, значит мы запрашиваем только одну строку и подставляем значение из массива
 					$rowspan = (isset($_POST['rowspan'])?$_POST['rowspan']:2);
 				

@@ -8,7 +8,8 @@
 		'no_worcked_men' => 'Не обработанные',
 		'in_work' => 'В работе',
 		'in_work_snab' => 'В работе СНАБ',
-		'send_to_snab' => '&&&',
+		'send_to_snab'=>'Отправлено в СНАБ',
+		// 'send_to_snab' => '&&&',
 		'calk_snab' => 'Рассчитанные СНАБ',
 		'ready_KP' => 'Выставлено КП',
 		'denied' => 'ТЗ не корректно',
@@ -22,6 +23,7 @@
 		'start' => 'Запуск',
 		'tz_no_correct' => 'ТЗ не корректно',
 		'purchase' => 'Закупка',
+		'denided_query' => 'Отказанные',
 		'design' => 'Дизайн',
 		'production' => 'Производство',
 		'ready_for_shipment' => 'Готов к отгрузке',
@@ -187,11 +189,11 @@
 						//////////////////////////
 						// делаем фильтрацию в зависимости от того по какому фильтру мы собираемся выбирать выдачу
 						switch ($_GET['subsection']) {
-							case 'history':
-								$query .= " AND `".RT_LIST."`.`status` = 'history' ";
-								break;
+							// case 'history':
+								// $query .= " AND `".RT_LIST."`.`status` = 'history' ";
+								//break;
 							case 'no_worcked_men':
-								$query .= " AND (`".RT_LIST."`.`status` = 'not_process' OR `".RT_LIST."`.`status` = 'taken_into_operation') OR (( `".RT_LIST."`.`manager_id` = '0' OR `".RT_LIST."`.`manager_id` = '') AND (`".RT_LIST."`.`status` = 'not_process')) ";
+								$query .= " AND `".RT_LIST."`.`status` IN ('not_process','taken_into_operation','new_query','not_process') OR (( `".RT_LIST."`.`manager_id` = '0' OR `".RT_LIST."`.`manager_id` = ''".(($this->user_access==5)?"OR `".RT_LIST."`.`manager_id` = '".$this->user_id."'":'').")) ";
 								break;
 							default:
 								$query .= " AND `".RT_LIST."`.`status` = 'in_work'";
@@ -314,7 +316,7 @@
 						<td>'.$calc_summ_dop_uslug2.'</td>
 						<td>'.$in_out.'</td>
 						<td></td>
-						<td data-type="'.$variant['type'].'" data-status="'.$variant['status_snab'].'" class="'.$variant['status_snab'].'_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($variant['status_snab']).'</td>
+						<td data-type="'.$variant['type'].'" data-status="'.$variant['status_snab'].'" class="'.$variant['status_snab'].'_'.$this->user_access.'">'.(($variant['row_status']=="red")?"отказанные":$this->show_cirilic_name_status_snab($variant['status_snab'])).'</td>
 					</tr>';
 					
 				}
@@ -326,13 +328,21 @@
 				switch ($this->Requests['status']) {
 					case 'not_process':
 						$status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+						$client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
 						break;
 					case 'taken_into_operation':
-						$status_or_button = '<div class="get_in_work">Взять в работу</div>';						
+						$status_or_button = '<div class="get_in_work">Взять в работу</div>';
+						$client_button = $this->get_client_name_Database($this->Requests['client_id'],0);						
+						break;
+
+					case 'new_query':
+						$status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+						$client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
 						break;					
 
 					default:
 						$status_or_button = $this->name_cirillic_status[$this->Requests['status']];
+						$client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
 						break;
 				}
 
@@ -340,7 +350,7 @@
 						<tr data-id="'.$this->Requests['id'].'" id="rt_list_id_'.$this->Requests['id'].'">							
 							<td class="show_hide" '.$this->open_close_rowspan.'="2"><span class="cabinett_row_hide'.$this->open_close_class.'"></span></td>
 							<td><a target="_blank" href="./?page=client_folder&client_id='.$this->Requests['client_id'].'&query_num='.$this->Requests['query_num'].'">'.$this->Requests['query_num'].'</a></td>
-							<td>'.$this->get_client_name_Database($this->Requests['client_id'],1).'</td>
+							<td>'.$client_button.'</td>
 							<td>'.$this->Requests['create_time'].'</td>
 							<td><span data-rt_list_query_num="'.$this->Requests['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Requests['query_num']).'"></span></td>
 							<td>'.RT::calcualte_query_summ($this->Requests['query_num']).'</td>

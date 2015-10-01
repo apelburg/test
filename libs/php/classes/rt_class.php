@@ -784,7 +784,7 @@
             /////////////////////////////
 
             //////////////////////////
-            //	Запрашиваем информацию по специяикацииии или оферте-- start
+            //	Запрашиваем информацию по спецификацииии или оферте-- start
             //////////////////////////
 		    if($doc_type=='spec'){
                 $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE `agreement_id` = '".$agreement_id."' AND `specification_num` = '".$doc_num."'";
@@ -924,6 +924,10 @@ echo $query;
 						// echo $query2.'<br><br>';exit;
 						$mysqli->query($query2) or die($mysqli->error);	
                         }
+
+
+
+                    	
                     }
 
 

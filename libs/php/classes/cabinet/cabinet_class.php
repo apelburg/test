@@ -1205,6 +1205,15 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 			}
 
+			// записывает запрос
+			protected function chenge_query_status($query_num,$new_status){
+				// устанавливаем статус запроса на history
+				global $mysqli;
+                $query = "UPDATE `".RT_LIST."` SET `status`= '".$new_status."' 
+                WHERE  `query_num` = '".$query_num."';";
+                $result = $mysqli->query($query) or die($mysqli->error);
+                return true;
+			}
 
 			// пересчёт оплаты по спецификации
 			protected function calculate_the_pyment_price($spec_id){
@@ -1219,7 +1228,7 @@
 					}
 				}
 
-
+				$query_num = $Specificate['query_num'];
 				// $Specificate_arr = $this->get_info_for_spec($spec_id);
 				// получаем ПКО
 				$pko_arr = $this->get_pko_list_for_specificate_Database($spec_id);
@@ -1248,12 +1257,22 @@
 					if($pp_summ > 0 && $pp_summ < $Specificate['spec_price']){
 						if($Specificate['buch_status'] != 'partially_paid'){
 							$query .= ", `buch_status` = 'partially_paid'";
-							$message = "Статус по спецификации изменён на \"частично оплачен\"";						
+							$message = "Статус по спецификации изменён на \"частично оплачен\".";		
+							
+							// перевод запроса в history
+							if($this->chenge_query_status($query_num,'history')){
+								$message .= '&nbsp; Запрос № '.$query_num.' перемещён во вкладку "История"';	
+							}				
+							
 						}
 					}else if($pp_summ > 0 && $pp_summ >= $Specificate['spec_price']){
 						if($Specificate['buch_status'] != 'payment'){
 							$query .= ", `buch_status` = 'payment'";
 							$message = "Статус по спецификации изменён на \"оплачен\"";
+							// перевод запроса в history
+							if($this->chenge_query_status($query_num,'history')){
+								$message .= '&nbsp; Запрос № '.$query_num.' перемещён во вкладку "История"';	
+							}	
 						}
 					}
 
@@ -2380,7 +2399,7 @@
 						WHERE  `id` IN (".$id_s_str.");";
 					$result = $mysqli->query($query) or die($mysqli->error);
 					// формируем ответ
-					$Message = 'Значение проля логотип успешно прикреплено ко всем услугам по текущей позиции.';
+					$Message = 'Значение поля логотип успешно прикреплено ко всем услугам по текущей позиции.';
 				}else{
 					// формируем ответ
 					$Message = 'К данной позиции не прикреплено ни одной услуги<br> в которой можно было бы заполнить поле логотип.';
@@ -4223,8 +4242,8 @@
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;				
 
-				case 'history':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND (`".RT_DOP_DATA."`.`status_snab` LIKE '%Расчёт от%') AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
+				case 'denided_query':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND  `".RT_DOP_DATA."`.`row_status` LIKE '%red%'";
 					break;
 				case 'denied':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` = 'tz_is_not_correct' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
@@ -4237,9 +4256,11 @@
 				case 'calk_snab':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` LIKE 'calculate_is_ready' AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
-
+				case 'send_to_snab':
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` IN ('on_calculation_snab','on_recalculation_snab') AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
+					break;
 				case 'in_work_snab':
-					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` IN ('on_calculation_snab','on_recalculation_snab','in_calculation') AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
+					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` IN ('in_calculation') AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
 					break;
 				case 'denied':
 					$where = "WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$id."' AND `".RT_DOP_DATA."`.`status_snab` IN ('tz_is_not_correct_on_recalculation','tz_is_not_correct') AND `".RT_DOP_DATA."`.`row_status` NOT LIKE 'red'";
@@ -4259,6 +4280,7 @@
 					`".RT_DOP_DATA."`.`price_out`,		
 					`".RT_DOP_DATA."`.`print_z`,	
 					`".RT_DOP_DATA."`.`zapas`,	
+					`".RT_DOP_DATA."`.`row_status`,	
 					`".RT_DOP_DATA."`.`status_snab`,	
 					DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 					`".RT_MAIN_ROWS."`.*,
@@ -4269,7 +4291,7 @@
 					FROM `".RT_MAIN_ROWS."` 
 					INNER JOIN `".RT_DOP_DATA."` ON `".RT_DOP_DATA."`.`row_id` = `".RT_MAIN_ROWS."`.`id`
 					LEFT JOIN `".RT_LIST."` ON `".RT_LIST."`.`id` = `".RT_MAIN_ROWS."`.`query_num`
-					".$where."
+					 ".$where."
 					ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
 				// echo  $query.'<br><br>';
 			
