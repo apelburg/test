@@ -815,7 +815,7 @@ echo $query;
             //	Сохраняем данные о спецификации  -- start
             ////////////////////////////////////
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET ";
-				// $query .= " `specification_num` = '".(int)$doc_num."',";
+				$query .= " `specification_num` = '".(int)$doc_num."',";
 				$query .= " `doc_num` = '".(int)$doc_num."',";
 				$query .= " `doc_type` = '".$doc_type."',";
 				$query .= " `agreement_id` = '".(int)$agreement_id."', ";
