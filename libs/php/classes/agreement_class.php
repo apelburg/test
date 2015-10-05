@@ -393,10 +393,30 @@
 			return $array;
 		
 		}
-		static function agregate_oferta_rows($data){
+		static function update_oferta($row_id,$field_name,$field_val){
 			global $mysqli;
 			
+			$query = "UPDATE `".OFFERTS_ROWS_TBL."` SET 
+				  ".$field_name." ='".$field_val."'
+				  WHERE id='".$row_id."'";
+						  
+		    $mysqli->query($query)or die($mysqli->error);
 		
+		}
+		static function delete_oferta($client_id,$oferta_id){
+			global $mysqli;
+
+		    $query="DELETE oferts, oferts_rows
+						 FROM `".OFFERTS_TBL."` oferts
+						 LEFT JOIN `".OFFERTS_ROWS_TBL."` oferts_rows
+						 ON oferts.id = oferts_rows.oferta_id
+						 WHERE oferts.id = '".$oferta_id."'";
+		    $mysqli->query($query)or die($mysqli->error);
+		    $num_deleted_rows = $mysqli->affected_rows;	
+		}
+		static function agregate_oferta_rows($data){
+			global $mysqli;
+
 			for($i = 0 ; $i < count($data) ; $i++)
 			{
 				$name = ''; $summ = 0;
@@ -449,13 +469,20 @@
 		static function fetch_all_client_oferts($client_id){
 			global $mysqli;
 			
-			$query = "SELECT*FROM `".OFFERTS_TBL."` WHERE client_id = '".$client_id."'";
+			$query = "SELECT*FROM `".OFFERTS_TBL."` WHERE client_id = '".$client_id."' ORDER BY id";
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows > 0){
 				return $result;
 			}
 			return false;
 		
+		}
+		static function update_oferta_common_fields($id,$field_name,$field_val){
+			global $mysqli;
+			
+			$query = "UPDATE `".OFFERTS_TBL."` SET  ".$field_name." ='".$field_val."' WHERE id='".$id."'";
+			$mysqli->query($query)or die($mysqli->error);
+
 		}
 		static function prepare_general_doc($doc,$general_data,$table_data){
 			//global $mysqli;

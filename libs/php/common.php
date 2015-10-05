@@ -2494,7 +2494,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		    
 	}
 	
-	 function update_specification($row_id,$field_name,$field_val){
+	function update_specification($row_id,$field_name,$field_val){
 	    global $db;
 		
 		$query = "UPDATE `".GENERATED_SPECIFICATIONS_TBL."` SET 

@@ -65,7 +65,7 @@
 				for( var j =0; j < data_buffer[i].length; j++) arr[s++]= 'data['+ i + ']['+ j + ']=' + data_buffer[i][j];
 			}
 			if(!confirm('Выбранные строки будут объеденены, отмена будет не возможна')) return;
-			alert('&agregate_doc_rows=' + doc_type + '&' + arr.join('&'));
+			// alert('&agregate_doc_rows=' + doc_type + '&' + arr.join('&'));
 			location = location + '&agregate_doc_rows=' + doc_type + '&' + arr.join('&');
 		}
 	}

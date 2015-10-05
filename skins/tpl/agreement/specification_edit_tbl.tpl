@@ -4,7 +4,7 @@
 <script type="text/javascript" src="libs/js/common.js"></script>
 <script type="text/javascript">
    <?php if($dateDataObj->doc_type=='spec'){ ?> tableDataManager.url = '?page=agreement&update_specification_ajax=1'; <?php } ?> 
-   <?php if($dateDataObj->doc_type=='oferta'){ ?> dddd <?php } ?> 
+   <?php if($dateDataObj->doc_type=='oferta'){ ?> tableDataManager.url = '?page=agreement&update_oferta_ajax=1'; <?php } ?> 
 </script>
 <style> .main_menu_tbl{ display:none; } </style>
 <div class="specification">
