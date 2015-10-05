@@ -1,40 +1,89 @@
 <?php 
 
-    
+    // ПРЕДПОЛАГАЕМ ЧТО ЕСЛИ НЕ БЫЛ ПЕРЕДАН ПАРАМЕТР  $_GET['dateDataObj'] ТО ЭТО ССЫЛКА НА СПЕЦИФИКАЦИЮ
+	// НАДО ПЕРЕДЕЛАТЬ ССЫЛКИ В СПИСКЕ
+	if(isset($_GET['dateDataObj'])) $dateDataObj = json_decode($_GET['dateDataObj']);
+	else $dateDataObj->doc_type = 'spec';
+
+
 	if(!isset($_SESSION['back_url'])) $_SESSION['back_url'] = $_SERVER['HTTP_REFERER'];
 	
-    if(isset($_GET['agregate_specification_rows']))
+    if(isset($_GET['agregate_doc_rows']))
 	{
-	    //print_r($_GET['data']
-		agregate_specification_rows($_GET['data']);
-		header('Location:?page=agreement&section=specification_editor&client_id='.$client_id.'&specification_num='.$specification_num.'&agreement_id='.$agreement_id); 
-		exit;
-    }
-	
-	$result = fetch_specification($client_id,$agreement_id,$specification_num);
-	
-	if($result)
-	{
-        
-		$tpl = './skins/tpl/agreement/specification_edit_row.tpl';
-	    $fd = fopen($tpl,'r');
-	    $tpl = fread($fd,filesize($tpl));
-	    fclose($fd);
-		
-		ob_start();
-		$row_num = 0;
-		$itogo=0;
-		while($row = mysql_fetch_assoc($result))
-		{
-            eval('?>'.$tpl.'<?php ');  
-			$itogo += (float)$row['summ'];		
+	    if($_GET['agregate_doc_rows']=='spec'){
+			agregate_specification_rows($_GET['data']);
+			header('Location:?page=agreement&section=specification_editor&client_id='.$client_id.'&specification_num='.$specification_num.'&agreement_id='.$agreement_id); 
+			exit;
+		}
+		if($_GET['agregate_doc_rows']=='oferta'){
+		    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+		    Agreement::agregate_oferta_rows($_GET['data']);
+			
+			header('Location:?page=agreement&section=specification_editor&client_id='.$client_id.'&oferta_id='.$_GET['oferta_id'].'&dateDataObj={"doc_type":"oferta"}'); 
+			exit;
 		}
 		
-		$rows = ob_get_contents();
-	    ob_get_clean();
+		//print_r($_GET['data']
 		
-		include './skins/tpl/agreement/specification_edit_tbl.tpl';
+    }
+	
+	if($dateDataObj->doc_type=='spec')
+	{
+	
+		$result = fetch_specification($client_id,$agreement_id,$specification_num);
+		
+		if($result)
+		{
+			
+			$tpl = './skins/tpl/agreement/specification_edit_row.tpl';
+			$fd = fopen($tpl,'r');
+			$tpl = fread($fd,filesize($tpl));
+			fclose($fd);
+			
+			ob_start();
+			$row_num = 0;
+			$itogo=0;
+			while($row = mysql_fetch_assoc($result))
+			{
+				eval('?>'.$tpl.'<?php ');  
+				$itogo += (float)$row['summ'];		
+			}
+			
+			$rows = ob_get_contents();
+			ob_get_clean();
+			
+			include './skins/tpl/agreement/specification_edit_tbl.tpl';
+		}
+		else $rows = 'ошибка получения данных specification_editor_controller.php';
+    }
+    if($dateDataObj->doc_type=='oferta')
+	{
+	    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+		$oferta_data_arr =  Agreement::fetch_oferta_data($_GET['oferta_id']);
+
+		if(count($oferta_data_arr)>0)
+		{
+			
+			$tpl = './skins/tpl/agreement/specification_edit_row.tpl';
+			$fd = fopen($tpl,'r');
+			$tpl = fread($fd,filesize($tpl));
+			fclose($fd);
+			
+			ob_start();
+			$row_num = 0;
+			$itogo=0;
+			foreach($oferta_data_arr as $row)
+			{
+				eval('?>'.$tpl.'<?php ');  
+				$itogo += (float)$row['summ'];		
+			}
+			
+			$rows = ob_get_contents();
+			ob_get_clean();
+			
+			include './skins/tpl/agreement/specification_edit_tbl.tpl';
+		}
+		else $rows = 'ошибка получения данных specification_editor_controller.php';
 	}
-	else $rows = 'ошибка получения данных specification_editor_controller.php';
 
 ?>

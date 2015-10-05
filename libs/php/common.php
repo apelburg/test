@@ -130,17 +130,42 @@
 		return '<a href="'.$href.'"></a>';
 	}
 	
-	function getWorkingDays($begin,$end/*агрументы должны быть в формате UNIX*/){
+	$SELEBRATIONS = array(
+	                         "2015" => array("01.01","02.01","03.01","04.01","05.01","06.01","07.01","08.01","23.02","08.03","01.05","09.05","12.06","04.11")
+						 );
+	function addWorkingDays($begin/*агрумент должен быть в формате "0000-00-00 00:00:00"*/,$days_num/*число рабочих дней*/){
+	    // функция принимает указанную дату и возвращает новую дату наступающую через указанное количество рабочих дней
+		// пример вызова addWorkingDays("2015-11-05 10:41:01",5);
+	    global $SELEBRATIONS;
+		if(!isset($SELEBRATIONS[substr($begin,0,4)])){ echo 'не установлен календарь праздничных дней на '.substr($begin,0,4).' год.'; }
+	    $secondsInDay = 60*60*24;
+		$out_date = dateToUnix($begin);
+
+	    while($days_num>0){
+	        $out_date+=$secondsInDay;
+
+		    $dayInWeek = date("w",$out_date);
+		    // если суббота или воскресенье
+		    if($dayInWeek == 6 || $dayInWeek == 0) continue;
+
+		    $year = date("Y",$out_date);
+		    $dayMonth = date("d.m",$out_date);
+		    // если праздничный день
+		    if(isset($selebrations[$year]) && in_array($dayMonth,$selebrations[$year])) continue;
+		  
+		    $days_num--;
+	    }
+	    return  date("Y-m-d H:i:s",$out_date);
+	     
+	}
+	function getWorkingDays($begin,$end/*агрументы должны быть в формате "0000-00-00 00:00:00"*/){
+	    global $SELEBRATIONS;
         // функция подсчитывает количество рабочих дней со следующего дня после $begin по $end включительно
 		// пример вызова getWorkingDays("2015-11-05 10:41:01","2015-11-07 10:41:01");
         // календарь праздничных дней - для каждого года массив дат в формате 00.00 ( день.месяц )
-        $selebrations = array(
-	                         "2015" => array("01.01","02.01","03.01","04.01","05.01","06.01","07.01","08.01","23.02","08.03","01.05","09.05","12.06","04.11")
-							 );
-					
 	   
-        if(!isset($selebrations[substr($begin,0,4)])){ echo 'не установлен календарь праздничных дней на '.substr($begin,0,4).' год.'; }
-	    if(!isset($selebrations[substr($end,0,4)])){ echo 'не установлен календарь праздничных дней на '.substr($end,0,4).' год.'; }   
+        if(!isset($SELEBRATIONS[substr($begin,0,4)])){ echo 'не установлен календарь праздничных дней на '.substr($begin,0,4).' год.'; }
+	    if(!isset($SELEBRATIONS[substr($end,0,4)])){ echo 'не установлен календарь праздничных дней на '.substr($end,0,4).' год.'; }   
        
         $begin = dateToUnix($begin);
 	    $end = dateToUnix($end);

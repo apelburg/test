@@ -35,11 +35,7 @@
 			
 			this.drop_checkboxes(all_checkboxes);
 			
-			//alert(checkboxes.length);
-			//print_r(checkboxes);
-			//print_r(this.data_buffer);
-			
-			//alert(1);alert(1); //
+			//console.log(this.data_buffer);
 		}
 		,
 		drop_checkboxes: function(checkboxes){
@@ -57,7 +53,7 @@
 			}
 		}
 		,
-		send_changes:function(){
+		send_changes:function(doc_type){
 			if(!this.data_buffer.length){
 				alert('Выберите строки для объединения')
 				return;
@@ -69,6 +65,7 @@
 				for( var j =0; j < data_buffer[i].length; j++) arr[s++]= 'data['+ i + ']['+ j + ']=' + data_buffer[i][j];
 			}
 			if(!confirm('Выбранные строки будут объеденены, отмена будет не возможна')) return;
-			location = location + '&agregate_specification_rows=yes&' + arr.join('&');
+			alert('&agregate_doc_rows=' + doc_type + '&' + arr.join('&'));
+			location = location + '&agregate_doc_rows=' + doc_type + '&' + arr.join('&');
 		}
 	}

@@ -1748,7 +1748,7 @@ var rtCalculator = {
 						alert('неправильный формат данных in calculatorClass.makeSpecAndPreorder2() ошибка JSON.parse(response)');
 						return;
 					}
-					/*console.log(dataObj);console.log(idsObj);console.log(dopInfObj);*/
+					console.log(dataObj);console.log(idsObj);console.log(dopInfObj);/**/
 					
                     var content = document.createElement('DIV');
 					content.className = "specificationsPreWin";
@@ -1761,9 +1761,13 @@ var rtCalculator = {
 				    for(var key in dataObj.data){
 						 var value = (dataObj.data[key]['shablon_en']=='date')?((dataObj.data[key]['value'].split('-')).reverse()).join('.'):dataObj.data[key]['value'];
 						 
+						 
 						 tbl += '<tr><td class="first">Арт № '+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'</td>';
 						 tbl += '<td>'+dataObj.data[key]['shablon']+'</td><td>'+value+'</td>';
-						 tbl += '<td>'+dataObj.data[key]['who']+'</td><td><input type="radio" name="radio" data_type="'+dataObj.data[key]['shablon_en']+'" value="'+value+'"></td></tr>';
+						 tbl += '<td>'+dataObj.data[key]['who']+'</td>';
+						 tbl += '<td>';
+						 if(!(dataObj.data[key]['shablon_en']=='date' && dataObj.data[key]['value']<dataObj['min_allowed_date'])) tbl += '<input type="radio" name="radio" data_type="'+dataObj.data[key]['shablon_en']+'" value="'+value+'">';
+						 tbl += '</td></tr>';
 					}
 				
 					tbl += '<tr><td class="first"></td>';
@@ -1797,8 +1801,7 @@ var rtCalculator = {
 					content.appendChild(button2);
 					launch_set_window(winId,"Выбор сроков сдачи заказа",content);
 					
-					$('#datepicker').datetimepicker({format:'d.m.Y H:i',dayOfWeekStart: 1,minDate:0,
-					   onChangeDateTime: function(dp,$input){$('#alternate_date')[0].checked=true;$('#alternate_date')[0].setAttribute('data_type','date');$('#alternate_date')[0].value=$input.val();},closeOnDateSelect:true,
+					$('#datepicker').datetimepicker({format:'d.m.Y H:i',dayOfWeekStart: 1,startTime: new Date(0,0,0,15,0,0),minDate: new Date(dataObj['min_allowed_date']), onChangeDateTime: function(dp,$input){$('#alternate_date')[0].checked=true;$('#alternate_date')[0].setAttribute('data_type','date');$('#alternate_date')[0].value=$input.val();},closeOnDateSelect:true,
 					   onGenerate:function( ct ){$(this).find('.xdsoft_date.xdsoft_weekend').addClass('xdsoft_disabled');$(this).find('.xdsoft_date');},allowTimes:['00:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00','15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00']});
 					/*$('#timepicker').datetimepicker({datepicker:false,format:'H:i',closeOnDateSelect:true,
 						  onChangeDateTime:function(dp,$input){$('#alternate_date')[0].checked=true;$('#alternate_date')[0].setAttribute('data_type','date');$('#alternate_date')[0].value=$input.val()+':00';},allowTimes:['00:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00','15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00']});*/
@@ -1814,6 +1817,8 @@ var rtCalculator = {
 				 var content = document.createElement('DIV');
 			     content.className = "specificationsPreWin";
 				 var winId ="specificationsPreWin3";
+				 // от той даты которая была выбрана на предыдушем шаге надо вычесть 3 рабочих дня
+				 // они нужны на время для подписания макета и оплаты
 				 var date = datetime.slice(0,10);
 				 var time = datetime.slice(11,16);
 				 time = (time!='')?time:'22:00';

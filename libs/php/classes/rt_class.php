@@ -791,7 +791,7 @@
 echo $query;
                 $result = $mysqli->query($query) or die($mysqli->error);
 				if($result->num_rows > 0){
-					$row = $result->fetch_assoc());
+					$row = $result->fetch_assoc();
 					$prepayment = $row['prepayment'];
 				}
 			}
@@ -801,7 +801,7 @@ echo $query;
 echo $query;
                 $result = $mysqli->query($query) or die($mysqli->error);
 				if($result->num_rows > 0){
-					$row = $result->fetch_assoc());
+					$row = $result->fetch_assoc();
 					$prepayment = $row['prepayment'];
 				}
 			}
@@ -812,12 +812,13 @@ echo $query;
 
 
             ////////////////////////////////////
-            //	Сохраняем данные о спецификации  -- start
+            //	Сохраняем данные о спецификации или оферте   -- start
             ////////////////////////////////////
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET ";
 				$query .= " `specification_num` = '".(int)$doc_num."',";
 				$query .= " `doc_num` = '".(int)$doc_num."',";
 				$query .= " `doc_type` = '".$doc_type."',";
+				$query .= " `date_type` = '".$date_type."',";
 				$query .= " `agreement_id` = '".(int)$agreement_id."', ";
 				$query .= " `prepayment` = '".(int)$prepayment."'";
 				$query .= " WHERE `id` = '".$the_bill_id."'";
@@ -825,7 +826,7 @@ echo $query;
 				echo $query;
                 $result = $mysqli->query($query) or die($mysqli->error);
 			////////////////////////////////////
-            //	Сохраняем данные о спецификации  -- end
+            //	Сохраняем данные о спецификации или оферте   -- end
             ////////////////////////////////////
 
             // echo '<br>'.$order_num.'<br>';

@@ -249,6 +249,7 @@
 					$prepayment_term = fread($fd,filesize($prepayment_term_tpl_path));
 					fclose($fd);
 					$prepayment_term = str_replace('[PAYMENT_DATE]',$paymnet_date,$prepayment_term );
+					$production_delivery_term ='';
 				}
 				
 				

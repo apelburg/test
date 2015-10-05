@@ -4805,7 +4805,7 @@
 				$agrement_arr = $this->get_info_for_agreement_Database($Specification['agreement_id']);
 				if(empty($agrement_arr)){return 'не найдена информация по договору';}
 					
-				$html = '<a target="_blank" href="?page=agreement&section=agreement_editor&client_id='.$client_id.'&agreement_id='.$Specification['agreement_id'].'&agreement_type='.$agrement_arr['type'].'&open=specification&specification_num='.$Specification['specification_num'].'">№ '.$Specification['specification_num'].' от '.$create_time.'</a>';
+				$html = "<a target='_blank' href='?page=agreement&section=agreement_editor&client_id=".$client_id."&agreement_id=".$Specification['agreement_id']."&agreement_type=".$agrement_arr['type']."&open=specification&specification_num=".$Specification['specification_num']."&dateDataObj={\"doc_type\":\"spec\"}'>№ ".$Specification['specification_num']." от ".$create_time."</a>";
 				return $html;
 			}
 
