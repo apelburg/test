@@ -14,6 +14,7 @@
 	$section  = (!empty($_POST['section']))? $_POST['section']: ((!empty($_GET['section']))? $_GET['section']: FALSE ) ;
 	$client_id = (!empty($_GET['client_id']))? (int)$_GET['client_id']: FALSE ;
 	$agreement_id = (!empty($_GET['agreement_id']))? (int)$_GET['agreement_id']: FALSE ;
+	$oferta_id = (!empty($_GET['oferta_id']))? (int)$_GET['oferta_id']: FALSE ;
 	$requisit_id = (!empty($_GET['requisit_id']))? (int)$_GET['requisit_id']: FALSE ;
 	$agreement_type = (!empty($_GET['agreement_type']))? $_GET['agreement_type']: FALSE ;
 	$specification_num = (!empty($_GET['specification_num']))? (int)$_GET['specification_num']: FALSE ;
@@ -28,6 +29,18 @@
 		//$field_val = nl2br($field_val);
 		
 		update_specification($_POST['id'],$_POST['field_name'],$field_val);
+		exit;
+    }
+	
+	if(isset($_GET['update_oferta_ajax']))
+	{
+		$field_val = $_POST['field_val'];
+		$field_val = strip_tags($field_val, '<br><br />');
+		$field_val = str_replace("'",'`',$field_val);
+		//$field_val = nl2br($field_val);
+		
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+		Agreement::update_oferta($_POST['id'],$_POST['field_name'],$field_val);
 		exit;
     }
 	
@@ -47,6 +60,15 @@
 		exit;
     }
 	
+	if(isset($_GET['update_oferta_common_fields_ajax']))
+	{
+	    $field_val = strip_tags($_POST['field_val']);
+		$field_val = str_replace("'",'`',$field_val);
+		
+		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+		Agreement::update_oferta_common_fields($_POST['id'],$_POST['field_name'],$field_val);
+		exit;
+    }
 	if(isset($_GET['update_agreement_finally_sheet_ajax']))
 	{
 		$field_val = strip_tags($_POST['field_val']);
@@ -140,6 +162,10 @@
 		 
 		 case 'delete_specification':
 		 include 'delete_specification_controller.php';
+		 break;	 
+		 
+		 case 'delete_oferta':
+		 include 'delete_oferta_controller.php';
 		 break;	 
 		 
 		 default:

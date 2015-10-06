@@ -745,10 +745,14 @@
 			return $out_put; 
 		}
 		// создание заказа из запроса
+<<<<<<< HEAD
         static function make_order($rows_data,$client_id,$query_num,$specification_num,$agreement_id){
          //    echo $rows_data.'<br>';
         	// echo 'OK';exit;
 
+=======
+        static function make_order($rows_data,$client_id,$query_num,$doc_num,$agreement_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/){
+>>>>>>> 7c88b663818f37d93b74a80b88014a45ce1aad81
             // подключаем класс для информации из калькулятора
         	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 
@@ -787,38 +791,49 @@
             /////////////////////////////
 
             //////////////////////////
-            //	Запрашиваем информацию по специяикацииии -- start
+            //	Запрашиваем информацию по спецификацииии или оферте-- start
             //////////////////////////
-                $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE `agreement_id` = '".$agreement_id."' AND `specification_num` = '".$specification_num."'";
+		    if($doc_type=='spec'){
+                $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE `agreement_id` = '".$agreement_id."' AND `specification_num` = '".$doc_num."'";
 echo $query;
                 $result = $mysqli->query($query) or die($mysqli->error);
-
-				$specificate_rows = array();
-					
 				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						$specificate_rows[] = $row;
-					}
+					$row = $result->fetch_assoc();
+					$prepayment = $row['prepayment'];
 				}
+			}
+			if($doc_type=='oferta'){
+			
+			 $query = "SELECT * FROM `".OFFERTS_TBL."` WHERE `num` = '".$doc_num."'";
+echo $query;
+                $result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					$row = $result->fetch_assoc();
+					$prepayment = $row['prepayment'];
+				}
+			}
 			//////////////////////////
-            //	Запрашиваем информацию по спец-ии -- end
+            //	Запрашиваем информацию по спец-ии или оферте -- end
             //////////////////////////
 				
 
 
             ////////////////////////////////////
-            //	Сохраняем данные о спецификации  -- start
+            //	Сохраняем данные о спецификации или оферте   -- start
             ////////////////////////////////////
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET ";
-				$query .= " `specification_num` = '".(int)$specification_num."',";
+				$query .= " `specification_num` = '".(int)$doc_num."',";
+				$query .= " `doc_num` = '".(int)$doc_num."',";
+				$query .= " `doc_type` = '".$doc_type."',";
+				$query .= " `date_type` = '".$date_type."',";
 				$query .= " `agreement_id` = '".(int)$agreement_id."', ";
-				$query .= " `prepayment` = '".(int)$specificate_rows[0]['prepayment']."'";
+				$query .= " `prepayment` = '".(int)$prepayment."'";
 				$query .= " WHERE `id` = '".$the_bill_id."'";
 				// выполняем запрос
 				echo $query;
                 $result = $mysqli->query($query) or die($mysqli->error);
 			////////////////////////////////////
-            //	Сохраняем данные о спецификации  -- end
+            //	Сохраняем данные о спецификации или оферте   -- end
             ////////////////////////////////////
 
             // echo '<br>'.$order_num.'<br>';

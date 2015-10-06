@@ -3,7 +3,8 @@
 <script type="text/javascript" src="libs/js/geometry.js"></script>
 <script type="text/javascript" src="libs/js/common.js"></script>
 <script type="text/javascript">
-   tableDataManager.url = '?page=agreement&update_specification_ajax=1';
+   <?php if($dateDataObj->doc_type=='spec'){ ?> tableDataManager.url = '?page=agreement&update_specification_ajax=1'; <?php } ?> 
+   <?php if($dateDataObj->doc_type=='oferta'){ ?> tableDataManager.url = '?page=agreement&update_oferta_ajax=1'; <?php } ?> 
 </script>
 <style> .main_menu_tbl{ display:none; } </style>
 <div class="specification">
@@ -17,7 +18,7 @@
             <td width="500">
                 <input type="button" onclick="specificationRowsAgregator.set();" value="выделить строки" />&nbsp;&nbsp;&nbsp;&nbsp; 
                 <input type="button" onclick="specificationRowsAgregator.reset_all();" value="сбросить всё"/>&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="button" onclick="specificationRowsAgregator.send_changes();" value="объединить"/>
+                <input type="button" onclick="specificationRowsAgregator.send_changes('<?php echo $dateDataObj->doc_type; ?>');" value="объединить"/>
             </td>
             <td style="text-align:right"><input type="button" onclick=" location = '<?php echo $_SESSION['back_url']; ?>' ;" value="закрыть"/></td>
         </tr>

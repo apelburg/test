@@ -271,7 +271,7 @@
 						 }
 						 
 				         // записываем ряд
-						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$dop_data['quantity'],$price_out);
+						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$dop_data['quantity'],$dop_data['price_out']);
 						 
 						 
 						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type DESC";
@@ -370,7 +370,11 @@
 			$fd = fopen($file_name,'w');
 			$write_result = fwrite($fd,$file_content); //\r\n
 			fclose($fd);
-		
+			
+			// создаем предзаказ 
+			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+		    RT::make_order($rows_data,$client_id,$_GET['query_num'],$oferta_num,0,$dateDataObj->doc_type,$dateDataObj->data_type);
+			
 			return $oferta_id;
 		}
 		
@@ -389,6 +393,67 @@
 			return $array;
 		
 		}
+		static function update_oferta($row_id,$field_name,$field_val){
+			global $mysqli;
+			
+			$query = "UPDATE `".OFFERTS_ROWS_TBL."` SET 
+				  ".$field_name." ='".$field_val."'
+				  WHERE id='".$row_id."'";
+						  
+		    $mysqli->query($query)or die($mysqli->error);
+		
+		}
+		static function delete_oferta($client_id,$oferta_id){
+			global $mysqli;
+
+		    $query="DELETE oferts, oferts_rows
+						 FROM `".OFFERTS_TBL."` oferts
+						 LEFT JOIN `".OFFERTS_ROWS_TBL."` oferts_rows
+						 ON oferts.id = oferts_rows.oferta_id
+						 WHERE oferts.id = '".$oferta_id."'";
+		    $mysqli->query($query)or die($mysqli->error);
+		    $num_deleted_rows = $mysqli->affected_rows;	
+		}
+		static function agregate_oferta_rows($data){
+			global $mysqli;
+
+			for($i = 0 ; $i < count($data) ; $i++)
+			{
+				$name = ''; $summ = 0;
+				for($j = 0 ; $j < count($data[$i]) ; $j++)
+				{
+					  $id = $data[$i][$j];
+					  $query = "SELECT * FROM `".OFFERTS_ROWS_TBL."`
+								WHERE id='".$id."'";
+					  $result = $mysqli->query($query)or die($mysqli->error);
+					  
+					  $row = $result->fetch_assoc(); 
+					  $name .= $row['name'].'<br>';
+					  if(!isset($quantity)) $quantity = (int)$row['quantity'];
+					  $summ += (float)$row['summ'];
+					  
+					  if($j > 0)
+					  {
+						  $query = "DELETE FROM `".OFFERTS_ROWS_TBL."`
+									WHERE id='".$id."'";
+						  $result = $mysqli->query($query)or die($mysqli->error);
+					  }
+				
+				}
+				
+				$query = "UPDATE `".OFFERTS_ROWS_TBL."`
+						  SET 
+						  name='".$name."',  
+						  price='".$summ/$quantity."', 
+						  summ='".$summ."'
+						  WHERE id='".$data[$i][0]."'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				
+				unset($quantity);
+			
+			}
+		
+		}
 		
 		static function fetch_oferta_common_data($oferta_id){
 			global $mysqli;
@@ -400,6 +465,24 @@
 			}
 			return false;
 		
+		}
+		static function fetch_all_client_oferts($client_id){
+			global $mysqli;
+			
+			$query = "SELECT*FROM `".OFFERTS_TBL."` WHERE client_id = '".$client_id."' ORDER BY id";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows > 0){
+				return $result;
+			}
+			return false;
+		
+		}
+		static function update_oferta_common_fields($id,$field_name,$field_val){
+			global $mysqli;
+			
+			$query = "UPDATE `".OFFERTS_TBL."` SET  ".$field_name." ='".$field_val."' WHERE id='".$id."'";
+			$mysqli->query($query)or die($mysqli->error);
+
 		}
 		static function prepare_general_doc($doc,$general_data,$table_data){
 			//global $mysqli;
@@ -431,13 +514,13 @@
 			
 			   if($general_data['type'] == 'days'){
 				    //$prepayment_term = '<?php include ($_SERVER[\'DOCUMENT_ROOT\'].\'/os/modules/agreement/agreements_templates/\'.$general_data[\'prepayment\'].\'_prepaiment_conditions.tpl\'); ? >';
-					/*$prepayment_term_tpl_path = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/prepaiment_conditions_oferta.tpl';
+					/**/
+					$prepayment_term_tpl_path = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/'.$general_data['prepayment'].'_prepaiment_conditions_oferta.tpl';
 					$fd = fopen($prepayment_term_tpl_path,'rb');
 					$prepayment_term = fread($fd,filesize($prepayment_term_tpl_path));
 					fclose($fd);
-					$prepayment_term = str_replace('[PREPAMENT_TERM]','1',$prepayment_term );
-					$prepayment_term_block = str_replace('[PAYMENT_DATE]','2',$prepayment_term );
-					*/
+					$prepayment_term_block = str_replace('[FOR_PAY_TEXT]',number_format($table_data['itogo'],"2","."," ").' ('.$for_pay.') в том числе 18% НДС  '.number_format($table_data['nds'],"2","."," ").'руб.',$prepayment_term );
+					
 				
 				}
 				if($general_data['type'] == 'date'){
@@ -464,7 +547,7 @@
 					$doc = str_replace('[MAKET_SIGN_DATE]',$maket_sign_date,$doc );
 				
 				     
-					$prepayment_term_tpl_path = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/'.$general_data['prepayment'].'_prepaiment_conditions_type2_by_date.tpl';
+					$prepayment_term_tpl_path = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/'.$general_data['prepayment'].'_prepaiment_conditions_oferta_by_date.tpl';
 					$fd = fopen($prepayment_term_tpl_path,'rb');
 					$prepayment_term = fread($fd,filesize($prepayment_term_tpl_path));
 					fclose($fd);
@@ -478,7 +561,7 @@
 				$doc = str_replace('[DOC_NUM]','<?php echo $general_data[\'num\']; ?>',$doc );
 				$doc = str_replace('[DOC_DATE]',implode('.',array_reverse(explode('-',substr($general_data['date_time'],0,10)))),$doc);
 				$doc = str_replace('[PRODUCTION_TERM]','<?php echo $general_data[\'item_production_term\']; ?>',$doc );
-				//$doc = str_replace('[PREPAMENT_TERM_BLOCK]',$prepayment_term_block,$doc );
+				$doc = str_replace('[PREPAMENT_TERM_BLOCK]',$prepayment_term_block,$doc );
 				$doc = str_replace('[PREPAMENT_TERM]','<?php echo $general_data[\'prepayment\']; ?>',$doc );
 				$doc = str_replace('[PRODUCTON_DELIVERY_TERM]','<?php echo $general_data[\'item_production_term\']; ?>',$doc );
 				//$doc = str_replace('[PREPAMENT_SUMM]','100',$doc );
@@ -819,7 +902,7 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
-			//RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id);
+			RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id,$dateDataObj->doc_type,$dateDataObj->data_type);
 			
 			return $specification_num;
 
@@ -959,9 +1042,11 @@
 						 // if($some_date>$max_date) $max_date = $some_date;
 						 
 					 }
+			
 					 $outDataArr['data'] = $dataArr;
 					 $outDataArr['all_positions'] = $result->num_rows;
 					 $outDataArr['defined_positions'] = count($dataArr);
+					 $outDataArr['min_allowed_date'] = substr(addWorkingDays(date("Y-m-d H:i:s"),3),0,10);//,time()+60*60*24*
 					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
 					 // if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
 					 // если определенна хотябы одна дата 
