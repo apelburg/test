@@ -12,7 +12,7 @@
 	{
 	    if($_GET['agregate_doc_rows']=='spec'){
 			agregate_specification_rows($_GET['data']);
-			header('Location:?page=agreement&section=specification_editor&client_id='.$client_id.'&specification_num='.$specification_num.'&agreement_id='.$agreement_id); 
+			header('Location:?page=agreement&section=specification_editor&client_id='.$client_id.'&specification_num='.$specification_num.'&agreement_id='.$agreement_id.'&dateDataObj={"doc_type":"spec"}'); 
 			exit;
 		}
 		if($_GET['agregate_doc_rows']=='oferta'){

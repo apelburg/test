@@ -157,22 +157,12 @@
 			$year = date("Y");
 			$date = date("Y-m-d");
 			$time = date("H:i:s");
-			$defalut_num = 10000;
 
-			//ОПРЕДЕЛЯЕМ НОМЕР ОФЕРТЫ
-			$query = "SELECT MAX(num) oferta_num FROM `".OFFERTS_TBL."`"; //WHERE LEFT(date_time,4) = '".$year."'
-			$result = $mysqli->query($query)or die($mysqli->error);
-			if($result->num_rows > 0){
-			    $row = $result->fetch_assoc();
-				$oferta_num = ($row['oferta_num']==0)?$defalut_num:((int)$row['oferta_num'])+1;
-			}
-			else $oferta_num = $defalut_num;
-		    echo '--'.$oferta_num.'--';
 			
 			$dates_data = self::date_terms_convert($dateDataObj);
 		    // ЗАПИСЫВАЕМ ДАННЫЕ ОБ ОФЕРТЕ
 			$query = "INSERT INTO `".OFFERTS_TBL."` SET 
-						  num='".$oferta_num."',
+						  num='НЕ НАЗНАЧЕН',
 						  type='". $dateDataObj->data_type."',
 						  client_id='".$client_id."',
 						  our_requisit_id='".$our_requisit_id."',
@@ -271,7 +261,7 @@
 						 }
 						 
 				         // записываем ряд
-						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$dop_data['quantity'],$dop_data['price_out']);
+						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$dop_data['quantity'],$dop_data['price_out']);
 						 
 						 
 						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type DESC";
@@ -285,7 +275,7 @@
 									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
 									 // записываем ряд
-									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
+									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
 									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
@@ -294,7 +284,7 @@
 									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
 									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
 									 // записываем ряд
-									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
+									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
 								 }/**/
 								 
 								  
@@ -352,7 +342,7 @@
 			
 
 			// записываем файл
-			$file_name = $full_dir_name.'/'.$oferta_num.'.tpl';
+			$file_name = $full_dir_name.'/'.$oferta_id.'.tpl';
 			//echo $file_name;
 			//$file_name = $dir_name_full.'/com_pred_1_1.doc';
 			if(file_exists($file_name)){
@@ -373,7 +363,7 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
-		    RT::make_order($rows_data,$client_id,$_GET['query_num'],$oferta_num,0,$dateDataObj->doc_type,$dateDataObj->data_type);
+		    RT::make_order($rows_data,$client_id,$_GET['query_num'],0,0,$dateDataObj->doc_type,$dateDataObj->data_type);
 			
 			return $oferta_id;
 		}
@@ -630,12 +620,11 @@
 				
 				return array('table'=>$table,'itogo'=>$itogo,'nds'=>$nds,'items_num'=>$items_num);
 		}
-		static function insert_row_in_oferta($oferta_id,$num,$name,$quantity,$price){
+		static function insert_row_in_oferta($oferta_id,$name,$quantity,$price){
 			global $mysqli;
 			
 			$query = "INSERT INTO `".OFFERTS_ROWS_TBL."` SET 
 						  oferta_id='".$oferta_id."',
-						  oferta_num='".$num."',
 						  name='".$name."',
 						  quantity='".$quantity."',
 						  price='".$price."',
@@ -955,7 +944,7 @@
 						  summ='".$quantity*$price."'
 						  ";
 						  
-			  //echo $query;	
+			  // echo $query;	
 			  //exit;	  
 			  $result = $mysqli->query($query)or die($mysqli->error);
 			  return $mysqli->insert_id;
