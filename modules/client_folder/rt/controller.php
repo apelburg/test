@@ -390,7 +390,7 @@
 						   <td width="10" class="left">'.$margin_currency.'</td>
 						   <td stretch_column>&nbsp;</td>';
 						   global $Position_no_catalog;
-			 $cur_row .=  '<td ><div class="overflow">'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>';  
+			 $cur_row .=  '<td class="overflow"><div style="">'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>';  
 			 $cur_row .= '</tr>';
 			 
 			 // загружаем сформированный ряд в итоговый массив

@@ -933,13 +933,19 @@
 								$html .= '</td>';
 
 								
-								$html .= '<td class="show-backlight">';
-									// подрядчик печати 	
-									$html .= $position['suppliers_name'];
-									// пленки / клише
-									$html .= $this->get_film_and_cliches();
-								$html .= '</td>';
+								
 
+								if($n==0){// это дополнительные колонки в уже сформированную строку
+									// оборачиваем колонки в html переданный в качестве параметра
+									$html .= '<td class="show-backlight" rowspan="'.count($services_arr).'">';
+										// подрядчик печати
+										$html .= $position['suppliers_name'];
+										// пленки / клише
+										$html .= $this->get_film_and_cliches();
+									$html .= '</td>';
+
+									//$html .= '<tr class="position-row position-row-production" id="position_row_'.($key+2).'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>'.$html_row_3 .'</tr>';
+								}
 								// // плёнки / клише
 								// $html .= '<td class="show-backlight">';
 								// 	$html .= $this->get_statuslist_film_photos($service['film_photos_status'],$service['id']);

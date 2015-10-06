@@ -469,13 +469,13 @@
 
 			// Цена входящая
 			$html .= '<div class="separation_container">';
-			$html .= '<div class="name_input">Цена входащя</div>';
+			$html .= '<div class="name_input">Цена входящая</div>';
 			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_in'].'" data-real="'.$usluga['price_in'].'" name="price_in"> руб.</div>';
 			$html .= '</div>';
 
 			// Цена исходящая
 			$html .= '<div class="separation_container">';
-			$html .= '<div class="name_input">Цена исходащая</div>';
+			$html .= '<div class="name_input">Цена исходящая</div>';
 			$html .= '<div class="edit_info"><input type="text" value="'.$usluga['price_out'].'" data-real="'.$usluga['price_out'].'" name="price_out"> руб.</div>';
 			$html .= '</div>';
 

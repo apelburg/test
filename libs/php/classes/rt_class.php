@@ -746,6 +746,9 @@
 		}
 		// создание заказа из запроса
         static function make_order($rows_data,$client_id,$query_num,$specification_num,$agreement_id){
+         //    echo $rows_data.'<br>';
+        	// echo 'OK';exit;
+
             // подключаем класс для информации из калькулятора
         	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 
