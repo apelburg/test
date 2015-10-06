@@ -136,7 +136,7 @@
 		var date = new Date(out_date);
 
 		//alert(getTimeStamp(date));
-	    return  getTimeStamp(date;
+	    return  getTimeStamp(date);
 	}
 
 	function getTimeStamp(date) {
