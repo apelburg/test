@@ -446,7 +446,7 @@
 		}
 		
 		$general_data =  Agreement::fetch_oferta_common_data($_GET['oferta_id']);
-        if(!$general_data){ echo 'не удалость получить данные оферты'; return; }
+        if(!$general_data){ echo 'не удалось получить данные оферты'; return; }
 		
 		//!!!!!!!!!!!!!!!  oferta_num  oferta_type date_time
 		//

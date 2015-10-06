@@ -1035,7 +1035,7 @@
 					 $outDataArr['data'] = $dataArr;
 					 $outDataArr['all_positions'] = $result->num_rows;
 					 $outDataArr['defined_positions'] = count($dataArr);
-					 $outDataArr['min_allowed_date'] = substr(addWorkingDays(date("Y-m-d H:i:s"),3),0,10);//,time()+60*60*24*
+					 $outDataArr['min_allowed_date'] = substr(addWorkingDays(date("Y-m-d H:i:s"),3,'+'),0,10);//,time()+60*60*24*
 					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
 					 // if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
 					 // если определенна хотябы одна дата 
