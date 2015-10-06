@@ -103,7 +103,8 @@
 	var SELEBRATIONS = { "2015": '1.1|2.1|3.1|4.1|5.1|6.1|7.1|8.1|23.2|08.3|1.5|9.5|12.6|4.11'};
 	
 	function goOnNumWorkingDays(begin/*агрумент должен быть в формате "0000-00-00 00:00:00"*/,days_num/*число рабочих дней*/,direct/*+/-(вперед или назад)*/){
-		
+		// функция принимает указанную дату и возвращает новую дату наступающую через указанное количество рабочих дней
+		// пример вызова goOnNumWorkingDays("2015-01-07 02:01:01",11,'+');
 		var error = [];
 		var secondsInDay = 1000*60*60*24;
 		var date = new Date(begin);
@@ -137,7 +138,6 @@
 		//alert(getTimeStamp(date));
 	    return  getTimeStamp(date;
 	}
-	goOnNumWorkingDays("2015-01-07 02:01:01",11,'+');
 
 	function getTimeStamp(date) {
    
