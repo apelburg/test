@@ -363,7 +363,7 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
-		    RT::make_order($rows_data,$client_id,$_GET['query_num'],0,0,$dateDataObj->doc_type,$dateDataObj->data_type);
+		    RT::make_order($rows_data,$client_id,$_GET['query_num'],0,$oferta_id,$dateDataObj->doc_type,$dateDataObj->data_type);
 			
 			return $oferta_id;
 		}
