@@ -745,7 +745,14 @@
 			return $out_put; 
 		}
 		// создание заказа из запроса
+<<<<<<< HEAD
+        static function make_order($rows_data,$client_id,$query_num,$specification_num,$agreement_id){
+         //    echo $rows_data.'<br>';
+        	// echo 'OK';exit;
+
+=======
         static function make_order($rows_data,$client_id,$query_num,$doc_num,$agreement_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/){
+>>>>>>> 7c88b663818f37d93b74a80b88014a45ce1aad81
             // подключаем класс для информации из калькулятора
         	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 

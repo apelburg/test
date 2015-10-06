@@ -2839,15 +2839,15 @@
 				if($this->user_access == 1 || $this->user_access == 2 || $this->user_access == 5 || $this->user_access == 8 || $this->user_access == 9){
 					// стоимость услуги
 					$html .= '<div class="separation_container">';
-						$html .= '<strong>Входащая стоимость услуги</strong>:<br>';
+						$html .= '<strong>Входящая стоимость услуги</strong>:<br>';
 						$html .= '<div class="data_info">'.$service['price_in'].' р.</div>';
-						$html .= '<strong>Исходащая стоимость услуги</strong>:<br>';
+						$html .= '<strong>Исходящая стоимость услуги</strong>:<br>';
 						$html .= '<div class="data_info">'.$service['price_out'].' р.</div>';			
 					$html .= '</div>';
 				}else if($this->user_id == $this->director_of_operations_ID){
 					// стоимость услуги
 					$html .= '<div class="separation_container">';
-						$html .= '<strong>Входащая стоимость услуги</strong>:<br>';
+						$html .= '<strong>Входящая стоимость услуги</strong>:<br>';
 						$html .= '<div class="data_info">'.$service['price_in'].' р.</div>';
 					$html .= '</div>';
 				}
@@ -2924,8 +2924,10 @@
 				//////////////////////////
 				//	смена статуса услуги
 				//////////////////////////
-				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_status` =  '".$_POST['value']."' ";
-				$query .= "WHERE  `id` ='".$_POST['id_row']."';";
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
+				`performer_status` =  '".$_POST['value']."' ";
+				$query .= " `performer_status` =  '".$_POST['value']."'";
+				$query .= " WHERE  `id` ='".$_POST['id_row']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 
 				
