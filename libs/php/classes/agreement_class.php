@@ -364,8 +364,6 @@
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
 			
-			//echo 'data_type- '.$dateDataObj->data_type.', shipping_date- '.$dates_data['shipping_date_time'].', rd- '.$dates_data['item_production_term'].', final_date_time- '.$dates_data['final_date_time'];
-			//exit;
 		    RT::make_order($rows_data,$client_id,$_GET['query_num'],0,$oferta_id,$dateDataObj->doc_type,$dateDataObj->data_type,$dates_data['shipping_date_time'],$dates_data['item_production_term'],$dates_data['final_date_time']);
 			
 			return $oferta_id;
@@ -896,8 +894,7 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
-			//echo 'data_type- '.$dateDataObj->data_type.', shipping_date- '.$dates_data['shipping_date_time'].', rd- '.$dates_data['item_production_term'].', final_date_time- '.$dates_data['final_date_time'];
-			//exit;
+
 			RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id,$dateDataObj->doc_type,$dateDataObj->data_type,$dates_data['shipping_date_time'],$dates_data['item_production_term'],$dates_data['final_date_time']);
 			
 			return $specification_num;
