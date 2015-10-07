@@ -91,9 +91,11 @@
 	    		/*
 					при выборе данного статуса
 	    		*/
+				'in_operation' => 'Запуск в работу',
 	    		'maket_without_payment' =>'Макет без оплаты',  
 	    		'paused'=>'Заказ приостановлен', 
-	    		'cancelled'=>'Аннулирован'			
+	    		'cancelled'=>'Аннулирован'
+
 	    		);
 
 			// статусы БУХ - вывод в select
@@ -2343,12 +2345,62 @@
 
 			protected function command_for_change_status_order_AJAX(){
 				global $mysqli;
+				$json_answer = '{"response":"OK"}';
+				// если статус не пришел - что-то пошло не так
+				if(!isset($_POST['status_order']) || !isset($_POST['order_id'])){
+					$message = 'Что-то пошло не так, статус не был получен.';
+					echo '{"response":"show_new_window_simple","html":"'.base64_encode($message).'","title":"Что-то пошло не так..."}';
+					exit;
+				}
+				
+				// обработка следствий из различных статусов
+				switch ($_POST['status_order']) {
+					case 'in_operation':
+						if($this->check_the_pyment_order((int)$_POST['order_id'])){
+							$href = 'http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section=orders&subsection=order_start';
+							$json_answer = '{"response":"OK","function":"location_href","href":"'.$href.'"}';
+						}else{
+							$message = "Заказ не был оплачен в достаточном размере для его запуска!";
+							$json_answer = '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+						}
+						break;
+					
+					default: 						
+						$json_answer = '{"response":"OK","function":"reload_paperwork_tbl"}';
+						break;
+				}			
 				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['status_order']."' ";
 				$query .= "WHERE  `id` ='".$_POST['order_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				// echo '{"response":"OK", "function":"window_reload"}';
-				echo '{"response":"OK","function":"reload_paperwork_tbl"}';
+				echo $json_answer;
+				
 			}
+			// проверка оплаты по заказу
+			protected function check_the_pyment_order($id){
+				global $mysqli;
+				$query = "SELECT * FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$this->Specificate_arr = array();
+					
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->Specificate_arr[] = $row;
+					}
+				}
+
+				$enabled_start_work = 1;
+
+				// перебираем все спецификации и выесняем их оплату
+				foreach ($this->Specificate_arr as $key => $this->specificate) {
+					if ($this->specificate['enabled_start_work'] == 0) {
+						$enabled_start_work = 0;
+					}
+				}
+				return $enabled_start_work;
+			}
+
+			
 
 			// правим дату сдачи заказа
 			protected function change_date_of_delivery_of_the_order_AJAX(){

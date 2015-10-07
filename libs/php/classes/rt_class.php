@@ -746,7 +746,7 @@
 		}
 		// создание заказа из запроса
         static function make_order($rows_data,$client_id,$query_num,$doc_num,$doc_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/, /*дата отгрузки*/$shipping_date = '',/*рабочие дни*/$work_days = 0, $limit = '0000-00-00'){
-            echo '<br><br><strong>$limit = </strong>'.$limit.'<br>'; 
+            //echo '<br><br><strong>$limit = </strong>'.$limit.'<br>'; 
             
             // подключаем класс для информации из калькулятора
         	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
@@ -824,8 +824,11 @@ echo $query;
 				// выполняем запрос
 				
                 $result = $mysqli->query($query) or die($mysqli->error);
-                echo '<br><br>'.$query;
-				exit;
+                ////////////////////
+                // test query
+                ////////////////////
+    			// echo '<br><br>'.$query;
+				// exit;
 			////////////////////////////////////
             //	Сохраняем данные о спецификации или оферте   -- end
             ////////////////////////////////////

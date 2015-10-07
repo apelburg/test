@@ -91,7 +91,10 @@
 
 								case 'refund_in_a_row': // возврат денег по счёту
 									$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'refund_in_a_row'";
-									break;
+									break;$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'refund_in_a_row'";
+								// case 'all_the_bill': // все счета
+
+								// 	break;
 								
 								
 								default:
@@ -513,7 +516,9 @@
 				private function table_specificate_for_order_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
-					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date` FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date`,
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`payment_date`,'%d.%m.%Y')  AS `payment_date` 
+					FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
 					// $where = 1;
 					$result = $mysqli->query($query) or die($mysqli->error);
 					$spec_arr = array();
@@ -822,7 +827,7 @@
 								<tr>
 									<th id="show_allArt"></th>
 									<th class="check_show_me"></th>
-									<th>Дата/время заведения</th>
+									<th>Дата создания документа</th>
 									<th>Заказ</th>
 									<th>Компания</th>	
 									<th>Документ:</th>

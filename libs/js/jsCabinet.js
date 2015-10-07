@@ -205,6 +205,10 @@
 		function window_reload(data) {
 			location.reload();
 		}
+		// переадресация из php
+		function location_href(data){
+			window.location.href = data.href;
+		}
 
 		$(document).keydown(function(e) {	
 			if(e.keyCode == 27){//ESC		
