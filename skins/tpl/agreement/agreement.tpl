@@ -30,8 +30,14 @@
                     
                        }
                      echo '<button type="button" onclick="location = \'?page=cabinet&section=requests&subsection=all\';" style="cursor:pointer;">в раздел Кабинет</button>';
-                     echo '&nbsp;&nbsp;<button type="button" onclick="location = \'?page=client_folder&section=agreements&client_id='.$client_id.'\';" style="cursor:pointer;">в раздел Договоры</button>';
-        
+                       if($dateDataObj->doc_type=='spec')
+                       {
+                        echo '&nbsp;&nbsp;<button type="button" onclick="location = \'?page=client_folder&section=agreements&client_id='.$client_id.'\';" style="cursor:pointer;">в раздел Договоры</button>';
+                       }
+                        if($dateDataObj->doc_type=='oferta')
+                       {
+                        echo '&nbsp;&nbsp;<button type="button" onclick="location = \'?page=client_folder&section=agreements&doc_type=oferta&client_id='.$client_id.'\';" style="cursor:pointer;">в раздел Оферты</button>';
+                       }
             
                     }
                 ?>  <!--'.$_GET['query_num'].'=10001&client_id='.$client_id.'-->
@@ -44,13 +50,24 @@
             </td>
             <td align="right">
                 <?php 
+                    if($dateDataObj->doc_type=='oferta')
+                    {
+                    
+                     $href = '?page=agreement&section=specification_editor&client_id='.$client_id.'&oferta_id='.$oferta_id.'&dateDataObj='.htmlspecialchars('{"doc_type":"oferta"}');
+                    // echo $href;
+                ?>
+                    <button type="button" onclick="location = '?<?php echo htmlspecialchars(addOrReplaceGetOnURL('section=oferta_full_editor')); ?>';" style="cursor:pointer;">редактировать текст Оферты</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="button" onclick="location = location.pathname + '<?php echo $href; ?>';" style="cursor:pointer;">редактировать Оферту</button>
+                <?php 
+                    }
                     if($dateDataObj->doc_type=='spec' && isset($_GET['open']) && $_GET['open']== 'specification')
                     {
                 ?>
                 
-                   <button type="button" onclick="location = '?<?php echo addOrReplaceGetOnURL('section=specification_full_editor'); ?>';" style="cursor:pointer;">редактировать текст СП</button>
+                    <button type="button" onclick="location = '?<?php echo htmlspecialchars(addOrReplaceGetOnURL('section=specification_full_editor')); ?>';" style="cursor:pointer;">редактировать текст СП</button>
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                   <button type="button" onclick=" location = location.pathname + '?page=agreement&section=specification_editor&client_id=<?php echo $client_id; ?>&specification_num=<?php echo $key; ?>&agreement_id=<?php echo $agreement_id; ?>' ;" style="cursor:pointer;">редактировать СП</button>
+                    <button type="button" onclick=" location = location.pathname + '?page=agreement&section=specification_editor&client_id=<?php echo $client_id; ?>&specification_num=<?php echo $key; ?>&agreement_id=<?php echo $agreement_id.htmlspecialchars('&dateDataObj={"doc_type":"spec"}'); ?>' ;" style="cursor:pointer;">редактировать СП</button>
                  <?php 
                     }
                     else if($dateDataObj->doc_type=='spec'){
@@ -62,12 +79,9 @@
                 <?php 
                         }
                     }
-                    if($dateDataObj->doc_type=='spec' && ((boolean)$agreement['standart']) || (isset($_GET['open']) && $_GET['open'] == 'specification')){
                 ?>
                 <button type="button" onclick="conv_specification.start();print_agreement();" style="cursor:pointer;">распечатать</button>&nbsp;&nbsp;&nbsp;&nbsp;
-                <?php 
-                    }
-                 ?>
+              
             </td>
           </tr>
         </table>

@@ -28,7 +28,7 @@
 <style> .main_menu_tbl{ display:none; } </style>
 <div style="margin:auto;width:1200px;">
     <div style="margin:10px 20px;">
-        <button type="button" onclick="location = '?<?php echo addOrReplaceGetOnURL('section=agreement_editor'); ?>';" style="cursor:pointer;">назад</button>
+        <button type="button" onclick="location = '?<?php echo htmlspecialchars(addOrReplaceGetOnURL('section=agreement_editor')); ?>';" style="cursor:pointer;">назад</button>
     </div>
     <div style="margin:0px 20px;">
     <form action="" method="post">

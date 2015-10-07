@@ -3,6 +3,7 @@
     class RT{
 	    //public $val = NULL;
 	    function __construct(){
+
 	    	/**
 		     *	вызов обработчика AJAX
 		     *	@author  Алексей	
@@ -12,6 +13,7 @@
 				$this->_AJAX_();
 			}
 		}
+
 		static function save_rt_changes($data){
 		    global $mysqli;   //print_r($data); 
 	   
@@ -746,8 +748,13 @@
         static function make_order($rows_data,$client_id,$query_num,$doc_num,$doc_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/, /*дата отгрузки*/$shipping_date = '0000-00-00',/*рабочие дни*/$work_days = 0){
             // подключаем класс для информации из калькулятора
         	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+
+
             global $mysqli;
+
+
             $user_id = $_SESSION['access']['user_id'];
+
             // убиваем пустые позиции
             foreach (json_decode($rows_data,true) as $key => $value) {
             	if(!empty($value)){
@@ -758,12 +765,14 @@
             /////////////////////////////
             //  СОЗДАНИЕ СТРОКИ с информацией по группе товаров в спецификации -- START
             /////////////////////////////       
+
                 // КОПИРУЕМ СТРОКУ ЗАКАЗА из таблицы запросов
                 $query = "INSERT INTO `".CAB_BILL_AND_SPEC_TBL."` (`manager_id`, `client_id`, `snab_id`, `query_num` )
                     SELECT `manager_id`, `client_id`, `snab_id`, `query_num`
                     FROM `".RT_LIST."` 
                     WHERE  `query_num` = '".$query_num."';
                     ";
+
                     echo $query;
                 // выполняем запрос
                 $result = $mysqli->query($query) or die($mysqli->error);
@@ -773,6 +782,7 @@
             /////////////////////////////
             //  СОЗДАНИЕ СТРОКИ с информацией по группе товаров в спецификации -- start
             /////////////////////////////
+
             //////////////////////////
             //	Запрашиваем информацию по спецификацииии или оферте-- start
             //////////////////////////
@@ -816,8 +826,10 @@ echo $query;
 			////////////////////////////////////
             //	Сохраняем данные о спецификации или оферте   -- end
             ////////////////////////////////////
+
             // echo '<br>'.$order_num.'<br>';
             // перебираем принятые данные по позициям
+
             foreach ($positions_arr as $position) {
             	//////////////////////////
             	//	заведение позиций
@@ -828,11 +840,15 @@ echo $query;
 	                    WHERE  `query_num` = '".$query_num."' 
 	                    AND `id` = '".$position['pos_id']."';
 	                ";
+
 	                // выполняем запрос
 	                $result = $mysqli->query($query) or die($mysqli->error);
 	                // id новой позиции
 	                $main_row_id = $mysqli->insert_id;
+
                 	
+
+
 	                // выбираем id строки расчёта
 	                // КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
 	                $query = "INSERT INTO `" . CAB_ORDER_DOP_DATA . "`  (
@@ -847,7 +863,10 @@ echo $query;
 	                $result = $mysqli->query($query) or die($mysqli->error);
 	                
 	                $dop_data_row_id = $mysqli->insert_id; // id нового расчёта... он же номер
+
                 
+
+
                 // правим row_id на полученный из созданной строки позиции
                 $query = "UPDATE  `".CAB_ORDER_DOP_DATA."` 
                         SET  `row_id` =  '".$main_row_id."' 
@@ -859,6 +878,8 @@ echo $query;
                         SET  `the_bill_id` =  '".$the_bill_id ."' 
                         WHERE  `id` ='".$main_row_id."';";
                 $result = $mysqli->query($query) or die($mysqli->error);
+
+
                 //////////////////////////////////////////////////////
                 //    КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ -- start  //
                 //////////////////////////////////////////////////////
@@ -871,14 +892,17 @@ echo $query;
                      Вар. 1) копируем данные, замораживаем таблицу доп услуг и апдейтим родительский id
                      Вар. 2) выгружаем данные о доп услугах в PHP, и записывае в новую таблицу
                     */
+
                     
                     $query = "SELECT * FROM `".RT_DOP_USLUGI."` 
                         WHERE  `dop_row_id` = '".$position['row_id']."'";
+
                         // echo $position['row_id'].'<br><br><br><br>';
                     $arr_dop_uslugi = array();
                     $result = $mysqli->query($query) or die($mysqli->error);
                     
                     if($result->num_rows > 0){
+
                     	// echo $row.'<br><br><br>';
                         while($row = $result->fetch_assoc()){
                 			 $query2 = "INSERT INTO `".CAB_DOP_USLUGI."` SET
@@ -899,22 +923,32 @@ echo $query;
 						// echo $query2.'<br><br>';exit;
 						$mysqli->query($query2) or die($mysqli->error);	
                         }
+
+
+
                     	
                     }
+
+
                     
+
                 //////////////////////////////////////////////////////
                 //    КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ -- end  //
                 //////////////////////////////////////////////////////
                 
+
             }
         } 
+
     /**
      *	AJAX 	
      *	@author  Алексей	
      *	@version  18:36 МСК 27.09.2015	
      */
+
     private function _AJAX_(){
 		$method_AJAX = $_POST['AJAX'].'_AJAX';
+
 		// если в этом классе существует такой метод - выполняем его и выходим
 		if(method_exists($this, $method_AJAX)){
 			$this->$method_AJAX();
@@ -953,9 +987,11 @@ echo $query;
 	 */
 	private function add_new_dop_service_AJAX(){
 		global $mysqli;
+
 		$id_uslugi = $_POST['id_uslugi'];
 		$dop_row_id = $_POST['dop_row_id'];
 		$quantity = $_POST['quantity'];
+
 		global $mysqli;
 		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` 
 		WHERE `id` = '".$id_uslugi."'";
@@ -966,8 +1002,10 @@ echo $query;
 				$usluga = $row;
 			}		
 		}
+
 		// если массив услуг пуст
 		if(empty($usluga)){return 'такой услуги не существует';}
+
 		// вставляем новую услугу в базу
 		$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
 		             `dop_row_id` = '".$dop_row_id."',
@@ -983,6 +1021,7 @@ echo $query;
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 		echo '{"response":"OK","function":"window_reload"}';
 	}
+
 	/**
 	 *	вывод списка доп услуг 		
 	 * 	
@@ -990,6 +1029,7 @@ echo $query;
      *	@version  18:36 МСК 27.09.2015 		
 	 */
 	private function get_uslugi_list_Database_Html( $id=0, $pad=30){	
+
 		global $mysqli; 
 		$html = '';
 		$apl_services = '';
@@ -1028,9 +1068,11 @@ echo $query;
 					// присваиваем конечным услугам класс may_bee_checked
 					$apl_services.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
 				}else{
+
 					// Это услуги из КАЛЬКУЛЯТОРА
 					// запрос на детей
 					// $child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+
 					// $price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
 					// // присваиваем конечным услугам класс may_bee_checked
 					//$apl_services.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;

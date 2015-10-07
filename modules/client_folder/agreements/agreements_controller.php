@@ -55,14 +55,14 @@
 					 //$long_term_agreement_div = '<div style="display:'.$display_class.'">';
 					 //$long_term_agreement_div .= '<table width="100%" class="agreement_list_tbl"><tr>';
 					 $agreement_row .= '<tr agreement_id="'.$agreement['id'].'" '.$hidden.'>';
-					 $agreement_row .= '<td style="border-right:none;">'.$basic_style_mark.' договор &nbsp;<a href="#" onclick="if(confirm(\'Договор будет установлен как основной\')){location = \'?page=agreement&section=set_as_basic&client_id='.$client_id.'&agreement_id='.$agreement['id'].'\'};return false;">основной</a></td><td style="border-left:none;">№ <agreement_num>'.$agreement['agreement_num'].'</agreement_num></td>';
+					 $agreement_row .= '<td style="border-right:none;" colspan="2">'.$basic_style_mark.' договор &nbsp;<a href="#" onclick="if(confirm(\'Договор будет установлен как основной\')){location = \'?page=agreement&section=set_as_basic&client_id='.$client_id.'&agreement_id='.$agreement['id'].'\'};return false;">основной</a></td><td style="border-left:none;">№ <agreement_num>'.$agreement['agreement_num'].'</agreement_num></td>';
 					 $agreement_row .= '<td><agreement_num hidden>'.$basic_style_mark.'</agreement_num><agreement_num>'.$date.'</agreement_num></td><td colspan="3">долгосрочный; действителен до '.$expire_date.'</td>';
 					 //$agreement_row .= '<td style="width:110px;font-weight:'.$basic_style.'">'.$basic_style_mark.'<a href="?page=agreement&section=set_as_basic&client_id='.$client_id.'&agreement_id='.$agreement['id'].'">основной</a></td>';
 					 $agreement_row .= '<td style="border-left:none;border-right:none;"><a href="?page=agreement&section=agreement_editor&client_id='.$client_id.'&agreement_id='.$agreement['id'].'&agreement_type='.$agreement['type'].'&open=empty" target="_blank">открыть</a></td>';
 					 $agreement_row .= '<td style="border-left:none;border-right:none;"><a href="?page=agreement&section=agreement_editor&client_id='.$client_id.'&agreement_id='.$agreement['id'].'&agreement_type='.$agreement['type'].'&open=all" target="_blank">открыть всё</a></td>';
 					 $agreement_row .= '<td style="border-left:none;border-right:none;"><a href="?page=agreement&client_id='.$client_id.'&agreement_id='.$agreement['id'].'&section=delete_agreement"  onclick="if(confirm(\'договор будет удален\')) return true; return false;"><em>DEL</em></a></td>';
 					 $agreement_row .= '</tr>';
-					 $agreement_row .= '<tr class="line" agreement_id="'.$agreement['id'].'" '.$hidden.'><td colspan="9"></td></tr>';
+					 $agreement_row .= '<tr class="line" agreement_id="'.$agreement['id'].'" '.$hidden.'><td colspan="10"></td></tr>';
 					 
 					 
 					 ///////////////////////// specifications /////////////////////////
@@ -73,10 +73,13 @@
 					 { 
 						 while($specification = mysql_fetch_assoc($specifications))
 						 {
+							 // echo '<pre>'; print_r($specification); echo '</pre>'; 
+				             $type = ($specification['specification_type']=='date')?'дата':'р/д';
+							
 							 $date_arr = explode('-',$specification['date']);
 							 $date = $date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0];
 							 $specification_row .= '<tr agreement_id="'.$agreement['id'].'" '.$hidden.'>';
-							 $specification_row .= '<td style="border-right:none;width:95px;">спецификация</td><td style="border-left:none;width:120px;cursor: pointer;" onclick="change_spec_num(this,\''.$path.'\','.$client_id.','.$agreement['id'].','.$specification['specification_num'].');">№ '.$specification['specification_num'].'</td>';
+							 $specification_row .= '<td style="border-right:none;width:95px;">спецификация</td><td style="width:50px;">'.$type.'</td><td style="border-left:none;width:120px;cursor: pointer;" onclick="change_spec_num(this,\''.$path.'\','.$client_id.','.$agreement['id'].','.$specification['specification_num'].');">№ '.$specification['specification_num'].'</td>';
 							 $specification_row .= '<td style="width:200px;">'.$date.'</td><td colspan="3" managed="text" bd_row_id="'.$specification['id'].'" bd_field="short_description" max_length="30">'.$specification['short_description'].'</td>';
 							 $specification_row .= "<td style='width:80px;border-left:none;border-right:none;'><a href='?page=agreement&section=agreement_editor&client_id=".$client_id."&agreement_id=".$agreement['id']."&agreement_type=".$agreement['type']."&open=specification&specification_num=".$specification['specification_num']."&dateDataObj={\"doc_type\":\"spec\"}' target='_blank'>открыть</a></td>";
 							 $specification_row .= "<td style='width:100px;border-left:none;border-right:none;'><a href='?page=agreement&section=specification_editor&client_id=".$client_id."&specification_num=".$specification['specification_num']."&agreement_id=".$agreement['id']."&dateDataObj={\"doc_type\":\"spec\"}'>редактировать</a></td>";
@@ -128,12 +131,12 @@
 			 }
 			 $select = '<select onchange="agreement_section(this);" style="width:500px;">'.$option.'</select>';
 			 $link = (!isset($_GET['agreement_type']))? '<a href="?'.addOrReplaceGetOnURL('agreement_type=short_term').'">краткосрочные</a>':'<a href="?'.addOrReplaceGetOnURL('','agreement_type').'">долгосрочные</a>';
-			 $rows = '<tr class="cup_line_1"><td style="border-left:1px solid #BBBBBB;border-right:0px;width:145px;">Контрагенты:</td><td style="border-left:0px;" colspan="5">'.$select.'</td>';
+			 $rows = '<tr class="cup_line_1"><td style="border-left:1px solid #BBBBBB;border-right:0px;width:145px;">Контрагенты:</td><td style="border-left:0px;" colspan="6">'.$select.'</td>';
 			 //$rows .= '<td colspan="2" style="border-left:1px solid #BBBBBB;width:200px;text-align:center"><span id="cup_agreement">'.$cup_agreement.'</span></td>';
 			 $rows .= '<td style="border-right:0px solid #BBBBBB;border-left:1px solid #BBBBBB;width:150px;text-align:right;padding-right:45px;"  colspan="3">'.$link.'</a></td>';
 			 //rows .= <td style="width:50px;border-left:0px"></td>';
 			 $rows .= '</tr>';
-			 $rows .= '<tr class="cup_line_2"><td style="border-left:1px solid #BBBBBB;" colspan="2">документ / номер</td><td>дата документа</td><td colspan="2">подробнее</td><td></td><td colspan="3" align="center">действия</td></tr>';
+			 $rows .= '<tr class="cup_line_2"><td style="border-left:1px solid #BBBBBB;" colspan="3">документ / номер</td><td>дата документа</td><td colspan="2">подробнее</td><td></td><td colspan="3" align="center">действия</td></tr>';
 			 $rows .= $agreement_row.$specification_row;
 		
 		}
@@ -147,18 +150,20 @@
 	    $oferts_data = Agreement::fetch_all_client_oferts($client_id);
 		
 		if($oferts_data){
-		    $rows = '<tr class=""><td colspan="9">&nbsp;</td></tr>
-			        <tr class="cup_line_2"><td style="border-left:1px solid #BBBBBB;" colspan="2">документ / номер</td><td>дата документа</td><td colspan="2">подробнее</td><td></td><td colspan="3" align="center">действия</td></tr>
-					<tr class=""><td colspan="9">&nbsp;</td></tr>';
+		    $rows = '<tr class=""><td colspan="10">&nbsp;</td></tr>
+			        <tr class="cup_line_2"><td style="border-left:1px solid #BBBBBB;" colspan="3">документ / номер</td><td>дата документа</td><td colspan="2">подробнее</td><td></td><td colspan="3" align="center">действия</td></tr>
+					<tr class=""><td colspan="10">&nbsp;</td></tr>';
 		    while($data_row= $oferts_data->fetch_assoc()){
-
+                 
 				 
 			     $date_arr = explode('-',substr($data_row['date_time'],0,10));
 				 $date = $date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0];
 				 
+				 //echo '<pre>'; print_r($data_row); echo '</pre>'; 
+				 $type = ($data_row['type']=='date')?'дата':'р/д';
 				 
 				 $rows .= '<tr>'; //agreement_id="'.$agreement['id'].'" '.$hidden.'
-				 $rows .= '<td style="border-right:none;width:95px;">оферта</td><td style="width:120px;">№ '.$data_row['num'].'</td>';
+				 $rows .= '<td style="border-right:none;width:95px;">оферта</td><td style="width:50px;">'.$type.'</td><td style="width:120px;">№ '.$data_row['num'].'</td>';
 				 $rows .= '<td style="width:200px;">'.$date.'</td><td colspan="3" managed="text" bd_row_id="'.$data_row['id'].'" bd_field="short_description" max_length="30">'.$data_row['short_description'].'</td>';
 				 $rows .= "<td style='width:100px;border-left:none;border-right:none;'><a href='?page=agreement&section=agreement_editor&client_id=".$client_id."&oferta_id=".$data_row['id']."&dateDataObj={\"doc_type\":\"oferta\"}'>открыть</a></td>";
 				 $rows .= "<td style='width:100px;border-left:none;border-right:none;'><a href='?page=agreement&section=specification_editor&client_id=".$client_id."&oferta_id=".$data_row['id']."&dateDataObj={\"doc_type\":\"oferta\"}'>редактировать</a></td>";
@@ -179,7 +184,7 @@
 	
 	$content .= '<script type="text/javascript" src="libs/js/tableDataManager.js"></script>
                  <script type="text/javascript" src="libs/js/geometry.js"></script>';
-	if($doc_type=='spec') $content .= '<script type="text/javascript">
+	if($doc_type=='agreement') $content .= '<script type="text/javascript">
                    tableDataManager.url =\'?page=agreement&update_specification_common_fields_ajax=1\';
                  </script>';
 	if($doc_type=='oferta')	$content .= '<script type="text/javascript">

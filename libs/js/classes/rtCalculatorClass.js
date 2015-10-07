@@ -1742,7 +1742,7 @@ var rtCalculator = {
 			    var url = OS_HOST+'?' + addOrReplaceGetOnURL('getSpecificationsDates={"ids":'+JSON.stringify(idsArr)+'}');
 		        make_ajax_request(url,callback);
 				function callback(response){ 
-					// alert(response);
+					//alert(response);
 					try {  var dataObj = JSON.parse(response); }
 					catch (e) { 
 						alert('неправильный формат данных in calculatorClass.makeSpecAndPreorder2() ошибка JSON.parse(response)');
@@ -1844,10 +1844,14 @@ var rtCalculator = {
 				 button2.innerHTML ="Отмена";
 				 content.appendChild(button1);
 		         content.appendChild(button2);
-		
+		         //alert(datetime);
+				 datetime =(((date.split('.')).reverse()).join('-'))+' '+time+':00'
+				 //alert(datetime);
+                 var pickerMaxDate = ((goOnNumWorkingDays(datetime,3,'-')).slice(0,10)).replace(/\-/g,'/');
+				 //alert(pickerMaxDate);
 				 launch_set_window(winId,"Установка лимита",content);
 				 
-				 $('#datepicker').datetimepicker({format:'d.m.Y H:i',dayOfWeekStart: 1,minDate:0,maxDate:((date.split('.')).reverse()).join('/'),maxTime:time,
+				 $('#datepicker').datetimepicker({format:'d.m.Y H:i',dayOfWeekStart: 1,minDate:0,maxDate:pickerMaxDate,maxTime:time,
 					   onChangeDateTime: function(dp,$input){$('#final_date')[0].value=$input.val();},closeOnDateSelect:true,
 					   onGenerate:function( ct ){$(this).find('.xdsoft_date.xdsoft_weekend').addClass('xdsoft_disabled');$(this).find('.xdsoft_date');},allowTimes:['00:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00','15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00']});
 			}

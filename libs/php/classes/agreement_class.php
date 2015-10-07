@@ -157,22 +157,12 @@
 			$year = date("Y");
 			$date = date("Y-m-d");
 			$time = date("H:i:s");
-			$defalut_num = 10000;
 
-			//ОПРЕДЕЛЯЕМ НОМЕР ОФЕРТЫ
-			$query = "SELECT MAX(num) oferta_num FROM `".OFFERTS_TBL."`"; //WHERE LEFT(date_time,4) = '".$year."'
-			$result = $mysqli->query($query)or die($mysqli->error);
-			if($result->num_rows > 0){
-			    $row = $result->fetch_assoc();
-				$oferta_num = ($row['oferta_num']==0)?$defalut_num:((int)$row['oferta_num'])+1;
-			}
-			else $oferta_num = $defalut_num;
-		    echo '--'.$oferta_num.'--';
 			
 			$dates_data = self::date_terms_convert($dateDataObj);
 		    // ЗАПИСЫВАЕМ ДАННЫЕ ОБ ОФЕРТЕ
 			$query = "INSERT INTO `".OFFERTS_TBL."` SET 
-						  num='".$oferta_num."',
+						  num='НЕ НАЗНАЧЕН',
 						  type='". $dateDataObj->data_type."',
 						  client_id='".$client_id."',
 						  our_requisit_id='".$our_requisit_id."',
@@ -271,7 +261,7 @@
 						 }
 						 
 				         // записываем ряд
-						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$dop_data['quantity'],$dop_data['price_out']);
+						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$dop_data['quantity'],$dop_data['price_out']);
 						 
 						 
 						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type DESC";
@@ -285,7 +275,7 @@
 									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
 									 // записываем ряд
-									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
+									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
 									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
@@ -294,7 +284,7 @@
 									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
 									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
 									 // записываем ряд
-									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$oferta_num,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
+									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out']);
 								 }/**/
 								 
 								  
@@ -352,7 +342,7 @@
 			
 
 			// записываем файл
-			$file_name = $full_dir_name.'/'.$oferta_num.'.tpl';
+			$file_name = $full_dir_name.'/'.$oferta_id.'.tpl';
 			//echo $file_name;
 			//$file_name = $dir_name_full.'/com_pred_1_1.doc';
 			if(file_exists($file_name)){
@@ -373,7 +363,7 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
-		    RT::make_order($rows_data,$client_id,$_GET['query_num'],$oferta_num,0,$dateDataObj->doc_type,$dateDataObj->data_type);
+		    RT::make_order($rows_data,$client_id,$_GET['query_num'],0,$oferta_id,$dateDataObj->doc_type,$dateDataObj->data_type);
 			
 			return $oferta_id;
 		}
@@ -630,12 +620,11 @@
 				
 				return array('table'=>$table,'itogo'=>$itogo,'nds'=>$nds,'items_num'=>$items_num);
 		}
-		static function insert_row_in_oferta($oferta_id,$num,$name,$quantity,$price){
+		static function insert_row_in_oferta($oferta_id,$name,$quantity,$price){
 			global $mysqli;
 			
 			$query = "INSERT INTO `".OFFERTS_ROWS_TBL."` SET 
 						  oferta_id='".$oferta_id."',
-						  oferta_num='".$num."',
 						  name='".$name."',
 						  quantity='".$quantity."',
 						  price='".$price."',
@@ -955,7 +944,7 @@
 						  summ='".$quantity*$price."'
 						  ";
 						  
-			  //echo $query;	
+			  // echo $query;	
 			  //exit;	  
 			  $result = $mysqli->query($query)or die($mysqli->error);
 			  return $mysqli->insert_id;
@@ -990,6 +979,7 @@
 		}
 		static function getSpecificationsDates($inDataArr){
 			global $mysqli;
+			global $user_id;
 			
 			 //print_r($inDataArr);
 			 $inDataArr = (array)$inDataArr;
@@ -1000,31 +990,35 @@
 			 }
 			 
 			 if(isset($dataArr)){
-				 $query="SELECT id, row_id, shipping_date, shipping_time, standart, shipping_redactor_access FROM `".RT_DOP_DATA."` WHERE `id` IN('".implode("','",$dataArr)."')";
+				 $query="SELECT id, row_id, shipping_date, shipping_time, shipping_type, work_days, shipping_redactor_id, shipping_redactor_access FROM `".RT_DOP_DATA."` WHERE `id` IN('".implode("','",$dataArr)."')";
 				 $result = $mysqli->query($query)or die($mysqli->error);
 				 if($result->num_rows>0){
-				 
+				     // SELECT * FROM `os__rt_dop_data` WHERE `id` IN ('681','743','1003','1027') ORDER BY `shipping_type` DESC
 					 // не понадобилось
 					 // $day_num_count = 0;
 					 // $max_day_num = '0';
 					 // $defined_date = $expired_date = false;
 					 
-					 $max_date = '1970-01-01 00:00:01';
-					 $cur_date = '2015-10-21 00:00:01';//date("Y-m-d H:i:s");    
+					 // $max_date = '1970-01-01 00:00:01';
+					 // $cur_date = '2015-10-21 00:00:01';//date("Y-m-d H:i:s");    
 					 while($row = $result->fetch_assoc()){
+					     // echo '<pre>'; print_r($row); echo '</pre>';
 					     // не понадобилось
 					     //if($row['standart']!='' && $row['standart']!='0') $day_num_count++;
 						 $value = $shablon = $shablon_en = ''; 
-						 $who = ($row['shipping_redactor_access']=='0' || $row['shipping_redactor_access']=='5')?'вы':'СНАБ';
+						 if(isset($user_id) && $row['shipping_redactor_id']!=$user_id && $row['shipping_redactor_access']=='1') $who = 'АДМИН';
+						 else if(isset($user_id) && $row['shipping_redactor_id']==$user_id && $row['shipping_redactor_access']!='8') $who = 'вы';
+						 else if($row['shipping_redactor_access']=='8') $who = 'СНАБ';
+						 else $who = '';
 						 // если установленна дата выбираем её, иначе количество рабочих дней
-						 if($row['shipping_date']>'1970-01-01' || $row['standart']!=''){
-						 	 if($row['shipping_date']>'1970-01-01'){
+						 if($row['shipping_type']!='none'){
+						 	 if($row['shipping_type']=='date'/*$row['shipping_date']>'1970-01-01'*/){
 								 $value = $row['shipping_date']; 
 								 $shablon = 'дата'; 
 								 $shablon_en = 'date'; 
 							 }
-							 else if($row['standart']!=''){
-								 $value = $row['standart']; 
+							 else if($row['shipping_type']=='rd'){
+								 $value = $row['work_days']; 
 								 $shablon = 'р/д'; 
 								 $shablon_en = 'days'; 
 							 }
@@ -1046,7 +1040,7 @@
 					 $outDataArr['data'] = $dataArr;
 					 $outDataArr['all_positions'] = $result->num_rows;
 					 $outDataArr['defined_positions'] = count($dataArr);
-					 $outDataArr['min_allowed_date'] = substr(addWorkingDays(date("Y-m-d H:i:s"),3),0,10);//,time()+60*60*24*
+					 $outDataArr['min_allowed_date'] = substr(goOnSomeWorkingDays(date("Y-m-d H:i:s"),3,'+'),0,10);//,time()+60*60*24*
 					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
 					 // if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
 					 // если определенна хотябы одна дата 

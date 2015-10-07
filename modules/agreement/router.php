@@ -128,6 +128,10 @@
 		 include 'specification_full_editor_controller.php';
 		 break;
 		 
+		 case 'oferta_full_editor':
+		 include 'oferta_full_editor_controller.php';
+		 break;
+		 
 		 case 'our_agreements_full_editor':
 		 include 'our_agreements_full_editor_controller.php';
 		 break;

@@ -446,7 +446,7 @@
 		}
 		
 		$general_data =  Agreement::fetch_oferta_common_data($_GET['oferta_id']);
-        if(!$general_data){ echo 'не удалость получить данные оферты'; return; }
+        if(!$general_data){ echo 'не удалось получить данные оферты'; return; }
 		
 		//!!!!!!!!!!!!!!!  oferta_num  oferta_type date_time
 		//
@@ -459,7 +459,7 @@
 		// echo '<pre>'; print_r($table_data); echo '</pre>';
 		
 		// считываем файл оферты
-		$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.substr($general_data['date_time'],0,4).'/offerts/'.$general_data['our_requisit_id'].'_'.$general_data['client_requisit_id'].'/'.$general_data['num'].'.tpl';
+		$file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.substr($general_data['date_time'],0,4).'/offerts/'.$general_data['our_requisit_id'].'_'.$general_data['client_requisit_id'].'/'.$general_data['id'].'.tpl';
 				
 		$fd = fopen($file_name,"r");
 		$doc = fread($fd,filesize($file_name));
