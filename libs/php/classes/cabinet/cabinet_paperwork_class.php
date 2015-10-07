@@ -386,14 +386,14 @@
 						$html .= '</td>';
 						$html .= '<td>';
 							// % оплаты
-							$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %';
+							$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %, <span class="greyText">от '.$this->specificate['payment_date'].'</span>';
 
 						$html .= '</td>';
 						$html .= '<td>';
 						$html .= '</td>';
 						$html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
 						$html .= '<td>';
-							$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
+							$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['shipping_date'].'" data-id="'.$this->specificate['id'].'">';
 						$html .= '</td>';
 						$html .= '<td>Бух.</td>';
 						$html .= '<td class="buch_status_select">'.$this->decoder_statuslist_buch($this->specificate['buch_status'],0,$this->specificate).'</td>';
@@ -513,7 +513,7 @@
 				private function table_specificate_for_order_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
-					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_of_delivery`,'%d.%m.%Y %H:%i:%s')  AS `date_of_delivery` FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date` FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
 					// $where = 1;
 					$result = $mysqli->query($query) or die($mysqli->error);
 					$spec_arr = array();
