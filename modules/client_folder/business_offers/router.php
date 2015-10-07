@@ -142,7 +142,10 @@
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
 		 
 	}
-	
+	if(isset($_POST['saveChangesInBase'])){
+		Com_pred::saveKpDisplayChangesInBase($_POST['kp_id'],$_POST['dataObj']);
+		exit;
+	}
 	
 	
 	 if(isset($_GET['delete_com_offer'])){

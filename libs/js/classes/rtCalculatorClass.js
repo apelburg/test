@@ -1742,7 +1742,7 @@ var rtCalculator = {
 			    var url = OS_HOST+'?' + addOrReplaceGetOnURL('getSpecificationsDates={"ids":'+JSON.stringify(idsArr)+'}');
 		        make_ajax_request(url,callback);
 				function callback(response){ 
-					// alert(response);
+					//alert(response);
 					try {  var dataObj = JSON.parse(response); }
 					catch (e) { 
 						alert('неправильный формат данных in calculatorClass.makeSpecAndPreorder2() ошибка JSON.parse(response)');

@@ -979,6 +979,7 @@
 		}
 		static function getSpecificationsDates($inDataArr){
 			global $mysqli;
+			global $user_id;
 			
 			 //print_r($inDataArr);
 			 $inDataArr = (array)$inDataArr;
@@ -989,31 +990,35 @@
 			 }
 			 
 			 if(isset($dataArr)){
-				 $query="SELECT id, row_id, shipping_date, shipping_time, standart, shipping_redactor_access FROM `".RT_DOP_DATA."` WHERE `id` IN('".implode("','",$dataArr)."')";
+				 $query="SELECT id, row_id, shipping_date, shipping_time, shipping_type, work_days, shipping_redactor_id, shipping_redactor_access FROM `".RT_DOP_DATA."` WHERE `id` IN('".implode("','",$dataArr)."')";
 				 $result = $mysqli->query($query)or die($mysqli->error);
 				 if($result->num_rows>0){
-				 
+				     // SELECT * FROM `os__rt_dop_data` WHERE `id` IN ('681','743','1003','1027') ORDER BY `shipping_type` DESC
 					 // не понадобилось
 					 // $day_num_count = 0;
 					 // $max_day_num = '0';
 					 // $defined_date = $expired_date = false;
 					 
-					 $max_date = '1970-01-01 00:00:01';
-					 $cur_date = '2015-10-21 00:00:01';//date("Y-m-d H:i:s");    
+					 // $max_date = '1970-01-01 00:00:01';
+					 // $cur_date = '2015-10-21 00:00:01';//date("Y-m-d H:i:s");    
 					 while($row = $result->fetch_assoc()){
+					     // echo '<pre>'; print_r($row); echo '</pre>';
 					     // не понадобилось
 					     //if($row['standart']!='' && $row['standart']!='0') $day_num_count++;
 						 $value = $shablon = $shablon_en = ''; 
-						 $who = ($row['shipping_redactor_access']=='0' || $row['shipping_redactor_access']=='5')?'вы':'СНАБ';
+						 if(isset($user_id) && $row['shipping_redactor_id']!=$user_id && $row['shipping_redactor_access']=='1') $who = 'АДМИН';
+						 else if(isset($user_id) && $row['shipping_redactor_id']==$user_id && $row['shipping_redactor_access']!='8') $who = 'вы';
+						 else if($row['shipping_redactor_access']=='8') $who = 'СНАБ';
+						 else $who = '';
 						 // если установленна дата выбираем её, иначе количество рабочих дней
-						 if($row['shipping_date']>'1970-01-01' || $row['standart']!=''){
-						 	 if($row['shipping_date']>'1970-01-01'){
+						 if($row['shipping_type']!='none'){
+						 	 if($row['shipping_type']=='date'/*$row['shipping_date']>'1970-01-01'*/){
 								 $value = $row['shipping_date']; 
 								 $shablon = 'дата'; 
 								 $shablon_en = 'date'; 
 							 }
-							 else if($row['standart']!=''){
-								 $value = $row['standart']; 
+							 else if($row['shipping_type']=='rd'){
+								 $value = $row['work_days']; 
 								 $shablon = 'р/д'; 
 								 $shablon_en = 'days'; 
 							 }
