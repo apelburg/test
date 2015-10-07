@@ -276,7 +276,7 @@
 							// спецификация
 							$html .= 'Спецификация '.$this->specificate_item;
 							// ссылка на спецификацию
-							$html .= '&nbsp; '.$this->get_specification_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
+							$html .= '&nbsp; '.$this->get_document_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
 							// номер запроса
 							$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
 							// снабжение
@@ -298,7 +298,7 @@
 						$html .= '</td>';
 						$html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
 						$html .= '<td>';
-							$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
+							$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['shipping_date'].'" data-id="'.$this->specificate['id'].'">';
 						$html .= '</td>';
 						$html .= '<td>Бух.</td>';
 						$html .= '<td class="buch_status_select">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
@@ -347,7 +347,6 @@
 					}
 					return $html;
 				}
-
 
 				// ШАБЛОН вывода позиций для заказа со спецификацией
 				private function get_order_specificate_position_Html_Template(){
@@ -421,7 +420,7 @@
 				private function table_specificate_for_order_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
-					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_of_delivery`,'%d.%m.%Y %H:%i:%s')  AS `date_of_delivery` FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date` FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
 					// $where = 1;
 					$result = $mysqli->query($query) or die($mysqli->error);
 					$spec_arr = array();
@@ -433,12 +432,24 @@
 					// 	$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".(int)$_GET['manager_id']."'";
 					// 	$where = 1;
 					// }
-					
+					//////////////////////////
+					//	check the query
+					//////////////////////////
+					// echo '*** $query = '.$query.'<br>';
+
 					if($result->num_rows > 0){
 						while($row = $result->fetch_assoc()){
 							$spec_arr[] = $row;
 						}
 					}
+					//////////////////////////
+					//	check return array
+					//////////////////////////
+					// echo '<pre>';
+					// print_r($spec_arr);
+					// echo '</pre>';
+						
+
 					return $spec_arr;
 				}				
 
@@ -693,7 +704,7 @@
 							$table_order_row2_body .= '<td></td>';
 							$table_order_row2_body .= '<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>';
 							$table_order_row2_body .= '<td><span class="greyText">заказа: </span></td>';
-							$table_order_row2_body .= '<td class="order_status_chenge">'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+							$table_order_row2_body .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1)?'order_status_chenge':'').'">'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
 						
 						/////////////////////////////////////
 						//	тело строки заказа -- end ---
@@ -736,16 +747,62 @@
 					private function orders_design_all_Template($id_row=0){
 						$this->group_access = 9;
 						// id начальника отдела дизайна
-						$this->director_of_operations_ID = 77; 
+						$this->director_of_operations_ID = 80; 
 
 						$this->design_rows($id_row=0);
 					}
+					// private function orders_design_all_Template($id_row=0){
+					// 	$this->group_access = 9;
+					// 	// id начальника отдела дизайна
+					// 	$this->director_of_operations_ID = 80; 
+
+					// 	$this->design_rows($id_row=0);
+					// }
 					private function orders_design_for_one_men_Template($id_row=0){
 						$this->group_access = 9;
 						// id начальника отдела дизайна
-						$this->director_of_operations_ID = 77; 
+						$this->director_of_operations_ID = 80; 
 
 						$this->design_rows($id_row=0);
+					}
+
+					// ШАБЛОН строки спецификации
+					private function get_order_specificate_for_design_Html_Template(){
+						$this->rows_num++;
+						$html = '';
+						$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.' data-id="'.$this->specificate['id'].'">';
+							$html .= '<td colspan="6">';
+								// спецификация
+								// $html .= $this->specificate_item;
+								// ссылка на спецификацию
+								$html .= '&nbsp; '.$this->get_document_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
+								// номер запроса
+								$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
+								// снабжение
+								$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
+
+							$html .='</td>';
+							$html .= '<td>';
+								$html .= 'сч: '.$this->specificate['number_the_bill'];
+							$html .= '</td>';
+							// $html .= '<td>';
+							// 	$html .= '<span>'.$this->price_specificate.'</span>р';
+							// $html .= '</td>';
+							// $html .= '<td>';
+							// 	// % оплаты
+							// 	$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %';
+
+							// $html .= '</td>';
+							// $html .= '<td>';
+							// $html .= '</td>';
+							// $html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
+							// $html .= '<td>';
+							// 	$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
+							// $html .= '</td>';
+							$html .= '<td>Бух.</td>';
+							$html .= '<td class="buch_status_select_for_design">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
+						$html .= '</tr>';
+						return $html;
 					}
 
 					// получаем HTML спецификации (Дизайн/препресс)
@@ -772,7 +829,12 @@
 							// echo 'Hellow World =D<br>';
 							// echo $this->print_arr($positions_rows);
 							// получаем html строку со спецификацией
-							// $html .= $this->get_order_specificate_Html_Template();
+							
+							if($positions_rows != ''){
+								$this->position_item++;
+								$html .= $this->get_order_specificate_for_design_Html_Template();	
+							}
+							
 
 							// // если количество позиций не известно - сохраняем
 							// if($this->specificate['number_of_positions'] == 0){
@@ -786,12 +848,13 @@
 							// }
 
 							// подсчёт стоимости заказа
-							$this->price_order += $this->price_specificate;
+							//$this->price_order += $this->price_specificate;
 
 							// строки позиций идут под спецификацией
 							$html .= $positions_rows;
 													
 						}
+
 						return $html;
 					}
 
@@ -1229,27 +1292,51 @@
 
 						// получаем список пользователей производства
 						$this->get_production_userlist_Database();
-
+						// echo '<pre>';
+						// print_r($this->userlist);
+						// echo '</pre>';
+							
 						$html = '';
+						$check = 0;
+						$options_tag_empty = '<option value=""></option>';
 						// регулируем вывод в зависимости от уровня доступа
 						switch ($this->user_access) {
 							case '1': // для админа список
 								$html .= '<select class="production_userlist">';
+								
+								$options_tag = '';
 								foreach ($this->userlist as $key => $user) {
 									$checked = ($performer_id == $user['id'])?' selected="selected"':'';
-									$html .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+									$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+									if($checked != ''){$check = 1;}
 								}
+
+								if($check == 0){
+									$options_tag_empty = '<option value="" selected="selected"></option>';
+								}
+
+								$html .= $options_tag_empty.$options_tag;
+								
 								$html .= '</select>';
 								return $html;
 								break;
 							case '4': 
 								if($this->user_id == $this->director_of_operations_ID){// исключение для начальника производства - он должен иметь возможность распределять работу между работниками производства
 									$html .= '<select class="production_userlist" data-row_id="'.$service_id.'">';
-									$html .= '<option value=""></option>';
+									
+									$options_tag = '';
 									foreach ($this->userlist as $key => $user) {
 										$checked = ($performer_id == $user['id'])?' selected="selected"':'';
-										$html .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+										$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+										if($checked != ''){$check = 1;}
 									}
+
+									if($check == 0){
+										$options_tag_empty = '<option value="" selected="selected"></option>';
+									}
+
+									$html .= $options_tag_empty.$options_tag;
+
 									$html .= '</select>';
 									return $html;
 								}else{// для произ-ва выдаём кнопку взять в работу или транслируем имя пользователя, который взялся за заказ или был назначен для него
@@ -1257,19 +1344,32 @@
 										$user = $this->userlist[$performer_id];
 										return $user['name'].' '.$user['last_name'];
 									}else{
-										$user = $this->userlist[$this->user_id];
-										return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+										// $user = $this->userlist[$this->user_id];
+										// return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+										if(isset($this->userlist[$this->user_id])){
+											$user = $this->userlist[$this->user_id];
+											return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+										}else{
+											return 'Не назначен';
+										}
 									};
 								}
 								break;
 							case '9': 
 								if($this->user_id == $this->director_of_operations_ID){// исключение для начальника производства - он должен иметь возможность распределять работу между работниками производства
 									$html .= '<select class="production_userlist" data-row_id="'.$service_id.'">';
-									$html .= '<option value=""></option>';
+									$options_tag = '';
 									foreach ($this->userlist as $key => $user) {
 										$checked = ($performer_id == $user['id'])?' selected="selected"':'';
-										$html .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+										$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+										if($checked != ''){$check = 1;}
 									}
+
+									if($check == 0){
+										$options_tag_empty = '<option value="" selected="selected"></option>';
+									}
+
+									$html .= $options_tag_empty.$options_tag;
 									$html .= '</select>';
 									return $html;
 								}else{// для произ-ва выдаём кнопку взять в работу или транслируем имя пользователя, который взялся за заказ или был назначен для него
@@ -1277,8 +1377,13 @@
 										$user = $this->userlist[$performer_id];
 										return $user['name'].' '.$user['last_name'];
 									}else{
-										$user = $this->userlist[$this->user_id];
-										return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+										if(isset($this->userlist[$this->user_id])){
+											$user = $this->userlist[$this->user_id];
+											return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+										}else{
+											return 'Не назначен';
+										}
+										
 									};
 								}
 								break;
@@ -1328,7 +1433,291 @@
 
 					}	
 
+				/**
+				 * выгрузка по шаблону Склад
+				 */
+					private function orders_stock_Template($id_row=0){
+						$this->group_access = 7;
+						// id начальника отдела дизайна
+						$this->director_of_operations_ID = 79; 
 
+						echo $this->stock_rows($id_row=0);
+					}
+					// HTML заказа (Склад)
+					private function stock_rows($id_row=0){
+						$where = 0;
+						// скрываем левое меню
+						$html = '';
+						$table_head_html = '<style type="text/css" media="screen">
+							#cabinet_left_coll_menu{display:none;}
+						</style>';
+						
+						// формируем шапку таблицы вывода
+						$table_head_html .= '
+							<table id="general_panel_orders_tbl">
+								<tr>
+									<th colspan="3">Артикул/номенклатура/печать</th>
+									<th>тираж</th>
+									<th>логотип</th>
+									<th>поставщик товара</th>
+									<th>№ резерва</th>
+									<th>подрядчик печати</th>
+									<th>дата отгрузки</th>
+									<th>статус товара</th>
+									<th>статус заказа</th>
+								</tr>
+						';
+
+						// запрос заказов
+						$this->get_the_orders_Database($id_row);
+
+
+						$table_order_row = '';		
+						// подключаем класс форм (понадобится в методе: decode_json_no_cat_to_html)
+						// создаем экземпляр класса форм
+						// $this->FORM = new Forms();
+
+						// ПЕРЕБОР ЗАКАЗОВ
+						foreach ($this->Order_arr as $this->Order) {
+							// цена заказа
+
+							$this->price_order = 0;
+
+							// получаем флаг открыт/закрыто
+							$this->open__close = $this->get_open_close_for_this_user($this->Order['open_close']);
+							
+							// запоминаем обрабатываемые номера заказа и запроса
+							// номер запроса
+							$this->query_num = $this->Order['query_num'];
+							// номер заказа
+							$this->order_num = $this->Order['order_num'];
+
+							// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
+							$this->order_num_for_User = Cabinet::show_order_num($this->Order['order_num']);
+
+							// запрашиваем информацию по спецификациям
+							$table_order_positions_rows = $this->table_specificate_for_order_for_stock_Html();
+							////////////////////////////////////
+							// test retutn $table_order_positions_rows
+							////////////////////////////////////
+							// echo '<div style="border:1px solid red">'.$table_order_positions_rows.'</div>';
+							if($table_order_positions_rows == ''){continue;}
+
+							
+							// формируем строку с информацией о заказе
+							$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
+								$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
+														<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
+													</td>';
+									$table_order_row .= '<td colspan="3" class="orders_info">';
+									// $table_order_row .= '<span class="greyText">Заказ №: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
+									// $table_order_row .= '<span class="greyText">№: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
+									
+									$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
+									// исполнители заказа
+									// $table_order_row .= '<br>';
+									$table_order_row .= '<table class="curator_on_request">';
+										$table_order_row .= '<tr>';
+											$table_order_row .= '<td>';
+												$table_order_row .= '<span class="greyText">Заказ №: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
+											$table_order_row .= '</td>';
+											$table_order_row .= '<td>';
+												$table_order_row .= '<span class="greyText">Клиент: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
+												
+											$table_order_row .= '</td>';
+											$table_order_row .= '<td>';
+												$table_order_row .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
+
+											$table_order_row .= '</td>';
+										$table_order_row .= '</tr>';	
+										$table_order_row .= '<tr>';
+											$table_order_row .= '<td>';
+												$table_order_row .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span>';
+											$table_order_row .= '</td>';
+											$table_order_row .= '<td>';
+												$table_order_row .= '<span class="greyText">дизайнер: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
+												// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Компания: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
+											$table_order_row .= '</td>';
+											$table_order_row .= '<td>';
+												$table_order_row .= '<span class="greyText">оператор: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
+											$table_order_row .= '</td>';
+										$table_order_row .= '</tr>';	
+									$table_order_row .= '</table>';	
+									// //$table_order_row .= '<span class="greyText">Заказ №: </span><a href="?page=cabinet'.(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$this->Order['client_id'].'&order_num='.$this->order_num_for_User.'">'.$this->order_num_for_User.'</a>';
+									// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Компания: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
+									// //$table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Юр.лицо: в разработке</span>';
+									// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   менеджер: '.$this->get_manager_name_Database_Html($this->Order['manager_id'],0).'</span>';
+									// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   снабжение: '.$this->get_name_employee_Database_Html($this->Order['snab_id']).'</span>';
+								$table_order_row .= '</td>';
+								$table_order_row .= '<td>';													
+									$table_order_row .= '<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	';
+								$table_order_row .= '</td>';
+								$table_order_row .= '<td>';		
+								$table_order_row .= '</td>';
+								$table_order_row .= '<td>';		
+								$table_order_row .= '</td>';
+								$table_order_row .= '<td>';													
+								$table_order_row .= '</td>';
+								// $table_order_row .= '<td><strong>'.$this->Order['date_of_delivery_of_the_order'].'</strong></td>';
+												$table_order_row .= '<td><strong></strong></td>';
+								$table_order_row .= '<td><span class="greyText">заказа: </span></td>';
+								$table_order_row .= '<td>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+							$table_order_row .= '</tr>';
+							// включаем вывод позиций 
+							$table_order_row .= $table_order_positions_rows;
+						}		
+
+						$html = $table_head_html.$table_order_row.'</table>';
+						return $html;
+					}
+					// спецификации + позиции (Склад)
+					private function table_specificate_for_order_for_stock_Html(){
+						$this->spec_arr = $this->table_specificate_for_order_Database($this->Order['id']);
+						// echo 'Hellow World =D<br>';
+						$html = '';
+						$this->rows_num = 0;// порядковый номер строки
+						$this->position_num = 1;// порядковый номер позиции
+						$this->position_item = 1;
+						$this->specificate_item = 0;// порядковый номер спецификации
+
+						// обход массива спецификаций
+						foreach ($this->spec_arr as $key => $this->specificate) {
+							// стоимость по спецификации (НАЧАЛЬНАЯ)
+							$this->price_specificate = 0; 
+
+							// подсчет номер спецификаций
+							$this->specificate_item++;
+
+							// вывод html строк позиций по спецификации 
+							// запрашивается раньше спец-ии, чтобы подсчитать её стоимость
+							$positions_rows = $this->table_order_positions_rows_for_stock_Html();
+							// echo '<pre>';
+							// print_r($this->specificate);
+							// echo '</pre>';
+							// echo '$positions_rows = '.$positions_rows.'br';
+								
+							// вывод спецификаций для про-ва
+							if($positions_rows != ''){
+								$this->position_item++;
+								$html .= $this->get_order_specificate_for_stock_Html_Template();	
+							}
+
+							// подсчёт стоимости заказа
+							$this->price_order += $this->price_specificate;
+
+							// строки позиций идут под спецификацией
+							$html .= $positions_rows;
+													
+						}
+						// echo $html;
+						return $html;
+					}
+					// спецификации (Склад)
+					private function get_order_specificate_for_stock_Html_Template(){
+						$this->rows_num++;
+						$html = '';
+						$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.' data-id="'.$this->specificate['id'].'">';
+							$html .= '<td colspan="7">';
+								// спецификация
+								// $html .= $this->specificate_item;
+								// ссылка на спецификацию
+								$html .= '&nbsp; '.$this->get_document_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
+								// номер запроса
+								$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
+								// снабжение
+								$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
+
+							$html .='</td>';
+							$html .= '<td>';
+								$html .= 'сч: '.$this->specificate['number_the_bill'];
+							$html .= '</td>';
+							// $html .= '<td>';
+							// 	$html .= '<span>'.$this->price_specificate.'</span>р';
+							// $html .= '</td>';
+							// $html .= '<td>';
+							// 	// % оплаты
+							// 	$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %';
+
+							// $html .= '</td>';
+							// $html .= '<td>';
+							// $html .= '</td>';
+							// $html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
+							// $html .= '<td>';
+							// 	$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
+							// $html .= '</td>';
+							$html .= '<td>Бух.</td>';
+							$html .= '<td class="buch_status_select_for_design">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
+						$html .= '</tr>';
+						return $html;
+					}
+					// HTML позиции (Склад)
+					private function table_order_positions_rows_for_stock_Html(){			
+						// получаем массив позиций заказа
+						$positions_rows = $this->positions_rows_Database($this->specificate['id']);
+						$html = '';	
+
+						// $this->position_item = 1;// порядковый номер позиции
+						// формируем строки позиций	(перебор позиций)		
+						foreach ($positions_rows as $key => $this->position) {
+							
+							$this->id_dop_data = $this->position['id_dop_data'];
+
+							$this->logotip = $this->get_content_logotip($this->id_dop_data);
+							
+							$html .= '<tr  class="position-row position-row-production" id="position_row_'.($key+2).'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
+							// // порядковый номер позиции в заказе
+							$html .= '<td><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
+							// // описание позиции
+							$html .= '<td>';
+							
+							// наименование товара
+							$html .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';
+						
+							$html .= '</td>';
+							// тираж
+							$html .= '<td>';
+								$html .= '<div class="quantity">'.($this->position['quantity']+$this->position['zapas']).'</div>';
+							$html .= '</td>';
+
+
+							// логотип
+							$html .= '<td><span class="greyText">'.$this->logotip.'</span></td>';
+							
+							// поставщик товара  
+							$html .= '<td>
+										<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
+									</td>';
+							// № резерва
+							$html .= '<td>
+										<div class="number_rezerv">'.base64_decode($this->position['number_rezerv']).'</div>
+									</td>';
+
+							// подрядчик печати
+							$html .= '<td>
+										<div>'.$this->position['suppliers_name'].'</div>
+									</td>';
+
+							// дата отгрузки
+							$html .= '<td>';
+								$html .= $this->specificate['shipping_date'];
+								// $html .= '<div>'.$this->Order['date_of_delivery_of_the_order'].'</div>';
+							$html .= '</td>';
+
+							// статус товара
+							$html .= '<td>
+										<div>'.$this->decoder_statuslist_sklad($this->position['status_sklad'],$this->position['id']).'</div>
+									</td>';
+							// статус снабжение
+							$html .= '<td>
+										<div>'.$this->decoder_statuslist_snab($this->position['status_snab'],$this->position['date_delivery_product'],0,$this->position['id']).'</div>
+									</td>';
+
+							$html .= '</tr>';
+							$this->position_item++;
+						}				
+						return $html;
+					}
+					
 
 				/**
 				 *	выгрузка позиций по шаблону Производство
@@ -1344,7 +1733,7 @@
 					private function orders_production_Template($id_row=0){
 						$this->group_access = 4;
 						// id начальника отдела дизайна
-						$this->director_of_operations_ID = 42; 
+						$this->director_of_operations_ID = 87; 
 
 						echo $this->production_rows($id_row=0);
 					}
@@ -1592,6 +1981,45 @@
 						return $html;
 					}
 
+					// ШАБЛОН строки спецификации для про-ва
+					private function get_order_specificate_for_production_Html_Template(){
+						$this->rows_num++;
+						$html = '';
+						$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.' data-id="'.$this->specificate['id'].'">';
+							$html .= '<td colspan="18">';
+								// спецификация
+								// $html .= $this->specificate_item;
+								// ссылка на спецификацию
+								$html .= '&nbsp; '.$this->get_document_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
+								// номер запроса
+								//$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
+								// снабжение
+								$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
+
+							$html .='</td>';
+							// $html .= '<td>';
+							// 	$html .= 'сч: '.$this->specificate['number_the_bill'];
+							// $html .= '</td>';
+							// $html .= '<td>';
+							// 	$html .= '<span>'.$this->price_specificate.'</span>р';
+							// $html .= '</td>';
+							// $html .= '<td>';
+							// 	// % оплаты
+							// 	$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %';
+
+							// $html .= '</td>';
+							// $html .= '<td>';
+							// $html .= '</td>';
+							// $html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
+							// $html .= '<td>';
+							// 	$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
+							// $html .= '</td>';
+							// $html .= '<td>Бух.</td>';
+							// $html .= '<td class="buch_status_select_for_design">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
+						$html .= '</tr>';
+						return $html;
+					}
+
 					// HTML спецификации (Производство)
 					private function table_specificate_for_order_for_production_Html(){
 						$this->spec_arr = $this->table_specificate_for_order_Database($this->Order['id']);
@@ -1614,6 +2042,12 @@
 							// запрашивается раньше спец-ии, чтобы подсчитать её стоимость
 							$positions_rows = $this->table_order_positions_rows_for_production_Html();
 							
+							// вывод спецификаций для про-ва
+							if($positions_rows != ''){
+								$this->position_item++;
+								$html .= $this->get_order_specificate_for_production_Html_Template();	
+							}
+
 							// подсчёт стоимости заказа
 							$this->price_order += $this->price_specificate;
 
@@ -1971,7 +2405,7 @@
 			// 					<td>'.$Specificate['create_time'].'<br>'.$this->get_manager_name_Database_Html($Specificate['manager_id'],1).'</td>
 			// 					<td>'.$this->order_num_for_User.'</td>
 			// 					<td>'.$this->get_client_name_Database($Specificate['client_id'],1).'</td>
-			// 					<td>'.$this->get_specification_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</td>
+			// 					<td>'.$this->get_document_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</td>
 			// 					<td class="buh_uchet_for_spec" data-id="'.$Specificate['id'].'"></td>
 			// 					<td class="invoice_num">'.$Specificate['number_the_bill'].'</td>
 			// 					<td><input type="text" class="payment_date" readonly="readonly" value="'.(((int)$Specificate['payment_date']!=0)?$Specificate['payment_date']:'').'"></td>

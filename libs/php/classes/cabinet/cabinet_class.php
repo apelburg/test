@@ -89,7 +89,7 @@
 
 	    	protected $order_service_status = array(
 	    		/*
-					при выборе данного статус 
+					при выборе данного статуса
 	    		*/
 	    		'maket_without_payment' =>'Макет без оплаты',  
 	    		'paused'=>'Заказ приостановлен', 
@@ -116,6 +116,7 @@
 	    		'reget_the_bill' => 'перевыставить счёт', 
 	    		'refund_in_a_row' => 'возврат денег по счёту', 
 				'get_the_pko' => 'запрошен ПКО',
+				'get_the_bill_oferta' => 'Запрошен счёт-оферта',
 				'returns_client_collateral' => 'возврат залога клиенту',
 				'cancelled'=>'Аннулирован',
 				'uslovno_oplachen' => 'Условно оплачен' //
@@ -472,7 +473,7 @@
 			}
 
 			// вывод статусов бухгалтерии с возможностью выбора статуса
-			protected function decoder_statuslist_buch($real_val, $enable_selection = 0){
+			protected function decoder_statuslist_buch($real_val, $enable_selection = 0, $document = array()){
 				/*
 					$real_val - реальное значение поля в базе
 
@@ -482,7 +483,13 @@
 				$html = '';
 				// если стоит is_pending - ставим кнопку
 				if($real_val == "is_pending" && $this->user_access!=2 && $this->user_access!=8){
-					return '<input type="button" name="query_the_bill" class="query_the_bill" value="Запросить счёт">';
+					$button_name = 'Запросить счёт';
+					$button_class = 'query_the_bill';
+					if (!empty($document) && $document['doc_type'] == 'oferta' && $document['doc_num'] == 0) {
+						$button_name = 'Запросить ОФ';
+						$button_class = 'query_the_bill_oferta';
+					}
+					return '<input type="button" name="query_the_bill" class="'.$button_class.'" value="'.$button_name.'">';
 				}
 
 				
@@ -1021,6 +1028,16 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
 			}
+			// сохранение номера счёта-оферты
+			protected function change_number_the_bill_offerta_AJAX(){
+				global $mysqli;
+				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
+					`number_the_bill` =  '".addslashes($_POST['value'])."' 
+					,`doc_num` =  '".addslashes($_POST['value'])."' 
+					WHERE  `id` ='".(int)$_POST['row_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}';
+			}
 
 			// сохранение суммы счёта
 			protected function change_for_price_the_bill_AJAX(){
@@ -1044,8 +1061,8 @@
 
 
 			
-			//получаем информацию по спецификации
-			protected function get_info_for_spec($spec_id){
+			//получаем информацию по документу
+			protected function get_info_for_document($spec_id){
 				global $mysqli;
 				//date_create_the_bill
 				//получаем информацию по спецификации
@@ -1231,10 +1248,10 @@
 				$query_num = $Specificate['query_num'];
 				// $Specificate_arr = $this->get_info_for_spec($spec_id);
 				// получаем ПКО
-				$pko_arr = $this->get_pko_list_for_specificate_Database($spec_id);
+				$pko_arr = $this->get_pko_list_for_document_Database($spec_id);
 
 				// получаем ПП 
-				$pp_arr = $this->get_pp_list_for_specificate_Database($spec_id);
+				$pp_arr = $this->get_pp_list_for_document_Database($spec_id);
 
 				$pp_summ = 0; // общая сумма проплаченных денег по спецификации
 				foreach ($pp_arr as $key => $pp) {
@@ -1257,7 +1274,7 @@
 					if($pp_summ > 0 && $pp_summ < $Specificate['spec_price']){
 						if($Specificate['buch_status'] != 'partially_paid'){
 							$query .= ", `buch_status` = 'partially_paid'";
-							$message = "Статус по спецификации изменён на \"частично оплачен\".";		
+							$message = "Статус по документу изменён на \"частично оплачен\".";		
 							
 							// перевод запроса в history
 							if($this->chenge_query_status($query_num,'history')){
@@ -1268,7 +1285,7 @@
 					}else if($pp_summ > 0 && $pp_summ >= $Specificate['spec_price']){
 						if($Specificate['buch_status'] != 'payment'){
 							$query .= ", `buch_status` = 'payment'";
-							$message = "Статус по спецификации изменён на \"оплачен\"";
+							$message = "Статус по документу изменён на \"оплачен\"";
 							// перевод запроса в history
 							if($this->chenge_query_status($query_num,'history')){
 								$message .= '&nbsp; Запрос № '.$query_num.' перемещён во вкладку "История"';	
@@ -1337,7 +1354,7 @@
 
 				// $message .= '<br>'.$query;
 				if(isset($message) && $message!=''){
-					echo '{"response":"OK","function2":"reload_order_tbl","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+					echo '{"response":"OK","function2":"reload_зpaperwork_tbl","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
 					exit;	
 				}
 				
@@ -1420,7 +1437,7 @@
 
 
 				// получаем ПП 
-				protected function get_pp_list_for_specificate_Database($id){
+				protected function get_pp_list_for_document_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
 					DATE_FORMAT(`".CAB_PYMENT_ORDER."`.`payment_date`,'%d.%m.%Y %H:%i:%s')  AS `payment_date`
@@ -1437,7 +1454,7 @@
 				}
 
 				// возвращает список ПП по спецификации
-				protected function get_pp_list_for_specificate_Html($Specificate){
+				protected function get_pp_list_for_document_Html($document){
 					$html = '';
 					// шаблон скрытой пустой формы для заведения 
 					$html_hidden_template = '<div class="document_pp_hidden">';
@@ -1452,15 +1469,15 @@
 					$html_hidden_template .= '</div>';
 
 					// получаем ПП 
-					$pp_arr = $this->get_pp_list_for_specificate_Database($Specificate['id']);
+					$pp_arr = $this->get_pp_list_for_document_Database($document['id']);
 
 					if(empty($pp_arr)){
-						$html .= '<div class="buh_window add_pp" style="display:none" data-specification_id="'.$Specificate['id'].'">';
+						$html .= '<div class="buh_window add_pp" style="display:none" data-specification_id="'.$document['id'].'">';
 							$html .= '<span style="font-style: italic;"><strong>Оплата (п/п)</strong><br></span>';
 							$html .= $html_hidden_template;
 						$html .= '</div>';
 					}else{
-						$html .= '<div class="buh_window add_pp" data-specification_id="'.$Specificate['id'].'">';
+						$html .= '<div class="buh_window add_pp" data-specification_id="'.$document['id'].'">';
 							$html .= '<span style="font-style: italic;"><strong>Оплата (п/п)</strong><br></span>';
 							$html .= $html_hidden_template;
 							foreach ($pp_arr as $key => $pp) {
@@ -1555,7 +1572,7 @@
 
 
 				// получаем ПКО 
-				protected function get_pko_list_for_specificate_Database($id){
+				protected function get_pko_list_for_document_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
 					DATE_FORMAT(`".CAB_PYMENT_PKO."`.`payment_date`,'%d.%m.%Y %H:%i:%s')  AS `payment_date`
@@ -1572,7 +1589,7 @@
 				}
 
 				// возвращает список ПКО по спецификации
-				protected function get_pko_list_for_specificate_Html($Specificate){
+				protected function get_pko_list_for_document_Html($document){
 					$html = '';
 					// шаблон скрытой пустой формы для заведения 
 					$html_hidden_template = '<div class="document_pko_hidden">';
@@ -1587,15 +1604,15 @@
 					$html_hidden_template .= '</div>';
 
 					// получаем ПП 
-					$pko_arr = $this->get_pko_list_for_specificate_Database($Specificate['id']);
+					$pko_arr = $this->get_pko_list_for_document_Database($document['id']);
 
 					if(empty($pko_arr)){
-						$html .= '<div class="buh_window add_pko" style="display:none" data-specification_id="'.$Specificate['id'].'">';
+						$html .= '<div class="buh_window add_pko" style="display:none" data-specification_id="'.$document['id'].'">';
 							$html .= '<span style="font-style: italic;"><strong>Оплата (ПКО)</strong><br></span>';
 							$html .= $html_hidden_template;
 						$html .= '</div>';
 					}else{
-						$html .= '<div class="buh_window add_pko" data-specification_id="'.$Specificate['id'].'">';
+						$html .= '<div class="buh_window add_pko" data-specification_id="'.$document['id'].'">';
 							$html .= '<span style="font-style: italic;"><strong>Оплата (ПКО)</strong><br></span>';
 							$html .= $html_hidden_template;
 							foreach ($pko_arr as $key => $pko) {
@@ -1666,7 +1683,6 @@
 							$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
 					}
-
 					// редактирование даты возврата
 					protected function ttn_edit_date_return_AJAX(){
 						global $mysqli;
@@ -1676,7 +1692,6 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
-
 					}
 					// редактирование комментариев
 					protected function ttn_edit_comments_AJAX(){
@@ -1688,8 +1703,7 @@
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
 					}
-
-				// создание ПКО
+				// создание ТТН
 				protected function create_row_ttn_AJAX(){
 					global $mysqli;
 					$query = "INSERT INTO `".CAB_TTN."` SET";
@@ -1698,18 +1712,15 @@
 
 					echo '{"response":"OK","function":"show_new_row_ttn","id":"'.$mysqli->insert_id.'"}';
 				}
-
-				// удалить ПКО
+				// удалить ТТН
 				protected function delete_TTN_AJAX(){
 					global $mysqli;
 					$query = "DELETE FROM `".CAB_TTN."` WHERE `id`='".(int)$_POST['row_id']."'";
 					$result = $mysqli->query($query) or die($mysqli->error);
 					echo '{"response":"OK"}';
 				}
-
-
-				// получаем ПКО 
-				protected function get_ttn_list_for_specificate_Database($id){
+				// получаем ТТН 
+				protected function get_ttn_list_for_document_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
 					DATE_FORMAT(`".CAB_TTN."`.`date`,'%d.%m.%Y %H:%i:%s')  AS `date`,
@@ -1725,9 +1736,8 @@
 					}
 					return $ttn_arr;
 				}
-
-				// возвращает список ПКО по спецификации
-				protected function get_ttn_list_for_specificate_Html($Specificate){
+				// возвращает список ТТН по спецификации/оферте
+				protected function get_ttn_list_for_document_Html($document){
 					$html = '';
 					// шаблон скрытой пустой формы для заведения 
 					$html_hidden_template = '<div class="document_ttn_hidden">';
@@ -1742,15 +1752,15 @@
 					$html_hidden_template .= '</div>';
 
 					// получаем ПП 
-					$ttn_arr = $this->get_ttn_list_for_specificate_Database($Specificate['id']);
+					$ttn_arr = $this->get_ttn_list_for_document_Database($document['id']);
 
 					if(empty($ttn_arr)){
-						$html .= '<div class="buh_window add_ttn" style="display:none" data-specification_id="'.$Specificate['id'].'">';
+						$html .= '<div class="buh_window add_ttn" style="display:none" data-specification_id="'.$document['id'].'">';
 							$html .= '<span style="font-style: italic;"><strong>Товарно-транспортная накладная</strong><br></span>';
 							$html .= $html_hidden_template;
 						$html .= '</div>';
 					}else{
-						$html .= '<div class="buh_window add_ttn" data-specification_id="'.$Specificate['id'].'">';
+						$html .= '<div class="buh_window add_ttn" data-specification_id="'.$document['id'].'">';
 							$html .= '<span style="font-style: italic;"><strong>Товарно-транспортная накладная</strong><br></span>';
 							$html .= $html_hidden_template;
 							foreach ($ttn_arr as $key => $ttn) {
@@ -1782,81 +1792,166 @@
 			// окно бух учета для спецификации
 			protected function get_buh_uchet_for_spec_AJAX(){
 				//получаем информацию по спецификации
-				$Specificate_arr = $this->get_info_for_spec($_POST['spec_id']);
-				$this->get_buh_uchet($Specificate_arr);
+				$document_arr = $this->get_info_for_document($_POST['spec_id']);
+				$this->get_buh_uchet($document_arr);
+			}
+
+			// получаем реквизиты клиента по ID
+			protected function get_requisits($id){
+				global  $mysqli;				
+
+				$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` WHERE `id`  = '".$id."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$requsit_arr = array();
+					
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$requsit_arr = $row;
+					}
+				}
+				return $requsit_arr;
+			}
+
+			// получаем наши реквизиты по ID
+			protected function get_requisits_our($id){
+				global  $mysqli;				
+
+				$query = "SELECT * FROM `".OUR_FIRMS_TBL."` WHERE `id`  = '".$id."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$requsit_arr = array();
+					
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$requsit_arr = $row;
+					}
+				}
+				return $requsit_arr;
 			}
 
 
-			protected function get_buh_uchet($Specificate_arr){
+			protected function get_buh_uchet($document_arr){
 				$html_head = '<ul>';
 				$gen_info = '';
 				$html = '';
 						
 				
 				
-				foreach ($Specificate_arr as $key => $Specificate) {
+				foreach ($document_arr as $key => $document) {
 					// формируем id блока
 					$id = 'tabs_'.($key);
-
-					$html_head .= '<li class="check_the_anather_spec '.($key==0?' checked':'').'" data-id="'.$id.'"><strong>Спецификация</strong> '.$this->get_specification_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</li>';
 					// общая информация для всех спецификаций
 					if($gen_info==""){
 						$gen_info .= '<div class="general_info_for_order">';
 							include_once './libs/php/classes/manager_class.php';					
-							$gen_info .= '&nbsp;<span><span style="font-style: italic;">Менеджер:</span> '.Manager::get_snab_name_for_query_String($Specificate['manager_id']).'</span>';
-							$gen_info .= '&nbsp;<span><span style="font-style: italic;">Компания:</span> '.$this->get_client_name_simple_Database($Specificate['client_id'],1).'</span>';
+							$gen_info .= '&nbsp;<span><span style="font-style: italic;">Менеджер:</span> '.Manager::get_snab_name_for_query_String($document['manager_id']).'</span>';
+							$gen_info .= '&nbsp;<span><span style="font-style: italic;">Компания:</span> '.$this->get_client_name_simple_Database($document['client_id'],1).'</span>';
 						$gen_info .= '</div>';
 					}
-					
 
-					// запррос информации по договору
-					$agreement_arr = $this->get_info_for_agreement_Database($Specificate['agreement_id']);
-					
-					// номер заказа, менеджер, компания
-					$html .= '<div class="spec_div" id="'.$id.'"'.($key>0?' style="display:none"':'').'>';
-						// договор
-						$html .= '<div class="buh_window" data-specification_id="'.$Specificate['id'].'">';
-							$html .= '<span><span style="font-style: italic;">Юр. Лицо клиента:</span> '.$agreement_arr['client_comp_full_name'].'</span><br>';
-							$html .= '<span><span style="font-style: italic;">по договору:</span> '.$this->get_agreement_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</span>';
-							$html .= '&nbsp;<span><span style="font-style: italic;">подписана</span>  <input data-id="'.$Specificate['id'].'" type="text" value="'.$Specificate['date_specification_signed'].'" class="date_specification_signed"></span>';
-							$html .= '&nbsp;<span><span style="font-style: italic;">возвращена с подписью </span> <input data-id="'.$Specificate['id'].'" type="text" value="'.$Specificate['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>'; 
-						$html .= '</div>';
+					// фильтрация по типу документа
+					switch ($document['doc_type']) {
+						case 'oferta': // шаблон по оферте
+							$html_head .= '<li class="check_the_anather_spec '.($key==0?' checked':'').'" data-id="'.$id.'"><strong>Счёт оферта</strong> '.$this->get_document_link($document,$document['client_id'],$document['create_time']).'</li>';
+							
+							// запррос информации по договору
+							$offerta_arr = $this->get_info_for_offerta_Database($document['doc_id']);
+							
+							// номер заказа, менеджер, компания
+							$html .= '<div class="spec_div" id="'.$id.'"'.($key>0?' style="display:none"':'').'>';
+								// договор
+								$html .= '<div class="buh_window" data-specification_id="'.$document['id'].'">';
+									// получаем реквизиты клиента выбранные при формировании оферты
+									$requsit_arr = $this->get_requisits($offerta_arr['client_requisit_id']);
+									$html .= '<span><span style="font-style: italic;">Юр/л клиента:</span> '.$requsit_arr['comp_full_name'].'</span><br>';
 
-						// счёт
-						$html .= '<div class="buh_window" data-specification_id="'.$Specificate['id'].'">';
-							$html .= '<div><strong>Счёт </strong>
-									<span style="font-style: italic;">тип:</span><input type="text" value="'.(isset($this->type_the_bill[$Specificate['type_the_bill']][0])?$this->type_the_bill[$Specificate['type_the_bill']][0]:'не указан').'" disabled>
-									<span style="font-style: italic;">юр/л:</span>'.$agreement_arr['our_comp_full_name'].'
-								</div>';
-						$html .= '</div>';
-						// если указан тип счёта, значит счёт был заказан и мы выводим поля для ввода информации по счёту
-						if(isset($this->type_the_bill[$Specificate['type_the_bill']][0])){
-							$html .= '<div class="buh_window" data-specification_id="'.$Specificate['id'].'">';
-								$html .= '<span style="font-style: italic;">номер:</span>';
-								$html .= '&nbsp;<input type="text" data-id="'.$Specificate['id'].'" name="number" class="number_the_bill" value="'.$Specificate['number_the_bill'].'">';
+									// получаем наши реквизиты выбранные при формировании оферты
+									$requsit_our_arr = $this->get_requisits_our($offerta_arr['our_requisit_id']);
+									$html .= '<span><span style="font-style: italic;">Юр/л АПЛ:</span> '.$requsit_our_arr['comp_full_name'].'</span><br>';
+
+									// $html .= '<span><span style="font-style: italic;">по договору:</span> '.$this->get_agreement_link($document,$document['client_id'],$document['create_time']).'</span>';
+									$html .= '&nbsp;<span><span style="font-style: italic;">подписана</span>  <input data-id="'.$document['id'].'" type="text" value="'.$document['date_specification_signed'].'" class="date_specification_signed"></span>';
+									$html .= '&nbsp;<span><span style="font-style: italic;">возвращена с подписью </span> <input data-id="'.$document['id'].'" type="text" value="'.$document['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>'; 
+								$html .= '</div>';
+
+								// счёт
+								$html .= '<div class="buh_window" data-specification_id="'.$document['id'].'">';
+									$html .= '<strong>Счёт-оферта №:</strong>';
+									// $html .= '<span style="font-style: italic;">номер:</span>';
+									$html .= '&nbsp;<input type="text" data-id="'.$document['id'].'" name="number" class="number_the_bill_oferta" value="'.$document['doc_num'].'">';
+										
+									$html .= '<span style="font-style: italic;"> от:</span>';
+									$html .= '<input type="text" data-id="'.$document['id'].'" name="date_create" class="date_create_the_bill" value="'.$document['date_create_the_bill'].'">';
+
+									$html .= '<span style="font-style: italic;"> на сумму:</span>';
+									$html .= '<input type="text" data-id="'.$document['id'].'" name="for_price" class="for_price_the_bill" value="'.$document['spec_price'].'"> р.';
+
+									// кнопка счёт выставлен
+									$html .= '<button class="the_bill_is_ready" data-id="'.$document['id'].'">Счёт выставлен</button>';
+								$html .= '</div>';
+							break;
+						
+						default: // шаблон по спецификации и договору
+							$html_head .= '<li class="check_the_anather_spec '.($key==0?' checked':'').'" data-id="'.$id.'"><strong>Спецификация</strong> '.$this->get_document_link($document,$document['client_id'],$document['create_time']).'</li>';
+							
+
+							// запррос информации по договору
+							$agreement_arr = $this->get_info_for_agreement_Database($document['doc_id']);
+							
+							// номер заказа, менеджер, компания
+							$html .= '<div class="spec_div" id="'.$id.'"'.($key>0?' style="display:none"':'').'>';
+								// договор
+								$html .= '<div class="buh_window" data-specification_id="'.$document['id'].'">';
+									// получаем реквизиты клиента выбранные при формировании оферты
+									$requsit_arr = $this->get_requisits($agreement_arr['client_requisit_id']);
+									$html .= '<span><span style="font-style: italic;">Юр/л клиента:</span> '.$requsit_arr['comp_full_name'].'</span><br>';
+
+									// получаем наши реквизиты выбранные при формировании оферты
+									$requsit_our_arr = $this->get_requisits_our($agreement_arr['our_requisit_id']);
+									$html .= '<span><span style="font-style: italic;">Юр/л АПЛ:</span> '.$requsit_our_arr['comp_full_name'].'</span><br>';
+									// $html .= '<span><span style="font-style: italic;">Юр. Лицо клиента:</span> '.$agreement_arr['client_comp_full_name'].'</span><br>';
+									// $html .= '<span><span style="font-style: italic;">Юр/л АПЛ:</span> '.$agreement_arr['our_comp_full_name'].'</span><br>';
+									$html .= '<span><span style="font-style: italic;">по договору:</span> '.$this->get_agreement_link($document,$document['client_id'],$document['create_time']).'</span>';
+									$html .= '&nbsp;<span><span style="font-style: italic;">подписана</span>  <input data-id="'.$document['id'].'" type="text" value="'.$document['date_specification_signed'].'" class="date_specification_signed"></span>';
+									$html .= '&nbsp;<span><span style="font-style: italic;">возвращена с подписью </span> <input data-id="'.$document['id'].'" type="text" value="'.$document['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>'; 
+								$html .= '</div>';
+
+								// счёт
+								// $html .= '<div class="buh_window" data-specification_id="'.$document['id'].'">';
+								// 	$html .= '<div><strong>Счёт </strong>
+								// 			<span style="font-style: italic;">тип:</span><input type="text" value="'.(isset($this->type_the_bill[$document['type_the_bill']][0])?$this->type_the_bill[$document['type_the_bill']][0]:'не указан').'" disabled>
+								// 			<span style="font-style: italic;">юр/л:</span>'.$agreement_arr['our_comp_full_name'].'
+								// 		</div>';
+								// $html .= '</div>';
+								// если указан тип счёта, значит счёт был заказан и мы выводим поля для ввода информации по счёту
+								$html .= '<div class="buh_window" data-specification_id="'.$document['id'].'">';
+									$html .= '<span style="font-style: italic;"><strong>Счёт №:</strong></span>';
+									$html .= '&nbsp;<input type="text" data-id="'.$document['id'].'" name="number" class="number_the_bill" value="'.$document['number_the_bill'].'">';
+										
+									$html .= '<span style="font-style: italic;"> от:</span>';
+									$html .= '<input type="text" data-id="'.$document['id'].'" name="date_create" class="date_create_the_bill" value="'.$document['date_create_the_bill'].'">';
+
+									$html .= '<span style="font-style: italic;"> на сумму:</span>';
+									$html .= '<input type="text" data-id="'.$document['id'].'" name="for_price" class="for_price_the_bill" value="'.$document['spec_price'].'"> р.';
+
+									// кнопка счёт выставлен
+									$html .= '<button class="the_bill_is_ready" data-id="'.$document['id'].'">Счёт выставлен</button>';
+								$html .= '</div>';
 								
-								$html .= '<span style="font-style: italic;"> от:</span>';
-								$html .= '<input type="text" data-id="'.$Specificate['id'].'" name="date_create" class="date_create_the_bill" value="'.$Specificate['date_create_the_bill'].'">';
-
-								$html .= '<span style="font-style: italic;"> на сумму:</span>';
-								$html .= '<input type="text" data-id="'.$Specificate['id'].'" name="for_price" class="for_price_the_bill" value="'.$Specificate['spec_price'].'"> р.';
-
-								// кнопка счёт выставлен
-								$html .= '<button class="the_bill_is_ready" data-id="'.$Specificate['id'].'">Счёт выставлен</button>';
-							$html .= '</div>';
-						}
-						// ПП
-						$html .= $this->get_pp_list_for_specificate_Html($Specificate);
+							break;
+					}
+					
+					// ПП
+					$html .= $this->get_pp_list_for_document_Html($document);
+					
+					// ПКО
+					$html .= $this->get_pko_list_for_document_Html($document);
 						
-						// ПКО
-						$html .= $this->get_pko_list_for_specificate_Html($Specificate);
-						
-						// ТТН						
-						$html .= $this->get_ttn_list_for_specificate_Html($Specificate);
+					// ТТН						
+					$html .= $this->get_ttn_list_for_document_Html($document);
 
-						// кнопки
-						$html .= '<div class="buh_window" data-specification_id="'.$Specificate['id'].'">';
-							$html .= '<button сlass="button_to_add_lines" id="add_pp">Добавить П/П</button>';
+					// кнопки
+					$html .= '<div class="buh_window" data-specification_id="'.$document['id'].'">';
+						$html .= '<button сlass="button_to_add_lines" id="add_pp">Добавить П/П</button>';
 							$html .= '<button сlass="button_to_add_lines" id="add_pko">Добавить ПКО</button>';
 							$html .= '<button сlass="button_to_add_lines" id="add_ttn">Добавить ТТН</button>';
 						$html .= '</div>';
@@ -1924,7 +2019,7 @@
 									$html .= '<td>';
 										// для всех строк кроме счёта=оферты выводим строку с указанием спецификации
 										$html .= '<span><strong>Спецификация и счёт </strong></span><br>';
-										$html .= '<span>Спецификация: '.$this->get_specification_link($this->Specification,$this->Order['client_id'],$this->Order['create_time']).'</span>';
+										$html .= '<span>Спецификация: '.$this->get_document_link($this->Specification,$this->Order['client_id'],$this->Order['create_time']).'</span>';
 										$html .= '<span>для договора: '.$this->get_agreement_link($this->Specification).'</span>';
 										$html .= '&nbsp;<span>подписана: <input data-id="'.$this->Specification['id'].'" type="text" value="'.$this->Specification['date_specification_signed'].'" class="date_specification_signed"></span>';
 										$html .= '&nbsp;<span>возвращена с подписью: <input data-id="'.$this->Specification['id'].'" type="text" value="'.$this->Specification['date_return_width_specification_signed'].'" class="date_return_width_specification_signed"></span>';
@@ -2120,7 +2215,7 @@
 				$query .= " WHERE `id` = '".$id."'";
 				// echo $query;
 				$result = $mysqli->query($query) or die($mysqli->error);
-				echo '{"response":"OK","function":"window_reload"}';
+				echo '{"response":"OK","function":"reload_paperwork_tbl"}';
 			}
 
 			// запрос из кнопки выставить счёт
@@ -2132,30 +2227,30 @@
 
 
 
-				$html = '';
-				$html .= '<form>';
-				$html .= '<ul id="get_listing_type_the_bill" class="check_one_li_tag">';
-				$n = 0;
-				$first_val = '';
-				foreach ($this->type_the_bill as $name_en => $name_ru) {
-					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru[0].'</li>';
-					if($n==0){$first_val = $name_en;}
-					$n++;
-				}
-				$html .= '<input type="hidden" name="type_the_bill" value="'.$first_val.'">';	
-				$html .= '<input type="hidden" name="AJAX" value="order_a_new_account">';	
-				$html .= '</ul>';
-				// если информации о статусе бух не пришло
-				if(!isset($_POST['status_buch'])){$html .= '<input type="hidden" name="status_buch" value="request_expense">';}
-				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
-				unset($_POST['AJAX']);
-				// перебираем остальные значения для передачи их далее
-				foreach ($_POST as $key => $value) {
-					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-				}
-				$html .= '</form>';
+				// $html = '';
+				// $html .= '<form>';
+				// $html .= '<ul id="get_listing_type_the_bill" class="check_one_li_tag">';
+				// $n = 0;
+				// $first_val = '';
+				// foreach ($this->type_the_bill as $name_en => $name_ru) {
+				// 	$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru[0].'</li>';
+				// 	if($n==0){$first_val = $name_en;}
+				// 	$n++;
+				// }
+				// $html .= '<input type="hidden" name="type_the_bill" value="'.$first_val.'">';	
+				// $html .= '<input type="hidden" name="AJAX" value="order_a_new_account">';	
+				// $html .= '</ul>';
+				// // если информации о статусе бух не пришло
+				// if(!isset($_POST['status_buch'])){$html .= '<input type="hidden" name="status_buch" value="request_expense">';}
+				// // удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+				// unset($_POST['AJAX']);
+				// // перебираем остальные значения для передачи их далее
+				// foreach ($_POST as $key => $value) {
+				// 	$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				// }
+				// $html .= '</form>';
 
-				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите тип счёта:","width":"230"}';
+				// echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите тип счёта:","width":"230"}';
 			}
 
 			// вывод меню комманд по спецификации 
@@ -2265,11 +2360,11 @@
 				echo '{"response":"OK"}';
 			}
 
-			// правим дату сдачи заказа
+			// правим дату сдачи по спецификации
 			protected function date_of_delivery_of_the_specificate_AJAX(){
 				global $mysqli;
 				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
-					`date_of_delivery` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
+					`shipping_date` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode('Данные успешно обновлены.').'"}';
@@ -2924,8 +3019,7 @@
 				//////////////////////////
 				//	смена статуса услуги
 				//////////////////////////
-				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
-				`performer_status` =  '".$_POST['value']."' ";
+				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET ";
 				$query .= " `performer_status` =  '".$_POST['value']."'";
 				$query .= " WHERE  `id` ='".$_POST['id_row']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
@@ -3042,8 +3136,8 @@
 						$status = $_POST['value'];
 					}
 
-					$message = "Статус бухгалтерии по спецификации (счёту) изменён на \"".$status."\"";
-					echo '{"response":"OK","function":"reload_order_tbl","function2":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';
+					$message = "Статус бухгалтерии по СПФ / ОФ изменён на \"".$status."\"";
+					echo '{"response":"OK","function":"reload_paperwork_tbl","function2":"reload_paperwork_tbl","function3":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';
 				}
 
 
@@ -3138,12 +3232,19 @@
 			protected function change_status_snab_AJAX(){
 				global $mysqli;
 				$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
-					`status_snab` =  '".$_POST['val']."',
+					`status_snab` =  '".$_POST['value']."',
 					`approval_date` =  '' 
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
 			}
+			// private function change_status_snab_AJAX(){
+			// 		global $mysqli;
+			// 		$query = "UPDATE `".CAB_ORDER_MAIN."` SET  
+			// 		`status_snab` =  '".$_POST['value']."' 
+			// 		WHERE  `".CAB_ORDER_MAIN."`.`id` =".$_POST['row_id'].";";
+			// 		$result = $mysqli->query($query) or die($mysqli->error);
+			// 	}
 
 
 			protected function replace_query_row_AJAX(){
@@ -4766,8 +4867,7 @@
 			}
 			
 			// отправка сообщения
-			$this->error_message($message);
-			
+			$this->error_message($message);			
 		}
 
 		
@@ -4777,6 +4877,13 @@
 			$mailClass = new Mail();
 			$mailClass->send('kapitonoval2012@gmail.com',$from_email,$subject,$message);	
 		}
+
+		// // отправка jgjdtotybq
+		// protected function error_message($message,$subject = 'Error message' ,$from_email = 'os@apelburg.ru'){
+		// 	include_once './libs/php/classes/mail_class.php';
+		// 	$mailClass = new Mail();
+		// 	$mailClass->send('kapitonoval2012@gmail.com',$from_email,$subject,$message);	
+		// }
 
 
 
@@ -4799,28 +4906,58 @@
 		//	получение информации по спецификациям и договорам
 		//////////////////////////
 			// возвращает ссылку на спецификацию по строке заказа
-			protected function get_specification_link($Specification,$client_id,$create_time){
-				// если нет информации по спецификации 
-				if($Specification['specification_num'] ==0 ){return 'не указано';}
+			protected function get_document_link($document,$client_id,$create_time){
+				$html = '';
+				switch ($document['doc_type']) {
+					// по оферте
+					case 'oferta': 
+						$html .= '<span>ОФ</span>&nbsp;';
+						// если нет информации по документу
+						if($document['doc_id'] == 0 ){
+							$html .= 'не удалось получить данные оферты'; return $html;}
 
-				// получаем информацию по договору
-				$agrement_arr = $this->get_info_for_agreement_Database($Specification['agreement_id']);
-				if(empty($agrement_arr)){return 'не найдена информация по договору';}
+						// проеряем наличие номера
+						if($document['doc_num'] != 0){
+							$number = $document['doc_num']." от ".$create_time;
+						}else{
+							$number = 'не указан';
+						}
+
+						// ссылка на документ
+						$html .= "<a target='_blank' href='?page=agreement&section=agreement_editor&client_id=".$client_id."&oferta_id=".$document['doc_id']."&dateDataObj={\"doc_type\":\"oferta\"}'>№ ".$number."</a>";	
+						
+						return $html;
+						break;
 					
-				$html = "<a target='_blank' href='?page=agreement&section=agreement_editor&client_id=".$client_id."&agreement_id=".$Specification['agreement_id']."&agreement_type=".$agrement_arr['type']."&open=specification&specification_num=".$Specification['specification_num']."&dateDataObj={\"doc_type\":\"spec\"}'>№ ".$Specification['specification_num']." от ".$create_time."</a>";
-				return $html;
+					// по спецификации
+					default: 
+						$html .= '<span>СПФ</span>&nbsp;';
+						// если нет информации по документу
+						if($document['doc_num'] == 0){$html .= '№ не указан'; return $html;}
+
+						// получаем информацию по договору
+						$agrement_arr = $this->get_info_for_agreement_Database($document['doc_id']);
+						if(empty($agrement_arr)){
+							$html .= 'информация по договору не найдена';return $html;
+						}
+							
+						$html .= "<a target='_blank' href='?page=agreement&section=agreement_editor&client_id=".$client_id."&agreement_id=".$document['doc_id']."&agreement_type=".$agrement_arr['type']."&open=specification&specification_num=".$document['specification_num']."&dateDataObj={\"doc_type\":\"spec\"}'>№ ".$document['specification_num']." от ".$create_time."</a>";
+						return $html;
+						break;
+				}
+				
 			}
 
 			// возвращает ссылку на договор по строке заказа
 			protected function get_agreement_link($Specification,$client_id,$create_time){
 				// если нет информации по договору
-				if($Specification['agreement_id'] ==0 ){return 'не указан';}
+				if($Specification['doc_id'] == 0 ){$html .= 'договор не указан'; return $html;}
 
 				// получаем информацию по договору
-				$agrement_arr = $this->get_info_for_agreement_Database($Specification['agreement_id']);
+				$agrement_arr = $this->get_info_for_agreement_Database($Specification['doc_id']);
 				if(empty($agrement_arr)){return 'не найден';}
 				// return $this->print_arr($agrement_arr);
-				$html = '<a href="?page=agreement&section=agreement_editor&client_id='.$client_id.'&agreement_id='.$Specification['agreement_id'].'&agreement_type='.$agrement_arr['type'].'&open=empty">'.$agrement_arr['agreement_num'].'</a>';
+				$html = '<a href="?page=agreement&section=agreement_editor&client_id='.$client_id.'&agreement_id='.$Specification['doc_id'].'&agreement_type='.$agrement_arr['type'].'&open=empty">'.$agrement_arr['agreement_num'].'</a>';
 				return $html;
 			}
 	
@@ -4839,6 +4976,23 @@
 				}
 
 				return $agreement_info_arr;
+			}
+
+			// запрос информации по оферте
+			protected function get_info_for_offerta_Database($offerta_id){
+				global $mysqli;
+				$offerta_info_arr = array();
+				$query = "SELECT * FROM `".OFFERTS_TBL."` WHERE id = '".$offerta_id."'";
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+					
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$offerta_info_arr = $row;
+					}
+				}
+
+				return $offerta_info_arr;
 			}
 
 			protected function hl(){

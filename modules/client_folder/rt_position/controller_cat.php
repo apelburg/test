@@ -105,7 +105,7 @@
 
 		
 		// стандартное время изготовления
-		$std_time_print = ($variant['standart']=='10' && $type_tovar=='cat')?'checked':'';
+		//$std_time_print = ($variant['standart']=='10' && $type_tovar=='cat')?'checked':'';
 
 		$shipping_type__show_date = ' style="display:none"';
 		$shipping_type__show_rd = ' style="display:none"';

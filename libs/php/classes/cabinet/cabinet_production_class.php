@@ -59,12 +59,13 @@
 			'production_dop_uslugi' => 'Доп. услуги',
 			'production_plenki_and_klishe' => 'Проверка плёнок/клише',
 			// заказы
-			'order_all' => 'Все заказы',
-			'order_start' => 'Запуск в работу (заказ)',
-			'order_in_work' => 'Заказы в работе',
-			'design_all' => 'Дизайн ВСЕ',
-			'design_for_one_men' => 'Дизайн МОЁ',
-			'production' => 'Всё'
+				'order_all' => 'Все заказы',
+				'order_start' => 'Запуск в работу (заказ)',
+				'order_in_work' => 'Заказы в работе',
+				'design_all' => 'Дизайн ВСЕ',
+				'design_for_one_men' => 'Дизайн МОЁ',
+				'production' => 'Всё',
+				'stock' => 'Склад'
 
 		); 
 

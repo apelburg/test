@@ -375,8 +375,8 @@ function edit_variants(anyone, row_status) {
 
 
 	$.post('', {
-		global_change: 'AJAX',
-		change_name: 'change_status_row',
+		//global_change: 'AJAX',
+		AJAX: 'change_status_row',
 		id_in:id_in_row,
 		color:row_status
 
@@ -480,13 +480,13 @@ function create_timepicker_for_variant_cont(){
 
 			// alert($input.attr('class'));
 			$.post('', {
-				global_change: 'AJAX',
-				change_name: 'change_variante_shipping_time',
+				// global_change: 'AJAX',
+				AJAX: 'change_variante_shipping_time',
 				id: id,
 				row_id: row_id,
 				time: time
 			}, function(data, textStatus, xhr) {
-				/*optional stuff to do after success */
+				standard_response_handler(data);
 			},"json");
 		},
 	 // minTime:'9:00',
@@ -526,13 +526,13 @@ function create_datepicker_for_variant_cont(){
 
 			//alert($input.attr('class'));
 			$.post('', {
-				global_change: 'AJAX',
-				change_name: 'change_variante_shipping_date',
+				// global_change: 'AJAX',
+				AJAX: 'change_variante_shipping_date',
 				id: id,
 				row_id: row_id,
 				date: date
 			}, function(data, textStatus, xhr) {
-				/*optional stuff to do after success */
+				standard_response_handler(data);
 			},"json");
 		},
 	 	format:'d.m.Y',
@@ -552,13 +552,13 @@ $(document).on('click', '#edit_variants_content .tirage_buttons .btn_var_std', f
 	var pz = ($(this).html() == 'ПЗ')?1:0; // печатать \ не печатать запас
 	// отправка данных на сервер
 	$.post('', {
-		global_change: 'AJAX',
-		change_name: 'change_tirage_pz',
+		// global_change: 'AJAX',
+		AJAX: 'change_tirage_pz',
 		id:id,
 		row_id:row_id,
 		pz: pz
 	}, function(data, textStatus, xhr) {
-		/*optional stuff to do after success */
+		standard_response_handler(data);
 	},'json');
 });
 
@@ -624,15 +624,15 @@ $(document).on('click','#menu_for_variants_status li',function() {
 
 
 	$.post('', {
-		global_change: 'AJAX',
-		change_name: 'change_status_row',
+		// global_change: 'AJAX',
+		AJAX: 'change_status_row',
 		id_in:id_in_row,
 		color:row_status
 
 	}, function(data, textStatus, xhr) {
-		/*optional stuff to do after success */
-		console.log(data);
-	});
+		standard_response_handler(data);
+		// console.log(data);
+	},'json');
 
 	// if(row_status=="green"){
 
@@ -740,8 +740,8 @@ $(document).on('click','#extract_from_archive',function(){
 	// отправка данных на сервер
 	$.post('', 
 		{
-			global_change: 'AJAX',
-			change_name: 'change_archiv',
+			// global_change: 'AJAX',
+			AJAX: 'change_archiv',
 			id:id,
 			row_id:row_id
 		}, function(data, textStatus, xhr) {
@@ -752,7 +752,8 @@ $(document).on('click','#extract_from_archive',function(){
 			var id_div = $('#all_variants_menu .variant_name.checked').removeClass('show_archive').attr('data-cont_id');
 			$('#'+id_div).removeClass('archiv_opacity');
 			$('#all_variants_menu .variant_name.checked span').attr('class','variant_status_sv').addClass('green');
-			test_chenge_archive_list();			
+			test_chenge_archive_list();	
+			standard_response_handler(data);		
 		}
 	},'json');
 });
@@ -800,13 +801,14 @@ function save_price_in_out_for_one_price(){
 	var price_in = $(id_variant+' .calkulate_table .row_tirage_in_one.price_in .edit_span').html();
 	var price_out = $(id_variant+' .calkulate_table .row_price_out_one.price_out .edit_span').html();
 	$.post('', {
-		global_change: 'AJAX',
-		change_name: 'save_price_in_out_for_one_price',
+		// global_change: 'AJAX',
+		AJAX: 'save_price_in_out_for_one_price',
 		price_in:price_in,
 		price_out:price_out,
 		dop_data: dop_data_id
 	}, function(data, textStatus, xhr) {
-		console.log(data);
+		// console.log(data);
+		standard_response_handler(data);
 	},'json');
 
 }
@@ -897,15 +899,16 @@ function save_all_table_size(){
 	});
 
 	$.post('', {
-		global_change: 'AJAX',
-		change_name: 'size_in_var_all',
+		// global_change: 'AJAX',
+		AJAX: 'size_in_var_all',
 		val:tirage,
 		key:id_size,
 		dop:dop,
 		id: var_id
 	}, function(data, textStatus, xhr) {
-		console.log(data);
-	});
+		// console.log(data);
+		standard_response_handler(data);
+	},'json');
 
 }
 
@@ -1444,13 +1447,13 @@ function save_standart_day(){
 	// var time = $input.val()+':00';
 	// alert($input.attr('class'));
 	$.post('', {
-		global_change: 'AJAX',
-		change_name: 'save_standart_day',
+		// global_change: 'AJAX',
+		AJAX: 'save_standart_day',
 		id: id,
 		row_id: row_id,
 		standart:standart
 	}, function(data, textStatus, xhr) {
-	/*optional stuff to do after success */
+		standard_response_handler(data);
 	},"json");
 }
 
@@ -1500,8 +1503,16 @@ $(document).keydown(function(e) {
 
 
 
-// сохраняет данные в таблицу dop_data
+/**
+ *	сохраняет данные в таблицу dop_data
+ *	обрабатывается в файле libs/php/classes/rt_position_no_catalog_class.php
+ * 
+ *	@return  json
+ *	@author  Алексей Капитонов
+ *	@version 11:21 07.10.2015
+ */
 function save_dop_dop_usluga(obj){	
+	// alert('привет, я неизвестная функция из строки 1508');
 	console.log(obj);
 	var data = {};
 	obj.find('.calculate.calculate_usl.editing').each(function(index, el) {
@@ -1531,15 +1542,14 @@ function save_dop_dop_usluga(obj){
 	$.post('', { 
 			AJAX: 'save_new_price_dop_uslugi',
 			data:data
-		}
-		, function(data, textStatus, xhr) {
-		console.log(data);
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
 
-		// снимаем класс сохранения
-		obj.find('.calculate.calculate_usl.editing').each(function(index, el) {
-			$(this).removeClass('editing');
-		});
-	});
+			// снимаем класс сохранения
+			obj.find('.calculate.calculate_usl.editing').each(function(index, el) {
+				$(this).removeClass('editing');
+			});
+	},'json');
 }
 
 
