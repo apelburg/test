@@ -179,8 +179,8 @@
 						  final_date_time='".$dates_data['final_date_time']."'
 						  ";
 						  
-			echo $query;	
-			////exit;	  
+			// echo $query;	
+			// exit;	  
 			$result = $mysqli->query($query)or die($mysqli->error);
 			$oferta_id = $mysqli->insert_id;
 			
@@ -363,6 +363,9 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+			
+			//echo 'data_type- '.$dateDataObj->data_type.', shipping_date- '.$dates_data['shipping_date_time'].', rd- '.$dates_data['item_production_term'];
+			//exit;
 		    RT::make_order($rows_data,$client_id,$_GET['query_num'],0,$oferta_id,$dateDataObj->doc_type,$dateDataObj->data_type,$dates_data['shipping_date_time'],$dates_data['item_production_term']);
 			
 			return $oferta_id;
@@ -631,7 +634,7 @@
 						  summ='".$quantity*$price."'
 						  ";
 						  
-			  echo $query;	
+			  //echo $query;	
 			  //exit;	  
 			  $result = $mysqli->query($query)or die($mysqli->error);
 			  return $mysqli->insert_id;
@@ -648,7 +651,7 @@
 			if($dateDataObj->data_type=='date'){
 			    $specification_type = 'date';
 				
-			    echo $dateDataObj->datetime;echo '<br>';
+			    //echo $dateDataObj->datetime;echo '<br>';
 			    $shipping_date_time_arr = explode(' ',$dateDataObj->datetime);
 				$shipping_date_time_arr[0] = implode('-',array_reverse(explode('.',$shipping_date_time_arr[0])));
 				if(isset($shipping_date_time_arr[1])){
@@ -658,8 +661,8 @@
 				}
 				else $shipping_date_time_arr[1] = '00:00:00';
 			    $shipping_date_time = implode(' ',$shipping_date_time_arr);
-				echo $shipping_date_time;echo '<br>';
-				echo $dateDataObj->final_date;echo '<br>';
+				//echo $shipping_date_time;echo '<br>';
+				//echo $dateDataObj->final_date;echo '<br>';
 				$final_date_time_arr = explode(' ',$dateDataObj->final_date);
 				$final_date_time_arr[0] = implode('-',array_reverse(explode('.',$final_date_time_arr[0])));
 				if(isset($shipping_date_time_arr[1])){
@@ -669,7 +672,7 @@
 				}
 				else $final_date_time_arr[1] = '00:00:00';
 				$final_date_time = implode(' ',$final_date_time_arr);
-				echo $final_date_time;
+				//echo $final_date_time;
 				$item_production_term = '';
 			}
 			return array('shipping_date_time'=>$shipping_date_time,'final_date_time'=>$final_date_time,'item_production_term'=>$item_production_term);
@@ -893,6 +896,8 @@
 			
 			// создаем предзаказ 
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+			//echo 'data_type- '.$dateDataObj->data_type.', shipping_date- '.$dates_data['shipping_date_time'].', rd- '.$dates_data['item_production_term'];
+			//exit;
 			RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id,$dateDataObj->doc_type,$dateDataObj->data_type,$dates_data['shipping_date_time'],$dates_data['item_production_term']);
 			
 			return $specification_num;
