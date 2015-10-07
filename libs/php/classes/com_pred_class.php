@@ -720,6 +720,7 @@
 		    //exit;
 			
 			$display_setting = $multi_dim_arr[key($multi_dim_arr)]['display_setting'];
+			$dispSetObj = json_decode($display_setting);
 			
 			// получаем данные о получателе КП, сначала вычисляем его id, потом передаем его в метод Client::get_cont_face_details($recipient_id);
 			$recipient_id = $multi_dim_arr[key($multi_dim_arr)]['recipient_id'];
@@ -728,7 +729,7 @@
 			
 			
 			/*************************************************************************/
-			$kp_content = '<div id="kpBlankConteiner" style="width:625px;background-color:#FFFFFF;">'.(($show_logo)?'<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">':'').'<div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><span displayManaged="true" name="header"><br>В компанию: '.Client::get_client_name($client_id).'<br>Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</span></div>
+			$kp_content = '<div id="kpBlankConteiner" style="width:625px;background-color:#FFFFFF;">'.(($show_logo)?'<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">':'').'<input  type="text"  style="width:900px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'><div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><span displayManaged="true" name="header" style="display:'.(isset($dispSetObj->header)?'none':'block').'><br>В компанию: '.Client::get_client_name($client_id).'<br>Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</span></div>
 			<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center">Презентация</div>';
 			$kp_content .=  '<table width="625"  style="border:#CCCCCC solid 1px; border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">';
 			$tr_td = '<tr><td style="border:#CCCCCC solid 1px;" width="300" valign="middle" align="center">';
@@ -794,7 +795,7 @@
 				
 				$pos_level['hide_article_marker'] = 'on';
 				//$article = ($pos_level['hide_article_marker'] == 'on')? '' :'арт.: <a href="/index.php?page=description&id='.$id.'" target="_blank">'.$pos_level['art'].'</a>';
-				$article = '<span displayManaged="true" name="art" style="display:_none">арт.: <a href="/index.php?page=description&id='.@$id.'" target="_blank">'.@$pos_level['art'].'</a></span>';
+				$article = '<span displayManaged="true" name="art" style="display:'.(isset($dispSetObj->art)?'none':'inline-block').'">арт.: <a href="/index.php?page=description&id='.@$id.'" target="_blank">'.@$pos_level['art'].'</a></span>';
 				
 				
 			
@@ -1410,9 +1411,13 @@
 			}
 			return $rows;
 		}
-		static function saveKpDisplayChangesInBase($kp_id,$dataObj){
-		    echo $kp_id;
-		    echo ($dataObj);
+		static function saveKpDisplayChangesInBase($kp_id,$dataJSON){
+		    global $mysqli;
+			
+		    $query="UPDATE `".KP_LIST."` SET 
+							  `display_setting` = '".$dataJSON."' WHERE `id` = '".$kp_id."'";
+			// echo $query;
+		    $mysqli->query($query)or die($mysqli->error);
 		}
 		
    }

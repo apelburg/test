@@ -143,7 +143,7 @@
 		 
 	}
 	if(isset($_POST['saveChangesInBase'])){
-		Com_pred::saveKpDisplayChangesInBase($_POST['kp_id'],$_POST['dataObj']);
+		Com_pred::saveKpDisplayChangesInBase($_POST['kp_id'],$_POST['dataJSON']);
 		exit;
 	}
 	

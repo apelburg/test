@@ -1,7 +1,8 @@
 <!-- begin skins/tpl/client_folder/business_offers/in_blank_view.tpl --> 
 <script type="application/javascript" language="javascript">
+  $(document).ready(function(){ kpDisplayManager.initObj(); });
   var kpDisplayManager = {
-     initObj:function(checkBox){ 
+     initObj:function(){ 
 
 		 if(!document.getElementById('kpDisplaySettings') && !this.dataObj){
 			 alert('Сохраненные ранее настройки не доступны');
@@ -9,16 +10,32 @@
 		 }
 		 else{
 		     if(document.getElementById('kpDisplaySettings').value !=''){
-				 try {  this.dataObj = JSON.parse(document.getElementById('kpDisplaySettings').value); }
+				 try {  
+				     this.dataObj = JSON.parse(document.getElementById('kpDisplaySettings').value); 
+				     // ставим галочки у выбранных позиций
+					 var inputNodes = document.getElementById('kpDisplayManagerBarTbl').getElementsByTagName('INPUT');
+					 var ln = inputNodes.length;
+					 
+					 outerLoop:
+					 for(var i=0; i < ln; i++){ 
+						 if(inputNodes[i].type=='checkbox'){ 
+						     for(var prop in  this.dataObj){ 
+							     if(inputNodes[i].name==prop) continue outerLoop;
+								 inputNodes[i].checked=true; 
+							 }
+						 }
+					 }	 
+				 }
 				 catch (e) { 
 					alert('Сохраненные ранее настройки имеют некорректную структуру');
 					this.dataObj = {};
 				 }
+				    
 			 }
 			 else this.dataObj = {};
 		 }
 	  },
-	  initKpConteiner:function(checkBox){ 
+	  initKpConteiner:function(){ 
 
 		 if(!document.getElementById('kpBlankConteiner')){
 			 alert('не найден контейнер бланка КП');
@@ -28,20 +45,21 @@
 
 	  },
 	  setDisplayState:function(name,state){ 
-	     var spansArr = this.kpConteiner.getElementsByTagName('SPAN'); 
-		 for(var i=0;i< spansArr.length;i++){ //in spansArr
-		     if(spansArr[i].hasAttribute('displayManaged') && spansArr[i].hasAttribute('name') && spansArr[i].getAttribute('name')==name) spansArr[i].style.display = state;
+	     var spansNodes = this.kpConteiner.getElementsByTagName('SPAN'); 
+		 var ln = spansNodes.length;
+		 for(var i=0;i< ln;i++){ //in spansArr
+		     if(spansNodes[i].hasAttribute('displayManaged') && spansNodes[i].hasAttribute('name') && spansNodes[i].getAttribute('name')==name) spansNodes[i].style.display = state;
 		 }
 	  },
       saveChanges:function(checkBox){ 
 	     if(!this.dataObj) this.initObj();
 		 if(!this.kpConteiner) this.initKpConteiner();
 	     if(checkBox.checked == true){
-		    if(!this.dataObj[checkBox.name]) this.dataObj[checkBox.name] = 'on';
+		    if(!this.dataObj[checkBox.name]) delete this.dataObj[checkBox.name];
 			this.setDisplayState(checkBox.name,'inline-block');//display, inline-block ,none | visibility,visible,collapse
 		 }
 		 if(checkBox.checked == false){
-		    if(this.dataObj[checkBox.name]) delete this.dataObj[checkBox.name];
+		    if(this.dataObj[checkBox.name]) this.dataObj[checkBox.name] = 'hide';
 		 	this.setDisplayState(checkBox.name,'none');
 		 }
 	     //alert(this.dataObj);
@@ -59,7 +77,7 @@
 			type: 'POST',
 			url: '',
 			dataType: 'html',
-			data: 'saveChangesInBase=1&dataObj='+JSON.stringify(this.dataObj)+'&kp_id='+document.getElementById('kpDisplaySettings_kpId').value
+			data: 'saveChangesInBase=1&dataJSON='+JSON.stringify(this.dataObj)+'&kp_id='+document.getElementById('kpDisplaySettings_kpId').value
 		  })
 		  .done(function(response) {
 			console.log(response);
@@ -74,15 +92,15 @@
 	   }
     
   };
+  
+
 </script>
 
 <table width="100%" border="1">
   <tr>
     <td><?php echo $in_blank_view; ?></td>
     <td valign="top">
-        <input  type="text" id="kpDisplaySettings" value='{"art":"on","article":"on"}'>
-        <input  type="text" id="kpDisplaySettings_kpId" value='<?php echo $kp_id; ?>'>
-        <table width="200" border="1">
+        <table width="200" id="kpDisplayManagerBarTbl" border="1">
           <tr>
             <td><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
           </tr>
@@ -105,7 +123,7 @@
             <td><label><input type="checkbox" name="dop_uslugi" onclick="kpDisplayManager.saveChanges(this);" />дополнительные услуги</label></td>
           </tr>
         </table>
-        <input type="button" onclick="kpDisplayManager.saveChangesInBase();" />
+        <input type="button" onclick="kpDisplayManager.saveChangesInBase();" value="Сохранить"/>
         
     </td>
   </tr>
