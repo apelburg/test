@@ -729,7 +729,7 @@
 			
 			
 			/*************************************************************************/
-			$kp_content = '<div id="kpBlankConteiner" style="width:625px;background-color:#FFFFFF;">'.(($show_logo)?'<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">':'').'<input  type="text"  style="width:900px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'><div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><span displayManaged="true" name="header" style="display:'.(isset($dispSetObj->header)?'none':'block').'><br>В компанию: '.Client::get_client_name($client_id).'<br>Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</span></div>
+			$kp_content = '<div id="kpBlankConteiner" style="width:625px;background-color:#FFFFFF;">'.(($show_logo)?'<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">':'').'<input  type="text"  style="width:900px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'><div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><managedDisplay name="header" style="display:'.(isset($dispSetObj->header)?'none':'block').'"><br>В компанию: '.Client::get_client_name($client_id).'<br>Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</managedDisplay></div>
 			<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center">Презентация</div>';
 			$kp_content .=  '<table width="625"  style="border:#CCCCCC solid 1px; border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">';
 			$tr_td = '<tr><td style="border:#CCCCCC solid 1px;" width="300" valign="middle" align="center">';
@@ -795,7 +795,7 @@
 				
 				$pos_level['hide_article_marker'] = 'on';
 				//$article = ($pos_level['hide_article_marker'] == 'on')? '' :'арт.: <a href="/index.php?page=description&id='.$id.'" target="_blank">'.$pos_level['art'].'</a>';
-				$article = '<span displayManaged="true" name="art" style="display:'.(isset($dispSetObj->art)?'none':'inline-block').'">арт.: <a href="/index.php?page=description&id='.@$id.'" target="_blank">'.@$pos_level['art'].'</a></span>';
+				$article = '<managedDisplay name="art" style="display:'.(isset($dispSetObj->art)?'none':'inline-block').'">арт.: <a href="/index.php?page=description&id='.@$id.'" target="_blank">'.@$pos_level['art'].'</a></managedDisplay>';
 				
 				
 			
@@ -922,7 +922,8 @@
 			if($itogo != 0){
 		
 				 $full_itog = $itogo + $itogo_dop_uslugi;
-				 $kp_content .= '<div>
+				 $kp_content .= '<div style="text-align:right;">
+                 <managedDisplay name="full_summ" style="text-align:right;display:'.(isset($dispSetObj->full_summ)?'none':'inline-block').'">
 				 <table align="right" style="margin:15px 20px 10px 0;" border="0">
 					 <tr>
 						 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
@@ -934,6 +935,7 @@
 						 <td align="right" valign="top">Итоговая сумма:</td><td align="right" valign="top" style="white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
 					 </tr>
 				 </table>
+				 </managedDisplay>
 				 <div style="clear:both;"></div>
 				 </div>';
 			}

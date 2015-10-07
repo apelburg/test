@@ -9,20 +9,20 @@
 			 this.dataObj = {};
 		 }
 		 else{
+		     var inputNodes = document.getElementById('kpDisplayManagerBarTbl').getElementsByTagName('INPUT');
+		     var ln = inputNodes.length;
 		     if(document.getElementById('kpDisplaySettings').value !=''){
 				 try {  
 				     this.dataObj = JSON.parse(document.getElementById('kpDisplaySettings').value); 
-				     // ставим галочки у выбранных позиций
-					 var inputNodes = document.getElementById('kpDisplayManagerBarTbl').getElementsByTagName('INPUT');
-					 var ln = inputNodes.length;
-					 
+				     // ставим галочки у НЕвыбранных позиций
 					 outerLoop:
 					 for(var i=0; i < ln; i++){ 
 						 if(inputNodes[i].type=='checkbox'){ 
 						     for(var prop in  this.dataObj){ 
 							     if(inputNodes[i].name==prop) continue outerLoop;
-								 inputNodes[i].checked=true; 
-							 }
+							 } 
+							//alert(inputNodes[i].checked);
+							 inputNodes[i].checked=true; 
 						 }
 					 }	 
 				 }
@@ -32,8 +32,16 @@
 				 }
 				    
 			 }
-			 else this.dataObj = {};
+			 else{
+			    // ставим галочки у ВСЕХ позиций
+			    for(var i=0; i < ln; i++){ 
+				   if(inputNodes[i].type=='checkbox')inputNodes[i].checked=true; 
+			    }	 
+			    this.dataObj = {};
+			 }
 		 }
+		 console.log('--');
+		 console.log(this.dataObj);
 	  },
 	  initKpConteiner:function(){ 
 
@@ -45,21 +53,21 @@
 
 	  },
 	  setDisplayState:function(name,state){ 
-	     var spansNodes = this.kpConteiner.getElementsByTagName('SPAN'); 
+	     var spansNodes = this.kpConteiner.getElementsByTagName('managedDisplay'); 
 		 var ln = spansNodes.length;
 		 for(var i=0;i< ln;i++){ //in spansArr
-		     if(spansNodes[i].hasAttribute('displayManaged') && spansNodes[i].hasAttribute('name') && spansNodes[i].getAttribute('name')==name) spansNodes[i].style.display = state;
+		     if(spansNodes[i].hasAttribute('name') && spansNodes[i].getAttribute('name')==name) spansNodes[i].style.display = state;
 		 }
 	  },
       saveChanges:function(checkBox){ 
 	     if(!this.dataObj) this.initObj();
 		 if(!this.kpConteiner) this.initKpConteiner();
 	     if(checkBox.checked == true){
-		    if(!this.dataObj[checkBox.name]) delete this.dataObj[checkBox.name];
+		    if(this.dataObj[checkBox.name]) delete this.dataObj[checkBox.name];
 			this.setDisplayState(checkBox.name,'inline-block');//display, inline-block ,none | visibility,visible,collapse
 		 }
 		 if(checkBox.checked == false){
-		    if(this.dataObj[checkBox.name]) this.dataObj[checkBox.name] = 'hide';
+		    if(!this.dataObj[checkBox.name]) this.dataObj[checkBox.name] = 'hide';
 		 	this.setDisplayState(checkBox.name,'none');
 		 }
 	     //alert(this.dataObj);
@@ -102,14 +110,11 @@
     <td valign="top">
         <table width="200" id="kpDisplayManagerBarTbl" border="1">
           <tr>
-            <td><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
+            <td style="text-align:right;"><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
           </tr>
-          <tr>
-            <td><label><input type="checkbox" name="descript" onclick="kpDisplayManager.saveChanges(this);" />описание</label></td>
-          </tr>
-          <tr>
+         <!-- <tr>
             <td><label><input type="checkbox" name="characters" onclick="kpDisplayManager.saveChanges(this);" />характеристики (цвет, материал)</label></td>
-          </tr>
+          </tr>-->
           <tr>
             <td><label><input type="checkbox" name="itogo" onclick="kpDisplayManager.saveChanges(this);" />сумма позиции (итого)</label></td>
           </tr>

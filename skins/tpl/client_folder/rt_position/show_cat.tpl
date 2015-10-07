@@ -12,7 +12,7 @@
 <script type="text/javascript" src="../libs/js/jquery.uploadify.min.js"></script>
 
 <script type="text/javascript" src="../libs/js/jsArticulus.js"></script>
-
+<!--<span displayManaged="true" name="art" style="display:'.(isset($dispSetObj->art)?'none':'inline-block').'">арт.: <a href="/index.php?page=description&id='.@$id.'" target="_blank">'.@$pos_level['art'].'</a></span>-->
 <script type="text/javascript">
     // uploudify 
 $(document).ready(function() {    
