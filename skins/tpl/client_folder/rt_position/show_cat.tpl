@@ -61,7 +61,7 @@ $(document).ready(function() {
 			<li id="back_to_string_of_claim"><a href="?page=client_folder&query_num=<?php echo  $order_num; ?>&client_id=<?php echo $client_id; ?>"></a></li>
 			<li id="claim_number" data-order="<?=$order_num_id;?>">Запрос № <?=$order_num;?></li>
 			<li id="claim_date"><span>от <?=$order_num_date;?></span></li>
-			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	
+			<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>
 			<li id="query_theme_block"><span>Тема:</span> <input id="query_theme_input" class="query_theme" data-id="<?=$Order['RT_LIST_ID'];?>" type="text" value="<?=$Order['theme']?>" onclick="fff(this,'Введите тему');"></li>
 			<li style="float:right"><span data-rt_list_query_num="<?php  echo $order_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($order_num); ?> "></span></li>
 		</ul>

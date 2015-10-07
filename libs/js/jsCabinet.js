@@ -768,6 +768,33 @@ $(document).on('keyup','.change_delivery_tir:focus',function(){
 	        }
 	    },'json');
 	}
+
+//////////////////////////
+//	сохранение номера счёта-оферты с таймингом  
+//////////////////////////
+	$(document).on('keyup', '.number_the_bill_oferta', function(event) {
+		$('#tabs ul li.check_the_anather_spec.checked a').html('№ '+$(this).val()+' от '+$(this).parent().find('.date_create_the_bill').val());
+		// сохранение
+		timing_save_input('number_the_bill_oferta',$(this))
+	});
+
+	function number_the_bill_oferta(obj){// на вход принимает object input
+	    var row_id = obj.attr('data-id');
+	    $.post('', {
+	        AJAX:'change_number_the_bill_offerta',
+	        row_id:row_id,
+	        value:obj.val()
+	    }, function(data, textStatus, xhr) {
+	    	standard_response_handler(data);
+	        if(data['response']=="OK"){
+	            // php возвращает json в виде {"response":"OK"}
+	            // если ответ OK - снимаем класс saved
+	            obj.removeClass('saved');
+	        }else{
+	            console.log('Данные не были сохранены.');
+	        }
+	    },'json');
+	}
 //////////////////////////
 //	сохранение суммы счёта с таймингом  
 //////////////////////////
@@ -1921,7 +1948,7 @@ $(window).load(function() {
 	$(document).on('click', '.buch_status_select', function(event) {
 		// если нет кнопки запроса счёта
 		// alert($(this).find('input.query_the_bill').length);
-		if($(this).find('input.query_the_bill').length==0 && $(this).find('select').length==0){
+		if($(this).find('input.query_the_bill').length==0 && $(this).find('input.query_the_bill_oferta').length==0 && $(this).find('select').length==0){
 			var order_id = $(this).parent().attr('data-id');
 			var AJAX = 'get_commands_men_for_buch';
 
@@ -1939,9 +1966,29 @@ $(window).load(function() {
 	$(document).on('click', '.buch_status_select input.query_the_bill', function(event) {
 		event.preventDefault();
 		var specificate_row_id = $(this).parent().parent().attr('data-id');
-		var AJAX = 'get_listing_type_the_bill';
+
+		var AJAX = 'order_a_new_account';
 		$.post('', {
 			AJAX:AJAX,
+			status_buch:'request_expense',
+			type_the_bill:'the_bill',
+			specificate_row_id: specificate_row_id
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+			// show_dialog_and_send_POST_window(Base64.decode(data['html']),data['title'],'auto',230);
+			
+		},'json');
+	});
+
+	// кнопка запросить счёт-оферту
+	$(document).on('click', '.buch_status_select input.query_the_bill_oferta', function(event) {
+		event.preventDefault();
+		var specificate_row_id = $(this).parent().parent().attr('data-id');
+		var AJAX = 'order_a_new_account';
+		$.post('', {
+			AJAX:AJAX,
+			status_buch:'get_the_bill_oferta',
+			type_the_bill:'oferta',
 			specificate_row_id: specificate_row_id
 		}, function(data, textStatus, xhr) {
 			standard_response_handler(data);
@@ -2100,7 +2147,473 @@ $(document).on('click', '.buh_uchet_for_order', function(event) {
 	},'json');
 });
 
-// 
+
+
+// вкладки спецификаций в окне бух. учёт
+$(document).on('click', '#tabs ul li', function(event) {
+	var id = $(this).attr('data-id');
+	console.log('#'+id);
+	$('.spec_div').each(function(index, el) {
+		if($(this).attr('id') != id){
+			$(this).css({"display":"none"});
+		}		
+	});
+	$('#tabs ul li').removeClass('checked');
+	$(this).addClass('checked');
+
+	$('#tabs #'+id).css({"display":"block"});
+});
+
+// показать кнопку счёт выставлен в окне бух. учёт
+$(document).on('keyup', '.buh_window input', function(event) {
+	event.preventDefault();
+	if ($(this).parent().find('.the_bill_is_ready').length) {
+		$(this).parent().find('.the_bill_is_ready').show();
+	}
+	/* Act on the event */
+});
+
+// нажатие на кнопку счёт выставлен
+$(document).on('click', '.the_bill_is_ready', function(event) {
+	event.preventDefault();
+	var row_id = $(this).attr('data-id');
+	$.post('', {
+		AJAX: 'the_bill_is_ready',
+		row_id:row_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+// перезагрузка главной таблицы в paperwork
+function reload_paperwork_tbl(){
+	window_preload_add();
+	$('#cabinet_general_content_row').load(' #cabinet_general_content_row',function(){
+		window_preload_del();
+	});
+}
+
+// перезагрузка таблицы заказов
+function reload_order_tbl(){
+	window_preload_add();
+	$('#general_panel_orders_tbl').load(' #general_panel_orders_tbl',function(){
+		window_preload_del();
+	});	
+}
+// перезагрузка таблицы предзаказа
+function reload_зpaperwork_tbl(){
+	window_preload_add();
+	$('#cabinet_general_content_row').load(' #cabinet_general_content_row',function(){
+		window_preload_del();
+	});	
+}
+
+//////////////////////////
+//	PP
+//////////////////////////
+	//////////////////////////
+	// добавить ПП
+	//////////////////////////
+		$(document).on('click', '#add_pp', function(event) {
+			event.preventDefault();
+			var row_id = $(this).parent().attr('data-specification_id');
+			$.post('', {
+				AJAX: 'create_row_pp',
+				row_id:row_id
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			},'json');	
+		});
+
+		function show_new_row_pp(data){
+			// находим активную вкладку спецификации
+			var obj = $('.spec_div:visible'); 
+			$('.buh_window.add_pp').css({"display":"block"});
+			var new_pp = obj.find('.document_pp_hidden').clone();
+			new_pp = new_pp.removeClass('document_pp_hidden').addClass('document_pp').attr('data-id',data['id']);
+			obj.find('.buh_window.add_pp').append(new_pp);
+			windows_on(data);
+		}
+	//////////////////////////
+	//	удалить ПП
+	//////////////////////////
+		$(document).on('click', '.del_pp', function(event) {
+			var obj = $(this).parent();
+			event.preventDefault();
+			var row_id = $(this).parent().attr('data-id'); // id для строки ПП
+
+			// проверяем на заполненность
+			var deleting = 1;
+			$(this).parent().find('input').each(function(index, el) {
+				
+				if($(this).val() != ''){
+					deleting = 0;
+				}		
+			});
+
+			if(deleting==0){
+				// confirm(message)
+				if(confirm('В полях ПП содержится информация. Вы уверены, что хотите удалить строку ПП.')){
+					
+					obj.remove();
+					if($('.spec_div:visible .document_pp').length == 0){
+						$('.spec_div:visible .buh_window.add_pp').css({"display":"none"});
+					}
+					$.post('', {
+						AJAX:'delete_PP',
+						row_id:row_id
+					}, function(data, textStatus, xhr) {
+						standard_response_handler(data);
+					});
+				}
+			}else{
+				
+				obj.remove();
+				if($('.spec_div:visible .document_pp').length == 0){
+					$('.spec_div:visible .buh_window.add_pp').css({"display":"none"});
+				}
+				$.post('', {
+					AJAX:'delete_PP',
+					row_id:row_id
+				}, function(data, textStatus, xhr) {
+					standard_response_handler(data);
+				});			
+			}
+		});
+	//////////////////////////
+	//	редактор ПП
+	//////////////////////////
+		// сохранение номера
+		$(document).on('keyup', '.document_pp .number_pp', function(event) {
+			 timing_save_input('edit_numper_pp',$(this))
+		});
+		function edit_numper_pp(obj){// на вход принимает object input
+		    var row_id = obj.parent().attr('data-id');
+		    $.post('', {
+		        AJAX:'pp_edit_number',
+		        row_id:row_id,
+		        value:obj.val()
+		    }, function(data, textStatus, xhr) {
+		    	standard_response_handler(data);
+		        if(data['response']=="OK"){
+		            // php возвращает json в виде {"response":"OK"}
+		            // если ответ OK - снимаем класс saved
+		            obj.removeClass('saved');
+		        }else{
+		            console.log('Данные не были сохранены.');
+		        }
+		    },'json');
+		}
+		// сохранение размера внесенной суммы
+		$(document).on('keyup', '.document_pp .price_from_pyment', function(event) {
+			 timing_save_input('price_from_pyment_pp',$(this))
+		});
+		function price_from_pyment_pp(obj){// на вход принимает object input
+		    var row_id = obj.parent().attr('data-id');
+		    var specification_id = obj.parent().parent().attr('data-specification_id');
+		    $.post('', {
+		        AJAX:'pp_edit_payment_summ',
+		        row_id:row_id,
+		        value:obj.val(),
+		        specification_id:specification_id
+		    }, function(data, textStatus, xhr) {
+		    	standard_response_handler(data);
+		        if(data['response']=="OK"){
+		            // php возвращает json в виде {"response":"OK"}
+		            // если ответ OK - снимаем класс saved
+		            obj.removeClass('saved');
+		        }else{
+		            console.log('Данные не были сохранены.');
+		        }
+		    },'json');
+		}
+
+		// сохранение размера
+		$(document).on('keyup', '.document_pp .comments', function(event) {
+			 timing_save_input('pp_edit_comments',$(this))
+		});
+		function pp_edit_comments(obj){// на вход принимает object input
+		    var row_id = obj.parent().attr('data-id');
+		    $.post('', {
+		        AJAX:'pp_edit_comments',
+		        row_id:row_id,
+		        value:obj.val()
+		    }, function(data, textStatus, xhr) {
+		    	standard_response_handler(data);
+		        if(data['response']=="OK"){
+		            // php возвращает json в виде {"response":"OK"}
+		            // если ответ OK - снимаем класс saved
+		            obj.removeClass('saved');
+		        }else{
+		            console.log('Данные не были сохранены.');
+		        }
+		    },'json');
+		}
+
+//////////////////////////
+//	PKO
+//////////////////////////
+	//////////////////////////
+	// добавить ПКО
+	//////////////////////////
+		$(document).on('click', '#add_pko', function(event) {
+			event.preventDefault();
+			var row_id = $(this).parent().attr('data-specification_id');
+			$.post('', {
+				AJAX: 'create_row_pko',
+				row_id:row_id
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			},'json');	
+		});
+
+		function show_new_row_pko(data){
+			// находим активную вкладку спецификации
+			var obj = $('.spec_div:visible'); 
+			$('.buh_window.add_pko').css({"display":"block"});
+			var new_pko = obj.find('.document_pko_hidden').clone();
+			new_pko = new_pko.removeClass('document_pko_hidden').addClass('document_pko').attr('data-id',data['id']);
+			obj.find('.buh_window.add_pko').append(new_pko);
+			windows_on(data);
+		}
+	//////////////////////////
+	//	редактор ПКО
+	//////////////////////////
+		// сохранение номера
+		$(document).on('keyup', '.document_pko .number_pko', function(event) {
+			 timing_save_input('edit_numper_pko',$(this))
+		});
+		function edit_numper_pko(obj){// на вход принимает object input
+		    var row_id = obj.parent().attr('data-id');
+		    $.post('', {
+		        AJAX:'pko_edit_number',
+		        row_id:row_id,
+		        value:obj.val()
+		    }, function(data, textStatus, xhr) {
+		    	standard_response_handler(data);
+		        if(data['response']=="OK"){
+		            // php возвращает json в виде {"response":"OK"}
+		            // если ответ OK - снимаем класс saved
+		            obj.removeClass('saved');
+		        }else{
+		            console.log('Данные не были сохранены.');
+		        }
+		    },'json');
+		}
+		// сохранение размера внесенной суммы
+		$(document).on('keyup', '.document_pko .price_from_pyment', function(event) {
+			 timing_save_input('price_from_pyment_pko',$(this))
+		});
+
+		function price_from_pyment_pko(obj){// на вход принимает object input
+		    var row_id = obj.parent().attr('data-id');
+		    var specification_id = obj.parent().parent().attr('data-specification_id');
+		    $.post('', {
+		        AJAX:'pko_edit_payment_summ',
+		        row_id:row_id,
+		        value:obj.val(),
+		        specification_id:specification_id
+		    }, function(data, textStatus, xhr) {
+		    	standard_response_handler(data);
+		        if(data['response']=="OK"){
+		            // php возвращает json в виде {"response":"OK"}
+		            // если ответ OK - снимаем класс saved
+		            obj.removeClass('saved');
+		        }else{
+		            console.log('Данные не были сохранены.');
+		        }
+		    },'json');
+		}
+
+		// сохранение размера
+		$(document).on('keyup', '.document_pko .comments', function(event) {
+			 timing_save_input('pko_edit_comments',$(this))
+		});
+		function pko_edit_comments(obj){// на вход принимает object input
+		    var row_id = obj.parent().attr('data-id');
+		    $.post('', {
+		        AJAX:'pko_edit_comments',
+		        row_id:row_id,
+		        value:obj.val()
+		    }, function(data, textStatus, xhr) {
+		    	standard_response_handler(data);
+		        if(data['response']=="OK"){
+		            // php возвращает json в виде {"response":"OK"}
+		            // если ответ OK - снимаем класс saved
+		            obj.removeClass('saved');
+		        }else{
+		            console.log('Данные не были сохранены.');
+		        }
+		    },'json');
+		}
+	//////////////////////////
+	//	удалить ПКО
+	//////////////////////////
+		$(document).on('click', '.del_pko', function(event) {
+			var obj = $(this).parent();
+			event.preventDefault();
+			var row_id = $(this).parent().attr('data-id'); // id для строки ПП
+
+			// проверяем на заполненность
+			var deleting = 1;
+			$(this).parent().find('input').each(function(index, el) {
+				
+				if($(this).val() != ''){
+					deleting = 0;
+				}		
+			});
+
+			if(deleting==0){
+				// confirm(message)
+				if(confirm('В полях ПKO содержится информация. Вы уверены, что хотите удалить строку ПKO.')){
+					obj.remove();
+					if($('.spec_div:visible .document_pko').length == 0){
+						$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
+					}
+
+					$.post('', {
+						AJAX:'delete_PKO',
+						row_id:row_id
+					}, function(data, textStatus, xhr) {
+						standard_response_handler(data);
+					});
+				}
+			}else{
+				obj.remove();
+				if($('.spec_div:visible .document_pko').length == 0){
+					$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
+				}
+
+				$.post('', {
+					AJAX:'delete_PKO',
+					row_id:row_id
+				}, function(data, textStatus, xhr) {
+					standard_response_handler(data);
+				});			
+			}
+		});
+
+//////////////////////////
+//	TTN
+//////////////////////////
+	//////////////////////////
+	// добавить ТТН
+	//////////////////////////
+		$(document).on('click', '#add_ttn', function(event) {
+			event.preventDefault();
+			var row_id = $(this).parent().attr('data-specification_id');
+			$.post('', {
+				AJAX: 'create_row_ttn',
+				row_id:row_id
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			},'json');	
+		});
+
+		function show_new_row_ttn(data){
+			// находим активную вкладку спецификации
+			var obj = $('.spec_div:visible'); 
+			$('.buh_window.add_ttn').css({"display":"block"});
+			var new_ttn = obj.find('.document_ttn_hidden').clone();
+			new_ttn = new_ttn.removeClass('document_ttn_hidden').addClass('document_ttn').attr('data-id',data['id']);
+			obj.find('.buh_window.add_ttn').append(new_ttn);
+			windows_on(data);
+		}
+	//////////////////////////
+	//	редактор ТТН
+	//////////////////////////
+		// сохранение номера
+		$(document).on('keyup', '.document_ttn .number_ttn', function(event) {
+			 timing_save_input('edit_numper_ttn',$(this))
+		});
+		function edit_numper_ttn(obj){// на вход принимает object input
+		    var row_id = obj.parent().attr('data-id');
+		    $.post('', {
+		        AJAX:'ttn_edit_number',
+		        row_id:row_id,
+		        value:obj.val()
+		    }, function(data, textStatus, xhr) {
+		    	standard_response_handler(data);
+		        if(data['response']=="OK"){
+		            // php возвращает json в виде {"response":"OK"}
+		            // если ответ OK - снимаем класс saved
+		            obj.removeClass('saved');
+		        }else{
+		            console.log('Данные не были сохранены.');
+		        }
+		    },'json');
+		}
+		
+
+		// сохранение размера
+		$(document).on('keyup', '.document_ttn .comments', function(event) {
+			 timing_save_input('ttn_edit_comments',$(this))
+		});
+		function ttn_edit_comments(obj){// на вход принимает object input
+		    var row_id = obj.parent().attr('data-id');
+		    $.post('', {
+		        AJAX:'ttn_edit_comments',
+		        row_id:row_id,
+		        value:obj.val()
+		    }, function(data, textStatus, xhr) {
+		    	standard_response_handler(data);
+		        if(data['response']=="OK"){
+		            // php возвращает json в виде {"response":"OK"}
+		            // если ответ OK - снимаем класс saved
+		            obj.removeClass('saved');
+		        }else{
+		            console.log('Данные не были сохранены.');
+		        }
+		    },'json');
+		}
+	//////////////////////////
+	//	удалить ТТН
+	//////////////////////////
+		$(document).on('click', '.del_ttn', function(event) {
+			var obj = $(this).parent();
+			event.preventDefault();
+			var row_id = $(this).parent().attr('data-id'); // id для строки ПП
+
+			// проверяем на заполненность
+			var deleting = 1;
+			$(this).parent().find('input').each(function(index, el) {
+				
+				if($(this).val() != ''){
+					deleting = 0;
+				}		
+			});
+
+			if(deleting==0){
+				// confirm(message)
+				if(confirm('В полях ТТН содержится информация. Вы уверены, что хотите удалить строку ТТН.')){
+					obj.remove();
+					if($('.spec_div:visible .document_pko').length == 0){
+						$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
+					}
+
+					$.post('', {
+						AJAX:'delete_TTN',
+						row_id:row_id
+					}, function(data, textStatus, xhr) {
+						standard_response_handler(data);
+					});
+				}
+			}else{
+				obj.remove();
+				if($('.spec_div:visible .document_pko').length == 0){
+					$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
+				}
+
+				$.post('', {
+					AJAX:'delete_TTN',
+					row_id:row_id
+				}, function(data, textStatus, xhr) {
+					standard_response_handler(data);
+				});			
+			}
+		});
+
+// включение датапикеров для доптехинфо
 function windows_on(data){
 		//////////////////////////
 		//	дата подписания спецификации
@@ -2292,461 +2805,6 @@ function windows_on(data){
 			 	format:'d.m.Y',
 			});	
 }
-
-// вкладки спецификаций в окне бух. учёт
-$(document).on('click', '#tabs ul li', function(event) {
-	var id = $(this).attr('data-id');
-	console.log('#'+id);
-	$('.spec_div').each(function(index, el) {
-		if($(this).attr('id') != id){
-			$(this).css({"display":"none"});
-		}		
-	});
-	$('#tabs ul li').removeClass('checked');
-	$(this).addClass('checked');
-
-	$('#tabs #'+id).css({"display":"block"});
-});
-
-// показать кнопку счёт выставлен в окне бух. учёт
-$(document).on('keyup', '.buh_window input', function(event) {
-	event.preventDefault();
-	if ($(this).parent().find('.the_bill_is_ready').length) {
-		$(this).parent().find('.the_bill_is_ready').show();
-	}
-	/* Act on the event */
-});
-
-// нажатие на кнопку счёт выставлен
-$(document).on('click', '.the_bill_is_ready', function(event) {
-	event.preventDefault();
-	var row_id = $(this).attr('data-id');
-	$.post('', {
-		AJAX: 'the_bill_is_ready',
-		row_id:row_id
-	}, function(data, textStatus, xhr) {
-		standard_response_handler(data);
-	},'json');
-});
-
-// перезагрузка главной таблицы в paperwork
-function reload_paperwork_tbl(){
-	window_preload_add();
-	$('#cabinet_general_content_row').load(' #cabinet_general_content_row',function(){
-		window_preload_del();
-	});
-}
-
-// перезагрузка таблицы заказов
-function reload_order_tbl(){
-	window_preload_add();
-	$('#general_panel_orders_tbl').load(' #general_panel_orders_tbl',function(){
-		window_preload_del();
-	});	
-}
-
-//////////////////////////
-//	PP
-//////////////////////////
-	//////////////////////////
-	// добавить ПП
-	//////////////////////////
-		$(document).on('click', '#add_pp', function(event) {
-			event.preventDefault();
-			var row_id = $(this).parent().attr('data-specification_id');
-			$.post('', {
-				AJAX: 'create_row_pp',
-				row_id:row_id
-			}, function(data, textStatus, xhr) {
-				standard_response_handler(data);
-			},'json');	
-		});
-
-		function show_new_row_pp(data){
-			// находим активную вкладку спецификации
-			var obj = $('.spec_div:visible'); 
-			$('.buh_window.add_pp').css({"display":"block"});
-			var new_pp = obj.find('.document_pp_hidden').clone();
-			new_pp = new_pp.removeClass('document_pp_hidden').addClass('document_pp').attr('data-id',data['id']);
-			obj.find('.buh_window.add_pp').append(new_pp)
-		}
-	//////////////////////////
-	//	удалить ПП
-	//////////////////////////
-		$(document).on('click', '.del_pp', function(event) {
-			var obj = $(this).parent();
-			event.preventDefault();
-			var row_id = $(this).parent().attr('data-id'); // id для строки ПП
-
-			// проверяем на заполненность
-			var deleting = 1;
-			$(this).parent().find('input').each(function(index, el) {
-				
-				if($(this).val() != ''){
-					deleting = 0;
-				}		
-			});
-
-			if(deleting==0){
-				// confirm(message)
-				if(confirm('В полях ПП содержится информация. Вы уверены, что хотите удалить строку ПП.')){
-					
-					obj.remove();
-					if($('.spec_div:visible .document_pp').length == 0){
-						$('.spec_div:visible .buh_window.add_pp').css({"display":"none"});
-					}
-					$.post('', {
-						AJAX:'delete_PP',
-						row_id:row_id
-					}, function(data, textStatus, xhr) {
-						standard_response_handler(data);
-					});
-				}
-			}else{
-				
-				obj.remove();
-				if($('.spec_div:visible .document_pp').length == 0){
-					$('.spec_div:visible .buh_window.add_pp').css({"display":"none"});
-				}
-				$.post('', {
-					AJAX:'delete_PP',
-					row_id:row_id
-				}, function(data, textStatus, xhr) {
-					standard_response_handler(data);
-				});			
-			}
-		});
-	//////////////////////////
-	//	редактор ПП
-	//////////////////////////
-		// сохранение номера
-		$(document).on('keyup', '.document_pp .number_pp', function(event) {
-			 timing_save_input('edit_numper_pp',$(this))
-		});
-		function edit_numper_pp(obj){// на вход принимает object input
-		    var row_id = obj.parent().attr('data-id');
-		    $.post('', {
-		        AJAX:'pp_edit_number',
-		        row_id:row_id,
-		        value:obj.val()
-		    }, function(data, textStatus, xhr) {
-		    	standard_response_handler(data);
-		        if(data['response']=="OK"){
-		            // php возвращает json в виде {"response":"OK"}
-		            // если ответ OK - снимаем класс saved
-		            obj.removeClass('saved');
-		        }else{
-		            console.log('Данные не были сохранены.');
-		        }
-		    },'json');
-		}
-		// сохранение размера внесенной суммы
-		$(document).on('keyup', '.document_pp .price_from_pyment', function(event) {
-			 timing_save_input('price_from_pyment_pp',$(this))
-		});
-		function price_from_pyment_pp(obj){// на вход принимает object input
-		    var row_id = obj.parent().attr('data-id');
-		    var specification_id = obj.parent().parent().attr('data-specification_id');
-		    $.post('', {
-		        AJAX:'pp_edit_payment_summ',
-		        row_id:row_id,
-		        value:obj.val(),
-		        specification_id:specification_id
-		    }, function(data, textStatus, xhr) {
-		    	standard_response_handler(data);
-		        if(data['response']=="OK"){
-		            // php возвращает json в виде {"response":"OK"}
-		            // если ответ OK - снимаем класс saved
-		            obj.removeClass('saved');
-		        }else{
-		            console.log('Данные не были сохранены.');
-		        }
-		    },'json');
-		}
-
-		// сохранение размера
-		$(document).on('keyup', '.document_pp .comments', function(event) {
-			 timing_save_input('pp_edit_comments',$(this))
-		});
-		function pp_edit_comments(obj){// на вход принимает object input
-		    var row_id = obj.parent().attr('data-id');
-		    $.post('', {
-		        AJAX:'pp_edit_comments',
-		        row_id:row_id,
-		        value:obj.val()
-		    }, function(data, textStatus, xhr) {
-		    	standard_response_handler(data);
-		        if(data['response']=="OK"){
-		            // php возвращает json в виде {"response":"OK"}
-		            // если ответ OK - снимаем класс saved
-		            obj.removeClass('saved');
-		        }else{
-		            console.log('Данные не были сохранены.');
-		        }
-		    },'json');
-		}
-
-//////////////////////////
-//	PKO
-//////////////////////////
-	//////////////////////////
-	// добавить ПКО
-	//////////////////////////
-		$(document).on('click', '#add_pko', function(event) {
-			event.preventDefault();
-			var row_id = $(this).parent().attr('data-specification_id');
-			$.post('', {
-				AJAX: 'create_row_pko',
-				row_id:row_id
-			}, function(data, textStatus, xhr) {
-				standard_response_handler(data);
-			},'json');	
-		});
-
-		function show_new_row_pko(data){
-			// находим активную вкладку спецификации
-			var obj = $('.spec_div:visible'); 
-			$('.buh_window.add_pko').css({"display":"block"});
-			var new_pp = obj.find('.document_pko_hidden').clone();
-			new_pp = new_pp.removeClass('document_pko_hidden').addClass('document_pko').attr('data-id',data['id']);
-			obj.find('.buh_window.add_pko').append(new_pp)
-		}
-	//////////////////////////
-	//	редактор ПКО
-	//////////////////////////
-		// сохранение номера
-		$(document).on('keyup', '.document_pko .number_pko', function(event) {
-			 timing_save_input('edit_numper_pko',$(this))
-		});
-		function edit_numper_pko(obj){// на вход принимает object input
-		    var row_id = obj.parent().attr('data-id');
-		    $.post('', {
-		        AJAX:'pko_edit_number',
-		        row_id:row_id,
-		        value:obj.val()
-		    }, function(data, textStatus, xhr) {
-		    	standard_response_handler(data);
-		        if(data['response']=="OK"){
-		            // php возвращает json в виде {"response":"OK"}
-		            // если ответ OK - снимаем класс saved
-		            obj.removeClass('saved');
-		        }else{
-		            console.log('Данные не были сохранены.');
-		        }
-		    },'json');
-		}
-		// сохранение размера внесенной суммы
-		$(document).on('keyup', '.document_pko .price_from_pyment', function(event) {
-			 timing_save_input('price_from_pyment_pko',$(this))
-		});
-
-		function price_from_pyment_pko(obj){// на вход принимает object input
-		    var row_id = obj.parent().attr('data-id');
-		    var specification_id = obj.parent().parent().attr('data-specification_id');
-		    $.post('', {
-		        AJAX:'pko_edit_payment_summ',
-		        row_id:row_id,
-		        value:obj.val(),
-		        specification_id:specification_id
-		    }, function(data, textStatus, xhr) {
-		    	standard_response_handler(data);
-		        if(data['response']=="OK"){
-		            // php возвращает json в виде {"response":"OK"}
-		            // если ответ OK - снимаем класс saved
-		            obj.removeClass('saved');
-		        }else{
-		            console.log('Данные не были сохранены.');
-		        }
-		    },'json');
-		}
-
-		// сохранение размера
-		$(document).on('keyup', '.document_pko .comments', function(event) {
-			 timing_save_input('pko_edit_comments',$(this))
-		});
-		function pko_edit_comments(obj){// на вход принимает object input
-		    var row_id = obj.parent().attr('data-id');
-		    $.post('', {
-		        AJAX:'pko_edit_comments',
-		        row_id:row_id,
-		        value:obj.val()
-		    }, function(data, textStatus, xhr) {
-		    	standard_response_handler(data);
-		        if(data['response']=="OK"){
-		            // php возвращает json в виде {"response":"OK"}
-		            // если ответ OK - снимаем класс saved
-		            obj.removeClass('saved');
-		        }else{
-		            console.log('Данные не были сохранены.');
-		        }
-		    },'json');
-		}
-	//////////////////////////
-	//	удалить ПКО
-	//////////////////////////
-		$(document).on('click', '.del_pko', function(event) {
-			var obj = $(this).parent();
-			event.preventDefault();
-			var row_id = $(this).parent().attr('data-id'); // id для строки ПП
-
-			// проверяем на заполненность
-			var deleting = 1;
-			$(this).parent().find('input').each(function(index, el) {
-				
-				if($(this).val() != ''){
-					deleting = 0;
-				}		
-			});
-
-			if(deleting==0){
-				// confirm(message)
-				if(confirm('В полях ПKO содержится информация. Вы уверены, что хотите удалить строку ПKO.')){
-					obj.remove();
-					if($('.spec_div:visible .document_pko').length == 0){
-						$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
-					}
-
-					$.post('', {
-						AJAX:'delete_PKO',
-						row_id:row_id
-					}, function(data, textStatus, xhr) {
-						standard_response_handler(data);
-					});
-				}
-			}else{
-				obj.remove();
-				if($('.spec_div:visible .document_pko').length == 0){
-					$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
-				}
-
-				$.post('', {
-					AJAX:'delete_PKO',
-					row_id:row_id
-				}, function(data, textStatus, xhr) {
-					standard_response_handler(data);
-				});			
-			}
-		});
-
-//////////////////////////
-//	TTN
-//////////////////////////
-	//////////////////////////
-	// добавить ТТН
-	//////////////////////////
-		$(document).on('click', '#add_ttn', function(event) {
-			event.preventDefault();
-			var row_id = $(this).parent().attr('data-specification_id');
-			$.post('', {
-				AJAX: 'create_row_ttn',
-				row_id:row_id
-			}, function(data, textStatus, xhr) {
-				standard_response_handler(data);
-			},'json');	
-		});
-
-		function show_new_row_ttn(data){
-			// находим активную вкладку спецификации
-			var obj = $('.spec_div:visible'); 
-			$('.buh_window.add_ttn').css({"display":"block"});
-			var new_pp = obj.find('.document_ttn_hidden').clone();
-			new_pp = new_pp.removeClass('document_ttn_hidden').addClass('document_ttn').attr('data-id',data['id']);
-			obj.find('.buh_window.add_ttn').append(new_pp)
-		}
-	//////////////////////////
-	//	редактор ТТН
-	//////////////////////////
-		// сохранение номера
-		$(document).on('keyup', '.document_ttn .number_ttn', function(event) {
-			 timing_save_input('edit_numper_ttn',$(this))
-		});
-		function edit_numper_ttn(obj){// на вход принимает object input
-		    var row_id = obj.parent().attr('data-id');
-		    $.post('', {
-		        AJAX:'ttn_edit_number',
-		        row_id:row_id,
-		        value:obj.val()
-		    }, function(data, textStatus, xhr) {
-		    	standard_response_handler(data);
-		        if(data['response']=="OK"){
-		            // php возвращает json в виде {"response":"OK"}
-		            // если ответ OK - снимаем класс saved
-		            obj.removeClass('saved');
-		        }else{
-		            console.log('Данные не были сохранены.');
-		        }
-		    },'json');
-		}
-		
-
-		// сохранение размера
-		$(document).on('keyup', '.document_ttn .comments', function(event) {
-			 timing_save_input('ttn_edit_comments',$(this))
-		});
-		function ttn_edit_comments(obj){// на вход принимает object input
-		    var row_id = obj.parent().attr('data-id');
-		    $.post('', {
-		        AJAX:'ttn_edit_comments',
-		        row_id:row_id,
-		        value:obj.val()
-		    }, function(data, textStatus, xhr) {
-		    	standard_response_handler(data);
-		        if(data['response']=="OK"){
-		            // php возвращает json в виде {"response":"OK"}
-		            // если ответ OK - снимаем класс saved
-		            obj.removeClass('saved');
-		        }else{
-		            console.log('Данные не были сохранены.');
-		        }
-		    },'json');
-		}
-	//////////////////////////
-	//	удалить ТТН
-	//////////////////////////
-		$(document).on('click', '.del_ttn', function(event) {
-			var obj = $(this).parent();
-			event.preventDefault();
-			var row_id = $(this).parent().attr('data-id'); // id для строки ПП
-
-			// проверяем на заполненность
-			var deleting = 1;
-			$(this).parent().find('input').each(function(index, el) {
-				
-				if($(this).val() != ''){
-					deleting = 0;
-				}		
-			});
-
-			if(deleting==0){
-				// confirm(message)
-				if(confirm('В полях ТТН содержится информация. Вы уверены, что хотите удалить строку ТТН.')){
-					obj.remove();
-					if($('.spec_div:visible .document_pko').length == 0){
-						$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
-					}
-
-					$.post('', {
-						AJAX:'delete_TTN',
-						row_id:row_id
-					}, function(data, textStatus, xhr) {
-						standard_response_handler(data);
-					});
-				}
-			}else{
-				obj.remove();
-				if($('.spec_div:visible .document_pko').length == 0){
-					$('.spec_div:visible .buh_window.add_pko').css({"display":"none"});
-				}
-
-				$.post('', {
-					AJAX:'delete_TTN',
-					row_id:row_id
-				}, function(data, textStatus, xhr) {
-					standard_response_handler(data);
-				});			
-			}
-		});
-
 // запрос на изменение статуса заказа в макет без оплаты
 $(document).on('click', '.order_status_chenge', function(event) {
 	event.preventDefault();

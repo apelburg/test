@@ -371,7 +371,7 @@
 							// спецификация
 							$html .= 'Спецификация '.$this->specificate_item;
 							// ссылка на спецификацию
-							$html .= '&nbsp; '.$this->get_specification_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
+							$html .= '&nbsp; '.$this->get_document_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
 							// номер запроса
 							$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
 							// снабжение
@@ -396,7 +396,7 @@
 							$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
 						$html .= '</td>';
 						$html .= '<td>Бух.</td>';
-						$html .= '<td class="buch_status_select">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
+						$html .= '<td class="buch_status_select">'.$this->decoder_statuslist_buch($this->specificate['buch_status'],0,$this->specificate).'</td>';
 					$html .= '</tr>';
 					return $html;
 				}
@@ -825,7 +825,7 @@
 									<th>Дата/время заведения</th>
 									<th>Заказ</th>
 									<th>Компания</th>	
-									<th>Спецификация:</th>
+									<th>Документ:</th>
 									<th class="buh_uchet">Бух. учет</th>					
 									<th class="invoice_num">Счёт</th>
 									<th>Дата опл-ты</th>
@@ -892,18 +892,18 @@
 						//	Расчёт стоимости позиций END
 						////////////////////////////////////
 
-						$html .= '<tr  data-id="'.$Specificate['id'].'">
-						<td> '.$position['art'].'</td>
-						<td>'.$position['name'].'</td>
-						<td>'.($position['quantity']+$position['zapas']).'</td>
-						<td></td>
-						<td><span>'.$this->Price_for_the_goods.'</span> р.</td>
-						<td><span>'.$this->Price_of_printing.'</span> р.</td>
-						<td><span>'.$this->Price_of_no_printing.'</span> р.</td>
-						<td><span>'.$this->Price_for_the_position.'</span> р.</td>
-						<td></td>
-						<td></td>
-								</tr>';
+						$html .= '<tr  data-id="'.$Specificate['id'].'">';
+							$html .= '<td> '.$position['art'].'</td>';
+							$html .= '<td>'.$position['name'].'</td>';
+							$html .= '<td>'.($position['quantity']+$position['zapas']).'</td>';
+							$html .= '<td></td>';
+							$html .= '<td><span>'.$this->Price_for_the_goods.'</span> р.</td>';
+							$html .= '<td><span>'.$this->Price_of_printing.'</span> р.</td>';
+							$html .= '<td><span>'.$this->Price_of_no_printing.'</span> р.</td>';
+							$html .= '<td><span>'.$this->Price_for_the_position.'</span> р.</td>';
+							$html .= '<td></td>';
+							$html .= '<td></td>';
+						$html .= '</tr>';
 						$this->Price_of_position +=$this->Price_for_the_position; // прибавим к общей стоимости
 					}
 
@@ -943,19 +943,18 @@
 					// преобразовываем вид номера заказа для пользователя (подставляем впереди 0000)
 					$this->order_num_for_User = Cabinet::show_order_num($Specificate['order_num']);
 
-					$html2_body .= '<td  class="check_show_me">'.$enable_check_for_order.'</td>
-								<td>'.$Specificate['create_time'].'<br>'.$this->get_manager_name_Database_Html($Specificate['manager_id'],1).'</td>
-								<td>'.$this->order_num_for_User.'</td>
-								<td>'.$this->get_client_name_Database($Specificate['client_id'],1).'</td>
-								<td>'.$this->get_specification_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</td>
-								<td class="buh_uchet_for_spec" data-id="'.$Specificate['id'].'"></td>
-								<td class="invoice_num">'.$Specificate['number_the_bill'].'</td>
-								<td><input type="text" class="payment_date" readonly="readonly" value="'.(((int)$Specificate['payment_date']!=0)?$Specificate['payment_date']:'').'"></td>
-								
-								<td><span>'.$percent_payment.'</span> %</td>
-								<td><span class="payment_status_span edit_span">'.$Specificate['payment_status'].'</span>р</td>
-								<td><span>'.$this->Price_of_position.'</span> р.</td>
-								<td class="buch_status_select">'.$this->decoder_statuslist_buch($Specificate['buch_status']).'</td>';
+					$html2_body .= '<td  class="check_show_me">'.$enable_check_for_order.'</td>';
+						$html2_body .= '<td>'.$Specificate['create_time'].'<br>'.$this->get_manager_name_Database_Html($Specificate['manager_id'],1).'</td>';
+						$html2_body .= '<td>'.$this->order_num_for_User.'</td>';
+						$html2_body .= '<td>'.$this->get_client_name_Database($Specificate['client_id'],1).'</td>';
+						$html2_body .= '<td>'.$this->get_document_link($Specificate,$Specificate['client_id'],$Specificate['create_time']).'</td>';
+						$html2_body .= '<td class="buh_uchet_for_spec" data-id="'.$Specificate['id'].'"></td>';
+						$html2_body .= '<td class="invoice_num">'.$Specificate['number_the_bill'].'</td>';
+						$html2_body .= '<td><input type="text" class="payment_date" readonly="readonly" value="'.(((int)$Specificate['payment_date']!=0)?$Specificate['payment_date']:'').'"></td>';
+						$html2_body .= '<td><span>'.$percent_payment.'</span> %</td>';
+						$html2_body .= '<td><span class="payment_status_span edit_span">'.$Specificate['payment_status'].'</span>р</td>';
+						$html2_body .= '<td><span>'.$this->Price_of_position.'</span> р.</td>';
+						$html2_body .= '<td class="buch_status_select">'.$this->decoder_statuslist_buch($Specificate['buch_status'],0,$Specificate).'</td>';
 					$html3 = '</tr>';
 
 

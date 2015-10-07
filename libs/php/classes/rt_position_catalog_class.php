@@ -53,6 +53,7 @@ class Position_catalog{
 	private function _AJAX_first(){ // router
 		$method_AJAX = $_POST['change_name'].'_AJAX';
 		$this->$method_AJAX();
+		exit;
 	}
 
 	private function get_uslugi_list_Database_Html_7777($id=0){	
@@ -215,10 +216,11 @@ class Position_catalog{
 	private function change_variante_shipping_time_AJAX(){
 		global $mysqli;
 
-		$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_time` = '".$_POST['time']."', `standart` = '' WHERE  `id` ='".$_POST['id']."'";	
+		$query = "UPDATE `".RT_DOP_DATA."` SET `shipping_time` = '".$_POST['time']."' 
+		WHERE  `id` ='".$_POST['id']."'";	
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
-		exit;
+		echo '{"response":"OK"}';
 	}
 
 
@@ -367,7 +369,7 @@ class Position_catalog{
 
 		$query = "UPDATE `".RT_DOP_DATA."` 
 					SET 
-					`standart` =  '".$_POST['standart']."'
+					`work_days` =  '".$_POST['standart']."'
 					WHERE  `id` ='".$_POST['id']."'";	
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);

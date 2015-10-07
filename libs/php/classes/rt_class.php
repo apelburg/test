@@ -745,9 +745,7 @@
 			return $out_put; 
 		}
 		// создание заказа из запроса
-
-        static function make_order($rows_data,$client_id,$query_num,$doc_num,$agreement_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/){
-
+        static function make_order($rows_data,$client_id,$query_num,$doc_num,$doc_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/, /*дата отгрузки*/$shipping_date = '0000-00-00',/*рабочие дни*/$work_days = 0){
             // подключаем класс для информации из калькулятора
         	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 
@@ -789,7 +787,7 @@
             //	Запрашиваем информацию по спецификацииии или оферте-- start
             //////////////////////////
 		    if($doc_type=='spec'){
-                $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE `agreement_id` = '".$agreement_id."' AND `specification_num` = '".$doc_num."'";
+                $query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE `agreement_id` = '".$doc_id."' AND `specification_num` = '".$doc_num."'";
 echo $query;
                 $result = $mysqli->query($query) or die($mysqli->error);
 				if($result->num_rows > 0){
@@ -811,8 +809,6 @@ echo $query;
             //	Запрашиваем информацию по спец-ии или оферте -- end
             //////////////////////////
 				
-
-
             ////////////////////////////////////
             //	Сохраняем данные о спецификации или оферте   -- start
             ////////////////////////////////////
@@ -821,7 +817,7 @@ echo $query;
 				$query .= " `doc_num` = '".(int)$doc_num."',";
 				$query .= " `doc_type` = '".$doc_type."',";
 				$query .= " `date_type` = '".$date_type."',";
-				$query .= " `agreement_id` = '".(int)$agreement_id."', ";
+				$query .= " `doc_id` = '".(int)$doc_id."', ";
 				$query .= " `prepayment` = '".(int)$prepayment."'";
 				$query .= " WHERE `id` = '".$the_bill_id."'";
 				// выполняем запрос

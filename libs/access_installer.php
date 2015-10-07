@@ -112,7 +112,8 @@
 													'order_in_work' => array('access'=>true),
 													'design_all' =>  array('access'=>true),
 													'design_for_one_men' =>  array('access'=>true),
-													'production' =>  array('access'=>true)
+													'production' =>  array('access'=>true),
+													'stock' =>  array('access'=>true)													
 													// 'production' => array('access'=>true),
 													// 'my_orders_diz' => array('access'=>true),
 													// 'all_orders_diz' => array('access'=>true),
@@ -270,6 +271,7 @@
 													'production_tisnenie' => array('access'=>true),
 													'production_dop_uslugi' => array('access'=>true),
 													'production_plenki_and_klishe' => array('access'=>true),
+													'stock' =>  array('access'=>true)
 													// 'production' =>  array('access'=>true) 
 													)
 												)
@@ -323,7 +325,8 @@
 													'order_in_work' => array('access'=>true),
 													'design_all' =>  array('access'=>true),
 													'design_for_one_men' =>  array('access'=>true),
-													'production' =>  array('access'=>true)
+													'production' =>  array('access'=>true),
+													'stock' =>  array('access'=>true)
 													)
 												),
 											'for_shipping'=> array(
@@ -402,15 +405,23 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													'waits_products' => array('access' => true),
-													'goods_in_stock' => array('access' => true),
-													'sended_on_outsource' => array('access' => true),
-													'checked_and_packed' => array('access' => true),
-													'goods_shipped_for_client' => array('access' => true),
+													// 'all' => array('access'=>true),
+													// 'waits_products' => array('access' => true),
+													// 'goods_in_stock' => array('access' => true),
+													// 'sended_on_outsource' => array('access' => true),
+													// 'checked_and_packed' => array('access' => true),
+													// 'goods_shipped_for_client' => array('access' => true),
+													'order_all' => array('access'=>true),
+													'order_start' => array('access'=>true),
+													'order_in_work' => array('access'=>true),
+													'design_all' =>  array('access'=>true),
+													'design_for_one_men' =>  array('access'=>true),
+													'production' =>  array('access'=>true),
+													'stock' =>  array('access'=>true)
 													)
 												)
-											)
+											), 
+											
 										));	
 	// СНАБЖЕНИЕ
 	$ACCESS_SHABLON[8] = array(
@@ -460,7 +471,8 @@
 													'order_in_work' => array('access'=>true),
 													'design_all' =>  array('access'=>true),
 													'design_for_one_men' =>  array('access'=>true),
-													'production' =>  array('access'=>true)												
+													'production' =>  array('access'=>true),
+													'stock' =>  array('access'=>true)
 													)
 												),
 											'for_shipping'=> array(

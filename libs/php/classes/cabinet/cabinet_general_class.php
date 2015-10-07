@@ -266,11 +266,11 @@
 					$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  `delivery_tir` =  '".$_POST['value']."' WHERE  `id` ='".$_POST['row_id']."';";
 					$result = $mysqli->query($query) or die($mysqli->error);
 				}
-				private function change_status_snab_AJAX(){
-					global $mysqli;
-					$query = "UPDATE `".CAB_ORDER_MAIN."` SET  `status_snab` =  '".$_POST['value']."' WHERE  `".CAB_ORDER_MAIN."`.`id` =".$_POST['row_id'].";";
-					$result = $mysqli->query($query) or die($mysqli->error);
-				}
+				// private function change_status_snab_AJAX(){
+				// 	global $mysqli;
+				// 	$query = "UPDATE `".CAB_ORDER_MAIN."` SET  `status_snab` =  '".$_POST['value']."' WHERE  `".CAB_ORDER_MAIN."`.`id` =".$_POST['row_id'].";";
+				// 	$result = $mysqli->query($query) or die($mysqli->error);
+				// }
 			//////////////////////////
 			//	paperwork END
 			//////////////////////////

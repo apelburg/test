@@ -52,7 +52,9 @@
 			'order_in_work' => 'Заказы в работе',
 			'design_all' => 'Дизайн ВСЕ',
 			'design_for_one_men' => 'Дизайн МОЁ',
-			'production' => 'Производство'													
+			'production' => 'Производство',
+			'stock' => 'Склад'
+
 		); 
 
 		//////////////////////////
@@ -101,8 +103,8 @@
 		//////////////////////////
 		//	Section - Заказы
 		//////////////////////////
-		/*
-			private function orders_Template($id_row=0){
+		
+			protected function orders_Template_OLD($id_row=0){
 
 				$this->get_filters();
 				$where = 0;
@@ -242,8 +244,8 @@
 				$html = $table_head_html.$table_order_row.'</table>';
 				echo $html;
 			}
-
-			private function get_filters(){
+			
+			protected function get_filters_OLD(){
 				$this->filter_order = ' '; // status_global и status_buch
 				$this->filter_position = ' '; // status_sklad и status_snab
 				$this->filter_uslugi = ' ';// uslugi_id и performer_status и performer
@@ -276,7 +278,7 @@
 			}
 
 			// возвращает html строки позиций
-			private function table_order_positions_rows_Html(){			
+			private function table_order_positions_rows_Html_OLD(){			
 				// получаем массив позиций заказа
 				$positions_rows = $this->positions_rows_Database($this->Order['order_num']);
 				$html = '';	
@@ -341,8 +343,10 @@
 					$this->position_item++;
 				}				
 				return $html;
-			}		
-		*/
+			}	
+
+			
+		
 
 		
 		

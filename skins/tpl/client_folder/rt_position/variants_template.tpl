@@ -32,8 +32,8 @@
 
 					<span class="type_specificate-info rd" <?php echo $shipping_type__show_rd;?>>
 						<!-- <strong>Изготовление р/д:</strong> -->
-						<!-- <span class="btn_var_std <?php echo $std_time_print;?>" name="std">Стандартно</span>  -->
-						<input type="text" class="fddtime_rd2" name="fddtime_rd2" value="<?php echo $variant['standart']; ?>"> р/д
+						<!-- <span class="btn_var_std <?php //echo $std_time_print;?>" name="std">Стандартно</span>  -->
+						<input type="text" class="fddtime_rd2" name="fddtime_rd2" value="<?php echo $variant['work_days']; ?>"> р/д
 					</span>
 
 					

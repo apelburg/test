@@ -53,8 +53,9 @@
 			'order_in_work' => 'Заказы в работе',
 			'design_all' => 'Дизайн ВСЕ',
 			'design_for_one_men' => 'Дизайн МОЁ',
-			'production' => 'Производство'											
-		); 
+			'production' => 'Производство',
+			'stock' => 'Склад'										
+		); 	
 
 		// название подраздела кабинета
 		private $sub_subsection;
