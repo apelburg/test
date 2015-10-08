@@ -2181,6 +2181,7 @@ $(document).on('keyup', '.buh_window input', function(event) {
 $(document).on('click', '.the_bill_is_ready', function(event) {
 	event.preventDefault();
 	var row_id = $(this).attr('data-id');
+	$(this).hide();
 	$.post('', {
 		AJAX: 'the_bill_is_ready',
 		row_id:row_id

@@ -1448,9 +1448,12 @@
 						$where = 0;
 						// скрываем левое меню
 						$html = '';
-						$table_head_html = '<style type="text/css" media="screen">
-							#cabinet_left_coll_menu{display:none;}
-						</style>';
+						$table_head_html = '';
+						if ($this->user_access == $this->group_access) {
+							$table_head_html .= '<style type="text/css" media="screen">
+								#cabinet_left_coll_menu{display:none;}
+							</style>';	
+						}
 						
 						// формируем шапку таблицы вывода
 						$table_head_html .= '
@@ -1732,7 +1735,7 @@
 
 					private function orders_production_Template($id_row=0){
 						$this->group_access = 4;
-						// id начальника отдела дизайна
+						// id начальника отдела производства
 						$this->director_of_operations_ID = 87; 
 
 						echo $this->production_rows($id_row=0);
@@ -1743,12 +1746,15 @@
 						$this->orders_production_Template($id_row=0);
 					}
 
-					/* Возвращает фильрацию по вкладке производства "трафарет"
-					 *
-					 * @param string $id_row 	id row from the base 
-					 * @return 					html code
-					 * @see 					html
-					*/
+				/**
+				 *  Возвращает фильрацию по вкладке производства "трафарет"
+				 *
+				 *  @param   string $id_row 	(id row from the base)
+				 *  @return  html code
+				 *  @see 	 html		
+				 *	@author  Алексей Капитонов
+				 *	@version 11:31 08.10.2015
+				*/
 
 					private function orders_production_stencil_shelk_and_transfer_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
@@ -1779,91 +1785,91 @@
 					}
 
 					/**
-					 * фильтрация по услугам для subsection для производства
+					 *  фильтрация по услугам для subsection для производства
 					 *
-					 * @param  		array()
-					 * @return 		array()
-					 */	
-					protected function filter_of_subsection_for_production($services_print){
-						if($this->user_access == 4){
-							$services_print_NEW = array();
-							foreach ($services_print as $key => $value) {
-								switch ($_GET['subsection']) {
-									// фильтр по статусу "ожидает обработки"
-									case 'production_get_in_work':
-										if($value['performer_status'] != 'Ожидает обработки'){continue;}
-										$services_print_NEW[] = $value;
-										break;
-									// фильтр по всему трафаретному участку
-									case 'production_stencil_shelk_and_transfer':
-										// перечислим разрешённые ключи
-									    $keys = array(28, 13, 14, 15, 30, 31, 32, 33, 34, 35);
-									    // проверяем 
-										if( !in_array($value['uslugi_id'], $keys)){continue;}
-										$services_print_NEW[] = $value;
-										break;
-									// фильтр по шелкухе
-									case 'production_shelk':
-										// перечислим разрешённые ключи
-									    $keys = array(13, 14, 15, 30, 31, 32, 33, 34, 35);
-									    // проверяем 
-										if( !in_array($value['uslugi_id'], $keys)){continue;}
-										$services_print_NEW[] = $value;
-										break;
+					 *  @param  		array()
+					 *  @return 		array()
+					*/	
+						protected function filter_of_subsection_for_production($services_print){
+							if($this->user_access == 4){
+								$services_print_NEW = array();
+								foreach ($services_print as $key => $value) {
+									switch ($_GET['subsection']) {
+										// фильтр по статусу "ожидает обработки"
+										case 'production_get_in_work':
+											if($value['performer_status'] != 'Ожидает обработки'){continue;}
+											$services_print_NEW[] = $value;
+											break;
+										// фильтр по всему трафаретному участку
+										case 'production_stencil_shelk_and_transfer':
+											// перечислим разрешённые ключи
+										    $keys = array(28, 13, 14, 15, 30, 31, 32, 33, 34, 35);
+										    // проверяем 
+											if( !in_array($value['uslugi_id'], $keys)){continue;}
+											$services_print_NEW[] = $value;
+											break;
+										// фильтр по шелкухе
+										case 'production_shelk':
+											// перечислим разрешённые ключи
+										    $keys = array(13, 14, 15, 30, 31, 32, 33, 34, 35);
+										    // проверяем 
+											if( !in_array($value['uslugi_id'], $keys)){continue;}
+											$services_print_NEW[] = $value;
+											break;
 
-									// фильтр по трансферу
-									case 'production_transfer':
-										// перечислим разрешённые ключи
-									    $keys = array(28);
-									    // проверяем 
-										if( !in_array($value['uslugi_id'], $keys)){continue;}
-										$services_print_NEW[] = $value;
-										break;
+										// фильтр по трансферу
+										case 'production_transfer':
+											// перечислим разрешённые ключи
+										    $keys = array(28);
+										    // проверяем 
+											if( !in_array($value['uslugi_id'], $keys)){continue;}
+											$services_print_NEW[] = $value;
+											break;
 
-									// фильтр по тампухе
-									case 'production_tampoo':
-										// перечислим разрешённые ключи
-									    $keys = array(18);
-									    // проверяем 
-										if( !in_array($value['uslugi_id'], $keys)){continue;}
-										$services_print_NEW[] = $value;
-										break;
+										// фильтр по тампухе
+										case 'production_tampoo':
+											// перечислим разрешённые ключи
+										    $keys = array(18);
+										    // проверяем 
+											if( !in_array($value['uslugi_id'], $keys)){continue;}
+											$services_print_NEW[] = $value;
+											break;
 
-									// фильтр по тиснение
-									case 'production_tisnenie':
-										// перечислим разрешённые ключи
-									    $keys = array(17, 19);
-									    // проверяем 
-										if( !in_array($value['uslugi_id'], $keys)){continue;}
-										$services_print_NEW[] = $value;
-										break;
+										// фильтр по тиснение
+										case 'production_tisnenie':
+											// перечислим разрешённые ключи
+										    $keys = array(17, 19);
+										    // проверяем 
+											if( !in_array($value['uslugi_id'], $keys)){continue;}
+											$services_print_NEW[] = $value;
+											break;
 
-									// фильтр по тиснение
-									case 'production_dop_uslugi':
-										// перечислим разрешённые ключи
-									    $keys = array(19, 18, 17, 37,16,15,14,13,28,30,31,32,33,34,35,36,38,46);
-									    // проверяем 
-										if( in_array($value['uslugi_id'], $keys)){continue;}
-										$services_print_NEW[] = $value;
-										break;
+										// фильтр по тиснение
+										case 'production_dop_uslugi':
+											// перечислим разрешённые ключи
+										    $keys = array(19, 18, 17, 37,16,15,14,13,28,30,31,32,33,34,35,36,38,46);
+										    // проверяем 
+											if( in_array($value['uslugi_id'], $keys)){continue;}
+											$services_print_NEW[] = $value;
+											break;
 
-									// фильтр "проверить плёнки"
-									case 'production_plenki_and_klishe':
-										if($value['film_photos_status'] != 'проверить наличие'){ continue; }
-										$services_print_NEW[] = $value;
-										break;
+										// фильтр "проверить плёнки"
+										case 'production_plenki_and_klishe':
+											if($value['film_photos_status'] != 'проверить наличие'){ continue; }
+											$services_print_NEW[] = $value;
+											break;
 
-									
-									default:
-										$services_print_NEW[] = $value;
-										break;
+										
+										default:
+											$services_print_NEW[] = $value;
+											break;
+									}
 								}
+								return $services_print_NEW;
+							}else{
+								return $services_print;
 							}
-							return $services_print_NEW;
-						}else{
-							return $services_print;
 						}
-					}
 
 
 
@@ -1872,9 +1878,13 @@
 						$where = 0;
 						// скрываем левое меню
 						$html = '';
-						$table_head_html = '<style type="text/css" media="screen">
-							#cabinet_left_coll_menu{display:none;}
-						</style>';
+						$table_head_html = '';
+						if ($this->user_access == $this->group_access) {
+							$table_head_html .= '<style type="text/css" media="screen">
+								#cabinet_left_coll_menu{display:none;}
+							</style>';	
+						}
+						
 						
 						// формируем шапку таблицы вывода
 						$table_head_html .= '
