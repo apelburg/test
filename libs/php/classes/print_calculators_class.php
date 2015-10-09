@@ -126,6 +126,149 @@
 			//exit; 
 		    return implode(', ',$out_put);
 		}
+		static function convert_print_details_for_kp($print_details){
+		
+		    global $mysqli;
+			
+			// Функция принимает сырые данные о нанесении логотипа и возвращает в отфораматированном виде для КП
+			// распеределяя данные на два блока - 1-ый для вывода в блоке "Печать логотипа" в КП, 2-ой для вывода
+			// в блоке "Дополнительные услуги" в КП
+			
+			$out_put = array('block1'=>array(),'block2'=>array());
+			
+			
+		    // если данные были переданы ввиде json преобразуем их в объект
+		    $print_details = (!is_object($print_details))? json_decode($print_details):$print_details;
+			
+			// echo '<pre>'; print_r($print_details); echo '</pre>';////
+
+			$out_put['block1']['print_type'] = $print_details->print_type;
+			$out_put['block1']['place_type'] = $print_details->place_type;
+			
+			if(isset($print_details->dop_params->YPriceParam)){
+			    foreach($print_details->dop_params->YPriceParam as $index => $details){
+				    if($details->id!=0) $idsArr[] = $details->id;	
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_Y_PRICE_PARAMS."` WHERE id IN('".implode("','",$idsArr)."') ORDER BY percentage";
+					// echo $query;
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+					    $row = $result->fetch_assoc();
+						// общее наименование параметра
+					    $out_put['block1']['price_data']['cap'] = $row['param_type'];
+						
+						$result->data_seek(0);
+						while($row = $result->fetch_assoc()){
+						   // наменование конкретных вариантов
+						   $out_put['block1']['price_data']['y_params'][] = $row['value'];
+						}
+					}
+					unset($idsArr); 
+					unset($details);
+					unset($dop_details); 
+				}
+			}
+			
+			
+			
+			if(isset($print_details->dop_params->sizes)){
+			    foreach($print_details->dop_params->sizes as $index => $details){
+				         // echo '<pre>22'; print_r($details); echo '</pre>';
+				    if($details->id!=0) $idsArr[] = $details->id;	
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE id IN('".implode("','",$idsArr)."')";
+					// echo $query;
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()) {
+						   $out_put['block1']['print_size']= $row['size'];
+						}
+					}
+					unset($idsArr);
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+			
+			
+		    if(isset($print_details->dop_params->coeffs)){
+			    foreach($print_details->dop_params->coeffs as $target => $data){
+					foreach($data as $type => $val){
+					    $typesArr[] = $type; 
+					    foreach($val as $index => $details){
+							if($details->id!=0){
+								$idsArr[] = $details->id;
+								//$dop_details[$details->id]['multi'] = (isset($details->multi) && $details->multi>1)?' '.$details->multi.' раза':'';
+							}
+						}
+					}
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_COEFFS."` WHERE type IN('".implode("','",$typesArr)."') AND  print_id='".$print_details->print_id."' ORDER BY id";
+					echo $query.'<br>';
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()) {
+						   //$tail = ($target==$row['price'])?'%':'руб.';
+						   //$multi = ($row['multi']>1)? ' '.$row['multi'].' раза ':'';
+						   //$out_put[] = $prefix.$row['title'].' увелич. на '.$row['percentage'].'%'.$dop_details[$row['id']]['multi'];
+						  $some_arr[$row['type']][] = $row['title'];
+						  $some_arr2[] = $row;
+						  //if((int)$row['percentage']!=0) 
+						}
+						foreach($some_arr2 as $ind => $value){
+						    if(in_array($value['id'],$idsArr) && (int)$value['percentage']!=0){
+							    $name = (count($some_arr[$value['type']])>1)? $some_arr[$value['type']][0].': '.$value['title']:$value['title'];
+							    $out_put['block2']['data'][]=array('name'=>$name,'type'=>'coeff','value'=>$value['percentage'],'target'=>$value['target']);
+							}
+						}
+						echo '<pre>'; print_r($some_arr); echo '</pre>';////
+					}
+					
+					
+					
+					unset($typesArr); 
+					unset($idsArr); 
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+			if(isset($print_details->dop_params->additions)){
+			    foreach($print_details->dop_params->additions as $target => $data){
+					foreach($data as $type => $val){
+					    foreach($val as $index => $details){
+					        //    echo '<pre>'; print_r($details); echo '</pre>';
+				            if($details->id!=0){
+							    $idsArr[] = $details->id;
+							   // $dop_details[$details->id]['multi'] = (isset($details->multi) && $details->multi>1)?' '.$details->multi.' раза по ':'';
+							}
+						}
+					}
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_ADDITIONS."` WHERE id IN('".implode("','",$idsArr)."')";
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+						$prefix='Надбавки:';
+						while($row = $result->fetch_assoc()) {
+						   // echo '<pre>'; print_r($row); echo '</pre>';
+						   //$out_put[] = $prefix.$row['title'].' +'.$dop_details[$row['id']]['multi'].''.$row['value'].'руб.';
+						   if((int)$row['value']!=0) $out_put['block2']['data'][]=array('name'=>$row['type'].' '.$row['title'],'type'=>'addition','value'=>$row['value'],'target'=>$row['target']);
+						}
+					}
+					unset($idsArr); 
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+	
+			//echo '<pre>'; print_r($out_put); echo '</pre>';//
+			//echo implode(', ',$out_put);
+			//exit; 
+			return $out_put;
+		}
 		static function convert_print_details_to_dop_tech_info($print_details){
 		
 		    global $mysqli;

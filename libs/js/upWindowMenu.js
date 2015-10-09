@@ -1080,39 +1080,7 @@
 		div.style.top =  "2px";
 		div.style.left = "33px";
 		div.style.display = "block";
-		
-		var cup = document.createElement('div');
-		cup.className = "cup";
-		cup.appendChild(document.createTextNode('Добавить строку:'));
-		div.appendChild(cup);
-		
-		
-		//<div class="link2Arrow"><a href="#" onclick="return openExtraContextWindow(this,'article')">основной каталог</a></div>
-		var innerDivsArr = [['основной каталог','article'],['другой каталог','ordinary'],['полиграфия',''],['разделитель','']];
-		for( var i= 0 ; i < innerDivsArr.length; i++){
-			var innerDiv = document.createElement('div');
-			innerDiv.className = "link2Arrow";
-			var a = document.createElement('a');
-			a.setAttribute('type',innerDivsArr[i][1]);
-			a.setAttribute('action','add_rows_to_rt');
-			// a.setAttribute('id',id);
-			a.setAttribute('control_num',control_num);
-			a.appendChild(document.createTextNode(innerDivsArr[i][0]));
-			if(innerDivsArr[i][1]) a.onclick = openExtraContextWindow;
-			// else{
-				var span = document.createElement('span');
-		        span.className = "notWork";
-				span.appendChild(document.createTextNode('x'));
-		        a.appendChild(span);
-			// }
-			
-			innerDiv.appendChild(a);
-			div.appendChild(innerDiv);
-		}
-		
-		var innerDiv = document.createElement('div');
-		innerDiv.className = "fence";
-		div.appendChild(innerDiv);
+
 		
 		var innerDiv = document.createElement('div');
 		innerDiv.className = "link1";

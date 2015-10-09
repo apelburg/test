@@ -110,7 +110,7 @@
     <td valign="top">
         <table width="200" id="kpDisplayManagerBarTbl" border="1">
           <tr>
-            <td style="text-align:right;"><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
+            <td><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
           </tr>
          <!-- <tr>
             <td><label><input type="checkbox" name="characters" onclick="kpDisplayManager.saveChanges(this);" />характеристики (цвет, материал)</label></td>
