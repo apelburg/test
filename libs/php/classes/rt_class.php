@@ -745,14 +745,12 @@
 			return $out_put; 
 		}
 		// создание заказа из запроса
-        static function make_order($rows_data,$client_id,$query_num,$doc_num,$doc_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/, /*дата отгрузки*/$shipping_date = '0000-00-00',/*рабочие дни*/$work_days = 0){
+        static function make_order($rows_data,$client_id,$query_num,$doc_num,$doc_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/, /*дата отгрузки*/$shipping_date = '',/*рабочие дни*/$work_days = 0, $limit = '0000-00-00'){
+            //echo '<br><br><strong>$limit = </strong>'.$limit.'<br>'; 
+            
             // подключаем класс для информации из калькулятора
         	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
-
-
             global $mysqli;
-
-
             $user_id = $_SESSION['access']['user_id'];
 
             // убиваем пустые позиции
@@ -813,16 +811,24 @@ echo $query;
             //	Сохраняем данные о спецификации или оферте   -- start
             ////////////////////////////////////
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET ";
-				$query .= " `specification_num` = '".(int)$doc_num."',";
-				$query .= " `doc_num` = '".(int)$doc_num."',";
-				$query .= " `doc_type` = '".$doc_type."',";
-				$query .= " `date_type` = '".$date_type."',";
-				$query .= " `doc_id` = '".(int)$doc_id."', ";
-				$query .= " `prepayment` = '".(int)$prepayment."'";
+				$query .= " `specification_num` = '".(int)$doc_num."'";
+				$query .= ", `doc_num` = '".(int)$doc_num."'";
+				$query .= ", `doc_type` = '".$doc_type."'";
+				$query .= ", `date_type` = '".$date_type."'";
+				$query .= ", `doc_id` = '".(int)$doc_id."'";
+				$query .= ", `shipping_date` = '".$shipping_date."'"; // дата сдачи
+				$query .= ", `work_days` = '".(int)$work_days."'"; // рабочие дни указываются в случае сроков по Р/Д
+				$query .= ", `prepayment` = '".(int)$prepayment."'"; // % предоплаты для запуска заказа
+				$query .= ", `shipping_date_limit` = '".$limit."'";
 				$query .= " WHERE `id` = '".$the_bill_id."'";
 				// выполняем запрос
-				echo $query;
+				
                 $result = $mysqli->query($query) or die($mysqli->error);
+                ////////////////////
+                // test query
+                ////////////////////
+    			// echo '<br><br>'.$query;
+				// exit;
 			////////////////////////////////////
             //	Сохраняем данные о спецификации или оферте   -- end
             ////////////////////////////////////
@@ -845,25 +851,21 @@ echo $query;
 	                $result = $mysqli->query($query) or die($mysqli->error);
 	                // id новой позиции
 	                $main_row_id = $mysqli->insert_id;
-
                 	
-
-
 	                // выбираем id строки расчёта
 	                // КОПИРУЕМ СТРОКУ РАСЧЁТА (В ЗАКАЗЕ ОНА У НАС ДЛЯ КАЖДОГО ЗАКАЗА ТОЛЬКО 1)
 	                $query = "INSERT INTO `" . CAB_ORDER_DOP_DATA . "`  (
 	                    `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
-	                    `print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
+	                    `print_z`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
 	                    )
 	                    SELECT `row_id`,`expel`,`quantity`,`zapas`,`price_in`,`price_out`,`discount`,`tirage_json`,
-	                    `print_z`,`standart`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
+	                    `print_z`,`shipping_time`,`shipping_date`,`no_cat_json`,`suppliers_name`,`suppliers_id`
 	                    FROM `".RT_DOP_DATA."` 
 	                    WHERE  `id` = '".$position['row_id']."'
 	                ";
 	                $result = $mysqli->query($query) or die($mysqli->error);
 	                
 	                $dop_data_row_id = $mysqli->insert_id; // id нового расчёта... он же номер
-
                 
 
 
@@ -923,15 +925,9 @@ echo $query;
 						// echo $query2.'<br><br>';exit;
 						$mysqli->query($query2) or die($mysqli->error);	
                         }
-
-
-
                     	
                     }
-
-
                     
-
                 //////////////////////////////////////////////////////
                 //    КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ -- end  //
                 //////////////////////////////////////////////////////

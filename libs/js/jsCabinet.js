@@ -205,6 +205,10 @@
 		function window_reload(data) {
 			location.reload();
 		}
+		// переадресация из php
+		function location_href(data){
+			window.location.href = data.href;
+		}
 
 		$(document).keydown(function(e) {	
 			if(e.keyCode == 27){//ESC		
@@ -2177,6 +2181,7 @@ $(document).on('keyup', '.buh_window input', function(event) {
 $(document).on('click', '.the_bill_is_ready', function(event) {
 	event.preventDefault();
 	var row_id = $(this).attr('data-id');
+	$(this).hide();
 	$.post('', {
 		AJAX: 'the_bill_is_ready',
 		row_id:row_id

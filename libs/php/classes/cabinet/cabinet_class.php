@@ -91,9 +91,11 @@
 	    		/*
 					при выборе данного статуса
 	    		*/
+				'in_operation' => 'Запуск в работу',
 	    		'maket_without_payment' =>'Макет без оплаты',  
 	    		'paused'=>'Заказ приостановлен', 
-	    		'cancelled'=>'Аннулирован'			
+	    		'cancelled'=>'Аннулирован'
+
 	    		);
 
 			// статусы БУХ - вывод в select
@@ -2206,11 +2208,11 @@
 					$id = $_POST['order_id'];
 				}
 
-				
+				$status_buch = isset($_POST['status_buch'])?$_POST['status_buch']:'request_expense';
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET";
 
 				$query .= "`type_the_bill` = '".$_POST['type_the_bill']."',";
-				$query .= "`buch_status` = 'request_expense',";//date_order_the_bill
+				$query .= "`buch_status` = '".$status_buch."',";//date_order_the_bill
 				$query .= "`date_order_the_bill` = NOW()";//
 				$query .= " WHERE `id` = '".$id."'";
 				// echo $query;
@@ -2343,12 +2345,62 @@
 
 			protected function command_for_change_status_order_AJAX(){
 				global $mysqli;
+				$json_answer = '{"response":"OK"}';
+				// если статус не пришел - что-то пошло не так
+				if(!isset($_POST['status_order']) || !isset($_POST['order_id'])){
+					$message = 'Что-то пошло не так, статус не был получен.';
+					echo '{"response":"show_new_window_simple","html":"'.base64_encode($message).'","title":"Что-то пошло не так..."}';
+					exit;
+				}
+				
+				// обработка следствий из различных статусов
+				switch ($_POST['status_order']) {
+					case 'in_operation':
+						if($this->check_the_pyment_order((int)$_POST['order_id'])){
+							$href = 'http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section=orders&subsection=order_start';
+							$json_answer = '{"response":"OK","function":"location_href","href":"'.$href.'"}';
+						}else{
+							$message = "Заказ не был оплачен в достаточном размере для его запуска!";
+							$json_answer = '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+						}
+						break;
+					
+					default: 						
+						$json_answer = '{"response":"OK","function":"reload_paperwork_tbl"}';
+						break;
+				}			
 				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['status_order']."' ";
 				$query .= "WHERE  `id` ='".$_POST['order_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				// echo '{"response":"OK", "function":"window_reload"}';
-				echo '{"response":"OK","function":"reload_paperwork_tbl"}';
+				echo $json_answer;
+				
 			}
+			// проверка оплаты по заказу
+			protected function check_the_pyment_order($id){
+				global $mysqli;
+				$query = "SELECT * FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$this->Specificate_arr = array();
+					
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->Specificate_arr[] = $row;
+					}
+				}
+
+				$enabled_start_work = 1;
+
+				// перебираем все спецификации и выесняем их оплату
+				foreach ($this->Specificate_arr as $key => $this->specificate) {
+					if ($this->specificate['enabled_start_work'] == 0) {
+						$enabled_start_work = 0;
+					}
+				}
+				return $enabled_start_work;
+			}
+
+			
 
 			// правим дату сдачи заказа
 			protected function change_date_of_delivery_of_the_order_AJAX(){
@@ -2376,7 +2428,7 @@
 				// вносим правки в позицию
 				global $mysqli;
 				$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
-					`approval_date` =  '".$_POST['date']."' 
+					`approval_date` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
 					WHERE  `id` ='".$_POST['row_id']."';";
 
 				$result = $mysqli->query($query) or die($mysqli->error);
@@ -2423,7 +2475,7 @@
 			protected function change_deadline_value_AJAX(){
 				global $mysqli;
 				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
-					`deadline` =  '".$_POST['value']."' 
+					`work_days` =  '".$_POST['value']."' 
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
@@ -4267,6 +4319,19 @@
 		protected function get_Position_approval_date($approval_date,$position_id){
 			$html = '';
 			if($this->user_access == 5){
+				if(strtotime($approval_date)==0){
+					$html .= '<input type="button" class="set_approval_date" data-id="'.$position_id.'" value="Макет утверждён">';
+				}else{
+					$html .= '<span class="greyText">'.date('d.m.Y',strtotime($approval_date)).'</span>';	
+				}
+				
+			}else if($this->user_access == 1){
+				$html .= '<input type="text" class="approval_date" value="'.((strtotime($approval_date) != 0)?$approval_date:'').'" data-id="'.$position_id.'">';
+			}else{
+				$html .= (strtotime($approval_date) != 0)?'<span class="greyText">'.date('d.m.Y',strtotime($approval_date)).'</span>':'';	
+			}
+			/*
+			if($this->user_access == 5){
 				if(trim($approval_date)==""){
 					$html .= '<input type="button" class="set_approval_date" data-id="'.$position_id.'" value="Макет утверждён">';
 				}else{
@@ -4276,6 +4341,8 @@
 			}else{
 				$html .= '<input type="text" class="approval_date" value="'.$approval_date.'" data-id="'.$position_id.'">';
 			}
+			*/
+			
 			
 
 
@@ -4791,7 +4858,9 @@
 		protected function positions_rows_Database($specificate_id){
 			$arr = array();
 			global $mysqli;
-			$query = "SELECT *, `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data` 
+			$query = "SELECT *, 
+			`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
+			DATE_FORMAT(`".CAB_ORDER_MAIN."`.`approval_date`,'%d.%m.%Y %H:%i:%s')  AS `approval_date`
 			FROM `".CAB_ORDER_DOP_DATA."` 
 			INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
 			WHERE `".CAB_ORDER_MAIN."`.`the_bill_id` = '".$specificate_id."'";
@@ -4998,6 +5067,167 @@
 			protected function hl(){
 				echo "Hellow World =)";
 			}
+
+
+			/**
+				 *	обсчёт даты сдачи в соответствии с вводными из спецификации
+				 *	
+				 *	@author  Алексей Капитонов
+				 *	@version 17:52 08.10.2015
+				*/
+			// обработка просрочки оплаты
+			protected function check_type_the_document_and_payment_date(){
+				/*
+					!!!!!!  для работы check_type_the_document_and_payment_date()
+			
+					1.  установить нулевые переменные в первых строка обхода спецификаций
+					    спецификации должны храниться в Object вида :  $this->specificate
+					2.  при переборе позиций установить 
+						$this->get_position_approval_bigest_date();
+						позиции должны храниться в Object вида :  $this->position
+					
+					$this->approval_date = 0;// timestamp старшей даты утверждения макета 
+					$this->one_position_is_not_approval = 0; // флаг оповещает о неутвержденной позиции
+	
+				*/
+
+
+				// классы HTML для подсветки ячеек таблиц и сигнализации о просроченных сроках по датам
+				// $this->red_flag_date_limit = ' class_background_red limit';
+				// $this->red_flag_date_shipping_date = ' class_background_red shipping_date';
+				// $this->red_flag_date_date_approval = ' class_background_red date_approval';
+				// $this->red_flag_date_work_days = ' class_background_red work_days';
+				// $this->red_flag_date_payment = ' class_background_red payment_date';
+				$this->red_flag_date_limit = '';
+				$this->red_flag_date_shipping_date = '';
+				$this->red_flag_date_date_approval = '';
+				$this->red_flag_date_work_days = '';
+				$this->red_flag_date_payment = '';
+				// если дата сдачи просрочена
+				if(strtotime($this->specificate['shipping_date']) <= time()){
+					$this->red_flag_date_shipping_date = ' class_background_red shipping_date';
+				}
+
+				// если = 1, заказ оплачен в достаточном размере
+				$this->specificate['enabled_start_work']; 
+					
+				// дата оплаты
+				$this->specificate['payment_date']; 
+				// $this->specificate['payment_date_timestamp']; 
+
+				// дата лимита по оплате
+				$this->specificate['shipping_date_limit'];
+				// $this->specificate['shipping_date_limit_timestamp'];
+
+
+				$this->work_days = '';
+				$this->specificate_shipping_date = '';
+				// echo $this->specificate['date_type'];
+				// echo $this->specificate['enabled_start_work'].'<br>';
+				// echo $this->one_position_is_not_approval.'<br>';
+				switch ($this->specificate['date_type']) {
+							case 'days': // работаем по рабочим дням
+								// если счёт оплачен в достаточном размере
+								if($this->specificate['enabled_start_work'] == 1){
+									if(!$this->one_position_is_not_approval){// если все позиции с утверждённым макетом
+										if($this->approval_date > 0){ // проверяем наличие старшей даты утв. макета
+											
+											// высчитываем дату сдачи
+											$this->specificate_shipping_date = $this->approval_date + $this->specificate['work_days']*24*60*60 + 24*60*60;
+											$this->specificate_shipping_date = date('d.m.Y',$this->specificate_shipping_date);
+										
+										}
+									}	
+								}
+								
+
+								$this->work_days = $this->specificate['work_days'];
+								break;
+							
+							default: // работаем по дате 
+								// если счёт оплачен в достаточном размере
+								if($this->specificate['enabled_start_work'] == 1){
+									if(!$this->one_position_is_not_approval){// если все позиции с утверждённым макетом
+										if($this->approval_date > 0){ // проверяем наличие старшуей даты утв. макета
+											// если дата утв. макета привышает дату лимита
+											if($this->approval_date > strtotime($this->specificate['shipping_date_limit'])){
+												// высчитываем дату сдачи
+												$this->specificate_shipping_date = strtotime($this->specificate['payment_date']) + $this->specificate['work_days']*24*60*60;
+												$this->specificate_shipping_date = date('d.m.Y',$this->specificate_shipping_date);
+												
+												
+												// выделяем общую(старшую) дату утверждения макета по документу, если она не соответствует лимиту по дате
+												// в который должен уложиться клиент, чтобы мы успели вовремя
+												$this->red_flag_date_date_approval = ' class_background_red date_approval';	
+												$this->red_flag_date_limit = ' class_background_red limit';										
+												
+											}else{
+												$this->specificate_shipping_date = $this->specificate['shipping_date'];
+											}
+											
+											// в который должен уложиться клиент, чтобы мы успели вовремя
+											if(strtotime($this->specificate['payment_date']) > strtotime($this->specificate['shipping_date_limit'])){
+												$this->red_flag_date_limit = ' class_background_red limit';
+											}
+
+										}
+									}
+									
+								}else{
+									// выделяем дату оплаты, если:
+									// 1. спецификация не оплачена и дата просрочена относительно сегодняшнего дня
+									if(strtotime($this->specificate['shipping_date_limit']) < time()+24*60*60){
+										$this->red_flag_date_limit = ' class_background_red limit';
+										$this->red_flag_date_payment = ' class_background_red payment_date';
+									}
+								}
+
+								$this->specificate_shipping_date = $this->specificate['shipping_date'];
+								break;
+						}
+					}
+					// вычисляет старшую дату утверждения макета
+					protected function get_position_approval_bigest_date(){
+						// старшая дата утверждения макета
+						if(!$this->one_position_is_not_approval){
+							$this->approval_date = ($this->approval_date < strtotime($this->position['approval_date']))?strtotime($this->position['approval_date']):$this->approval_date;	
+						}else{
+							$this->approval_date = 0;
+						}				
+						
+						// флаг оповещения системы об неутвержденном макете на обной из позиций по документу
+						if(strtotime($this->position['approval_date']) == 0){
+							$this->one_position_is_not_approval = 1;	
+						}
+					}
+					// вычисляет старшую дату сдачи заказа
+					protected function get_shipping_bigest_date_for_order(){
+						/*
+						    переменные для вычисления даты сдачи заказа
+						 	обнуляются при начале обсчётак каждого заказа
+							установить в начале тела цикла при переборе заказов
+
+
+							$this->order_shipping_date = 0;
+							$this->one_specificate_is_not_approval = 0;
+						*/
+
+
+						// старшая дата утверждения макета
+						if(!$this->one_specificate_is_not_approval){
+							$this->order_shipping_date = ($this->order_shipping_date < strtotime($this->specificate_shipping_date))?strtotime($this->specificate_shipping_date):$this->order_shipping_date;	
+						}else{
+							$this->order_shipping_date = 0;
+						}
+						
+						
+						// флаг оповещения системы неуказанной дате сдачи
+						if(strtotime($this->specificate['shipping_date']) == 0){
+							$this->one_specificate_is_not_approval = 1;	
+						}
+
+						// echo $this->specificate_shipping_date.' -- '.date('d/m/Y',$this->order_shipping_date).'<br><br><br><br>';
+					}
 
 		
    	}
