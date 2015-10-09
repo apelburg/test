@@ -1004,6 +1004,22 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
 			}
+			// смена даты выставления счёта-оферты
+			protected function change_date_create_the_bill_oferta_AJAX(){
+				global $mysqli;
+
+				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
+					`date_create_the_bill` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
+					WHERE  `id` ='".(int)$_POST['id_row']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+
+				// правим дату создания оферты 
+				$query = "UPDATE  `".OFFERTS_TBL."`  SET  
+					`date_time` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
+					WHERE  `id` ='".(int)$_POST['doc_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}';
+			}
 
 			// смена даты возврата подписанной спецификации
 			protected function change_date_return_width_specification_signed_AJAX(){
@@ -1038,6 +1054,13 @@
 					,`doc_num` =  '".addslashes($_POST['value'])."' 
 					WHERE  `id` ='".(int)$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
+
+				// правим номер счёта оферты в спецификации
+				$query = "UPDATE  `".OFFERTS_TBL."`  SET  
+					`num` =  '".addslashes($_POST['value'])."' 
+					WHERE  `id` ='".(int)$_POST['doc_id']."';";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				
 				echo '{"response":"OK"}';
 			}
 
@@ -1300,8 +1323,10 @@
 					//////////////////////////
 						if ($percent_payment >= (int)$Specificate['prepayment']) {
 							$query .= ", `enabled_start_work` = '1'";
+							$query .= ", `payment_date` = '".date('Y-m-d',time())."'";
 						}else{
 							$query .= ", `enabled_start_work` = '0'";
+							$query .= ", `payment_date` = '0000-00-00'";
 						}
 
 					$query .= " WHERE `id` = '".$spec_id."'";
@@ -1380,6 +1405,7 @@
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
 					}
+
 					// редактирование даты
 					protected function pp_edit_date_AJAX(){
 						global $mysqli;
@@ -1389,11 +1415,11 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 
-						$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET";
-						$query .= "`payment_date` = '".date("Y-m-d",strtotime($_POST['value']))."'";
-						$query .= " WHERE `id` = '".$_POST['spec_id']."'";
-						// echo $query;
-						$result = $mysqli->query($query) or die($mysqli->error);
+						// $query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET";
+						// $query .= "`payment_date` = '".date("Y-m-d",strtotime($_POST['value']))."'";
+						// $query .= " WHERE `id` = '".$_POST['spec_id']."'";
+						// // echo $query;
+						// $result = $mysqli->query($query) or die($mysqli->error);
 
 						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode('Дата оплаты по счёту успешно изменена на '.$_POST['value']).'"}';
 					}
@@ -1879,10 +1905,10 @@
 								$html .= '<div class="buh_window" data-specification_id="'.$document['id'].'">';
 									$html .= '<strong>Счёт-оферта №:</strong>';
 									// $html .= '<span style="font-style: italic;">номер:</span>';
-									$html .= '&nbsp;<input type="text" data-id="'.$document['id'].'" name="number" class="number_the_bill_oferta" value="'.$document['doc_num'].'">';
+									$html .= '&nbsp;<input type="text" data-id="'.$document['id'].'" data-doc_id="'.$document['doc_id'].'" name="number" class="number_the_bill_oferta" value="'.$document['doc_num'].'">';
 										
 									$html .= '<span style="font-style: italic;"> от:</span>';
-									$html .= '<input type="text" data-id="'.$document['id'].'" name="date_create" class="date_create_the_bill" value="'.$document['date_create_the_bill'].'">';
+									$html .= '<input type="text" data-id="'.$document['id'].'" data-doc_id="'.$document['doc_id'].'" name="date_create" class="date_create_the_bill_oferta" value="'.$document['date_create_the_bill'].'">';
 
 									$html .= '<span style="font-style: italic;"> на сумму:</span>';
 									$html .= '<input type="text" data-id="'.$document['id'].'" name="for_price" class="for_price_the_bill" value="'.$document['spec_price'].'"> р.';
@@ -2416,7 +2442,8 @@
 			protected function date_of_delivery_of_the_specificate_AJAX(){
 				global $mysqli;
 				$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
-					`shipping_date` =  '".date("Y-m-d",strtotime($_POST['date']))."' 
+					`shipping_date` =  '".date("Y-m-d",strtotime($_POST['date']))."',
+					`shipping_date_redactor_id` =  '".$this->user_id."' 
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode('Данные успешно обновлены.').'"}';
@@ -4314,6 +4341,24 @@
 		    return $String;
 		}
 
+		// получаем имя менеджера
+		protected 	function get_user_name_Database_Html($id){
+		    global $mysqli;
+		    $arr = array();
+		    $String = '<span>неизвестно</span>';
+		    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
+		    $result = $mysqli->query($query)or die($mysqli->error);
+		    if($result->num_rows>0){
+				foreach($result->fetch_assoc() as $key => $val){
+				   $arr[$key] = $val;
+				}
+		    }		    
+		    if(count($arr)){
+		    	$String = '<span class="greyText" data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+		    }
+		    return $String;
+		}
+
 		// получаем форму присвоения даты утверждения макета
 		// в зависимости от уровня допуска для некоторых это календарь, а для менеджеров это кнопка
 		protected function get_Position_approval_date($approval_date,$position_id){
@@ -4399,7 +4444,6 @@
 		
 		// фильтрация позиций ЗАПРОСОВ по горизонтальному меню
 		protected function requests_Template_recuestas_main_rows_Database($id){
-						
 			// ФИЛЬТРАЦИЯ ПО ВЕРХНЕМУ МЕНЮ 
 			switch ($_GET['subsection']) {
 				case 'no_worcked_men': // не обработанные
@@ -5075,6 +5119,7 @@
 				 *	@author  Алексей Капитонов
 				 *	@version 17:52 08.10.2015
 				*/
+
 			// обработка просрочки оплаты
 			protected function check_type_the_document_and_payment_date(){
 				/*
@@ -5098,15 +5143,13 @@
 				// $this->red_flag_date_date_approval = ' class_background_red date_approval';
 				// $this->red_flag_date_work_days = ' class_background_red work_days';
 				// $this->red_flag_date_payment = ' class_background_red payment_date';
+				// $this->red_flag_date_shipping_date_redactor_id = ' class_background_yellow redactor_id';
 				$this->red_flag_date_limit = '';
 				$this->red_flag_date_shipping_date = '';
 				$this->red_flag_date_date_approval = '';
 				$this->red_flag_date_work_days = '';
 				$this->red_flag_date_payment = '';
-				// если дата сдачи просрочена
-				if(strtotime($this->specificate['shipping_date']) <= time()){
-					$this->red_flag_date_shipping_date = ' class_background_red shipping_date';
-				}
+				
 
 				// если = 1, заказ оплачен в достаточном размере
 				$this->specificate['enabled_start_work']; 
@@ -5119,115 +5162,204 @@
 				$this->specificate['shipping_date_limit'];
 				// $this->specificate['shipping_date_limit_timestamp'];
 
-
+				$specificate_shipping_date_need_edit = 0;
 				$this->work_days = '';
 				$this->specificate_shipping_date = '';
-				// echo $this->specificate['date_type'];
-				// echo $this->specificate['enabled_start_work'].'<br>';
-				// echo $this->one_position_is_not_approval.'<br>';
+				$this->specificate_shipping_date_timestamp = 0;
+
 				switch ($this->specificate['date_type']) {
-							case 'days': // работаем по рабочим дням
-								// если счёт оплачен в достаточном размере
-								if($this->specificate['enabled_start_work'] == 1){
-									if(!$this->one_position_is_not_approval){// если все позиции с утверждённым макетом
-										if($this->approval_date > 0){ // проверяем наличие старшей даты утв. макета
+					case 'days': // ПО РАБОЧИМ ДНЯМ
+						// если счёт оплачен в достаточном размере
+						if($this->specificate['enabled_start_work'] == 1){
+							if(!$this->one_position_is_not_approval){// если все позиции с утверждённым макетом
+								if($this->approval_date > 0){ // проверяем наличие старшей даты утв. макета
 											
-											// высчитываем дату сдачи
-											$this->specificate_shipping_date = $this->approval_date + $this->specificate['work_days']*24*60*60 + 24*60*60;
-											$this->specificate_shipping_date = date('d.m.Y',$this->specificate_shipping_date);
-										
-										}
-									}	
-								}
-								
-
-								$this->work_days = $this->specificate['work_days'];
-								break;
-							
-							default: // работаем по дате 
-								// если счёт оплачен в достаточном размере
-								if($this->specificate['enabled_start_work'] == 1){
-									if(!$this->one_position_is_not_approval){// если все позиции с утверждённым макетом
-										if($this->approval_date > 0){ // проверяем наличие старшуей даты утв. макета
-											// если дата утв. макета привышает дату лимита
-											if($this->approval_date > strtotime($this->specificate['shipping_date_limit'])){
-												// высчитываем дату сдачи
-												$this->specificate_shipping_date = strtotime($this->specificate['payment_date']) + $this->specificate['work_days']*24*60*60;
-												$this->specificate_shipping_date = date('d.m.Y',$this->specificate_shipping_date);
-												
-												
-												// выделяем общую(старшую) дату утверждения макета по документу, если она не соответствует лимиту по дате
-												// в который должен уложиться клиент, чтобы мы успели вовремя
-												$this->red_flag_date_date_approval = ' class_background_red date_approval';	
-												$this->red_flag_date_limit = ' class_background_red limit';										
-												
-											}else{
-												$this->specificate_shipping_date = $this->specificate['shipping_date'];
-											}
-											
-											// в который должен уложиться клиент, чтобы мы успели вовремя
-											if(strtotime($this->specificate['payment_date']) > strtotime($this->specificate['shipping_date_limit'])){
-												$this->red_flag_date_limit = ' class_background_red limit';
-											}
-
-										}
-									}
+									// высчитываем дату сдачи
+									$this->specificate_shipping_date_timestamp = $this->approval_date + $this->specificate['work_days']*24*60*60 + 24*60*60;
+									$this->specificate_shipping_date = date('d.m.Y',$this->specificate_shipping_date_timestamp);
 									
-								}else{
-									// выделяем дату оплаты, если:
-									// 1. спецификация не оплачена и дата просрочена относительно сегодняшнего дня
-									if(strtotime($this->specificate['shipping_date_limit']) < time()+24*60*60){
-										$this->red_flag_date_limit = ' class_background_red limit';
-										$this->red_flag_date_payment = ' class_background_red payment_date';
-									}
+									// перезаписываем дату сдачи в случае её не совпадения
+									if (strtotime($this->specificate['shipping_date']) !=  $this->specificate_shipping_date_timestamp) {
+										$this->db_edit_one_val(CAB_BILL_AND_SPEC_TBL , 'shipping_date', $this->specificate['id'], date('Y-m-d',$this->specificate_shipping_date_timestamp) );										
+									}									
 								}
-
-								$this->specificate_shipping_date = $this->specificate['shipping_date'];
-								break;
+							}	
 						}
-					}
-					// вычисляет старшую дату утверждения макета
-					protected function get_position_approval_bigest_date(){
-						// старшая дата утверждения макета
-						if(!$this->one_position_is_not_approval){
-							$this->approval_date = ($this->approval_date < strtotime($this->position['approval_date']))?strtotime($this->position['approval_date']):$this->approval_date;	
-						}else{
-							$this->approval_date = 0;
-						}				
+								
+						$this->work_days = $this->specificate['work_days'];
+						break;
+							
+					default: // ПО ДАТЕ
 						
-						// флаг оповещения системы об неутвержденном макете на обной из позиций по документу
-						if(strtotime($this->position['approval_date']) == 0){
-							$this->one_position_is_not_approval = 1;	
-						}
-					}
-					// вычисляет старшую дату сдачи заказа
-					protected function get_shipping_bigest_date_for_order(){
-						/*
-						    переменные для вычисления даты сдачи заказа
-						 	обнуляются при начале обсчётак каждого заказа
-							установить в начале тела цикла при переборе заказов
+						// 1. проверка на оплату
 
+							// проверка при недостаточной оплате
+							if($this->specificate['enabled_start_work'] != 1 ){
+								// проверка на предупреждение
+								if (strtotime($this->specificate['shipping_date_limit']) - time()+24*60*60 < 24*60*60) {
+									$this->red_flag_date_limit = ' class_background_orange limit';	
+									$this->red_flag_date_payment = ' class_background_orange payment_date';
+									$this->red_flag_date_shipping_date = ' class_background_orange shipping_date';
+								}
+								// проверка на просрочку
+								if (strtotime($this->specificate['shipping_date_limit']) - time() < 24*60*60 ) {
+									$this->red_flag_date_limit = ' class_background_red limit';	
+									$this->red_flag_date_payment = ' class_background_red payment_date';
+									$this->red_flag_date_shipping_date = ' class_background_red shipping_date';
+									$specificate_shipping_date_need_edit = 1;
+								}
+							} else if($this->specificate['enabled_start_work'] == 1 ){// проверка при достаточной оплате
+								// проверка на просрочку оплате
+								// echo strtotime($this->specificate['payment_date']).' - '.strtotime($this->specificate['shipping_date_limit']).' = '.(strtotime($this->specificate['shipping_date_limit'])-strtotime($this->specificate['payment_date'])).'<br>';
+								if (strtotime($this->specificate['shipping_date_limit']) - strtotime($this->specificate['payment_date']) < 0) {
+									$this->red_flag_date_limit = ' class_background_red limit';	
+									$this->red_flag_date_payment = ' class_background_red payment_date';
+									$this->red_flag_date_shipping_date = ' class_background_red shipping_date';
+									$specificate_shipping_date_need_edit = 1;
+								}
+							}
 
-							$this->order_shipping_date = 0;
-							$this->one_specificate_is_not_approval = 0;
-						*/
+						// 2. проверка на дату утверждения макета
 
-
-						// старшая дата утверждения макета
-						if(!$this->one_specificate_is_not_approval){
-							$this->order_shipping_date = ($this->order_shipping_date < strtotime($this->specificate_shipping_date))?strtotime($this->specificate_shipping_date):$this->order_shipping_date;	
-						}else{
-							$this->order_shipping_date = 0;
-						}
+							// если како-либо макет не утверждён 
+							if($this->approval_date == 0){
+								// на утверждение осталось менее суток
+								if (strtotime($this->specificate['shipping_date_limit']) - time()+24*60*60 < 24*60*60) {
+									$this->red_flag_date_limit = ' class_background_orange limit';	
+									$this->red_flag_date_date_approval = ' class_background_orange date_approval';
+									$this->red_flag_date_shipping_date = ' class_background_orange shipping_date';
+								}else if (strtotime($this->specificate['shipping_date_limit']) - time() < 24*60*60) {// утверждение профакали
+									$this->red_flag_date_limit = ' class_background_red limit';	
+									$this->red_flag_date_date_approval = ' class_background_red date_approval';
+									$this->red_flag_date_shipping_date = ' class_background_red shipping_date';
+									$specificate_shipping_date_need_edit = 1;
+								}
+							}else if($this->approval_date > 0){
+								// макет утвердили, но профакали дату
+								if (strtotime($this->specificate['shipping_date_limit']) - $this->approval_date < 0) {
+									$this->red_flag_date_limit = ' class_background_red limit';	
+									$this->red_flag_date_date_approval = ' class_background_red date_approval';
+									$this->red_flag_date_shipping_date = ' class_background_red shipping_date';
+									$specificate_shipping_date_need_edit = 1;
+								}
+							}
+						// высчитываем дату сдачи
+						$this->specificate_shipping_date_timestamp = strtotime($this->specificate['shipping_date']);
+						$this->specificate_shipping_date = date('d.m.Y',$this->specificate_shipping_date_timestamp);
 						
-						
-						// флаг оповещения системы неуказанной дате сдачи
-						if(strtotime($this->specificate['shipping_date']) == 0){
-							$this->one_specificate_is_not_approval = 1;	
+						// открываем редактирование даты сдачи по дакументу
+						// для снаба в критические моменты,
+						// при этом данные в самом документе остаются неизменными
+						// для админа на время тестирования редактирование разрешено всегда
+													
+						if($specificate_shipping_date_need_edit == 1 && (int)$this->user_access == 8 || (int)$this->user_access == 1){
+							$this->specificate_shipping_date = '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate_shipping_date.'" data-id="'.$this->specificate['id'].'">';	
 						}
 
-						// echo $this->specificate_shipping_date.' -- '.date('d/m/Y',$this->order_shipping_date).'<br><br><br><br>';
-					}
+						if($this->specificate['shipping_date_redactor_id'] != 0){
+							$this->red_flag_date_shipping_date = ' class_background_yellow shipping_date';
+							$this->specificate_shipping_date .= '<br>'.$this->get_user_name_Database_Html($this->specificate['shipping_date_redactor_id']);
+						}
 
+
+						
+						break;
+				}				
+			}
+			// вычисляет старшую дату утверждения макета
+			protected function get_position_approval_bigest_date(){
+				// старшая дата утверждения макета
+				if(!$this->one_position_is_not_approval){
+					$this->approval_date = ($this->approval_date < strtotime($this->position['approval_date']))?strtotime($this->position['approval_date']):$this->approval_date;	
+				}else{
+					$this->approval_date = 0;
+				}				
+						
+				// флаг оповещения системы об неутвержденном макете на обной из позиций по документу
+				if(strtotime($this->position['approval_date']) == 0){
+					$this->one_position_is_not_approval = 1;	
+				}
+			}
+			
+			// вычисляет дату сдачи заказа
+			protected function get_shipping_bigest_date_for_order(){
+				
+				
+				/*	
+					$this->one_specificate_is_not_approval // флаг просчета нового заказа
+					$this->specificate_shipping_date     // дата сдачи по спецификации 00.00.0000
+					$this->order_shipping_date_timestamp // дата сдачи заказа TIMESTAMP
+					$this->order_shipping_date           // дата сдачи заказа 00.00.0000
+				*/
+
+				// если один из прежде обсчитанных документов не имел даты сдачи, считать дальше нет смысла
+				if(isset($this->one_specificate_is_not_approval) && $this->one_specificate_is_not_approval == 1 ){
+					return;
+				}
+				//echo $this->specificate_shipping_date.' -- '.$this->specificate_shipping_date_timestamp.' -- '.$this->one_specificate_is_not_approval.'<br>';
+				// если документ не имеет даты сдачи, обнуляем дату и timestamp
+				if($this->specificate_shipping_date_timestamp <= 0 && $this->specificate['date_type'] == 'date'){
+					$this->order_shipping_date = '';
+					$this->order_shipping_date_timestamp == 0;
+					$this->one_specificate_is_not_approval = 1;
+					return;
+				}
+
+				// echo $this->specificate_shipping_date.' -- '.$this->specificate_shipping_date_timestamp.' -- '.$this->one_specificate_is_not_approval.'<br>';
+
+
+				// если дату еще не присваивали
+				if($this->order_shipping_date_timestamp == 0){
+					$this->order_shipping_date = date('d.m.Y',$this->specificate_shipping_date_timestamp);
+					$this->order_shipping_date_timestamp = $this->specificate_shipping_date_timestamp;
+					//echo '<strong>'.$this->specificate_shipping_date.'</strong> -- '.strtotime($this->specificate_shipping_date).'<br>';
+				}else{
+				// если дата была присвоена
+					// и если дата не равна прежней
+					if($this->order_shipping_date_timestamp != $this->specificate_shipping_date_timestamp){
+						$this->order_shipping_date = '';
+						$this->order_shipping_date_timestamp == 0;
+						$this->one_specificate_is_not_approval = 1;
+						return;
+					}
+				}
+			}
+
+		/**
+		 *	стандартные методы работы с базой
+		 *
+		 *	@author  Алексей Капитонов
+		 *	@version 13:60 09.10.2015
+		*/
+			// подключение 
+			// protected function db_connect(){
+			// 	if(!isset($this->Db)){
+			// 	//	global $mysqli;
+			// 		$mysqli = new mysqli('localhost','php_3477686','3477686','apelburg_base');
+			// 		$mysqli->set_charset('utf8');
+					
+			// 		if ($mysqli->connect_error) {
+			// 			die('Connect Error (' . $mysqli->connect_errno . ') '
+			// 					. $mysqli->connect_error);
+			// 		}
+			// 		$this->Db = $mysqli;
+			// 	}
+			// 	return;
+			// }
+
+			// изменение значения одного значения в одной строке в какой либо таблице
+			protected function db_edit_one_val($tbl_name , $col_name, $row_id, $val ){
+				global $mysqli; // подключение к базе;
+				$query ="UPDATE `".$tbl_name."` SET 
+						`".$col_name."` = '".$val."'";
+						$query .= " WHERE `id` = '".$row_id."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+			}
+
+		function __destruct() {			
+		}
+
+
+		
 		
    	}

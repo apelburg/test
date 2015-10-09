@@ -777,16 +777,18 @@ $(document).on('keyup','.change_delivery_tir:focus',function(){
 //	сохранение номера счёта-оферты с таймингом  
 //////////////////////////
 	$(document).on('keyup', '.number_the_bill_oferta', function(event) {
-		$('#tabs ul li.check_the_anather_spec.checked a').html('№ '+$(this).val()+' от '+$(this).parent().find('.date_create_the_bill').val());
+		$('#tabs ul li.check_the_anather_spec.checked a').html('№ '+$(this).val()+' от '+$(this).parent().find('.date_create_the_bill_oferta').val());
 		// сохранение
 		timing_save_input('number_the_bill_oferta',$(this))
 	});
 
 	function number_the_bill_oferta(obj){// на вход принимает object input
 	    var row_id = obj.attr('data-id');
+	    var doc_id = obj.attr('data-doc_id');
 	    $.post('', {
 	        AJAX:'change_number_the_bill_offerta',
 	        row_id:row_id,
+	        doc_id:doc_id,
 	        value:obj.val()
 	    }, function(data, textStatus, xhr) {
 	    	standard_response_handler(data);
@@ -2776,6 +2778,35 @@ function windows_on(data){
 						// AJAX: 'change_payment_date',
 						AJAX: 'change_date_create_the_bill',
 						id_row: id_row,
+						date: date
+					}, function(data, textStatus, xhr) {
+						standard_response_handler(data);
+					},'json');
+				},
+			 	format:'d.m.Y',
+			});
+		//////////////////////////
+		//	смена даты выставления счёта
+		//////////////////////////
+			$('.date_create_the_bill_oferta').datetimepicker({
+				// minDate:new Date(),
+				timepicker:false,
+			 	dayOfWeekStart: 1,
+				closeOnDateSelect:true,
+				onChangeDateTime: function(dp,$input){// событие выбора даты
+					// получение данных для отправки на сервер
+					$('#tabs ul li.check_the_anather_spec.checked a').html('№ '+$input.prev().prev().val()+' от '+$input.val());
+					var id_row = $input.attr('data-id');
+					var doc_id = $input.attr('data-doc_id');
+					var date = $input.val();
+
+					$input.blur();
+					//alert($input.attr('class'));
+					$.post('', {
+						// AJAX: 'change_payment_date',
+						AJAX: 'change_date_create_the_bill_oferta',
+						id_row: id_row,
+						doc_id:doc_id,
 						date: date
 					}, function(data, textStatus, xhr) {
 						standard_response_handler(data);
