@@ -907,6 +907,117 @@
 			return array("new_summs"=>$new_summs,"new_price_arr"=>$new_price_arr);
 		}
 		
+	/*	static function make_calculations_for_kp($quantity,$price_arr,$print_dop_params){
+			
+			$price_coeff = $summ_coeff = 1;
+			$price_addition = $summ_addition = 0;
+			$new_summs = array();
+
+			// echo  '<pre>'; print_r($print_dop_params); echo '</pre>';
+			
+		    // КОЭФФИЦИЕНТЫ НА ПРАЙС
+			// КОЭФФИЦИЕНТЫ НА ИТОГОВУЮ СУММУ
+			// НАДБАВКИ НА ПРАЙС
+			// НАДБАВКИ НА ИТОГОВУЮ СУММУ
+			foreach($print_dop_params as $glob_type => $set){
+				
+				if($glob_type=='YPriceParam'){
+					foreach($set as $data){
+					    // подстраховка
+						if($data['coeff'] == 0) $data['coeff'] = 1;
+						
+						echo "coeff ".$data['coeff']."<br>\r\n";
+						$price_coeff *= (float)$data['coeff'];
+					}
+				}
+				if($glob_type=='sizes'){
+					/*foreach($set as $data){
+					    // подстраховка
+						if($data['coeff'] == 0) $data['coeff'] = 1;
+						
+						//echo "coeff ".$data['coeff']."<br>\r\n";
+						$price_coeff *= (float)$data['coeff'];
+					}* /
+					foreach($set as $data){ 
+					    if(isset($data['type'])){
+							if($data['type'] == 'coeff'){
+								// подстраховка
+								if($data['val'] == 0) $data['val'] = 1;
+								if($data['target'] == 'price') $price_coeff *=  (float)$data['val'];
+								if($data['target'] == 'summ') $summ_coeff *=  (float)$data['val'];
+							}
+							if($data['type'] == 'addition'){
+								
+								if($data['target'] == 'price') $price_addition +=(float)$data['val'];
+								if($data['target'] == 'summ') $summ_addition += (float)$data['val'];
+							}
+						}
+					}
+				}
+				if($glob_type=='coeffs'){
+					foreach($set as $target => $data){
+					    foreach($data as $type => $details){
+						    $count = count($details);
+							for($i = 0;$i < $count;$i++){ 
+							    // подстраховка
+							    if((isset($details[$i]['multi'])) && $details[$i]['multi'] == 0) $details[$i]['multi'] = 1;
+								if($details[$i]['value'] == 0) $details[$i]['value'] = 1;
+								
+								if($target=='price'){
+								      echo 'coeffs price';echo "<br>\r\n"; echo $details[$i]['value'];echo "<br>\r\n";print_r($details[$i]);
+								     $price_coeff *= (isset($details[$i]['multi']))?  $details[$i]['value']*$details[$i]['multi'] : $details[$i]['value'];
+								}
+								if($target=='summ'){
+									  echo 'coeffs summ';echo "<br>\r\n"; echo $details[$i]['value'];echo "<br>\r\n";print_r($details[$i]);
+									 $summ_coeff *= (isset($details[$i]['multi']))?  $details[$i]['value']*$details[$i]['multi'] : $details[$i]['value'];
+								}
+							}								
+						}
+					}
+				}
+				if($glob_type=='additions'){
+					foreach($set as $target => $data){
+					    foreach($data as $type => $details){
+						    $count = count($details);
+							for($i = 0;$i < $count;$i++){ 
+							    // подстраховка
+							    if((isset($details[$i]['multi'])) && $details[$i]['multi'] == 0) $details[$i]['multi'] = 1;
+								
+								if($target=='price'){
+								     echo 'additions price';echo "<br>\r\n"; echo $details[$i]['value'];echo "<br>\r\n";print_r($details[$i]);
+								     $price_addition += (isset($details[$i]['multi']))?  $details[$i]['value']*$details[$i]['multi'] : $details[$i]['value'];
+								}
+								if($target=='summ'){
+								      echo 'additions summ';echo "<br>\r\n"; echo $details[$i]['value'];echo "<br>\r\n";print_r($details[$i]);
+									 $summ_addition += (isset($details[$i]['multi']))?  $details[$i]['value']*$details[$i]['multi'] : $details[$i]['value'];
+								}
+							}								
+						}
+					}
+				}
+			} 
+			
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+			// CXEMA  - new_summ = ((((price*price_coeff)+price_addition)*quantity)*sum_coeff)+sum_addition
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+			
+			
+			$new_summs["summ_in"] = round((((($price_arr['price_in']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
+			$new_summs["summ_out"] = round((((($price_arr['price_out']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
+		
+			
+			//echo "all_coeffs ".$all_coeffs."<br>\r\n";
+			$price_arr["price_in"] =  round($new_summs["summ_in"]/$quantity,2);
+			$price_arr["price_out"] = round($new_summs["summ_out"]/$quantity,2);
+			$new_summs["summ_in"] = round($price_arr["price_in"]*$quantity,2);
+			$new_summs["summ_out"] = round($price_arr["price_out"]*$quantity,2);
+			
+			//echo "all_coeffs ".$all_coeffs." ".$new_summs["summ_in"]." \r";
+			//echo "all_coeffs ".$all_coeffs." ".$new_summs["summ_out"]."<br>\r\n";
+			
+			return array("new_summs"=>$new_summs,"price_arr"=>$price_arr);
+		}*/
+		
     }
 
 ?>

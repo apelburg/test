@@ -961,6 +961,20 @@
 			   return $row;
 			}
 			return false;
+			
+			/*	
+			$query="SELECT name FROM `".OUR_USLUGI_LIST."` WHERE id  = (SELECT parent_id FROM `".OUR_USLUGI_LIST."` WHERE id = '".$usluga_id."') UNION SELECT name FROM `".OUR_USLUGI_LIST."` WHERE id = '".$usluga_id."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+		    if($result->num_rows>0){
+			  $name = array();
+			   while($row=$result->fetch_assoc()){
+			      $name[]=  $row['name'];
+			   }
+			   return array('name'=>implode(', ',$name));
+			}
+			return false;*/
+			
+		
 	   }	
 	   static function fetch_specifications($client_id,$agreement_id,$group_by = FALSE){
 			global $mysqli;
