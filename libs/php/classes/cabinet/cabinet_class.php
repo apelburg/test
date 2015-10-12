@@ -1,5 +1,12 @@
 <?php
     class Cabinet{
+    	// дополнения к запросам в базе
+    	protected $filtres_order = '';
+		protected $filtres_specificate = '';
+		protected $filtres_position = '';
+		protected $filtres_services = '';
+
+
     	// содержит html фильтров по кабинету
     	public $filtres_html; // array();
 
@@ -626,7 +633,7 @@
 					$html .= '</td>';
 					$html .= '<td>';				
 						$html .= '<div class="otdel_status">';	
-							// привеодим статус склада к необходимому виду			
+							// приводим статус склада к необходимому виду			
 							$html .= '<div class="performer_status">'.$this->decoder_statuslist_sklad($cab_order_main_row['status_sklad'], $cab_order_main_row['id']).'</div>';				
 						$html .= '</div>';									
 					$html .= '</td>';
@@ -1259,6 +1266,17 @@
 
 			// пересчёт оплаты по спецификации
 			protected function calculate_the_pyment_price($spec_id){
+				// проверка на дату оплаты
+					if(!isset($_POST['date']) || isset($_POST['date']) && trim($_POST['date']) == ''){
+						$message = 'Для корректного сохранения данных по оплате, сначало заполните поле "дата"!!!';
+						$json = '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+						echo $json;
+						exit;
+					}
+
+
+
+
 				// запрашиваем информацию по строке спец-ии
 				global $mysqli;
 				$query = "SELECT * FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `id` = '".$spec_id."'";
@@ -1278,7 +1296,7 @@
 				// получаем ПП 
 				$pp_arr = $this->get_pp_list_for_document_Database($spec_id);
 
-				$pp_summ = 0; // общая сумма проплаченных денег по спецификации
+				$pp_summ = 0; // общая сумма проплаченных денег по документу
 				foreach ($pp_arr as $key => $pp) {
 					$pp_summ += $pp['price_from_pyment'];
 				}
@@ -1316,6 +1334,15 @@
 								$message .= '&nbsp; Запрос № '.$query_num.' перемещён во вкладку "История"';	
 							}	
 						}
+					}else if($pp_summ == 0 && $pp_summ >= $Specificate['spec_price']){
+						if($Specificate['buch_status'] != 'payment'){
+							$query .= ", `buch_status` = 'payment'";
+							$message = "Статус по документу изменён на \"оплачен\"";
+							// перевод запроса в history
+							if($this->chenge_query_status($query_num,'history')){
+								$message .= '&nbsp; Запрос № '.$query_num.' перемещён во вкладку "История"';	
+							}	
+						}
 					}
 
 					//////////////////////////
@@ -1323,27 +1350,30 @@
 					//////////////////////////
 						if ($percent_payment >= (int)$Specificate['prepayment']) {
 							$query .= ", `enabled_start_work` = '1'";
-							$query .= ", `payment_date` = '".date('Y-m-d',time())."'";
+							$query .= ", `payment_date` = '".date('Y-m-d',strtotime($_POST['date']))."'";
 						}else{
 							$query .= ", `enabled_start_work` = '0'";
 							$query .= ", `payment_date` = '0000-00-00'";
 						}
+						
 
 					$query .= " WHERE `id` = '".$spec_id."'";
 					// echo $query;
 					$result = $mysqli->query($query) or die($mysqli->error);
 
 				//////////////////////////
-				//	если процент оплаты превышает или равен оговорённому в спецификации - делаем пометку
+				//	если процент оплаты превышает или равен оговорённому в спецификации
+				//  а так же спецификация принадлежит заказу, проверяем все спецификации по данному заказу	
 				//////////////////////////
 				if ($percent_payment >= (int)$Specificate['prepayment']) {
-					$query .= ", `enabled_start_work` = '1'";
+					// $query .= ", `enabled_start_work` = '1'";
 					// если cпецификация прикреплена к заказу
 					if($Specificate['order_id'] > 0){ 
 						// запрашиваем все спецификации
 						$query = "SELECT * FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$Specificate['order_id']."'";
 						$result = $mysqli->query($query) or die($mysqli->error);
 						$gorder_go_start = 1;
+
 						if($result->num_rows > 0){	
 							while($row = $result->fetch_assoc()){
 								if($row['enabled_start_work'] == 0){
@@ -1374,6 +1404,13 @@
 								$result = $mysqli->query($query) or die($mysqli->error);
 								$message = "Статус заказа № ".$this->show_order_num($Specificate['order_num'])." изменён на \"запуск в работу\"";
 							}							
+						}else{
+							// перевод заказа в оформление
+							$query = "UPDATE `".CAB_ORDER_ROWS."` SET";
+								$query .= "`global_status` = 'being_prepared'";
+								$query .= " WHERE `id` = '".$Specificate['order_id']."'";
+								$result = $mysqli->query($query) or die($mysqli->error);
+								$message = "Статус заказа № ".$this->show_order_num($Specificate['order_num'])." изменён на \"В оформлении\"";
 						}
 					}
 				}
@@ -1381,7 +1418,7 @@
 
 				// $message .= '<br>'.$query;
 				if(isset($message) && $message!=''){
-					echo '{"response":"OK","function2":"reload_зpaperwork_tbl","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+					echo '{"response":"OK","function2":"reload_paperwork_tbl","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
 					exit;	
 				}
 				
@@ -4156,7 +4193,7 @@
 			return $arr;
 		}
 
-		// выбираем данные о доп услугах для заказа
+		// выбираем данные о доп услугах для позиции
 		public function get_order_dop_uslugi($dop_row_id){//на вход подаётся id строки из `os__rt_dop_data` 
 			$where = 0;
 			// ВНИМАНИЕ !!!!!!!!!!
@@ -4190,12 +4227,52 @@
 			$query .= " ".(($where)?'AND':'WHERE')." `".$tbl."`.`dop_row_id` = '".$dop_row_id."'";
 			$where = 1;
 
+			// фильрация по услугам
+			if($this->filtres_services != ''){
+				$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_services;
+				$where = 1;
+			}
+
+			///////////////////////////////////////////////
+			//	ФИЛЬТР выгрузки услуг из базы (для заказа)
+			///////////////////////////////////////////////
+			// switch ($this->user_access) {
+			// 	case '4': // пр-во
+			// 		# code...
+			// 		break;
+					
+			// 	case '5': // менеджер
+			// 		# code...
+			// 		break;
+					
+			// 	case '6': // доставка 
+			// 		# code...
+			// 		break;
+					
+			// 	case '7': // склад 
+			// 		# code...
+			// 		break;
+					
+			// 	case '8': // снабжение
+			// 		# code...
+			// 		break;
+					
+			// 	case '9': // дизайн
+			// 		# code...
+			// 		break;
+				
+			// 	default:// остальные
+			// 		# code...
+			// 		break;
+			// }
+
+		
+
 			$query .= " ORDER BY `".OUR_USLUGI_LIST."`.`id` ASC";
 
-			//$query = "SELECT * FROM `".CAB_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$arr = array();
-			// echo $query;
+			// echo $query.'<br>';
 
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
@@ -4900,8 +4977,10 @@
 		
 		// запрос строк позиций по спецификации
 		protected function positions_rows_Database($specificate_id){
+			
 			$arr = array();
 			global $mysqli;
+
 			$query = "SELECT *, 
 			`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
 			DATE_FORMAT(`".CAB_ORDER_MAIN."`.`approval_date`,'%d.%m.%Y %H:%i:%s')  AS `approval_date`
@@ -4909,9 +4988,31 @@
 			INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
 			WHERE `".CAB_ORDER_MAIN."`.`the_bill_id` = '".$specificate_id."'";
 			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
-			
+			$where = 1;
 
-			// $query .= $this->filter_position; 
+			// фильтрация для менеджера
+			if($this->user_access == 5){
+				if(isset($_GET['subsection']) && $_GET['subsection'] == 'order_in_work_snab'){
+					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_snab` = 'in_production'";	
+					$where = 1;
+				}	
+
+				if(isset($_GET['subsection']) && $_GET['subsection'] == 'production'){
+					//if(isset($_GET['subsection']) && $_GET['subsection'] != 'production'){
+					
+					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_sklad` NOT LIKE 'ready_for_shipment'";
+					$where = 1;
+					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_sklad` NOT LIKE 'goods_shipped_for_client'";
+					$where = 1;
+				}								
+			}
+
+			// фильрация по позициям
+			if($this->filtres_position != ''){
+				$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_position;
+				$where = 1;
+			}
+			
 
 			$result = $mysqli->query($query) or die($mysqli->error);
 			if($result->num_rows > 0){
@@ -5031,7 +5132,7 @@
 
 						// проеряем наличие номера
 						if($document['doc_num'] != 0){
-							$number = $document['doc_num']." от ".$create_time;
+							$number = $document['doc_num']." от ".$document['date_create_the_bill'];
 						}else{
 							$number = 'не указан';
 						}
@@ -5166,7 +5267,11 @@
 				$this->work_days = '';
 				$this->specificate_shipping_date = '';
 				$this->specificate_shipping_date_timestamp = 0;
-
+				// if($this->specificate['id'] == 112){
+				// 	echo $this->specificate_shipping_date_timestamp.'<br>';
+				// 	echo '$this->approval_date = '.$this->approval_date.'<br>';
+				// 	echo '$this->one_position_is_not_approval = '.$this->one_position_is_not_approval.'<br>';
+				// }
 				switch ($this->specificate['date_type']) {
 					case 'days': // ПО РАБОЧИМ ДНЯМ
 						// если счёт оплачен в достаточном размере
@@ -5175,7 +5280,7 @@
 								if($this->approval_date > 0){ // проверяем наличие старшей даты утв. макета
 											
 									// высчитываем дату сдачи
-									$this->specificate_shipping_date_timestamp = $this->approval_date + $this->specificate['work_days']*24*60*60 + 24*60*60;
+									$this->specificate_shipping_date_timestamp = strtotime(goOnSomeWorkingDays(date('Y-m-d H:i:s',($this->approval_date)),($this->specificate['work_days']+2),'+'));
 									$this->specificate_shipping_date = date('d.m.Y',$this->specificate_shipping_date_timestamp);
 									
 									// перезаписываем дату сдачи в случае её не совпадения
@@ -5196,13 +5301,13 @@
 							// проверка при недостаточной оплате
 							if($this->specificate['enabled_start_work'] != 1 ){
 								// проверка на предупреждение
-								if (strtotime($this->specificate['shipping_date_limit']) - time()+24*60*60 < 24*60*60) {
+								// echo (strtotime($this->specificate['shipping_date_limit']).' - '.(time()+ 24*60*60)).' *** <br>';
+								if (strtotime($this->specificate['shipping_date_limit']) - (strtotime(date('d.m.Y',time())) + 24*60*60) <= 0) {
 									$this->red_flag_date_limit = ' class_background_orange limit';	
 									$this->red_flag_date_payment = ' class_background_orange payment_date';
 									$this->red_flag_date_shipping_date = ' class_background_orange shipping_date';
-								}
-								// проверка на просрочку
-								if (strtotime($this->specificate['shipping_date_limit']) - time() < 24*60*60 ) {
+								}else if (strtotime($this->specificate['shipping_date_limit']) - strtotime(date('d.m.Y',time())) < 0 ) {
+									echo $this->specificate['shipping_date_limit'] .' --- '.date('d.m.Y',time());
 									$this->red_flag_date_limit = ' class_background_red limit';	
 									$this->red_flag_date_payment = ' class_background_red payment_date';
 									$this->red_flag_date_shipping_date = ' class_background_red shipping_date';
@@ -5268,17 +5373,24 @@
 			}
 			// вычисляет старшую дату утверждения макета
 			protected function get_position_approval_bigest_date(){
-				// старшая дата утверждения макета
-				if(!$this->one_position_is_not_approval){
-					$this->approval_date = ($this->approval_date < strtotime($this->position['approval_date']))?strtotime($this->position['approval_date']):$this->approval_date;	
-				}else{
+				if($this->one_position_is_not_approval == 1){
 					$this->approval_date = 0;
-				}				
-						
+					return;
+				}
+
 				// флаг оповещения системы об неутвержденном макете на обной из позиций по документу
 				if(strtotime($this->position['approval_date']) == 0){
 					$this->one_position_is_not_approval = 1;	
+					$this->approval_date = 0;
+					return;
 				}
+
+
+				// старшая дата утверждения макета
+				$this->approval_date = ($this->approval_date < strtotime($this->position['approval_date']))?strtotime($this->position['approval_date']):$this->approval_date;	
+							
+						
+				
 			}
 			
 			// вычисляет дату сдачи заказа
@@ -5309,10 +5421,14 @@
 
 
 				// если дату еще не присваивали
+				// echo $this->specificate_shipping_date;
 				if($this->order_shipping_date_timestamp == 0){
-					$this->order_shipping_date = date('d.m.Y',$this->specificate_shipping_date_timestamp);
-					$this->order_shipping_date_timestamp = $this->specificate_shipping_date_timestamp;
-					//echo '<strong>'.$this->specificate_shipping_date.'</strong> -- '.strtotime($this->specificate_shipping_date).'<br>';
+					if($this->specificate_shipping_date_timestamp != 0){
+						$this->order_shipping_date = date('d.m.Y',$this->specificate_shipping_date_timestamp);
+						$this->order_shipping_date_timestamp = $this->specificate_shipping_date_timestamp;
+						//echo '<strong>'.$this->specificate_shipping_date.'</strong> -- '.strtotime($this->specificate_shipping_date).'<br>';	
+					}
+					
 				}else{
 				// если дата была присвоена
 					// и если дата не равна прежней

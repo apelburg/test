@@ -48,13 +48,15 @@
 		'cancelled' => 'Счёт аннулирован',
 		'all_the_bill' => 'Все документы',
 			// заказы
-			'order_all' => 'Все заказы',
-			'order_start' => 'Запуск в работу (заказ)',
-			'order_in_work' => 'Заказы в работе',
+			'order_all' => 'Все',
+			'order_start' => 'Готовые к запуску',
+			'order_in_work' => 'В обработке',
 			'design_all' => 'Дизайн ВСЕ',
-			'design_for_one_men' => 'Дизайн МОЁ',
-			'production' => 'Производство',
-			'stock' => 'Склад'										
+			'design_for_one_men' => 'Статус макета',
+			'order_in_work_snab' => 'В работе',
+			'production' => 'Наше производство',
+			'stock' => 'Склад',
+			'tpause_and_questions' => 'пауза/вопрос/ТЗ не корректно'								
 		); 	
 
 		// название подраздела кабинета

@@ -746,7 +746,7 @@
 		}
 		// создание заказа из запроса
         static function make_order($rows_data,$client_id,$query_num,$doc_num,$doc_id,$doc_type/*тип документа (спецификация или оферта)*/,$date_type/* тип даты в документе - дата или рабочие дни*/, /*дата отгрузки*/$shipping_date = '',/*рабочие дни*/$work_days = 0, $limit = '0000-00-00'){
-            //echo '<br><br><strong>$limit = </strong>'.$limit.'<br>'; 
+            echo '<br><br><strong>$limit = </strong>'.$limit.'<br>'; 
             
             // подключаем класс для информации из калькулятора
         	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
@@ -795,7 +795,7 @@ echo $query;
 			}
 			if($doc_type=='oferta'){
 			
-			 $query = "SELECT * FROM `".OFFERTS_TBL."` WHERE `num` = '".$doc_num."'";
+			 $query = "SELECT * FROM `".OFFERTS_TBL."` WHERE `id` = '".$doc_id."'";
 echo $query;
                 $result = $mysqli->query($query) or die($mysqli->error);
 				if($result->num_rows > 0){
@@ -812,6 +812,7 @@ echo $query;
             ////////////////////////////////////
 				$query = "UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET ";
 				$query .= " `specification_num` = '".(int)$doc_num."'";
+				$query .= ", `create_time` = '".date('Y-m-d',time())."' ";
 				$query .= ", `doc_num` = '".(int)$doc_num."'";
 				$query .= ", `doc_type` = '".$doc_type."'";
 				$query .= ", `date_type` = '".$date_type."'";
@@ -1032,7 +1033,7 @@ echo $query;
 		$supplier_services = '';
 		$calc_services = '';
 		
-		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."'";
+		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."' AND `deleted` = '0'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
