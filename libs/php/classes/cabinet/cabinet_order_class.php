@@ -11,6 +11,7 @@
 	*/
 
 	class Order extends Cabinet{
+		
 		/** 
 	     * Class constructor.
 	     */
@@ -207,6 +208,7 @@
 						// запрашивается раньше спец-ии, чтобы подсчитать её стоимость
 						$positions_rows = $this->table_order_positions_rows_Html();
 
+						if($positions_rows == ''){continue;}
 						// получаем html строку со спецификацией
 						$html .= $this->get_order_specificate_Html_Template();
 
@@ -414,24 +416,28 @@
 					$html .= $this->position_status_list_Html($this->position);
 					$html .= '</tr>'; 
 					return $html;
-				}	
+				}
+
 
 				// получаем спецификации к заказу
 				private function table_specificate_for_order_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
-					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date` FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
-					// $where = 1;
+
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date`
+					 FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
+					$where = 1;
+					
+					// фильтрация по спецификации
+					if($this->filtres_specificate != ''){
+						$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_specificate;
+						$where = 1;
+					}
+
+
 					$result = $mysqli->query($query) or die($mysqli->error);
 					$spec_arr = array();
-					// if(isset($_GET['order_num'])){
-					// 	$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`order_num` = '".(int)$_GET['order_num']."'";
-					// 	$where = 1;
-					// }
-					// if(isset($_GET['manager_id'])){
-					// 	$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".(int)$_GET['manager_id']."'";
-					// 	$where = 1;
-					// }
+					
 					//////////////////////////
 					//	check the query
 					//////////////////////////
@@ -487,11 +493,20 @@
 						// если это МЕН - выводим только его заказы
 						// фильтрация по менеджеру
 						if($this->user_access == 5){
-							if(isset($_GET['subsection']) && $_GET['subsection'] != 'production'){
+							//if(isset($_GET['subsection']) && $_GET['subsection'] != 'production'){
 								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
 								$where = 1;
-							}								
+							//}								
 						}
+
+						// фильтрация по заказу
+						if($this->filtres_order != ''){
+							$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_order;
+							$where = 1;
+						}
+
+
+
 						switch ($_GET['subsection']) {
 							case 'order_all':
 								// получаем статусы заказа
@@ -637,6 +652,9 @@
 						$table_order_positions_rows = $this->table_specificate_for_order_Html();
 						// $table_order_positions_rows = '';
 						
+						if($table_order_positions_rows == ''){continue;}
+
+
 						// формируем строку с информацией о заказе
 						$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
 						
@@ -740,6 +758,34 @@
 					private function orders_order_in_work_Template($id_row=0){
 						$this->order_standart_rows_Template($id_row=0);
 					}
+
+					/**
+					 *  вкладка "В работе"
+					 *	собираем сюда все позиции со статусом СНАБ: "В производстве"
+					 *
+					 *  access   Менеджер
+					 *	@return  Html  	
+					 *	@see 	 стандартный вид для МЕН	
+					 *	@author  Алексей Капитонов
+					 *	@version 14:32 12.01.20
+					 */
+					private function orders_order_in_work_snab_Template($id_row=0){
+						$this->order_standart_rows_Template($id_row=0);
+					}
+
+					/**
+					 *  вкладка "пауза/вопрос/ТЗ не корректно"
+					 *	собираем сюда позиции с этими статусами по любой из услуг
+					 *
+					 *  access   Менеджер
+					 *	@return  Html  	
+					 *	@see 	 стандартный вид для МЕН	
+					 *	@author  Алексей Капитонов
+					 *	@version 14:32 12.01.20
+					 */
+					// private function orders_order_in_work_snab_Template($id_row=0){
+					// 	$this->order_standart_rows_Template($id_row=0);
+					// }
 
 				//////////////////////////
 				//	выгрузка позиций по шаблону Дизайн/препресс
@@ -1348,7 +1394,7 @@
 										// return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
 										if(isset($this->userlist[$this->user_id])){
 											$user = $this->userlist[$this->user_id];
-											return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+											return '<input type="button" value="Взять в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
 										}else{
 											return 'Не назначен';
 										}
@@ -1733,6 +1779,7 @@
 					 * @see 					html
 					*/
 
+					// стандартный шаблон всех производственных строк
 					private function orders_production_Template($id_row=0){
 						$this->group_access = 4;
 						// id начальника отдела производства
@@ -1740,22 +1787,30 @@
 
 						echo $this->production_rows($id_row=0);
 					}
+					/*
+						// добавочные фильтры к запросам в базу
+						$this->filtres_order = '';
+						$this->filtres_specificate = '';
+						$this->filtres_position = '';
+						$this->filtres_services = '';
 
-					// взять в работу
+					*/
+
+					// Ожидают распределения
 					private function orders_production_get_in_work_Template($id_row=0){
+						$this->filtres_services = " `performer_status` = 'Ожидает обработки'";
+						// $this->filtres_services = " `date_work` = '0000-00-00 00:00:00'";
+						// $this->filtres_services .= " AND `performer_id` = '0'";
+
 						$this->orders_production_Template($id_row=0);
 					}
-
-				/**
-				 *  Возвращает фильрацию по вкладке производства "трафарет"
-				 *
-				 *  @param   string $id_row 	(id row from the base)
-				 *  @return  html code
-				 *  @see 	 html		
-				 *	@author  Алексей Капитонов
-				 *	@version 11:31 08.10.2015
-				*/
-
+					// Поставлены в план
+					private function orders_set_in_the_plan_Template($id_row=0){
+						$this->filtres_services = " `date_work` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `performer_id` <> '0'";
+						$this->orders_production_Template($id_row=0);
+					}
+					// трафарет (Ш+Т)
 					private function orders_production_stencil_shelk_and_transfer_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
@@ -1783,6 +1838,18 @@
 					private function orders_production_plenki_and_klishe_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
+					// Вопрос, пауза
+					private function orders_question_pause_Template($id_row=0){
+						$this->filtres_services = " `performer_status` IN ('Вопрос','пауза')";
+						$this->orders_production_Template($id_row=0);
+					}
+
+					// Услуга выполнена
+					private function orders_the_service_is_performed_Template($id_row=0){
+						$this->filtres_services = " `performer_status` IN ('услуга выполнена')";
+						$this->orders_production_Template($id_row=0);
+					}
+
 
 					/**
 					 *  фильтрация по услугам для subsection для производства
@@ -1791,14 +1858,25 @@
 					 *  @return 		array()
 					*/	
 						protected function filter_of_subsection_for_production($services_print){
+							// фильтрация для производства
 							if($this->user_access == 4){
 								$services_print_NEW = array();
 								foreach ($services_print as $key => $value) {
 									switch ($_GET['subsection']) {
 										// фильтр по статусу "ожидает обработки"
 										case 'production_get_in_work':
-											if($value['performer_status'] != 'Ожидает обработки'){continue;}
-											$services_print_NEW[] = $value;
+										// echo strtotime($value['date_work']).'<br>';
+										// echo $value['date_work'].'<br>';
+
+											if($value['date_work'] == '0000-00-00 00:00' || strtotime($value['performer_id']) == 0){
+												echo $value['date_work'] .' -- '.strtotime($value['date_work']) . ' -- '.$value['performer_id'].'<br>';
+												// if($value['performer_status'] != 'Ожидает обработки'){continue;}
+												$services_print_NEW[] = $value;	
+											}else{
+												continue;
+											
+											}
+											
 											break;
 										// фильтр по всему трафаретному участку
 										case 'production_stencil_shelk_and_transfer':
@@ -2222,14 +2300,14 @@
 									if($this->user_access == 4 || $this->user_access == 1){
 										$html .= '<input type="text" name="calendar_date_work"  value="'.(($service['date_work']=='00.00.0000 00:00')?'  -  ':$service['date_work']).'" data-id="'.$service['id'].'" class="calendar_date_work">';
 									}else{
-										$html .= (($service['date_work']=='00.00.0000 00:00')?'':''.$service['date_work']);
+										$html .= ((strtotime($service['date_work']) == -2211753600)?'':''.$service['date_work']);
 									}
 								$html .= '</td>';
 								$html .= '<td class="show-backlight">';
 									if($this->user_access == 4 || $this->user_access == 1){
 										$html .= '<input type="text" name="calendar_date_ready"  value="'.(($service['date_work']=='00.00.0000 00:00')?'  -  ':$service['date_ready']).'" data-id="'.$service['id'].'" class="calendar_date_ready">';
 									}else{
-										$html .= (($service['date_ready']=='00.00.0000 00:00')?'':''.$service['date_ready']);
+										$html .= ((strtotime($service['date_work']) == -2211753600)?'':''.$service['date_ready']);
 									}
 								$html .= '</td>';
 								// станок

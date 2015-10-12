@@ -777,16 +777,18 @@ $(document).on('keyup','.change_delivery_tir:focus',function(){
 //	сохранение номера счёта-оферты с таймингом  
 //////////////////////////
 	$(document).on('keyup', '.number_the_bill_oferta', function(event) {
-		$('#tabs ul li.check_the_anather_spec.checked a').html('№ '+$(this).val()+' от '+$(this).parent().find('.date_create_the_bill').val());
+		$('#tabs ul li.check_the_anather_spec.checked a').html('№ '+$(this).val()+' от '+$(this).parent().find('.date_create_the_bill_oferta').val());
 		// сохранение
 		timing_save_input('number_the_bill_oferta',$(this))
 	});
 
 	function number_the_bill_oferta(obj){// на вход принимает object input
 	    var row_id = obj.attr('data-id');
+	    var doc_id = obj.attr('data-doc_id');
 	    $.post('', {
 	        AJAX:'change_number_the_bill_offerta',
 	        row_id:row_id,
+	        doc_id:doc_id,
 	        value:obj.val()
 	    }, function(data, textStatus, xhr) {
 	    	standard_response_handler(data);
@@ -2051,11 +2053,13 @@ $(document).on('click', '#create_the_order', function(event) {
 	}
 	$('#cabinet_general_content_row .check_show_me').each(function(index, el) {
 		if($(this).hasClass('show')){
+			$('#cabinet_general_content').css({"paddingBottom":0});
 			$(this).removeClass('show');
 			$('#create_the_order').removeClass('checked').html('Создать заказ');
 			$('#export_in_order_div').animate({opacity:0},'fast').hide();
 		}else{
 			$(this).addClass('show');
+			$('#cabinet_general_content').css({"paddingBottom":105});
 			$('#create_the_order').addClass('checked').html('Скрыть выбор');
 			$('#export_in_order_div').animate({opacity:1},'fast').show();
 		}		
@@ -2200,17 +2204,26 @@ function reload_paperwork_tbl(){
 
 // перезагрузка таблицы заказов
 function reload_order_tbl(){
-	window_preload_add();
-	$('#general_panel_orders_tbl').load(' #general_panel_orders_tbl',function(){
-		window_preload_del();
-	});	
+	if($('#general_panel_orders_tbl').length){
+		window_preload_add();
+		$('#general_panel_orders_tbl').load(' #general_panel_orders_tbl',function(){
+			window_preload_del();
+		});	
+	}else{
+		reload_paperwork_tbl();
+	}
 }
 // перезагрузка таблицы предзаказа
-function reload_зpaperwork_tbl(){
-	window_preload_add();
-	$('#cabinet_general_content_row').load(' #cabinet_general_content_row',function(){
-		window_preload_del();
-	});	
+function reload_paperwork_tbl(){
+	if($('#cabinet_general_content_row').length){
+		window_preload_add();
+		$('#cabinet_general_content_row').load(' #cabinet_general_content_row',function(){
+			window_preload_del();
+		});	
+	}else{
+		reload_order_tbl();
+	}
+		
 }
 
 //////////////////////////
@@ -2315,11 +2328,13 @@ function reload_зpaperwork_tbl(){
 		});
 		function price_from_pyment_pp(obj){// на вход принимает object input
 		    var row_id = obj.parent().attr('data-id');
+		    var date = obj.prev().prev().val();
 		    var specification_id = obj.parent().parent().attr('data-specification_id');
 		    $.post('', {
 		        AJAX:'pp_edit_payment_summ',
 		        row_id:row_id,
 		        value:obj.val(),
+		        date: date,
 		        specification_id:specification_id
 		    }, function(data, textStatus, xhr) {
 		    	standard_response_handler(data);
@@ -2412,10 +2427,12 @@ function reload_зpaperwork_tbl(){
 
 		function price_from_pyment_pko(obj){// на вход принимает object input
 		    var row_id = obj.parent().attr('data-id');
+		    var date = obj.prev().prev().val();
 		    var specification_id = obj.parent().parent().attr('data-specification_id');
 		    $.post('', {
 		        AJAX:'pko_edit_payment_summ',
 		        row_id:row_id,
+		        date:date,
 		        value:obj.val(),
 		        specification_id:specification_id
 		    }, function(data, textStatus, xhr) {
@@ -2776,6 +2793,35 @@ function windows_on(data){
 						// AJAX: 'change_payment_date',
 						AJAX: 'change_date_create_the_bill',
 						id_row: id_row,
+						date: date
+					}, function(data, textStatus, xhr) {
+						standard_response_handler(data);
+					},'json');
+				},
+			 	format:'d.m.Y',
+			});
+		//////////////////////////
+		//	смена даты выставления счёта
+		//////////////////////////
+			$('.date_create_the_bill_oferta').datetimepicker({
+				// minDate:new Date(),
+				timepicker:false,
+			 	dayOfWeekStart: 1,
+				closeOnDateSelect:true,
+				onChangeDateTime: function(dp,$input){// событие выбора даты
+					// получение данных для отправки на сервер
+					$('#tabs ul li.check_the_anather_spec.checked a').html('№ '+$input.prev().prev().val()+' от '+$input.val());
+					var id_row = $input.attr('data-id');
+					var doc_id = $input.attr('data-doc_id');
+					var date = $input.val();
+
+					$input.blur();
+					//alert($input.attr('class'));
+					$.post('', {
+						// AJAX: 'change_payment_date',
+						AJAX: 'change_date_create_the_bill_oferta',
+						id_row: id_row,
+						doc_id:doc_id,
 						date: date
 					}, function(data, textStatus, xhr) {
 						standard_response_handler(data);

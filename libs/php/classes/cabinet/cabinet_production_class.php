@@ -50,22 +50,35 @@
 			'pclosing_documents' => 'Закрывающие документы',
 			'otgrugen' => 'Отгруженные',
 
-			'production_get_in_work' => 'Взять в работу',
-			'production_stencil_shelk_and_transfer' => 'Трафарет(Ш+Т)',
+			////////////////////////////
+			// заказы
+			/////////////////////////////
+			// новые зелёные вкладки
+			////////////////////////////
+			
+				'production_get_in_work' => 'Ожидают распределения',
+				'set_in_the_plan' => 'Поставлены в план',
+			'production_stencil_shelk_and_transfer' => 'Трафарет',
 			'production_shelk' => 'Шелкография',
 			'production_transfer' => 'Термотрансфер',
 			'production_tampoo' => 'Тампопечать',
 			'production_tisnenie' => 'Тиснение',
 			'production_dop_uslugi' => 'Доп. услуги',
-			'production_plenki_and_klishe' => 'Проверка плёнок/клише',
-			// заказы
-				'order_all' => 'Все заказы',
-				'order_start' => 'Запуск в работу (заказ)',
-				'order_in_work' => 'Заказы в работе',
-				'design_all' => 'Дизайн ВСЕ',
-				'design_for_one_men' => 'Дизайн МОЁ',
-				'production' => 'Всё',
-				'stock' => 'Склад'
+			'production_plenki_and_klishe' => 'Проверить пленки',
+				'question_pause' => 'Вопрос, пауза',
+				'the_service_is_performed' => 'Услуга выполнена',
+				// 'order_all' => 'Все'
+				'production' => 'Все'
+
+				
+				// 'order_start' => 'Запуск в работу (заказ)',
+				// 'order_in_work' => 'Заказы в работе',
+				// 'design_all' => 'Дизайн ВСЕ',
+				// 'design_for_one_men' => 'Дизайн МОЁ',
+				// 'production' => 'Всё',
+				// 'stock' => 'Склад'
+				
+				
 
 		); 
 

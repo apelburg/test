@@ -147,6 +147,8 @@
 				
 					$query = "SELECT 
 						`".CAB_BILL_AND_SPEC_TBL."`.*, 
+						DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`create_time`,'%d.%m.%Y ')  AS `create_time`,
+
 						DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date`,
 						
 						DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date_limit`,'%d.%m.%Y')  AS `shipping_date_limit`,
@@ -327,7 +329,7 @@
 						// проверяем не просрочена ли дата оплаты
 						$this->check_type_the_document_and_payment_date();
 
-						// дата сдачи заказа
+						// проверка даты сдачи заказа
 						$this->get_shipping_bigest_date_for_order();
 
 						// получаем html строку со досументом
@@ -412,8 +414,14 @@
 							$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
 							// снабжение
 							$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
-							// дата лимита, если работаем по дате
-							$html .= ($this->specificate['date_type'] == 'date')?'<br> <span class="greyText '.$this->red_flag_date_limit.'" style="padding:5px">оплатить '.$this->specificate['prepayment'].'% и утвердить макет до: '.$this->specificate['shipping_date_limit'].'</span>':'';
+							// дата лимита + % предоплаты, если работаем по дате
+							if($this->specificate['date_type'] == 'date'){
+								$html .= '<br> <span class="greyText '.$this->red_flag_date_limit.'" style="padding:5px">оплатить '.$this->specificate['prepayment'].'% и утвердить макет до: '.$this->specificate['shipping_date_limit'].'</span>';
+							}else{
+								//% предоплаты, если работаем по дате
+								$html .= '<br> <span class="greyText '.$this->red_flag_date_limit.'" style="padding:5px">оплатить '.$this->specificate['prepayment'].'%</span>';
+							}
+							
 
 						$html .='</td>';
 						$html .= '<td>';
@@ -436,14 +444,14 @@
 						// срок по ДС
 						$html .= '<td contenteditable="true" class="deadline">'.$this->work_days.'</td>';
 						
-						//дата сдачи
+						//дата сдачи по документам
 						$html .= '<td class="'.$this->red_flag_date_shipping_date.'">';
 							
 							// if($this->user_access == 1){
 							// 	$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate_shipping_date.'" data-id="'.$this->specificate['id'].'">';
 
 							// }else{
-							$html .= date('d.m.Y',strtotime($this->specificate_shipping_date)).'<br>';
+							$html .= $this->specificate_shipping_date.'<br>';
 							// }
 						$html .= '</td>';
 						$html .= '<td>Бух.</td>';
@@ -576,6 +584,9 @@
 				private function table_specificate_for_order_Database($id){
 					global $mysqli;
 					$query = "SELECT *,
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`create_time`,'%d.%m.%Y ')  AS `create_time`,
+					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_create_the_bill`,'%d.%m.%Y ')  AS `date_create_the_bill`,
+
 					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date`,
 					
 					DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date_limit`,'%d.%m.%Y')  AS `shipping_date_limit`,
@@ -711,8 +722,8 @@
 					foreach ($this->Order_arr as $this->Order) {		
 						// переменные для вычисления даты сдачи заказа
 						 	// обнуляются при начале обсчётак каждого заказа
-							$this->order_shipping_date = 0;
-							$this->one_specificate_is_not_approval = 0;
+							$this->order_shipping_date_timestamp = 0;
+							$this->one_specificate_is_not_approval = 0; // одна из спецификаций не утверждена
 
 
 						$this->price_order = 0;// стоимость заказа 
@@ -822,7 +833,7 @@
 							// OLD
 							//$table_order_row2_body .= '<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>';
 							$table_order_row2_body .= '<td>';
-								$table_order_row2_body .= date('d.m.Y',$this->order_shipping_date);
+								$table_order_row2_body .= $this->order_shipping_date;
 							$table_order_row2_body .= '</td>';
 							
 							$table_order_row2_body .= '<td><span class="greyText">заказа: </span></td>';
