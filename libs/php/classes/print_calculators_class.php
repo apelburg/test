@@ -126,6 +126,182 @@
 			//exit; 
 		    return implode(', ',$out_put);
 		}
+		static function convert_print_details_for_kp($print_details){
+		
+		    global $mysqli;
+			
+			// Функция принимает сырые данные о нанесении логотипа и возвращает в отфораматированном виде для КП
+			// распеределяя данные на два блока - 1-ый для вывода в блоке "Печать логотипа" в КП, 2-ой для вывода
+			// в блоке "Дополнительные услуги" в КП
+			
+			$out_put = array('block1'=>array(),'block2'=>array());
+			
+			
+		    // если данные были переданы ввиде json преобразуем их в объект
+		    $print_details = (!is_object($print_details))? json_decode($print_details):$print_details;
+			
+			// echo '<pre>'; print_r($print_details); echo '</pre>';////
+
+			$out_put['block1']['print_type'] = $print_details->print_type;
+			$out_put['block1']['place_type'] = $print_details->place_type;
+			
+			if(isset($print_details->dop_params->YPriceParam)){
+			    foreach($print_details->dop_params->YPriceParam as $index => $details){
+				    if($details->id!=0) $idsArr[] = $details->id;	
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_Y_PRICE_PARAMS."` WHERE id IN('".implode("','",$idsArr)."') ORDER BY percentage";
+					// echo $query;
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+					    $row = $result->fetch_assoc();
+						// общее наименование параметра
+					    $out_put['block1']['price_data']['cap'] = $row['param_type'];
+						
+						$result->data_seek(0);
+						while($row = $result->fetch_assoc()){
+						   // наменование конкретных вариантов
+						   $out_put['block1']['price_data']['y_params'][] = $row['value'];
+						}
+					}
+					unset($idsArr); 
+					unset($details);
+					unset($dop_details); 
+				}
+			}
+			
+			
+			
+			if(isset($print_details->dop_params->sizes)){
+			    foreach($print_details->dop_params->sizes as $index => $details){
+				    if($details->id!=0) $idsArr[] = $details->id;	
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE id IN('".implode("','",$idsArr)."')";
+					// echo $query;
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()) {
+						   $out_put['block1']['print_size']= $row['size'];
+						}
+					}
+					unset($idsArr);
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+			
+			// Задача для Коэффициэнтов и Надбавок вытащить данные в следующем виде
+			// ЕСЛИ коеффициент отображается в калькуляторе как стандартный выпадающий список - то нам просто нужно поле title,
+			// в данном случае он является одним в группе
+			// ЕСЛИ коэффициент отображается в калькуляторе как список с мультивыбором (в этом случае он входит в группу коэффициэнтов
+			// объеденненную параметром type) то нам нужно поле title данного коэффициэнта и поле title первой записи из данной Группы
+			// коэффициэнтов МЕТКА данной задачи getRightTitle
+		    if(isset($print_details->dop_params->coeffs)){
+			    foreach($print_details->dop_params->coeffs as $target => $data){
+					foreach($data as $type => $val){
+					    // метка - getRightTitle
+					    // сохраняем поле type переданных коэффициэнтов, для последующего выбора данных из базы относяшихся к 
+						// данным типам  (хотя можно было и все выибрать) и к определенному типу нанесения 
+					    $typesArr[] = $type; 
+					    foreach($val as $index => $details){
+							if($details->id!=0){
+							    // выбираем id коэффициэнтов
+								$idsArr[] = $details->id;
+							}
+						}
+					}
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_COEFFS."` WHERE type IN('".implode("','",$typesArr)."') AND  print_id='".$print_details->print_id."' ORDER BY id";
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()) {
+						  // метка - getRightTitle
+						  // собираем title коэффициэнтов в группы объединяя по значению type
+						  // сохраняем данные из базы в отдельный масив
+						  // чтобы затем в цикле пройти по ним и выбрать нужные данные с одновременной обработкой 
+						  // групп коэффициэнтов из массива $arrByTypes
+						  $arrByTypes[$row['type']][] = $row['title'];
+						  $fullDataArr[] = $row;
+						}
+						foreach($fullDataArr as $index => $value){
+						    if(in_array($value['id'],$idsArr) && (int)$value['percentage']!=0){
+							    // метка - getRightTitle
+							    // если коэффициэнты образуют группу берем title первого элемента группы и title переданного
+								// если в группе один элемент только title переданного
+							    $name = (count($arrByTypes[$value['type']])>1)? $arrByTypes[$value['type']][0].': '.$value['title']:$value['title'];
+							    $out_put['block2']['data'][]=array('name'=>$name,'type'=>'coeff','value'=>$value['percentage'],'target'=>$value['target']);
+							}
+						}
+						//echo '<pre>'; print_r($arrByTypes); echo '</pre>';//
+					}
+					
+					
+					
+					unset($typesArr);
+					unset($idsArr); 
+					unset($arrByTypes);
+					unset($fullDataArr); 
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+			if(isset($print_details->dop_params->additions)){
+			    foreach($print_details->dop_params->additions as $target => $data){
+					foreach($data as $type => $val){
+					    // метка - getRightTitle
+					    // сохраняем поле type переданных надбавок, для последующего выбора данных из базы относяшихся к 
+						// данным типам  (хотя можно было и все выибрать) и к определенному типу нанесения 
+					    $typesArr[] = $type; 
+					    foreach($val as $index => $details){
+				            if($details->id!=0){
+							    // выбираем id надбавок
+							    $idsArr[] = $details->id;
+							}
+						}
+					}
+				}
+				if(isset($idsArr)){
+					$query = "SELECT * FROM `".BASE__CALCULATORS_ADDITIONS."` WHERE type IN('".implode("','",$typesArr)."') AND  print_id='".$print_details->print_id."' ORDER BY id";
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()) {
+						  // метка - getRightTitle
+						  // собираем title надбавок в группы объединяя по значению type
+						  // сохраняем данные из базы в отдельный масив
+						  // чтобы затем в цикле пройти по ним и выбрать нужные данные с одновременной обработкой 
+						  // групп надбавок из массива $arrByTypes
+						  $arrByTypes[$row['type']][] = $row['title'];
+						  $fullDataArr[] = $row;
+						}
+						foreach($fullDataArr as $index => $value){
+						    if(in_array($value['id'],$idsArr) && (int)$value['value']!=0){
+							    // метка - getRightTitle
+							    // если надбавки образуют группу берем title первого элемента группы и title переданного
+								// если в группе один элемент только title переданного
+							    $name = (count($arrByTypes[$value['type']])>1)? $arrByTypes[$value['type']][0].': '.$value['title']:$value['title'];
+							    $out_put['block2']['data'][]=array('name'=>$name,'type'=>'addition','value'=>$value['value'],'target'=>$value['target']);
+							}
+						}
+						//echo '<pre>'; print_r($arrByTypes); echo '</pre>';//
+					}
+					
+					
+					
+					unset($typesArr);
+					unset($idsArr); 
+					unset($arrByTypes);
+					unset($fullDataArr); 
+					unset($details); 
+					unset($dop_details); 
+				}
+			}
+	
+			//echo '<pre>'; print_r($out_put); echo '</pre>';//
+			//exit; 
+			return $out_put;
+		}
 		static function convert_print_details_to_dop_tech_info($print_details){
 		
 		    global $mysqli;

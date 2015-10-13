@@ -885,6 +885,7 @@ var printCalculator = {
 					// скрываем ссылку добавления если она есть
 				   this.className += ' hidden';	
 				}
+				return false;
 			}
 			
 			// добавляем один или несколько селектов в калькулятор в зависимости от того был он вызван 
@@ -1338,7 +1339,9 @@ var printCalculator = {
 		//console.log( printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length + ' -- '+printCalculator.currentCalculationData.print_details.priceIn_tblXindex + ' '+ printCalculator.currentCalculationData.print_details.priceOut_tblXindex+' -- '+ price_in + ' '+ price_out );
 		
 		// КОЭФФИЦИЕНТЫ И НАДБАВКИ
-		var price_coeff = summ_coeff = 1;
+		 
+		var square_coeff = 1;
+		var Y_coeff = price_coeff = summ_coeff = 0;
 		var price_coeff_list  = summ_coefficient_list = '';
 		var price_addition = summ_addition = 0;
 		var price_additions_list = summ_additions_list = '';
@@ -1353,7 +1356,7 @@ var printCalculator = {
 				for(var i = 0;i < set.length;i++){ 
 				    // подстраховка
 				    if(set[i].coeff == 0) set[i].coeff = 1;
-					price_coeff *= set[i].coeff;
+					Y_coeff += (set[i].coeff-1);
 					price_coeff_list += glob_type +' - '+ set[i].coeff+', ';
 				}
 			}
@@ -1363,8 +1366,8 @@ var printCalculator = {
 				    if(set[i].type == 'coeff'){
 						// подстраховка
 						if(set[i].val == 0) set[i].val = 1;
-						if(set[i].target == 'price') price_coeff *= set[i].val;
-						if(set[i].target == 'summ') summ_coeff *= set[i].val;
+						if(set[i].target == 'price') square_coeff = set[i].val;// будет расчитан отдельно от остальных коэф-ов прайса
+						if(set[i].target == 'summ') summ_coeff += set[i].val-1;// будет расчитан также как остальные коэф-ты суммы
 						
 						if(set[i].target == 'price') price_coeff_list += glob_type +' - '+ set[i].val+', ';
 						if(set[i].target == 'summ') summ_coeff_list += glob_type +' - '+ set[i].val+', ';
@@ -1392,11 +1395,11 @@ var printCalculator = {
 							if(set[i].multi && set[i].multi == 0) set[i].multi = 1;
 							
 							if(target=='price'){
-								price_coeff *= (set[i].multi)?  set[i].value*set[i].multi : set[i].value;
+								price_coeff += (set[i].multi)?  (set[i].value-1)*set[i].multi : set[i].value-1;
 								price_coeff_list += type + ' - '+((set[i].multi)? set[i].multi + ' раз по ':'')+ set[i].value+', ';
 							}
 							if(target=='summ'){
-								summ_coeff *= (set[i].multi)?  set[i].value*set[i].multi : set[i].value;
+								summ_coeff += (set[i].multi)?  (set[i].value-1)*set[i].multi : set[i].value-1;
 								summ_coefficient_list += type + ' - '+((set[i].multi)? set[i].multi + ' раз по ':'')+ set[i].value+', ';
 							}
 						}								
@@ -1455,12 +1458,43 @@ var printCalculator = {
 
 		
 		
-		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-		// CXEMA  - total_price = ((((price*price_coeff)+price_addition)*quantity)*sum_coeff)+sum_addition
-		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//   
+		//  CXEMA  - total_price = (((БЦ1*ПЛкф)+БЦ1*ЦВкф+БЦ2*ОПкф+НБпр)*КОЛ-ВО)+НБсумм+СУММА1*ОПкф(сумм)
+		// 
+		//  Коэффициэнт учитывается как Коэфф-1 т.е коэфф 1.2 = (1.2-1) = 0.2
+		//  ПЛкф - коэффициент площади из поля площадь в калькуляторе
+		//  ЦВкф - коэффициэнт цвета из поля выбора цвета в калькуляторе
+		//  ОПкф - коэффициэнт опции из поля “дополнительно” в калькуляторе
+		//  НБ - надбавка из поля “дополнительно” в калькуляторе
+		//  пр или сумм - область действия надбавки или коэффициента- прайс или сумма
 		
-		var total_price_out = ((((price_out*price_coeff)+price_addition)*printCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
-		var total_price_in  = ((((price_in*price_coeff)+price_addition)*printCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
+		//  ИТОГОВАЯ CXEMA  -
+		//        var base_price1 = price;
+		//        var base_price2 = price*square_coeff;
+		//        var summ1 = (base_price2 + base_price1*Y_coeff + base_price2*price_coeff + price_addition)*quantity;
+		//        var total_price = summ1 + sum_additions + summ1*summ_coeff
+		
+		
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+		var quantity = printCalculator.currentCalculationData.quantity;
+
+		var base_price_for_Y = price_in/priceIn_tblYindex;
+		var base_price2 = price_in*square_coeff;
+		var summ1 = (base_price2 + base_price_for_Y*Y_coeff + base_price2*price_coeff + price_addition)*quantity;
+		var total_price_in = summ1 + summ_addition + summ1*summ_coeff;
+		//alert(' price_in '+ price_in +' priceIn_tblYindex '+ priceIn_tblYindex +' base_price_for_Y '+base_price_for_Y  +' Y_coeff '+Y_coeff+' base_price_for_Y*Y_coeff '+base_price_for_Y*Y_coeff );
+		
+		var base_price_for_Y = price_out/priceOut_tblYindex;;
+		var base_price2 = price_out*square_coeff;
+		var summ1 = (base_price2 + base_price_for_Y*Y_coeff + base_price2*price_coeff + price_addition)*quantity;
+		var total_price_out = summ1 + summ_addition + summ1*summ_coeff;
+		//alert(' price_out '+ price_out +' priceOut_tblYindex '+ priceOut_tblYindex +' base_price_for_Y '+base_price_for_Y  +' Y_coeff '+Y_coeff+' base_price_for_Y*Y_coeff '+base_price_for_Y*Y_coeff );
+		
+		
+		
+		//var total_price_out = ((((price_out*price_coeff)+price_addition)*printCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
+		//var total_price_in  = ((((price_in*price_coeff)+price_addition)*printCalculator.currentCalculationData.quantity)*summ_coeff)+summ_addition;
 		
 		total_price_out = Math.round(total_price_out * 100) / 100 ;
 		total_price_in = Math.round(total_price_in * 100) / 100 ;

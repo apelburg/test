@@ -104,20 +104,20 @@
 
 </script>
 
-<table width="100%" border="1">
+<table width="100%" border="0">
   <tr>
     <td><?php echo $in_blank_view; ?></td>
     <td valign="top">
-        <table width="200" id="kpDisplayManagerBarTbl" border="1">
+        <table width="200" id="kpDisplayManagerBarTbl" style="margin-top:200px;" border="0">
           <tr>
-            <td style="text-align:right;"><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
+            <td><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
           </tr>
          <!-- <tr>
             <td><label><input type="checkbox" name="characters" onclick="kpDisplayManager.saveChanges(this);" />характеристики (цвет, материал)</label></td>
-          </tr>-->
+          </tr>
           <tr>
             <td><label><input type="checkbox" name="itogo" onclick="kpDisplayManager.saveChanges(this);" />сумма позиции (итого)</label></td>
-          </tr>
+          </tr>-->
           <tr>
             <td><label><input type="checkbox" name="full_summ" onclick="kpDisplayManager.saveChanges(this);" />итоговая стоимость кп</label></td>
           </tr>
@@ -125,7 +125,7 @@
             <td><label><input type="checkbox" name="header" onclick="kpDisplayManager.saveChanges(this);" />шапка кп</label></td>
           </tr>
           <tr>
-            <td><label><input type="checkbox" name="dop_uslugi" onclick="kpDisplayManager.saveChanges(this);" />дополнительные услуги</label></td>
+           <!--  <td><label><input type="checkbox" name="dop_uslugi" onclick="kpDisplayManager.saveChanges(this);" />дополнительные услуги</label></td>-->
           </tr>
         </table>
         <input type="button" onclick="kpDisplayManager.saveChangesInBase();" value="Сохранить"/>
