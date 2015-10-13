@@ -419,11 +419,13 @@ $(document).on('change', '.choose_statuslist_snab', function(event) {
 		$(this).parent().parent().find('.waits_products_div input').val('');
 	}
 
+	var order_id = $(this).attr('data-order_id');
 	// отправляем запрос
 	$.post('', {
 		AJAX:'change_status_snab',
 		row_id:row_id,
-		value:value
+		value:value,
+		order_id:order_id
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
 	},'json');

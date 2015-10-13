@@ -45,13 +45,22 @@
 		'expected_a_union' => 'Ожидает объединения',
 		'partially_shipped' => 'Частично отгружен',
 			// заказы
-			'order_all' => 'Все заказы',
-			'order_start' => 'Запуск в работу (заказ)',
-			'order_in_work' => 'Заказы в работе',
-			'design_all' => 'Дизайн ВСЕ',
-			'design_for_one_men' => 'Дизайн МОЁ',
-			'production' => 'Производство',
-			'stock' => 'Склад'							
+			'snab_starting_in_processing' => 'Запуск в обработку',
+			'snab_in_Progress' => 'В обработке',
+			'snab_mock_ups_of_the_work' => 'Макеты в работу',
+			'snab_waiting' => 'Ожидают',
+			'snab_products' => 'Продукция',
+			'snab_in_the_production_of' => 'В производстве',
+			'snab_our_production' => 'Наше производство',
+			'snab_pause_and_questions' => 'пауза/вопрос/ТЗ не корректно',
+			'snab_all' => 'Все',
+			// 'order_all' => 'Все заказы',
+			// 'order_start' => 'Запуск в работу (заказ)',
+			// 'order_in_work' => 'Заказы в работе',
+			// 'design_all' => 'Дизайн ВСЕ',
+			// 'design_for_one_men' => 'Дизайн МОЁ',
+			// 'production' => 'Производство',
+			// 'stock' => 'Склад'							
 		);
 
 		//////////////////////////
