@@ -799,7 +799,8 @@
 		}
 		static function make_calculations($quantity,$new_price_arr,$print_dop_params){
 			
-			$price_coeff = $summ_coeff = 1;
+			$square_coeff = 1;
+			$price_coeff = $summ_coeff = $Y_coeff = 0;
 			$price_addition = $summ_addition = 0;
 			$new_summs = array();
 			//print_r($print_dop_params);
@@ -816,7 +817,7 @@
 						if($data->coeff == 0) $data->coeff = 1;
 						
 						//echo "coeff ".$data->coeff."\r\n";
-						$price_coeff *= (float)$data->coeff;
+						$Y_coeff += (float)$data->coeff-1;
 					}
 				}
 				if($glob_type=='sizes'){
@@ -832,8 +833,8 @@
 							if($data->type == 'coeff'){
 								// подстраховка
 								if($data->val == 0) $data->val = 1;
-								if($data->target == 'price') $price_coeff *=  (float)$data->val;
-								if($data->target == 'summ') $summ_coeff *=  (float)$data->val;
+								if($data->target == 'price') $square_coeff =  (float)$data->val;// будет расчитан отдельно от остальных коэф-ов прайса
+								if($data->target == 'summ') $summ_coeff += (float)$data->val-1;// будет расчитан также как остальные коэф-ты суммы
 							}
 							if($data->type == 'addition'){
 								
@@ -854,11 +855,11 @@
 								
 								if($target=='price'){
 								     // echo 'coeffs price';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
-								     $price_coeff *= (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+								     $price_coeff += (isset($details[$i]->multi))?  ($details[$i]->value-1)*$details[$i]->multi : $details[$i]->value-1;
 								}
 								if($target=='summ'){
 									 // echo 'coeffs summ';echo "\r\n"; echo $details[$i]->value;echo "\r\n";print_r($details[$i]);
-									 $summ_coeff *= (isset($details[$i]->multi))?  $details[$i]->value*$details[$i]->multi : $details[$i]->value;
+									 $summ_coeff += (isset($details[$i]->multi))?  ($details[$i]->value-1)*$details[$i]->multi : $details[$i]->value-1;
 								}
 							}								
 						}
@@ -886,13 +887,43 @@
 				}
 			} 
 			
-			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
-			// CXEMA  - new_summ = ((((price*price_coeff)+price_addition)*quantity)*sum_coeff)+sum_addition
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//   
+			//  CXEMA  - total_price = (((БЦ1*ПЛкф)+БЦ1*ЦВкф+БЦ2*ОПкф+НБпр)*КОЛ-ВО)+НБсумм+СУММА1*ОПкф(сумм)
+			// 
+			//  Коэффициэнт учитывается как Коэфф-1 т.е коэфф 1.2 = (1.2-1) = 0.2
+			//  ПЛкф - коэффициент площади из поля площадь в калькуляторе
+			//  ЦВкф - коэффициэнт цвета из поля выбора цвета в калькуляторе
+			//  ОПкф - коэффициэнт опции из поля “дополнительно” в калькуляторе
+			//  НБ - надбавка из поля “дополнительно” в калькуляторе
+			//  пр или сумм - область действия надбавки или коэффициента- прайс или сумма
+			
+			//  ИТОГОВАЯ CXEMA  -
+			//        var base_price1 = price;
+			//        var base_price2 = price*square_coeff;
+			//        var summ1 = (base_price2 + base_price1*Y_coeff + base_price2*price_coeff + price_addition)*quantity;
+			//        var total_price = summ1 + sum_additions + summ1*summ_coeff
+			
+			
 			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+            $price_tblYindex=(isset($print_dop_params->YPriceParam))? ((count($print_dop_params->YPriceParam)==0)?1:count($print_dop_params->YPriceParam)):1;
+
+	
+			$base_price_for_Y = $new_price_arr['price_in']/$price_tblYindex;
+			$base_price2 = $new_price_arr['price_in']*$square_coeff;
+			$summ1 = ($base_price2 + $base_price_for_Y*$Y_coeff + $base_price2*$price_coeff + $price_addition)*$quantity;
+			$new_summs["summ_in"] = $summ1 + $summ_addition + $summ1*$summ_coeff;
+			//echo (' price_in '.$new_price_arr['price_in'].' priceIn_tblYindex '.$price_tblYindex.' base_price_for_Y '.$base_price_for_Y.' Y_coeff '.$Y_coeff.' base_price_for_Y*Y_coeff '.$base_price_for_Y*$Y_coeff );
 			
+			$base_price_for_Y = $new_price_arr['price_out']/$price_tblYindex;;
+			$base_price2 = $new_price_arr['price_out']*$square_coeff;
+			$summ1 = ($base_price2 + $base_price_for_Y*$Y_coeff + $base_price2*$price_coeff + $price_addition)*$quantity;
+			$new_summs["summ_out"] = $summ1 + $summ_addition + $summ1*$summ_coeff;
+			// echo (' price_out '.$new_price_arr['price_out'].' priceIn_tblYindex '.$price_tblYindex.' base_price_for_Y '.$base_price_for_Y.' Y_coeff '.$Y_coeff.' base_price2 '.$base_price2.' summ1 '.$summ1.' square_coeff '.$square_coeff);
+            // echo "\r\n\r\n";
 			
-			$new_summs["summ_in"] = round((((($new_price_arr['price_in']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
-			$new_summs["summ_out"] = round((((($new_price_arr['price_out']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
+			//$new_summs["summ_in"] = round((((($new_price_arr['price_in']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
+			//$new_summs["summ_out"] = round((((($new_price_arr['price_out']*$price_coeff)+$price_addition)*$quantity)*$summ_coeff)+$summ_addition,2);
 		
 			
 			//echo "all_coeffs ".$all_coeffs."\r\n";
