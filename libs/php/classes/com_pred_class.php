@@ -718,7 +718,7 @@
 			
 
 			
-			$itogo=$itogo_dop_uslugi=0;
+			$itogo=$itogo_print_uslugi=$itogo_extra_uslugi=0;
 			
 			// Разворачиваем массив 
 			foreach($multi_dim_arr as $pos_key => $pos_level){
@@ -824,6 +824,7 @@
 							$new_price_arr = rtCalculators::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 							$all_print_summ+=$calculations['new_summs']['summ_out'];
+							$itogo_print_uslugi += $calculations['new_summs']['summ_out'];
 							// echo  '<pre>'; print_r($calculations); echo '</pre>';  //
 
 							// наименование нанесения
@@ -852,8 +853,7 @@
 									<td align="left">руб.</td>
 								  </tr>
 								</table>';
-							 
-							$itogo_dop_uslugi += $calculations['new_summs']['summ_out'];
+					
 							
 							// Собираем данные для details_block (деталировка по нанесению)
 							
@@ -923,7 +923,8 @@
 							 $u_level['name'] = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
 							 
 						     $print_summ = ($u_level['for_how']=='for_all')? $u_level['price_out'] :$quantity*$u_level['price_out'];
-						     $itogo_dop_uslugi += $print_summ;
+						     $all_extra_summ += $print_summ;
+							 $itogo_extra_uslugi += $print_summ;
 							 
 							 $rows_2[] = '<tr><td align="left" style="width:230px;padding:0 5px 0 15px;">'.$u_level['name'].'</td>';
 							 $rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
@@ -935,14 +936,14 @@
 						}
 						unset($rows_2);
 					}
-
+ 
 				    // Вставляем блоки в тело КП
 					if(isset($print_block) && count($print_block)>0){
 					    $description_cell .= '<hr><div style="margin-top:5px;"><b>Печать логотипа:</b></div>';
 						$description_cell .= '<div style="">'.implode('<div></div>',$print_block).'</div>';
 					   
 				    }
-					if(false && ((isset($details_block11) && count($details_block11)>0) || (isset($details_block11) && count($details_block11)>0))){
+					if((isset($details_block11) && count($details_block11)>0) || (isset($details_block11) && count($details_block11)>0)){
 					    $description_cell .= '<div><b>Дополнительные услуги:</b></div>';
 						$description_cell .=  '<table style="margin-top:5px;border-collapse:collapse;" border="0">';
 						foreach($details_block11 as $key => $rows){
@@ -954,15 +955,7 @@
 					
 				
 					
-				    /* $description_cell .= '<b>Итого';
-					if(isset($print_details)) $description_cell .= ' + лого';
-					if(isset($extra_details)) $description_cell .= ' + Доп услуги';
-					$description_cell .= ':</b>';	
-					
-				    $description_cell .= '&nbsp;&nbsp;&nbsp;<span style="color:#00B050;font-weight:bold;">1шт. : '.number_format(($summ+$all_print_summ+$all_extra_summ)/$quantity,2,'.',' ').' руб. / тираж: <nobr>'.number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'руб.</nobr></span>';
-					$description_cell .= number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'руб.</nobr></span>';*/
-					
-					 $description_cell .= '<table style="margin:5px 0 10px 0;border-collapse:collapse;" border="0"><tr><td align="left" style="width:220px;"><b>Итого</b></td>';
+					$description_cell .= '<table style="margin:5px 0 10px 0;border-collapse:collapse;" border="0"><tr><td align="left" style="width:220px;"><b>Итого</b></td>';
 				    $description_cell .= '<td align="left" style="width:100px;"><b>'.number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'</b></td>';
 					$description_cell .= '<td align="left" style="width:30px;">руб. </td></tr></table>';
 					
@@ -1010,7 +1003,7 @@
 			else{
 				if($itogo != 0){
 			
-					 $full_itog = $itogo + $itogo_dop_uslugi;
+					 $full_itog = $itogo + $itogo_print_uslugi + $itogo_extra_uslugi;
 					 $kp_content .= '<div style="text-align:right;">
 					 <managedDisplay name="full_summ" style="text-align:right;display:'.(isset($dispSetObj->full_summ)?'none':'inline-block').'">
 					 <table align="right" style="margin:15px 20px 10px 0;" border="0">
@@ -1018,7 +1011,10 @@
 							 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
 						 </tr>
 						 <tr>
-							 <td align="right" height="30" valign="top">Общая стоимость нанесения:</td><td align="right" valign="top">'.number_format($itogo_dop_uslugi,2,',',' ').'руб.</td>
+							 <td align="right" height="20" valign="top">Общая стоимость нанесения:</td><td align="right" valign="top">'.number_format($itogo_print_uslugi,2,',',' ').'руб.</td>
+						 </tr>
+						  <tr>
+							 <td align="right" height="30" valign="top">Общая стоимость доп услуг:</td><td align="right" valign="top">'.number_format($itogo_extra_uslugi,2,',',' ').'руб.</td>
 						 </tr>
 						 <tr style="font-family:verdana;font-size:14px;font-weight:bold;">
 							 <td align="right" valign="top">Итоговая сумма:</td><td align="right" valign="top" style="white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
