@@ -1,10 +1,28 @@
 <?php
     class Cabinet{
+    	///////////////////////////////
     	// дополнения к запросам в базе
-    	protected $filtres_order = '';
-		protected $filtres_specificate = '';
-		protected $filtres_position = '';
-		protected $filtres_services = '';
+    	///////////////////////////////
+    		// заказ
+		    	// фильтр
+		    	protected $filtres_order = '';
+		    	// сортировка по умолчанию
+		    	protected $filtres_order_sort = ' ORDER BY `id` DESC';
+		    // документ
+			    // фильтр
+				protected $filtres_specificate = '';
+				// сортировка по умолчанию
+				protected $filtres_specificate_sort = '';
+			// позиция
+				// фильтр
+				protected $filtres_position = '';
+				// сортировка по умолчанию
+				protected $filtres_position_sort = '';
+			// услуги	
+				// фильтр
+				protected $filtres_services = '';
+				// сортировка по умолчанию
+				protected $filtres_services_sort = '';
 
 
     	// содержит html фильтров по кабинету
@@ -176,16 +194,15 @@
 				'no_goods' => 'нет в наличии',
 				// 'waiting' => 'ожидаем',
 				'goods_in_stock' => 'принято на склад', // ->
-				'sended_on_outsource' => 'отправлено на аутсорсинг',
+				'sended_on_outsource' => 'отправлено на аутсорс',
 				'ready_for_shipment'  => 'готов к отгрузке',
 				'goods_shipped_for_client' => 'отгружен клиенту'
 			);
 				
-			// статусы снабжение
+			// статусы СНАБ
 			protected $statuslist_snab = array(
-				'in_operation' => 'Ожидает запуска', // не выводим в общий выбор --- статус на уровне кнопки
 				'adopted' => 'Принят',
-				'maquette_adopted' => 'Макет принят',
+				// 'maquette_adopted' => 'Макет принят',
 				'not_adopted' => 'Не принят',
 				'maquette_maket' => 'Ожидает макет',
 				'waits_union' => 'Ожидает объединения',
@@ -200,6 +217,14 @@
 				// 'goods_shipped_for_client' => 'отгружен клиенту',			
 				'question' => 'Вопрос'
 			);
+			// статусы СНАБ сервисные
+			protected $statuslist_snab_service = array(
+				'in_operation' => 'Ожидает запуска', // статус удалён
+				'is_pending' => 'Ожидает обработки',
+			);
+			
+
+			
 
 			// статусы плёнок для услуги
 			protected $status_film_photos = array(
@@ -293,10 +318,23 @@
 					$this->filtres_html['manager_id'] = '<li>мен: '.$meneger_name_for_order.'<a href="'.$this->link_exit_out_filters('manager_id').'" class="close">x</a></li>';	
 				}
 
-				// проверяем на наличие фильтра по заказу
+				// проверяем на наличие фильтра по снабу
 				if(isset($_GET['snab_id']) && $_GET['snab_id'] != ''){
 					$snab_name_for_order = $this->get_name_employee_Database_Html($_GET['snab_id']);
 					$this->filtres_html['snab_id'] = '<li>снаб: '.$snab_name_for_order.'<a href="'.$this->link_exit_out_filters('snab_id').'" class="close">x</a></li>';	
+				}
+
+				// проверяем на наличие фильтра по дате, когда мы ожидаем продукцию
+				if(isset($_GET['date_delivery_product']) && $_GET['date_delivery_product'] != ''){
+					$date = $_GET['date_delivery_product'];
+					$this->filtres_html['date_delivery_product'] = '<li>продукция ожидается: '.$date.'<a href="'.$this->link_exit_out_filters('date_delivery_product').'" class="close">x</a></li>';	
+				}
+
+
+				// проверяем на наличие фильтра по дате отгрузки
+				if(isset($_GET['shipping_date']) && $_GET['shipping_date'] != ''){
+					$date = $_GET['shipping_date'];
+					$this->filtres_html['shipping_date'] = '<li>дата отгрузки: '.$date.'<a href="'.$this->link_exit_out_filters('shipping_date').'" class="close">x</a></li>';	
 				}
 
 				// фильтр по услуге
@@ -435,7 +473,7 @@
 				$html = '';
 				// проверяем на разрешение смены статуса снабжения
 				if($this->user_access == 8 || $this->user_access == 1 || $enable_selection){ // на будущеее, пока работаем по параметру
-					$html .= '<select '.$red_bg_color.' data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
+					$html .= '<select '.$red_bg_color.' '.((isset($this->Order['id']) && $this->Order['snab_id'] == 0)?' data-order_id="'.$this->Order['id'].'"':"").' data-id="'.$main_rows_id.'" class="choose_statuslist_snab">';
 						
 						if($real_val == 'in_processed'){$html .= '<option value="in_processed" selected="selected">в обработке</option>';}
 						// перебираем статусы склада (т.к. статусы склада транслируются в статусы снабжения)
@@ -469,11 +507,25 @@
 						if(isset($this->statuslist_snab[$real_val])){
 							$decoder_status_name = $this->statuslist_snab[$real_val];
 						}
+						// если существует соответствие в сервисных статусах снаб
+						if(isset($this->statuslist_snab_service[$real_val])){
+							$decoder_status_name = $this->statuslist_snab_service[$real_val];
+						}
+
+
 						// выводим трансляцию статуса снабжения
 						$html .='<span '.$red_bg_color.' class="greyText">'.$decoder_status_name.'</span>';
 					}
 					// добавляем div c ожидаемой датой поставки
-					$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'">'.$date_delivery_product.'</div>';
+					if(isset($this->group_access) && $this->group_access == 7){// ффильтр по ожидаемой дате поставки для склада
+						$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'">';
+							$html .= '<a href="'.$this->link_enter_to_filters('date_delivery_product',$date_delivery_product).'">'.$date_delivery_product.'</a>';
+						$html .= '</div>';
+					}else{
+						$html .= '<div  data-id="'.$main_rows_id.'" class="waits_products_div '.(($date_delivery_product!='' && $real_val == "waits_products")?'show':'').'">'.$date_delivery_product.'</div>';
+					}
+					
+					
 				}
 				
 
@@ -609,8 +661,8 @@
 
 
 				// собираем вывод
-				$html = '<td colspan="2"  class="orders_status_td_tbl">';
-				$html .= '<table>';
+				$html = '<td colspan="2"  class="orders_status_td_tbl"  style="width:250px">';
+				$html .= '<table  style="min-width:240px">';
 
 
 				// выодим статус снабжения
@@ -795,6 +847,12 @@
 			protected function orders_Template($id_row=0){
 				include_once './libs/php/classes/cabinet/cabinet_order_class.php';
 				new Order($id_row,$this->user_access,$this->user_id);
+			}
+
+			// роутер по заказу
+			protected function for_shipping_Template($id_row=0){
+				include_once './libs/php/classes/cabinet/cabinet_order_shipping_class.php';
+				new Order_shipping($id_row,$this->user_access,$this->user_id);
 			}
 
 			
@@ -1114,6 +1172,7 @@
 				}
 				return $Specificate_arr;
 			}
+			// получаем спецификации по номеру заказа
 			protected function get_info_for_spec_for_order_num($order_num){
 				global $mysqli;
 				//date_create_the_bill
@@ -1126,7 +1185,8 @@
 				 FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_num` IN ('".(int)$order_num."');";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$Specificate_arr = array();
-				
+				// echo $query;
+
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 						$Specificate_arr[] = $row;
@@ -1850,8 +1910,8 @@
 
 			protected function get_buh_uchet_for_order_AJAX(){
 				//получаем информацию по спецификации
-				$Specificate_arr = $this->get_info_for_spec_for_order_num($_POST['order_num']);
-				$this->get_buh_uchet($Specificate_arr);
+				$document_arr = $this->get_info_for_spec_for_order_num($_POST['order_num']);
+				$this->get_buh_uchet($document_arr);
 			}
 
 			// окно бух учета для спецификации
@@ -3347,21 +3407,28 @@
 			// смена статуса снабжения
 			protected function change_status_snab_AJAX(){
 				global $mysqli;
+				// меняем статус снабженца
 				$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
 					`status_snab` =  '".$_POST['value']."',
 					`approval_date` =  '' 
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
+
+				// сохраняем снабженца по заказу
+				if(isset($_POST['order_id']) && $_POST['order_id'] != 'undefined'){
+					$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
+					`snab_id` =  '".$this->user_id."'
+					WHERE  `id` ='".$_POST['order_id']."';";
+					echo $query;
+					$result = $mysqli->query($query) or die($mysqli->error);					
+				}
+
+
+
+
 				echo '{"response":"OK"}';
 			}
-			// private function change_status_snab_AJAX(){
-			// 		global $mysqli;
-			// 		$query = "UPDATE `".CAB_ORDER_MAIN."` SET  
-			// 		`status_snab` =  '".$_POST['value']."' 
-			// 		WHERE  `".CAB_ORDER_MAIN."`.`id` =".$_POST['row_id'].";";
-			// 		$result = $mysqli->query($query) or die($mysqli->error);
-			// 	}
-
+			
 
 			protected function replace_query_row_AJAX(){
 				$method = $_GET['section'].'_Template';
@@ -4360,7 +4427,7 @@
 			$name = 'Клиент не прикреплён';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$name = '<a data-id="'.$row['id'].'" '.((!isset($_GET['client_id']) || (isset($_GET['client_id']) && $_GET['client_id']!=$row['id']))?'href="'.$this->change_one_get_URL('client_id').$row['id'].'"':'').'>'.$this->str_reduce($row['company'],50).'</a>';
+					$name = '<a data-id="'.$row['id'].'" '.((!isset($_GET['client_id']) || (isset($_GET['client_id']) && $_GET['client_id']!=$row['id']))?'href="'.$this->change_one_get_URL('client_id').$row['id'].'"':'').'>'.$this->str_reduce($row['company'],45).'</a>';
 				}
 			}
 			return $name;
@@ -4974,19 +5041,67 @@
 			return $this->userlist;
 		}
 
+		// получаем спецификации к заказу
+		protected function table_specificate_for_order_Database($id){
+			global $mysqli;
+			$query = "SELECT *,
+			DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`create_time`,'%d.%m.%Y ')  AS `create_time`,
+			DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`date_create_the_bill`,'%d.%m.%Y ')  AS `date_create_the_bill`,
+			DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date`,'%d.%m.%Y %H:%i:%s')  AS `shipping_date`,
+
+			DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`shipping_date_limit`,'%d.%m.%Y')  AS `shipping_date_limit`,
+					
+			DATE_FORMAT(`".CAB_BILL_AND_SPEC_TBL."`.`payment_date`,'%d.%m.%Y')  AS `payment_date`
+				
+			FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$id."'";
+			
+			$where = 1;
+					
+			// фильтрация по документам
+			if($this->filtres_specificate != ''){
+				$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_specificate;
+				$where = 1;
+			}
+			// сортировка по документам
+			if($this->filtres_specificate_sort != ''){
+				$query .= " ".$this->filtres_specificate_sort;
+			}
+
+
+			//////////////////////////
+			//	check the query
+			//////////////////////////
+				if(isset($_GET['show_the_query'])){
+					echo '*** $query = '.$query.'<br>';	
+				}
+				
+
+
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$spec_arr = array();		
+			
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$spec_arr[] = $row;
+				}
+			}
+			return $spec_arr;
+		}	
+
 		
 		// запрос строк позиций по спецификации
-		protected function positions_rows_Database($specificate_id){
+		protected function positions_rows_Database($doc_id){
 			
 			$arr = array();
 			global $mysqli;
 
 			$query = "SELECT *, 
 			`".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
+			DATE_FORMAT(`".CAB_ORDER_MAIN."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 			DATE_FORMAT(`".CAB_ORDER_MAIN."`.`approval_date`,'%d.%m.%Y %H:%i:%s')  AS `approval_date`
 			FROM `".CAB_ORDER_DOP_DATA."` 
 			INNER JOIN ".CAB_ORDER_MAIN." ON `".CAB_ORDER_MAIN."`.`id` = `".CAB_ORDER_DOP_DATA."`.`row_id` 
-			WHERE `".CAB_ORDER_MAIN."`.`the_bill_id` = '".$specificate_id."'";
+			WHERE `".CAB_ORDER_MAIN."`.`the_bill_id` = '".$doc_id."'";
 			// $query = "SELECT * FROM ".CAB_ORDER_MAIN." WHERE `order_num` = '".$order_id."'";
 			$where = 1;
 
@@ -4997,21 +5112,30 @@
 					$where = 1;
 				}	
 
-				if(isset($_GET['subsection']) && $_GET['subsection'] == 'production'){
-					//if(isset($_GET['subsection']) && $_GET['subsection'] != 'production'){
+				// if(isset($_GET['subsection']) && $_GET['subsection'] == 'production'){
+				// 	//if(isset($_GET['subsection']) && $_GET['subsection'] != 'production'){
 					
-					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_sklad` NOT LIKE 'ready_for_shipment'";
-					$where = 1;
-					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_sklad` NOT LIKE 'goods_shipped_for_client'";
-					$where = 1;
-				}								
+				// 	$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_sklad` NOT LIKE 'ready_for_shipment'";
+				// 	$where = 1;
+				// 	$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_sklad` NOT LIKE 'goods_shipped_for_client'";
+				// 	$where = 1;
+				// }								
 			}
 
-			// фильрация по позициям
+			// фильрация по позициям (указываем в последнюю очередь)
 			if($this->filtres_position != ''){
 				$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_position;
 				$where = 1;
 			}
+
+			// сортировка
+			if($this->filtres_position_sort != ''){
+				$query .= "  ".$this->filtres_position_sort;
+			}else{
+				$query .= " ORDER BY `".CAB_ORDER_MAIN."`.`id` DESC";
+			}
+			
+			// echo $query.'<br>';
 			
 
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -5472,6 +5596,141 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 			}
 
+
+		//////////////////////////
+		//	ОБЩИЕ ШАБЛОНЫ
+		//////////////////////////
+			// html шаблон строки документа (МЕН/СНАБ/АДМИН)
+				protected function get_order_specificate_Html_Template(){
+					$this->rows_num++;
+					$html = '';
+					$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.' data-id="'.$this->specificate['id'].'">';
+						$html .= '<td colspan="4">';
+							// спецификация
+							// $html .= 'Спецификация '.$this->specificate_item;
+							// ссылка на спецификацию
+							$html .= ''.$this->get_document_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
+							
+							// номер запроса
+							$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
+							// снабжение
+							$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
+							// дата лимита + % предоплаты, если работаем по дате
+							if($this->specificate['date_type'] == 'date'){
+								$html .= '<br> <span class="greyText '.$this->red_flag_date_limit.'" style="padding:5px">оплатить '.$this->specificate['prepayment'].'% и утвердить макет до: '.$this->specificate['shipping_date_limit'].'</span>';
+							}else{
+								//% предоплаты, если работаем по дате
+								$html .= '<br> <span class="greyText '.$this->red_flag_date_limit.'" style="padding:5px">оплатить '.$this->specificate['prepayment'].'%</span>';
+							}
+							
+
+						$html .='</td>';
+						
+						// номер счёта
+						$html .= '<td>';
+							$html .= 'сч: '.$this->specificate['number_the_bill'];
+						$html .= '</td>';
+
+						// сумма по спецификации
+						$html .= '<td>';
+							$html .= '<span>'.$this->price_specificate.'</span>р';
+						$html .= '</td>';
+						
+						// % оплаты
+						$html .= '<td class="'.$this->red_flag_date_payment.'">';
+							$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %'.(($this->specificate['payment_date']!='00.00.0000')?', <span class="greyText">от '.$this->specificate['payment_date'].'</span>':'');
+						$html .= '</td>';
+
+						$html .= '<td class="'.$this->red_flag_date_date_approval.'">';
+							$html .= (($this->approval_date>0)?date('d.m.Y', $this->approval_date):'<!-- none -->').'<br>';
+						$html .= '</td>';
+
+						// срок по ДС
+						$html .= '<td contenteditable="true" class="deadline">'.$this->work_days.'</td>';
+						
+						//дата сдачи по документам
+						$html .= '<td class="'.$this->red_flag_date_shipping_date.'">';
+							
+							// if($this->user_access == 1){
+							// 	$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate_shipping_date.'" data-id="'.$this->specificate['id'].'">';
+
+							// }else{
+							$html .= $this->specificate_shipping_date.'<br>';
+							// }
+						$html .= '</td>';
+						$html .= '<td><span class="greyText">Бухгалтерия</td>';
+						$html .= '<td class="buch_status_select">'.$this->decoder_statuslist_buch($this->specificate['buch_status'],0,$this->specificate).'</td>';
+					$html .= '</tr>';
+					return $html;
+				}
+			// html шаблон вывода позиций  (МЕН/СНАБ/АДМИН)
+				protected function get_order_specificate_position_Html_Template(){
+					$html = '';
+					$html .= '<tr class="position-row position-row-production" id="position_row_'.$this->position['sequence_number'].'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
+					// порядковый номер позиции в заказе
+					
+						
+					$html .= '<td><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
+					// описание позиции
+					$html .= '<td style="width:300px">';
+					// комментарии
+					// наименование товара
+					$html .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';
+								   
+					// добавляем доп описание
+					// для каталога и НЕкаталога способы хранения и получения данной информации различны
+					if(trim($this->position['type'])!='cat' && trim($this->position['type'])!=''){
+						// доп инфо по некаталогу берём из json 
+						$html .= $this->decode_json_no_cat_to_html($this->position);
+					}else if(trim($this->position['type'])!=''){
+						// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
+						$html .= '';
+					}
+
+
+					$html .= '</td>';
+					// тираж, запас, печатать/непечатать запас
+					$html .= '<td>';
+					$html .= '<div class="quantity">'.$this->position['quantity'].'</div>';
+					$html .= '<div class="zapas">'.(($this->position['zapas']!=0 && trim($this->position['zapas'])!='')?'+'.$this->position['zapas']:'').'</div>';
+					$html .= '<div class="print_z">'.(($this->position['zapas']!=0 && trim($this->position['zapas'])!='')?(($this->position['print_z']==0)?'НПЗ':'ПЗ'):'').'</div>';
+					$html .= '</td>';
+							
+					// поставщик товара и номер резерва для каталожной продукции 
+					$html .= '<td>';
+					$html .= '<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
+							<div class="number_rezerv">'.base64_decode($this->position['number_rezerv']).'</div>
+							</td>';
+					// подрядчк печати 
+					$html .= '<td  class="change_supplier"  data-id="'.$this->position['suppliers_id'].'" data-id_dop_data="'.$this->position['id_dop_data'].'">'.$this->position['suppliers_name'].'</td>';
+					
+					// сумма за позицию включая стоимость услуг 
+					$html .= '<td  data-order_id="'.$this->Order['id'].'" data-id="'.$this->position['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-specificate_id="'.$this->specificate['id'].'" data-cab_dop_data_id="'.$this->position['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';
+					// всплывающее окно тех и доп инфо
+					// т.к. услуги для каждой позиции один хрен перебирать, думаю можно сразу выгрузить контент для окна
+					// думаю есть смысл хранения в json 
+					// обязательные поля:
+					// {"comments":" ","technical_info":" ","maket":" "}
+					$html .= $this->grt_dop_teh_info($this->position);
+							  
+					// дата утверждения макета
+					$html .= '<td>';
+						$html .= $this->get_Position_approval_date( $this->Position_approval_date = $this->position['approval_date'], $this->position['id'] );
+					$html .= '</td>';
+
+					$html .= '<td><!--// срок по ДС по позиции --></td>';
+
+					// дата сдачи
+						 // тут м.б. должна быть дата сдачи позиции ... но вроде как мы все позиции по умолчанию сдаём в срок по заказу, а если нет, то отгружаем частично по факту готовности, а следовательно нам нет необходимости вставлять для позиций редактируемое поле с датой сдачи
+					$html .= '<td ><!--// дата сдачи по позиции --></td>';
+
+
+					// получаем статусы участников заказа в две колонки: отдел - статус
+					$html .= $this->position_status_list_Html($this->position);
+					$html .= '</tr>'; 
+					return $html;
+				}
+			
 		function __destruct() {			
 		}
 

@@ -38,22 +38,30 @@
 			'order_of_documents' => 'Заказ документов',
 			'arrange_delivery' => 'Оформить доставку',
 			'delivery' => 'Доставка',
+
 			'waits_products' => 'Продукция ожидается',
 			'goods_in_stock' => 'На складе',
 			'sended_on_outsource' => 'У поставщика в пр-ве',
-			'pclosing_documents' => 'Закрывающие документы',
-			'checked_and_packed'  => 'Заказы на отгрузку',
-			'goods_shipped_for_client' => 'Отгруженные',
+			// 'pclosing_documents' => 'Закрывающие документы',
+			// 'checked_and_packed'  => 'Заказы на отгрузку',
+			// 'goods_shipped_for_client' => 'Отгруженные',
 			'otgrugen' => 'Отгруженные',
 			'we_are_waiting_the_products' => 'Ожидается',
 			// заказы
-			'order_all' => 'Все заказы',
-			'order_start' => 'Запуск в работу (заказ)',
-			'order_in_work' => 'Заказы в работе',
-			'design_all' => 'Дизайн ВСЕ',
-			'design_for_one_men' => 'Дизайн МОЁ',
-			'production' => 'Производство',
-			'stock' => 'Склад'
+			'stock_all' => 'Все',
+			'stock_waits_products' => 'Продукция ожидается',
+			'stock_goods_in_stock' => 'На складе',
+			'stock_sended_on_outsource' => 'Отправлено на аутсорс',
+			'stock_checked_and_packed' =>'Заказы на отгрузку',
+			'stock_goods_shipped_for_client' => 'Отгруженные',
+
+			// 'order_all' => 'Все заказы',
+			// 'order_start' => 'Запуск в работу (заказ)',
+			// 'order_in_work' => 'Заказы в работе',
+			// 'design_all' => 'Дизайн ВСЕ',
+			// 'design_for_one_men' => 'Дизайн МОЁ',
+			// 'production' => 'Производство',
+			// 'stock' => 'Склад'
 
 		); 
 

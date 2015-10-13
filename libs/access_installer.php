@@ -424,19 +424,19 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													// 'all' => array('access'=>true),
-													// 'waits_products' => array('access' => true),
-													// 'goods_in_stock' => array('access' => true),
-													// 'sended_on_outsource' => array('access' => true),
-													// 'checked_and_packed' => array('access' => true),
-													// 'goods_shipped_for_client' => array('access' => true),
-													'order_all' => array('access'=>true),
-													'order_start' => array('access'=>true),
-													'order_in_work' => array('access'=>true),
-													'design_all' =>  array('access'=>true),
-													'design_for_one_men' =>  array('access'=>true),
-													'production' =>  array('access'=>true),
-													'stock' =>  array('access'=>true)
+													'stock_all' => array('access'=>true),
+													'stock_waits_products' => array('access' => true),
+													'stock_goods_in_stock' => array('access' => true),
+													'stock_sended_on_outsource' => array('access' => true),
+													'stock_checked_and_packed' => array('access' => true),
+													'stock_goods_shipped_for_client' => array('access' => true),
+													// 'order_all' => array('access'=>true),
+													// 'order_start' => array('access'=>true),
+													// 'order_in_work' => array('access'=>true),
+													// 'design_all' =>  array('access'=>true),
+													// 'design_for_one_men' =>  array('access'=>true),
+													// 'production' =>  array('access'=>true),
+													// 'stock' =>  array('access'=>true)
 													)
 												)
 											), 
@@ -485,13 +485,22 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'order_all' => array('access'=>true),
-													'order_start' => array('access'=>true),
-													'order_in_work' => array('access'=>true),
-													'design_all' =>  array('access'=>true),
-													'design_for_one_men' =>  array('access'=>true),
-													'production' =>  array('access'=>true),
-													'stock' =>  array('access'=>true)
+													// 'order_all' => array('access'=>true),
+													// 'order_start' => array('access'=>true),
+													// 'order_in_work' => array('access'=>true),
+													// 'design_all' =>  array('access'=>true),
+													// 'design_for_one_men' =>  array('access'=>true),
+													// 'production' =>  array('access'=>true),
+													// 'stock' =>  array('access'=>true)
+													'snab_starting_in_processing' =>  array('access'=>true),
+													'snab_in_Progress' =>  array('access'=>true),
+													'snab_mock_ups_of_the_work' =>  array('access'=>true),
+													'snab_waiting' =>  array('access'=>true),
+													'snab_products' =>  array('access'=>true),
+													'snab_in_the_production_of' =>  array('access'=>true),
+													'snab_our_production' =>  array('access'=>true),
+													'snab_pause_and_questions' =>  array('access'=>true),
+													'snab_all' =>  array('access'=>true)
 													)
 												),
 											'for_shipping'=> array(

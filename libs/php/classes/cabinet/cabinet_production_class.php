@@ -454,6 +454,8 @@
 			return $gen_html ;
 		}
 
+		/*
+		ПЕРЕНЕСЁН В cabinet_order_class.php
 		// отдаёт имя пользователя, список пользователей или 
 		private function get_production_userlist_Html($performer_id, $service_id){
 
@@ -502,7 +504,8 @@
 					};
 					break;
 			}			
-		}		
+		}
+		*/		
 
 
 		//////////////////////////
