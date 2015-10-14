@@ -162,6 +162,7 @@
 						while($row = $result->fetch_assoc()){
 						   // наменование конкретных вариантов
 						   $out_put['block1']['price_data']['y_params'][] = $row['value'];
+						   $out_put['block1']['price_data']['y_params_ids'][$row['id']] = $row['value'];
 						}
 					}
 					unset($idsArr); 
