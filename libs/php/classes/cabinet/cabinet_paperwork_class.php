@@ -337,43 +337,15 @@
 						// формируем строку с информацией о заказе
 						$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
 						
-						$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
+						
 						//////////////////////////
 						//	тело строки заказа -- start ---
 						//////////////////////////
 							$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.($this->rows_num+1).'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
 							$table_order_row2_body .= '<td colspan="5" class="orders_info">';
-								// $table_order_row2_body .= '<span class="greyText">№: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
-									
-									// исполнители заказа
-									$table_order_row2_body .= '<table class="curator_on_request">';
-										$table_order_row2_body .= '<tr>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">Заказ №: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">Клиент: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-												
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
-
-											$table_order_row2_body .= '</td>';
-										$table_order_row2_body .= '</tr>';	
-										$table_order_row2_body .= '<tr>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span>';
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">дизайнер: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-												// $table_order_row2_body .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Компания: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">оператор: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-											$table_order_row2_body .= '</td>';
-										$table_order_row2_body .= '</tr>';	
-									$table_order_row2_body .= '</table>';									
-
+							
+							// исполнители заказа
+							$table_order_row2_body .= $this->performer_table_for_order();
 							$table_order_row2_body .= '</td>';
 							
 							

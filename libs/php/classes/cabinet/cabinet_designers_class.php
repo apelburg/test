@@ -63,7 +63,7 @@
 			
 			// 'order_start' => 'Запуск в работу (заказ)',
 			// 'order_in_work' => 'Заказы в работе',
-			// 'design_all' => 'Дизайн ВСЕ',
+			'design_all' => 'Дизайн ВСЕ',
 			// 'design_for_one_men' => 'Дизайн МОЁ',
 			// 'production' => 'Производство',
 

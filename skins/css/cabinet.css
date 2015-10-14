@@ -610,9 +610,10 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
 	border: 1px solid #f1f1f1;
 }
 
-#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production:hover td.show-backlight{
+/*Подсветка строк при наведении*/
+/*#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production:hover td.show-backlight{
 	background-color: #f1f1f1;
-}
+}*/
 #cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.js-modal--tz-prodaction:hover,
 #cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.position-row-production__service-name:hover{
 	background-color: #BBCE91;
@@ -1038,4 +1039,7 @@ div#cabinet_filtres {
 	padding: 5px;
     margin-top: 5px;
     float: left;
+}
+.seat_number_film,.designe_date_utv_maket {
+    padding: 5px 0;
 }

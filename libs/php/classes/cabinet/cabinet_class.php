@@ -196,6 +196,7 @@
 				'goods_in_stock' => 'принято на склад', // ->
 				'sended_on_outsource' => 'отправлено на аутсорс',
 				'ready_for_shipment'  => 'готов к отгрузке',
+				'goods_shipped_for_client_part' => 'позиция частично отгружена',
 				'goods_shipped_for_client' => 'отгружен клиенту'
 			);
 				
@@ -692,7 +693,7 @@
 				$html .= '</tr>';
 
 				//$html .= '<tr><td colspan="2">'.$this->print_arr($this->Position_status_list).'</td></tr>';
-
+				$this->poused_and_question = 0;
 				// выводим статусы услуг
 				foreach ($this->Position_status_list as $performer => $performer_status_arr) {
 					$html .= '<tr>';
@@ -1146,7 +1147,7 @@
 					`buch_status` =  'score_exhibited' 
 					WHERE  `id` ='".(int)$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
-				echo '{"response":"OK","function":"reload_paperwork_tbl"}';
+				echo '{"response":"OK","function":"reload_order_tbl"}';
 			}
 
 
@@ -1264,7 +1265,7 @@
 					return;
 				}else{
 					$this->attach_the_specification_for_other_order_Database($order_arr[$order_num]['order_id'],$order_arr[$order_num]['order_num'],$_POST['checked_spec_id']);
-					echo '{"response":"OK","function":"reload_paperwork_tbl"}';
+					echo '{"response":"OK","function":"reload_order_tbl"}';
 				}
 				
 			}
@@ -1300,7 +1301,7 @@
 				
 				$this->attach_the_specification_for_other_order_Database($order_id,$order_num_NEW,$_POST['checked_spec_id']);
 
-				echo '{"response":"OK","function":"reload_paperwork_tbl"}';
+				echo '{"response":"OK","function":"reload_order_tbl"}';
 			}
 
 			protected function attach_the_specification_for_other_order_Database($order_id,$order_num_NEW,$id_string){
@@ -1478,7 +1479,7 @@
 
 				// $message .= '<br>'.$query;
 				if(isset($message) && $message!=''){
-					echo '{"response":"OK","function2":"reload_paperwork_tbl","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+					echo '{"response":"OK","function2":"reload_order_tbl","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
 					exit;	
 				}
 				
@@ -2340,14 +2341,14 @@
 				$query .= " WHERE `id` = '".$id."'";
 				// echo $query;
 				$result = $mysqli->query($query) or die($mysqli->error);
-				echo '{"response":"OK","function":"reload_paperwork_tbl"}';
+				echo '{"response":"OK","function":"reload_order_tbl"}';
 			}
 
 			// запрос из кнопки выставить счёт
 			protected function get_listing_type_the_bill_AJAX(){
 				if(isset($_POST['status_buch']) &&  isset($this->commands_men_for_buch[trim($_POST['status_buch'])])){
 					$this->buch_status_select($_POST['status_buch'],$_POST['order_id']);
-					echo '{"response":"OK","function":"reload_paperwork_tbl"}';return;
+					echo '{"response":"OK","function":"reload_order_tbl"}';return;
 				}
 
 
@@ -2489,7 +2490,7 @@
 						break;
 					
 					default: 						
-						$json_answer = '{"response":"OK","function":"reload_paperwork_tbl"}';
+						$json_answer = '{"response":"OK","function":"reload_order_tbl"}';
 						break;
 				}			
 				$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `global_status` =  '".$_POST['status_order']."' ";
@@ -2616,8 +2617,8 @@
 
 				// собираем HTML
 				$html .= $this->get_a_detailed_article_on_the_price_of_positions_Html();
-
-				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+				$title = 'Заказ № '.$_POST['order_num_user'].' - финансовые расчёты';
+				echo '{"response":"show_new_window_simple","title":"'.$title.'","html":"'.base64_encode($html).'"}';
 			}
 
 			// присваиваем значение поля логотип (в окне доп. тех. инфо) ко всем услугам по текущей позиции
@@ -2800,10 +2801,29 @@
 			// присваиваем пользователя исполнителя услуги к услуге (взять услугу в работу)
 			protected function get_in_work_service_AJAX(){
 				global $mysqli;
+				if(isset($_POST['order_id']) && $_POST['order_id'] != 'undefined'){
+					// если это услуги дизайна
+					if($_POST['row_id'] == 56 || $_POST['row_id'] == 74 || $_POST['row_id'] == 56){
+						$column = "designer_id";
+					}else{
+						$column = "operator_id";
+					}
+					$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  `".$column."` =  '".$_POST['user_id']."' ";
+					$query .= "WHERE  `id` ='".$_POST['order_id']."';";
+					$result = $mysqli->query($query) or die($mysqli->error);
+				}
+
 
 				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  `performer_id` =  '".$_POST['user_id']."' ";
 				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
+				if(isset($_POST['order_id']) && $_POST['order_id'] != 'undefined'){
+					if($_POST['row_id'] == 56 || $_POST['row_id'] == 74 || $_POST['row_id'] == 56){
+						$column = "";
+					}else{
+						$column = "";
+					}
+				}
 				echo '{"response":"OK"}'; 	
 			}
 
@@ -3313,7 +3333,7 @@
 					}
 
 					$message = "Статус бухгалтерии по СПФ / ОФ изменён на \"".$status."\"";
-					echo '{"response":"OK","function":"reload_paperwork_tbl","function2":"reload_paperwork_tbl","function3":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';
+					echo '{"response":"OK","function":"reload_order_tbl","function2":"reload_order_tbl","function3":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';
 				}
 
 
@@ -3595,10 +3615,14 @@
 				$query .= "`performer` = '".$_POST['performer']."',";
 
 				$query .= "`for_how` = '".$_POST['for_how']."',";
-				$query .= "`tz` = '".$_POST['tz']."',";
+				$query .= "`tz` = '".base64_encode($_POST['tz'])."',";
 				// собираем JSON по доп полям
 				if(isset($_POST['dop_inputs']) && count($_POST['dop_inputs'])){
-					$query .= "`print_details_dop` = '".json_encode($_POST['dop_inputs'])."',";
+					$json_arr = array();
+					foreach ($_POST['dop_inputs'] as $key => $value) {
+						$json_arr[$key] = base64_encode($value);
+					}
+					$query .= "`print_details_dop` = '".json_encode($json_arr)."',";
 				}
 
 				$query .= "`author_name_added_services` = '".$_POST['author_name_added_services']."',";
@@ -3624,7 +3648,7 @@
 						<td class="postfaktum added_postfactum"><span class="service_price_in_postfactum">'.(($_POST['for_how'] == 'for_one')?$_POST['quantity']*$_POST['price_in']:$_POST['price_in']).'</span>р</td>
 						<td class="postfaktum"><span data-id="'.$insert_id.'" class="on_of">+</span></td><td></td></tr>';
 				
-				echo '{"response":"OK","function":"add_new_usluga_end","html":"'.base64_encode($html).'"}';
+				echo '{"response":"OK","function2":"reload_order_tbl","function":"add_new_usluga_end","html":"'.base64_encode($html).'"}';
 			}
 
 			// контент для окна доп/тех инфо
@@ -3724,11 +3748,17 @@
 				
 				$html .= $PositionComments -> get_comment_for_position_without_Out();
 				$html .= '</div>';
+
+				$html .= '<form><input type="hidden" name="AJAX" value="to_closed_this_window"></form>';
 				
 
 				// Вывод
 				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 			}	
+
+			protected function to_closed_this_window_AJAX(){
+				echo '{"response":"OK"}';
+			}
 
 			// включение отключение услуги
 			protected function change_service_on_of_AJAX(){
@@ -3737,14 +3767,14 @@
 					`on_of` =  '".(int)$_POST['val']."' 
 					WHERE  `id` ='".$_POST['id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
-				echo '{"response":"OK"}';
+				echo '{"response":"OK","function":"reload_order_tbl"}';
 			}
 
 			// редактирование поля ТЗ к услуге
 			protected function save_tz_info_AJAX(){
 				global $mysqli;
 				$query = "UPDATE  `".CAB_DOP_USLUGI."`  SET  
-					`tz` =  '".$_POST['text']."' 
+					`tz` =  '".base64_encode($_POST['text'])."' 
 					WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
@@ -4291,7 +4321,14 @@
 			$query .= " FROM `".$tbl."` 
 			LEFT JOIN  `".OUR_USLUGI_LIST."` ON  `".OUR_USLUGI_LIST."`.`id` = `".$tbl."`.`uslugi_id`"; 
 			
-			$query .= " ".(($where)?'AND':'WHERE')." `".$tbl."`.`dop_row_id` = '".$dop_row_id."'";
+			$query .= " ".(($where)?'AND':'WHERE')." `".$tbl."`.`dop_row_id` = '".$dop_row_id."' ";
+			if($tbl == CAB_DOP_USLUGI){
+				if(isset($_POST['AJAX']) && $_POST['AJAX']=='get_a_detailed_article_on_the_price_of_positions'){
+
+				}else{
+					$query .= " AND `".$tbl."`.`on_of` <> '0'";
+				}
+			}
 			$where = 1;
 
 			// фильрация по услугам
@@ -4556,7 +4593,7 @@
 					}
 			    }		    
 			    if(count($arr)){
-			    	$html = '<span data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+			    	$html = '<span data-id="'.$arr['id'].'">'.$arr['last_name'].' '.$arr['name'].'</span>';
 			    }			    
 			}
 
@@ -4578,7 +4615,7 @@
 					}
 			    }		    
 			    if(count($arr)){
-			    	$String = '<span data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+			    	$String = '<span data-id="'.$arr['id'].'">'.$arr['last_name'].' '.$arr['name'].'</span>';
 			    }
 			    return $String;
 			}else{
@@ -5132,7 +5169,7 @@
 			if($this->filtres_position_sort != ''){
 				$query .= "  ".$this->filtres_position_sort;
 			}else{
-				$query .= " ORDER BY `".CAB_ORDER_MAIN."`.`id` DESC";
+				$query .= " ORDER BY `".CAB_ORDER_MAIN."`.`sequence_number` ASC";
 			}
 			
 			// echo $query.'<br>';
@@ -5730,6 +5767,30 @@
 					$html .= '</tr>'; 
 					return $html;
 				}
+
+		// шаблон html исполнителей по заказу
+		protected function performer_table_for_order(){
+			$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
+			$html = '<table class="curator_on_request">';
+				$html .= '<tr>';
+					$html .= '<td>';
+						$html .= '<span class="greyText">Заказ №: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
+					$html .= '</td>';
+					$html .= '<td>';
+						$html .= '<span class="greyText">Клиент: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
+					$html .= '</td>';
+				$html .= '</tr>';	
+				$html .= '<tr>';
+					$html .= '<td>';
+						$html .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span>';
+					$html .= '</td>';
+					$html .= '<td>';
+						$html .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
+					$html .= '</td>';
+				$html .= '</tr>';	
+			$html .= '</table>';	
+			return $html;
+		}
 			
 		function __destruct() {			
 		}
