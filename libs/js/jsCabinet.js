@@ -213,7 +213,42 @@
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
 //////////////////////////////////
 
+// редактирование входящей стоимости услуги из окна фин. инфо
+// edit_price_in_for_postfactum_service
+$(document).on('keyup', '.change_tirage_for_postfactum_added_service', function(event) {
+	event.preventDefault();
+	var value = $(this).val();
+	var row_id = $(this).attr('data-id');
+	$(this).parent().next().find('.change_price_in_for_postfactum_added_service').attr('data-quantity',value);
+	$.post('', {
+		AJAX:'edit_price_in_for_postfactum_service',
+		value:value,
+		row_id:row_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
 
+// редактирование тиража услуги из окна фин. инфо
+// edit_quantity_for_postfactum_service
+$(document).on('keyup', '.change_price_in_for_postfactum_added_service', function(event) {
+	event.preventDefault();
+	var quantity = Number($(this).attr('data-quantity'));
+	var row_id = $(this).attr('data-id');
+	var for_how = $(this).attr('data-for_how');
+	var value = Number($(this).val());
+	$(this).prev().html((for_how == 'for_one')?(value * quantity):value );
+	recalculate_a_detailed_article_on_the_price_of_positions();
+	$.post('', {
+		AJAX:'edit_quantity_for_postfactum_service',
+		value:value,
+		row_id:row_id,
+		quantity:quantity,
+		for_how:for_how
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
 
 
 // показать / скрыть каталожные позиции 
@@ -1647,8 +1682,9 @@ $(document).on('click', '.add_service', function(event) {
 
 function add_new_usluga_end(data){
 	var id_row = $('#liuhjadbwefbkelwqfeqwfqw').attr('data-rowspan_id');
-	$('#'+id_row+' td').eq(0).attr('rowspan',(Number($('#'+id_row+' td').eq(1).attr('rowspan'))+1));
-	$('#'+id_row+' td').eq(1).attr('rowspan',(Number($('#'+id_row+' td').eq(1).attr('rowspan'))+1))
+	var rowspan = Number($('#'+id_row+' td').eq(0).attr('rowspan'))+1;
+	$('#'+id_row+'').find(':first-child').attr('rowspan',rowspan).next().attr('rowspan',rowspan);
+	// $('#'+id_row+'').firstChild(1).attr('rowspan',rowspan)
 	$('#liuhjadbwefbkelwqfeqwfqw').parent().parent().before(Base64.decode(data['html']));
 	$('#liuhjadbwefbkelwqfeqwfqw').removeAttr('id');
 	recalculate_a_detailed_article_on_the_price_of_positions();

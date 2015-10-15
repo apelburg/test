@@ -46,6 +46,37 @@
 		  	}			
 			exit;
 		}
+		if ($_POST['ajax_standart_window'] == "edit_adress_row") {
+	        $id_row = $_POST['id'];
+	        $tbl = "CLIENT_ADRES_TBL";
+	        //-- START -- //  логирование
+	        $client_name_i = Supplier::get_supplier_name($client_id); // получаем название клиента
+	        $user_n = $user_name.' '.$user_last_name;
+	        $text_history = $user_n.' отредактировал адрес клиента '.$client_name_i.' ';
+	        
+	        Supplier::history_edit_type($client_id,$user_id, $text_history ,'delete_cont_face',$tbl,$_POST,$id_row);
+	        //-- END -- //  
+
+	        //-- START --// сохранение данных
+	        global $mysqli;
+	        $query = "UPDATE  `" . constant($_POST['tbl']) . "` SET  
+				`city` =  '" . $_POST['city'] . "',
+				`street` =  '" . $_POST['street'] . "',
+				`house_number` =  '" . $_POST['house_number'] . "', 
+				`korpus` =  '" . $_POST['korpus'] . "',
+				`office` =  '" . $_POST['office'] . "',
+				`liter` =  '" . $_POST['liter'] . "', 
+				`bilding` =  '" . $_POST['bilding'] . "',
+				`postal_code` =  '" . $_POST['postal_code'] . "',
+				`note` =  '" . $_POST['note'] . "' WHERE  `id` ='" . $_POST['id'] . "';";
+	        $result = $mysqli->query($query) or die($mysqli->error);
+	        echo '{
+			       "response":"1",
+			       "text":"Данные сохранены"
+			      }';
+	        //-- END --// сохранение данных
+	        exit;
+	    }
 
 		if($_POST['ajax_standart_window']=="add_new_phone_row"){
 			//-- START -- //  логирование
@@ -245,7 +276,7 @@
 	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
 	        $user_n = $user_name.' '.$user_last_name;
 	        $text_history = $user_n.' обновил информацию по поставщику '.$supplier_name_i;
-	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'chenge_fullname_company',$tbl,$_POST,$id_row);
+	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'chenge_fullname_company',$tbl,$_POST,$id);
 	        //-- END -- //
 			//тут обновляем название компании
 			global $mysqli;

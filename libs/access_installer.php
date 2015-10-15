@@ -540,7 +540,7 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'design_all' =>  array('access'=>true),
+													
 													//'all' => array('access'=>true),
 													// 'get_in_work' => array('access'=>true),
 													// 'my_orders' => array('access'=>true),
@@ -552,16 +552,17 @@
 													// 'on_foreign_production' => array('access'=>true),
 													// 'in_the_production_apelburg' => array('access'=>true),
 													// 'in_the_production_supplier' => array('access'=>true)
-													'waiting_for_distribution' =>array('access'=>true),
-													'develop_design' =>array('access'=>true),
-													'laid_out_a_layout' =>array('access'=>true),
-													'edits' =>array('access'=>true),
-													'on_agreeing' =>array('access'=>true),
-													'prepare_to_print' =>array('access'=>true),
-													'films_and_cliches' =>array('access'=>true),
-													'pause_question_TK_is_not_correct' =>array('access'=>true),
-													'finished_models' =>array('access'=>true),
-													'order_all' =>array('access'=>true)
+													'design_waiting_for_distribution' =>array('access'=>true),
+													'design_develop_design' =>array('access'=>true),
+													'design_laid_out_a_layout' =>array('access'=>true),
+													'design_edits' =>array('access'=>true),
+													'design_on_agreeing' =>array('access'=>true),
+													'design_prepare_to_print' =>array('access'=>true),
+													'design_films_and_cliches' =>array('access'=>true),
+													'design_pause_question_TK_is_not_correct' =>array('access'=>true),
+													'design_finished_models' =>array('access'=>true),
+													'design_all' =>  array('access'=>true),
+													// 'order_all' =>array('access'=>true)
 													)
 												)
 											),

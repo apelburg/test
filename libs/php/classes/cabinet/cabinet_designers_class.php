@@ -63,21 +63,21 @@
 			
 			// 'order_start' => 'Запуск в работу (заказ)',
 			// 'order_in_work' => 'Заказы в работе',
-			'design_all' => 'Дизайн ВСЕ',
+			
 			// 'design_for_one_men' => 'Дизайн МОЁ',
 			// 'production' => 'Производство',
 
 			// новые зелёные вкладки
-			'waiting_for_distribution' => 'Ожидают распределения',
-			'develop_design' => 'Разработать дизайн',
-			'laid_out_a_layout' => 'Сверстать макет',
-			'edits' => 'Правки',
-			'on_agreeing' => 'На согласовании',
-			'prepare_to_print' => 'Подготовить в печать',
-			'films_and_cliches' => 'Пленки и клише',
-			'pause_question_TK_is_not_correct' => 'пауза/вопрос/ТЗ не корректно',
-			'finished_models' => 'Готовые макеты',
-			'order_all' => 'Все'
+			'design_waiting_for_distribution' => 'Ожидают распределения',
+			'design_develop_design' => 'Разработать дизайн',
+			'design_laid_out_a_layout' => 'Сверстать макет',
+			'design_edits' => 'Правки',
+			'design_on_agreeing' => 'На согласовании',
+			'design_prepare_to_print' => 'Подготовить в печать',
+			'design_films_and_cliches' => 'Пленки и клише',
+			'design_pause_question_TK_is_not_correct' => 'пауза/вопрос/ТЗ не корректно',
+			'design_finished_models' => 'Готовые макеты',
+			'design_all' => 'Все',
 		); 
 
 		// название подраздела кабинета

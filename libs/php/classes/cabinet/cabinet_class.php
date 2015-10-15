@@ -196,7 +196,7 @@
 				'goods_in_stock' => 'принято на склад', // ->
 				'sended_on_outsource' => 'отправлено на аутсорс',
 				'ready_for_shipment'  => 'готов к отгрузке',
-				'goods_shipped_for_client_part' => 'позиция частично отгружена',
+				// 'goods_shipped_for_client_part' => 'позиция частично отгружена',
 				'goods_shipped_for_client' => 'отгружен клиенту'
 			);
 				
@@ -484,6 +484,11 @@
 								$html .= '<option value=\''.$name_en.'\' '.$is_checked.'>'.$name_ru.'</option>';	
 							}
 						}
+						// если существует соответствие в сервисных статусах снаб
+						if(isset($this->statuslist_snab_service[$real_val])){
+							$html .= '<option value=\''.$real_val.'\' >'.$this->statuslist_snab_service[$real_val].'</option>';
+							// $decoder_status_name = $this->statuslist_snab_service[$real_val];
+						}
 						// перебираем статусы снабжения
 						foreach ($this->statuslist_snab as $name_en => $name_ru) {
 							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
@@ -693,7 +698,7 @@
 				$html .= '</tr>';
 
 				//$html .= '<tr><td colspan="2">'.$this->print_arr($this->Position_status_list).'</td></tr>';
-				$this->poused_and_question = 0;
+				
 				// выводим статусы услуг
 				foreach ($this->Position_status_list as $performer => $performer_status_arr) {
 					$html .= '<tr>';
@@ -706,9 +711,17 @@
 					foreach ($performer_status_arr as $key => $value) {
 						$html .= '<div class="otdel_status" data-id="'.$value['id'].'">';
 							$html .= '<div class="service_name">'.$value['service_name'].'</div>';
-							$html .= '<div class="performer_status">'.$this->get_statuslist_uslugi_Dtabase_Html($value['id'],$value['performer_status'],$value['id_dop_uslugi_row'],$value['performer']).'</div>';
-						$html .= '</div>';
-										
+							
+						
+							// фильтрация заказов для вкладик ТЗ не корректно/ вопрос/ пауза (МЕНЕДЖЕР)
+							if($value['performer_status'] == 'ТЗ не корректно' || $value['performer_status'] == 'стоимость работ не корректна' || $value['performer_status'] == 'пауза' || $value['performer_status'] == 'вопрос') {
+								// флаг о содержащейся вопросительной услуге
+								$this->poused_and_question = 0;							
+								$html .= '<div class="performer_status" style="background-color: rgba(255, 0, 0, 0.3);padding: 5px;">'.$this->get_statuslist_uslugi_Dtabase_Html($value['id'],$value['performer_status'],$value['id_dop_uslugi_row'],$value['performer']).'</div>';
+							}else{
+								$html .= '<div class="performer_status">'.$this->get_statuslist_uslugi_Dtabase_Html($value['id'],$value['performer_status'],$value['id_dop_uslugi_row'],$value['performer']).'</div>';
+							}	
+						$html .= '</div>';		
 					}
 
 					$html .= '</td>';
@@ -1041,6 +1054,25 @@
 					//$this->get_window_buh_uchet_AJAX();
 					// echo '{"response":"show_new_window_simple", "html":"'.base64_encode($this->get_window_buh_uchet()).'","title":"Бухгалтерский учёт:","width":"1100"}';				
 				}
+			}
+
+			// редактирование входящей стоимости услуги из окна фин. инфо
+			protected function edit_price_in_for_postfactum_service_AJAX(){
+				$this->db_edit_one_val(CAB_DOP_USLUGI,'quantity',(int)$_POST['row_id'],(int)$_POST['value']);
+				echo '{"response":"OK"}';
+
+				// echo '{"response":"show_new_window_simple","title":"test","html":"'.base64_encode($this->print_arr($_POST)).'"}';
+			}
+
+			// редактирование тиража услуги из окна фин. инфо
+			protected function edit_quantity_for_postfactum_service_AJAX(){
+				if(!isset($_POST['for_how'])){
+					echo '{"response":"show_new_window_simple","title":"test","html":"'.base64_encode("Почему-то пришли не все данные. =(").'"}';
+					exit;	
+				}
+				$this->db_edit_one_val(CAB_DOP_USLUGI,'price_in',(int)$_POST['row_id'],(int)$_POST['value']);
+				echo '{"response":"OK"}';
+				// echo '{"response":"show_new_window_simple","title":"test","html":"'.base64_encode($this->print_arr($_POST)).'"}';
 			}
 
 			// смена даты подписи спецификации
@@ -3551,12 +3583,13 @@
 				$html .= '<table id="check_input_iformation">';
 				$html .= '<tr><td>Услуга:</td><td>'.$_POST['service_name'].'</td></tr>';
 				$html .= '<tr><td>Тираж:</td><td>'.$_POST['quantity'].'</td></tr>';
-				$this->Service_price_in = ($_POST['for_how'] == "for_one")?$_POST['quantity']*$_POST['price_in']:$_POST['price_in'];
+				// $this->Service_price_in = ($_POST['for_how'] == "for_one")?$_POST['quantity']*$_POST['price_in']:$_POST['price_in'];
+				$this->Service_price_in = $_POST['price_in'];
 				// $this->Service_price_out = ($_POST['for_how'] == "for_one")?$_POST['quantity']*$_POST['price_out']:$_POST['price_in'];
 				$this->Service_price_out = 0; // для услуг добавленных в заказ показываем исходащую цену = 0, т.е. их сибистоимость вычитается из маржинальности
 				
 				
-				$html .= '<tr><td>$ входящая:</td><td><span>'.(($this->user_access==1 || $this->user_access==8)?'<input type="text" name="price_in" value="'.$this->Service_price_in.'">':$this->Service_price_in).'</span>р.</td></tr>';
+				$html .= '<tr><td>$ входящая '.(($_POST['for_how'] == "for_one")?'(за ед.)':'(за тир.)').':</td><td><span>'.(($this->user_access==1 || $this->user_access==8)?'<input type="text" name="price_in" value="'.$this->Service_price_in.'">':$this->Service_price_in).'</span>р.</td></tr>';
 				
 
 				$html .= '<tr><td>$ исходащая:</td><td><span>'.$this->Service_price_out.'</span>р</td></tr>';
@@ -3648,7 +3681,7 @@
 						<td class="postfaktum added_postfactum"><span class="service_price_in_postfactum">'.(($_POST['for_how'] == 'for_one')?$_POST['quantity']*$_POST['price_in']:$_POST['price_in']).'</span>р</td>
 						<td class="postfaktum"><span data-id="'.$insert_id.'" class="on_of">+</span></td><td></td></tr>';
 				
-				echo '{"response":"OK","function2":"reload_order_tbl","function":"add_new_usluga_end","html":"'.base64_encode($html).'"}';
+				echo '{"response":"OK","function":"add_new_usluga_end","html":"'.base64_encode($html).'","function2":"reload_order_tbl"}';
 			}
 
 			// контент для окна доп/тех инфо
@@ -4134,7 +4167,7 @@
 			$no_empty_class = (Comments_for_order_dop_data_class::check_the_empty_position_coment_Database($value['id']))?' no_empty':'';
 
 			$html = '<td>
-					<div class="dop_teh_info '.$no_empty_class.'" data-id_dop_data="'.$this->id_dop_data.'" data-id="'.$value['id'].'" data-query_num="'.$this->query_num.'" data-position_item="'.$this->position_item.'" data-order_num="'.$this->order_num.'" data-order_num_User="'.$this->order_num_for_User.'"  >доп/тех инфо</div>
+					<div class="dop_teh_info '.$no_empty_class.'" data-id_dop_data="'.$this->id_dop_data.'" data-id="'.$value['id'].'" data-query_num="'.$this->query_num.'" data-position_item="'.$this->position['sequence_number'].'" data-order_num="'.$this->order_num.'" data-order_num_User="'.$this->order_num_for_User.'"  >доп/тех инфо</div>
 					<div class="dop_teh_info_window_content"></div>
 				</td>';
 
@@ -4383,7 +4416,7 @@
 					$arr[] = $row;
 
 
-					// для зказа на понадобится дополнительная информация по статусам 
+					// для зказа нам понадобится дополнительная информация по статусам 
 					// если мы не в запросе
 					if(isset($_GET['section']) && $_GET['section'] != 'requests'){
 						// сортируем услугу в массив $this->Position_status_list по подразделениям
@@ -4544,16 +4577,22 @@
 		// в зависимости от уровня допуска для некоторых это календарь, а для менеджеров это кнопка
 		protected function get_Position_approval_date($approval_date,$position_id){
 			$html = '';
+			//// GHFDBNM !!!!!!!!!!!!!!!!!!!!!!!
+			//echo '$approval_date = "'.$approval_date.'"<br>';
+			
+
 			if($this->user_access == 5){
 				if(strtotime($approval_date)==0){
 					$html .= '<input type="button" class="set_approval_date" data-id="'.$position_id.'" value="Макет утверждён">';
 				}else{
+					if(trim($approval_date) == "" || $approval_date == "00.00.0000 00:00:00"){return '';}
 					$html .= '<span class="greyText">'.date('d.m.Y',strtotime($approval_date)).'</span>';	
 				}
 				
 			}else if($this->user_access == 1){
-				$html .= '<input type="text" class="approval_date" value="'.((strtotime($approval_date) != 0)?$approval_date:'').'" data-id="'.$position_id.'">';
+				$html .= '<input type="text" class="approval_date" value="'.((strtotime($approval_date) != 0 && $approval_date!= "00.00.0000 00:00:00")?$approval_date:'').'" data-id="'.$position_id.'">';
 			}else{
+				if(trim($approval_date) == "" || $approval_date == "00.00.0000 00:00:00"){return '';}
 				$html .= (strtotime($approval_date) != 0)?'<span class="greyText">'.date('d.m.Y',strtotime($approval_date)).'</span>':'';	
 			}
 			/*
@@ -4868,7 +4907,7 @@
 					$this->Service_price_out = $this->calc_summ_dop_uslug(array($service)); // исходящая по услуге
 					$this->Service_price_pribl = $this->Service_price_out - $this->Service_price_in; // прибыль по услуге
 					$this->Service_tir = ($service['for_how']=='for_one')?'<span>'.$service['quantity'].'</span>шт':'<span>  -  </span>'; // тираж по услуге
-					$this->Service_Name = (isset($service['uslugi_id']))?$this->Services_list[$service['uslugi_id']]['name']:$service['uslugi_id']; // название услуги
+					$this->Service_Name = (isset($service['uslugi_id']) && $service['uslugi_id']>0)?$this->Services_list[$service['uslugi_id']]['name']:$service['uslugi_id']; // название услуги
 					$this->Service_percent = $this->get_percent_Int($this->Service_price_in,$this->Service_price_out);
 
 					/*	
@@ -4926,8 +4965,21 @@
 									// то, что получилось по факту
 									$html_added .= '<td class="postfaktum"></td>';
 									$html_added .= '<td class="postfaktum added_postfactum">'.$this->Service_Name.'</td>';
-									$html_added .= '<td class="postfaktum added_postfactum">'.$this->Service_tir.'</td>';
-									$html_added .= '<td class="postfaktum added_postfactum"><span  class="service_price_in_postfactum">'.$this->Service_price_in.'</span>р</td>';
+									
+									// редактор тиража для добавленных постфактум услуг 
+									if(($this->user_access == 1 || $this->user_access == 8) && $service['for_how']=='for_one'){
+										$html_added .= '<td class="postfaktum added_postfactum"><input type="text" value="'.$service['quantity'].'" data-id="'.$service['id'].'" data-quantity="'.$service['quantity'].'" class="change_tirage_for_postfactum_added_service"></td>';	
+									}else{
+										$html_added .= '<td class="postfaktum added_postfactum">'.$this->Service_tir.'</td>';
+									}
+
+									// редактор стоимости для добавленных постфактум услуг 
+									if($this->user_access == 1 || $this->user_access == 8){
+										$html_added .= '<td class="postfaktum added_postfactum"><span  class="service_price_in_postfactum" style="display:none">'.$this->Service_price_in.'</span><input type="text" value="'.$this->Service_price_in.'" data-id="'.$service['id'].'" data-quantity="'.$service['quantity'].'" data-for_how="'.$service['for_how'].'" class="change_price_in_for_postfactum_added_service">'.(($service['for_how']=='for_one')?'<br><span class="greyText">(за ед.)</span>':'').'</td>';	
+									}else{
+										$html_added .= '<td class="postfaktum added_postfactum"><span  class="service_price_in_postfactum">'.$this->Service_price_in.'</span>р</td>';
+									}
+									
 									$html_added .= '<td class="postfaktum">'.$this->Service_swhitch_On_Of.'</td>';
 									$html_added .= '<td></td>';
 								$html_added .= '</tr>';
@@ -5564,11 +5616,19 @@
 					$this->order_shipping_date_timestamp // дата сдачи заказа TIMESTAMP
 					$this->order_shipping_date           // дата сдачи заказа 00.00.0000
 				*/
+				// if($this->Order['order_num'] == 3){
+				// 	echo 'test'.'<br>';
+				// 	echo '$this->specificate_shipping_date_timestamp = "'.$this->specificate_shipping_date_timestamp.'"<br>';
+				// }
 
 				// если один из прежде обсчитанных документов не имел даты сдачи, считать дальше нет смысла
 				if(isset($this->one_specificate_is_not_approval) && $this->one_specificate_is_not_approval == 1 ){
+					$this->order_shipping_date = '';
+					$this->order_shipping_date_timestamp == 0;
+					$this->one_specificate_is_not_approval = 1;
 					return;
 				}
+				
 				//echo $this->specificate_shipping_date.' -- '.$this->specificate_shipping_date_timestamp.' -- '.$this->one_specificate_is_not_approval.'<br>';
 				// если документ не имеет даты сдачи, обнуляем дату и timestamp
 				if($this->specificate_shipping_date_timestamp <= 0 && $this->specificate['date_type'] == 'date'){
@@ -5588,6 +5648,10 @@
 						$this->order_shipping_date = date('d.m.Y',$this->specificate_shipping_date_timestamp);
 						$this->order_shipping_date_timestamp = $this->specificate_shipping_date_timestamp;
 						//echo '<strong>'.$this->specificate_shipping_date.'</strong> -- '.strtotime($this->specificate_shipping_date).'<br>';	
+					}else{
+						$this->order_shipping_date = '';
+					$this->order_shipping_date_timestamp == 0;
+					$this->one_specificate_is_not_approval = 1;
 					}
 					
 				}else{
@@ -5764,7 +5828,12 @@
 
 					// получаем статусы участников заказа в две колонки: отдел - статус
 					$html .= $this->position_status_list_Html($this->position);
+					// фильтр для вкладки (менеджер)
+					
 					$html .= '</tr>'; 
+					if (isset($_GET['subsection']) && $_GET['subsection'] == 'tpause_and_questions') {
+						if($this->poused_and_question){$this->rows_num--; return ''; }	
+					}
 					return $html;
 				}
 
