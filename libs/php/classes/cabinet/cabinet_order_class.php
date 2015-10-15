@@ -245,42 +245,14 @@
 						// формируем строку с информацией о заказе
 						$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
 						
-						$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
 						//////////////////////////
 						//	тело строки заказа -- start ---
 						//////////////////////////
 							$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.($this->rows_num+1).'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
 							$table_order_row2_body .= '<td colspan="5" class="orders_info">';
-								// $table_order_row2_body .= '<span class="greyText">№: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
 									
-									// исполнители заказа
-									$table_order_row2_body .= '<table class="curator_on_request">';
-										$table_order_row2_body .= '<tr>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">Заказ №: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">Клиент: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-												
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
-
-											$table_order_row2_body .= '</td>';
-										$table_order_row2_body .= '</tr>';	
-										$table_order_row2_body .= '<tr>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span>';
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">дизайнер: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-												// $table_order_row2_body .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Компания: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-											$table_order_row2_body .= '</td>';
-											$table_order_row2_body .= '<td>';
-												$table_order_row2_body .= '<span class="greyText">оператор: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-											$table_order_row2_body .= '</td>';
-										$table_order_row2_body .= '</tr>';	
-									$table_order_row2_body .= '</table>';									
+							// исполнители заказа
+							$table_order_row2_body .= $this->performer_table_for_order();								
 
 							$table_order_row2_body .= '</td>';
 							
@@ -307,8 +279,8 @@
 								$table_order_row2_body .= $this->order_shipping_date;
 							$table_order_row2_body .= '</td>';
 
-							$table_order_row2_body .= '<td style="width:78px"><span class="greyText black">Заказа: </span></td>';
-							$table_order_row2_body .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1)?'order_status_chenge':'').'">'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+							$table_order_row2_body .= '<td style="width:78px"><span class="greyText black">'.(($this->user_access==8)?'':'Заказа:').' </span></td>';
+							$table_order_row2_body .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1 || $this->user_access == 9)?'order_status_chenge':'').'">'.(($this->user_access!=8)?$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']):'').'</td>';
 						
 						/////////////////////////////////////
 						//	тело строки заказа -- end ---
@@ -398,6 +370,7 @@
 
 					$this->position_item = 1;// порядковый номер позиции
 					foreach ($positions_rows as $key => $this->position) {
+						$this->poused_and_question = 1;
 						// вычисляем крайнюю дату утверждения макета по всем позициям к по одному документу
 						$this->get_position_approval_bigest_date();
 
@@ -424,6 +397,7 @@
 							  
 						$html .= $this->get_order_specificate_position_Html_Template();  
 
+						
 						// добавляем стоимость позиции к стоимости заказа
 						$this->price_specificate += $this->Price_for_the_position;
 						$this->position_item++;
@@ -481,8 +455,9 @@
 
 				
 				/**
-				 * выгрузка по шаблону Дизайн/препресс
+				 * выгрузка по шаблону (Дизайн/препресс)
 				*/
+					// Дизайн всё (Дизайн/препресс)
 					private function orders_design_all_Template($id_row=0){
 						$this->group_access = 9;
 						// id начальника отдела дизайна
@@ -490,6 +465,52 @@
 
 						$this->design_rows($id_row=0);
 					}
+
+					// Ожидают распределения (Дизайн/препресс)
+					private function orders_design_waiting_for_distribution_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
+					// Разработать дизайн (Дизайн/препресс)
+					private function orders_design_develop_design_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
+					// Сверстать макет (Дизайн/препресс)
+					private function orders_design_laid_out_a_layout_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
+					// Правки (Дизайн/препресс)
+					private function orders_design_edits_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
+					// На согласовании (Дизайн/препресс)
+					private function orders_design_on_agreeing_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
+					// Подготовить в печать (Дизайн/препресс)
+					private function orders_design_prepare_to_print_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
+					// Пленки и клише (Дизайн/препресс)
+					private function orders_design_films_and_cliches_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
+					// пауза/вопрос/ТЗ не корректно (Дизайн/препресс)
+					private function orders_design_pause_question_TK_is_not_correct_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
+					// Готовые макеты (Дизайн/препресс)
+					private function orders_design_finished_models_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
+
 					// private function orders_design_all_Template($id_row=0){
 					// 	$this->group_access = 9;
 					// 	// id начальника отдела дизайна
@@ -532,7 +553,7 @@
 							// $html .= '<td>';
 							// 	$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
 							// $html .= '</td>';
-							$html .= '<td>Бух.</td>';
+							$html .= '<td><span class="greyText">Бухгалтерия</span></td>';
 							$html .= '<td class="buch_status_select_for_design">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
 						$html .= '</tr>';
 						return $html;
@@ -563,10 +584,10 @@
 							// echo $this->print_arr($positions_rows);
 							// получаем html строку со спецификацией
 							
-							if($positions_rows != ''){
-								$this->position_item++;
-								$html .= $this->get_order_specificate_for_design_Html_Template();	
-							}
+							// if($positions_rows != ''){
+							// 	$this->position_item++;
+							// 	$html .= $this->get_order_specificate_for_design_Html_Template();	
+							// }
 							
 
 							// // если количество позиций не известно - сохраняем
@@ -603,18 +624,18 @@
 						
 						// формируем строки позиций	(перебор позиций)	
 						$n = 0;	
-						foreach ($positions_rows as $key => $position) {
+						foreach ($positions_rows as $key => $this->position) {
 
 							$this->Position_status_list = array(); // в переменную заложим все статусы
 
-							$this->id_dop_data = $position['id_dop_data'];
+							$this->id_dop_data = $this->position['id_dop_data'];
 							
 							// ТЗ на изготовление продукцию для НЕКАТАЛОГА
 							// для каталога и НЕкаталога способы хранения и получения данной информации различны
 							$this->no_cat_TZ = '';
-							if(trim($position['type'])!='cat' && trim($position['type'])!=''){
+							if(trim($this->position['type'])!='cat' && trim($this->position['type'])!=''){
 								// доп инфо по некаталогу берём из json 
-								$this->no_cat_TZ = $this->decode_json_no_cat_to_html($position);
+								$this->no_cat_TZ = $this->decode_json_no_cat_to_html($this->position);
 							}
 
 							// получаем массив услуг по позиции
@@ -624,15 +645,30 @@
 							$this->services_design = $this->get_dop_services_for_production( $this->position_services_arr , 9 );
 							// выборка только массива услуг производства
 							$this->services_production = $this->get_dop_services_for_production( $this->position_services_arr , 4 );
+							// выборка услуг оутсорс (которые ведёт снабжение)
+							$this->services_production_snab = $this->get_dop_services_for_production( $this->position_services_arr , 8 );
 
 							$this->services_num  = count($this->services_design);
 							
 							$n++;				
 							// если услуг для производства в данной позиции нет - переходм к следующей
 							if($this->services_num == 0){continue;}
+							if(isset($_GET['subsection']) && $_GET['subsection'] == 'design_films_and_cliches'){
+								if($this->check_the_status_films('готовы к отправке')){continue;}
+							}
+
+								// плёнки клише
+								$html_row_5 = '<td class="show-backlight" rowspan="'.($this->services_num).'">';
+									// подрядчик печати
+									$html_row_5 .= $this->position['suppliers_name'];
+									// пленки / клише
+									$film_and_cliches = $this->get_film_and_cliches();
+
+									$html_row_5 .= $film_and_cliches;
+								$html_row_5 .= '</td>';
 								
 								// // порядковый номер позиции в заказе
-								$html_row_1 = '<td rowspan="'.($this->services_num).'"><span class="orders_info_punct">'.$position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
+								$html_row_1 = '<td rowspan="'.($this->services_num).'"><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
 								
 								// // описание позиции
 								$html_row_1 .= '<td  rowspan="'.($this->services_num).'" >';
@@ -640,49 +676,59 @@
 									// вставляем номер заказа
 									$html_row_1 .= '№ '.$this->order_num_for_User.'<br>';
 									// наименование товара
-									$html_row_1 .= '<span class="art_and_name">'.$position['art'].'  '.$position['name'].'</span>';
+									$html_row_1 .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';
 									// описание некаталожной продукции
 									$html_row_1 .= $this->no_cat_TZ;
 									// места нанесения
 									$html_row_1 .= $this->get_service_printing_list();
-
-									// // массив по позиции
-									// $html_row_1 .= 'массив позиции<br>';
-									// $html_row_1 .= $this->print_arr($position);
-
-									// // массив всeх услуг
-									// $html_row_1 .= 'массив всех услуг<br>';
-									// $html_row_1 .= $this->print_arr($this->position_services_arr);
-
-									// // массив услуг печати
-									// $html_row_1 .= 'массив услуг печати<br>';
-									// $html_row_1 .= $this->print_arr($this->services_production);
-									// добавляем тираж
-									$html_row_1 .= 'Тираж: '.($position['quantity']) .' шт.';	
-
-
-									$html_row_1 .= '<div class="linked_div">'.identify_supplier_by_prefix($position['art']).'</div>';
+									$html_row_1 .= 'Тираж: '.($this->position['quantity']) .' шт.';	
+									$html_row_1 .= '<div class="linked_div">'.identify_supplier_by_prefix($this->position['art']).'</div>';
 								$html_row_1 .= '</td>';
 
-								// $html_row_2 = '<td rowspan="'.$this->services_num.'">1</td>';
-								$html_row_2 = '<td rowspan="'.$this->services_num.'" >
-											<div>'.$this->decoder_statuslist_snab($position['status_snab'],$position['date_delivery_product'],0,$position['id']).'</div>
-										</td>';
+								// дата сдачи макета
+								$html_row_2 = '<td class="show-backlight" rowspan="'.$this->services_num.'">';
+									$this->shipping_date_limit = ($this->specificate['shipping_date_limit'] != '00.00.0000')?$this->specificate['shipping_date_limit']:'';
+									$html_row_2 .= '<span class="greyText">'.$this->shipping_date_limit.'</span>';
+								$html_row_2 .= '</td>';
 
-							// $html_row_2 .= '</tr>';	
+								// дата утв. макета
+								$html_row_3 = '<td class="show-backlight"  rowspan="'.$this->services_num.'" ><span class="greyText">';
+									// проверка на отсутствие пустого значения
+									if($this->position['approval_date']!='' && $this->position['approval_date']!='00.00.0000 00:00:00'){
+										$approval_date_timestamp = strtotime($this->position['approval_date']);
+										if($approval_date_timestamp != 0){
+											// дата
+											$this->approval_date = date('d.m.Y',$approval_date_timestamp);
+											
+											$html_row_3 .= $this->approval_date;
+											// время
+											$this->approval_time = date('H:i',$approval_date_timestamp);
+											if($this->approval_time != '00:00'){
+												$html_row_3 .= '<br>'.$this->approval_time.'';
+											}
+										}
+									}
+								$html_row_3 .= '</td>';
+
+								// дата печати
+								$html_row_4 = '<td class="show-backlight" rowspan="'.$this->services_num.'" >';
+									$html_row_4 .= $this->get_date_printing();
+								$html_row_4 .= '</td>';
 
 
-							$html .= $this->get_service_content_for_designer_operations($position,$this->services_design,$html_row_1,$html_row_2);
+
+
+							$html .= $this->get_service_content_for_designer_operations($this->position,$this->services_design,$html_row_1, $html_row_2, $html_row_3, $html_row_4, $html_row_5);
 							
 							// $this->position_item++;
 							// $this->position_item = count($positions_rows) * $this->services_num+1;
 							
-						}				
+						}		
 						return $html;
 					}
 
 					// строки услуг (Дизайн/препрес)
-					private function get_service_content_for_designer_operations($position, $services_arr, $html_row_1, $html_row_2){
+					private function get_service_content_for_designer_operations($position, $services_arr, $html_row_1, $html_row_2,  $html_row_3, $html_row_4, $html_row_5){
 						if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
 							$this->Services_list_arr = $this->get_all_services_Database();
 						}
@@ -693,27 +739,23 @@
 						$service_count = count($services_arr);
 						
 						// перебираем услуги по позиции
-						foreach ($services_arr as $key => $service) {
+						foreach ($services_arr as $key => $this->service) {
 
 							// получаем  json
-							$this->print_details_dop_Json = (trim($service['print_details_dop'])=="")?'{}':$service['print_details_dop'];
+							$this->print_details_dop_Json = (trim($this->service['print_details_dop'])=="")?'{}':$this->service['print_details_dop'];
 							// декодируем json  в массив
 							$this->print_details_dop = json_decode($this->print_details_dop_Json, true);
 
 
 
 							// получаем наименование услуги
-							$this->Service_name = (isset($this->Services_list_arr[ $service['uslugi_id'] ]['name'])?$this->Services_list_arr[ $service['uslugi_id'] ]['name']:'данная услуга в базе не найдена');
+							$this->Service_name = (isset($this->Services_list_arr[ $this->service['uslugi_id'] ]['name'])?$this->Services_list_arr[ $this->service['uslugi_id'] ]['name']:'данная услуга в базе не найдена');
 
-							$html = '';
-							// $html .= ($n>0)?'<tr class="position-row position-row-production row__'.($key+2).'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>':'';
-								// место
-								
+							$html = '';							
 
 								// операция
-								$html .= '<td class="show-backlight js-modal--tz-prodaction" data-id="'.$service['id'].'">';
+								$html .= '<td class="show-backlight js-modal--tz-prodaction" data-id="'.$this->service['id'].'">';
 									$html .= $this->Service_name;
-
 
 									// перебираем производственные услуги к которым дизайнер/оператор будет готовить макет или дизайн
 									foreach ($this->services_production as $key_production_service => $production_service) {
@@ -723,69 +765,58 @@
 										$html .='</div>';	
 									}
 
-									// выводим ТЗ
-									//$html .= '<br>'.$service['tz'];
+									// перебор услуг оутсорса
+									foreach ($this->services_production_snab as $key_production_service => $production_service) {
+										$html .= '<div class="seat_number_logo">';
+											$html .= 'место'.($key_production_service+1).' ('.$this->Services_list_arr[ $production_service['uslugi_id'] ]['name'].' "А"): ';
+											$html .= $production_service['logotip'];
+										$html .='</div>';	
+									}
 
 								$html .= '</td>';
 
 								
 								
-
+								// статусы плёнок
 								if($n==0){// это дополнительные колонки в уже сформированную строку
-									// оборачиваем колонки в html переданный в качестве параметра
-									$html .= '<td class="show-backlight" rowspan="'.count($services_arr).'">';
-										// подрядчик печати
-										$html .= $position['suppliers_name'];
-										// пленки / клише
-										$html .= $this->get_film_and_cliches();
-									$html .= '</td>';
-
-									//$html .= '<tr class="position-row position-row-production" id="position_row_'.($key+2).'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>'.$html_row_3 .'</tr>';
+									$html .= $html_row_5;
 								}
-								// // плёнки / клише
-								// $html .= '<td class="show-backlight">';
-								// 	$html .= $this->get_statuslist_film_photos($service['film_photos_status'],$service['id']);
-								// $html .= '</td>';
+
+								// дата печати
+								if($n==0){
+									$html .= $html_row_4;
+								}
+								// дата сдачи макета
+								if($n==0){
+									$html .= $html_row_2;
+								}								
 								
+								// дата утв. макета
+								if($n==0){
+									$html .= $html_row_3;
+								}								
 
-								// дата сдачи
+								// исполнитель
 								$html .= '<td class="show-backlight">';
-									$html .= '<span class="greyText">'.$this->Order['date_of_delivery_of_the_order'].'</span>';
-								$html .= '</td>';
-								
-								// дата работы
-								$html .= '<td class="show-backlight">';
-									//$html .= '<input type="text" name="calendar_date_work"  value="'.(($service['date_work']=='00.00.0000')?'нет':$service['date_work']).'" data-id="'.$service['id'].'" class="calendar_date_work">';
-								$html .= '<input type="text" name="calendar_date_work"  value="'.(($service['date_work']=='00.00.0000')?'нет':$service['date_work']).'" data-id="'.$service['id'].'" disabled style="width:70px;text-align:center">';
+									$html .= $this->get_production_userlist_Html($this->service['performer_id'],$this->service['id']);
 								$html .= '</td>';
 
-								// исполнитель услуги
+								// статус дизайна
 								$html .= '<td class="show-backlight">';
-									$html .= $this->get_production_userlist_Html($service['performer_id'],$service['id']);
+									$html .= $this->get_statuslist_uslugi_Dtabase_Html($this->service['uslugi_id'],$this->service['performer_status'],$this->service['id'], $this->service['performer']);
 								$html .= '</td>';
-
-								// статус готовности
-								$html .= '<td class="show-backlight">';
-									$html .= $this->get_statuslist_uslugi_Dtabase_Html($service['uslugi_id'],$service['performer_status'],$service['id'], $service['performer']);
-								$html .= '</td>';
-
-								// // % готовности
-								// $html .= '<td class="show-backlight percentage_of_readiness" contenteditable="true" data-service_id="'.$service['id'].'">';
-								// 	$html .= $service['percentage_of_readiness'];
-								// $html .= '</td>';
-							// $html .= ($n>0)?'</tr>':'';
 
 							if($n==0){// это дополнительные колонки в уже сформированную строку
 								// оборачиваем колонки в html переданный в качестве параметра
-								$gen_html .= '<tr class="position-row position-row-production" id="position_row_'.($key+2).'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>'.$html_row_1 . $html . $html_row_2 .'</tr>';
+								$gen_html .= '<tr class="position-row position-row-production" id="position_row_'.($key+2).'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>'.$html_row_1 . $html .'</tr>';
 							}else{
 								$gen_html .= '<tr class="position-row position-row-production" id="position_row_'.($key+2).'" data-id="'.$position['id'].'" '.$this->open_close_tr_style.'>'.$html.'</tr>';
 							}
 
-							// $gen_html = (trim($gen_html)!='')?'<tr data-ddd=\''.md5($gen_html).'\'>'.$gen_html.'</tr>':'';
 							$this->position_item++;
 							$n++;
 						}
+
 						return $gen_html ;
 					}
 
@@ -808,11 +839,12 @@
 								$table_head_html .= '<th colspan="3" rowspan="2">Артикул/номенклатура/печать</th>';
 								$table_head_html .= '<th  rowspan="2">Техническое задание</th>';
 								$table_head_html .= '<th>Подрядчик печати</th>';
+								$table_head_html .= '<th rowspan="2">Дата печати</th>';
 								$table_head_html .= '<th rowspan="2">Дата сдачи<br>макета</th>';
 								$table_head_html .= '<th rowspan="2">Дата утв.<br>макета</th>';
 								$table_head_html .= '<th rowspan="2">исполнитель</th>';
 								$table_head_html .= '<th rowspan="2">статус дизайна</th>';
-								$table_head_html .= '<th rowspan="2">статус снабжение</th>';
+								// $table_head_html .= '<th rowspan="2">статус снабжение</th>';
 							$table_head_html .= '</tr>';
 							$table_head_html .= '<tr>';
 							$table_head_html .= '<th><span style="float:left; height:100%; padding: 0 5px 0 0; border-right:1px solid grey">М</span><span style="folat:right; padding:0 5px;">пленки / клише</span></th>';
@@ -878,44 +910,24 @@
 														<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
 													</td>';
 								$table_order_row .= '<td colspan="3" class="orders_info">';
-									$table_order_row .= '<span class="greyText">№: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
-									
-									$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
-									// исполнители заказа
-									$table_order_row .= '<br>';
-									$table_order_row .= '<table class="curator_on_request">';
-										$table_order_row .= '<tr>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">мен: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">дизайнер: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-											$table_order_row .= '</td>';
-										$table_order_row .= '</tr>';	
-										$table_order_row .= '<tr>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span>';
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">оператор: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-											$table_order_row .= '</td>';
-										$table_order_row .= '</tr>';	
-									$table_order_row .= '</table>';	
-								$table_order_row .= '</td>';
-
 								
-								// $table_order_row .= '<td colspan="3" class="orders_info">
-								// 					<span class="greyText">№: </span><a href="#">'.$this->order_num_for_User.'</a> <span class="greyText"> &larr; (<a href="?page=client_folder&client_id='.$this->Order['client_id'].'&query_num='.$this->Order['query_num'].'" target="_blank" class="greyText">'.$this->Order['query_num'].'</a>)</span>
-								// 					'.$this->get_client_name_link_Database($this->Order['client_id']).'
-								// 					<span class="greyText">,&nbsp;&nbsp;&nbsp;   менеджер: '.$this->get_manager_name_Database_Html($this->Order['manager_id'],1).'</span>
-								// 					<span class="greyText">,&nbsp;&nbsp;&nbsp;   снабжение: '.$this->get_name_employee_Database_Html($this->Order['snab_id']).'</span>
-								// 					<span class="greyText">,&nbsp;&nbsp;&nbsp;   оператор : в разработке</span>
-												// </td>';
+								// исполнители заказа
+								$table_order_row .= $this->performer_table_for_order();
+
+								$table_order_row .= '</td>';
 								
 								// дата сдачи
 								$table_order_row .= '<td><strong>'.$this->Order['date_of_delivery_of_the_order'].'</strong></td>';
-								
-								$table_order_row .= '<td colspan="5"></td>';
+								// комментарии по заказу
+								$table_order_row .= '<td>';								
+									$table_order_row .= '<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>';
+								$table_order_row .= '</td>';
+
+								$table_order_row .= '<td></td>';
+								$table_order_row .= '<td></td>';
+								$table_order_row .= '<td></td>';
+								// $table_order_row .= '<td>статус заказа</td>';
+								$table_order_row .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1 || $this->user_access == 9)?'order_status_chenge':'').'">'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
 								
 							$table_order_row .= '</tr>';
 							// включаем вывод позиций 
@@ -939,6 +951,9 @@
 							// фильтрация
 							if($service_id > 0 && $service['uslugi_id'] != $service_id){ continue; }
 
+							
+
+
 							// если такая услуга существует в базе
 						 	if(isset( $this->Services_list_arr[$service['uslugi_id']]) ){
 						 		/**
@@ -946,9 +961,99 @@
 								 *	Т.к. в данном случае дизайнер работает не со всеми услугами производства, отфильтровываем все услуги по флагу maket_true
 								 */
 						 		if($this->Services_list_arr[ $service['uslugi_id'] ]['performer'] == $user_access && $this->Services_list_arr[ $service['uslugi_id'] ]['maket_true'] == "on"){
+						 			switch ($user_access) {
+						 				case '5':
+						 					switch ($_GET['subsection']) {
+												case 'question_pause':// пауза/вопрос/ТЗ не корректно
+													if($service['performer_status'] == 'ТЗ не корректно' || $service['performer_status'] == 'пауза' || $service['performer_status'] == 'вопрос'){
+														$new_arr[] = $service;
+													}
+													break;
+												default:// добавляем услугу в новый массив 
+								 					$new_arr[] = $service;
+													break;
+												}
+						 					break;
+						 				case '9':// фильтрация услуг дизайна по зелёным вкладкам дизайна
+											switch ($_GET['subsection']) {
+												case 'design_waiting_for_distribution'://Ожидают распределения
+												/*
+													"все входящие в заказ имеющие услуги дизайн и пре-пресс
+
+													статус по умолчанию: ""ожидает обработки""
+
+													вспомнил важное - либо МАКЕТ БЕЗ ОПЛАТЫ!!!"
+												*/
+													if($service['performer_id'] == 0){
+														$new_arr[] = $service;
+													}
+													break;
+												case 'design_develop_design'://Разработать дизайн
+												/*
+													"все позиции с услугой из папки дизайн по которым назначено имя ДИЗа и стоит статус: 
+													задача принята, ожидает
+													в работе
+													"
+												*/
+													if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 53){
+														$new_arr[] = $service;
+													}
+													break;
+												case 'design_laid_out_a_layout': //Сверстать макет
+												/*
+													все позиции с услугой из папки пре-пресс по которым назначено имя ДИЗа и стоит статус: 
+													задача принята, ожидает
+													дизайн-эскиз утвержден
+													в работе
+
+													вспомнил важное - либо МАКЕТ БЕЗ ОПЛАТЫ!!!
+												*/
+													if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 50 && $service['performer_id'] != 0){
+														if($service['performer_status'] == 'дизайн-эскиз утвержден' || $service['performer_status'] == 'в работе' || $service['performer_status'] == 'задача принята, ожидает'){
+															$new_arr[] = $service;
+														}
+													}
+													break;
+												case 'design_edits': // правки
+													if($service['performer_status'] == 'исправить макет' || $service['performer_status'] == 'исправить дизайн' || substr($service['performer_status'], 0, 14) == 'очередь'){
+														$new_arr[] = $service;
+													}
+													break;												
+												case 'design_on_agreeing': // на согласовании
+													if($service['performer_status'] == 'дизайн-эскиз готов' || $service['performer_status'] == 'оригинал-макет готов' || $service['performer_status'] == 'Печатная Pdf на утверждении'){
+														$new_arr[] = $service;
+													}
+													break;
+												case 'design_prepare_to_print': // Подготовить в печать
+													if($service['performer_status'] == 'подготовить в печать'){
+														$new_arr[] = $service;
+													}
+													break;
+												case 'design_pause_question_TK_is_not_correct': // пауза/вопрос/ТЗ не корректно
+													if($service['performer_status'] == 'ТЗ не корректно' || $service['performer_status'] == 'стоимость работ не корректна' || $service['performer_status'] == 'пауза' || $service['performer_status'] == 'вопрос'){
+														$new_arr[] = $service;
+													}
+													break;
+
+												case 'design_finished_models': // Готовые макеты
+													if($service['performer_status'] == 'услуга выполнена' || $service['performer_status'] == 'макет отправлен в СНАБ'){
+														$new_arr[] = $service;
+													}
+													break;
+												
+												default:
+													// добавляем услугу в новый массив 
+								 					$new_arr[] = $service;
+													break;
+											}
+						 					break;
+						 				
+						 				default:
+						 					$new_arr[] = $service;
+						 					break;
+						 			}
 						 			
-						 			// добавляем услугу в новый массив 
-						 			$new_arr[] = $service;
+						 			
 						 		}
 
 						 	}
@@ -993,14 +1098,30 @@
 						if(isset($this->print_details_dop) && !empty($this->print_details_dop)){
 							//echo  $service['print_details_dop'];
 							$n=0;
-							foreach ($this->print_details_dop as $key => $text) {
+							foreach ($this->print_details_dop as $key => $text){
 								$html .= (($n>0)?', ':'').$this->dop_inputs_listing[$key]['name_ru'].': '.base64_decode($text);
 								$n++;
 							}
 						}
 
 						return $html;
-					}					
+					}	
+
+					// проверка плёнок на статус "готовы к отправке"
+					private function check_the_status_films($status){
+						// echo '<pre>';
+						// print_r($this->services_production);
+						// echo '</pre>';
+						if (empty($this->services_production)) {
+							return 1;
+						}
+						foreach ($this->services_production as $key => $service) {
+							if($service['film_photos_status'] == $status){
+								return 0;
+							}
+						}
+						return 1;
+					}				
 
 					// информация о плёнках и клише
 					private function get_film_and_cliches(){
@@ -1015,6 +1136,33 @@
 							$html .= '<div class="seat_number_film"><span class="seat_number">'.$n++.'</span>'.$this->get_statuslist_film_photos($production_service['film_photos_status'],$production_service['id']).'</div>';
 						}
 						return $html;
+					}
+					// получаем дату печати
+					private function get_date_printing(){
+						// если услуг печати нет - выходим
+						if(empty($this->services_production)){return '';}
+						
+						$html = '';
+						//return $this->print_arr($this->services_production);
+						// перебираем услуги печати
+						$n = 1;
+						foreach ($this->services_production as $key => $production_service) {
+							$html .= '<div class="designe_date_utv_maket"><span class="greyText">'.$this->format_the_date($production_service['date_work']).'</span></div>';
+						}
+						return $html;
+					}
+
+					// преобразуем время
+					private function format_the_date($date, $excuse = ''){
+						if($date == '00.00.0000 00:00'){
+							return '<br>отсутствует';
+						}
+						$timestamp = strtotime($date);
+						$date_new = date('d.m.Y',$timestamp);
+						
+						//$time = date('H:i',$timestamp);
+						$excuse = $excuse.' ';
+						return $date_new;
 					}
 
 					// отдаёт имя пользователя, список пользователей или 
@@ -1032,12 +1180,12 @@
 						// регулируем вывод в зависимости от уровня доступа
 						switch ($this->user_access) {
 							case '1': // для админа список
-								$html .= '<select data-row_id="'.$service_id.'" class="production_userlist">';
+								$html .= '<select data-row_id="'.$service_id.'" data-order_id="'.$this->Order['id'].'" class="production_userlist">';
 								
 								$options_tag = '';
 								foreach ($this->userlist as $key => $user) {
 									$checked = ($performer_id == $user['id'])?' selected="selected"':'';
-									$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+									$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['last_name'].' '.$user['name'].'</option>';
 									if($checked != ''){$check = 1;}
 								}
 
@@ -1057,7 +1205,7 @@
 									$options_tag = '';
 									foreach ($this->userlist as $key => $user) {
 										$checked = ($performer_id == $user['id'])?' selected="selected"':'';
-										$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+										$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['last_name'].' '.$user['name'].'</option>';
 										if($checked != ''){$check = 1;}
 									}
 
@@ -1072,13 +1220,13 @@
 								}else{// для произ-ва выдаём кнопку взять в работу или транслируем имя пользователя, который взялся за заказ или был назначен для него
 									if(trim($performer_id)!='' && isset($this->userlist[$performer_id])){
 										$user = $this->userlist[$performer_id];
-										return $user['name'].' '.$user['last_name'];
+										return $user['last_name'].' '.$user['name'];
 									}else{
 										// $user = $this->userlist[$this->user_id];
 										// return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
 										if(isset($this->userlist[$this->user_id])){
 											$user = $this->userlist[$this->user_id];
-											return '<input type="button" value="Взять в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+											return '<input type="button" value="Взять в работу" data-order_id="'.$this->Order['id'].'" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['last_name'].' '.$user['name'].'" class="get_in_work_service">';
 										}else{
 											return 'Не назначен';
 										}
@@ -1091,7 +1239,7 @@
 									$options_tag = '';
 									foreach ($this->userlist as $key => $user) {
 										$checked = ($performer_id == $user['id'])?' selected="selected"':'';
-										$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['name'].' '.$user['last_name'].'</option>';
+										$options_tag .= '<option value="'.$user['id'].'" '.$checked.'>'.$user['last_name'].' '.$user['name'].'</option>';
 										if($checked != ''){$check = 1;}
 									}
 
@@ -1105,11 +1253,11 @@
 								}else{// для произ-ва выдаём кнопку взять в работу или транслируем имя пользователя, который взялся за заказ или был назначен для него
 									if(trim($performer_id)!='' && isset($this->userlist[$performer_id])){
 										$user = $this->userlist[$performer_id];
-										return $user['name'].' '.$user['last_name'];
+										return $user['last_name'].' '.$user['name'];
 									}else{
 										if(isset($this->userlist[$this->user_id])){
 											$user = $this->userlist[$this->user_id];
-											return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
+											return '<input type="button" value="Взять в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['last_name'].' '.$user['name'].'" class="get_in_work_service">';
 										}else{
 											return 'Не назначен';
 										}
@@ -1121,7 +1269,7 @@
 							default: // для остальных просто то, что хранится в ячейке
 								if(trim($performer_id)!='' && isset($this->userlist[$performer_id])){
 									$user = $this->userlist[$performer_id];
-									return $user['name'].' '.$user['last_name'];
+									return $user['last_name'].' '.$user['name'];
 								}else{
 									return 'исполнитель не назначен';
 								};
@@ -1133,7 +1281,7 @@
 					// места нанесения
 					private function get_service_printing_list(){
 						//если нет прикрепленных мест печати - выходим
-						if(empty($this->services_production)){return '';}
+						if(empty($this->services_production) && empty($this->services_production_snab)){return '';}
 
 
 						if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
@@ -1151,7 +1299,21 @@
 								if($service_name == ''){$html .= '<br>';}
 								$service_name = $this->Services_list_arr[$service['uslugi_id']]['name'];
 								$html .= $service_name.'<br>';
-								$n = 1;
+								//$n = 1;
+							}
+							$html .= 'место '.$n++.': ';
+							
+							// декодируем dop_inputs для услуги печати
+							$decode_dop_inputs_information_for_servece = $this->decode_dop_inputs_information_for_servece($service);
+							$html .= (($decode_dop_inputs_information_for_servece != "")?$decode_dop_inputs_information_for_servece:'<span style="color:red">информация отсутствует</span>').'<br>';
+						}
+						// перебираем услуги нанесения по позиции
+						foreach ($this->services_production_snab as $key => $service) {
+							if($service_name != $this->Services_list_arr[$service['uslugi_id']]['name']){
+								if($service_name == ''){$html .= '<br>';}
+								$service_name = $this->Services_list_arr[$service['uslugi_id']]['name'];
+								$html .= $service_name.'<br>';
+								//$n = 1;
 							}
 							$html .= 'место '.$n++.': ';
 							
@@ -1319,50 +1481,11 @@
 								$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
 														<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
 													</td>';
-									$table_order_row .= '<td colspan="3" class="orders_info">';
-									// $table_order_row .= '<span class="greyText">Заказ №: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
-									// $table_order_row .= '<span class="greyText">№: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
+								$table_order_row .= '<td colspan="3" class="orders_info">';
 									
-									$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
-									// исполнители заказа
-									// $table_order_row .= '<br>';
-									$table_order_row .= '<table class="curator_on_request">';
-										$table_order_row .= '<tr>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">Заказ №: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">Клиент: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-												
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
-
-											$table_order_row .= '</td>';
-										$table_order_row .= '</tr>';	
-										$table_order_row .= '<tr>';
-											$table_order_row .= '<td>';
-											if($this->Order['snab_id'] != 0){
-												$table_order_row .= '<span class="greyText">снабжение: <a href="'.$this->link_enter_to_filters('snab_id', $this->Order['snab_id']).'">'.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id']).'</a></span>';
-											}else{
-												$table_order_row .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id']).'</span>';
-											}
-												
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">дизайнер: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-												// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Компания: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">оператор: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-											$table_order_row .= '</td>';
-										$table_order_row .= '</tr>';	
-									$table_order_row .= '</table>';	
-									// //$table_order_row .= '<span class="greyText">Заказ №: </span><a href="?page=cabinet'.(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$this->Order['client_id'].'&order_num='.$this->order_num_for_User.'">'.$this->order_num_for_User.'</a>';
-									// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Компания: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-									// //$table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Юр.лицо: в разработке</span>';
-									// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   менеджер: '.$this->get_manager_name_Database_Html($this->Order['manager_id'],0).'</span>';
-									// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   снабжение: '.$this->get_name_employee_Database_Html($this->Order['snab_id']).'</span>';
+								// исполнители заказа
+								$table_order_row .= $this->performer_table_for_order();
+								
 								$table_order_row .= '</td>';
 								$table_order_row .= '<td>';													
 									$table_order_row .= '<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	';
@@ -1412,10 +1535,10 @@
 							// echo '$positions_rows = '.$positions_rows.'br';
 								
 							// вывод спецификаций для про-ва
-							if($positions_rows != ''){
-								$this->position_item++;
-								$html .= $this->get_order_specificate_for_stock_Html_Template();	
-							}
+							// if($positions_rows != ''){
+							// 	$this->position_item++;
+							// 	$html .= $this->get_order_specificate_for_stock_Html_Template();	
+							// }
 
 							// подсчёт стоимости заказа
 							$this->price_order += $this->price_specificate;
@@ -1465,6 +1588,7 @@
 						$html .= '</tr>';
 						return $html;
 					}
+
 					// HTML позиции (Склад)
 					private function table_order_positions_rows_for_stock_Html(){			
 						// получаем массив позиций заказа
@@ -1514,12 +1638,14 @@
 
 							// дата отгрузки
 							$html .= '<td>';
-								$shipping_date_timestamp = strtotime($this->specificate['shipping_date']);
-									$shipping_date_date = date('d.m.Y',$shipping_date_timestamp);
-									$shipping_date_time = date('H:i',$shipping_date_timestamp);
-									//$html_row_3 .= '<span class="greyText">'.$shipping_date_date.(($shipping_date_time!='00:00')?'<br>к '.$shipping_date_time:'').'</span>';
-								$html .= '<a href="'.$this->link_enter_to_filters('shipping_date',date('d.m.Y',strtotime($this->specificate['shipping_date']))).'">'.$shipping_date_date.'</a>'.(($shipping_date_time!='00:00')?'<br>к '.$shipping_date_time:'');
-								// $html .= '<div>'.$this->Order['date_of_delivery_of_the_order'].'</div>';
+								if($this->specificate['shipping_date'] != '' && $this->specificate['shipping_date'] != '00.00.0000 00:00:00'){
+									$shipping_date_timestamp = strtotime($this->specificate['shipping_date']);
+										$shipping_date_date = date('d.m.Y',$shipping_date_timestamp);
+										$shipping_date_time = date('H:i',$shipping_date_timestamp);
+										//$html_row_3 .= '<span class="greyText">'.$shipping_date_date.(($shipping_date_time!='00:00')?'<br>к '.$shipping_date_time:'').'</span>';
+									$html .= '<a href="'.$this->link_enter_to_filters('shipping_date',date('d.m.Y',strtotime($this->specificate['shipping_date']))).'">'.$shipping_date_date.'</a>'.(($shipping_date_time!='00:00')?'<br>к '.$shipping_date_time:'');
+									// $html .= '<div>'.$this->Order['date_of_delivery_of_the_order'].'</div>';
+								}
 							$html .= '</td>';
 
 							// статус товара
@@ -1541,16 +1667,10 @@
 				/**
 				 * выгрузка по шаблону Снабжение
 				*/
-					/**
-					 * Возвращает фильрацию по допускам Снабжение "ВСЁ"
-					 *
-					 * @param string $id_row 	id row from the base 
-					 * @return 					html code
-					 * @see 					html
-					*/
 
 					// Все (Снабжение)
 					private function orders_snab_all_Template($id_row=0){
+						$this->filtres_order .= (($this->filtres_order!="")?" AND":"")." `global_status` = 'in_work'";
 						$this->group_access = 8;
 						// id начальника отдела производства
 						$this->director_of_operations_ID = 78; 
@@ -1560,52 +1680,52 @@
 
 					// Запуск в обработку (Снабжение)
 					private function orders_snab_starting_in_processing_Template($id_row=0){
-						$this->filtres_order = " `global_status` = 'order_start'";
+						// $this->filtres_order = " `snab_id` = '0'";
 						$this->orders_snab_all_Template($id_row);
 					}
 
 					// В обработке (Снабжение)
 					private function orders_snab_in_Progress_Template($id_row=0){
+						$this->filtres_order = " snab_id <> '0'";
+						$this->filtres_position = " `status_snab` NOT IN ('is_pending','in_operation','in_production','question')";
 						$this->orders_snab_all_Template($id_row);
 					}
 					// Макеты в работу (Снабжение)
 					private function orders_snab_mock_ups_of_the_work_Template($id_row=0){
+						$this->filtres_order = " snab_id <> '0'";
 						$this->orders_snab_all_Template($id_row);
 					}
 					// Ожидают (Снабжение)
 					private function orders_snab_waiting_Template($id_row=0){
+						$this->filtres_order = " snab_id <> '0'";
 						$this->orders_snab_all_Template($id_row);
 					}
 					// Продукция (Снабжение)
 					private function orders_snab_products_Template($id_row=0){
+						$this->filtres_order = " snab_id <> '0'";
 						$this->orders_snab_all_Template($id_row);
 					}
 					// В производстве (Снабжение)
 					private function orders_snab_in_the_production_of_Template($id_row=0){
+						$this->filtres_order = " snab_id <> '0'";
 						$this->orders_snab_all_Template($id_row);
 					}
 					// Наше производство (Снабжение)
 					private function orders_snab_our_production_Template($id_row=0){
+						$this->filtres_order = " snab_id <> '0'";
 						$this->orders_production_Template($id_row);
 
 					}
 					// пауза/вопрос/ТЗ не корректно (Снабжение)
 					private function orders_snab_pause_and_questions_Template($id_row=0){
+						$this->filtres_order = " snab_id <> '0'";
 						$this->orders_snab_all_Template($id_row);
 					}
 
 				/**
 				 *	выгрузка позиций по шаблону Производство
 				*/
-					/**
-					 * Возвращает фильрацию по вкладке производства "ВСЁ"
-					 *
-					 * @param string $id_row 	id row from the base 
-					 * @return 					html code
-					 * @see 					html
-					*/
-
-					// стандартный шаблон всех производственных строк
+					// Всё (Производство)
 					private function orders_production_Template($id_row=0){
 						$this->group_access = 4;
 						// id начальника отдела производства
@@ -1613,16 +1733,8 @@
 
 						echo $this->production_rows($id_row=0);
 					}
-					/*
-						// добавочные фильтры к запросам в базу
-						$this->filtres_order = '';
-						$this->filtres_specificate = '';
-						$this->filtres_position = '';
-						$this->filtres_services = '';
 
-					*/
-
-					// Ожидают распределения
+					// Ожидают распределения (Производство)
 					private function orders_production_get_in_work_Template($id_row=0){
 						$this->filtres_services = " `performer_status` = 'Ожидает обработки'";
 						// $this->filtres_services = " `date_work` = '0000-00-00 00:00:00'";
@@ -1630,47 +1742,47 @@
 
 						$this->orders_production_Template($id_row=0);
 					}
-					// Поставлены в план
+					// Поставлены в план (Производство)
 					private function orders_set_in_the_plan_Template($id_row=0){
 						$this->filtres_services = " `date_work` <> '0000-00-00 00:00:00'";
 						$this->filtres_services .= " AND `performer_id` <> '0'";
 						$this->orders_production_Template($id_row=0);
 					}
-					// трафарет (Ш+Т)
+					// трафарет (Ш+Т) (Производство)
 					private function orders_production_stencil_shelk_and_transfer_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
-					// Шелкография
+					// Шелкография (Производство)
 					private function orders_production_shelk_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
-					// Термотрансфер
+					// Термотрансфер (Производство)
 					private function orders_production_transfer_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
-					// Тампопечать
+					// Тампопечать (Производство)
 					private function orders_production_tampoo_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
-					// Тиснение
+					// Тиснение (Производство)
 					private function orders_production_tisnenie_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
-					// Доп. услуги
+					// Доп. услуги (Производство)
 					private function orders_production_dop_uslugi_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
-					// Проверка плёнок/клише
+					// Проверка плёнок/клише (Производство)
 					private function orders_production_plenki_and_klishe_Template($id_row=0){
 						$this->orders_production_Template($id_row=0);
 					}
-					// Вопрос, пауза
+					// Вопрос, пауза (Производство)
 					private function orders_question_pause_Template($id_row=0){
 						$this->filtres_services = " `performer_status` IN ('Вопрос','пауза')";
 						$this->orders_production_Template($id_row=0);
 					}
 
-					// Услуга выполнена
+					// Услуга выполнена (Производство)
 					private function orders_the_service_is_performed_Template($id_row=0){
 						$this->filtres_services = " `performer_status` IN ('услуга выполнена')";
 						$this->orders_production_Template($id_row=0);
@@ -1678,7 +1790,7 @@
 
 
 					/**
-					 *  фильтрация по услугам для subsection для производства
+					 *  фильтрация услуг по subsection для производства
 					 *
 					 *  @param  		array()
 					 *  @return 		array()
@@ -1803,7 +1915,7 @@
 								<th rowspan="2">логотип нанесения</th>
 								<th rowspan="2">пплёнки/клише</th>
 								<th rowspan="2">статус склад</th>
-								<th rowspan="2">статус позиции</th>
+								<th rowspan="2">статус снабжение</th>
 								<th rowspan="2">дата сдачи</th>
 								<th colspan="2">дата работы</th>
 								<th rowspan="2">станок</th>
@@ -1863,44 +1975,21 @@
 								$table_order_row .= '<td colspan="12" class="orders_info">';
 									
 									
-									$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
-									// исполнители заказа
-									$table_order_row .= '<table class="curator_on_request">';
-										$table_order_row .= '<tr>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">Заказ №: </span><a href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">'.$this->order_num_for_User.'</a> <span class="greyText">';
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">Клиент: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-												
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
-
-											$table_order_row .= '</td>';
-										$table_order_row .= '</tr>';	
-										$table_order_row .= '<tr>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span>';
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">дизайнер: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-												// $table_order_row .= '<span class="greyText">,&nbsp;&nbsp;&nbsp;   Компания: </span>'.$this->get_client_name_link_Database($this->Order['client_id']).'';
-											$table_order_row .= '</td>';
-											$table_order_row .= '<td>';
-												$table_order_row .= '<span class="greyText">оператор: '.$this->get_name_no_men_employee_Database_Html($this->Order['operator_id'],9).'</span>';
-											$table_order_row .= '</td>';
-										$table_order_row .= '</tr>';	
-									$table_order_row .= '</table>';
-								$table_order_row .= '</td>';
+								// исполнители заказа
+								$table_order_row .= $this->performer_table_for_order();
 								
 								// дата сдачи
 								$table_order_row .= '<td>';
 									$table_order_row .= $this->order_shipping_date;
 								$table_order_row .= '</td>';
 								
-								
-								$table_order_row .= '<td colspan="5"></td>';
+								// комментарии по заказу
+								$table_order_row .= '<td>';								
+									$table_order_row .= '<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>';
+								$table_order_row .= '</td>';
+
+							
+								$table_order_row .= '<td colspan="4"></td>';
 								
 							$table_order_row .= '</tr>';
 							// включаем вывод позиций 
@@ -1911,46 +2000,7 @@
 						return $html;
 					}
 
-					// ШАБЛОН строки спецификации для про-ва
-					private function get_order_specificate_for_production_Html_Template(){
-						$this->rows_num++;
-						$html = '';
-						$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.' data-id="'.$this->specificate['id'].'">';
-							$html .= '<td colspan="18">';
-								// спецификация
-								// $html .= $this->specificate_item;
-								// ссылка на спецификацию
-								$html .= '&nbsp; '.$this->get_document_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
-								// номер запроса
-								//$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
-								// снабжение
-								$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
-
-							$html .='</td>';
-							// $html .= '<td>';
-							// 	$html .= 'сч: '.$this->specificate['number_the_bill'];
-							// $html .= '</td>';
-							// $html .= '<td>';
-							// 	$html .= '<span>'.$this->price_specificate.'</span>р';
-							// $html .= '</td>';
-							// $html .= '<td>';
-							// 	// % оплаты
-							// 	$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %';
-
-							// $html .= '</td>';
-							// $html .= '<td>';
-							// $html .= '</td>';
-							// $html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
-							// $html .= '<td>';
-							// 	$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
-							// $html .= '</td>';
-							// $html .= '<td>Бух.</td>';
-							// $html .= '<td class="buch_status_select_for_design">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
-						$html .= '</tr>';
-						return $html;
-					}
-
-					// HTML спецификации (Производство)
+					// перебор документов (Производство)
 					private function table_specificate_for_order_for_production_Html(){
 						$this->spec_arr = $this->table_specificate_for_order_Database($this->Order['id']);
 						// echo 'Hellow World =D<br>';
@@ -1984,12 +2034,6 @@
 							// проверка даты сдачи заказа
 							$this->get_shipping_bigest_date_for_order();
 							
-							// вывод спецификаций для про-ва
-							// if($positions_rows != ''){
-							// 	$this->position_item++;
-							// 	$html .= $this->get_order_specificate_for_production_Html_Template();	
-							// }
-
 							// подсчёт стоимости заказа
 							$this->price_order += $this->price_specificate;
 
@@ -2009,6 +2053,7 @@
 						// $this->position_item = 1;// порядковый номер позиции
 						// формируем строки позиций	(перебор позиций)		
 						foreach ($positions_rows as $key => $this->position) {
+							if(($this->position['approval_date'] == '00.00.0000 00:00:00' || trim($this->position['approval_date']) == '') && $_GET['subsection'] != 'production'){ continue;}
 							// вычисляем крайнюю дату утверждения макета по всем позициям к по одному документу
 							$this->get_position_approval_bigest_date();
 
@@ -2025,13 +2070,16 @@
 						 	 */	
 						 	$this->services_print = $this->filter_of_subsection_for_production($this->services_print);
 
+						 	$this->services_production = $this->services_print;
 
 							$this->services_num  = count($this->services_print);
 											
 							// если услуг для производства в данной позиции нет - переходм к следующей
 							if($this->services_num == 0){continue;}
 
-							
+							if(isset($_GET['subsection']) && $_GET['subsection'] == 'production_plenki_and_klishe'){
+								if($this->check_the_status_films('проверить наличие')){continue;}
+							}
 							
 								// // порядковый номер позиции в заказе
 								$html_row_1 = '<td rowspan="'.$this->services_num.'"><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
@@ -2121,12 +2169,10 @@
 									$html .= (($position['zapas']!=0 && trim($position['zapas'])!='')?(($position['print_z']==0)?'+'.$position['zapas'].'<br>НПЗ':'+'.$position['zapas'].'<br>ПЗ'):'');
 								$html .= '</td>';
 
-								// цвета, логотип и другие персонализированные данные мы оставляем в окне ТЕХ. ЗАДАНИЕ
+								// Цвета
 								$html .= '<td class="show-backlight">';
-									// комментарии для решения возможных проблем
-
 									$html .= '<!--// ключ к полю возможно будет отличаться не в локальной версии... при изменении названия поля Пантоны... выгрузка информации сюда изменится -->';
-									$html .= (isset($this->print_details_dop['pantony'])?$this->print_details_dop['pantony']:'');
+									$html .= (isset($this->print_details_dop['Pantone'])?base64_decode($this->print_details_dop['Pantone']):'');
 								$html .= '</td>';
 
 								
@@ -2159,17 +2205,27 @@
 								
 								// дата работы start
 								$html .= '<td class="show-backlight">';
-									if($this->user_access == 4 || $this->user_access == 1){
-										$html .= '<input type="text" name="calendar_date_work"  value="'.(($service['date_work']=='00.00.0000 00:00')?'  -  ':$service['date_work']).'" data-id="'.$service['id'].'" class="calendar_date_work">';
+									if($service['date_work']=='00.00.0000 00:00'){
+										$date_work = ' - ';
 									}else{
-										$html .= ((strtotime($service['date_work']) == -2211753600)?'':''.$service['date_work']);
+										$date_work = $service['date_work'];
+									}
+									if($this->user_access == 4 || $this->user_access == 1){
+										$html .= '<input type="text" name="calendar_date_work"  value="'.$date_work.'" data-id="'.$service['id'].'" class="calendar_date_work">';
+									}else{
+										$html .= $date_work;
 									}
 								$html .= '</td>';
 								$html .= '<td class="show-backlight">';
-									if($this->user_access == 4 || $this->user_access == 1){
-										$html .= '<input type="text" name="calendar_date_ready"  value="'.(($service['date_work']=='00.00.0000 00:00')?'  -  ':$service['date_ready']).'" data-id="'.$service['id'].'" class="calendar_date_ready">';
+									if($service['date_ready']=='00.00.0000 00:00'){
+										$date_ready = ' - ';
 									}else{
-										$html .= ((strtotime($service['date_work']) == -2211753600)?'':''.$service['date_ready']);
+										$date_ready = $service['date_ready'];
+									}
+									if($this->user_access == 4 || $this->user_access == 1){
+										$html .= '<input type="text" name="calendar_date_ready"  value="'.$date_ready.'" data-id="'.$service['id'].'" class="calendar_date_ready">';
+									}else{
+										$html .= $date_ready;
 									}
 								$html .= '</td>';
 								// станок
@@ -2190,7 +2246,7 @@
 									$html .= $this->get_statuslist_uslugi_Dtabase_Html($service['uslugi_id'],$service['performer_status'],$service['id'], $service['performer']);
 								$html .= '</td>';
 								// % готовности
-								$html .= '<td class="show-backlight percentage_of_readiness" contenteditable="true" data-service_id="'.$service['id'].'">';
+								$html .= '<td class="show-backlight percentage_of_readiness"'.(($this->user_access == 4 || $this->user_access == 1)?' contenteditable="true"':'').' data-service_id="'.$service['id'].'">';
 									$html .= $service['percentage_of_readiness'];
 								$html .= '</td>';
 							$html .= ($n>0)?'</tr>':'';

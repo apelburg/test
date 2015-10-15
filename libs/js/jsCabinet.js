@@ -67,22 +67,17 @@
 			    text: 'OK',
 			    click: function() {
 			    	var serialize = $('#dialog_gen_window_form form').serialize();
-			    	
+			    	var obj = $(this);
 			    	$('#general_form_for_create_product .pad:hidden').remove();
 				    $.post('', serialize, function(data, textStatus, xhr) {
-				    	
-				    	
-						$('#dialog_gen_window_form').html('');
-						$('#dialog_gen_window_form').dialog( "destroy" );				
-						
+				    	obj.dialog( "destroy" );				
 						standard_response_handler(data);
-
 					},'json');				    	
 			    }
 			});
 
 			if($('#dialog_gen_window_form').length==0){
-				$('body').append('<div id="dialog_gen_window_form"></div>');
+				$('body').append('<div style="display:none" id="dialog_gen_window_form"></div>');
 			}
 			$('#dialog_gen_window_form').html(html);
 			$('#dialog_gen_window_form').dialog({
@@ -109,8 +104,8 @@
 			    	
 			    	$('#general_form_for_create_product .pad:hidden').remove();
 				    $.post('', serialize, function(data, textStatus, xhr) {
-				    	$('#dialog_gen_window_form').html('');
-						$('#dialog_gen_window_form').dialog( "destroy" );				
+				    	$('#dialog_gen_window_form2').html('');
+						$('#dialog_gen_window_form2').dialog( "destroy" );				
 						
 						standard_response_handler(data);
 					},'json');				    	
@@ -118,7 +113,7 @@
 			});
 
 			if($('#dialog_gen_window_form2').length==0){
-				$('body').append('<div id="dialog_gen_window_form2"></div>');
+				$('body').append('<div style="display:none" id="dialog_gen_window_form2"></div>');
 			}
 			$('#dialog_gen_window_form2').html(html);
 			$('#dialog_gen_window_form2').dialog({
@@ -143,12 +138,11 @@
 			    text: 'Закрыть',
 			    click: function() {
 					// подчищаем за собой
-					$('#dialog_gen_window_form_'+window_num+'').html('');
-					$('#dialog_gen_window_form_'+window_num+'').dialog( "destroy" );
+					$(this).dialog("destroy");
 			    }
 			});			
 
-			$('body').append('<div id="dialog_gen_window_form_'+window_num+'"></div>');			
+			$('body').append('<div style="display:none" id="dialog_gen_window_form_'+window_num+'"></div>');			
 			$('#dialog_gen_window_form_'+window_num+'').html(html);
 			$('#dialog_gen_window_form_'+window_num+'').dialog({
 		          width: width,
@@ -219,7 +213,42 @@
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
 //////////////////////////////////
 
+// редактирование входящей стоимости услуги из окна фин. инфо
+// edit_price_in_for_postfactum_service
+$(document).on('keyup', '.change_tirage_for_postfactum_added_service', function(event) {
+	event.preventDefault();
+	var value = $(this).val();
+	var row_id = $(this).attr('data-id');
+	$(this).parent().next().find('.change_price_in_for_postfactum_added_service').attr('data-quantity',value);
+	$.post('', {
+		AJAX:'edit_price_in_for_postfactum_service',
+		value:value,
+		row_id:row_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
 
+// редактирование тиража услуги из окна фин. инфо
+// edit_quantity_for_postfactum_service
+$(document).on('keyup', '.change_price_in_for_postfactum_added_service', function(event) {
+	event.preventDefault();
+	var quantity = Number($(this).attr('data-quantity'));
+	var row_id = $(this).attr('data-id');
+	var for_how = $(this).attr('data-for_how');
+	var value = Number($(this).val());
+	$(this).prev().html((for_how == 'for_one')?(value * quantity):value );
+	recalculate_a_detailed_article_on_the_price_of_positions();
+	$.post('', {
+		AJAX:'edit_quantity_for_postfactum_service',
+		value:value,
+		row_id:row_id,
+		quantity:quantity,
+		for_how:for_how
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
 
 
 // показать / скрыть каталожные позиции 
@@ -1412,52 +1441,68 @@ $(document).on('click', '#general_panel_orders_tbl tr td.price_for_the_position'
 		id:id,
 		order_num:order_num,
 		order_id:order_id,
-		specificate_id:specificate_id
+		specificate_id:specificate_id,
+		order_num_user:order_num_user
 	}, function(data, textStatus, xhr) {
-		if(data['function'] !== undefined){ // на всякий
-			window[data['function']](data);
-		}
-
-		if(data['response'] == "OK"){
-			title = 'Заказ № '+order_num_user+' - финансовые расчёты';
-			show_dialog_and_send_POST_window_2(Base64.decode(data['html']),title,$(window).height(),$(window).width());
-		}else{
-			alert('Что-то пошло не так');
-		}
+		standard_response_handler(data);
 	},'json');
 });
 
 // включение/отключение услуг
 $(document).on('click', '#a_detailed_article_on_the_price_of_positions .on_of', function(event) {
+	
 	var id = $(this).attr('data-id');
 	var obj = $(this);
 	var val = 0;
 
 	if ($(this).hasClass('minus')) {
+		if (confirm('Внимание!!! Вы собираетесь включить услугу.\nВключённые улуги отображаются в отделах работающих по этим услугам.')) {
 		val = 1;
 		$(this).removeClass('minus').html('+');
 		$(this).parent().parent().removeClass('no_calc');
+
+		recalculate_a_detailed_article_on_the_price_of_positions(); // пересчитываем таблицу
+		$.post('', {
+			AJAX: 'change_service_on_of',
+			id: id,
+			val: val
+		}, function(data, textStatus, xhr) {
+			if(data['function'] !== undefined){ // на всякий
+				window[data['function']](data);
+			}
+			if(data['response'] == "OK"){
+				
+			}else{
+				alert('Что-то пошло не так');
+			}
+		},'json');
+	}
 	}else{
+		if (confirm('Внимание!!! Вы собираетесь отключить услугу.\nОтключённые улуги не отображаются в отделах работающих по этим услугам.')) {
 		val = 0;
 		$(this).addClass('minus').html('-');
 		$(this).parent().parent().addClass('no_calc');
+
+		recalculate_a_detailed_article_on_the_price_of_positions(); // пересчитываем таблицу
+		$.post('', {
+			AJAX: 'change_service_on_of',
+			id: id,
+			val: val
+		}, function(data, textStatus, xhr) {
+			if(data['function'] !== undefined){ // на всякий
+				window[data['function']](data);
+			}
+			if(data['response'] == "OK"){
+				
+			}else{
+				alert('Что-то пошло не так');
+			}
+		},'json');
+		}
+		
 	}
 
-	recalculate_a_detailed_article_on_the_price_of_positions(); // пересчитываем таблицу
-	$.post('', {
-		AJAX: 'change_service_on_of',
-		id: id,
-		val: val
-	}, function(data, textStatus, xhr) {
-		if(data['function'] !== undefined){ // на всякий
-			window[data['function']](data);
-		}
-		if(data['response'] == "OK"){
-			
-		}else{
-			alert('Что-то пошло не так');
-		}
-	},'json');
+	
 });
 
 ///////////////////////////////////////////
@@ -1637,8 +1682,9 @@ $(document).on('click', '.add_service', function(event) {
 
 function add_new_usluga_end(data){
 	var id_row = $('#liuhjadbwefbkelwqfeqwfqw').attr('data-rowspan_id');
-	$('#'+id_row+' td').eq(0).attr('rowspan',(Number($('#'+id_row+' td').eq(1).attr('rowspan'))+1));
-	$('#'+id_row+' td').eq(1).attr('rowspan',(Number($('#'+id_row+' td').eq(1).attr('rowspan'))+1))
+	var rowspan = Number($('#'+id_row+' td').eq(0).attr('rowspan'))+1;
+	$('#'+id_row+'').find(':first-child').attr('rowspan',rowspan).next().attr('rowspan',rowspan);
+	// $('#'+id_row+'').firstChild(1).attr('rowspan',rowspan)
 	$('#liuhjadbwefbkelwqfeqwfqw').parent().parent().before(Base64.decode(data['html']));
 	$('#liuhjadbwefbkelwqfeqwfqw').removeAttr('id');
 	recalculate_a_detailed_article_on_the_price_of_positions();
@@ -1812,6 +1858,8 @@ $(document).on('change', '.machine_type', function(event) {
 
 // взять в работу услугу
 $(document).on('click', '.get_in_work_service', function(event) {
+	if(confirm('Вы уверены?')){
+	var order_id = $(this).attr('data-order_id');
 	// сохраняем ID строки
 	var row_id = $(this).attr('data-service_id');
 	// id пользователя, взяшего услугу в работу
@@ -1824,21 +1872,25 @@ $(document).on('click', '.get_in_work_service', function(event) {
 	$.post('', {
 		AJAX: 'get_in_work_service',
 		row_id:row_id,
-		user_id:user_id
+		user_id:user_id,
+		order_id:order_id
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
 	},'json');
 	check_loading_ajax();
+	}
 });
 
 // назначить исполнителя услуги
 $(document).on('change', '.production_userlist', function(event) {
 	var row_id = $(this).attr('data-row_id');
+	var order_id = $(this).attr('data-order_id');
 	var user_id = $(this).val();
 	$.post('', {
 		AJAX: 'get_in_work_service',
 		row_id:row_id,
-		user_id:user_id
+		user_id:user_id,
+		order_id:order_id
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
 	},'json');
