@@ -490,8 +490,8 @@
 				  <td width="70" class="grey r_border"></td>
 				  <td type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>
-				  <td type="margin" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
-				  <td width="10" class="left">р</td>
+				  <td type="margin" class="right"></td>
+				  <td width="10" class="left"></td>
 				  <td stretch_column>&nbsp;</td>
                   <td></td>';              
 	   $rt.= '</tr>

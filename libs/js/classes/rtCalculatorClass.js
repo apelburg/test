@@ -1132,7 +1132,7 @@ var rtCalculator = {
 		var idsObj = {};
 		// обходим ряды таблицы
 		for( var i= 0 ; i < trsArr.length; i++){
-			var flag ;
+			var flag = false;
 			
 			// фильтруем по типу позиции (каталог, не каталог и т.п.) если равно указаному значению прерываем выполненин
 			if(dop_params_obj && dop_params_obj.filter_gob_type_apart){
@@ -1145,11 +1145,11 @@ var rtCalculator = {
 				// работаем с рядом - ищем мастер кнопку 
 				var inputs = trsArr[i].getElementsByTagName('input');
 				for( var j= 0 ; j < inputs.length; j++){
-					if(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn' && inputs[j].checked == true){
+					if(!(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn' && inputs[j].checked == true)) pos_id = false;/*{
 						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
 								 idsObj[pos_id] = {}; 
 				    }
-					else pos_id = false;
+					else  pos_id = false;*/
 				}
 			}
 			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие до нового ряда позици на нажатие зеленой кнопки
@@ -1161,6 +1161,7 @@ var rtCalculator = {
 				for( var j= 0 ; j < tdsArr.length; j++){
 					if(tdsArr[j].getAttribute('svetofor')){
 						if(tdsArr[j].getAttribute('svetofor')=='green' || tdsArr[j].getAttribute('svetofor')=='sgreen'){
+							if(typeof idsObj[pos_id] == 'undefined') idsObj[pos_id] = {};
 							idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
 							nothing = false;
 				        }
@@ -1222,14 +1223,14 @@ var rtCalculator = {
 			alert('не возможно скопировать ряды, вы не выбрали ни одной позиции');
 			return;
 		} 
-		var control_num = 1;
+        
 		show_processing_timer();
-		/* console.log(idsObj);return; */
+		/*console.log(idsObj); //return; */
 		
 		// Сохраняем полученные данные в cессию(SESSION) чтобы потом при выполнении действия (вставить скопированное) получить данные из SESSION
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_copied_rows_to_buffer='+JSON.stringify(idsObj)+'&control_num='+control_num);
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_copied_rows_to_buffer='+JSON.stringify(idsObj));
 		rtCalculator.send_ajax(url,callback);
-		function callback(response){  /*console.log(response); //  */ close_processing_timer(); closeAllMenuWindows(); }
+		function callback(response){  /*console.log(response);  // */ close_processing_timer(); closeAllMenuWindows(); }
 	}
 	,
 	copy_row:function(e){ 
@@ -1238,15 +1239,17 @@ var rtCalculator = {
 		var cell = e.target || e.srcElement;
 		
 		var pos_id = cell.getAttribute("pos_id");
-		var control_num = 1;
-		show_processing_timer();
 		// собираем данные о расчетах присвоенных данному ряду и о том которые из них "зеленые"
-		var idsObj = rtCalculator.get_active_rows_for_one_position(pos_id);
+		if(!(idsObj = rtCalculator.get_active_rows_for_one_position(pos_id))){
+			alert('не возможно скопировать позицию, она не содержит активных рядов');
+			return;
+		} 
 		
+		show_processing_timer();
 		// Сохраняем полученные данные в cессию(SESSION) чтобы потом при выполнении действия (вставить скопированное) получить данные из SESSION
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_copied_rows_to_buffer='+JSON.stringify(idsObj)+'&control_num='+control_num);
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_copied_rows_to_buffer='+JSON.stringify(idsObj));
 		rtCalculator.send_ajax(url,callback);
-		function callback(response){  /* // console.log(response);*/   close_processing_timer(); closeAllMenuWindows();  if(openCloseContextMenuNew.lastElement) openCloseContextMenuNew.lastElement.style.backgroundColor = '#FFFFFF'; }
+		function callback(response){ /* console.log(response);  // */   close_processing_timer(); closeAllMenuWindows();  if(openCloseContextMenuNew.lastElement) openCloseContextMenuNew.lastElement.style.backgroundColor = '#FFFFFF'; }
 	}
 	,
 	get_active_rows_for_one_position:function(pos_id){ 
@@ -1255,6 +1258,7 @@ var rtCalculator = {
 		// собираем данные о расчетах присвоенных данному ряду и о том которые из них "зеленые"
 		var idsObj = {};
 		var goAhead = false;
+		var nothing = true;
 		var trsArr = this.body_tbl.getElementsByTagName('tr');
 		for(var i = 0;i < trsArr.length;i++){
 		    // если ряд не имеет атрибута row_id пропускаем его
@@ -1266,23 +1270,24 @@ var rtCalculator = {
 					goAhead=false;
 				}
 				
-				// если встречается ряд позиции из которого было вызвано событие , создаем объект в который будем добавлять возможные ряды расчетов
+				// если встречается ряд позиции из которого было вызвано событие устанавливаем флаг в true
 				if(trsArr[i].getAttribute('pos_id') == pos_id){
-					idsObj[pos_id] = {};
-					var goAhead = true;
+					goAhead = true;
 				}
 			}
-			if(goAhead && idsObj[pos_id]){
+			if(goAhead){
 				// работаем с рядом - ищем светофор 
 				var tdsArr = trsArr[i].getElementsByTagName('td'); 
 				for( var j= 0 ; j < tdsArr.length; j++){
-					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
+					if(tdsArr[j].getAttribute('svetofor') && (tdsArr[j].getAttribute('svetofor')=='green' || tdsArr[j].getAttribute('svetofor')=='sgreen')){
+						if(typeof idsObj[pos_id] == 'undefined') idsObj[pos_id] = {};
 						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
+						nothing = false;
 					}
 				}
 			}
 		}
-		return idsObj;
+		return (nothing)? false : idsObj;
 	}
 	,
 	insert_copied_rows:function(e){ 
@@ -1537,7 +1542,7 @@ var rtCalculator = {
 		
 		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)
         if(!(idsObj = rtCalculator.get_active_rows({"filter_gob_type_apart":"cat","svetofor_dop_val":"grey"}))){
-			alert('не возможно создать КП, вы не выбрали ни одного расчета');
+			alert('не возможно отправить в снаб');
 			return;
 		} 
 		/* console.log(idsObj);return; */
@@ -1574,12 +1579,12 @@ var rtCalculator = {
 		
 		var tbl = document.getElementById('rt_tbl_body');
 		var trsArr = tbl.getElementsByTagName('tr');
-		var nothing = true;
 		var pos_id = false;
 		var idsObj = {};
 		var idsArr = [];
 		var dopInfObj = {};
 		var indexCounter = 0;
+		
 		
 		// обходим ряды таблицы
 		for( var i= 0 ; i < trsArr.length; i++){
@@ -1589,16 +1594,7 @@ var rtCalculator = {
 			if(trsArr[i].getAttribute('pos_id')){
 				pos_id = trsArr[i].getAttribute('pos_id');
 				
-				/*// работаем с рядом - ищем мастер кнопку 
-				var inputs = trsArr[i].getElementsByTagName('input');
-				for( var j= 0 ; j < inputs.length; j++){
-					if(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn' && inputs[j].checked == true){
-						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
-								 idsObj[pos_id] = {}; 
-				    }
-					else pos_id = false;
-				}*/
-				
+				// работаем с рядом - ищем мастер кнопку
 				var tdsArr = trsArr[i].getElementsByTagName('TD');
 				
 				for(var j =0; j < tdsArr.length; j++){
@@ -1609,7 +1605,7 @@ var rtCalculator = {
 						   var input = tdsArr[j].getElementsByTagName('input')[0];
 						   if(input.type == 'checkbox' && input.name == 'masterBtn' && input.checked == true){
 						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
-										 idsObj[pos_id] = []; 
+							   idsObj[pos_id] = []; 
 										 
 							}
 							else pos_id = false;
@@ -1627,61 +1623,51 @@ var rtCalculator = {
 						   if(typeof dopInfObj[pos_id] ==='undefined') dopInfObj[pos_id]= {};
 						   dopInfObj[pos_id]['glob_counter'] = glob_counter;
 						}/**/
-						
 					}
 				}
-				
-				
-				
-				
 			}
-			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие до нового ряда позици на нажатие зеленой кнопки
-			// светофора (позиции для отправки в КП)
+			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие, до нового ряда, 
+			// позици на нажатие супер зеленой кнопки светофора (позиции для отправки в КП)
 			if(pos_id!==false){
 				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
 				// работаем с рядом - ищем светофор 
 				var tdsArr = trsArr[i].getElementsByTagName('td');   
 				for( var j= 0 ; j < tdsArr.length; j++){
 					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='sgreen'){
-						// idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
+
 						idsObj[pos_id].push(trsArr[i].getAttribute('row_id'));
-						//idsArr[indexCounter].push({'"'+pos_id+'":'row_id'));
-						//var val = {};
-						//val[pos_id] = trsArr[i].getAttribute('row_id');
-						//idsArr[indexCounter].push({pos_id:trsArr[i].getAttribute('row_id')});
 						idsArr[indexCounter] = {pos_id:pos_id,row_id:trsArr[i].getAttribute('row_id')};
 						indexCounter++;
-						nothing = false;
 					}
 				}
 			}
 			
 		}
-		//console.log('--');
-		//console.log(idsArr);
 		
-		// проверяем сколько зеленых кнопок светофора были нажаты и  в итоге были учтены
-		var more_then_one = false;
-		var less_then_one = false;
+		//console.log(idsObj);
+		
+		// проверяем сколько зеленых кнопок светофора были нажаты и в итоге были учтены
+		var nothing = true; // если вообще ни однин светофор не был суперзеленым
+		var more_then_one = false; // если больше одной в ряду
+		var less_then_one = false; // если вообще ни однин светофор не был суперзеленым
 		var counter1 = 0;
 		for(var index in idsObj){
             var counter2 = 0;
+			nothing = false;
 			for(var index2 in idsObj[index]){
 				counter1++;
 				counter2++;
 			}
-			
-			if(counter1==0) less_then_one = true;
 			if(counter2>1) more_then_one = true;
 		}
-		
+		if(counter1==0) less_then_one = true;
 		//var conrtol_num = getControlNum();
         //console.log(JSON.stringify(idsObj));
 		//console.log(JSON.stringify(dopInfObj));
 	    //return;
 		
 		if(nothing || more_then_one || less_then_one){
-			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной позиции');
+			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной товарной позиции\r\rнеобходимо:\r1). отметить нужный товар галочкой в мастер-кнопке\r2). выделить один расчет для данного товара, выставив суперзеную кнопку в светофоре');
 			else if(more_then_one){
 				var alertStrObj ={};
 				var alertStrArr =[];
@@ -1693,7 +1679,7 @@ var rtCalculator = {
 				}
 				alert('не возможно создать заказ,\rвыбрано более одного варианта расчета в рядах:\r\n'+alertStrArr.join(''));
 			}
-			else if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
+			else if(less_then_one) alert('не возможно создать заказ,\rдля выбранных товаров не выбрано ни одного варианта расчета\r\rнеобходимо:\rвыделить один расчет для каждого выбранного товара выставив суперзеную кнопку в светофоре');
 			return;
 		}
 		

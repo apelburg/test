@@ -138,7 +138,7 @@
 	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] : false ;
 	
 	$suppliers_data_by_prefix = array( 15 => array('name'=>'интерпрезент','link'=>'http://www.happygifts.ru/catalog_new/search/?q='),
-	                                   26 => array('name'=>'оазис','link'=>'http://krug-office.ru/artinfo.php?art='),
+	                                   26 => array('name'=>'оазис','link'=>'http://www.oasiscatalog.com/search?q='),
 							           37 => array('name'=>'проект','link'=>'http://www.gifts.ru/search?text='),
 									   59 => array('name'=>'макрос','link'=>'http://cabinet.makroseuro.ru/catalogue/search/?keyword='),
 									  'e_'=> array('name'=>'ебазар','link'=>'http://ebazaar.ru/search/index.php?q=')

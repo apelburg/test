@@ -118,7 +118,7 @@
 		 exit;
 	}
 	if(isset($_GET['save_copied_rows_to_buffer'])){
-		 echo RT::save_copied_rows_to_buffer($_GET['save_copied_rows_to_buffer'],$_GET['control_num']);
+		 echo RT::save_copied_rows_to_buffer($_GET['save_copied_rows_to_buffer']);
 		 exit;
 	}
 	if(isset($_GET['insert_copied_rows'])){

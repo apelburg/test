@@ -1130,7 +1130,6 @@
 		var innerDiv = document.createElement('div');
 		innerDiv.className = "link1";
 		var a = document.createElement('a');
-		a.setAttribute('control_num',control_num);
 		a.setAttribute('pos_id',pos_id);
 		a.onclick =  rtCalculator.copy_row;
 		a.appendChild(document.createTextNode('Копировать строку'));
