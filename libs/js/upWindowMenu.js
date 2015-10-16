@@ -127,7 +127,11 @@
 		div.appendChild(innerDiv);
 		
 		var innerDiv = document.createElement('div');
-		innerDiv.className = "link2";
+		innerDiv.className = "fence";
+		div.appendChild(innerDiv);
+		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
 		var a = document.createElement('a');
 		a.href = '#';
 		a.onclick = rtCalculator.sendToSnab;

@@ -40,8 +40,8 @@
 			    this.dataObj = {};
 			 }
 		 }
-		 console.log('--');
-		 console.log(this.dataObj);
+		 // console.log('--');
+		 // console.log(this.dataObj);
 	  },
 	  initKpConteiner:function(){ 
 
@@ -70,8 +70,9 @@
 		    if(!this.dataObj[checkBox.name]) this.dataObj[checkBox.name] = 'hide';
 		 	this.setDisplayState(checkBox.name,'none');
 		 }
-	     //alert(this.dataObj);
-		 console.log(this.dataObj);
+		 kpDisplayManager.saveChangesInBase();
+	     // alert(this.dataObj);
+		 // console.log(this.dataObj);
 	  }
 	  ,
       saveChangesInBase:function(){ 
@@ -80,7 +81,8 @@
 		     alert('Не удалось определить id КП');
 			 return;
 		  }
-
+          show_processing_timer();
+		  
 	      $.ajax({
 			type: 'POST',
 			url: '',
@@ -88,15 +90,14 @@
 			data: 'saveChangesInBase=1&dataJSON='+JSON.stringify(this.dataObj)+'&kp_id='+document.getElementById('kpDisplaySettings_kpId').value
 		  })
 		  .done(function(response) {
-			console.log(response);
-			//app.boxin(response, app.initModal());
+			 // console.log(response);
+			 close_processing_timer();
 		  })
 		  .fail(kpDisplayManager.error);
-		  
+		  return false;
 	   },
 	   error: function(jqXHR, textStatus) {
 			console.log('Request failed: ' + textStatus);
-			// console.log(jqXHR);
 	   }
     
   };
@@ -108,6 +109,8 @@
   <tr>
     <td><?php echo $in_blank_view; ?></td>
     <td valign="top">
+    
+          <div style="float:right;margin:20px 30px 0 0 ;"><a href="?page=client_folder&section=business_offers&query_num=<?php echo $query_num; ?>&client_id=<?php echo $client_id; ?>" class="someABtn">выйти в общий список КП</a></div>
         <table width="230" id="kpDisplayManagerBarTbl" style="margin-top:200px;" border="0">
           <tr>
             <td><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
@@ -124,11 +127,11 @@
           <tr>
             <td><label><input type="checkbox" name="header" onclick="kpDisplayManager.saveChanges(this);" />шапка кп</label></td>
           </tr>
-          <tr>
+          <!-- <tr>
             <td><label><input type="checkbox" name="dop_uslugi" onclick="kpDisplayManager.saveChanges(this);" />дополнительные услуги</label></td>
-          </tr>
+          </tr> -->
         </table>
-        <input type="button" onclick="kpDisplayManager.saveChangesInBase();" value="Сохранить"/>
+        <div style="margin:20px 0 0 20px;"><a href="#" onclick="return kpDisplayManager.saveChangesInBase();" class="someABtn">Сохранить</a></div>
         
     </td>
   </tr>
