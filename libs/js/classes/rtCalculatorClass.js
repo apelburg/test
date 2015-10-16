@@ -1135,8 +1135,11 @@ var rtCalculator = {
 			var flag = false;
 			
 			// фильтруем по типу позиции (каталог, не каталог и т.п.) если равно указаному значению прерываем выполненин
-			if(dop_params_obj && dop_params_obj.filter_gob_type_apart){
-				if(trsArr[i].getAttribute('type') && trsArr[i].getAttribute('type')==dop_params_obj.filter_gob_type_apart) continue;
+			if(dop_params_obj && dop_params_obj.filter_glob_type_apart){
+				if(trsArr[i].getAttribute('type') && trsArr[i].getAttribute('type')==dop_params_obj.filter_glob_type_apart){
+					pos_id = false;
+					continue;
+				}
 			}
 			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
 			if(trsArr[i].getAttribute('pos_id')){
@@ -1166,6 +1169,7 @@ var rtCalculator = {
 							nothing = false;
 				        }
 						if(dop_params_obj && dop_params_obj.svetofor_dop_val && tdsArr[j].getAttribute('svetofor')==dop_params_obj.svetofor_dop_val){
+							if(typeof idsObj[pos_id] == 'undefined') idsObj[pos_id] = {};
 							idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
 							nothing = false;
 				        }
@@ -1541,11 +1545,11 @@ var rtCalculator = {
 		var element = e.target;
 		
 		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)
-        if(!(idsObj = rtCalculator.get_active_rows({"filter_gob_type_apart":"cat","svetofor_dop_val":"grey"}))){
-			alert('не возможно отправить в снаб');
+        if(!(idsObj = rtCalculator.get_active_rows({"filter_glob_type_apart":"cat"/*нам нужны будут товары не относящиеся к каталогу (снаб не отвечает за каталог)*/,"svetofor_dop_val":"grey"}))){
+			alert('не возможно отправить в снаб - не выбраны товары или расчеты');
 			return;
 		} 
-		/* console.log(idsObj);return; */
+		/*console.log(idsObj);return;  */
 		
 		show_processing_timer();
 		

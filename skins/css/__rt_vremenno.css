@@ -211,6 +211,9 @@ height:200px;
  font-size:14px;
  text-align:center;
 }
+.rt_tbl_body .bgWhite{
+ background-color:white;
+}
 .rt_tbl_body td .overflow{
  white-space: nowrap;
  /*overflow-x:hidden;
