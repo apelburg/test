@@ -146,43 +146,43 @@ Client::edit_requsits_show_person_all(Client::edit_requsits_show_person($requesi
         <tr>
             <td width="10%">Банк</td>
             <td width="23%">
-                <textarea name="form_data[bank]"></textarea>
+                <textarea name="form_data[bank]"><?php echo $requesit['bank']; ?></textarea>
             </td>
             <td width="10%">Адрес</td>
             <td width="23%">
-                <textarea name="form_data[bank_address]"></textarea>
+                <textarea name="form_data[bank_address]"><?php echo $requesit['bank_address']; ?></textarea>
             </td>
             <td width="10%">ОКПО</td>
             <td width="23%">
-                <input type="text" name="form_data[okpo]" value="">
+                <input type="text" placeholder="цифровое значение" name="form_data[okpo]" value="<?php echo $requesit['okpo']; ?>">
             </td>
         </tr>
         <tr>
             <td>ИНН</td>
             <td>
-                <input type="text" name="form_data[inn]" value="">
+                <input type="text" placeholder="цифровое значение" name="form_data[inn]" value="<?php echo $requesit['inn']; ?>">
             </td>
             <td>КПП</td>
             <td>
-               <input type="text" name="form_data[kpp]" value="">
+               <input type="text" placeholder="цифровое значение" name="form_data[kpp]" value="<?php echo $requesit['kpp']; ?>">
             </td>
             <td>ОГРН</td>
             <td>
-               <input type="text" name="form_data[ogrn]" value="">
+               <input type="text"  placeholder="цифровое значение" name="form_data[ogrn]" value="<?php echo $requesit['ogrn']; ?>">
             </td>
         </tr>
         <tr>
             <td>Расчетн. счет</td>
             <td>
-                <input type="text" name="form_data[r_account]" value="">
+                <input type="text" placeholder="цифровое значение" name="form_data[r_account]" value="<?php echo $requesit['r_account']; ?>">
             </td>
             <td>Кор.счет</td>
             <td>
-                <input type="text" name="form_data[cor_account]" value="">
+                <input type="text"  placeholder="цифровое значение" name="form_data[cor_account]" value="<?php echo $requesit['cor_account']; ?>">
             </td>
             <td>БИК</td>
             <td>
-               <input type="text" name="form_data[bik]" value="">
+               <input type="text" placeholder="цифровое значение" name="form_data[bik]" value="<?php echo $requesit['bik']; ?>">
             </td>
     </tr>
     </table>
@@ -200,7 +200,7 @@ Client::edit_requsits_show_person_all(Client::edit_requsits_show_person($requesi
         <tr>
             <td width="10%"></td>
             <td width="23%">
-                <textarea type="text" name="form_data[dop_info]"></textarea>
+                <textarea type="text" name="form_data[dop_info]"><?php echo $requesit['dop_info']; ?></textarea>
             </td>
             <td></td>
             <td></td>

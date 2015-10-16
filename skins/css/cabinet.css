@@ -614,10 +614,30 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
 /*#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production:hover td.show-backlight{
 	background-color: #f1f1f1;
 }*/
+.js-modal_menu-maket_what,
+.js-modal_menu-design_what{
+	background-color: rgba(200, 219, 158, 0.44);
+	    padding: 3px;
+}
 #cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.js-modal--tz-prodaction:hover,
-#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.position-row-production__service-name:hover{
+#cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td.position-row-production__service-name:hover,
+.js-modal_menu-maket_what:hover,
+.js-modal_menu-design_what:hover{
 	background-color: #BBCE91;
 	cursor: pointer;
+	    padding: 3px;
+}
+.alert_class-red_service_status{
+	background-color: rgba(255, 0, 0, 0.3);padding: 5px;
+}
+.alert_class-black_service_status{
+	background-color: rgba(0, 0, 0, 0.52);padding: 5px;
+	color: #fff;
+}
+.alert_class-black_service_status .service_name,
+#cabinet .orders_status_td_tbl  .alert_class-black_service_status .greyText,
+#cabinet_general_content #general_panel_orders_tbl .show-backlight.alert_class-black_service_status .greyText{
+	color: #fff;
 }
 #dialog_gen_window_form .separation_container{
 	background-color: #F9F9F9;

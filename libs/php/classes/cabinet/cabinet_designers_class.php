@@ -71,6 +71,7 @@
 			'design_waiting_for_distribution' => 'Ожидают распределения',
 			'design_develop_design' => 'Разработать дизайн',
 			'design_laid_out_a_layout' => 'Сверстать макет',
+			'design_wait_laid_out_a_layout' => 'Ожидает дизайн-эскиз',
 			'design_edits' => 'Правки',
 			'design_on_agreeing' => 'На согласовании',
 			'design_prepare_to_print' => 'Подготовить в печать',

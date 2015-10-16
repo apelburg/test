@@ -213,6 +213,47 @@
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
 //////////////////////////////////
 
+// комманды менеджера на "оригинал-макет готов"
+
+$(document).on('click', '.js-modal_menu-maket_what', function(event) {
+	event.preventDefault();
+	var id_row = $(this).find('.greyText').attr('data-id');
+	var position_id = $(this).attr('data-pisition_id');
+	// alert(position_id);
+	$.post('', {
+		AJAX:"get_modal_menu_maket_what",
+		id_row:id_row,
+		position_id:position_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+// комман
+$(document).on('click', '.js-modal_menu-design_what', function(event) {
+	event.preventDefault();
+	var id_row = $(this).find('.greyText').attr('data-id');
+	$.post('', {
+		AJAX:"get_modal_menu_design_what",
+		id_row:id_row
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+// кнопка "Макет принят" для СНАБ
+$(document).on('click', '.js-button-maket_is_adopted button', function(event) {
+	event.preventDefault();
+	var id_row = $(this).attr('data-id');
+	var new_status = 'услуга выполнена';
+	$(this).replaceWith('<span class="greyText">'+new_status+'</span>');
+	$.post('', {
+		AJAX:"choose_service_status",
+		id_row:id_row,
+		value:new_status
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
 // редактирование входящей стоимости услуги из окна фин. инфо
 // edit_price_in_for_postfactum_service
 $(document).on('keyup', '.change_tirage_for_postfactum_added_service', function(event) {
@@ -1977,13 +2018,6 @@ $(document).on('click', '.set_approval_date', function(event) {
 		dop_data_id: dop_data_id
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
-		// при удачном ответе перезагружаем окно
-		if (data['response']=="OK"){
-			location.reload();
-		}else{
-			alert('Что-то пошло не так.');
-			window_preload_del();
-		}
 	},'json');
 });
 
@@ -2063,6 +2097,7 @@ $(window).load(function() {
 		$(this).addClass('checked');
 	});
 
+
 	$(document).on('click', '#get_listing_type_the_bill li', function(event) {
 		$('#dialog_gen_window_form input[name="type_the_bill"]').val($(this).attr('data-name_en'));
 	});
@@ -2073,6 +2108,10 @@ $(window).load(function() {
 
 	$(document).on('click', '#get_commands_men_for_order li', function(event) {
 		$('#dialog_gen_window_form input[name="status_order"]').val($(this).attr('data-name_en'));
+	});
+
+	$(document).on('click', '#get_commands_men_for_design li', function(event) {
+		$('#dialog_gen_window_form input[name="status_design"]').val($(this).attr('data-name_en'));
 	});
 
 
