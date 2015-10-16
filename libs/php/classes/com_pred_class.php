@@ -6,9 +6,15 @@
 	       global $user_id;
 		   //echo $json;
 		   $data_obj = json_decode($json);
-           //print_r($data_obj);
+           // print_r($data_obj);
 		   // exit;
-		
+		   
+		   //предварительно получаем данные о контактном лице прикрепленном к запросу
+		   $query = "SELECT client_face_id FROM `".RT_LIST."` WHERE `query_num` = '".$data_obj->query_num."'"; 
+           $result = $mysqli->query($query) or die($mysqli->error);
+		   $row = $result->fetch_assoc();
+		   $recipient_id = $row['client_face_id'];
+			
 		   // $data->ids - это двухмерный массив первый уровеннь которого содержит id строк из таблицы RT_MAIN_ROWS
 		   // второй уровень содержит id дочерних строк из таблицы RT_DOP_DATA       
 		   // проходим в цикле этот массив и поочередно копируем данные из таблиц РТ в таблицы КП
@@ -21,9 +27,10 @@
 							  `client_id` = '".$data_obj->client_id."',
 							  `manager_id` = '".$user_id."',
 							  `theme` = '".$data_obj->query_theme."',
-							  `query_num` = '".$data_obj->query_num."'
+							  `query_num` = '".$data_obj->query_num."',
+							  `recipient_id` = '".$recipient_id."'
 							  ";
-							  
+		  		  
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if(!$result) return 2;
 		   $kp_id = $mysqli->insert_id;

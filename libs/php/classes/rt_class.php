@@ -67,8 +67,8 @@
 		static function set_order_deadline($ids,$date,$time){
 		    global $mysqli; 
 			$time = str_replace('.',':',$time).':00';
-		    $query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."',`shipping_time` = '".$time."'  WHERE `row_id` IN('".implode("','",json_decode($ids))."')";
-		     //echo $query."\r\n";exit;
+		    $query = "UPDATE `".RT_DOP_DATA."` SET `shipping_date` = '".$date."',`shipping_time` = '".$time."',`shipping_type` = 'date'  WHERE `row_id` IN('".implode("','",json_decode($ids))."')";
+		   // echo $query."\r\n";exit;
 			$mysqli->query($query)or die($mysqli->error);
 		}
 		static function fetch_query_create_time($query_num){
@@ -116,14 +116,13 @@
 			$query = "UPDATE `".RT_LIST."` SET `client_face_id` = '".$cont_face_id."' WHERE `query_num` = '".$query_num."'"; 
             $mysqli->query($query) or die($mysqli->error);
 		}
-		static function save_copied_rows_to_buffer($data,$control_num){
-		    global $mysqli;   
+		static function save_copied_rows_to_buffer($data){
 			RT::save_to_buffer($data,'copied_rows');
 		}
 		static function save_to_buffer($data,$type){
 		    if(!isset($_SESSION['rt']['buffer'])) $_SESSION['rt']['buffer'] = array();
 			$_SESSION['rt']['buffer'][$type] = $data;
-			//echo '<pre>'; print_r($_SESSION); echo '</pre>';
+			// echo '<pre>'; print_r($_SESSION['rt']['buffer']); echo '</pre>';
 			return 1;
 		}
 		static function shift_rows_down($place_id,$mainCopiedRowId,$shift_counter /* $place_id - куда вставляем, $pos_id - что будем вставлять */){
