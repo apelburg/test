@@ -13,7 +13,10 @@
 	// Подключаем шаблон таблицы списка коммерческих предложений
 	include ('skins/tpl/client_folder/business_offers/list_table.tpl');
 	if(isset($detailed_view)) include ('skins/tpl/client_folder/business_offers/detailed_view.tpl');
-	if(isset($in_blank_view)) include ('skins/tpl/client_folder/business_offers/in_blank_view.tpl');
+	if(isset($in_blank_view)){
+	     if(isset($_GET['show_old_kp'])) include ('skins/tpl/client_folder/business_offers/in_blank_view_old.tpl');
+		 else include ('skins/tpl/client_folder/business_offers/in_blank_view.tpl');
+	}
 	
 ?>
 

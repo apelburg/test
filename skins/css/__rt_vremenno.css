@@ -281,3 +281,41 @@ height:200px;
 #options_bar ul{padding: 0; margin: 0; list-style: none}
 #options_bar ul li{ display: inline-block; padding: 5px 10px}
 #options_bar span{ color: #5a5c61; font-size: 10px}
+
+.tooltips:hover {
+  cursor:pointer;
+}
+.tooltipContent {
+  font-family:Arial, Helvetica, sans-serif;
+  font-size:12px;
+  padding:5px 10px;
+  color: #000000;
+  background: #FFFFFF;
+  border: 2px solid #333333;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 6px;
+  box-shadow: 1px 0px 2px #222;
+}
+.tooltipContent:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-top: -12px;
+  width: 0; height: 0;
+  border-left: 12px solid #333333;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+}
+.tooltipContent:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-top: -8px;
+  width: 0; height: 0;
+  border-left: 8px solid #FFFFFF;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
