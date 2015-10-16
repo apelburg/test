@@ -555,6 +555,7 @@
 													'design_waiting_for_distribution' =>array('access'=>true),
 													'design_develop_design' =>array('access'=>true),
 													'design_laid_out_a_layout' =>array('access'=>true),
+													'design_wait_laid_out_a_layout' =>array('access'=>true),
 													'design_edits' =>array('access'=>true),
 													'design_on_agreeing' =>array('access'=>true),
 													'design_prepare_to_print' =>array('access'=>true),

@@ -24,13 +24,13 @@
         </td> 
         <td>Р/С</td>
         <td>
-            <div class="info_white"><?php echo (trim($requesit['r_account'])!=0)?$requesit['r_account']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
+            <div class="info_white"><?php echo (trim($requesit['r_account'])!='')?$requesit['r_account']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
         </td>
     </tr>
     <tr>
         <td>КПП</td>
         <td>
-            <div class="info_white"><?php echo (trim($requesit['kpp'])!=0)?$requesit['kpp']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
+            <div class="info_white"><?php echo (trim($requesit['kpp'])!='')?$requesit['kpp']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
         </td> 
         <td>корр/С</td>
         <td>
@@ -53,7 +53,7 @@
         </td> 
         <td>ОГРН</td>
         <td>
-            <div class="info_white"><?php echo (trim($requesit['ogrn'])!='')?$requesit['ogrn']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
+            <div class="info_white"><?php echo (trim($requesit['ogrn'])!= '')?$requesit['ogrn']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
         </td>
     </tr>
     <tr>
@@ -63,7 +63,7 @@
         </td> 
         <td>ОКПО</td>
         <td>
-            <div class="info_white"><?php echo (trim($requesit['okpo'])!=0)?$requesit['okpo']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
+            <div class="info_white"><?php echo (trim($requesit['okpo'])!= '')?$requesit['okpo']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
         </td>
     </tr>
     <tr>
@@ -73,7 +73,7 @@
         </td> 
         <td>Доп. инфо</td>
         <td>
-            <div class="info_white"><?php echo (trim($requesit['okpo'])!=0)?$requesit['okpo']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
+            <div class="info_white"><?php echo (trim($requesit['dop_info'])!= '')?$requesit['dop_info']:'<span style="color:#D8D3D3">Информация отсутствует</span>'; ?></div>
         </td>
     </tr>
 </table>

@@ -480,6 +480,10 @@
 					private function orders_design_laid_out_a_layout_Template($id_row=0){
 						$this->orders_design_all_Template($id_row);
 					}
+					// Ожидает дизайн-эскиз (Дизайн/препресс)
+					private function orders_design_wait_laid_out_a_layout_Template($id_row=0){
+						$this->orders_design_all_Template($id_row);
+					}
 
 					// Правки (Дизайн/препресс)
 					private function orders_design_edits_Template($id_row=0){
@@ -498,6 +502,7 @@
 
 					// Пленки и клише (Дизайн/препресс)
 					private function orders_design_films_and_cliches_Template($id_row=0){
+						$this->filtres_position = " `approval_date` <> '00.00.0000 00:00:00' AND `approval_date` <> ''";
 						$this->orders_design_all_Template($id_row);
 					}
 
@@ -654,7 +659,7 @@
 							// если услуг для производства в данной позиции нет - переходм к следующей
 							if($this->services_num == 0){continue;}
 							if(isset($_GET['subsection']) && $_GET['subsection'] == 'design_films_and_cliches'){
-								if($this->check_the_status_films('готовы к отправке')){continue;}
+								if($this->check_the_status_films(array('нужно делать','перевывод','готовы к отправке','отправлены на фотовывод','клише заказано'))){continue;}
 							}
 
 								// плёнки клише
@@ -801,10 +806,18 @@
 									$html .= $this->get_production_userlist_Html($this->service['performer_id'],$this->service['id']);
 								$html .= '</td>';
 
+								// доп классы для комманд дизайнерам на изменения статусов
+								$performer_status = $this->get_statuslist_uslugi_Dtabase_Html($this->service['uslugi_id'],$this->service['performer_status'],$this->service['id'], $this->service['performer']);
+								
+								// назначает классс на ячейку услуги или подменяет статус кнопкой
+								// в зависимости от ситуации
+								$this->get_performer_status($this->service, $performer_status);
+								
 								// статус дизайна
-								$html .= '<td class="show-backlight">';
-									$html .= $this->get_statuslist_uslugi_Dtabase_Html($this->service['uslugi_id'],$this->service['performer_status'],$this->service['id'], $this->service['performer']);
+								$html .= '<td class="show-backlight '.$this->js_dop_class.'">';
+									$html .= $this->performer_status;
 								$html .= '</td>';
+								
 
 							if($n==0){// это дополнительные колонки в уже сформированную строку
 								// оборачиваем колонки в html переданный в качестве параметра
@@ -819,6 +832,8 @@
 
 						return $gen_html ;
 					}
+
+					
 
 					// ШАБЛОН заказа Дизайн/препресс
 					private function design_rows($id_row=0){
@@ -998,24 +1013,25 @@
 													if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 53){
 														$new_arr[] = $service;
 													}
-													break;
+													break;//
 												case 'design_laid_out_a_layout': //Сверстать макет
-												/*
-													все позиции с услугой из папки пре-пресс по которым назначено имя ДИЗа и стоит статус: 
-													задача принята, ожидает
-													дизайн-эскиз утвержден
-													в работе
-
-													вспомнил важное - либо МАКЕТ БЕЗ ОПЛАТЫ!!!
-												*/
+												
 													if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 50 && $service['performer_id'] != 0){
-														if($service['performer_status'] == 'дизайн-эскиз утвержден' || $service['performer_status'] == 'в работе' || $service['performer_status'] == 'задача принята, ожидает'){
+														if($service['performer_status'] == 'дизайн-эскиз утвержден' || $service['performer_status'] == 'в работе' || $service['performer_status'] == 'задача принята ожидает' || $service['performer_status'] == 'ожидает обработки'){
+															$new_arr[] = $service;
+														}
+													}
+													break;
+												case 'design_wait_laid_out_a_layout': // ожидаем дизайн-эскиз
+												
+													if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 50 && $service['performer_id'] != 0){
+														if($service['performer_status'] == 'ожидаем утверждения дизан-эскиза'){
 															$new_arr[] = $service;
 														}
 													}
 													break;
 												case 'design_edits': // правки
-													if($service['performer_status'] == 'исправить макет' || $service['performer_status'] == 'исправить дизайн' || substr($service['performer_status'], 0, 14) == 'очередь'){
+													if($service['flag_design_edits'] == 1 || $service['performer_status'] == 'исправить макет' || $service['performer_status'] == 'исправить дизайн' || substr($service['performer_status'], 0, 14) == 'очередь'){
 														$new_arr[] = $service;
 													}
 													break;												
@@ -1025,7 +1041,7 @@
 													}
 													break;
 												case 'design_prepare_to_print': // Подготовить в печать
-													if($service['performer_status'] == 'подготовить в печать'){
+													if($service['flag_design_prepare_to_print'] == 1 || $service['performer_status'] == 'подготовить в печать' || $service['performer_status'] == 'печатная Pdf на утверждении'){
 														$new_arr[] = $service;
 													}
 													break;
@@ -1109,18 +1125,33 @@
 
 					// проверка плёнок на статус "готовы к отправке"
 					private function check_the_status_films($status){
-						// echo '<pre>';
-						// print_r($this->services_production);
-						// echo '</pre>';
 						if (empty($this->services_production)) {
 							return 1;
 						}
-						foreach ($this->services_production as $key => $service) {
-							if($service['film_photos_status'] == $status){
-								return 0;
+
+						if(is_array($status)){
+							//echo  'массви<br>';
+							/*
+								// по позиции макет должен быть утверждён
+			array('нужно делать','перевывод','готовы к отправке','отправлены на фотовывод','клише заказано',)
+							*/
+				
+							foreach ($this->services_production as $key => $service) {
+								foreach ($status as $value) {
+									if($service['film_photos_status'] == $value){
+										return 0;
+									}
+								}								
 							}
+							return 1;
+						}else{
+							foreach ($this->services_production as $key => $service) {
+								if($service['film_photos_status'] == $status){
+									return 0;
+								}
+							}
+							return 1;
 						}
-						return 1;
 					}				
 
 					// информация о плёнках и клише
@@ -1680,7 +1711,7 @@
 
 					// Запуск в обработку (Снабжение)
 					private function orders_snab_starting_in_processing_Template($id_row=0){
-						// $this->filtres_order = " `snab_id` = '0'";
+						$this->filtres_order = " `snab_id` = '0'";
 						$this->orders_snab_all_Template($id_row);
 					}
 
@@ -2095,8 +2126,9 @@
 								$html_row_2 = '<td rowspan="'.$this->services_num.'" >';
 									$html_row_2 .= $this->decoder_statuslist_sklad($this->position['status_sklad'], $this->position['id']);
 								$html_row_2 .= '</td>';
-								$html_row_2 .= '<td rowspan="'.$this->services_num.'" >';
-									$html_row_2 .= '<div>'.$this->decoder_statuslist_snab($this->position['status_snab'],$this->position['date_delivery_product'],0,$this->position['id']).'</div>';
+								$performer_status = $this->decoder_statuslist_snab($this->position['status_snab'],$this->position['date_delivery_product'],0,$this->position['id']);
+								$html_row_2 .= '<td class="'.$this->js_dop_class.'" rowspan="'.$this->services_num.'" >';
+									$html_row_2 .= '<div>'.$performer_status.'</div>';
 								$html_row_2 .= '</td>';
 
 								// дата сдачи
@@ -2242,8 +2274,13 @@
 									$html .= $this->get_production_userlist_Html($service['performer_id'],$service['id']);
 								$html .= '</td>';
 								// статус готовности
-								$html .= '<td class="show-backlight">';
-									$html .= $this->get_statuslist_uslugi_Dtabase_Html($service['uslugi_id'],$service['performer_status'],$service['id'], $service['performer']);
+
+								$performer_status = $this->get_statuslist_uslugi_Dtabase_Html($service['uslugi_id'],$service['performer_status'],$service['id'], $service['performer']);
+								//$performer_status = $this->get_statuslist_uslugi_Dtabase_Html($value['id'],$value['performer_status'],$value['id_dop_uslugi_row'],$value['performer']);
+								$this->get_performer_status($service,$performer_status);
+								
+								$html .= '<td class="show-backlight '.$this->js_dop_class.'">';
+									$html .= $this->performer_status;
 								$html .= '</td>';
 								// % готовности
 								$html .= '<td class="show-backlight percentage_of_readiness"'.(($this->user_access == 4 || $this->user_access == 1)?' contenteditable="true"':'').' data-service_id="'.$service['id'].'">';

@@ -377,7 +377,8 @@ if (isset($_POST['ajax_standart_window'])) {
 			`bank_address`='" . $_POST['form_data']['bank_address'] . "', 
 			`r_account`='" . $_POST['form_data']['r_account'] . "', 
 			`cor_account`='" . $_POST['form_data']['cor_account'] . "', 
-			`ogrn`='" . $_POST['form_data']['bik'] . "', 
+			`ogrn`='" . $_POST['form_data']['ogrn'] . "', 
+            `bik`='" . $_POST['form_data']['bik'] . "', 
 			`okpo`='" . $_POST['form_data']['okpo'] . "', 
 			`dop_info`='" . $_POST['form_data']['dop_info'] . "' WHERE id = '" . $_POST['requesit_id'] . "';";
         
