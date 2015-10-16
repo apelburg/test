@@ -245,6 +245,9 @@ var rtCalculator = {
 								if(tds_arr[j].getElementsByTagName('img')[0]) $(tds_arr[j].getElementsByTagName('img')[0]).mouseenter(this.show_svetofor);
 								
 							}
+							if(tds_arr[j].getAttribute('raschet_status')){
+								$(tds_arr[j]).mouseenter(function(e){ statusTooltip.schedule(this)});
+							}
 							if(tds_arr[j].getAttribute('calc_btn') && !block){
 								//// console.log(j+' svetofor');
 								if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = printCalculator.start_calculator;
