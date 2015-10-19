@@ -15,7 +15,13 @@
 	if(isset($detailed_view)) include ('skins/tpl/client_folder/business_offers/detailed_view.tpl');
 	if(isset($in_blank_view)){
 	     if(isset($_GET['show_old_kp'])) include ('skins/tpl/client_folder/business_offers/in_blank_view_old.tpl');
-		 else include ('skins/tpl/client_folder/business_offers/in_blank_view.tpl');
+		 else{
+		     $query="SELECT display_setting_2 FROM`".KP_LIST."` WHERE `id` = '".$kp_id."'";
+		     $result = $mysqli->query($query)or die($mysqli->error);
+			 $row = $result->fetch_assoc();
+			 $display_setting_2 = $row['display_setting_2'];
+		     include ('skins/tpl/client_folder/business_offers/in_blank_view.tpl');
+		 }
 	}
 	
 ?>

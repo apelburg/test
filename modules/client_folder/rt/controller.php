@@ -392,7 +392,6 @@
 						   <td type="margin" class="margin center">'.$margin_format.$margin_currency.'</td>
 						   <td raschet_status="1" style="position: relative;overflow:hidden;white-space: nowrap;"  tooltip="'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>
 						</tr>';
-			// <td  style="position: relative;overflow: _hidden;white-space: nowrap;"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<span>'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'</span><div></td>
 			 // загружаем сформированный ряд в итоговый массив
 		     $tbl_rows[]= $cur_row;
 		     $counter++;

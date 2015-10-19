@@ -146,6 +146,10 @@
 		Com_pred::saveKpDisplayChangesInBase($_POST['kp_id'],$_POST['dataJSON']);
 		exit;
 	}
+	if(isset($_POST['saveChangesRadioInBase'])){
+		Com_pred::saveChangesRadioInBase($_POST['kp_id'],$_POST['val']);
+		exit;
+	}
 	
 	
 	 if(isset($_GET['delete_com_offer'])){
