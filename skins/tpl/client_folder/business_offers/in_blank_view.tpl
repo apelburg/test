@@ -150,7 +150,8 @@
     <td width="750"><?php echo $in_blank_view; ?></td>
     <td valign="top">
     
-          <div style="float:right;margin:20px 30px 0 0 ;"><a href="?page=client_folder&section=business_offers&query_num=<?php echo $query_num; ?>&client_id=<?php echo $client_id; ?>" class="someABtn">выйти в общий список КП</a></div>
+         <div style="float:right;margin:20px 30px 0 0 ;"><a href="?page=client_folder&section=business_offers&query_num=<?php echo $query_num; ?>&client_id=<?php echo $client_id; ?>" class="someABtn">выйти в общий список КП</a></div>
+        <div style=" position:fixed;top:10px;">
         <table width="550" id="kpDisplayManagerBarTbl" style="margin-top:200px;" border="0">
           <tr>
             <td><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
@@ -183,7 +184,7 @@
             <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="2" <?php echo ($display_setting_2==2)?'checked':'';?> /><ul><li>Cумма нанесений прайс плюс коэффициэнт печати и коэффициэнт цвета</li><li>Общая стоимость нанесения: - включает в себя блок который относится к печати логотипа(вся стоимость плюс коэффициэнт печати и коэффициэнт цвета)</li><li>Общая стоимость доп услуг - включает в себя все допуслуги из 3 блок</li></ul></label></td>
           </tr>
         </table>
-
+        </div>
         
     </td>
   </tr>

@@ -988,11 +988,19 @@
 
 									$print_summ = $quantity*($new_price_arr['price_out']*($square_coeff-1));
 									
-									$rows_2[] = '<tr id="metod_display_setting_'.$counter2.'3" style="display:'.(($display_setting_2!=2)?'table-row':'none').'"><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($square_coeff-1)*100).'% за увелич. площади печати</td>';
-								    $rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
-								    $rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';/**/
 									
 									
+									if($save_on_disk && $display_setting_2!=2){
+											$rows_2[] = '<tr><td align="left" style="width:230px;padding:0 5px 0 15px;"+ '.(($square_coeff-1)*100).'% за увелич. площади печати</td>';
+								            $rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
+								            $rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';/**/
+										
+										}
+										else{
+											$rows_2[] = '<tr id="metod_display_setting_'.$counter2.'3" style="display:'.(($display_setting_2!=2)?'table-row':'none').'"><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($square_coeff-1)*100).'% за увелич. площади печати</td>';
+											$rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
+											$rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';/**/ 
+										}
 								
 								}
 								if($type == 'YPriceParam'){
@@ -1004,10 +1012,18 @@
 						                $Y_coeff = (float)$Y_data['coeff']-1;     
 										$print_summ = $quantity*($base_price_for_Y*$Y_coeff);
 
-										$rows_2[] = '<tr id="metod_display_setting_'.$counter2.$index.'4" style="display:'.(($display_setting_2!=2)?'table-row':'none').'"><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($Y_data['coeff']-1)*100).'% за металлик ('.$print_data['block1']['price_data']['y_params_ids'][$Y_data['id']].')</td>';
-								        $rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
-								        $rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';  
 										
+										if($save_on_disk && $display_setting_2!=2){
+											$rows_2[] = '<tr><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($Y_data['coeff']-1)*100).'% за металлик ('.$print_data['block1']['price_data']['y_params_ids'][$Y_data['id']].')</td>';
+											$rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
+											$rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';
+										
+										}
+										else{
+											$rows_2[] = '<tr id="metod_display_setting_'.$counter2.$index.'4" style="display:'.(($display_setting_2!=2)?'table-row':'none').'"><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($Y_data['coeff']-1)*100).'% за металлик ('.$print_data['block1']['price_data']['y_params_ids'][$Y_data['id']].')</td>';
+											$rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
+											$rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';  
+										}
 									}
 								}
 							}
