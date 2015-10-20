@@ -15,7 +15,7 @@ statusTooltip.prototype.show = function(text, y , х) {
    // Добавить подсказку в документ, если это еще не сделано
    if (this.tooltip.parentNode != document.body) document.body.appendChild(this.tooltip);
    this.content.innerHTML = text; // Записать текст подсказки.
-   this.tooltip.style.left = х - 150 + "px"; // Определить положение.
+   this.tooltip.style.left = (х - this.tooltip.offsetWidth - 13) + "px"; // Определить положение.
    this.tooltip.style.top = y - 15 + "px";
    this.tooltip.style.visibility = "visible"; // Сделать видимой.
   

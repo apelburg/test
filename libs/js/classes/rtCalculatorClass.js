@@ -58,6 +58,7 @@ var rtCalculator = {
 	tbl_total_row:false,
 	previos_data:{},
 	complite_count:0,
+	dscntDisclaimerProtocol:{},
 	primary_val:false
 	,
 	init_tbl:function(head_tbl_id,body_tbl_id){// метод запускаемый при наступлении события window.onload()
@@ -269,6 +270,7 @@ var rtCalculator = {
 			 clearTimeout(rtCalculator.complite_timer);
 			 rtCalculator.complite_timer = null;
 		}
+		 
 		 // console.log('№'+(++rtCalculator.complite_count));
 		 // console.log(1);
 		// получаем значение ячейки
@@ -281,15 +283,61 @@ var rtCalculator = {
 			return;
 		}
 		// console.log(rtCalculator.primary_val+' '+last_val);
-
+		
+		var row_id = rtCalculator.cur_cell.parentNode.getAttribute('row_id');
+		var discount = (rtCalculator.tbl_model[row_id].discount)?rtCalculator.tbl_model[row_id].discount:0;
+		if(discount!=0){
+			console.log(rtCalculator.tbl_model[row_id].discount);
+			if(!rtCalculator.dscntDisclaimerProtocol[row_id]) rtCalculator.shDscntDisclaimer(rtCalculator.cur_cell,row_id,discount);
+		}
+		
 		// формируем url для AJAX запроса
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+rtCalculator.cur_cell.parentNode.getAttribute('row_id')+'","prop":"'+rtCalculator.cur_cell.getAttribute('type')+'","val":"'+last_val+'"}');
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+row_id+'","prop":"'+rtCalculator.cur_cell.getAttribute('type')+'","val":"'+last_val+'"}');
 		rtCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(){ 
 		    rtCalculator.changes_in_process = false;
 		    /*cell.className = cell.className.slice(0,cell.className.indexOf("active")-1);*/
 			// console.log(2);
+		}
+	}
+	,
+	shDscntDisclaimer:function(cur_cell,row_id,discount){
+		rtCalculator.dscntDisclaimerProtocol[row_id] = true;
+		
+		tooltip = document.createElement("div");  
+        tooltip.style.position = "absolute";  
+        tooltip.id = "dscntDisclaimer"+row_id; 
+        tooltip.className = "rtDiscountTooltip"; 
+		tooltip.innerHTML = "на ячейку установлена "+((discount<0)?"скидка":"наценка")+"<br>введеная цена будет не верна"; 
+		var pos = getPos(cur_cell);
+		tooltip.style.top = pos[0] + 2 +"px";
+		//tooltip.style.left = pos[1] -200 +"px";
+		document.body.appendChild(tooltip);
+		tooltip.style.left = (pos[1] -tooltip.offsetWidth -55) +"px";
+		
+		var closeDscntTimer = setTimeout(closeDscntDisclaimer1,4000); 
+		var closeDscntTimer = setTimeout(closeDscntDisclaimer2,8000); 
+		function closeDscntDisclaimer1(){
+		    if(document.getElementById('dscntDisclaimer'+row_id)) document.getElementById('dscntDisclaimer'+row_id).parentNode.removeChild(document.getElementById('dscntDisclaimer'+row_id));	
+			
+		}
+		function closeDscntDisclaimer2(){
+			delete rtCalculator.dscntDisclaimerProtocol[row_id];	
+		}
+		
+		function getPos(element) {
+		   var y= 0;
+		   var х = 0;
+		   for(var e = element; e != null; e = e.offsetParent){ // Цикл по offsetParent
+			  y += e.offsetTop;
+			  х += e.offsetLeft;
+		   }
+		
+		   for(e = element.parentNode; e && e != document.body; e = e.parentNode){
+			  if(e.scrollTop) y -= e.scrollTop; 
+		   }
+		   return [y,х];
 		}
 	}
 	,
@@ -654,6 +702,7 @@ var rtCalculator = {
 					var connected_vals = tds_arr[j].getAttribute('connected_vals');
 					//tds_arr[j].innerHTML = rtCalculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')];
 					//tds_arr[j].innerHTML = (type=='quantity')? rtCalculator.tbl_model['total_row'][type]:(rtCalculator.tbl_model['total_row'][type]).toFixed(2); 
+					if(type == 'margin') continue;
 					if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model['total_row'][type];
 				    else if(connected_vals=='print' || connected_vals=='uslugi') tds_arr[j].innerHTML = (rtCalculator.tbl_model['total_row'][type]).toFixed(2)+'р'; 
 					else tds_arr[j].innerHTML = (rtCalculator.tbl_model['total_row'][type]).toFixed(2); 
