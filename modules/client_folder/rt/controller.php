@@ -24,6 +24,7 @@
     
 	function fetch_rows_from_rt($query_num){
 	     global $mysqli;
+		 global $Position_no_catalog;
 		 
 		 $rows = array();
 		 
@@ -388,15 +389,9 @@
 						   <td width="70" class="grey r_border center">'.$srock_sdachi.'</td>
 						   <td type="delta" class="delta right">'.$delta_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
-						   <td type="margin" class="margin right">'.$margin_format.'</td>
-						   <td width="10" class="left">'.$margin_currency.'</td>
-						   <td stretch_column>&nbsp;</td>';
-
-						   global $Position_no_catalog;
-			 $cur_row .=  '<td class="overflow"><div style="">'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>';  
-
-			 $cur_row .= '</tr>';
-			 
+						   <td type="margin" class="margin center">'.$margin_format.$margin_currency.'</td>
+						   <td raschet_status="1" style="position: relative;overflow:hidden;white-space: nowrap;"  tooltip="'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>
+						</tr>';
 			 // загружаем сформированный ряд в итоговый массив
 		     $tbl_rows[]= $cur_row;
 		     $counter++;
@@ -452,9 +447,7 @@
 				  <td class="delta center">delta</td>
 				  <td width="10"></td>
 				  <td class="margin center">маржина-<br>льность</td>
-				  <td width="10"></td>
-				  <td stretch_column>&nbsp;</td>
-                  <td width="70">статус</td>';              
+				  <td>статус</td>';              
 	    $rt.= '</tr>
 	           <tr row_id="total_row" class="grey bottom_border">
 			      <td width="30" height="18"></td>
@@ -491,8 +484,6 @@
 				  <td type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>
 				  <td type="margin" class="right"></td>
-				  <td width="10" class="left"></td>
-				  <td stretch_column>&nbsp;</td>
                   <td></td>';              
 	   $rt.= '</tr>
 	          </table>

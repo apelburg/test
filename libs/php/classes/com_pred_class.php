@@ -274,7 +274,7 @@
 		   
 		   $rows = array();
 		 
-		   $query = "SELECT list_tbl.recipient_id AS recipient_id ,list_tbl.display_setting AS display_setting, main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,
+		   $query = "SELECT list_tbl.recipient_id AS recipient_id ,list_tbl.display_setting AS display_setting ,list_tbl.display_setting_2 AS display_setting_2, main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
 						  
@@ -301,6 +301,8 @@
 				   $multi_dim_arr[$row['main_id']]['name'] = $row['item_name'];
 				   $multi_dim_arr[$row['main_id']]['recipient_id'] = $row['recipient_id'];
 				   $multi_dim_arr[$row['main_id']]['display_setting'] = $row['display_setting'];
+				   $multi_dim_arr[$row['main_id']]['display_setting_2'] = $row['display_setting_2'];
+				   
 				   
 			   }
 			   //$multi_dim_arr[$row['main_id']]['uslugi_id'][] = $row['uslugi_id'];
@@ -403,7 +405,8 @@
 	   static function save_in_pdf($kp_id,$client_id,$user_id,$filename = '1.pdf'){
 	   
             $html = self::open_in_blank($kp_id,$client_id,$user_id,true,true);
-		
+		    //echo $html;
+		    //exit;
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
             //$stylesheet = file_get_contents('style.css');
 			$filename = 'Презентация_'.$client_id.'_'.date('Ymd_His').'.pdf';
@@ -721,12 +724,15 @@
 			
 			// Настройки отображения состовляющих КП
 			$display_setting = $multi_dim_arr[key($multi_dim_arr)]['display_setting'];
+			$display_setting_2 = $multi_dim_arr[key($multi_dim_arr)]['display_setting_2'];
+
 			$dispSetObj = json_decode($display_setting);
 			
 
 			
 			$itogo=$itogo_print_uslugi=$itogo_extra_uslugi=0;
-			
+			$itogo_print_uslugi1 = $itogo_print_uslugi2= $itogo_print_uslugi3=0;
+			$itogo_extra_uslugi1 = $itogo_extra_uslugi2= $itogo_extra_uslugi3=0;
 			// Разворачиваем массив 
 			foreach($multi_dim_arr as $pos_key => $pos_level){
 			   
@@ -775,6 +781,9 @@
 				if($save_on_disk && isset($dispSetObj->art)){
 				   $article = '';
 				}
+				else if($pos_level['row_type']!='cat'){
+				   $article = '';
+				}
 				else{
 				   $article = '<managedDisplay name="art" style="display:'.(isset($dispSetObj->art)?'none':'inline-block').'">арт.: <a href="/index.php?page=description&id='.@$id.'" target="_blank">'.@$pos_level['art'].'</a></managedDisplay>';
 				}
@@ -785,6 +794,7 @@
 				//  может содержать любое нанесений и доп услуг)
 				foreach($pos_level['dop_data'] as $r_key => $r_level){ 
 				    $all_print_summ=$all_extra_summ=0;
+					
 				    //$r_ - сокращение обозначающее - уровень Расчёта позиции
 					
 					// стоимост артикула в данном расчете (без нанесения и услуг)
@@ -825,14 +835,13 @@
 						    // echo  '<pre>'; print_r($u_level); echo '</pre>';  //
 						
 							$print_details_obj = json_decode($u_level['print_details']);
+							$print_details_arr = json_decode($u_level['print_details'],TRUE);
 							$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
 							// расчет стоимости нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 							$new_price_arr = rtCalculators::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
-							$all_print_summ+=$calculations['new_summs']['summ_out'];
-							$itogo_print_uslugi += $calculations['new_summs']['summ_out'];
-							// echo  '<pre>'; print_r($calculations); echo '</pre>';  //
+							// echo  '<pre>'; print_r($new_price_arr); echo '</pre>';  //
 
 							// наименование нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
@@ -845,25 +854,125 @@
 							
 							if(isset($print_data['block1']['price_data']['y_params'])){
 								 $print_block[] = '<tr><td valign="top">'.$print_data['block1']['price_data']['cap'].': </td><td>'.count($print_data['block1']['price_data']['y_params']).' ('.implode(', ',$print_data['block1']['price_data']['y_params']).')</td></tr>';
+								$y_params_count = count($print_data['block1']['price_data']['y_params']);
+								$y_params_coeff = 0;
+								foreach($print_details_arr['dop_params']['YPriceParam']as $y_data){
+								    if($y_data['coeff']==0) $y_data['coeff'] =1;
+									$y_params_coeff += $y_data['coeff']-1;
+								}
 							}
-							if(isset($print_data['block1']['print_size'])) $print_block[] = '<tr><td valign="top">Площадь печати: </td><td>'.$print_data['block1']['print_size'].'</td></tr>'; 
+							if(isset($print_data['block1']['print_size'])){
+							     $print_block[] = '<tr><td valign="top">Площадь печати: </td><td>'.$print_data['block1']['print_size'].'</td></tr>'; 
+								
+							    $size_coeff = (isset( $print_details_arr['dop_params']['sizes']))?((isset($print_details_arr['dop_params']['sizes'][0]['val']) && $print_details_arr['dop_params']['sizes'][0]['val']!=0)?$print_details_arr['dop_params']['sizes'][0]['val']: 1 ):1;
+								//echo  '<pre>--2--'; print_r($print_details_arr['dop_params']); echo '</pre>';
+							}
 							$print_block[] = '</table>';
-							$print_block[] = '<table style="font-family:arial;font-size:13px;right;margin:0 0 5px 0;width:100%;border-collapse:collapse;width:350px;table-layout:_fixed;" border="0">
-								  <tr>
-									<td align="right" style="width:250px;color:#888;">1шт.</td>
-									<td align="right" style="width:70px;padding:0 5px;"><nobr>'.number_format($calculations['new_price_arr']['price_out'],2,'.',' ').'</nobr></td>
-									<td align="left" style="width:30px;">руб.</td>
-								  </tr>
-								  <tr>
-									<td align="right" style="color:#888;">тираж: '.$quantity.' шт. </td>
-									<td align="right" style="padding:0 5px;"><nobr>'.number_format($calculations['new_summs']['summ_out'],2,'.',' ').'</nobr></td>
-									<td align="left">руб.</td>
-								  </tr>
-								</table>';
-					
+							
+							
+							if($display_setting_2==0){ // вариант 1
+							    $print_block_price = $new_price_arr['price_out'];
+							    $print_block_summ = $quantity*$new_price_arr['price_out'];
+								
+								$all_print_summ+=$calculations['new_summs']['summ_out'];
+							    $itogo_print_uslugi += $calculations['new_summs']['summ_out'];
+
+							}
+							else if($display_setting_2==1){ // вариант 2
+							    $print_block_price = $new_price_arr['price_out'];
+							    $print_block_summ = $quantity*$new_price_arr['price_out'];
+								
+								$all_print_summ+=$calculations['new_summs']['summ_out'];
+							    $itogo_print_uslugi += $print_block_summ;
+								$itogo_extra_uslugi += $calculations['new_summs']['summ_out'] - $print_block_summ;
+								
+							    
+							}
+							else if($display_setting_2==2){ // вариант 3
+								
+								// нужно умножить цену на коэфф печати 
+								$size_coeff = (isset($size_coeff))?$size_coeff:1;
+								$print_block_price = $new_price_arr['price_out']*$size_coeff;
+								// добавить коэфф цвета если есть
+								if(isset($y_params_count) && $y_params_count>0){
+								    $y_params_coeff = (isset($y_params_coeff))?$y_params_coeff:1;
+								    $print_block_price += ($new_price_arr['price_out']/$y_params_count)*$y_params_coeff;
+								}
+								$print_block_summ = $quantity*$print_block_price;
+								
+								
+								$all_print_summ+=$calculations['new_summs']['summ_out'];
+							    $itogo_print_uslugi += $print_block_summ;
+								$itogo_extra_uslugi += $calculations['new_summs']['summ_out'] - $print_block_summ;
+								
+								
+								
+							}
+							
+							//////////////////////////////////////////////////////////////////////////////
+					        //////////////////////////////////////////////////////////////////////////////
+							$print_block_price1 = $new_price_arr['price_out'];
+							$print_block_summ1 = $quantity*$new_price_arr['price_out'];
+							$itogo_print_uslugi1 += $calculations['new_summs']['summ_out'];
+							
+						    $print_block_price2 = $new_price_arr['price_out'];
+							$print_block_summ2 = $quantity*$new_price_arr['price_out'];
+							$itogo_print_uslugi2 += $quantity*$new_price_arr['price_out'];
+	                        $itogo_extra_uslugi2 += $calculations['new_summs']['summ_out'] - $quantity*$new_price_arr['price_out'];
+							
+							// нужно умножить цену на коэфф печати 
+							$size_coeff = (isset($size_coeff))?$size_coeff:1;
+							$print_block_price3 = $new_price_arr['price_out']*$size_coeff;
+							// добавить коэфф цвета если есть
+							if(isset($y_params_count) && $y_params_count>0){
+								$y_params_coeff = (isset($y_params_coeff))?$y_params_coeff:1;
+								$print_block_price3 += ($new_price_arr['price_out']/$y_params_count)*$y_params_coeff;
+							}
+							$print_block_summ3 = $quantity*$print_block_price3;
+							$itogo_print_uslugi3 += $quantity*$print_block_price3;
+							$itogo_extra_uslugi3 += $calculations['new_summs']['summ_out'] - $print_block_summ3;
+						    //////////////////////////////////////////////////////////////////////////////
+							//////////////////////////////////////////////////////////////////////////////
+							
+							unset($size_coeff);
+							unset($y_params_coeff);
+							unset($y_params_count);
+							
+							if($save_on_disk && isset($dispSetObj->full_summ)){
+								$print_block[] = '<table style="font-family:arial;font-size:13px;right;margin:0 0 5px 0;width:100%;border-collapse:collapse;width:350px;table-layout:_fixed;" border="0">
+									  <tr>
+										<td align="right" style="width:250px;color:#888;">1шт.</td>
+										<td align="right" style="width:70px;padding:0 5px;"><nobr>'.number_format($print_block_price,2,'.',' ').'</nobr></td>
+										<td align="left" style="width:30px;">руб.</td>
+									  </tr>
+									  <tr>
+										<td align="right" style="color:#888;">тираж: '.$quantity.' шт. </td>
+										<td align="right" style="padding:0 5px;"><nobr>'.number_format($print_block_summ,2,'.',' ').'</nobr></td>
+										<td align="left">руб.</td>
+									  </tr>
+									</table>';
+							}
+							else{	
+								
+								$print_block[] = '<table style="font-family:arial;font-size:13px;right;margin:0 0 5px 0;width:100%;border-collapse:collapse;width:350px;table-layout:_fixed;" border="0">
+									  <tr>
+										<td align="right" style="width:250px;color:#888;">1шт.</td>
+										<td align="right" style="width:70px;padding:0 5px;"><nobr><span id="metod_display_setting_'.$counter2.'1_0"  style="display:'.(($display_setting_2==0)?'inline-block':'none').'">'.number_format($print_block_price1,2,',',' ').'</span><span id="metod_display_setting_'.$counter2.'1_1" style="display:'.(($display_setting_2==1)?'inline-block':'none').'">'.number_format($print_block_price2,2,',',' ').'</span><span id="metod_display_setting_'.$counter2.'1_2" style="display:'.(($display_setting_2==2)?'inline-block':'none').'">'.number_format($print_block_price3,2,',',' ').'</span></nobr></td>
+										<td align="left" style="width:30px;">руб.</td>
+									  </tr>
+									  <tr>
+										<td align="right" style="color:#888;">тираж: '.$quantity.' шт. </td>
+										<td align="right" style="padding:0 5px;"><nobr><span id="metod_display_setting_'.$counter2.'2_0"  style="display:'.(($display_setting_2==0)?'inline-block':'none').'">'.number_format($print_block_summ1,2,',',' ').'</span><span id="metod_display_setting_'.$counter2.'2_1" style="display:'.(($display_setting_2==1)?'inline-block':'none').'">'.number_format($print_block_summ2,2,',',' ').'</span><span id="metod_display_setting_'.$counter2.'2_2" style="display:'.(($display_setting_2==2)?'inline-block':'none').'">'.number_format($print_block_summ3,2,',',' ').'</span></nobr></td>
+										<td align="left">руб.</td>
+									  </tr>
+									</table>';
+							}	
+								
+					            unset($print_block_summ);
+								unset($print_block_price);
+								unset($print_block_price3);
 							
 							// Собираем данные для details_block (деталировка по нанесению)
-							$print_details_arr = json_decode($u_level['print_details'],TRUE);
 							$square_coeff = 1;
 							//echo  '<pre>--1--'; print_r( $print_data['block1']['price_data']['y_params']); echo '</pre>';
 							//echo  '<pre>--2--'; print_r( $print_details_arr['dop_params']); echo '</pre>';
@@ -871,7 +980,7 @@
 							   
 			                    $price_addition = $summ_addition = 0;
 								//
-							    if($type == 'sizes'){
+							    if($type == 'sizes' && isset($data[0]['val'])){// в итгое не выводится первым потому что в исходном массиве не на первом месте
 								    if($data[0]['val'] == 0) $data[0]['val'] = 1;
 								    if($data[0]['target'] == 'price') $square_coeff =  $data[0]['val'];
 								    //!!if($data->target == 'summ') $summ_coeff += (float)$data->val-1;
@@ -879,9 +988,21 @@
 									if($square_coeff==1) continue;
 
 									$print_summ = $quantity*($new_price_arr['price_out']*($square_coeff-1));
-									$rows_2[] = '<tr><td align="left" style="width:230px;padding:0 5px 0 15px;">надбавка за увеличенную площадь печати</td>';
-								    $rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
-								    $rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';/**/
+									
+									
+									
+									   if($save_on_disk && $display_setting_2!=2){
+											$rows_2[] = '<tr><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($square_coeff-1)*100).'% за увелич. площади печати</td>';
+								            $rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
+								            $rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';/**/
+										
+										}
+										else if(!$save_on_disk){
+											$rows_2[] = '<tr id="metod_display_setting_'.$counter2.'3" style="display:'.(($display_setting_2!=2)?'table-row':'none').'"><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($square_coeff-1)*100).'% за увелич. площади печати</td>';
+											$rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
+											$rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';/**/ 
+										}
+								
 								}
 								if($type == 'YPriceParam'){
 								    
@@ -891,14 +1012,23 @@
 									    if($Y_data['coeff']==1) continue;
 						                $Y_coeff = (float)$Y_data['coeff']-1;     
 										$print_summ = $quantity*($base_price_for_Y*$Y_coeff);
+
 										
-										$rows_2[] = '<tr><td align="left" style="width:230px;padding:0 5px 0 15px;">надбавка за цвет ('.$print_data['block1']['price_data']['y_params_ids'][$Y_data['id']].')</td>';
-								        $rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
-								        $rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';   /* */
+										if($save_on_disk && $display_setting_2!=2){
+											$rows_2[] = '<tr><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($Y_data['coeff']-1)*100).'% за металлик ('.$print_data['block1']['price_data']['y_params_ids'][$Y_data['id']].')</td>';
+											$rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
+											$rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';
+										
+										}
+										else if(!$save_on_disk){
+											$rows_2[] = '<tr id="metod_display_setting_'.$counter2.$index.'4" style="display:'.(($display_setting_2!=2)?'table-row':'none').'"><td align="left" style="width:230px;padding:0 5px 0 15px;">+ '.(($Y_data['coeff']-1)*100).'% за металлик ('.$print_data['block1']['price_data']['y_params_ids'][$Y_data['id']].')</td>';
+											$rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
+											$rows_2[] = '<td align="left" style="width:30px;">руб. </td></tr>';  
+										}
 									}
 								}
 							}
- //echo  '<pre>'; print_r($print_data['block2']); echo '</pre>';
+
  
 
 							$base_price2 = $new_price_arr['price_out']*$square_coeff;
@@ -929,7 +1059,9 @@
 							}
 						
 							$counter++;
+							// echo  '<pre>'; print_r($rows_2); echo '</pre>';
 							unset($rows_2);
+							 //
 							//echo '<table style="margin-top:5px;border-collapse:collapse;" border="1">'.implode('',$rows_2).'</table>';
 						}
 					}
@@ -944,6 +1076,9 @@
 						     $print_summ = ($u_level['for_how']=='for_all')? $u_level['price_out'] :$quantity*$u_level['price_out'];
 						     $all_extra_summ += $print_summ;
 							 $itogo_extra_uslugi += $print_summ;
+							 $itogo_extra_uslugi1 += $print_summ;
+							 $itogo_extra_uslugi2 += $print_summ;
+							 $itogo_extra_uslugi3 += $print_summ;
 							 
 							 $rows_2[] = '<tr><td align="left" style="width:230px;height:10px;line-height:10px;padding:0 5px 0 15px;">'.$u_level['name'].'</td>';
 							 $rows_2[] = '<td align="right" style="width:90px;">'.number_format($print_summ,2,'.',' ').'</td>';
@@ -962,16 +1097,18 @@
 						$description_cell .= '<div style="">'.implode('<div></div>',$print_block).'</div>';
 					   
 				    }
-					if((isset($details_block11) && count($details_block11)>0) || (isset($details_block11) && count($details_block11)>0)){
-					    if(!($save_on_disk && isset($dispSetObj->dop_uslugi))){
-							$description_cell .= '<managedDisplay name="dop_uslugi" style="display:'.(isset($dispSetObj->dop_uslugi)?'none':'block').'"><hr style="border:none;border-top:#888 solid 1px;"><div><b>Дополнительные услуги:</b></div>';
-							$description_cell .=  '<table style="margin-top:5px;border-collapse:collapse;" border="0">';
-							foreach($details_block11 as $key => $rows){
-							   $description_cell .=  '<tr><td align="left" height="25" colspan="3" style="padding:0 5px 0 15px;">'.$rows['cap'].'</td>';
-							   $description_cell .= implode('',$rows['data']);
-							} 
-							$description_cell .=  '</table></managedDisplay>';
-						}
+					if(isset($details_block11) && count($details_block11)>0){
+
+					    /*if(true!($save_on_disk && isset($dispSetObj->dop_uslugi))){ //style="display:'.(isset($dispSetObj->dop_uslugi)?'none':'block').'}"*/
+					
+						$description_cell .= '<managedDisplay name="dop_uslugi" style="display:'.(isset($dispSetObj->dop_uslugi)?'none':'block').'"><hr style="border:none;border-top:#888 solid 1px;"><div><b>Дополнительные услуги:</b></div>';
+						$description_cell .=  '<table style="margin-top:5px;border-collapse:collapse;" border="0">';
+						foreach($details_block11 as $key => $rows){
+						   $description_cell .=  '<tr><td align="left" height="25" colspan="3" style="padding:0 5px 0 15px;color:#888">'.$rows['cap'].'</td>';
+						   $description_cell .= implode('',$rows['data']);
+						} 
+						$description_cell .=  '</table></managedDisplay>';
+						
 					}
 					
 				
@@ -1018,13 +1155,12 @@
 			/********************   ++++++++++++++  *********************/
 			
 
-			if(!($save_on_disk && isset($dispSetObj->full_summ))){
-				if($itogo != 0){
-			
-					 $full_itog = $itogo + $itogo_print_uslugi + $itogo_extra_uslugi;
+			if($save_on_disk && isset($dispSetObj->full_summ)){
+			    if($itogo != 0){
+			         $full_itog = $itogo + $itogo_print_uslugi + $itogo_extra_uslugi;
 					 $kp_content .= '<div style="text-align:right;">
 					 <managedDisplay name="full_summ" style="text-align:right;display:'.(isset($dispSetObj->full_summ)?'none':'inline-block').'">
-					 <table align="right" style="margin:15px 20px 10px 0;" border="0">
+					 <table align="right" style="margin:15px 20px 10px 0;font-family:arial" border="0">
 						 <tr>
 							 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
 						 </tr>
@@ -1041,10 +1177,33 @@
 					 </managedDisplay>
 					 <div style="clear:both;"></div>
 					 </div>';
+				 }
+			}
+			else{
+				if($itogo != 0){
+			
+					 $full_itog = $itogo + $itogo_print_uslugi + $itogo_extra_uslugi;
+					 $kp_content .= '<div style="text-align:right;">
+					 <managedDisplay name="full_summ" style="text-align:right;display:'.(isset($dispSetObj->full_summ)?'none':'inline-block').'">
+					 <table align="right" style="margin:15px 20px 10px 0;font-family:arial" border="0">
+						 <tr>
+							 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
+						 </tr>
+						 <tr>
+							 <td align="right" height="20" valign="top">Общая стоимость нанесения:</td><td align="right" valign="top"><span id="itogo_display_setting_1_0"  style="display:'.(($display_setting_2==0)?'inline-block':'none').'">'.number_format($itogo_print_uslugi1,2,',',' ').'</span><span id="itogo_display_setting_1_1" style="display:'.(($display_setting_2==1)?'inline-block':'none').'">'.number_format($itogo_print_uslugi2,2,',',' ').'</span><span id="itogo_display_setting_1_2" style="display:'.(($display_setting_2==2)?'inline-block':'none').'">'.number_format($itogo_print_uslugi3,2,',',' ').'</span>руб.</td>
+						 </tr>
+						  <tr>
+							 <td align="right" height="30" valign="top">Общая стоимость доп услуг:</td><td align="right" valign="top"><span id="itogo_display_setting_2_0" style="display:'.(($display_setting_2==0)?'inline-block':'none').'">'.number_format($itogo_extra_uslugi1,2,',',' ').'</span><span id="itogo_display_setting_2_1" style="display:'.(($display_setting_2==1)?'inline-block':'none').'">'.number_format(($itogo_extra_uslugi2),2,',',' ').'</span><span id="itogo_display_setting_2_2" style="display:'.(($display_setting_2==2)?'inline-block':'none').'">'.number_format(($itogo_extra_uslugi3),2,',',' ').'</span>руб.</td>
+						 </tr>
+						 <tr style="font-family:verdana;font-size:14px;font-weight:bold;">
+							 <td align="right" valign="top">Итоговая сумма:</td><td align="right" valign="top" style="white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
+						 </tr>
+					 </table>
+					 </managedDisplay>
+					 <div style="clear:both;"></div>
+					 </div>';
 				}
 			}
-			
-			
 			
 			
 			
@@ -1528,6 +1687,14 @@
 			// echo $query;
 		    $mysqli->query($query)or die($mysqli->error);
 		}
+		static function saveChangesRadioInBase($kp_id,$val){
+		    global $mysqli;
+			
+		    $query="UPDATE `".KP_LIST."` SET 
+							  `display_setting_2` = '".$val."' WHERE `id` = '".$kp_id."'";
+		    $mysqli->query($query)or die($mysqli->error);
+		}
+		
 		
    }
 

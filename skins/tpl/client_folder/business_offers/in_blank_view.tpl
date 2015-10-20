@@ -75,6 +75,46 @@
 		 // console.log(this.dataObj);
 	  }
 	  ,
+	  saveChangesRadio:function(radio){ 
+	  
+	      for(var i =0 ;i < 3; i++){
+		     var staus = (i == radio.value)?'inline-block':'none';
+			 var staus2 = (radio.value != 2)?'table-row':'none';
+		     document.getElementById('itogo_display_setting_1_'+i).style.display=staus;
+			 document.getElementById('itogo_display_setting_2_'+i).style.display=staus;
+			 
+			
+			 for(var j =0 ;j < 100; j++){	 
+				    if(document.getElementById('metod_display_setting_'+j+'1_'+i)) document.getElementById('metod_display_setting_'+j+'1_'+i).style.display=staus;
+					if(document.getElementById('metod_display_setting_'+j+'2_'+i)) document.getElementById('metod_display_setting_'+j+'2_'+i).style.display=staus;
+					if(document.getElementById('metod_display_setting_'+j+'3')) document.getElementById('metod_display_setting_'+j+'3').style.display=staus2;
+					 for(var s =0 ;s < 6; s++){	
+			            if(document.getElementById('metod_display_setting_'+j+s+'4')) document.getElementById('metod_display_setting_'+j+s+'4').style.display=staus2;
+					}
+					
+			 }/**/
+		  }
+		 
+		 
+		 
+		 // document.getElementById('itogo_display_setting_3_'+radio.value).style.display='inline-block';
+		 // document.getElementById('itogo_display_setting_4_'+radio.value).style.display='inline-block';
+		  
+	      show_processing_timer();
+	      $.ajax({
+			type: 'POST',
+			url: '',
+			dataType: 'html',
+			data: 'saveChangesRadioInBase=1&val='+radio.value+'&kp_id='+document.getElementById('kpDisplaySettings_kpId').value
+		  })
+		  .done(function(response) {
+			 // console.log(response);
+			 close_processing_timer();
+		  })
+		  .fail(kpDisplayManager.error);
+		  return false;
+	  }
+	  ,
       saveChangesInBase:function(){ 
 	      if(!this.dataObj) this.initObj();
 	      if(!document.getElementById('kpDisplaySettings_kpId')){
@@ -107,11 +147,12 @@
 
 <table width="100%" border="0">
   <tr>
-    <td><?php echo $in_blank_view; ?></td>
+    <td width="750"><?php echo $in_blank_view; ?></td>
     <td valign="top">
     
-          <div style="float:right;margin:20px 30px 0 0 ;"><a href="?page=client_folder&section=business_offers&query_num=<?php echo $query_num; ?>&client_id=<?php echo $client_id; ?>" class="someABtn">выйти в общий список КП</a></div>
-        <table width="230" id="kpDisplayManagerBarTbl" style="margin-top:200px;" border="0">
+         <div style="float:right;margin:20px 30px 0 0 ;"><a href="?page=client_folder&section=business_offers&query_num=<?php echo $query_num; ?>&client_id=<?php echo $client_id; ?>" class="someABtn">выйти в общий список КП</a></div>
+        <div style=" position:fixed;top:230px; border:#0000CC 0px solid;">
+        <table width="550" id="kpDisplayManagerBarTbl" style="margin-top:0px;" border="0">
           <tr>
             <td><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
           </tr>
@@ -130,8 +171,20 @@
           <!-- <tr>
             <td><label><input type="checkbox" name="dop_uslugi" onclick="kpDisplayManager.saveChanges(this);" />дополнительные услуги</label></td>
           </tr> -->
-        </table>
+          </table>
         <div style="margin:20px 0 0 20px;"><a href="#" onclick="return kpDisplayManager.saveChangesInBase();" class="someABtn">Сохранить</a></div>
+         <table width="550" id="kpDisplayManagerBarTbl" style="margin-top:50px;font-size:11px;" border="0">
+           <tr>
+            <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="0" <?php echo ($display_setting_2==0)?'checked':'';?> /><ul><li>Cумма нанесений точно по прайсу,</li><li>Общая стоимость нанесения: - вся стоимость нанесения с коэффициэнтами и надбавками</li><li>Общая стоимость доп услуг - только доп услуги</li></ul></label></td>
+          </tr>
+           <tr>
+            <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="1" <?php echo ($display_setting_2==1)?'checked':'';?> /><ul><li>Cумма нанесений точно по прайсу</li><li>Общая стоимость нанесения: - вся стоимость нанесения без с коэффициэнтов и надбавок</li><li>Общая стоимость доп услуг - коэффициэнты и надбавки печати  и доп услуги</li></ul></label></td>
+          </tr>
+           <tr>
+            <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="2" <?php echo ($display_setting_2==2)?'checked':'';?> /><ul><li>Cумма нанесений прайс плюс коэффициэнт печати и коэффициэнт цвета</li><li>Общая стоимость нанесения: - включает в себя блок который относится к печати логотипа(вся стоимость плюс коэффициэнт печати и коэффициэнт цвета)</li><li>Общая стоимость доп услуг - включает в себя все допуслуги из 3 блок</li></ul></label></td>
+          </tr>
+        </table>
+        </div>
         
     </td>
   </tr>

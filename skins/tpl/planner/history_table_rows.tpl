@@ -1,6 +1,6 @@
 <tr class="planner_rows">
    <td>&nbsp;</td>
-   <td><a href="?page=clients&razdel=show_client_folder&sub_razdel=planner&subsub_razdel=<?php echo $razdel; ?>&client_id=<?php echo $pl_client_id; ?>" style="color:#000000;"><?php echo $client_name; ?></a></td>
+   <td><a href="?page=client_folder&section=planner&client_id=<?php echo $pl_client_id; ?>" style="color:#000000;"><?php echo $client_name; ?></a></td>
    <td>
       <div class="date_in_format"><?php echo $write_date_in_format; ?></div>
       <div class="time_in_format"><?php echo $write_time_in_format; ?></div>
