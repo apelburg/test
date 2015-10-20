@@ -22,7 +22,7 @@
 			// echo 'привет мир';
 			$method_template = $_GET['section'].'_'.$_GET['subsection'].'_Template';
 			// $method_template = $_GET['section'].'_Template';
-			echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
+			echo '<div id="fixed_div" style="position:fixed;opacity:0.5; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
 			// если в этом классе существует такой метод - выполняем его
 			if(method_exists($this, $method_template)){
 				// echo $this->$method_template;
@@ -72,10 +72,8 @@
 						// если это МЕН - выводим только его заказы
 						// фильтрация по менеджеру
 						if($this->user_access == 5){
-							//if(isset($_GET['subsection']) && $_GET['subsection'] != 'production'){
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
-								$where = 1;
-							//}								
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
+							$where = 1;							
 						}
 
 						// фильтрация по заказу
@@ -129,7 +127,7 @@
 								$where = 1;
 								break;
 							case 'production':
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` IN ('in_work')";
+								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` IN ('in_work','paused')";
 								$where = 1;
 								break;							
 							default:
@@ -179,7 +177,6 @@
 							<th>сумма</th>
 							<th>тех + доп инфо</th>
 							<th>дата утв. макета</th>
-							<th>срок ДС</th>
 							<th>дата сдачи</th>
 							<th  colspan="2">статус</th>
 						</tr>
@@ -272,7 +269,7 @@
 							$table_order_row2_body .= '</td>';
 								
 							// срок по ДС
-							$table_order_row2_body .= '<td></td>';
+							// $table_order_row2_body .= '<td></td>';
 							// $table_order_row2_body .= '<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>';
 							// дата сдачи / отгрузки
 							$table_order_row2_body .= '<td>';
@@ -459,25 +456,38 @@
 				*/
 					// Дизайн всё (Дизайн/препресс)
 					private function orders_design_all_Template($id_row=0){
+						
+
+						// приостановленные заказы выводим только во вкладках "пауза" и "все" 
+						if(isset($_GET['subsection']) && ($_GET['subsection'] == 'design_pause_question_TK_is_not_correct' || $_GET['subsection'] == 'design_all')){
+							$this->filtres_order = " (`global_status` IN ('in_work','paused') OR `flag_design_see_everywhere` = '1')";
+						}else{
+							$this->filtres_order = " (`global_status` = 'in_work' OR `flag_design_see_everywhere` = '1')";
+						}
 						$this->group_access = 9;
 						// id начальника отдела дизайна
 						$this->director_of_operations_ID = 80; 
-
+						// создаем экземпляр класса форм
+						$this->FORM = new Forms();
+						
 						$this->design_rows($id_row=0);
 					}
 
 					// Ожидают распределения (Дизайн/препресс)
 					private function orders_design_waiting_for_distribution_Template($id_row=0){
+						$this->filtres_order_sort = " ORDER BY `get_in_work_time` ASC";
 						$this->orders_design_all_Template($id_row);
 					}
 
 					// Разработать дизайн (Дизайн/препресс)
 					private function orders_design_develop_design_Template($id_row=0){
+						$this->filtres_order_sort = " ORDER BY `get_in_work_time` ASC";
 						$this->orders_design_all_Template($id_row);
 					}
 
 					// Сверстать макет (Дизайн/препресс)
 					private function orders_design_laid_out_a_layout_Template($id_row=0){
+						$this->filtres_order_sort = " ORDER BY `get_in_work_time` ASC";
 						$this->orders_design_all_Template($id_row);
 					}
 					// Ожидает дизайн-эскиз (Дизайн/препресс)
@@ -516,15 +526,6 @@
 						$this->orders_design_all_Template($id_row);
 					}
 
-					// private function orders_design_all_Template($id_row=0){
-					// 	$this->group_access = 9;
-					// 	// id начальника отдела дизайна
-					// 	$this->director_of_operations_ID = 80; 
-
-					// 	$this->design_rows($id_row=0);
-					// }
-					
-
 					// ШАБЛОН строки документа (Дизайн/препрес)
 					private function get_order_specificate_for_design_Html_Template(){
 						$this->rows_num++;
@@ -544,20 +545,6 @@
 							$html .= '<td>';
 								$html .= 'сч: '.$this->specificate['number_the_bill'];
 							$html .= '</td>';
-							// $html .= '<td>';
-							// 	$html .= '<span>'.$this->price_specificate.'</span>р';
-							// $html .= '</td>';
-							// $html .= '<td>';
-							// 	// % оплаты
-							// 	$html .= '<span class="greyText">оплачено: </span> '.$this->calculation_percent_of_payment($this->price_specificate, $this->specificate['payment_status']).' %';
-
-							// $html .= '</td>';
-							// $html .= '<td>';
-							// $html .= '</td>';
-							// $html .= '<td contenteditable="true" class="deadline">'.$this->specificate['deadline'].'</td>';
-							// $html .= '<td>';
-							// 	$html .= '<input type="text" name="date_of_delivery_of_the_specificate" class="date_of_delivery_of_the_specificate" value="'.$this->specificate['date_of_delivery'].'" data-id="'.$this->specificate['id'].'">';
-							// $html .= '</td>';
 							$html .= '<td><span class="greyText">Бухгалтерия</span></td>';
 							$html .= '<td class="buch_status_select_for_design">'.$this->decoder_statuslist_buch($this->specificate['buch_status']).'</td>';
 						$html .= '</tr>';
@@ -699,20 +686,40 @@
 								// дата утв. макета
 								$html_row_3 = '<td class="show-backlight"  rowspan="'.$this->services_num.'" ><span class="greyText">';
 									// проверка на отсутствие пустого значения
-									if($this->position['approval_date']!='' && $this->position['approval_date']!='00.00.0000 00:00:00'){
-										$approval_date_timestamp = strtotime($this->position['approval_date']);
-										if($approval_date_timestamp != 0){
-											// дата
-											$this->approval_date = date('d.m.Y',$approval_date_timestamp);
+									
+
+									// if($this->position['approval_date']!='' && $this->position['approval_date']!='00.00.0000 00:00:00'){
+									// 	$approval_date_timestamp = strtotime($this->position['approval_date']);
+									// 	if($approval_date_timestamp != 0){
+									// 		// дата
+									// 		$this->approval_date = date('d.m.Y',$approval_date_timestamp);
 											
-											$html_row_3 .= $this->approval_date;
+									// 		$html_row_3 .= $this->approval_date;
+									// 		// время
+									// 		$this->approval_time = date('H:i',$approval_date_timestamp);
+									// 		if($this->approval_time != '00:00'){
+									// 			$html_row_3 .= '<br>'.$this->approval_time.'';
+									// 		}
+									// 	}
+									// }
+									if($this->position['approval_date'] != '' && $this->position['approval_date'] != '00.00.0000 00:00:00'){
+										// дата
+										$approval_date_timestamp = strtotime($this->position['approval_date']);
+
+										$this->approval_date = date('d.m.Y',$approval_date_timestamp);
+										
+										// $html_row_3 .= $this->approval_date;
 											// время
 											$this->approval_time = date('H:i',$approval_date_timestamp);
-											if($this->approval_time != '00:00'){
-												$html_row_3 .= '<br>'.$this->approval_time.'';
-											}
-										}
+											// if($this->approval_time != '00:00'){
+											// 	$html_row_3 .= '<br>'.$this->approval_time.'';
+											// }
+											//$html_row_3 .= '<span class="greyText">'.$shipping_date_date.(($shipping_date_time!='00:00')?'<br>к '.$shipping_date_time:'').'</span>';
+										$html_row_3 .= '<a href="'.$this->link_enter_to_filters('approval_date',$this->approval_date).'">'.$this->approval_date.'</a>'.(($this->approval_time!='00:00')?'<br>к '.$this->approval_time:'');
+										// $html .= '<div>'.$this->Order['date_of_delivery_of_the_order'].'</div>';
 									}
+
+
 								$html_row_3 .= '</td>';
 
 								// дата печати
@@ -831,9 +838,7 @@
 						}
 
 						return $gen_html ;
-					}
-
-					
+					}					
 
 					// ШАБЛОН заказа Дизайн/препресс
 					private function design_rows($id_row=0){
@@ -942,7 +947,10 @@
 								$table_order_row .= '<td></td>';
 								$table_order_row .= '<td></td>';
 								// $table_order_row .= '<td>статус заказа</td>';
-								$table_order_row .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1 || $this->user_access == 9)?'order_status_chenge':'').'">'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
+								$table_order_row .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1 || $this->user_access == 9)?'order_status_chenge':'').'">';
+								$table_order_row .= $this->decoder_statuslist_order_and_paperwork($this->Order['global_status']);
+								$table_order_row .= '<br><span class="greyText">'.(($this->Order['get_in_work_time']!= '0000-00-00 00:00:00')?date('d.m.Y H:i',strtotime($this->Order['get_in_work_time'])):'').'</span>';
+								$table_order_row .= '</td>';
 								
 							$table_order_row .= '</tr>';
 							// включаем вывод позиций 
@@ -964,6 +972,8 @@
 						// $new_arr[] = 'Hellow World';
 						foreach ($services_arr as $key => $service) {
 							// фильтрация
+							
+								
 							if($service_id > 0 && $service['uslugi_id'] != $service_id){ continue; }
 
 							
@@ -973,15 +983,20 @@
 						 	if(isset( $this->Services_list_arr[$service['uslugi_id']]) ){
 						 		/**
 						 		 * если доступ позволяет её обрабатывать
-								 *	Т.к. в данном случае дизайнер работает не со всеми услугами производства, отфильтровываем все услуги по флагу maket_true
 								 */
-						 		if($this->Services_list_arr[ $service['uslugi_id'] ]['performer'] == $user_access && $this->Services_list_arr[ $service['uslugi_id'] ]['maket_true'] == "on"){
+						 		if($this->Services_list_arr[ $service['uslugi_id'] ]['performer'] == $user_access){
 						 			switch ($user_access) {
-						 				case '5':
+						 				case '5': // менеджер
 						 					switch ($_GET['subsection']) {
 												case 'question_pause':// пауза/вопрос/ТЗ не корректно
 													if($service['performer_status'] == 'ТЗ не корректно' || $service['performer_status'] == 'пауза' || $service['performer_status'] == 'вопрос'){
-														$new_arr[] = $service;
+														if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+															if($service['performer_id'] == $this->user_id){
+																$new_arr[] = $service;
+															}
+														}else{
+															$new_arr[] = $service;
+														}
 													}
 													break;
 												default:// добавляем услугу в новый массив 
@@ -990,78 +1005,134 @@
 												}
 						 					break;
 						 				case '9':// фильтрация услуг дизайна по зелёным вкладкам дизайна
-											switch ($_GET['subsection']) {
-												case 'design_waiting_for_distribution'://Ожидают распределения
-												/*
-													"все входящие в заказ имеющие услуги дизайн и пре-пресс
+											//Т.к. в данном случае дизайнер работает не со всеми услугами производства, отфильтровываем все услуги по флагу maket_true
+											if($this->Services_list_arr[ $service['uslugi_id'] ]['maket_true'] == "on"){
+												switch ($_GET['subsection']) {
+													case 'design_waiting_for_distribution'://Ожидают распределения
+													/*
+														"все входящие в заказ имеющие услуги дизайн и пре-пресс
 
-													статус по умолчанию: ""ожидает обработки""
+														статус по умолчанию: ""ожидает обработки""
 
-													вспомнил важное - либо МАКЕТ БЕЗ ОПЛАТЫ!!!"
-												*/
-													if($service['performer_id'] == 0){
-														$new_arr[] = $service;
-													}
-													break;
-												case 'design_develop_design'://Разработать дизайн
-												/*
-													"все позиции с услугой из папки дизайн по которым назначено имя ДИЗа и стоит статус: 
-													задача принята, ожидает
-													в работе
-													"
-												*/
-													if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 53){
-														$new_arr[] = $service;
-													}
-													break;//
-												case 'design_laid_out_a_layout': //Сверстать макет
-												
-													if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 50 && $service['performer_id'] != 0){
-														if($service['performer_status'] == 'дизайн-эскиз утвержден' || $service['performer_status'] == 'в работе' || $service['performer_status'] == 'задача принята ожидает' || $service['performer_status'] == 'ожидает обработки'){
+														вспомнил важное - либо МАКЕТ БЕЗ ОПЛАТЫ!!!"
+													*/
+														if($service['performer_id'] == 0){
 															$new_arr[] = $service;
 														}
-													}
-													break;
-												case 'design_wait_laid_out_a_layout': // ожидаем дизайн-эскиз
-												
-													if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 50 && $service['performer_id'] != 0){
-														if($service['performer_status'] == 'ожидаем утверждения дизан-эскиза'){
-															$new_arr[] = $service;
+														break;
+													case 'design_develop_design'://Разработать дизайн
+													/*
+														"все позиции с услугой из папки дизайн по которым назначено имя ДИЗа и стоит статус: 
+														задача принята, ожидает
+														в работе
+														"
+													*/
+														if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 53  && $service['performer_id'] != 0){
+															if($service['performer_status'] == 'в работе' || $service['performer_status'] == 'задача принята ожидает'){
+																if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+																	if($service['performer_id'] == $this->user_id){
+																		$new_arr[] = $service;
+																	}
+																}else{
+																	$new_arr[] = $service;
+																}
+															}
 														}
-													}
-													break;
-												case 'design_edits': // правки
-													if($service['flag_design_edits'] == 1 || $service['performer_status'] == 'исправить макет' || $service['performer_status'] == 'исправить дизайн' || substr($service['performer_status'], 0, 14) == 'очередь'){
-														$new_arr[] = $service;
-													}
-													break;												
-												case 'design_on_agreeing': // на согласовании
-													if($service['performer_status'] == 'дизайн-эскиз готов' || $service['performer_status'] == 'оригинал-макет готов' || $service['performer_status'] == 'Печатная Pdf на утверждении'){
-														$new_arr[] = $service;
-													}
-													break;
-												case 'design_prepare_to_print': // Подготовить в печать
-													if($service['flag_design_prepare_to_print'] == 1 || $service['performer_status'] == 'подготовить в печать' || $service['performer_status'] == 'печатная Pdf на утверждении'){
-														$new_arr[] = $service;
-													}
-													break;
-												case 'design_pause_question_TK_is_not_correct': // пауза/вопрос/ТЗ не корректно
-													if($service['performer_status'] == 'ТЗ не корректно' || $service['performer_status'] == 'стоимость работ не корректна' || $service['performer_status'] == 'пауза' || $service['performer_status'] == 'вопрос'){
-														$new_arr[] = $service;
-													}
-													break;
+														break;//
+													case 'design_laid_out_a_layout': //Сверстать макет
+													
+														if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 50 && $service['performer_id'] != 0){
+															if($service['performer_status'] == 'в работе' || $service['performer_status'] == 'задача принята ожидает'){
+																if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+																	if($service['performer_id'] == $this->user_id){
+																		$new_arr[] = $service;
+																	}
+																}else{
+																	$new_arr[] = $service;
+																}
+															}
+														}
+														break;
+													case 'design_wait_laid_out_a_layout': // ожидаем дизайн-эскиз
+													
+														if($this->Services_list_arr[ $service['uslugi_id'] ]['parent_id'] == 50 && $service['performer_id'] != 0){
+															if($service['performer_status'] == 'ожидаем утверждения дизан-эскиза'){
+																if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+																	if($service['performer_id'] == $this->user_id){
+																		$new_arr[] = $service;
+																	}
+																}else{
+																	$new_arr[] = $service;
+																}
+															}
+														}
+														break;
+													case 'design_edits': // правки
+														if($service['flag_design_edits'] == 1 || $service['performer_status'] == 'исправить макет' || $service['performer_status'] == 'исправить дизайн' || substr($service['performer_status'], 0, 14) == 'очередь'){
+															if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+																if($service['performer_id'] == $this->user_id){
+																	$new_arr[] = $service;
+																}
+															}else{
+																$new_arr[] = $service;
+															}
+														}
+														break;												
+													case 'design_on_agreeing': // на согласовании
+														if($service['performer_status'] == 'дизайн-эскиз готов' || $service['performer_status'] == 'оригинал-макет готов' || $service['performer_status'] == 'Печатная Pdf на утверждении'){
+															if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+																if($service['performer_id'] == $this->user_id){
+																	$new_arr[] = $service;
+																}
+															}else{
+																$new_arr[] = $service;
+															}
+														}
+														break;
+													case 'design_prepare_to_print': // Подготовить в печать
+														if($service['flag_design_prepare_to_print'] == 1 || $service['performer_status'] == 'подготовить в печать' || $service['performer_status'] == 'печатная Pdf на утверждении'){
+															if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+																if($service['performer_id'] == $this->user_id){
+																	$new_arr[] = $service;
+																}
+															}else{
+																$new_arr[] = $service;
+															}
+														}
+														break;
+													case 'design_pause_question_TK_is_not_correct': // пауза/вопрос/ТЗ не корректно
+														if($service['performer_status'] == 'ТЗ не корректно' || $service['performer_status'] == 'стоимость работ не корректна' || $service['performer_status'] == 'пауза' || $service['performer_status'] == 'вопрос'){
+															if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+																if($service['performer_id'] == $this->user_id){
+																	$new_arr[] = $service;
+																}
+															}else{
+																$new_arr[] = $service;
+															}
+														}
+														break;
 
-												case 'design_finished_models': // Готовые макеты
-													if($service['performer_status'] == 'услуга выполнена' || $service['performer_status'] == 'макет отправлен в СНАБ'){
-														$new_arr[] = $service;
-													}
-													break;
-												
-												default:
-													// добавляем услугу в новый массив 
-								 					$new_arr[] = $service;
-													break;
+													case 'design_finished_models': // Готовые макеты
+														if($service['performer_status'] == 'услуга выполнена' || $service['performer_status'] == 'макет отправлен в СНАБ'){
+															if($this->user_access == $this->group_access && $this->director_of_operations_ID != $this->user_id){
+																if($service['performer_id'] == $this->user_id){
+																	$new_arr[] = $service;
+																}
+															}else{
+																$new_arr[] = $service;
+															}
+														}
+														break;
+													
+													default:
+														// добавляем услугу в новый массив 
+									 					$new_arr[] = $service;
+														break;
+												}
 											}
+						 					break;
+						 				case '4':
+						 					$new_arr[] = $service;
 						 					break;
 						 				
 						 				default:
@@ -1133,7 +1204,7 @@
 							//echo  'массви<br>';
 							/*
 								// по позиции макет должен быть утверждён
-			array('нужно делать','перевывод','готовы к отправке','отправлены на фотовывод','клише заказано',)
+								array('нужно делать','перевывод','готовы к отправке','отправлены на фотовывод','клише заказано',)
 							*/
 				
 							foreach ($this->services_production as $key => $service) {
@@ -1168,6 +1239,7 @@
 						}
 						return $html;
 					}
+
 					// получаем дату печати
 					private function get_date_printing(){
 						// если услуг печати нет - выходим
@@ -1257,7 +1329,7 @@
 										// return '<input type="button" value="Взать в работу" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['name'].' '.$user['last_name'].'" class="get_in_work_service">';
 										if(isset($this->userlist[$this->user_id])){
 											$user = $this->userlist[$this->user_id];
-											return '<input type="button" value="Взять в работу" data-order_id="'.$this->Order['id'].'" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['last_name'].' '.$user['name'].'" class="get_in_work_service">';
+											return '<input type="button" value="в работу" data-order_id="'.$this->Order['id'].'" name="get_in_work" data_user_ID="'.$this->user_id.'" data-service_id="'.$service_id.'" data-user_name="'.$user['last_name'].' '.$user['name'].'" class="get_in_work_service">';
 										}else{
 											return 'Не назначен';
 										}
@@ -1307,7 +1379,6 @@
 								break;
 						}			
 					}
-
 
 					// места нанесения
 					private function get_service_printing_list(){
@@ -1619,7 +1690,6 @@
 						$html .= '</tr>';
 						return $html;
 					}
-
 					// HTML позиции (Склад)
 					private function table_order_positions_rows_for_stock_Html(){			
 						// получаем массив позиций заказа
@@ -1646,7 +1716,7 @@
 							$html .= '</td>';
 							// тираж
 							$html .= '<td>';
-								$html .= '<div class="quantity">'.($this->position['quantity']+$this->position['zapas']).'</div>';
+								$html .= '<div class="quantity">'.$this->position['quantity'].(($this->position['zapas'] > 0)?'+'.$this->position['zapas']:'').'</div>';
 							$html .= '</td>';
 
 
@@ -1704,7 +1774,7 @@
 						$this->filtres_order .= (($this->filtres_order!="")?" AND":"")." `global_status` = 'in_work'";
 						$this->group_access = 8;
 						// id начальника отдела производства
-						$this->director_of_operations_ID = 78; 
+						$this->director_of_operations_ID = 87; 
 
 						echo $this->order_standart_rows_Template($id_row=0);
 					}
@@ -1758,6 +1828,9 @@
 				*/
 					// Всё (Производство)
 					private function orders_production_Template($id_row=0){
+						
+
+						// $this->filtres_position = " `status_snab` = 'in_production'"; // фильтруем только по макету
 						$this->group_access = 4;
 						// id начальника отдела производства
 						$this->director_of_operations_ID = 87; 
@@ -1767,40 +1840,61 @@
 
 					// Ожидают распределения (Производство)
 					private function orders_production_get_in_work_Template($id_row=0){
-						$this->filtres_services = " `performer_status` = 'Ожидает обработки'";
-						// $this->filtres_services = " `date_work` = '0000-00-00 00:00:00'";
-						// $this->filtres_services .= " AND `performer_id` = '0'";
+						//$this->filtres_services = " `performer_status` = 'Ожидает обработки'";
+						$this->filtres_position .= " `approval_date` <> '0000-00-00 00:00:00'"; // дата утв. макета
+
+						$this->filtres_services .= " (`performer_id` = '0'";
+						$this->filtres_services .= " OR `date_work` = '0000-00-00 00:00'";
+						$this->filtres_services .= " OR `performer_status` IN ('in_processed','')";
+						$this->filtres_services .= " OR `date_ready` = '0000-00-00 00:00'";
+						$this->filtres_services .= " OR `machine` <> '')";
 
 						$this->orders_production_Template($id_row=0);
 					}
+					
 					// Поставлены в план (Производство)
 					private function orders_set_in_the_plan_Template($id_row=0){
-						$this->filtres_services = " `date_work` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " `date_work` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `date_ready` <> '0000-00-00 00:00:00'";
 						$this->filtres_services .= " AND `performer_id` <> '0'";
+						// $this->filtres_services .= " AND `performer_status` <> '' AND `performer_status` <> 'услуга выполнена' "; // статусы отфильтрованы в ф фильтре по услугам
+						$this->filtres_services .= " AND `machine` <> ''";
 						$this->orders_production_Template($id_row=0);
 					}
 					// трафарет (Ш+Т) (Производство)
 					private function orders_production_stencil_shelk_and_transfer_Template($id_row=0){
-						$this->orders_production_Template($id_row=0);
-					}
-					// Шелкография (Производство)
-					private function orders_production_shelk_Template($id_row=0){
-						$this->orders_production_Template($id_row=0);
-					}
-					// Термотрансфер (Производство)
-					private function orders_production_transfer_Template($id_row=0){
+						$this->filtres_services .= " `date_work` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `date_ready` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `performer_id` <> '0'";
+						// $this->filtres_services .= " AND `performer_status` <> '' AND `performer_status` <> 'услуга выполнена' ";
+						$this->filtres_services .= " AND `machine` <> ''";
 						$this->orders_production_Template($id_row=0);
 					}
 					// Тампопечать (Производство)
 					private function orders_production_tampoo_Template($id_row=0){
+						$this->filtres_services .= " `date_work` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `date_ready` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `performer_id` <> '0'";
+						// $this->filtres_services .= " AND `performer_status` <> '' AND `performer_status` <> 'услуга выполнена' ";
+						$this->filtres_services .= " AND `machine` <> ''";
 						$this->orders_production_Template($id_row=0);
 					}
 					// Тиснение (Производство)
 					private function orders_production_tisnenie_Template($id_row=0){
+						$this->filtres_services .= " `date_work` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `date_ready` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `performer_id` <> '0'";
+						// $this->filtres_services .= " AND `performer_status` <> '' AND `performer_status` <> 'услуга выполнена' ";						$this->filtres_services .= " AND `machine` <> ''";
 						$this->orders_production_Template($id_row=0);
 					}
 					// Доп. услуги (Производство)
 					private function orders_production_dop_uslugi_Template($id_row=0){
+						$this->filtres_services .= " `uslugi_id` IN ('20','21','62','63','80')";
+						$this->filtres_services .= " AND `date_work` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `date_ready` <> '0000-00-00 00:00:00'";
+						$this->filtres_services .= " AND `performer_id` <> '0'";
+						// $this->filtres_services .= " AND `performer_status` <> '' AND `performer_status` <> 'услуга выполнена' ";
+						$this->filtres_services .= " AND `machine` <> ''";
 						$this->orders_production_Template($id_row=0);
 					}
 					// Проверка плёнок/клише (Производство)
@@ -1831,34 +1925,65 @@
 							if($this->user_access == 4){
 								$services_print_NEW = array();
 								foreach ($services_print as $key => $value) {
+									// фильтр услуг 
+									// для подчинённых про-ва видны только назначенные на них услуги
+									if(($_GET['subsection'] != 'production' && $_GET['subsection'] != 'production_plenki_and_klishe' && $_GET['subsection'] != 'production_get_in_work') && $this->director_of_operations_ID != $this->user_id){
+										if($value['performer_id'] != $this->user_id){continue;}
+									}
+
 									switch ($_GET['subsection']) {
 										// фильтр по статусу "ожидает обработки"
 										case 'production_get_in_work':
+											// echo $value['date_ready'].' - '.$value['performer_status'].'<br>';
+											if($value['date_work'] == '00.00.0000 00:00' || $value['date_ready'] == '00.00.0000 00:00' || $value['performer_id'] == 0 || $value['machine'] == '' || $value['performer_status'] == 'in_processed' || $value['performer_status'] == '' || $value['performer_status'] == 'Ожидает обработки'){
+												$services_print_NEW[] = $value;	
+											}
+											break;
+										case 'production':
 										// echo strtotime($value['date_work']).'<br>';
 										// echo $value['date_work'].'<br>';
 
-											if($value['date_work'] == '0000-00-00 00:00' || strtotime($value['performer_id']) == 0){
+											//if($value['date_work'] == '0000-00-00 00:00' || $value['performer_id'] == 0){
 												//echo $value['date_work'] .' -- '.strtotime($value['date_work']) . ' -- '.$value['performer_id'].'<br>';
 												// if($value['performer_status'] != 'Ожидает обработки'){continue;}
+												// if($value['performer_id'] == 0){continue;}
 												$services_print_NEW[] = $value;	
-											}else{
+											// }else{
+											// 	continue;											
+											// }
+											
+											break;
+										case 'set_in_the_plan':
+											if($value['performer_status']  == 'Ожидает обработки' || $value['performer_status']  == 'in_processed' || $value['performer_status']  == '' || $value['performer_status']  == 'услуга выполнена'){
 												continue;
-											
 											}
-											
+											$services_print_NEW[] = $value;	
 											break;
 										// фильтр по всему трафаретному участку
 										case 'production_stencil_shelk_and_transfer':
 											// перечислим разрешённые ключи
-										    $keys = array(28, 13, 14, 15, 30, 31, 32, 33, 34, 35);
+										    $keys = array(28, 13, 14, 15, 30, 31, 32, 33, 34, 35,88);
 										    // проверяем 
 											if( !in_array($value['uslugi_id'], $keys)){continue;}
+
+											if($value['performer_status']  == 'Ожидает обработки' || $value['performer_status']  == 'in_processed' || $value['performer_status']  == '' || $value['performer_status']  == 'услуга выполнена'){
+												// echo '*** '.$value['performer_status'].' *** '.$value['id'].'<br>';	
+												continue;
+											}else{
+												// echo '<strong>*** '.$value['performer_status'].' *** '.$value['id'].'</strong><br>';	// continue;
+											}
+											
+											
+
 											$services_print_NEW[] = $value;
 											break;
 										// фильтр по шелкухе
 										case 'production_shelk':
+											if($value['performer_status']  == 'Ожидает обработки' || $value['performer_status']  == 'in_processed' || $value['performer_status']  == '' || $value['performer_status']  != 'услуга выполнена'){
+												continue;
+											}
 											// перечислим разрешённые ключи
-										    $keys = array(13, 14, 15, 30, 31, 32, 33, 34, 35);
+										    $keys = array(13, 14, 15, 30, 31, 32, 33, 34, 35,88);
 										    // проверяем 
 											if( !in_array($value['uslugi_id'], $keys)){continue;}
 											$services_print_NEW[] = $value;
@@ -1866,8 +1991,11 @@
 
 										// фильтр по трансферу
 										case 'production_transfer':
+											if($value['performer_status']  == 'Ожидает обработки' || $value['performer_status']  == 'in_processed' || $value['performer_status']  == '' || $value['performer_status']  != 'услуга выполнена'){
+												continue;
+											}
 											// перечислим разрешённые ключи
-										    $keys = array(28);
+										    $keys = array(28,89);
 										    // проверяем 
 											if( !in_array($value['uslugi_id'], $keys)){continue;}
 											$services_print_NEW[] = $value;
@@ -1875,8 +2003,11 @@
 
 										// фильтр по тампухе
 										case 'production_tampoo':
+											if($value['performer_status']  == 'Ожидает обработки' || $value['performer_status']  == 'in_processed' || $value['performer_status']  == '' || $value['performer_status']  != 'услуга выполнена'){
+												continue;
+											}
 											// перечислим разрешённые ключи
-										    $keys = array(18);
+										    $keys = array(18,86);
 										    // проверяем 
 											if( !in_array($value['uslugi_id'], $keys)){continue;}
 											$services_print_NEW[] = $value;
@@ -1884,19 +2015,26 @@
 
 										// фильтр по тиснение
 										case 'production_tisnenie':
+											if($value['performer_status']  == 'Ожидает обработки' || $value['performer_status']  == 'in_processed' || $value['performer_status']  == '' || $value['performer_status']  != 'услуга выполнена'){
+												continue;
+											}
 											// перечислим разрешённые ключи
-										    $keys = array(17, 19);
+										    $keys = array(17, 19, 85);
 										    // проверяем 
 											if( !in_array($value['uslugi_id'], $keys)){continue;}
 											$services_print_NEW[] = $value;
 											break;
 
-										// фильтр по тиснение
+										// фильтр по доп услугам
 										case 'production_dop_uslugi':
+											if($value['performer_status']  == 'Ожидает обработки' || $value['performer_status']  == 'in_processed' || $value['performer_status']  == '' || $value['performer_status']  != 'услуга выполнена'){
+												continue;
+											}
 											// перечислим разрешённые ключи
-										    $keys = array(19, 18, 17, 37,16,15,14,13,28,30,31,32,33,34,35,36,38,46);
+										    // $keys = array(19, 18, 17, 37,16,15,14,13,28,30,31,32,33,34,35,36,38,46);
+											// $keys = array(20,21,62,63,80);
 										    // проверяем 
-											if( in_array($value['uslugi_id'], $keys)){continue;}
+											// if( in_array($value['uslugi_id'], $keys)){continue;}
 											$services_print_NEW[] = $value;
 											break;
 
@@ -1929,6 +2067,8 @@
 						if ($this->user_access == $this->group_access) {
 							$table_head_html .= '<style type="text/css" media="screen">
 								#cabinet_left_coll_menu{display:none;}
+								#cabinet_filtres_list ul li { background-color: #ECEF3D;}
+								select.get_statuslist_uslugi { width: 125px;}
 							</style>';	
 						}
 						
@@ -1941,12 +2081,9 @@
 								<th rowspan="2">М</th>
 								<th rowspan="2">операции</th>
 								<th rowspan="2">тираж</th>
-								<th rowspan="2">запас</th>
-								<th rowspan="2">цвета</th>
-								<th rowspan="2">логотип нанесения</th>
+								<th rowspan="2">Цв.</th>
 								<th rowspan="2">пплёнки/клише</th>
-								<th rowspan="2">статус склад</th>
-								<th rowspan="2">статус снабжение</th>
+								<th rowspan="2">статус снабжение/склад</th>
 								<th rowspan="2">дата сдачи</th>
 								<th colspan="2">дата работы</th>
 								<th rowspan="2">станок</th>
@@ -1971,6 +2108,12 @@
 
 						// ПЕРЕБОР ЗАКАЗОВ
 						foreach ($this->Order_arr as $this->Order) {
+							// приостановленные заказы выводим только во вкладках "пауза" и "все" 
+							if(isset($_GET['subsection']) && $_GET['subsection'] == 'production'){
+								if($this->Order['global_status'] != 'paused' && $this->Order['global_status'] !='in_work' ){continue;}
+							}else{
+								if($this->Order['global_status'] !='in_work' ){continue;}
+							}
 							// переменные для вычисления даты сдачи заказа
 						 	// обнуляются при начале обсчётак каждого заказа
 							$this->order_shipping_date = '';
@@ -2003,7 +2146,7 @@
 								$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
 														<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
 													</td>';
-								$table_order_row .= '<td colspan="12" class="orders_info">';
+								$table_order_row .= '<td colspan="11" class="orders_info">';
 									
 									
 								// исполнители заказа
@@ -2020,7 +2163,10 @@
 								$table_order_row .= '</td>';
 
 							
-								$table_order_row .= '<td colspan="4"></td>';
+								// $table_order_row .= '<td colspan=""></td>';
+								// $table_order_row .= '<td style="width:78px"></td>';
+								$table_order_row .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1 || $this->user_access == 9)?'order_status_chenge':'').'">'.(($this->user_access!=8)?'<span class="greyText black">'.(($this->user_access==8)?'':'Статус заказа (МЕН):').' </span><br>'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']):'').'</td>';
+								$table_order_row .= '<td colspan="1"></td>';
 								
 							$table_order_row .= '</tr>';
 							// включаем вывод позиций 
@@ -2084,6 +2230,7 @@
 						// $this->position_item = 1;// порядковый номер позиции
 						// формируем строки позиций	(перебор позиций)		
 						foreach ($positions_rows as $key => $this->position) {
+							// фильтр призводства по дате утв. макета
 							if(($this->position['approval_date'] == '00.00.0000 00:00:00' || trim($this->position['approval_date']) == '') && $_GET['subsection'] != 'production'){ continue;}
 							// вычисляем крайнюю дату утверждения макета по всем позициям к по одному документу
 							$this->get_position_approval_bigest_date();
@@ -2124,23 +2271,44 @@
 								// склад, снабжение
 								// $html .= 
 								$html_row_2 = '<td rowspan="'.$this->services_num.'" >';
-									$html_row_2 .= $this->decoder_statuslist_sklad($this->position['status_sklad'], $this->position['id']);
-								$html_row_2 .= '</td>';
-								$performer_status = $this->decoder_statuslist_snab($this->position['status_snab'],$this->position['date_delivery_product'],0,$this->position['id']);
-								$html_row_2 .= '<td class="'.$this->js_dop_class.'" rowspan="'.$this->services_num.'" >';
-									$html_row_2 .= '<div>'.$performer_status.'</div>';
+									$status_snab = $this->decoder_statuslist_snab($this->position['status_snab'],$this->position['date_delivery_product'],0,$this->position['id']);
+								// $html_row_2 .= '<td class="'.$this->js_dop_class.'" rowspan="'.$this->services_num.'" >';
+									$html_row_2 .= '<div class="'.$this->js_dop_class.'">
+										<span class="greyText">Снабжение:</span>
+										<br><div class="color_black_by_greyText_class">'.$status_snab.'</div>
+									</div>';
+
+									$html_row_2 .= '<div><span class="greyText">Cклад:</span><br>
+									<div class="color_black_by_greyText_class">'.$this->decoder_statuslist_sklad($this->position['status_sklad'], $this->position['id']).'</div></div>';
 								$html_row_2 .= '</td>';
 
+								
 								// дата сдачи
 								$html_row_3 = '<td  rowspan="'.$this->services_num.'" class="show-backlight ">';
-									$shipping_date_timestamp = strtotime($this->specificate['shipping_date']);
-									$shipping_date_date = date('d.m.Y',$shipping_date_timestamp);
-									$shipping_date_time = date('H:i',$shipping_date_timestamp);
-									$html_row_3 .= '<span class="greyText">'.$shipping_date_date.(($shipping_date_time!='00:00')?'<br>к '.$shipping_date_time:'').'</span>';
+									if($this->specificate['shipping_date']!='' && $this->specificate['shipping_date']!='00.00.0000 00:00:00'){
+										$shipping_date_timestamp = strtotime($this->specificate['shipping_date']);
+										if($shipping_date_timestamp != 0){
+											$shipping_date_date = date('d.m.Y',$shipping_date_timestamp);
+											$shipping_date_time = date('H:i',$shipping_date_timestamp);
+											$html_row_3 .= '<span class="greyText">'.$shipping_date_date.(($shipping_date_time!='00:00')?'<br>к '.$shipping_date_time:'').'</span>';
+										}else{
+											$html_row_3 .= '<span class="greyText">нет даты</span>';
+										}
+									}else{
+										$html_row_3 .= '<span class="greyText">нет даты</span>';
+									}									
 								$html_row_3 .= '</td>';
 
+								// тираж,запас
+								$html_row_4 = '<td class="show-backlight" rowspan="'.$this->services_num.'">';
+									$html_row_4 .= $this->position['quantity'];
+									$html_row_4 .= (($this->position['zapas']!=0 && trim($this->position['zapas'])!='')?(($this->position['print_z']==0)?'+'.$this->position['zapas'].'<br>НПЗ':'+'.$this->position['zapas'].'<br>ПЗ'):'');
+								$html_row_4 .= '</td>';
 
-							$html .= $this->get_service_content_for_production($this->position,$this->services_print,$html_row_1,$html_row_2,$html_row_3);
+								
+
+
+							$html .= $this->get_service_content_for_production($this->position,$this->services_print,$html_row_1,$html_row_2,$html_row_3,$html_row_4);
 
 							$this->position_item += $this->services_num;
 						}				
@@ -2148,7 +2316,7 @@
 					}
 
 					// HTML строки услуг (Производство)
-					private function get_service_content_for_production($position, $services_arr, $html_row_1, $html_row_2, $html_row_3){
+					private function get_service_content_for_production($position, $services_arr, $html_row_1, $html_row_2, $html_row_3,$html_row_4){
 						if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
 							$this->Services_list_arr = $this->get_all_services_Database();
 						}
@@ -2191,26 +2359,21 @@
 									$html .= '</a>';
 								$html .= '</td>';
 
-								// тираж
-								$html .= '<td class="show-backlight">';
-									$html .= $position['quantity'];
-								$html .= '</td>';
-
-								// запас
-								$html .= '<td class="show-backlight">';
-									$html .= (($position['zapas']!=0 && trim($position['zapas'])!='')?(($position['print_z']==0)?'+'.$position['zapas'].'<br>НПЗ':'+'.$position['zapas'].'<br>ПЗ'):'');
-								$html .= '</td>';
+								// тираж, запас
+								if($n==0){
+									$html .= $html_row_4;
+								}
 
 								// Цвета
 								$html .= '<td class="show-backlight">';
 									$html .= '<!--// ключ к полю возможно будет отличаться не в локальной версии... при изменении названия поля Пантоны... выгрузка информации сюда изменится -->';
-									$html .= (isset($this->print_details_dop['Pantone'])?base64_decode($this->print_details_dop['Pantone']):'');
+									$html .= (isset($this->print_details_dop['kolvo_cvetov'])?base64_decode($this->print_details_dop['kolvo_cvetov']):'');
 								$html .= '</td>';
 
 								
-								$html .= '<td class="show-backlight" data-id="'.$service['id'].'">';
-									$html .= $service['logotip'];
-								$html .= '</td>';
+								// $html .= '<td class="show-backlight" data-id="'.$service['id'].'">';
+								// 	$html .= $service['logotip'];
+								// $html .= '</td>';
 
 								// плёнки / клише
 								$html .= '<td class="show-backlight">';
@@ -2242,10 +2405,10 @@
 									}else{
 										$date_work = $service['date_work'];
 									}
-									if($this->user_access == 4 || $this->user_access == 1){
+									if(($this->user_access == 4 && $this->director_of_operations_ID == $this->user_id) || $this->user_access == 1){
 										$html .= '<input type="text" name="calendar_date_work"  value="'.$date_work.'" data-id="'.$service['id'].'" class="calendar_date_work">';
 									}else{
-										$html .= $date_work;
+										$html .= '<span class="greyText">'.$date_work.'</span>';
 									}
 								$html .= '</td>';
 								$html .= '<td class="show-backlight">';
@@ -2254,11 +2417,13 @@
 									}else{
 										$date_ready = $service['date_ready'];
 									}
-									if($this->user_access == 4 || $this->user_access == 1){
+
+									if(($this->user_access == 4 && $this->director_of_operations_ID == $this->user_id) || $this->user_access == 1){
 										$html .= '<input type="text" name="calendar_date_ready"  value="'.$date_ready.'" data-id="'.$service['id'].'" class="calendar_date_ready">';
 									}else{
-										$html .= $date_ready;
+										$html .= '<span class="greyText">'.$date_ready.'</span>';
 									}
+
 								$html .= '</td>';
 								// станок
 								$html .= '<td class="show-backlight">';

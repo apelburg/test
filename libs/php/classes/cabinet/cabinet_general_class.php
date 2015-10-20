@@ -61,6 +61,7 @@
 
 				
 		function __construct(){
+			
 			$this->user_id = isset($_SESSION['access']['user_id'])?$_SESSION['access']['user_id']:0;
 
 			$this->user_access = $this->get_user_access_Database_Int($this->user_id);

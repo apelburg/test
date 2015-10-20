@@ -113,7 +113,9 @@ function show_dialog_comments(html,title,height){
 	buttons.push({
 	    text: 'Закрыть',
 	    click: function() {
+
 	    	$('#dialog_gen_window_form').dialog( "destroy" );			    	
+	    	$('#dialog_gen_window_form').remove();
 	    }
 	});
 

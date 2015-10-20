@@ -300,7 +300,7 @@ tr.cat_8 td {
 	border: 1px solid #e8e8e8;
 }
 #cabinet_general_content #general_panel_orders_tbl tr.position-row.position-row-production td{
-	border-bottom: 1px solid #D1D1D1;
+	/*border-bottom: 1px solid #D1D1D1;*/
 	border-top: 1px solid #D1D1D1;
 }
 #cabinet_general_content #general_panel_orders_tbl tr.order_head_row td:nth-of-type(3){
@@ -625,7 +625,7 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
 .js-modal_menu-design_what:hover{
 	background-color: #BBCE91;
 	cursor: pointer;
-	    padding: 3px;
+	    /*padding: 3px;*/
 }
 .alert_class-red_service_status{
 	background-color: rgba(255, 0, 0, 0.3);padding: 5px;
@@ -652,16 +652,14 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
 	padding: 5px;
 	background-color: #fff;
 }
-input.calendar_date_work{
-	width: 114px;
-	text-align: center;
-	cursor: pointer;
-}
-input.calendar_date_ready {
-    width: 114px;
+input.calendar_date_work,
+input.calendar_date_ready{
+	width: 80px;
     text-align: center;
     cursor: pointer;
+    font-size: 10px;
 }
+ 
 .percentage_of_readiness.saved{
 	background-color: #D4C28E;
 }
@@ -1069,4 +1067,18 @@ div#cabinet_filtres {
 }
 #a_detailed_article_on_the_price_of_positions input.change_tirage_for_postfactum_added_service {
     max-width: 65px;
+}
+#dialog_gen_window_form textarea {
+    width: 100%;
+    min-height: 150px;
+}
+#cabinet select.machine_type {
+    width: 111px;
+}
+select.production_userlist {
+    width: 130px;
+}
+
+#cabinet .color_black_by_greyText_class .greyText{
+	color: #000;
 }
