@@ -1213,6 +1213,7 @@ $(document).on('click', '.dop_teh_info', function(event) {
 	var order_num = Number($(this).attr('data-order_num'));
 	var order_num_user = $(this).attr('data-order_num_user');
 	var position_id = Number($(this).attr('data-id'));
+	var document_id = Number($(this).attr('data-document_id'));
 	var position_item = Number($(this).attr('data-position_item'));
 	var id_dop_data = $(this).attr('data-id_dop_data');
 	var title = 'Заказ ' + order_num_user
@@ -1225,7 +1226,8 @@ $(document).on('click', '.dop_teh_info', function(event) {
 		query_num:query_num,
 		order_num:order_num,
 		position_id:position_id,
-		id_dop_data:id_dop_data
+		id_dop_data:id_dop_data,
+		document_id:document_id
 	}, function(data, textStatus, xhr) {
 		if(data['response']=="OK"){			
 			show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
@@ -1399,11 +1401,15 @@ $(document).on('click', '#save_logotip_for_all_position', function(event) {
 		standard_response_handler(data);
 	},'json');
 });
-// применить логотип ко всем услугам по заказу
+
+// применить логотип ко всем услугам по документу
 $(document).on('click', '#save_logotip_for_all_order', function(event) {
+	var position_id = $(this).attr('data-position_id');
+	// alert($(this).attr('data-position_id'));
 	$.post('', {
 		AJAX: 'save_logotip_for_all_order',
-		position_id: $(this).attr('data-position_id'),
+		position_id: position_id,
+		document_id: $(this).attr('data-document_id'),
 		id_dop_data: $(this).attr('data-id_dop_data'),
 		logotip : $('#save_logotip_for_all_services_tbl .save_logotip_for_all_services').val(),
 		order_num: $(this).attr('data-order_num')
@@ -2954,9 +2960,11 @@ $(document).on('click', '.order_status_chenge', function(event) {
 	event.preventDefault();
 	if($(this).find('select').length == 0 && $(this).find('input').length == 0){
 		var order_id = $(this).parent().attr('data-id');
+		var status_now = $(this).find('span').attr('data-status_now');
 		$.post('', {
 			AJAX: 'get_commands_for_order_status',
-			order_id:order_id
+			order_id:order_id,
+			status_now:status_now
 		}, function(data, textStatus, xhr) {
 			standard_response_handler(data);
 		},'json');

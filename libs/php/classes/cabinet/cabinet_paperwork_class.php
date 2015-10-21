@@ -228,8 +228,8 @@
 							$where = 1;
 						}
 
-						// выбираем из базы только заказы being_prepared (в оформлении)
-						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` IN ('being_prepared','in_operation','maket_without_payment')";
+						// выбираем из базы только Предзаказы
+						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` IN ('being_prepared','in_operation','maket_without_payment','paperwork_paused')";
 						$where = 1;
 					}
 					//////////////////////////
