@@ -548,7 +548,7 @@ var rtCalculator = {
 		}
 						
 		function callbackPrintsExitst(response){
-		    alert(response);
+		    // alert(response);
 			var response_obj = JSON.parse(response);
 							
 			if(response_obj.print.lackOfQuantity){

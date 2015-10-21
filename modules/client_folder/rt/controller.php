@@ -444,7 +444,7 @@
 				  <td connected_vals="total_summ" c_stat="1" class="total pointer center">итого<br><span class="small">исходящая</span></td>
 				  <td width="15" connected_vals="total_summ" c_stat="1" class="r_border"></td>
 				  <td width="70" class="center grey r_border">срок сдачи</td>
-				  <td class="delta center">delta</td>
+				  <td class="delta right">delta</td>
 				  <td width="10"></td>
 				  <td class="margin center">маржина-<br>льность</td>
 				  <td>статус</td>';              

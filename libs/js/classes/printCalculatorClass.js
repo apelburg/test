@@ -1559,8 +1559,8 @@ var printCalculator = {
 			alert(caution);
 	
 			delete printCalculator.cancelSaveReslut;
-			if(typeof document.getElementById("calculatorsaveResultBtn") !== 'undefined')  document.getElementById("calculatorsaveResultBtn").style.display = 'none';
-			
+		/*	if(typeof document.getElementById("calculatorsaveResultBtn") !== 'undefined') document.getElementById("calculatorsaveResultBtn").style.display = 'none';
+			*/
 		}
 
 		 //console.log('>>> total_str <<<');
@@ -1598,6 +1598,7 @@ var printCalculator = {
 			
 			var BtnsDiv = document.createElement('DIV');
 			BtnsDiv.className = 'BtnsDiv';
+			BtnsDiv.id = 'calculatorsaveResultPlank';
 			
 			var showProcDetBtn = document.createElement('DIV');
 			showProcDetBtn.className = 'showProcessingDetailsBtn';
@@ -1650,6 +1651,22 @@ var printCalculator = {
 		// 2. закрыть калькулятор
 		// console.log(printCalculator.calculatorParamsObj.places[printCalculator.currentCalculationData.print_details.place_id]); 
 		// корректируем объект с информацией удаляем не нужные для сохранение данные, добавляем нужные
+		
+		// ПРОВЕРЯЕМ ВЫБРАН ЛИ ЦВЕТ если не выдаем окно и отменяем сохранение данных расчета
+		// информация о цвете хранится в массиве printCalculator.currentCalculationData.print_details.dop_params.YPriceParam
+		// если этот массив есть значит в теле калькулятора был выведен селект для выбора цвета ,
+		// по умолчнанию в массив добавляется элемент с id равным 0 который заменяется на элементы с реальными id 
+		// в процессе выбора вариантов из селекта
+		// ЗНАЧИТ ЕСЛИ ЕСТЬ массив YPriceParam но его размер равен 0 или в нем один элемент с id равным 0, то параметр из селекта
+		// выбран не был 
+		if(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam){
+			if(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length==0 || printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[0].id==0){
+				alert("Расчет не может быть произведен:\r\nНе выбран цвет\r\n");
+				return;
+			}
+		}
+		
+		
 		printCalculator.currentCalculationData.print_details.place_type =  printCalculator.calculatorParamsObj.places[printCalculator.currentCalculationData.print_details.place_id].name;
 		printCalculator.currentCalculationData.print_details.print_type =  printCalculator.calculatorParamsObj.places[printCalculator.currentCalculationData.print_details.place_id].prints[printCalculator.currentCalculationData.print_details.print_id];
 		
@@ -1668,16 +1685,17 @@ var printCalculator = {
 		
 		if(typeof printCalculator.dataObj_toEvokeCalculator !== 'undefined') delete printCalculator.dataObj_toEvokeCalculator;
 		
+		
 		// console.log('>>> saveCalculatorResult --');
 		// console.log(printCalculator.currentCalculationData);
         // console.log('<<< saveCalculatorResult --');
 		
 		// формируем url для AJAX запроса
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_calculator_result=1&details='+JSON.stringify(printCalculator.currentCalculationData));
-		printCalculator.send_ajax(url,callback);
-		//alert(url);//
-		$("#calculatorsaveResultBtn").remove();
 		
+		//alert(url);//
+		document.getElementById("calculatorsaveResultPlank").style.visibility ='hidden';
+		printCalculator.send_ajax(url,callback);
 		
 		function callback(response){ 
 		    // alert(response);
@@ -1703,6 +1721,7 @@ var printCalculator = {
 	}
 	,
 	onchangeYPriceParamSelect:function(YPriceParamDiv,YPriceParamCMYKdiv){
+		
 		// здесь нам надо пройти по всем селектам в YPriceParamDiv и собрать данные о выбранных полях
 		// чтобы сохранить их в dataForProcessing а затем запустить printCalculator.makeProcessing();
 		
@@ -1716,12 +1735,14 @@ var printCalculator = {
 		
 		//alert(selectsArr.length);
 		// ЗДЕСЬ НЕ ПРАВИЛЬНЫЙ ПРОХОД, здесь идти по СИБЛИНГАМ потому-что в цикле используется удаление
-		for( var i = 0; i < selectsArr.length; i++){
+		var ln = selectsArr.length;
+		for( var i = 0; i < ln; i++){
 			var value = selectsArr[i].options[selectsArr[i].selectedIndex].value;
 			var item_id = selectsArr[i].options[selectsArr[i].selectedIndex].getAttribute('item_id');
 			// если value != 0(0 равно вспомогательное значение "Выбрать"), значит выбор в селекте сделан 
 			// добавляем его в dataForProcessing
-			if(value != 0){
+		
+			if(value && value != 0){
 				if(typeof CMYKsArr[i] !== 'undefined') printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.push({'id':item_id,'coeff':value,'cmyk':CMYKsArr[i].innerHTML}); 
 				else   printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.push({'id':item_id,'coeff':value}); 
 				CMYKsArr[i].className = 'YPriceParamCMYK';
@@ -1729,14 +1750,13 @@ var printCalculator = {
 			// если value == 0(0 равно вспомогательное значение "Выбрать"), значит выбор в селекте не сделан
 			// удаляем этот селект
 			// if(value == 0) selectsArr[i].parentNode.parentNode.removeChild(selectsArr[i].parentNode);
-			if(value == 0){
+			if(value == 0 && selectsArr.length>1){
 				selectsArr[i].parentNode.parentNode.removeChild(selectsArr[i].parentNode);
 				CMYKsArr[i].parentNode.removeChild(CMYKsArr[i]);
-			}
-		}
+				
+			}		
+		    // alert(YPriceParamDiv.getElementsByTagName('SELECT').length);
 		
-		// alert(YPriceParamDiv.getElementsByTagName('SELECT').length);
-		//
 		// если количество селектов меньше количества рядов в прайсе открываем ссылку для добавления новых селектов (она могла быть скрыта)
 		if(YPriceParamDiv.getElementsByTagName('SELECT').length <printCalculator.calculatorParamsObj.print_types[printCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0].length-1){
 		   document.getElementById('calculatoraddYPriceParamLink').className = '';
