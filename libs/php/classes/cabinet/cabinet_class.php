@@ -4105,29 +4105,245 @@
 				echo '{"response":"OK","function":"add_new_usluga_end","html":"'.base64_encode($html).'","function2":"reload_order_tbl"}';
 			}
 
+			////////////////////////////////
+			protected function get_size_Array_Database($art_id){
+				// выгружает данные запроса в массив
+				global $mysqli;
+				$query = "SELECT * FROM `".BASE_DOP_PARAMS_TBL."` WHERE `art_id` = '".(int)$art_id."'";
+				// echo $query;
+				$arr = array();
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$this->info = 0;
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$arr[] = $row;
+					}
+				}
+				return $arr;
+			}
+			protected function get_size_table_for_dop_tex_info($position, $enable_edit_zapas = 0){
+				if($position['art_id'] == 0){return '';}
+				// получаем размеры
+				$size_arr = $this->get_size_Array_Database($position['art_id']);
+
+				// выборка данных о введённых ранее размерах из строки JSON 
+				if(trim($position['tirage_json']) == '{}'){
+					$tirage_json[$size_arr[0]['id']]['dop'] = $position['zapas'];
+					$tirage_json[$size_arr[0]['id']]['tir'] = $position['quantity'];
+
+					global $mysqli;
+				
+					$query = "UPDATE  `".CAB_ORDER_DOP_DATA."`  SET  
+						`tirage_json` =  '".json_encode($tirage_json)."' 
+						, `zapas` = '".(int)$position['zapas']."'
+						WHERE  `id` ='".(int)$position['id_dop_data']."';";
+
+					$result = $mysqli->query($query) or die($mysqli->error);
+					// echo '{"response":"OK"}';
+				}else {
+					$tirage_json = json_decode($position['tirage_json'], true);
+				}
+
+
+				$html = "";
+				if(count($size_arr)==0){
+					$html = "Размеры по данному артикулу отсутствуют. Обратитесь к администратору.";
+					return $html;
+				};
+
+				$html .= '<div class="green_inform_block">Размеры:</div>';
+				// собираем таблицу с размерами
+				$html .= '
+					<div class="size_card" id="edit_size_dop_tex_info">
+					<div id="json_code_for_size">'.$position['tirage_json'].'</div>
+					<table>
+						<tr>
+							<th>Размер</th>
+							<th>тираж</th>
+							<th>запас</th>
+						</tr>
+				';
+				
+				
+				
+				// перебираем строки размерной таблицы
+				foreach ($size_arr as $size) {
+					$tirage = (isset($tirage_json[$size['id']]['tir']))?$tirage_json[$size['id']]['tir']:0;
+					$value_dop = (isset($tirage_json[$size['id']]['dop']))?$tirage_json[$size['id']]['dop']:0;
+					//$no_edit_class = (($size['ostatok_free']=='0' && $summ_ostatok>=$summ_zakaz && $pod_zakaz!=1)?' input_disabled':'');
+					$readonly = (($enable_edit_zapas == '0')?' disabled':'');
+					
+					// $html .= $this->print_arr($position);
+					$html .= '
+							<tr class="size_row_tbl">
+								<td>'.$size['size'].'</td>
+								<td>'.$tirage.'</td>
+								<td><input type="text" data-dop="dop" data-id_dop_data="'.$position['id_dop_data'].'" class="val_tirage_dop" data-id_size="'.$size['id'].'"  value="'.$value_dop.'" '.$readonly.'></td>
+							</tr>
+					';
+				}
+				$html .= '</table></div>';
+				if($enable_edit_zapas){
+					$html .= '<div id="change_pz_npz">';
+					// $html .= $position['print_z'];
+						$html .= 'Печатать запас? &nbsp;';
+						$html .= '<span class="btn_var_std '.(($position['print_z'] == 1)?'checked':'').'" data-id_dop_data="'.$position['id_dop_data'].'" name="pz">ПЗ</span>';
+						$html .= '<span class="btn_var_std '.(($position['print_z'] == 0)?'checked':'').'" data-id_dop_data="'.$position['id_dop_data'].'" name="npz">НПЗ</span>';
+					$html .= '</div>';	
+				}
+				
+
+				// $html .= '
+				// 	<div class="sevrice_button_size_table">
+				// 		<span onclick="chenge_hidden_input_status(\'0\',this);" class="btn_var_std '.(($pod_zakaz==1)?'checked':'').'" name="order">под заказ</span>
+				// 		<span onclick="chenge_hidden_input_status(\'1\',this);" class="btn_var_std '.(($pod_zakaz==0)?'checked':'').'" name="reserve">под резерв</span>
+				// 	</div>
+				// 	';
+
+				return $html;
+
+			}
+
+			protected function get_size_table_read_AJAX(){
+				$html = "";
+				$position = $this->get_cab_position_Database($_POST['position_id']);
+				$html .= $this->get_size_table_read($position[0]);
+
+				echo '{"response":"replace_width" ,"html": "'.base64_encode($html).'"}';
+
+			}
+
+			protected function get_size_table_read($position){
+				$html = "";
+
+				// $html .= $this->print_arr($position);
+				if(!isset($position['art_id']) || isset($position['art_id']) && $position['art_id'] == 0){
+					$html .= $this->print_arr($position);
+					return $html;
+				}
+				// получаем размеры
+				$size_arr = $this->get_size_Array_Database($position['art_id']);
+
+				// $html .= $this->print_arr($size_arr);
+				// выборка данных о введённых ранее размерах из строки JSON 
+					
+				if(trim($position['tirage_json']) == '{}'){
+					$tirage_json[$size_arr[0]['id']]['dop'] = $position['zapas'];
+					$tirage_json[$size_arr[0]['id']]['tir'] = $position['quantity'];
+
+					global $mysqli;
+				
+					$query = "UPDATE  `".CAB_ORDER_DOP_DATA."`  SET  
+						`tirage_json` =  '".json_encode($tirage_json)."' 
+						, `zapas` = '".(int)$position['zapas']."'
+						WHERE  `id` ='".(int)$position['id_dop_data']."';";
+
+					$result = $mysqli->query($query) or die($mysqli->error);
+					// echo '{"response":"OK"}';
+				}else {
+					$tirage_json = json_decode($position['tirage_json'], true);
+				}
+				// $html .= $position['tirage_json'];
+
+				
+				if(count($size_arr)==0){
+					$html = "Размеры по данному артикулу отсутствуют. Обратитесь к администратору.";
+					return $html;
+				};
+
+				//$html .= '<div class="green_inform_block">Размеры:</div>';
+				// собираем таблицу с размерами
+				$html .= '
+					<div class="size_card" id="edit_size_dop_tex_info">
+					<div id="json_code_for_size">'.$position['tirage_json'].'</div>
+					
+				';
+				// перебираем строки размерной таблицы
+				foreach ($size_arr as $size) {
+					$tirage = (isset($tirage_json[$size['id']]['tir']))?$tirage_json[$size['id']]['tir']:0;
+					$value_dop = (isset($tirage_json[$size['id']]['dop']))?$tirage_json[$size['id']]['dop']:0;
+					$size_name = (trim($size['size']) != '')?$size['size']:'размер не указан';
+					if($tirage != 0 || $value_dop != 0){
+						$html .= '<div>';
+							$html .= $size_name.': &nbsp;'.$tirage;
+							if($this->user_access != 9){
+								if($value_dop != 0){
+									$html .= ' + '.$value_dop;
+								}
+							}
+							$html .= ' шт.';
+						$html .= '</div>';
+					}
+
+				}
+				$html .= '</div>';
+				
+				return $html;
+
+			}
+
+			// сохранить размерную таблицу
+			protected function save_change_pz_npz_AJAX(){
+				global $mysqli;
+				
+				$query = "UPDATE  `".CAB_ORDER_DOP_DATA."`  SET  
+					`print_z` =  '".$_POST['val']."' 
+					WHERE  `id` ='".(int)$_POST['id_dop_data']."';";
+
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}';
+			}
+			// сохранить ПЗ / НПЗ
+			protected function save_edit_size_dop_tex_info_AJAX(){
+				global $mysqli;
+				
+				$query = "UPDATE  `".CAB_ORDER_DOP_DATA."`  SET  
+					`tirage_json` =  '".$_POST['Json']."' 
+					, `zapas` = '".(int)$_POST['zapas']."'
+					WHERE  `id` ='".(int)$_POST['id_dop_data']."';";
+
+				$result = $mysqli->query($query) or die($mysqli->error);
+				echo '{"response":"OK"}';
+			}
+
 			// контент для окна доп/тех инфо
 			protected function get_dop_tex_info_AJAX(){
 				$html = '';
+
+				$enable_edit = ((isset($_POST['order_status']) && $_POST['order_status'] != 'in_work' && $_POST['order_status'] != 'paused'  && $_POST['order_status'] != 'cancelled' && $_POST['order_status'] != 'shipped'))?1:0;
+				$readonly = ($enable_edit == 0)?' disabled':'';
+				if($this->user_access != 5){
+					$enable_edit = 1;
+					$readonly = '';
+				}
+				// получаем информацию по позиции
+				$position = $this->get_cab_position_Database($_POST['position_id']);
 				// подгружаем форму по резерву
 				$html .= '<div class="container_form">';
-				$html .= '<div class="green_inform_block">Информация для снабжения</div>';
+				$html .= '<div class="green_inform_block">Информация по позиции</div>';
 				$html .= 'Резерв<br>';
-				$position = $this->get_cab_position_Database($_POST['position_id']);
 				// $html .= $this->print_arr($position);
 				$html .= '<input type="text" class="rezerv_info_input" name="rezerv_info" data-id="'.$_POST['position_id'].'" data-document_id="'.$_POST['document_id'].'" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value="'.base64_decode($position[0]['number_rezerv']).'">';
 				$html .= '</div>';
 
+				// выгрузка информации по печати запаса
+				$html .= '<div class="container_form">';
+					$html .= $this->get_size_table_for_dop_tex_info($position[0],$enable_edit);
+				$html .= '</div>';
+
 				// подгружаем форму по заполнению поля логотип для всех услуг
+				
 				$html .= '<div class="container_form">';
 				$html .= '<div class="green_inform_block">Логотип (использовать поле при условии, что логотип клиента одинаковый для всех услуг)</div>';
 					$html .= '<table id="save_logotip_for_all_services_tbl">';
 					$html .= '<tr>';
 						$html .= '<td>Название</td>';
-						$html .= '<td colspan="2">Применить название для:</td>';
+						if ($enable_edit) {
+							$html .= '<td colspan="2">Применить название для:</td>';
+						}
 					$html .= '</tr>';
 					$html .= '<tr>';
-
-						// собираем строку для передачи данных из POST массива в теги input
+							// собираем строку для передачи данных из POST массива в теги input
 						$data_str = '';
 						if(isset($_POST)){
 							unset($_POST['AJAX']);
@@ -4135,14 +4351,15 @@
 								$data_str .= ' data-'.$key.'="'.$value.'"';
 							}
 						}
-
-						// добавляем кнопки
-						$html .= '<td><input type="text" class="save_logotip_for_all_services" name="logotip" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value=""></td>';
-						$html .= '<td><input type="button"  data-document_id="'.$_POST['document_id'].'" name="" '.$data_str.' id="save_logotip_for_all_position" value="Всех услуг в списке этой позиции"></td>';
-						$html .= '<td><input type="button"  data-document_id="'.$_POST['document_id'].'" name="" '.$data_str.' id="save_logotip_for_all_order" value="Всех услуг в этом заказе"></td>';
-						
+							// добавляем кнопки
+						$html .= '<td><input type="text" class="save_logotip_for_all_services" name="logotip" data-cab_dop_data_id="'.$_POST['id_dop_data'].'" value="" '.$readonly.'></td>';
+						if ($enable_edit) {
+							$html .= '<td><input type="button"  data-document_id="'.$_POST['document_id'].'" name="" '.$data_str.' id="save_logotip_for_all_position" value="Всех услуг в списке этой позиции"></td>';
+							$html .= '<td><input type="button"  data-document_id="'.$_POST['document_id'].'" name="" '.$data_str.' id="save_logotip_for_all_order" value="Всех услуг в этом заказе"></td>';
+						}
 					$html .= '</tr></table>';
 				$html .= '</div>';
+				
 
 				#######################################
 
@@ -4171,10 +4388,10 @@
 					foreach ($this->uslugi as $usluga) {
 						$no_active = ($usluga['on_of']=='0')?' no_active':'';	// услуга отключена / включена из выполнения в окне финансовой детализации
 						$this->Service = $usluga; // по сути строка из CAB_DOP_USLUGI			
-						$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').''.$no_active.'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
+						$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'" data-order_status="'.$_POST['order_status'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').''.$no_active.'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
 						if($n == 0){
 							// запоминаем тз по первой услуге
-							$first_right_content .= $this->get_dop_inputs_for_services($usluga['uslugi_id'],$usluga['id']);						
+							$first_right_content .= $this->get_dop_inputs_for_services($usluga['uslugi_id'],$usluga['id'],((isset($_POST['order_status']) && $_POST['order_status'] != 'in_work' && $_POST['order_status'] != 'paused'  && $_POST['order_status'] != 'cancelled' && $_POST['order_status'] != 'shipped'))?1:0);						
 						}
 						$n++;
 					}
@@ -4268,7 +4485,7 @@
 			protected function get_dop_inputs_for_services_AJAX(){
 				// для вызова AJAX
 				if(isset($_POST['uslugi_id'])){
-					$html = $this->get_dop_inputs_for_services($_POST['uslugi_id'],$_POST['dop_usluga_id']);
+					$html = $this->get_dop_inputs_for_services($_POST['uslugi_id'],$_POST['dop_usluga_id'],((isset($_POST['order_status']) && $_POST['order_status'] != 'in_work' && $_POST['order_status'] != 'paused'  && $_POST['order_status'] != 'cancelled' && $_POST['order_status'] != 'shipped'))?1:0);
 				}else{
 					return 'Укажите id услуги';
 				}
@@ -4276,8 +4493,15 @@
 			}
 
 			// ролучаем dop_inputs
-			protected function get_dop_inputs_for_services($id, $dop_usluga_id){
+			protected function get_dop_inputs_for_services($id, $dop_usluga_id, $enable_edit = 1){
 				global $mysqli;
+
+				// допуски на редактирование
+				$readonly = (($enable_edit == '0')?' disabled':'');
+				if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 1){
+					$readonly = '';
+				}
+				
 				include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 				// запрашиваем информацию по ТЗ и , если нужно
 				if(!isset($this->Service)){ // если нам ничего не известно по строке из CAB_DOP_USLUGI
@@ -4308,7 +4532,7 @@
 				$this->iputs_id_Str = isset($this->All_Services_arr[$id]['uslugi_dop_inputs_id'])?$this->All_Services_arr[$id]['uslugi_dop_inputs_id']:'';
 				$this->Service_logotip_on = isset($this->All_Services_arr[$id]['logotip_on'])?$this->All_Services_arr[$id]['logotip_on']:'';
 				$this->Service_show_status_film_photos = isset($this->All_Services_arr[$id]['show_status_film_photos'])?$this->All_Services_arr[$id]['show_status_film_photos']:'';						
-				$this->maket_true_for_Service = isset($this->All_Services_arr[$id]['maket_true'])?$this->All_Services_arr[$id]['maket_true']:'';
+				$this->maket_old_true_for_Service = isset($this->All_Services_arr[$id]['maket_old_true'])?$this->All_Services_arr[$id]['maket_old_true']:'';
 						// echo $row['logotip_on'];
 
 
@@ -4366,14 +4590,7 @@
 								// $html .= '!= '.$input['name_en'];
 								$text = '';
 							}
-							
-							// определяем допуски на редактирование доп полей
-							if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 1){
-									// $html .= $text;
-									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value=\''.$text.'\'></div>';
-								}else{
-									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value=\''.$text.'\' '.((trim($text)=='')?'':'disabled').'></div>';
-								}
+							$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value=\''.$text.'\'" '.$readonly.'></div>';
 							
 					}else{
 							$html .= 'данный тип поля пока что не предусмотрен';
@@ -4391,13 +4608,8 @@
 						if($input['type']=="text"){
 								$text = isset($this->print_details_dop[$input['name_en']])?$this->print_details_dop[$input['name_en']]:'';
 								$text = htmlspecialchars(base64_decode($text),ENT_QUOTES);
-								// определяем допуски на редактирование доп полей
-								if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 1){
-									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'"></div>';
-								}else{
-									$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'" '.(($text=='')?'':'disabled').'></div>';
-								}
 								
+								$html .= '<div><input class="dop_inputs" data-dop_usluga_id="'.$dop_usluga_id.'" type="'.$input['type'].'" name="'.$input['name_en'].'" placeholder="" value="'.$text.'" '.$readonly.'></div>';
 						}else{
 								$html .= 'данный тип поля пока что не предусмотрен';
 						}	
@@ -4406,7 +4618,7 @@
 				
 				// подключаем поле логотип, если оно включено в админке или уже что-то содержит
 				if($this->Service['logotip']!='' || trim($this->Service_logotip_on)=="on"){
-					$html .='<div>Логотип<br><input type="text" class="save_logotip" name="logotip" value="'.addslashes($this->Service['logotip']).'"></div>';
+					$html .='<div>Логотип<br><input type="text" class="save_logotip" name="logotip" value="'.addslashes($this->Service['logotip']).'" '.$readonly.'></div>';
 				}
 
 				// подключаем поле плёнки, если оно включено в админке 
@@ -4418,14 +4630,14 @@
 				}
 
 				// подключаем поле путь к макету
-				if (trim($this->maket_true_for_Service)=="on") {
+				if (trim($this->maket_old_true_for_Service)=="on") {
 					$html .='<div>Путь к макету (к старому):<br>';
-					$html .= '<div><input type="text" name="the_url_for_layout" placeholder="заполнить при необходимости" class="save_the_url_for_layout" value="'.base64_decode($this->Service['the_url_for_layout']).'"></div>';
+					$html .= '<div><input type="text" name="the_url_for_layout" placeholder="заполнить при необходимости" class="save_the_url_for_layout" value="'.base64_decode($this->Service['the_url_for_layout']).'" '.$readonly.'></div>';
 					// $html .='<textarea class="save_logotip" name="logotip">'.$this->Service['logotip'].'</textarea>';
 					$html .='</div>';
 				}
 
-				$html .='<div>Комментарии для исполнителя '.(isset($this->performer[$this->Service['performer']])?'"'.$this->performer[$this->Service['performer']].'"':'').'<br><textarea class="save_tz" name="tz">'.str_replace('<br>', "", base64_decode($this->Service['tz'])).'</textarea></div>';
+				$html .='<div>Комментарии для исполнителя '.(isset($this->performer[$this->Service['performer']])?'"'.$this->performer[$this->Service['performer']].'"':'').'<br><textarea class="save_tz" name="tz" '.$readonly.'>'.str_replace('<br>', "", base64_decode($this->Service['tz'])).'</textarea></div>';
 
 				return $html;
 			}		
@@ -4531,45 +4743,52 @@
 		//   -----  END  -----  General Template (общие для всех шаблоны) -----  END  -----
 		////////////////////////////////////////////////////////////////////////////////////
 		
+		// подключение класса форм
+		protected function connection_form_class(){
+			if(!isset($this->FROM) || empty($this->FROM)){
+				$this->FORM = new Forms();
+			}
+		}
 			
+
 
 		/*
 			декодируем поле json для некаталога в читабельный вид
 			получаем из json описания некаталожного товара всю содержащуюся там информацию
 		*/		
-		protected function decode_json_no_cat_to_html($arr){// из cabinet_admin_class.php
-			// список разрешённых для вывода в письмо полей
-			$send_info_enabled= array('format'=>1,'material'=>1,'plotnost'=>1,'type_print'=>1,'change_list'=>1,'laminat'=>1);
+		protected function decode_json_no_cat_to_html($position){
+			// $position - массив содержащий:
+			// $position['no_cat_json']  - Json с описанием из формы
+			// $position['type'] - тип товара для запроса по полям
 
 
-			
+			// подключаем класс форм
+			$this->connection_form_class();
+
+			// массив со списком разрешённых для вывода в письмо ключей
+			// $this->FORM->send_info_enabled;
+
 			// получаем json с описанием продукта
-			$dop_info_no_cat = ($arr['no_cat_json']!='')?json_decode($arr['no_cat_json']):array();
+			$dop_info_no_cat = ($position['no_cat_json']!='')?json_decode($position['no_cat_json'], true):array();
 			
 			
 			$html = '';
 			// если у нас есть описание заявленного типа товара
-			// if(isset($this->FORM)){
-				$names = $this->FORM->get_names_form_type($arr['type']); // массив описания хранится в классе форм
-				// $html .= $this->print_arr($names);
-				// $html .= $this->print_arr($dop_info_no_cat);
-				$html .= '<div class="get_top_funcional_byttun_for_user_Html table" style="border:1px solid red">';
-				foreach ($dop_info_no_cat as $key => $value) {
-					if(!isset($names[$key]['name_ru'])){continue;}
-					//if(!isset($send_info_enabled[$key])){continue;}
-					$html .= '
-						<div class="row">
-							<div class="cell" >'.$names[$key]['name_ru'].'</div>
-							<div class="cell">'.$value.'</div>
-						</div>
-					';
-				}
-				$html .= '</div>';
-				return $html;
-			// }else{// в случае исключения выводим массив, дабы было видно куда копать
-			// 	// return $this->print_arr($arr);
-			// 	return 'декодирование описания по некаталожной продукции Провалено ;(';
-			// }
+			$names = $this->FORM->get_names_form_type($position['type']); // массив описания хранится в классе форм
+			$html .= '<div class="get_top_funcional_byttun_for_user_Html">';
+			foreach ($this->FORM->send_info_enabled as $name_en_from_the_mold) {
+				//$html .= $value.'<br>$dop_info_no_cat[$value] = '.$dop_info_no_cat[$value];
+				if(!isset($dop_info_no_cat[$name_en_from_the_mold])){continue;}
+				if(!isset($names[$name_en_from_the_mold]['name_ru'])){continue;}
+				$html .= '
+					<div>
+						'.$names[$name_en_from_the_mold]['name_ru'].': &nbsp;
+						'.$dop_info_no_cat[$name_en_from_the_mold].'<br>
+					</div>
+				';
+			}
+			$html .= '</div>';
+			return $html;
 		}
 
 		// вывод кнопки доп/тех инфо, с подсветкой в случае наличия в ней сообщиений в переписке по позиции
@@ -4581,9 +4800,10 @@
 
 			// если есть информация
 			$no_empty_class = (Comments_for_order_dop_data_class::check_the_empty_position_coment_Database($value['id']))?' no_empty':'';
-
+			// выводим статус заказа, если есть
+			$order_status = (isset($this->Order['global_status'])?$this->Order['global_status']:'');
 			$html = '<td>
-					<div class="dop_teh_info '.$no_empty_class.'" data-id_dop_data="'.$this->id_dop_data.'" data-id="'.$value['id'].'" data-query_num="'.$this->query_num.'" data-document_id="'.$document['id'].'" data-position_item="'.$this->position['sequence_number'].'" data-order_num="'.$this->order_num.'" data-order_num_User="'.$this->order_num_for_User.'"  >доп/тех инфо</div>
+					<div class="dop_teh_info '.$no_empty_class.'" data-order_status="'.$order_status.'" data-id_dop_data="'.$this->id_dop_data.'" data-id="'.$value['id'].'" data-query_num="'.$this->query_num.'" data-document_id="'.$document['id'].'" data-position_item="'.$this->position['sequence_number'].'" data-order_num="'.$this->order_num.'" data-order_num_User="'.$this->order_num_for_User.'"  >доп/тех инфо</div>
 					<div class="dop_teh_info_window_content"></div>
 				</td>';
 
@@ -5117,7 +5337,10 @@
 		protected function get_cab_position_Database($id){
 			global $mysqli;
 			$arr = array();
-		    $query="SELECT * FROM `".CAB_ORDER_MAIN."`  WHERE `id` = '".(int)$id."'";
+		    $query  = "SELECT *,
+		    `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`  FROM `".CAB_ORDER_MAIN."`";
+		    $query .= " INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`";
+		    $query .= " WHERE `".CAB_ORDER_MAIN."`.`id` = '".(int)$id."'";
 		   
 		    $postion_arr = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -5126,6 +5349,7 @@
 					$postion_arr[] = $row;
 				}
 			}
+			// echo $query;
 			return $postion_arr;
 		}
 
@@ -6044,22 +6268,6 @@
 		 *	@author  Алексей Капитонов
 		 *	@version 13:60 09.10.2015
 		*/
-			// подключение 
-			// protected function db_connect(){
-			// 	if(!isset($this->Db)){
-			// 	//	global $mysqli;
-			// 		$mysqli = new mysqli('localhost','php_3477686','3477686','apelburg_base');
-			// 		$mysqli->set_charset('utf8');
-					
-			// 		if ($mysqli->connect_error) {
-			// 			die('Connect Error (' . $mysqli->connect_errno . ') '
-			// 					. $mysqli->connect_error);
-			// 		}
-			// 		$this->Db = $mysqli;
-			// 	}
-			// 	return;
-			// }
-
 			// изменение значения одного значения в одной строке в какой либо таблице
 			protected function db_edit_one_val($tbl_name , $col_name, $row_id, $val ){
 				global $mysqli; // подключение к базе;
@@ -6139,7 +6347,29 @@
 					$html .= '</tr>';
 					return $html;
 				}
-			// html шаблон вывода позиций  (МЕН/СНАБ/АДМИН)
+
+				public function get_a_detailed_specifications($os__cab_order_main_rows_ID){
+					// получаем информацию по позиции
+					$position = $this->get_cab_position_Database($os__cab_order_main_rows_ID);
+					$html = '';
+					// $html .= $this->print_arr($position);
+					// получаем описание
+					$html .= $this->decode_json_no_cat_to_html($position[0]);
+					return $html;
+				}
+
+				protected function get_a_detailed_specifications_AJAX(){
+					// получаем информацию по позиции
+					$position = $this->get_cab_position_Database((int)$_POST['position_id']);
+					$html = '';
+					// $html .= $this->print_arr($position);
+					// получаем описание
+					$html .= $this->decode_json_no_cat_to_html($position[0]);
+
+					echo '{"response":"replace_width","html":"'.base64_encode($html).'"}';
+				}
+
+				// html шаблон вывода позиций  (МЕН/СНАБ/АДМИН)
 				protected function get_order_specificate_position_Html_Template(){
 					$html = '';
 					$html .= '<tr class="position-row position-row-production" id="position_row_'.$this->position['sequence_number'].'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
@@ -6154,13 +6384,14 @@
 					$html .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';
 								   
 					// добавляем доп описание
-					// для каталога и НЕкаталога способы хранения и получения данной информации различны
-					if(trim($this->position['type'])!='cat' && trim($this->position['type'])!=''){
-						// доп инфо по некаталогу берём из json 
-						$html .= $this->decode_json_no_cat_to_html($this->position);
-					}else if(trim($this->position['type'])!=''){
-						// доп инфо по каталогу из услуг..... НУЖНО РЕАЛИЗОВЫВАТЬ
-						$html .= '';
+					if($this->position['type'] == 'cat'){
+						$html .= '<div>';
+						$html .= '<input type="button" class="get_size_table_read" data-id_dop_data="'.$this->position['quantity'].'" data-position_id="'.$this->position['id'].'" value="Подробно" >';
+						$html .= '</div>';
+					}else{
+						$html .= '<div>';
+						$html .= '<input class="get_a_detailed_specifications" type="button" value="Подробно" data-position_id="'.$this->position['id'].'">';
+						$html .= '</div>';
 					}
 
 

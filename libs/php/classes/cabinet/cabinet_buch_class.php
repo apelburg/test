@@ -2,7 +2,7 @@
 	
 	class Cabinet_buch_class extends Cabinet{
 
-		// расшифровка меню СНАБ
+		// расшифровка 
 		public $menu_name_arr = array(
 		'important' => 'Важно',
 		'no_worcked_snab' => 'Не обработанные СНАБ',		
@@ -15,11 +15,15 @@
 		'all' => 'Все',
 		'orders' => 'Заказы',
 		'requests' =>'Запросы',
-		'create_spec' => 'Спецификация создана',
+		'create_spec' => 'Документ создан',
 		'signed' => 'Спецификация подписана',
 		'expense' => 'Счёт выставлен',
 		'requested_the_bill' => 'Счёт запрошен',
 		'paperwork' => 'Предзаказ',
+		'order_is_paperwork' => 'Заказы в оформлении',
+		'order_in_work' => 'Заказы в работе',
+		'order_shipped' => 'Отгруженные заказы',
+		'query_ttn' => 'Запрос отгрузочных',		
 		'start' => 'Запуск',
 		'tz_no_correct' => 'ТЗ не корректно',
 		'purchase' => 'Закупка',
@@ -43,7 +47,7 @@
 		'requested_the_bill' => 'Счёт запрошен',
 		'the_order_is_create' => 'Заказ сформирован',
 		'payment_the_bill' => 'Счёт оплачен',	
-		'refund_in_a_row' => 'возврат средств по счёту',
+		'refund_in_a_row' => 'Возврат средств по счёту',
 		'cancelled' => 'Счёт аннулирован',
 		'all_the_bill' => 'Все документы',
 		// заказы

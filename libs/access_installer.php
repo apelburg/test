@@ -200,57 +200,29 @@
 											'paperwork'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													// 'requested_the_bill' => array('access'=>true),
-													// 'expense' => array('access'=>true),
-													// 'create_spec' => array('access'=>true),
-													// // 'signed' => array('access'=>true)
-													// 'signed' => array('access'=>true),
-													
+													// запрошен счёт
 													'requested_the_bill' => array('access'=>true),
+													// счёт выставлен
 													'expense' => array('access'=>true),
+													// счёт оплачен
 													'payment_the_bill' => array('access'=>true),
-													'the_order_is_create' => array('access'=>true),
+													// заказы в оформлении
+													'order_is_paperwork' => array('access'=>true),
+													// заказы в работе
+													'order_in_work' => array('access'=>true),
+													// Отгруженные заказы
+													'order_shipped' => array('access'=>true),
+													// Запрос отгрузочных
+													'query_ttn' => array('access'=>true),
+													// возврат средств по счёту
 													'refund_in_a_row' => array('access'=>true),
+													// счёт аннулирован
 													'cancelled' => array('access'=>true),	
+													// все документы
 													'all_the_bill' => array('access'=>true)																											
 													)
 												), 
-											'orders'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'order_all' => array('access'=>true),
-													'order_start' => array('access'=>true),
-													'order_in_work' => array('access'=>true),
-													'design_all' =>  array('access'=>true),
-													'design_for_one_men' =>  array('access'=>true),
-													'production' =>  array('access'=>true)
-													)
-												),
-											'for_shipping'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'ready_for_shipment' => array('access'=>true),
-													)
-												),
-											'already_shipped'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'fully_shipped' => array('access'=>true),
-													'partially_shipped' => array('access'=>true)
-													)
-												),
-											'closed'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												),
-											'history'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												),
+											
 											)
 										)
 				       );
@@ -263,19 +235,6 @@
 												'access'=>true,
 												'subsection'=>array(  // 2
 													
-													// 'production_get_in_work' => array('access'=>true),
-													// 'set_in_the_plan' => array('access'=>true),
-													// 'production_stencil_shelk_and_transfer' => array('access'=>true),
-													// 'production_shelk' => array('access'=>true),
-													// 'production_transfer' => array('access'=>true),
-													// 'production_tampoo' => array('access'=>true),
-													// 'production_tisnenie' => array('access'=>true),
-													// 'production_dop_uslugi' => array('access'=>true),
-													// 'production_plenki_and_klishe' => array('access'=>true),
-													// // 'stock' =>  array('access'=>true),
-													// 'production' => array('access'=>true),
-													// // 'production' =>  array('access'=>true) 
-													// лыко да мачало начинаем всё сначала
 													'production_get_in_work' =>array('access'=>true),
 													'set_in_the_plan' =>array('access'=>true),
 													'production_stencil_shelk_and_transfer' =>array('access'=>true),

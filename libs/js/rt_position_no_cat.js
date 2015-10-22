@@ -572,8 +572,8 @@ $(document).on('keyup', '.row_price_out_gen.uslugi_class.price_out_snab span', f
 
 
 // сохраняет данные в таблицу dop_data
-function save_dop_data(obj){		
-	var price_in = Number(obj.find('.row_tirage_in_gen.price_in span').html());
+function save_dop_data(obj){		//row_tirage_in_one price_in
+	var price_in = Number(obj.find('.row_tirage_in_one.price_in span').html());
 	var price_out_snab = Number(obj.find('.row_price_out_gen.price_out_snab.tirage span').html());
 	var price_out = Number(obj.find('.row_price_out_gen.price_out_men.tirage span').html());
 	var dop_data_id = obj.find('.tirage_and_price_for_all.for_all').attr('data-dop_data_id');

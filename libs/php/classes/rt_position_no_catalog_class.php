@@ -576,7 +576,10 @@ class Position_no_catalog{
 
 
 				// получаем всю инфу по варианту
-				$this->FORM = new Forms();//для вызова следующего метода нужна информация из сласса форм
+				if(!isset($this->FORM)){
+					$this->FORM = new Forms();//для вызова следующего метода нужна информация из сласса форм	
+				}
+				
 					
 				// контент для отправки поставщику
 				$no_cat_json = json_decode($value2['no_cat_json'],true);
@@ -617,9 +620,9 @@ class Position_no_catalog{
 						<td><span class='traffic_lights_".(($value2['row_status']!='')?$value2['row_status']:'green')."'><span></span></span></td>
 						<td>".$n."</td>
 						<td><span>".$value2['quantity']."</span> шт</td>
-						<td><span>".($uslugi_arr['summ_price_in']+$value2['price_in'])."</span></td>
-						<td style='color:red'><span>".($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span></td>
-						<td><span>".($uslugi_arr['summ_price_out']+$value2['price_out'])."</span></td>
+						<td><span>".$this->round_money($uslugi_arr['summ_price_in']+$value2['price_in']*$value2['quantity'])."</span></td>
+						<td style='color:red'><span>".$this->round_money($uslugi_arr['summ_price_out']+$value2['price_out_snab'])."</span></td>
+						<td><span>".$this->round_money($uslugi_arr['summ_price_out']+$value2['price_out'])."</span></td>
 						<td ".(($this->aditable_acccess(array(1,8))!='')?"class='change_supplier'":"")." data-id='".$value2['suppliers_id']."'>".$value2['suppliers_name']."</td>
 						<td ".(($this->aditable_acccess(array(1,8))!='')?"class='chenge_maket_date'><input type='text' name='maket_date' value='".$value2['maket_date']."'>":">".$value2['maket_date'])."</td>
 						<td ><div ".(($this->aditable_acccess(array(1,8))!='')?"class='change_srok'":"")." ".$this->edit_snab.$this->edit_admin.">".$value2['work_days']."</div></td>";
@@ -751,7 +754,7 @@ class Position_no_catalog{
 	public function change_maket_date_Database(){
 		global $mysqli;
 		$query ="UPDATE `".RT_DOP_DATA."` SET
-		             `maket_date` = '".date('Y-m-j', strtotime($_POST['maket_date']))."'
+		             `maket_date` = '".date('Y-m-d', strtotime($_POST['maket_date']))."'
 		             WHERE `id` =  '".$_POST['id_dop_data']."';
 		             ";
 		$result = $mysqli->query($query) or die($mysqli->error);
@@ -885,7 +888,7 @@ class Position_no_catalog{
 									</tr>
 									<tr class="tirage_and_price_for_one" data-dop_data_id="'.$arr['id'].'">
 										<td>1 шт.</td>
-										<td class="row_tirage_in_one price_in"><span '.$this->aditable_acccess(array(1,8)).'>'.(($arr['quantity']!=0)?$this->round_money($arr['price_in']/$arr['quantity']):0).'</span></td>
+										<td class="row_tirage_in_one price_in"><span '.$this->aditable_acccess(array(1,8)).'>'.$this->round_money($arr['price_in']).'</span></td>
 										<td rowspan="2" class="percent_nacenki">
 											<span '.$this->aditable_acccess(array(1,8,5)).'>'.$percent.'</span>
 
@@ -900,7 +903,7 @@ class Position_no_catalog{
 									</tr>
 									<tr class="tirage_and_price_for_all for_all" data-dop_data_id="'.$arr['id'].'">
 										<td>тираж</td>
-										<td class="row_tirage_in_gen price_in tir"><span '.$this->aditable_acccess(array(1,8)).'>'.$arr['price_in'].'</span></td>
+										<td class="row_tirage_in_gen price_in tir"><span '.$this->aditable_acccess(array(1,8)).'>'.$this->round_money($arr['price_in']*$arr['quantity']).'</span></td>
 										<td class="row_price_out_gen price_out_snab tirage" style="color:red"><span  '.$this->aditable_acccess(array(1,8)).'>'.$arr['price_out_snab'].'</span></td>
 										<td class="row_price_out_gen price_out_men tirage"><span  '.$this->aditable_acccess(array(1,5)).'>'.$arr['price_out'].'</span></td>
 										<td class="row_pribl_out_gen pribl"><span>'.$this->round_money($arr['price_out']-$arr['price_in']).'</span></td>
@@ -917,7 +920,7 @@ class Position_no_catalog{
 									</tr>
 									<tr class="variant_calc_itogo">
 										<td>ИТОГО:</td>
-										<td><span>'.($uslugi_arr['summ_price_in']+$arr['price_in']).'</span> </td>
+										<td><span>'.($uslugi_arr['summ_price_in'] + $arr['price_in'] * $arr['quantity']).'</span> </td>
 										<td><span>'.$this->round_money(($percent+$uslugi_arr['summ_percent'])/(1+$uslugi_arr['count_usl'])).'</span></td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out_snab']).'</span> </td>
 										<td><span>'.($uslugi_arr['summ_price_out']+$arr['price_out']).'</span> </td>

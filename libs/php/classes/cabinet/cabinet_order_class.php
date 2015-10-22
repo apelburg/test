@@ -135,6 +135,10 @@
 								break;
 						}						
 					}
+					if($this->user_access == 7){
+						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`global_status` NOT IN ('being_prepared','in_operation')";
+						$where = 1;
+					}
 					//////////////////////////
 					//	sorting
 					//////////////////////////
@@ -625,7 +629,7 @@
 							// ТЗ на изготовление продукцию для НЕКАТАЛОГА
 							// для каталога и НЕкаталога способы хранения и получения данной информации различны
 							$this->no_cat_TZ = '';
-							if(trim($this->position['type'])!='cat' && trim($this->position['type'])!=''){
+							if(trim($this->position['type'])!='cat'){
 								// доп инфо по некаталогу берём из json 
 								$this->no_cat_TZ = $this->decode_json_no_cat_to_html($this->position);
 							}
@@ -674,6 +678,9 @@
 									// места нанесения
 									$html_row_1 .= $this->get_service_printing_list();
 									$html_row_1 .= 'Тираж: '.($this->position['quantity']) .' шт.';	
+									if($this->position['type'] == 'cat'){
+										$html_row_1 .= '<div><input type="button" class="get_size_table_read" data-id_dop_data="'.$this->position['quantity'].'" data-position_id="'.$this->position['id'].'" value="Подробно" ></div>';
+									}
 									$html_row_1 .= '<div class="linked_div">'.identify_supplier_by_prefix($this->position['art']).'</div>';
 								$html_row_1 .= '</td>';
 
@@ -2065,9 +2072,10 @@
 						$html = '';
 						$table_head_html = '';
 						if ($this->user_access == $this->group_access) {
-							$table_head_html .= '<style type="text/css" media="screen">
+							$table_head_html .= '
+							<style type="text/css" media="screen">
 								#cabinet_left_coll_menu{display:none;}
-								#cabinet_filtres_list ul li { background-color: #ECEF3D;}
+								#cabinet_filtres_list ul li{ background-color: #ECEF3D;}
 								select.get_statuslist_uslugi { width: 125px;}
 							</style>';	
 						}
@@ -2265,7 +2273,17 @@
 								// // описание позиции
 								$html_row_1 .= '<td  rowspan="'.$this->services_num.'" >';
 									// наименование товара
-									$html_row_1 .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';
+									$html_row_1 .= '<div><span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span></div>';
+									// добавляем доп описание
+									if($this->position['type'] == 'cat'){
+										$html_row_1 .= '<div>';
+										$html_row_1 .= '<input type="button" class="get_size_table_read" data-id_dop_data="'.$this->position['quantity'].'" data-position_id="'.$this->position['id'].'" value="Подробно" >';
+										$html_row_1 .= '</div>';
+									}else{
+										$html_row_1 .= '<div>';
+										$html_row_1 .= '<input class="get_a_detailed_specifications" type="button" value="Подробно" data-position_id="'.$this->position['id'].'">';
+										$html_row_1 .= '</div>';
+									}
 								$html_row_1 .= '</td>';
 
 								// склад, снабжение

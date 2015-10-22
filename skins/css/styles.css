@@ -2636,7 +2636,19 @@ div#apl-notification_center li.successful_message{
 .specificationsPreWin .timepicker{ width:30px;}
 .specificationsPreWin .time_rd{ width:30px;}
 .specificationsPreWin .limitInput{margin: 40px 0 10px 0;text-align:center;}
-
+div#type_product_cirilic_name_form{
+    position: fixed;
+    top: 1px;
+    background: #fff;
+    font-size: 19px;
+    text-align: center;
+    float: left;
+    border: 1px dashed #898989;
+    background: url(../images/img_design/apl_pattern.png);
+    padding: 4px 15px;
+    left: 50%;
+    margin-left: -130px;
+}
 
 
 

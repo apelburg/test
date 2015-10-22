@@ -278,7 +278,7 @@ $(document).on('click', '.btn_add_var', function(event) {
 		$(this).parent().prev().find('strong').html(text+' <number>(Вариант '+num_var+')</number>');
 		obj.find('strong').html(text+' <number>(Вариант '+(Number(num_var)+1)+')</number>');
 	}else{
-		obj.find('strong number').html((Number(num_var)+1));
+		obj.find('strong number').html('(Вариант '+(Number(num_var)+1)+')');
 	}
 	
 	
