@@ -929,12 +929,58 @@ echo $query;
                     }
                     
                 //////////////////////////////////////////////////////
-                //    КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ -- end  //
+                //    КОПИРУЕМ ДОП УСЛУГИ И УСЛУГИ ПЕЧАТИ -- end    //
                 //////////////////////////////////////////////////////
                 
 
             }
         } 
+		
+		static function getSizesForCatArticle($pos_id){
+		
+		    global $mysqli;
+		    // Задача получить данные о размерах присвоенных данной позиции
+		    // если вариант рассчета один берем данные из него
+			// если вариантов расчетов более одного данные не снимаем а возвращаем текст заготовку
+		//echo $pos_id;
+			
+			 $query = "SELECT dop_data_tbl.tirage_json tirage_json
+							  FROM 
+							  `".RT_MAIN_ROWS."`  main_tbl 
+							  LEFT JOIN 
+							  `".RT_DOP_DATA."` dop_data_tbl ON main_tbl.id = dop_data_tbl.row_id
+							  WHERE main_tbl.id ='".$pos_id."'";
+			 $result = $mysqli->query($query) or die($mysqli->error);
+			 echo $result->num_rows;
+			 if($result->num_rows == 1){
+			     $row = $result->fetch_assoc();
+				 $tirageArr = json_decode($row['tirage_json'],true);
+				 echo print_r($tirageArr);
+				 foreach($tirageArr as $sizeId => $data){
+				     if($data['dop']!=0 || $data['tir']!=0){
+					     $sizesArr[$sizeId] = array('tir'=>$data['tir'],'dop'=>$data['dop']);
+						 $sizesIdsArr[] = $sizeId;
+					 }
+				 }
+				 if(isset($sizesIdsArr)){
+					 $query2 = "SELECT id, size FROM `".BASE_DOP_PARAMS_TBL."`  WHERE  id IN('".implode("','",$sizesIdsArr)."')";
+					 $result2 = $mysqli->query($query2) or die($mysqli->error);
+					 if($result2->num_rows > 0){
+						 while($row2 = $result2->fetch_assoc()){
+							 if($row2['size']!='') $sizesFinalArr[]['size'] = $row2['size'].': '.$sizesArr[$row2['id']]['tir'].(($sizesArr[$row2['id']]['dop']>0)?' + '.$sizesArr[$row2['id']]['dop']:'').' шт.';
+						 }
+					 }
+				 }
+				 if(isset($sizesFinalArr))  print_r($sizesFinalArr);
+				 else $sizesFinalArr['error'] = 'notStated'; // размер не установлен
+				 
+			 }
+			 else if($result->num_rows == 0) $sizesFinalArr['error'] = 'nothingFind';
+			 else $sizesFinalArr['error'] = 'multi';
+ 
+			
+			// return $arr;
+		}
 
     /**
      *	AJAX 	
