@@ -959,7 +959,7 @@ var printCalculator = {
 			
 		}
 		
-		if(CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id]){
+		if(CurrPrintTypeData['sizes'] && CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id]){
 			// собираем данные для расчета
 			// площади нанесения
 			// if(typeof printCalculator.dataForProcessing['coefficients'] === 'undefined') printCalculator.dataForProcessing['coefficients']={};
@@ -1721,7 +1721,6 @@ var printCalculator = {
 	}
 	,
 	onchangeYPriceParamSelect:function(YPriceParamDiv,YPriceParamCMYKdiv){
-		
 		// здесь нам надо пройти по всем селектам в YPriceParamDiv и собрать данные о выбранных полях
 		// чтобы сохранить их в dataForProcessing а затем запустить printCalculator.makeProcessing();
 		
@@ -1741,7 +1740,6 @@ var printCalculator = {
 			var item_id = selectsArr[i].options[selectsArr[i].selectedIndex].getAttribute('item_id');
 			// если value != 0(0 равно вспомогательное значение "Выбрать"), значит выбор в селекте сделан 
 			// добавляем его в dataForProcessing
-		
 			if(value && value != 0){
 				if(typeof CMYKsArr[i] !== 'undefined') printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.push({'id':item_id,'coeff':value,'cmyk':CMYKsArr[i].innerHTML}); 
 				else   printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.push({'id':item_id,'coeff':value}); 
@@ -1753,10 +1751,11 @@ var printCalculator = {
 			if(value == 0 && selectsArr.length>1){
 				selectsArr[i].parentNode.parentNode.removeChild(selectsArr[i].parentNode);
 				CMYKsArr[i].parentNode.removeChild(CMYKsArr[i]);
-				
-			}		
-		    // alert(YPriceParamDiv.getElementsByTagName('SELECT').length);
+			}
+		}
 		
+		// alert(YPriceParamDiv.getElementsByTagName('SELECT').length);
+		//
 		// если количество селектов меньше количества рядов в прайсе открываем ссылку для добавления новых селектов (она могла быть скрыта)
 		if(YPriceParamDiv.getElementsByTagName('SELECT').length <printCalculator.calculatorParamsObj.print_types[printCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0].length-1){
 		   document.getElementById('calculatoraddYPriceParamLink').className = '';
