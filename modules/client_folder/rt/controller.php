@@ -325,23 +325,27 @@
 									  </div>
 								   </div>
 								 </div>
-								 <div>'.$row['name'].'</div>';
+								 <div>'.$row['name'].'</div>
+								 <div><input type="button" class="get_size_table_read" data-id_dop_data="250" data-position_id="251" value="Подробно"></div>';
 				 // дополнительная скрытая инфа 
 		        if($counter==0 &&  count($row['dop_details'])>0)  $dop_details['allowed_prints'] = $row['dop_details'];
 			 }
 			 else if($row['row_type'] == 'ext'){
 				 $extra_panel = '<div class="pos_plank ext">
 								   <a href="?page=client_folder&client_id='.$_GET['client_id'].'&section=rt_position&id='.$key.'">'.$row['name'].'</a>
-								 </div>';
+								 </div>
+								 <div><input class="get_a_detailed_specifications" type="button" value="Подробно" data-position_id="253"></div>';
 			 }
 			 else if($row['row_type'] == 'pol'){
 				 $extra_panel = '<div class="pos_plank pol">
 								   <a href="?page=client_folder&client_id='.$_GET['client_id'].'&section=rt_position&id='.$key.'">'.$row['name'].'</a>
-								 </div>';
+								 </div>
+								 <div><input class="get_a_detailed_specifications" type="button" value="Подробно" data-position_id="253"></div>';
 			 }else{
 			 	$extra_panel = '<div class="pos_plank pol">
 								   <a href="?page=client_folder&client_id='.$_GET['client_id'].'&section=rt_position&id='.$key.'">'.$row['name'].'</a>
-								 </div>';
+								 </div>
+								 <div><input class="get_a_detailed_specifications" type="button" value="Подробно" data-position_id="253"></div>';
 			 }
 
 			 $block = (isset($dop_row['status_snab']) && ($dop_row['status_snab']=='on_calculation_snab' || $dop_row['status_snab']=='on_recalculation_snab' || $dop_row['status_snab']=='in_calculation'))?1:0;
