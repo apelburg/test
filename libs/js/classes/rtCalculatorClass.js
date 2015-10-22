@@ -548,7 +548,7 @@ var rtCalculator = {
 		}
 						
 		function callbackPrintsExitst(response){
-		    alert(response);
+		    // alert(response);
 			var response_obj = JSON.parse(response);
 							
 			if(response_obj.print.lackOfQuantity){
@@ -1392,7 +1392,7 @@ var rtCalculator = {
 	    e = e|| window.event;
 		var cell = e.target || e.srcElement;
 		
-	
+	    
 		if(cell.getAttribute('pos_id')) var pos_id = cell.getAttribute('pos_id');
 		if(cell.getAttribute('type')) var type = cell.getAttribute('type');
 		
@@ -1411,8 +1411,14 @@ var rtCalculator = {
 				else if(type && type == 'printsAndUslugi') var target = 'нанесения и доп услуги';
 				else var target = 'ряды';
 				alert('не возможно удалить '+target+', вы не выбрали ни одной позиции');
+				closeAllMenuWindows();
 				return;
 			} 
+		}
+		
+		if(!confirm('программа удалит '+((pos_id)?'выбранную вами строку':'выбранные вами строки'))){
+			closeAllMenuWindows();
+			return;
 		}
 		// alert(idsArr.join(';'));
 		show_processing_timer();

@@ -318,7 +318,7 @@
 								   <a href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'">'.$row['art'].'</a>
 								   <div class="pos_link_plank">
 									  <div class="catalog">
-										  <a id="" href="/?page=description&id='.$row['art_id'].'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
+										  <a id="" href="/description/'.$row['art_id'].'/" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
 									  </div>
 									  <div class="supplier">
 										   '.identify_supplier_by_prefix($row['art']).'
@@ -444,7 +444,7 @@
 				  <td connected_vals="total_summ" c_stat="1" class="total pointer center">итого<br><span class="small">исходящая</span></td>
 				  <td width="15" connected_vals="total_summ" c_stat="1" class="r_border"></td>
 				  <td width="70" class="center grey r_border">срок сдачи</td>
-				  <td class="delta center">delta</td>
+				  <td class="delta right">delta</td>
 				  <td width="10"></td>
 				  <td class="margin center">маржина-<br>льность</td>
 				  <td>статус</td>';              
@@ -484,12 +484,17 @@
 				  <td type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>
 				  <td type="margin" class="right"></td>
-                  <td></td>';              
-	   $rt.= '</tr>
-	          </table>
-			  <div id="scrolled_part_container" class="scrolled_tbl_movable_part">
-	          <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0">'.implode('',$tbl_rows).'</table>
+                  <td></td>
+				</tr>
+	         </table>'; 
+	   if(isset($tbl_rows)){          
+	       $rt.= '<div id="scrolled_part_container" class="scrolled_tbl_movable_part">
+	             <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0">'.implode('',$tbl_rows).'</table>
 			  </div>';
+	    }
+		else{
+		   $rt.= '<table client_id="'.$client_id.'" query_num="'.$query_num.'" border="0" width="100%" height="400"><tr><td align="center">зявка не содержит данных</td></tr></table>';
+		}
 			  
 			  
 			  

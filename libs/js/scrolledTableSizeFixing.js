@@ -10,7 +10,8 @@
 			if(tables[i].getAttribute('scrolled') && tables[i].getAttribute('scrolled')=='head') var tbl_head = tables[i];
 			if(tables[i].getAttribute('scrolled') && tables[i].getAttribute('scrolled')=='body') var tbl_body = tables[i];
 		}
-		if(!tbl_head || !tbl_body){ alert('no one of the assosiated pieces was found'); return;}
+		// не выводим в рабочем режиме, выводится при пустом заказе
+		// if(!tbl_head || !tbl_body){ alert('one of the assosiated pieces was found'); return;}
 		
 		
 		// изначальная ширина верхней зафиксированной панели при загрузке

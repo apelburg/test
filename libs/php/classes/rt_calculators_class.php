@@ -4,7 +4,7 @@
 		public static $outOfLimit = false;
 		public static $outOfLimitDetails  = array();
 		public static $needIndividCalculation = false;
-		public static $needIndividCalculationDetails  = array();
+		public static $needIndividCalculationDetaigrab_datals  = array();
 		public static $lackOfQuantity  = false;
 		public static $lackOfQuantityDetails = array();
 	    function __consturct(){
@@ -57,11 +57,11 @@
 			
 			// если id артикула равно 0 или id артикула совсем не передано добавляем все имеющиеся виды во вкладку Стандартно
 			if((int)$data->art_id==0 || !isset($data->art_id)){ 
-			    $all_sizes_in_one_place = TRUE;
+			    // $all_sizes_in_one_place = TRUE;
 			    $out_put = self::get_all_print_types(); 
 			}
 			else if(isset($data->art_id) && (int)$data->art_id!=0){ 
-			    $all_sizes_in_one_place = FALSE;
+			    // $all_sizes_in_one_place = FALSE;
 			    // получаем (если установленны) данные о конкретных местах нанесения для данного артикула
 				// создаем дополнительный (служебный) массив из id типов нанесения, который мы будем использовать 
 				// на следующем этапе чтобы отфильтровать повторяющиеся типы нанесения
@@ -76,17 +76,17 @@
 				// места нанесения "Стандартно"
 			    $out_put = self::get_related_art_and_print_types($out_put,$data->art_id,$out_put_data1['print_types_ids']);
 
-				// если до этого момента никакой информации небыо найдено 
+				// если до этого момента никакой информации не было найдено 
 				// добавляем все имеющиеся виды во вкладку Стандартно
 				if(count($out_put)==0){
-				    $all_sizes_in_one_place = TRUE;
+				    // $all_sizes_in_one_place = TRUE;
 		            $out_put = self::get_all_print_types(); 
 				}
 				
 			}
 			
 			// получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
-            $out_put = self::get_print_types_related_data($out_put,$all_sizes_in_one_place);
+            $out_put = self::get_print_types_related_data($out_put/*,$all_sizes_in_one_place*/);
 			
 			//print_r($out_put);
 			echo json_encode($out_put);
@@ -190,7 +190,7 @@
 			}	
 			return $out_put;		
 		}
-		static function get_print_types_related_data($out_put,$all_sizes_in_one_place){
+		static function get_print_types_related_data($out_put/*,$all_sizes_in_one_place*/){
 		    global $mysqli;  
 			
 			//$print_types = $out_put['print_types'];
@@ -249,18 +249,29 @@
 				    }
 				}
 				
+				// if($all_sizes_in_one_place)
 				
 				// выбираем данные по размерам нанесения в соответствии с типом и местом нанесения
-				$query="SELECT*FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE `print_id` = '".$print_id."' ORDER by id";
-				//echo $query;
+				// если место нанесения одно ($out_put['places'] содержит один элемент) и его ключ равен 0 (ключ обозначает
+				// типа нанесения) значит  это дефолтное место нанесения добавленное системой в случае когда не было найдено
+				// мест нанесений добавленных напрямую (товару либо было присвоен тип нанесения напрямую либо вообще ничего
+				// небыло присвоено) тогда добавляем к этому типу нанесения специально для такого случая промаркированные
+				// размеры нанесения
+				$default_sizes = false;
+				if(count($out_put['places'])==1 && key($out_put['places'])==0) $default_sizes = true;
+				
+				$query="SELECT*FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE `print_id` = '".$print_id."'";
+				if($default_sizes) $query .=" AND `default`=1 ";
+				$query .=" ORDER by id";
+				// echo $query; exit;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){
 				    while($row = $result->fetch_assoc()){
 					    $place_id = $row['place_id'];
 						$row['item_id'] = $row['id'];
-					    unset($row['id'],$row['place_id']);
+					    unset($row['id'],$row['place_id'],$row['default']);
 						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения и id места нанесения
-					    if(!$all_sizes_in_one_place) $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
+					    if(!$default_sizes) $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
 						else  $out_put['print_types'][$print_id]['sizes'][0][] = $row; 
 				    }
 				}

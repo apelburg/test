@@ -573,6 +573,9 @@ button.CommonRightBtn{
   background-position:right 5px top 10px;
   background-repeat:no-repeat;
 }
+.subjects_list .main_tbl_wide td.roll div.cell{
+  display:block;
+}
 .subjects_list .main_tbl_wide td.roll:hover{
   background-image:url(../images/img_design/select_trigger_large_over.png);
 }
