@@ -243,11 +243,13 @@ $(document).on('click', '.js-modal_menu-design_what', function(event) {
 $(document).on('click', '.js-button-maket_is_adopted button', function(event) {
 	event.preventDefault();
 	var id_row = $(this).attr('data-id');
+	var position_id = $(this).attr('data-position_id');
 	var new_status = 'услуга выполнена';
 	$(this).replaceWith('<span class="greyText">'+new_status+'</span>');
 	$.post('', {
 		AJAX:"choose_service_status",
 		id_row:id_row,
+		position_id:position_id,
 		value:new_status
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
@@ -1880,10 +1882,12 @@ $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', functio
 // обработчик изменения статуса услуги
 $(document).on('change', '.get_statuslist_uslugi', function(event) {
 	var id_row = $(this).attr('data-id');
+	var position_id = $(this).attr('data-position_id');
 	var value = $(this).val();
 	$.post('', {
 		AJAX: 'choose_service_status',
 		id_row: id_row,
+		position_id:position_id,
 		value:value 
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);

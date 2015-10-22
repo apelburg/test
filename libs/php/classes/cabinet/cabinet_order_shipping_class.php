@@ -179,7 +179,6 @@
 							<th>сумма</th>
 							<th>тех + доп инфо</th>
 							<th>дата утв. макета</th>
-							<th>срок ДС</th>
 							<th>дата сдачи</th>
 							<th  colspan="2">статус</th>
 						</tr>
@@ -249,7 +248,7 @@
 						//	тело строки заказа -- start ---
 						//////////////////////////
 							$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.($this->rows_num+1).'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
-							$table_order_row2_body .= '<td colspan="5" class="orders_info">';
+							$table_order_row2_body .= '<td colspan="4" class="orders_info">';
 							
 							// исполнители заказа
 							$table_order_row2_body .= $this->performer_table_for_order();							

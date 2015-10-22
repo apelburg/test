@@ -131,37 +131,39 @@
 	    	protected $buch_status = array(
 	    		'is_pending' => 'ожидает обработки', 
 	    		'score_exhibited' => 'счёт выставлен ',
+	    		'ttn_created' => 'ТТН готова',
 	    		//////////////////////////
 	    		//	статусы разрешающие перевод заказа в работу
 	    		//////////////////////////
-					'payment' => 'оплачен',
-					'partially_paid' => 'частично оплачен',
-					'letter_of_guarantee' => 'гарантийное письмо', 			
-				
-				'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ', // -> статус предзаказа =  'shipped'
+				'payment' => 'оплачен',
+				'partially_paid' => 'частично оплачен',
+				'letter_of_guarantee' => 'гарантийное письмо', 	
+				'ogruzochnye_accepted' => 'огрузочные приняты (подписанные) ВСЕ',
+				'client_collateral_returns' => 'Залог клиенту возвращен',
+				'refund_in_a_row_ok' => 'Деньги по счёту возвращены'// -> статус предзаказа =  'shipped'
 				// 'return_order_in_paperorder' => 'вернуть заказ в предзаказ' 	    		
 	    	);
 			// статусы БУХ - сервисные (если уже не выставлены) 
 	    	protected $buch_status_service = array(
 	    		'request_expense'=>'Запрошен счёт',
-	    		'reget_the_bill' => 'перевыставить счёт', 
-	    		'refund_in_a_row' => 'возврат денег по счёту', 
-				'get_the_pko' => 'запрошен ПКО',
+	    		'reget_the_bill' => 'Перевыставить счёт', 
+	    		'refund_in_a_row' => 'Возврат денег по счёту', 
+				'get_the_pko' => 'Запрошен ПКО',
 				'get_the_bill_oferta' => 'Запрошен счёт-оферта',
-				'returns_client_collateral' => 'возврат залога клиенту',
+				'returns_client_collateral' => 'Возврат залога клиенту',
 				'cancelled'=>'Аннулирован',
+				'get_ttn' =>'Запрошена ТТН',
 				'uslovno_oplachen' => 'Условно оплачен' //
+
 				// 'maket_without_payment' =>'Макет без оплаты'
 	    	);
 			
 			// комманды менеджера  (при клике на статус буха меню)
 			protected $commands_men_for_buch = array(
 				'reget_the_bill' => 'перевыставить счёт', 
-				// 'get_the_dop_bill' => 'запросить доп. счёт',
 				'returns_client_collateral' => 'вернуть залог клиенту',
 				'refund_in_a_row' => 'вернуть денеги по счёту', 
-				// 'uslovno_oplachen' => 'статус "Условно оплачен"',
-				// 'maket_without_payment' =>'статус "Макет без оплаты"',
+				'get_ttn' =>'Запросить отгрузочные',
 				'cancelled'=>'статус "Аннулировано"'
 			);
 
@@ -212,10 +214,11 @@
 				'maquette_maket' => 'Ожидает макет',
 				'waits_union' => 'Ожидает объединения',
 				// 'products_capitalized_warehouse' => 'Продукция оприходована складом',// сервисный статус, вытекает из статуса склада - принято на склад
-				'waits_union' => 'Ожидает счет от поставщика',
+				'waits_the_bill_of_supplier' => 'Ожидает счет от поставщика',
 				// 'on_outsource' => 'уехало на аутсорсинг',
-				'waits_the_bill_of_supplier' => 'Ожидаем отправку постащика',
-				'products_bought' => 'выкуплено',
+				'waits_the_sell_of_supplier' => 'Ожидаем отправку постащика',
+				'products_bought' => 'Продукция выкуплена',
+				'to_bought_products' => 'Выкупить продукцию',
 				'waits_products' => 'Продукция ожидается:',
 				'in_production' => 'В Производстве', // -> запуск всех услуг кроме доставки и дизайна, при этом услуга Диза ставится на "услуга выполнена"
 				'ready_for_shipment' => 'Готов к отгрузке',	
@@ -720,7 +723,7 @@
 							case 'макет отправлен в СНАБ':
 								if($this->user_access == 8){
 									$this->js_dop_class = 'js-button-maket_is_adopted';
-									$this->performer_status = '<button  data-id="'.$service['id_dop_uslugi_row'].'">Макет принят</button>  ';
+									$this->performer_status = '<button  data-position_id="'.$this->position['id'].'"  data-id="'.$service['id_dop_uslugi_row'].'">Макет принят</button>  ';
 								}
 								break;
 							case 'дизайн-эскиз готов':
@@ -746,7 +749,8 @@
 			// выпадающий список статусов услуги
 			protected function get_statuslist_uslugi_Dtabase_Html($id,$real_val,$cab_dop_usl_id, $performer){
 				// $performer - подразделение (права доступа)
-
+				
+				
 				$this->js_dop_class = '';
 				// подсветка статусов снаба
 				switch ($real_val) {
@@ -760,12 +764,14 @@
 
 				if(trim($real_val)!="" || $real_val == "in_processed"){// если есть статус - значит услуга запущена
 					// проверяем права доступа на редактирование статуса
+					$position_id = (isset($this->position['id']))?$this->position['id']:'';
 					if($this->user_access == $performer || $this->user_access==1){
 						// получаем id по которым будем выбирать статусы для услуги
 						$id_s = $this->get_id_parent_Database($id);
 						global $mysqli;
 						$html = '';
-						$html .= '<select class="get_statuslist_uslugi" data-id="'.$cab_dop_usl_id.'"><option value=""></option>';
+						
+						$html .= '<select class="get_statuslist_uslugi" data-position_id="'.$position_id.'" data-id="'.$cab_dop_usl_id.'"><option value=""></option>';
 						
 						if($real_val=="исправить дизайн"){
 							$html.= '<option value="'.$real_val.'" selected="selected"> '.$real_val.'</option>';
@@ -958,27 +964,27 @@
 
 
 			// создать строку пустого счёта
-			protected function create_a_new_bill(){
-				global $mysqli;
-				$time = time();
-				$date_for_base = date("Y-m-d",$time);
-				$date_for_html = date("d.m.Y",$time);
+			// protected function create_a_new_bill(){
+			// 	global $mysqli;
+			// 	$time = time();
+			// 	$date_for_base = date("Y-m-d",$time);
+			// 	$date_for_html = date("d.m.Y",$time);
 
 
-				$query ="UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET 
-					`type_the_bill` = '".$_POST['type_the_bill']."',
-					`date_order_the_bill` = '".$date_for_base."'";// дата заказа счёта
-					if(isset($_POST['comment_text'])){
-						$query .= ",`comments` = '".$_POST['comment_text']."'";
-					}
+			// 	$query ="UPDATE `".CAB_BILL_AND_SPEC_TBL."` SET 
+			// 		`type_the_bill` = '".$_POST['type_the_bill']."',
+			// 		`date_order_the_bill` = '".$date_for_base."'";// дата заказа счёта
+			// 		if(isset($_POST['comment_text'])){
+			// 			$query .= ",`comments` = '".$_POST['comment_text']."'";
+			// 		}
 
-					$query .= " WHERE `id` = '".$_POST['order_id']."'";
+			// 		$query .= " WHERE `id` = '".$_POST['order_id']."'";
 
-				$result = $mysqli->query($query) or die($mysqli->error);
-				// запоминаем новый id
+			// 	$result = $mysqli->query($query) or die($mysqli->error);
+			// 	// запоминаем новый id
 			
-				return $html;
-			}
+			// 	return $html;
+			// }
 
 			// // получаем комментарии к счёту
 			// protected function get_the_comment_width_the_bill_AJAX(){
@@ -1041,7 +1047,7 @@
 			// создаем пустой счёт
 			protected function create_the_new_bill_AJAX(){
 				// если мы имеем дело не с обычным счётом выводим окно с комментариями по заказанному документу(счёту)
-				if(isset($_POST['type_the_bill']) && $_POST['type_the_bill'] != "the_bill" && !isset($_POST['comment_text'])){
+				if(isset($_POST['type_the_bill']) && $_POST['type_the_bill'] != "the_bill" && (!isset($_POST['comment_text']) || trim($_POST['comment_text']) =="" )){
 					$html = '';
 					$html .= '<form>';
 					// перебираем остальные значения для передачи их далее
@@ -1052,6 +1058,7 @@
 					//////////////////////////////
 					//	форма комментария для БУХ
 					//////////////////////////////
+
 
 					$html .= '<div class="comment table">';
 						$html .= '<div class="row">';
@@ -1069,6 +1076,8 @@
 
 					$html .= '</form>';
 					echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Комментарии для Бухгалтерии:","width":"600"}';
+				
+
 				}else{
 
 					if(isset($_POST['get_html_row_the_bill'])){ // если нам нужно вернуть  только строку
@@ -2143,10 +2152,16 @@
 					// кнопки
 					$html .= '<div class="buh_window" data-specification_id="'.$document['id'].'" '.(($this->disabled_edit == "")?'':'style="display:none"').'>';
 						$html .= '<button сlass="button_to_add_lines" id="add_pp">Добавить П/П</button>';
-							$html .= '<button сlass="button_to_add_lines" id="add_pko">Добавить ПКО</button>';
-							$html .= '<button сlass="button_to_add_lines" id="add_ttn">Добавить ТТН</button>';
-						$html .= '</div>';
-					$html .= '</div>';					
+						$html .= '<button сlass="button_to_add_lines" id="add_pko">Добавить ПКО</button>';
+						$html .= '<button сlass="button_to_add_lines" id="add_ttn">Добавить ТТН</button>';
+					$html .= '</div>';
+					// комментарии от менеджеров
+					if($document['comments'] != ''){
+						$html .= $document['comments'];					
+					}	
+					$html .= '</div>';
+
+									
 				}
 				$html_head .= '</ul>';
 
@@ -2412,8 +2427,43 @@
 			// запрос из кнопки выставить счёт
 			protected function get_listing_type_the_bill_AJAX(){
 				if(isset($_POST['status_buch']) && isset($_POST['order_id'])){
-					$this->buch_status_select($_POST['status_buch'],$_POST['order_id']);
-					echo '{"response":"OK","function":"reload_order_tbl"}';return;
+					// если это статус содержащийся в коммандах для бухгалтера от менеджеров
+					// просим ввести комментарии
+					if(isset($this->commands_men_for_buch[$_POST['status_buch']]) && (!isset($_POST['comment_text']) || (isset($_POST['comment_text']) && trim($_POST['comment_text']) == '') )){
+						$html = '';
+						$html .= '<form>';
+						// перебираем остальные значения для передачи их далее
+						foreach ($_POST as $key => $value) {
+							$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+						}
+
+						//////////////////////////////
+						//	форма комментария для БУХ
+						//////////////////////////////
+						if(isset($_POST['comment_text']) && trim($_POST['comment_text']) == ''){
+							$html .= $this->wrap_text_in_warning_message_post('Пожалуйста, чиркните ну хать что-нибудь =((((');
+						}
+
+						$html .= '<div class="comment table">';
+							$html .= '<div class="row">';
+								$html .= '<div class="cell comment_text">';
+										$html .= '<textarea name="comment_text"></textarea>';
+										$html .= '<div class="div_for_button">';
+											// $html .= '<button class="add_nah">Нах</button>';
+											// $html .= '<button class="add_nah">Нах?</button>';
+											$html .= '<button class="add_nah">Без комментария</button>';
+											// $html .= '<button id="add_new_comment_button">Отправить</button>';
+										$html .= '</div>';
+								$html .= '</div>';
+							$html .= '</div>';
+						$html .= '</div>';
+
+						$html .= '</form>';
+						echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Комментарии для Бухгалтерии:","width":"600"}';
+					}else{
+						$this->buch_status_select($_POST['status_buch'],$_POST['order_id']);
+						echo '{"response":"OK","function":"reload_order_tbl"}';return;
+					}
 				}else{
 					$message = "Что-то пошло не так в методе: get_listing_type_the_bill_AJAX()";
 						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
@@ -2474,7 +2524,7 @@
 						}
 						break;
 					case '2':
-						foreach ($this->buch_status_service as $name_en => $name_ru) {
+						foreach ($this->buch_status as $name_en => $name_ru) {
 							$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
 							if($n==0){$first_val = $name_en;}
 							$n++;
@@ -3627,7 +3677,19 @@
 					$query .= ", `flag_design_edits` =  '0'";
 				}
 				if($_POST['value'] == "макет отправлен в СНАБ"){
+					// делаем пометку на позиции для снаб
+					// 8// 88888888888888888888888
+					if(isset($_POST['position_id'])){
+						$this->db_edit_one_val(CAB_ORDER_MAIN,'flag_check_the_maket',(int)$_POST['position_id'],1);
+					}
+
 					$query .= ", `flag_design_prepare_to_print` =  '0'";
+				}
+				if($_POST['value'] == "услуга выполнена"){
+					// делаем пометку на позиции для снаб
+					if(isset($_POST['position_id'])){
+						$this->db_edit_one_val(CAB_ORDER_MAIN,'flag_check_the_maket',(int)$_POST['position_id'],0);
+					}
 				}
 
 				if($_POST['value'] == "подготовить в печать"){
@@ -3749,8 +3811,27 @@
 					global $mysqli;
 					$query = "UPDATE  `".CAB_BILL_AND_SPEC_TBL."`  SET  
 						`buch_status` =  '".$value."' ";
+					if(isset($_POST['comment_text'])){
+						// запрос предыдущих комментов
+						$sub_query = "SELECT `id`,`comments` FROM `".CAB_BILL_AND_SPEC_TBL."`";
+						$sub_query .= "WHERE  `id` ='".$row_id."';";
+						$result = $mysqli->query($sub_query) or die($mysqli->error);
+						if($result->num_rows > 0){
+							while($row = $result->fetch_assoc()){							
+								$comments = $row['comments'];							
+							}
+						}
 
+
+						$user = $this->get_manager_name_Database_Array($this->user_id);
+						$tz = PHP_EOL.PHP_EOL.'<br><br>Запрос <strong>"'.$this->buch_status_service[$_POST['status_buch']].'"</strong> в '.date('d.m.Y H:i',time()).' от менеджера: '.$user['last_name'].' '.$user['name'].':<br>'.PHP_EOL;
+						$tz .= $_POST['comment_text'];
+
+						$query .= ", comments = '".$comments.$tz."' ";
+					}
 					$query .= "WHERE  `id` ='".$row_id."';";
+					// echo $query;
+
 					$result = $mysqli->query($query) or die($mysqli->error);
 				}
 
@@ -6466,7 +6547,15 @@
 			$html .= '</table>';	
 			return $html;
 		}
-			
+		
+		private function wrap_text_in_warning_message_post($text){
+			$html = '<div class="warning_message"><div>';	
+			$html .= $text;
+			$html .= '</div></div>';
+
+			return $html;
+		}
+
 		function __destruct() {			
 		}
 

@@ -279,18 +279,16 @@
 
 			// Отгруженные заказы
 			private function paperwork_order_shipped_Template($id_row = 0){
+				$this->filtres_order = " `".CAB_ORDER_ROWS."`.`global_status` = 'shipped'";
 				echo $this->order_rows($id_row);
 			}
+
 			// Запрос отгрузочных (форма вывода Документы/счета)
 			private function paperwork_query_ttn_Template($id_row=0){
+				$this->filtres_specificate = " `buch_status` IN ('get_ttn','ttn_created')";
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
-
-
-
-
-
 			
 			// ШАБЛОН + ЗАПРОС (форма вывода Заказ/Предзаказ)
 			private function order_rows($id_row){
@@ -426,6 +424,9 @@
 
 			// счёт оплачен (форма вывода Документы/счета)
 			private function paperwork_payment_the_bill_Template($id_row=0){
+				// фильтр 
+				$this->filtres_specificate = "  (`".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'payment' OR `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'collateral_received' OR `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'partially_paid')";
+
 				if(isset($_GET['client_id']) AND ($this->user_access == 5 || $this->user_access == 1)){
 					global $quick_button;
 					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add">Создать заказ</a></div>';	
@@ -441,6 +442,9 @@
 
 			// счёт выставлен (форма вывода Документы/счета)
 			private function paperwork_expense_Template($id_row=0){
+				// фильтр 
+				$this->filtres_specificate = "  `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'score_exhibited'";
+
 				if(isset($_GET['client_id']) AND ($this->user_access == 5 || $this->user_access == 1)){
 					global $quick_button;
 					$quick_button = '<div class="quick_button_div"><a href="#" id="create_the_order" class="button add">Создать заказ</a></div>';	
@@ -456,30 +460,40 @@
 			
 			// счёт заннулирован (форма вывода Документы/счета)
 			private function paperwork_cancelled_Template($id_row=0){
+				// фильтр 
+				$this->filtres_specificate = " `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'cancelled'";
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
 
 			// возврат средств по счёту (форма вывода Документы/счета)
 			private function paperwork_refund_in_a_row_Template($id_row=0){
+				// фильтр
+				$this->filtres_specificate = " `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` IN ('refund_in_a_row','client_collateral_returns','refund_in_a_row_ok','returns_client_collateral')";
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
 
 			// все счета (форма вывода Документы/счета)
 			private function paperwork_all_the_bill_Template($id_row=0){
+				// фильтр историю
+				$this->filtres_specificate = " `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` <> 'history'";
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
 
 			// счёт запрошен (форма вывода Документы/счета)
 			private function paperwork_requested_the_bill_Template($id_row=0){
+				// фильтр
+				$this->filtres_specificate = "  `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` IN ('request_expense','get_the_bill_oferta', 'reget_the_bill')";
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
 
 			// спецификация создана  (форма вывода Документы/счета)
 			private function paperwork_create_spec_Template($id_row=0){
+				// фильтр
+				$this->filtres_specificate = " `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'is_pending'";
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
@@ -692,74 +706,46 @@
 						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`id` = '".$id_row."'";
 						$where = 1;
 				}else{
-					/////////////////////////////////////////////////////////////////
-					// выбираем из базы только предзаказы (заказы не показываем)
-					/////////////////////////////////////////////////////////////////
-						// получаем статусы предзаказа
-						$paperwork_status_string = '';
-						foreach (array_keys($this->paperwork_status) as $key => $status) {
-							$paperwork_status_string .= (($key>0)?",":"")."'".$status."'";
+					//////////////////////////
+					//	выборка по стандартным фильтрам
+					//////////////////////////
+						if(isset($_GET['client_id'])){
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`client_id` = '".$_GET['client_id']."'";
+							$where = 1;
 						}
-						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`global_status` IN (".$paperwork_status_string.")";
-						$where = 1;
-					//////////////////////////
-					//	выборка по клиенту
-					//////////////////////////
-					if(isset($_GET['client_id'])){
-						$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`client_id` = '".$_GET['client_id']."'";
+
+						// фильтрация спецификаций(счётов) по менеджеру
+						if(isset($_GET['manager_id'])){
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".(int)$_GET['manager_id']."'";
+							$where = 1;
+						}
+
+						// фильтрация по менеджеру
+						if($this->user_access == 5){
+							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".$this->user_id."'";
+							$where = 1;
+						}
+
+					// фильтрация по документам
+					if($this->filtres_specificate != ''){
+						$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_specificate;
 						$where = 1;
 					}
-
-					// выборка по статусу
-					if(isset($_GET['subsection'])){
-						switch ($_GET['subsection']) {
-							case 'create_spec': // спецификация создана
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'is_pending'";
-								$where = 1;
-								break;
-							case 'requested_the_bill': // запрошен счёт
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` IN ('request_expense','get_the_bill_oferta', 'reget_the_bill')";
-								$where = 1;
-								break;
-							case 'expense': // счёт выставлен
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'score_exhibited'";
-								$where = 1;
-								break;
-							case 'payment_the_bill': // счёт оплачен
-								$query .= " ".(($where)?'AND':'WHERE')." (`".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'payment' OR `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'collateral_received' OR `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'partially_paid') ";
-								$where = 1;
-								break;
-							case 'cancelled': // счёт аннулирован
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'cancelled' ";
-								$where = 1;
-								break;
-							case 'refund_in_a_row': // возврат денег по счёту
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` = 'refund_in_a_row'";
-								$where = 1;
-								break;
-							default:
-								# code...
-								break;
-						}
-
-
-							// фильтрация спецификаций(счётов) по менеджеру
-							if(isset($_GET['manager_id'])){
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".(int)$_GET['manager_id']."'";
-								$where = 1;
-							}
-
-
-							// фильтрация по менеджеру
-							if($this->user_access == 5){
-								$query .= " ".(($where)?'AND':'WHERE')." `".CAB_BILL_AND_SPEC_TBL."`.`manager_id` = '".$this->user_id."'";
-								$where = 1;
-							}
-							
-							
-						}
+					// сортировка по документам
+					if($this->filtres_specificate_sort != ''){
+						$query .= " ".$this->filtres_specificate_sort;
 					}
 
+
+					//////////////////////////
+					//	check the query
+					//////////////////////////
+					if(isset($_GET['show_the_query'])){
+						echo '*** $query = '.$query.'<br>';	
+					}
+							
+							
+				}
 					
 					
 					
