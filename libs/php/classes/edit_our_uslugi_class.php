@@ -313,11 +313,13 @@
 			if(!isset($_POST['delivery_apl'])){
 				$_POST['delivery_apl'] = '';
 			}
-
-
 			// обрабатываем maket_true
 			if(!isset($_POST['maket_true'])){
 				$_POST['maket_true'] = '';
+			}
+			// обрабатываем maket_old_true
+			if(!isset($_POST['maket_old_true'])){
+				$_POST['maket_old_true'] = '';
 			}
 		
 		//////////////////
@@ -534,8 +536,16 @@
 		// наличие макета
 		$html .= '<div class="separation_container">';
 		$html .= '<div class="name_input">Наличие макета<span style="    color: rgba(255, 0, 0, 0.77); font-size:12px">&nbsp;Внимание. Если эта опция отключена, дизайнер не увидит эту услугу у себя в кабинете <br>(даже если отдел дизайна отвечает за переключение статусов по данной услуге)!!!!</span></div>';
-		$html .= '<div class="edit_info"><input type="checkbox" name="maket_true" id="maket_true" '.(($usluga['maket_true']=="on")?'checked':'').'><label for="maket_true">Для исполнения услуги необходимо наличие макета</label><br>
-					<span class="greyText">(указать если с услугой будет работать дизайнер или оператор, если включено - в доп.тех нфо появляется поле путь к макету)</span>
+		$html .= '<div class="edit_info"><input type="checkbox" name="maket_true" id="maket_true" '.(($usluga['maket_true']=="on")?'checked':'').'><label for="maket_true">Дизайнер или оператор имеют к услуге прямое или косвенное отношение</label><br>
+					<span class="greyText">(указать если дизайнер или оператор имеют к услуге прямое или косвенное отношение)</span>
+				</div>';		
+		$html .= '</div>';
+
+		// путь к старому макету
+		$html .= '<div class="separation_container">';
+		$html .= '<div class="name_input">Путь к старому макету</div>';
+		$html .= '<div class="edit_info"><input type="checkbox" name="maket_old_true" id="maket_old_true" '.(($usluga['maket_old_true']=="on")?'checked':'').'><label for="maket_old_true">Показать поле "Путь к старому макету"</label><br>
+					<span class="greyText">(указать если в услуге должен присутствовать путь к старому макету, если включено - в доп.тех нфо появляется поле путь к старому макету)</span>
 				</div>';		
 		$html .= '</div>';
 

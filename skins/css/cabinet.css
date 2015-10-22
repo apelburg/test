@@ -322,7 +322,7 @@ tr.cat_8 td {
 
 #chose_supplier_tbl tr td.checked{  background-color: #007036;color: #FFF;}
 .green_inform_block{
-	background-color: #92B73E;
+	background-color: #c8db9e;
 	color: #000;
 	font-size: 12px;
 	padding: 2px 5px;
@@ -1081,4 +1081,65 @@ select.production_userlist {
 
 #cabinet .color_black_by_greyText_class .greyText{
 	color: #000;
+}
+.btn_var_std {
+    margin-left: 5px;
+    cursor: pointer;
+    padding: 4px 10px;
+    border: 1px solid #e2e2e4;
+    color: #e2e2e4;
+}
+.btn_var_std.checked {
+    background-color: #c7c8ca;
+    border-color: #c7c8ca;
+    color: #000;
+}
+.size_card table tr th:nth-of-type(1),
+.size_card table tr th:nth-of-type(2), 
+.size_card table tr td:nth-of-type(2), 
+.size_card table tr td:nth-of-type(1) {
+    border-right: 5px solid #fff;
+    padding: 5px;
+    text-align: left;
+}
+.size_card table tr td:nth-of-type(2),
+.size_card table tr td:nth-of-type(3) {
+    text-align: center;
+}
+.size_card table tr th:nth-of-type(2),
+.size_card table tr th:nth-of-type(3) {
+    text-align: center;
+}
+.size_card{
+	padding: 5px;
+}
+.size_card table {
+    width: 250px;
+    border: none;
+    border-collapse: collapse;
+}
+.size_card table tr th {
+    background-color: #F3F3F3;
+    font-weight: normal;
+    text-align: right;
+    color: #5a5c61;
+    font-size: 10px;
+}
+.size_card input.val_tirage_dop {
+    width: 40px;
+    text-align: center;
+}
+#change_pz_npz{
+	padding-top: 10px;
+}
+#json_code_for_size{
+	display: none;
+}
+input.get_size_table_read,
+input.get_a_detailed_specifications {
+    background: #ECECEC;
+    border: 1px solid #FFFFFF;
+    margin-top: 7px;
+    color: #797979;
+    cursor: pointer;
 }

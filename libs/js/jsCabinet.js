@@ -1216,6 +1216,7 @@ $(document).on('click', '.dop_teh_info', function(event) {
 	var document_id = Number($(this).attr('data-document_id'));
 	var position_item = Number($(this).attr('data-position_item'));
 	var id_dop_data = $(this).attr('data-id_dop_data');
+	var order_status = $(this).attr('data-order_status');
 	var title = 'Заказ ' + order_num_user
 				+' / позиция ' + position_item +' / '
 				+ $(this).parent().parent().find('.art_and_name').html()
@@ -1227,7 +1228,8 @@ $(document).on('click', '.dop_teh_info', function(event) {
 		order_num:order_num,
 		position_id:position_id,
 		id_dop_data:id_dop_data,
-		document_id:document_id
+		document_id:document_id,
+		order_status:order_status
 	}, function(data, textStatus, xhr) {
 		if(data['response']=="OK"){			
 			show_dialog_and_send_POST_window(Base64.decode(data['html']),title);
@@ -1260,6 +1262,8 @@ $(document).on('click', '#services_listing_each .lili', function(event) {
 		var uslugi_id = $(this).attr('data-uslugi_id');
 		// id строки 
 		var dop_usluga_id = $(this).attr('data-dop_usluga_id');
+
+		var order_status = $(this).attr('data-order_status');
 		
 
 		$('#services_listing_each .lili').removeClass('checked');
@@ -1269,7 +1273,8 @@ $(document).on('click', '#services_listing_each .lili', function(event) {
 		$.post('', {
 			AJAX:'get_dop_inputs_for_services',
 			uslugi_id: uslugi_id,
-			dop_usluga_id: dop_usluga_id
+			dop_usluga_id: dop_usluga_id,
+			order_status:order_status
 		}, function(data, textStatus, xhr) {
 			window_preload_del();
 			if(data['response']=="OK"){
@@ -1386,6 +1391,120 @@ $(document).on('keyup','#dialog_gen_window_form .dop_inputs', function(event) {
 		}
 	},'json');
 	check_loading_ajax();
+});
+
+// редактирование размерной сетки в доп. тех. инфо
+$(document).on('keyup','#edit_size_dop_tex_info .val_tirage_dop', function(event) {
+	var val = $(this).val();
+	var size_id = $(this).attr('data-id_size');
+	var id_dop_data = $(this).attr('data-id_dop_data');
+	// var Json = $('#json_code_for_size').html();
+	// if($('#json_code_for_size').html() != "{}"){
+		
+		
+	
+	// }else{
+	// 	// var json_object = new Array();
+		
+	// }
+
+		var zapas = 0;
+		var zapas_one = 0;
+		// var new_obj = new Array();
+		var tir = 0;
+
+		var Json = '{';
+		$('#edit_size_dop_tex_info input').each(function(index, el) {
+			zapas += Number($(this).val());
+
+			zapas_one = Number($(this).val());
+
+			tir = Number($(this).parent().prev().html()) ;
+			if(index>0){
+				Json += ',';	
+			}
+			Json += '"'+$(this).attr('data-id_size')+'":{"dop":"'+zapas_one+'","tir":"'+tir+'"}';
+
+		});
+		Json += '}';
+
+		$('#json_code_for_size').html(Json);
+
+	// console.log(json_object);
+	// if(val.trim()==""){
+		
+	// }
+
+	
+
+
+
+	// console.log(zapas);
+
+	$.post('', {
+		AJAX:'save_edit_size_dop_tex_info',
+		Json : Json,
+		id_dop_data: id_dop_data,
+		zapas:zapas
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+
+});
+
+// выозвращает размер
+$(document).on('click', '.get_size_table_read', function(event) {
+	event.preventDefault();
+	var id_dop_data = $(this).attr('data-id_dop_data');
+	var position_id = $(this).attr('data-position_id');
+	var obj = $(this);
+	$.post('', {
+		AJAX:'get_size_table_read',
+		id_dop_data: id_dop_data,
+		position_id:position_id
+	}, function(data, textStatus, xhr) {
+		if(data['response'] = 'replace_width'){
+			// alert(Base64.decode(data['html']));
+			obj.replaceWith(Base64.decode(data['html']));
+		}
+	},'json');
+});
+// возвращает детализацию
+$(document).on('click', '.get_a_detailed_specifications', function(event) {
+	event.preventDefault();
+	var position_id = $(this).attr('data-position_id');
+	var obj = $(this);
+	$.post('', {
+		AJAX:'get_a_detailed_specifications',
+		position_id:position_id
+	}, function(data, textStatus, xhr) {
+		if(data['response'] = 'replace_width'){
+			// alert(Base64.decode(data['html']));
+			obj.replaceWith(Base64.decode(data['html']));
+		}
+	},'json');
+});
+
+
+// ПЗ / НПЗ
+$(document).on('click', '#change_pz_npz .btn_var_std', function(event) {
+	event.preventDefault();
+	var val = 0
+	var id_dop_data = $(this).attr('data-id_dop_data');
+	$('#change_pz_npz .btn_var_std').removeClass('checked');
+	$(this).addClass('checked');
+
+	if($(this).attr('name') == 'pz'){
+		val =1;		
+	}
+	
+	$.post('', {
+		AJAX:'save_change_pz_npz',
+		val : val,
+		id_dop_data: id_dop_data
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');	
 });
 
 

@@ -308,23 +308,25 @@
 						}
 					}
 				}
-
+				// $html .= $this->print_arr($managers_arr);
 				// echo count($managers_arr);
 				$html .= '<form  id="chose_manager_tbl">';
 				$html .='<table>';
 
-				
-				for ($i=0; $i < count($managers_arr); $i++) {
+				$count = count($managers_arr);
+				for ($i=0; $i <= $count; $i) {
 					$html .= '<tr>';
 				    for ($j=1; $j<=3; $j++) {
 				    	if(isset($managers_arr[$i])){
 					    	$checked = ($managers_arr[$i]['id'] == $_POST['manager_id'])?'class="checked"':'';
 					    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
-					    	$html .= '<td '.$checked.' data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
+					    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
+				    		$i++;
 				    	}else{
-				    		$html .= "<td></td>";
+				    		$html .= '<td  date-lll="'.$i.'"></td>';
+				    		$i++;
 				    	}
-				    	$i++;
+				    	
 				    }
 				    $html .= '</tr>';
 				}
@@ -335,7 +337,8 @@
 				$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
 				$html .= '<input type="hidden" value="" name="client_id">';
 				$html .= '<form>';
-				echo $html;
+
+				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выбрать менеджера"}';
 				// вывод менеджеров				
 			}
 
@@ -384,7 +387,8 @@
 				$first_row = ''; 
 				$f_r = 0;
 
-				for ($i=0; $i < count($clients); $i++) {
+				$count = count($clients);
+				for ($i=0; $i <= $count; $i) {
 					$row = '<tr>';
 				    for ($j=1; $j<=3; $j++) {
 				    	if(isset($clients[$i])){
@@ -397,7 +401,6 @@
 				    	}			    	
 				    	$i++;
 				    }
-
 				    $row .= '</tr>';
 
 				    // если нам попалась строка с выбранным клиентом, запоминаем её и не добавляем в Html...
@@ -476,7 +479,7 @@
 						//////////////////////////
 						$html = '<form  id="chose_manager_tbl">';
 						$html .='<table>';					
-						for ($i=0; $i < count($managers_arr); $i++) {
+						for ($i=0; $i < count($managers_arr); $i) {
 							$html .= '<tr>';
 						    for ($j=1; $j<=3; $j++) {
 						    	if(isset($managers_arr[$i])){
