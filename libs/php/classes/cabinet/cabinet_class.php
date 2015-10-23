@@ -6584,11 +6584,11 @@
 
 				public function get_a_detailed_specifications($type_product, $no_cat_json){
 					// получаем информацию по позиции
-					$position['type'] = $type_product; // тип товара для запроса по полям (тфблица os__rt_main_rows, колонка type)
+					$position['type'] = $type_product; // тип товара для запроса по полям (таблица os__rt_main_rows, колонка type)
 					$position['no_cat_json']  = $no_cat_json; // Json с описанием из формы (таблица os__rt_dop_data, колонка no_cat_json)
 				
 					$html = '';
-					$html .= $this->decode_json_no_cat_to_html($position[0]);
+					$html .= $this->decode_json_no_cat_to_html($position);
 					return $html;
 				}
 
