@@ -53,10 +53,9 @@
     }
 	////////////////////////  AJAX  //////////////////////// 
 	
-	if(isset($_POST['get_size_table_read'])){
-	     ///require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
-		// echo Agreement::getSpecificationsDates(json_decode($_GET['getSpecificationsDates']));
-		echo 22;
+	if(isset($_POST['getSizesForArticle'])){
+	     require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+		 echo RT::getSizesForArticle($_POST['pos_id']);
 		 exit;
 	}
 	
