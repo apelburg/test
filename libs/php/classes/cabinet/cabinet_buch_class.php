@@ -47,7 +47,7 @@
 		'requested_the_bill' => 'Счёт запрошен',
 		'the_order_is_create' => 'Заказ сформирован',
 		'payment_the_bill' => 'Счёт оплачен',	
-		'refund_in_a_row' => 'Возврат средств по счёту',
+		'refund_in_a_row' => 'Возврат средств',
 		'cancelled' => 'Счёт аннулирован',
 		'all_the_bill' => 'Все документы',
 		// заказы

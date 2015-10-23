@@ -445,11 +445,15 @@ $(document).on('change', '.choose_statuslist_order_and_paperwork', function(even
 $(document).on('change', '.choose_statuslist_sklad', function(event) {
 	var row_id = $(this).attr('data-id'); //main_rows_id
 	var value = $(this).val();
+	var document_id = $(this).attr('data-document_id');
+	var order_id = $(this).attr('data-order_id');
 	// отправляем запрос
 	$.post('', {
 		AJAX:'choose_statuslist_sklad',
 		row_id:row_id,
-		value:value
+		value:value,
+		order_id:order_id,
+		document_id:document_id
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
 	},'json');

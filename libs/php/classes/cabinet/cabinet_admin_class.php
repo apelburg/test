@@ -17,12 +17,12 @@
 			'denied' => 'ТЗ не корректно',
 			'orders' => 'Заказы',
 			'requests' =>'Запросы',
-			'create_spec' => 'Спецификация создана',
+			'create_spec' => 'Документ создан',
 			'signed' => 'Спецификация подписана',
 			'expense' => 'Счёт выставлен',
 			'requested_the_bill' => 'Счёт запрошен',
 			'paperwork' => 'Предзаказ',
-			'order_start' => 'Запуск в работу (заказ)',
+			'order_start' => 'Готовые к запуску',
 			'tz_no_correct' => 'ТЗ не корректно',
 			'purchase' => 'Закупка',
 			'design' => 'Дизайн',
@@ -49,19 +49,20 @@
 			'partially_shipped' => 'Частично отгружен',
 			'the_order_is_create' => 'Заказ сформирован',
 			'payment_the_bill' => 'Счёт оплачен',	
-			'refund_in_a_row' => 'возврат средств по счёту',
-			'cancelled' => 'Счёт аннулирован',
+			'refund_in_a_row' => 'Возврат средств',
+			'cancelled' => 'Аннулированные',
 			'all_the_bill' => 'Все документы',
 			// запросы
 			'in_work' => 'В работе',
 			// заказы
 			'order_all' => 'Все заказы',
-			'order_start' => 'Запуск в работу (заказ)',
-			'order_in_work' => 'Заказы в работе',
-			'design_all' => 'Дизайн ВСЕ',
-			'design_for_one_men' => 'Дизайн МОЁ',
+			'order_in_work_snab' => 'В работе',
+			// 'order_start' => 'Запуск в работу (заказ)',
+			// 'order_in_work' => 'Заказы в работе',
+			'design_all' => 'Дизайн',
+			'order_in_work' => 'В обработке',
 			'production' => 'Производство',
-			'stock' => 'Склад'								
+			'stock_all' => 'Склад'								
 		); 
 
 		// protected $user_id;
