@@ -322,3 +322,10 @@ height:200px;
 .rtDiscountTooltip{
   line-height:18px;
 }
+input.getSizesBtn {
+    background: #ECECEC;
+    border: 1px solid #FFFFFF;
+    margin-top: 7px;
+    color: #797979;
+    cursor: pointer;
+}

@@ -440,7 +440,7 @@
 			unset($details_obj->calculationData->print_details->priceIn_tblXindex);
 			unset($details_obj->calculationData->print_details->priceOut_tblXindex);
 									  
-		     //print_r($details_obj);echo "\r\n";
+		    //print_r($details_obj);echo "\r\n";
 		    $out = array();
 			//// $details_obj->calculationData->dop_uslugi_id;
 			// exit;
@@ -496,6 +496,11 @@
 							}
 							else  $new_data["new_price_arr"] =  array("price_in"=>0,"price_out"=>0);
 							
+							foreach($print_details_obj->dop_params->YPriceParam as $key => $data){
+							   if(isset($data->cmyk)) $print_details_obj->dop_params->YPriceParam[$key]->cmyk =  base64_encode($data->cmyk);
+							} 
+							
+							$print_details_obj->comment = (isset($print_details_obj->comment))? base64_encode($print_details_obj->comment):'';
 							// вписываем новое нанесение для данного расчета в базу данных
 							$query="INSERT INTO `".RT_DOP_USLUGI."` 
 										  SET 
@@ -503,6 +508,7 @@
 										  glob_type = 'print',
 										  print_details = '".self::json_fix_cyr(json_encode($print_details_obj))."',
 										  quantity = '".$row['quantity']."',
+										  tz = '".$print_details_obj->comment."',
 										  price_in = '".$new_data["new_price_arr"]["price_in"]."',
 										  price_out = '".$new_data["new_price_arr"]["price_out"]."'";
 							$mysqli->query($query)or die($mysqli->error);

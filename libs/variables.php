@@ -15,6 +15,7 @@
 	$form_data = !empty($_POST['form_data'])? $_POST['form_data'] : NULL; // массив для передачи данных через форму
 	
 	$quick_button_back = '<a href="javascript:history.go(-1)"></a>';
+	$searchPlaceholder = 'не работает';
 	$planner_display = '<div class="quick_button_circle">
 							<div class="quick_button_circle__circle" style="background-image: url(./skins/images/img_design/button_circle_2.png); border-color:red">
 								<!--<div class="quick_button_circle__alert">12</div>-->

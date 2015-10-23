@@ -751,7 +751,11 @@
 						// $size_arr = array(230,300);
 						$img_cell = '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
 					}
-                }				
+                }
+				else{
+				    $img_src = 'http://www.apelburg.ru/img/no_image.jpg';
+				    $img_cell = '<img src="'.$img_src.'" height="180" width="180">';
+				}				
 				
 				// РАБОТАЕМ СО ВТОРОЙ ЯЧЕЙКОЙ РЯДА ТАБЛИЦЫ КП
 				
@@ -1207,7 +1211,8 @@
 			
 			
 			
-		   $kp_content .= '<div style="text-align:right;font-family:verdana;font-size:12px;line-height:20px;"><br />'.convert_bb_tags(mysql_result(select_manager_data($user_id),0,'mail_signature')).'<br /><br /><br /></div></div>';
+		   $kp_content .= '<div style="text-align:right;font-family:arial;font-size:12px;line-height:20px;"><br>'.convert_bb_tags(mysql_result(select_manager_data($user_id),0,'mail_signature')).'<br><br><br></div>';
+		   $kp_content .= '<div style="text-align:justify;font-family:verdana;font-size:10px;line-height:11px;padding:0 20px;"><br>Данная презентация носит исключительно информационный характер и никакая информация, опубликованная в ней, ни при каких условиях не является офертой или публичной офертой, определяемой положениями пункта 2 статьи 437 и статьи 435 Гражданского кодекса Российской Федерации. Для получения подробной информации о реализуемых товарах, работах и услугах и их цене необходимо обращаться к менеджерам компании Апельбург<br><br><br></div></div>';
 		   
 		   
 		   return $kp_content;
@@ -1524,8 +1529,8 @@
 			//$tbl_rows[] = $tr_td.'proba'.$td_tr;
 			
 			// записываем все данные в строку предварительно развернув массив
-		   $kp_content .= implode('',array_reverse($tbl_rows)).'</td></tr></table>
-		   <div style="text-align:right;font-family:verdana;font-size:12px;line-height:20px;"><br />'.convert_bb_tags(mysql_result(select_manager_data($user_id),0,'mail_signature')).'<br /><br /><br /></div></div>';
+		   $kp_content .= '<div style="text-align:right;font-family:arial;font-size:12px;line-height:20px;"><br>'.convert_bb_tags(mysql_result(select_manager_data($user_id),0,'mail_signature')).'<br><br><br></div>';
+		   $kp_content .= '<div style="text-align:justify;font-family:verdana;font-size:10px;line-height:11px;padding:0 20px;"><br>Данная презентация носит исключительно информационный характер и никакая информация, опубликованная в ней, ни при каких условиях не является офертой или публичной офертой, определяемой положениями пункта 2 статьи 437 и статьи 435 Гражданского кодекса Российской Федерации. Для получения подробной информации о реализуемых товарах, работах и услугах и их цене необходимо обращаться к менеджерам компании Апельбург<br><br><br></div></div>';
 		   
 		   return $kp_content;
 	   }

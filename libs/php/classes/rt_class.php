@@ -936,50 +936,55 @@ echo $query;
             }
         } 
 		
-		static function getSizesForCatArticle($pos_id){
+		static function getSizesForArticle($pos_id){
 		
 		    global $mysqli;
 		    // Задача получить данные о размерах присвоенных данной позиции
 		    // если вариант рассчета один берем данные из него
 			// если вариантов расчетов более одного данные не снимаем а возвращаем текст заготовку
-		//echo $pos_id;
+		    //echo $pos_id;
 			
-			 $query = "SELECT dop_data_tbl.tirage_json tirage_json
+			 $query = "SELECT dop_data_tbl.tirage_json tirage_json,dop_data_tbl.quantity quantity
 							  FROM 
 							  `".RT_MAIN_ROWS."`  main_tbl 
 							  LEFT JOIN 
 							  `".RT_DOP_DATA."` dop_data_tbl ON main_tbl.id = dop_data_tbl.row_id
 							  WHERE main_tbl.id ='".$pos_id."'";
 			 $result = $mysqli->query($query) or die($mysqli->error);
-			 echo $result->num_rows;
+			 //echo $result->num_rows;
 			 if($result->num_rows == 1){
+			     // если расчет один тогда проводим работу по выяснению размеров их количества и т.д.
 			     $row = $result->fetch_assoc();
-				 $tirageArr = json_decode($row['tirage_json'],true);
-				 echo print_r($tirageArr);
-				 foreach($tirageArr as $sizeId => $data){
-				     if($data['dop']!=0 || $data['tir']!=0){
-					     $sizesArr[$sizeId] = array('tir'=>$data['tir'],'dop'=>$data['dop']);
-						 $sizesIdsArr[] = $sizeId;
-					 }
-				 }
-				 if(isset($sizesIdsArr)){
-					 $query2 = "SELECT id, size FROM `".BASE_DOP_PARAMS_TBL."`  WHERE  id IN('".implode("','",$sizesIdsArr)."')";
-					 $result2 = $mysqli->query($query2) or die($mysqli->error);
-					 if($result2->num_rows > 0){
-						 while($row2 = $result2->fetch_assoc()){
-							 if($row2['size']!='') $sizesFinalArr[]['size'] = $row2['size'].': '.$sizesArr[$row2['id']]['tir'].(($sizesArr[$row2['id']]['dop']>0)?' + '.$sizesArr[$row2['id']]['dop']:'').' шт.';
+				 if(!($row['tirage_json']=='' || $row['tirage_json']=='{}')){
+					 $tirageArr = json_decode($row['tirage_json'],true);
+					 if($tirageArr!=NULL){
+						 // echo print_r($tirageArr);
+						 foreach($tirageArr as $sizeId => $data){
+							 if($data['dop']!=0 || $data['tir']!=0){
+								 $sizesArr[$sizeId] = array('tir'=>$data['tir'],'dop'=>$data['dop']);
+								 $sizesIdsArr[] = $sizeId;
+							 }
 						 }
+						 if(isset($sizesIdsArr)){
+							 $query2 = "SELECT id, size FROM `".BASE_DOP_PARAMS_TBL."`  WHERE  id IN('".implode("','",$sizesIdsArr)."')";
+							 $result2 = $mysqli->query($query2) or die($mysqli->error);
+							 if($result2->num_rows > 0){
+								 while($row2 = $result2->fetch_assoc()){
+									 if($row2['size']!='') $sizesFinalArr['sizes'][] = $row2['size'].': '.$sizesArr[$row2['id']]['tir'].(($sizesArr[$row2['id']]['dop']>0)?' + '.$sizesArr[$row2['id']]['dop']:'').' шт.';
+								 }
+							 }
+						 }
+						 if(!isset($sizesFinalArr)) $sizesFinalArr['error'] = 'не удалось установать размер: '.$row2['quantity'].' шт.'; // размер не установлен
 					 }
+					 else $sizesFinalArr['sizes'][] = 'не удалось установать размер: '.$row['quantity'].' шт.';
 				 }
-				 if(isset($sizesFinalArr))  print_r($sizesFinalArr);
-				 else $sizesFinalArr['error'] = 'notStated'; // размер не установлен
+				 else $sizesFinalArr['sizes'][] = 'размер не указан: '.$row['quantity'].' шт.';
 				 
 			 }
-			 else if($result->num_rows == 0) $sizesFinalArr['error'] = 'nothingFind';
-			 else $sizesFinalArr['error'] = 'multi';
- 
+			 else if($result->num_rows == 0) $sizesFinalArr['error'] = 'nothingFind'; // если расчеты не найдены значит произошла ошибка работы программы, потому что хотябы один расчет должен быть найден
+			 else $sizesFinalArr['error'] = 'multi'; // если расчет несколько просто извещаем об этом 
 			
-			// return $arr;
+			 return json_encode((array)$sizesFinalArr);
 		}
 
     /**

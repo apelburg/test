@@ -329,6 +329,7 @@ var printCalculator = {
 							function callback(response){ 
 								// alert(response);
 								// return;
+								// return;
 								var response_obj =JSON.parse(response);
 								if(response_obj.errors){
 									var str = 'ВНИМАНИЕ\r\n';
