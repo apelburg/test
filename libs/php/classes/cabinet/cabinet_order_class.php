@@ -428,10 +428,24 @@
 					*/
 					// Готовые к запуску (Менеджер)
 					private function orders_order_start_Template($id_row=0){
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
 						$this->order_standart_rows_Template($id_row=0);
 					}
 					// В обработке (Менеджер)
 					private function orders_order_in_work_Template($id_row=0){
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
 						$this->order_standart_rows_Template($id_row=0);
 					}
 
@@ -442,12 +456,26 @@
 					// В работе (Админ)
 					private function orders_admin_order_in_work_Template($id_row=0){
 						$this->filtres_position = " `status_snab` = 'in_production'";
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
 						$this->order_standart_rows_Template($id_row=0);
 					}
 
 
 					// В работе (Менеджер)
 					private function orders_order_in_work_snab_Template($id_row=0){
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
 						$this->order_standart_rows_Template($id_row=0);
 					}
 
@@ -460,11 +488,21 @@
 							$this->filtres_order = " `snab_id` = '".$this->user_id."'";
 						}
 
+
+
 						$this->order_standart_rows_Template($id_row=0);
 					}	
 
 					// все (Менеджер)
 					private function orders_order_all_Template($id_row=0){
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
+						
 						$this->order_standart_rows_Template($id_row=0);
 					}			
 
@@ -483,6 +521,8 @@
 						}else{
 							$this->filtres_order = " (`global_status` = 'in_work' OR `flag_design_see_everywhere` = '1')";
 						}
+						
+
 						$this->group_access = 9;
 						// id начальника отдела дизайна
 						$this->director_of_operations_ID = 80; 
@@ -1495,6 +1535,14 @@
 									
 								// }
 							}
+							if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+								// echo 'Привет Мир =)';
+								if($this->filtres_position != ''){
+										$this->filtres_position .= " AND";
+									}
+								$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+							}
+
 						// id начальника отдела дизайна
 						$this->director_of_operations_ID = 79; 
 
@@ -1757,8 +1805,9 @@
 										<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
 									</td>';
 							// № резерва
+							$number_rezerv = '<a href="'.$this->link_enter_to_filters('number_rezerv',$this->position['number_rezerv']).'">'.base64_decode($this->position['number_rezerv']).'</a>';
 							$html .= '<td>
-										<div class="number_rezerv">'.base64_decode($this->position['number_rezerv']).'</div>
+										<div class="number_rezerv">'.$number_rezerv.'</div>
 									</td>';
 
 							// подрядчик печати
@@ -1804,6 +1853,13 @@
 						if(isset($_GET['status_snab']) && trim($_GET['status_snab']) !=""){
 							// echo 'Привет Мир =)';
 							$this->filtres_position = " `".CAB_ORDER_MAIN."`.`status_snab` = '".$_GET['status_snab']."'";
+						}
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
 						}
 
 						$this->filtres_order .= (($this->filtres_order!="")?" AND":"")." `global_status` = 'in_work'";

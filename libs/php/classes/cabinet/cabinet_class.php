@@ -351,6 +351,17 @@
 					$this->filtres_html['approval_date'] = '<li>дата утв. макета: '.$date.'<a href="'.$this->link_exit_out_filters('approval_date').'" class="close">x</a></li>';	
 				}
 
+				// фильтр по номеру резерва
+				if(isset($_GET['number_rezerv']) && $_GET['number_rezerv'] != ''){
+					$this->filtres_html['number_rezerv'] = '<li>номер резерва: '.base64_decode($_GET['number_rezerv']).'<a href="'.$this->link_exit_out_filters('number_rezerv').'" class="close">x</a></li>';	
+				}
+
+				// фильтр по поставщику --- ДОДЕЛАТЬ
+				// if(isset($_GET['supplier']) && $_GET['supplier'] != ''){
+				// 	$this->filtres_html['supplier'] = '<li>Поставщик: '.base64_decode($_GET['number_rezrev']).'<a href="'.$this->link_exit_out_filters('number_rezrev').'" class="close">x</a></li>';	
+				// }
+				
+
 				// проверяем на наличие фильтра по Статусу снабжение
 				if(isset($_GET['status_snab']) && $_GET['status_snab'] != ''){
 					if(isset($this->statuslist_snab[$_GET['status_snab']])){
@@ -6642,8 +6653,9 @@
 							
 					// поставщик товара и номер резерва для каталожной продукции 
 					$html .= '<td>';
+					$number_rezerv = '<a href="'.$this->link_enter_to_filters('number_rezerv',$this->position['number_rezerv']).'">'.base64_decode($this->position['number_rezerv']).'</a>';
 					$html .= '<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
-							<div class="number_rezerv">'.base64_decode($this->position['number_rezerv']).'</div>
+							<div class="number_rezerv">'.$number_rezerv.'</div>
 							</td>';
 					// подрядчк печати 
 					$change_supplier = '';
