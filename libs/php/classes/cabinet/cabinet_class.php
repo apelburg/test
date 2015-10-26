@@ -357,9 +357,9 @@
 				}
 
 				// фильтр по поставщику --- ДОДЕЛАТЬ
-				// if(isset($_GET['supplier']) && $_GET['supplier'] != ''){
-				// 	$this->filtres_html['supplier'] = '<li>Поставщик: '.base64_decode($_GET['number_rezrev']).'<a href="'.$this->link_exit_out_filters('number_rezrev').'" class="close">x</a></li>';	
-				// }
+				if(isset($_GET['supplier']) && $_GET['supplier'] != ''){
+					$this->filtres_html['supplier'] = '<li>Поставщик: '.$this->get_supplier_name($_GET['supplier']).'<a href="'.$this->link_exit_out_filters('supplier').'" class="close">x</a></li>';	
+				}
 				
 
 				// проверяем на наличие фильтра по Статусу снабжение
@@ -689,7 +689,12 @@
 					$html .= '<div class="otdel_name"><a href="'.$this->link_enter_to_filters('status_snab',$cab_order_main_row['status_snab']).'">Снабжение</a></div>';
 					$html .= '</td>';
 					$html .= '<td>';				
-						$html .= '<div class="otdel_status '.$this->js_dop_class.'">';
+
+						$snab_comment_text = base64_decode($cab_order_main_row['snab_comment']);
+						$snab_comment_text_tag = ($snab_comment_text != '')?'data-hint="'.$snab_comment_text.'"':'';
+						$comment_text_tag_class = ($snab_comment_text != '')?'hint hint_red':'';
+
+						$html .= '<div class="otdel_status '.$this->js_dop_class.' '.$comment_text_tag_class.'" '.$snab_comment_text_tag.'>';
 							// привеодим статус снабжения к необходимому виду		
 							$html .= '<div class="performer_status">'.$this->performer_status.'</div>';				
 						$html .= '</div>';									
@@ -729,7 +734,11 @@
 							$this->position_question = 1;
 						}
 
-						$html .= '<div class="otdel_status '.$this->js_dop_class.'" data-pisition_id="'.$this->position['id'].'" data-id="'.$value['id_dop_uslugi_row'].'">';
+						$snab_comment_text = base64_decode($value['performer_comment']);
+						$snab_comment_text_tag = ($snab_comment_text != '')?'data-hint="'.$snab_comment_text.'"':'';
+						$comment_text_tag_class = ($snab_comment_text != '')?'hint hint_red':'';
+
+						$html .= '<div class="otdel_status '.$this->js_dop_class.' '.$comment_text_tag_class.'" data-pisition_id="'.$this->position['id'].'" data-id="'.$value['id_dop_uslugi_row'].'" '.$snab_comment_text_tag.'>';
 						$html .= '<div class="service_name">'.$value['service_name'].'</div>';
 						$html .= '<div class="performer_status">'.$this->performer_status.'</div>';
 							
@@ -766,9 +775,6 @@
 
 			protected function get_performer_status($service,$performer_status){
 						$this->js_dop_class = '';
-
-
-
 
 						$this->performer_status = $performer_status;
 
@@ -861,7 +867,8 @@
 						if($result->num_rows > 0){			
 							while($row = $result->fetch_assoc()){
 								$is_checked = ($real_val==$row['name'])?'selected="selected"':'';
-								$html.= '<option value="'.$row['name'].'" '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
+								$question = ($row['get_performer_comment'] == "on")?'data-question="1"':'data-question="0"';
+								$html.= '<option value="'.$row['name'].'" '.$question.' '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
 							}						
 						}
 						$html.= '</select>';	
@@ -1121,6 +1128,36 @@
 
 			// 	//comments
 			// }
+
+			protected function create_the_comment($title, $check_for_empty_val = 1){
+				if (!isset($_POST['comment_text']) || isset($_POST['comment_text']) && trim($_POST['comment_text']) =="" ) {
+					$html = '';
+					$html .= '<form>';
+					// перебираем остальные значения для передачи их далее
+					foreach ($_POST as $key => $value) {
+						$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+					}
+					if (isset($_POST['comment_text']) && trim($_POST['comment_text']) =="" && $check_for_empty_val == 1) {
+						$html .= $this->wrap_text_in_warning_message('Пожалуйста заполните описание более подробно');
+					}
+
+					$html .= '<div class="comment table">';
+						$html .= '<div class="row">';
+							$html .= '<div class="cell comment_text">';
+									$html .= '<textarea name="comment_text"></textarea>';
+									$html .= '<div class="div_for_button">';
+										$html .= '<button class="add_nah">Без комментария</button>';
+										// $html .= '<button id="add_new_comment_button">Отправить</button>';
+									$html .= '</div>';
+							$html .= '</div>';
+						$html .= '</div>';
+					$html .= '</div>';
+
+					$html .= '</form>';
+					echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"'.$title.'","width":"600"}';
+					exit;
+				}
+			}
 
 			// создаем пустой счёт
 			protected function create_the_new_bill_AJAX(){
@@ -3764,9 +3801,28 @@
 				echo '{"response":"OK"}';
 			}
 
+			// сохраняет комментарий по позиции
+			protected function save_position_comment_Database($position_id,$user_name,$comment_text){
+				global $mysqli;
+				$query ="INSERT INTO `".CAB_DOP_DATA_LIST_COMMENTS."` SET
+			             `user_id` = '".(int)$this->user_id."',
+			             `position_id` = '".(int)$position_id."',
+			             `user_name` = '".$user_name."',
+			             `comment_text` = '".$comment_text."',
+			            `create_time` = NOW()";
+					$result = $mysqli->query($query) or die($mysqli->error);	
+				return  $mysqli->insert_id;
+			}
+
 			// смена статуса услуги
 			protected function choose_service_status_AJAX(){
-				
+				$reload = 0;
+				if(isset($_POST['question']) && $_POST['question'] == 1){
+					// просим комментарий
+					$this->create_the_comment('Опешите пожалуйста проблему.');
+				}
+
+
 				global $mysqli;
 				//////////////////////////
 				//	смена статуса услуги
@@ -3776,13 +3832,23 @@
 				if($_POST['value'] == "дизайн-эскиз готов" || $_POST['value'] == "оригинал-макет готов"){
 					$query .= ", `flag_design_edits` =  '0'";
 				}
+				if(isset($_POST['comment_text']) && $_POST['comment_text'] != ''){
+					$query .= ", `performer_comment` =  '".base64_encode($_POST['comment_text'])."'";
+					$reload = 1;
+
+					$user_name_arr = $this->get_manager_name_Database_Array($this->user_id);
+					$user_name = (!empty($user_name_arr))?$user_name_arr['last_name'].' '.$user_name_arr['name']:'';
+					$this->save_position_comment_Database($_POST['position_id'],$user_name,$_POST['comment_text']);
+				}else{
+					$query .= ", `performer_comment` =  ''";
+				}
+
 				if($_POST['value'] == "макет отправлен в СНАБ"){
 					// делаем пометку на позиции для снаб
 					// 8// 88888888888888888888888
 					if(isset($_POST['position_id'])){
 						$this->db_edit_one_val(CAB_ORDER_MAIN,'flag_check_the_maket',(int)$_POST['position_id'],1);
 					}
-
 					$query .= ", `flag_design_prepare_to_print` =  '0'";
 				}
 				if($_POST['value'] == "услуга выполнена"){
@@ -3871,7 +3937,15 @@
 				// echo '{"response":"OK", "function":"php_message","text":"Статус услуги успешно изменён на ` '.$_POST['value'].' `"}';
 				
 
-				echo '{"response":"OK"}';
+				
+				// если нужно - обновляем контент на странице
+				if($reload == 1){ 
+					$json_answer = '{"response":"OK","function":"reload_order_tbl"}';	
+				}else{
+					$json_answer = '{"response":"OK"}';	
+				}
+
+				echo $json_answer;
 				
 					
 			}
@@ -4056,7 +4130,15 @@
 
 			// смена статуса снабжения
 			protected function change_status_snab_AJAX(){
+				$reload = 0;
+				if($_POST['value'] == "not_adopted" || $_POST['value'] == "question"){
+					// просим пользователя ввести описание по данной проблеме
+					$this->create_the_comment("Пожалуйста, опишите Ваше действие.");
+					$reload = 1;
+				}
+					
 				global $mysqli;
+				
 				// меняем статус снабженца
 				$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  ";
 				$query .= "`status_snab` =  '".$_POST['value']."'";
@@ -4064,7 +4146,19 @@
 					$query .= " , `status_sklad` =  '".$_POST['value']."'";	
 					$reload = 1;
 				}
+
+				if(isset($_POST['comment_text'])){
+					$query .= ", `snab_comment` = '".base64_encode($_POST['comment_text'])."'";
+					
+					$user_name_arr = $this->get_manager_name_Database_Array($this->user_id);
+					$user_name = (!empty($user_name_arr))?$user_name_arr['last_name'].' '.$user_name_arr['name']:'';
+					$this->save_position_comment_Database($_POST['row_id'],$user_name,$_POST['comment_text']);
+				}else{
+					$query .= ", `snab_comment` = ''";
+				}
+
 				$query .= " WHERE  `id` ='".$_POST['row_id']."';";
+				// echo $query;
 				$result = $mysqli->query($query) or die($mysqli->error);
 
 				// сохраняем снабженца по заказу
@@ -4955,7 +5049,7 @@
 			декодируем поле json для некаталога в читабельный вид
 			получаем из json описания некаталожного товара всю содержащуюся там информацию
 		*/		
-		protected function decode_json_no_cat_to_html($position){
+		protected function decode_json_no_cat_to_html($position,$template_edit = 0){
 			// $position - массив содержащий:
 			// $position['no_cat_json']  - Json с описанием из формы
 			// $position['type'] - тип товара для запроса по полям
@@ -4975,17 +5069,37 @@
 			// если у нас есть описание заявленного типа товара
 			$names = $this->FORM->get_names_form_type($position['type']); // массив описания хранится в классе форм
 			$html .= '<div class="get_top_funcional_byttun_for_user_Html">';
-			foreach ($this->FORM->send_info_enabled as $name_en_from_the_mold) {
-				//$html .= $value.'<br>$dop_info_no_cat[$value] = '.$dop_info_no_cat[$value];
-				if(!isset($dop_info_no_cat[$name_en_from_the_mold])){continue;}
-				if(!isset($names[$name_en_from_the_mold]['name_ru'])){continue;}
-				$html .= '
-					<div>
-						'.$names[$name_en_from_the_mold]['name_ru'].': &nbsp;
-						'.$dop_info_no_cat[$name_en_from_the_mold].'<br>
-					</div>
-				';
+			switch ($template_edit) {
+				case '1':
+					$html .= '<div class="table" id="edit_tz_no_cat_for_order_width_snab_and_admin">';
+					foreach ($this->FORM->send_info_enabled as $name_en_from_the_mold) {
+						//$html .= $value.'<br>$dop_info_no_cat[$value] = '.$dop_info_no_cat[$value];
+						if(!isset($dop_info_no_cat[$name_en_from_the_mold])){continue;}
+						if(!isset($names[$name_en_from_the_mold]['name_ru'])){continue;}
+						$html .= '<div class="row">';
+							$html .= '<div class="cell">'.$names[$name_en_from_the_mold]['name_ru'].':</div>';
+							$html .= '<div class="cell"><input type="text" name="'.$name_en_from_the_mold.'" value="'.$dop_info_no_cat[$name_en_from_the_mold].'"></div>';
+						$html .= '</div>';									
+					}
+					$html .= '</div>';
+					break;
+				
+				default:
+					foreach ($this->FORM->send_info_enabled as $name_en_from_the_mold) {
+					//$html .= $value.'<br>$dop_info_no_cat[$value] = '.$dop_info_no_cat[$value];
+						if(!isset($dop_info_no_cat[$name_en_from_the_mold])){continue;}
+						if(!isset($names[$name_en_from_the_mold]['name_ru'])){continue;}
+						$html .= '
+							<div>
+								'.$names[$name_en_from_the_mold]['name_ru'].': &nbsp;
+								'.$dop_info_no_cat[$name_en_from_the_mold].'<br>
+							</div>
+						';				
+					}
+
+					break;
 			}
+			
 			$html .= '</div>';
 			return $html;
 		}
@@ -5230,6 +5344,7 @@
 						$new_arr['service_name'] = $row['name'];
 						$new_arr['id'] = $row['uslugi_id'];
 						$new_arr['performer'] = $row['performer'];
+						$new_arr['performer_comment'] = $row['performer_comment'];
 						$new_arr['id_dop_uslugi_row'] = $row['id'];
 						
 						$this->Position_status_list[  $er  ][] = $new_arr;
@@ -6042,12 +6157,27 @@
 					$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_snab` = 'in_production'";	
 					$where = 1;
 				}								
-			}
-			
+			}			
 
+
+			// дата утверждения (фильтр)
 			if(isset($_GET['approval_date']) && trim($_GET['approval_date']) !=""){
 				// echo 'Привет Мир =)';
 				$query .= " ".(($where)?'AND':'WHERE')." DATE_FORMAT(`".CAB_ORDER_MAIN."`.`approval_date`,'%d.%m.%Y') = '".$_GET['approval_date']."'";
+				$where = 1;
+			}
+
+			// поставщик (фильтр)
+			if(isset($_GET['supplier']) && trim($_GET['supplier']) !=""){
+				// echo 'Привет Мир =)';
+				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`art` LIKE '".(int)$_GET['supplier']."%'";
+				$where = 1;
+			}
+
+			// статус снабжения (фильтр)
+			if(isset($_GET['status_snab']) && trim($_GET['status_snab']) !=""){
+				// echo 'Привет Мир =)';
+				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`status_snab` = '".$_GET['status_snab']."'";
 				$where = 1;
 			}
 
@@ -6613,6 +6743,58 @@
 
 					echo '{"response":"replace_width","html":"'.base64_encode($html).'"}';
 				}
+				protected function get_a_detailed_specifications_edit_true_AJAX(){
+					// получаем информацию по позиции
+					$position = $this->get_cab_position_Database((int)$_POST['position_id']);
+					$html = '';
+					// $html .= $this->print_arr($position);
+					// получаем описание
+					$html .= '<form>';
+					$html .= $this->decode_json_no_cat_to_html($position[0],1);
+					$html .= '<input type="hidden" name="AJAX" value="save_edit_tz_no_cat">';
+					$html .= '<input type="hidden" name="position_id" value="'.$_POST['position_id'].'">';
+					$html .= '</form>';
+					echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Редактор ТЗ не каталог","width":"800px"}';
+				}
+
+				// сохраняем отредактированное снабжением ТЗ для не каталожки
+				protected function save_edit_tz_no_cat_AJAX(){
+					$position_id = $_POST['position_id'];
+					unset($_POST['position_id']);
+					unset($_POST['AJAX']);
+					// $json = json_encode($_POST);
+
+					$json_str = '{';
+
+					foreach ($_POST as $key => $value) {
+						$json_str .= '"'.$key.'":"'.$value.'"';
+					}
+					$json_str .= '}';
+
+					global $mysqli;
+					$query ="UPDATE `".CAB_ORDER_DOP_DATA."` SET 
+						`no_cat_json` = '".$json_str."'";
+						
+					$query .= " WHERE `id` = '".$position_id."'";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					
+					// echo '{"response":"show_new_window","html":"'.base64_encode($query).'"}';
+					echo '{"response":"OK"}';
+				}
+
+				protected function command_for_edit_tz_for_no_cat_AJAX(){
+					global $mysqli;
+					$query ="UPDATE `".CAB_ORDER_MAIN."` SET 
+						`flag_need_edit_tz_no_cat` = '".$_POST['value']."'";
+						
+					$query .= " WHERE `id` = '".$_POST['position_id']."'";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					
+					// echo '{"response":"show_new_window","html":"'.base64_encode($query).'"}';
+					echo '{"response":"OK"}';
+				}
+
+
 
 				// html шаблон вывода позиций  (МЕН/СНАБ/АДМИН)
 				protected function get_order_specificate_position_Html_Template(){
@@ -6629,6 +6811,7 @@
 					$html .= '<td style="width:300px">';
 					// комментарии
 					// наименование товара
+					$html .= '<div style="position:relative">';
 					$html .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';
 								   
 					// добавляем доп описание
@@ -6637,11 +6820,18 @@
 						$html .= '<input type="button" class="get_size_table_read" data-id_dop_data="'.$this->position['quantity'].'" data-position_id="'.$this->position['id'].'" value="Подробно" >';
 						$html .= '</div>';
 					}else{
+						if($this->user_access == 9){
+							$html .= '<div class="command_for_edit_tz_for_no_cat '.(($this->position['flag_need_edit_tz_no_cat'] == 1)?'checked':'').'"  data-position_id="'.$this->position['id'].'"></div>';	
+						}else if($this->user_access == 8 || $this->user_access == 1){
+							$html .= '<div class="command_for_edit_tz_for_no_cat '.(($this->position['flag_need_edit_tz_no_cat'] == 1)?'checked':'').'"  data-position_id="'.$this->position['id'].'"></div>';	
+							$html .= '<div class="edit_tz_for_no_cat" data-id_dop_data="'.$this->position['quantity'].'" data-position_id="'.$this->position['id'].'" ></div>';	
+						}
+						
 						$html .= '<div>';
 						$html .= '<input class="get_a_detailed_specifications" type="button" value="Подробно" data-position_id="'.$this->position['id'].'">';
 						$html .= '</div>';
 					}
-
+					$html .= '</div>';
 
 					$html .= '</td>';
 					// тираж, запас, печатать/непечатать запас
@@ -6654,7 +6844,8 @@
 					// поставщик товара и номер резерва для каталожной продукции 
 					$html .= '<td>';
 					$number_rezerv = '<a href="'.$this->link_enter_to_filters('number_rezerv',$this->position['number_rezerv']).'">'.base64_decode($this->position['number_rezerv']).'</a>';
-					$html .= '<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
+					$supplier_name = ($this->position['art']!="")?'<a href="'.$this->link_enter_to_filters('supplier',substr($this->position['art'], 0,2)).'">'.$this->get_supplier_name($this->position['art']).'</a>':'';
+					$html .= '<div class="supplier">'.$supplier_name.'</div>
 							<div class="number_rezerv">'.$number_rezerv.'</div>
 							</td>';
 					// подрядчк печати 

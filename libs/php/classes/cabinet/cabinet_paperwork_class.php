@@ -373,7 +373,7 @@
 					//	тело строки заказа -- start ---
 					//////////////////////////
 						$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.($this->rows_num+1).'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
-						$table_order_row2_body .= '<td colspan="4" class="orders_info">';
+						$table_order_row2_body .= '<td colspan="5" class="orders_info">';
 						
 						// исполнители заказа
 						$table_order_row2_body .= $this->performer_table_for_order();
@@ -395,7 +395,7 @@
 						$table_order_row2_body .= '</td>';
 								
 						// срок по ДС
-						$table_order_row2_body .= '<td></td>';
+						// $table_order_row2_body .= '<td></td>';
 						// $table_order_row2_body .= '<td><input type="text" name="date_of_delivery_of_the_order" class="date_of_delivery_of_the_order" value="'.$this->Order['date_of_delivery_of_the_order'].'"></td>';
 						// дата сдачи / отгрузки
 						$table_order_row2_body .= '<td>';

@@ -34,6 +34,23 @@ $(document).on('click', '.tz_incorrect', function(event) {
         standard_response_handler(data);
     },'json');
 });
+$(document).on('click', '.get_performer_comment', function(event) {
+    // event.preventDefault();
+    var value = '';
+    var id_row = $(this).attr('data-id');
+    if ($(this).prop('checked')) {
+        value = 'on';
+    }
+    $.post('', {
+        AJAX: 'edit_status_get_performer_comment',
+        id_row:id_row,
+        value:value
+    }, function(data, textStatus, xhr) {
+        standard_response_handler(data);
+    },'json');
+});
+
+
 
 //////////////////////////
 //  вызов кокна добавления доп поля

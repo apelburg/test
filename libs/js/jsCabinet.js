@@ -1491,6 +1491,39 @@ $(document).on('click', '.get_a_detailed_specifications', function(event) {
 	},'json');
 });
 
+// возвращает детализацию описания не каталожного товара для редактирования
+$(document).on('click', '.edit_tz_for_no_cat', function(event) {
+	event.preventDefault();
+	var position_id = $(this).attr('data-position_id');
+	var obj = $(this);
+	$.post('', {
+		AJAX:'get_a_detailed_specifications_edit_true',
+		position_id:position_id
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+// вкл. / откл. Индикатора "Внимание ТЗ нужно поправить"
+$(document).on('click', '.command_for_edit_tz_for_no_cat', function(event) {
+	event.preventDefault();
+	
+	$(this).toggleClass('checked');
+	var value = 0;
+	if($(this).hasClass('checked')){
+		value = 1;
+	}
+	var position_id = $(this).attr('data-position_id');
+	
+	$.post('', {
+		AJAX:'command_for_edit_tz_for_no_cat',
+		position_id:position_id,
+		value:value
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
 
 // ПЗ / НПЗ
 $(document).on('click', '#change_pz_npz .btn_var_std', function(event) {
@@ -1887,11 +1920,13 @@ $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', functio
 $(document).on('change', '.get_statuslist_uslugi', function(event) {
 	var id_row = $(this).attr('data-id');
 	var position_id = $(this).attr('data-position_id');
+	var question = $(this).find('option:selected').attr('data-question');
 	var value = $(this).val();
 	$.post('', {
 		AJAX: 'choose_service_status',
 		id_row: id_row,
 		position_id:position_id,
+		question:question,
 		value:value 
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
