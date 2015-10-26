@@ -48,6 +48,18 @@
 				exit;
 			}					
 		}
+
+	// редактирование принадлежности статуса ко вкладке тз не корректно
+	private function edit_status_pause_tz_incorect_AJAX(){
+		global $mysqli;
+
+		$query = "UPDATE `".USLUGI_STATUS_LIST."` SET 
+			`pause` = '".$_POST['value']."'
+		 WHERE `id`='".$_POST['id_row']."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		$return_json = '{"response":"OK"}'; 
+		echo $return_json; 
+	}
 	
 	// получаем контент по услуге и статусам
 	private function get_edit_content_for_usluga_AJAX(){
@@ -572,6 +584,7 @@
 
 	// получаем выпадающий список статусов для услуги
 	public function get_status_uslugi_Html($id,$uslugi_all_list = array()){
+		$n = 0;
 		//получаем полный список услуг
 		if(empty($uslugi_all_list)){
 			$uslugi_all_list = $this->get_ALL_uslugi_list_Database_Array();
@@ -597,8 +610,16 @@
 				// $is_checked = ($real_val==$row['name'])?'selected="selected"':'';
 				// $html.= '<option value="'.$row['name'].'" '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
 				$html.= '<div>';
-				$html.= (($row['reserved_system']=='0')?'<input class="status_name" type="text" value="'.$row['name'].'"><span class="button status_del"  data-id="'.$row['id'].'">X</span>':$row['name']. '<span style="    color: rgba(255, 0, 0, 0.77); font-size:12px">&nbsp; статус зарезервирован системой </span>');
-				$html.= '</div>';
+				if ($row['reserved_system']=='0') {
+					$html .= '<input class="status_name" type="text" value="'.$row['name'].'"><span class="button status_del"  data-id="'.$row['id'].'">X</span>';	
+					
+				}else{
+					$html .= $row['name']. '<span style="    color: rgba(255, 0, 0, 0.77); font-size:12px">&nbsp; статус зарезервирован системой </span>';
+				}
+				$html .= '&nbsp;&nbsp;<input type="checkbox" data-id="'.$row['id'].'" id="tz_incorrect'.$n.'" class="tz_incorrect" '.(($row['pause']=='on')?'checked':'').'><label for="tz_incorrect'.$n++.'">Вкладка ТЗ не корректно / пауза</label>';
+				// $html .= '<input type="checkbox" class="tz_incorrect" '.(($row['pause']=='on')?'checked':'').'>';
+				
+				$html .= '</div>';
 			}
 		
 		}

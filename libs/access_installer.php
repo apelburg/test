@@ -107,13 +107,15 @@
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
-													'order_all' => array('access'=>true),
+													
 													'order_start' => array('access'=>true),
 													'order_in_work' => array('access'=>true),
+													
 													'design_all' =>  array('access'=>true),
-													'design_for_one_men' =>  array('access'=>true),
+													'order_in_work_snab' => array('access'=>true),
 													'production' =>  array('access'=>true),
-													'stock' =>  array('access'=>true)													
+													'stock_all' =>  array('access'=>true),
+													'order_all' => array('access'=>true),												
 													// 'production' => array('access'=>true),
 													// 'my_orders_diz' => array('access'=>true),
 													// 'all_orders_diz' => array('access'=>true),
@@ -148,21 +150,21 @@
 												'access'=>true,
 												'subsection'=>array(  // 2
 													'fully_shipped' => array('access'=>true),
-													'partially_shipped' => array('access'=>true)
+													// 'partially_shipped' => array('access'=>true)
 													)
 												),
-											'closed'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												),
-											'history'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												),
+											// 'closed'=> array(
+											// 	'access'=>true, 
+											// 	'subsection'=>array(  // 2
+											// 		'all' => array('access'=>true),
+											// 		)
+											// 	),
+											// 'history'=> array(
+											// 	'access'=>true, 
+											// 	'subsection'=>array(  // 2
+											// 		'all' => array('access'=>true),
+											// 		)
+											// 	),
 											// 'simples'=> array(
 											// 	'access'=>true,
 											// 	'subsection'=>array(  // 2
@@ -317,21 +319,21 @@
 												'access'=>true,
 												'subsection'=>array(  // 2
 													'fully_shipped' => array('access'=>true),
-													'partially_shipped' => array('access'=>true)
+													// 'partially_shipped' => array('access'=>true)
 													)
 												),
-											'closed'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												),
-											'history'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												),
+											// 'closed'=> array(
+											// 	'access'=>true, 
+											// 	'subsection'=>array(  // 2
+											// 		'all' => array('access'=>true),
+											// 		)
+											// 	),
+											// 'history'=> array(
+											// 	'access'=>true, 
+											// 	'subsection'=>array(  // 2
+											// 		'all' => array('access'=>true),
+											// 		)
+											// 	),
 											)
 										),
 						'client_folder'=> array(
@@ -458,7 +460,7 @@
 													'snab_products' =>  array('access'=>true),
 													'snab_in_the_production_of' =>  array('access'=>true),
 													'snab_our_production' =>  array('access'=>true),
-													'snab_pause_and_questions' =>  array('access'=>true),
+													'tpause_and_questions' =>  array('access'=>true),
 													'snab_all' =>  array('access'=>true)
 													)
 												),
@@ -472,21 +474,21 @@
 												'access'=>true,
 												'subsection'=>array(  // 2
 													'fully_shipped' => array('access'=>true),
-													'partially_shipped' => array('access'=>true)
+													// 'partially_shipped' => array('access'=>true)
 													)
 												),
-											'closed'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												),
-											'history'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
-												),
+											// 'closed'=> array(
+											// 	'access'=>true, 
+											// 	'subsection'=>array(  // 2
+											// 		'all' => array('access'=>true),
+											// 		)
+											// 	),
+											// 'history'=> array(
+											// 	'access'=>true, 
+											// 	'subsection'=>array(  // 2
+											// 		'all' => array('access'=>true),
+											// 		)
+											// 	),
 											)
 											
 										)

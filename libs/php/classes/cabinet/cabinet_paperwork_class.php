@@ -285,7 +285,7 @@
 
 			// Запрос отгрузочных (форма вывода Документы/счета)
 			private function paperwork_query_ttn_Template($id_row=0){
-				$this->filtres_specificate = " `buch_status` IN ('get_ttn','ttn_created')";
+				$this->filtres_specificate = " `buch_status` IN ('get_ttn')";
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
@@ -469,7 +469,7 @@
 			// возврат средств по счёту (форма вывода Документы/счета)
 			private function paperwork_refund_in_a_row_Template($id_row=0){
 				// фильтр
-				$this->filtres_specificate = " `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` IN ('refund_in_a_row','client_collateral_returns','refund_in_a_row_ok','returns_client_collateral')";
+				$this->filtres_specificate = " `".CAB_BILL_AND_SPEC_TBL."`.`buch_status` IN ('refund_in_a_row','returns_client_collateral')";
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
@@ -655,7 +655,8 @@
 						$html2_body .='</td>';
 						$html2_body .= '<td class="buh_uchet_for_spec" data-id="'.$this->specificate['id'].'"></td>';
 						$html2_body .= '<td class="invoice_num">'.$this->specificate['number_the_bill'].'</td>';
-						$html2_body .= '<td><input type="text" class="payment_date" readonly="readonly" value="'.(((int)$this->specificate['payment_date']!=0)?$this->specificate['payment_date']:'').'"></td>';
+						//$html2_body .= '<td><input type="text" class="payment_date" readonly="readonly" value="'.(((int)$this->specificate['payment_date']!=0)?$this->specificate['payment_date']:'').'"></td>';
+						$html2_body .= '<td>'.(((int)$this->specificate['payment_date']!=0)?$this->specificate['payment_date']:'').'</td>';
 						$html2_body .= '<td><span>'.$percent_payment.'</span> %</td>';
 						$html2_body .= '<td><span class="payment_status_span edit_span">'.$this->specificate['payment_status'].'</span>р</td>';
 						$html2_body .= '<td><span>'.$this->Price_of_position.'</span> р.</td>';

@@ -52,7 +52,7 @@
 			'snab_products' => 'Продукция',
 			'snab_in_the_production_of' => 'В производстве',
 			'snab_our_production' => 'Наше производство',
-			'snab_pause_and_questions' => 'пауза/вопрос/ТЗ не корректно',
+			'tpause_and_questions' => 'пауза/вопрос/ТЗ не корректно',
 			'snab_all' => 'Все',
 			// 'order_all' => 'Все заказы',
 			// 'order_start' => 'Запуск в работу (заказ)',

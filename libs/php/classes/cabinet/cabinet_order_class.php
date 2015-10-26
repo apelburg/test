@@ -204,6 +204,9 @@
 
 					// ПЕРЕБОР ЗАКАЗОВ
 					foreach ($this->Order_arr as $this->Order) {	
+						if($this->Order['global_status'] == 'paused'){
+							$this->poused_and_question = 0;
+						}
 						// переменные для вычисления даты сдачи заказа
 						// обнуляются при начале обсчётак каждого заказа
 						$this->order_shipping_date = '';
@@ -280,8 +283,8 @@
 								$table_order_row2_body .= $this->order_shipping_date;
 							$table_order_row2_body .= '</td>';
 
-							$table_order_row2_body .= '<td style="width:78px"><span class="greyText black">'.(($this->user_access==8)?'':'Заказа:').' </span></td>';
-							$table_order_row2_body .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1 || $this->user_access == 9)?'order_status_chenge':'').'">'.(($this->user_access!=8)?$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']):'').'</td>';
+							$table_order_row2_body .= '<td style="width:78px"><span class="greyText black">'.(($this->user_access==8)?'Заказа (МЕН):':'Заказа:').' </span></td>';
+							$table_order_row2_body .= '<td class="'.(($this->user_access == 5 || $this->user_access == 1 || $this->user_access == 9)?'order_status_chenge':'').'">'.$this->decoder_statuslist_order_and_paperwork($this->Order['global_status']).'</td>';
 						
 						/////////////////////////////////////
 						//	тело строки заказа -- end ---
@@ -425,10 +428,24 @@
 					*/
 					// Готовые к запуску (Менеджер)
 					private function orders_order_start_Template($id_row=0){
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
 						$this->order_standart_rows_Template($id_row=0);
 					}
 					// В обработке (Менеджер)
 					private function orders_order_in_work_Template($id_row=0){
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
 						$this->order_standart_rows_Template($id_row=0);
 					}
 
@@ -436,22 +453,56 @@
 					private function orders_design_for_one_men_Template($id_row=0){
 						$this->orders_design_all_Template($id_row);
 					}
-
-					// В работе (Менеджер)
-					private function orders_order_in_work_snab_Template($id_row=0){
+					// В работе (Админ)
+					private function orders_admin_order_in_work_Template($id_row=0){
+						$this->filtres_position = " `status_snab` = 'in_production'";
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
 						$this->order_standart_rows_Template($id_row=0);
 					}
 
-					// пауза/вопрос/ТЗ не корректно (Менеджер)
+
+					// В работе (Менеджер)
+					private function orders_order_in_work_snab_Template($id_row=0){
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
+						$this->order_standart_rows_Template($id_row=0);
+					}
+
+					// пауза/вопрос/ТЗ не корректно (Менеджер) / (Снабжение)
 					private function orders_tpause_and_questions_Template($id_row=0){
-						echo $this->wrap_text_in_warning_message('фильтрация временно работает только по статусу заказа и Снаба');
+						// echo $this->wrap_text_in_warning_message('фильтрация временно работает только по статусу заказа и Снаба');
 						$this->filtres_order = " `global_status` IN ('in_work','paused')";
-						$this->filtres_position = " `status_snab` = 'question'";
+						// $this->filtres_position = " `status_snab` = 'question'";
+						if($this->user_access == 8){
+							$this->filtres_order = " `snab_id` = '".$this->user_id."'";
+						}
+
+
+
 						$this->order_standart_rows_Template($id_row=0);
 					}	
 
 					// все (Менеджер)
 					private function orders_order_all_Template($id_row=0){
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
+						
 						$this->order_standart_rows_Template($id_row=0);
 					}			
 
@@ -470,6 +521,8 @@
 						}else{
 							$this->filtres_order = " (`global_status` = 'in_work' OR `flag_design_see_everywhere` = '1')";
 						}
+						
+
 						$this->group_access = 9;
 						// id начальника отдела дизайна
 						$this->director_of_operations_ID = 80; 
@@ -1440,6 +1493,7 @@
 				 * выгрузка по шаблону Склад
 				*/
 					private function orders_stock_Template($id_row=0){
+						
 						$this->group_access = 7;
 						//////////////////////////
 						//	фильтры 
@@ -1481,6 +1535,14 @@
 									
 								// }
 							}
+							if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+								// echo 'Привет Мир =)';
+								if($this->filtres_position != ''){
+										$this->filtres_position .= " AND";
+									}
+								$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+							}
+
 						// id начальника отдела дизайна
 						$this->director_of_operations_ID = 79; 
 
@@ -1489,11 +1551,13 @@
 
 					// всё (Склад)
 					private function orders_stock_all_Template($id_row=0){
+						$this->filtres_order = " `global_status` IN ('in_work','paused')";
 						$this->orders_stock_Template($id_row);
 					}
 
 					// продукция ожидается (Склад)
 					private function orders_stock_waits_products_Template($id_row=0){
+						$this->filtres_order = " `global_status` IN ('in_work','paused')";
 						$this->filtres_position = " `status_snab` = 'waits_products'";
 						
 						$this->orders_stock_Template($id_row);
@@ -1501,24 +1565,28 @@
 
 					// На складе (Склад)
 					private function orders_stock_goods_in_stock_Template($id_row=0){
+						$this->filtres_order = " `global_status` IN ('in_work','paused')";
 						$this->filtres_position = " `status_sklad` = 'goods_in_stock'";
 						$this->orders_stock_Template($id_row);
 					}
 
 					// В производстве у поставщика (Склад) - отправлен на аутсорс
 					private function orders_stock_sended_on_outsource_Template($id_row=0){
+						$this->filtres_order = " `global_status` IN ('in_work','paused')";
 						$this->filtres_position = " `status_sklad` = 'sended_on_outsource'";
 						$this->orders_stock_Template($id_row);
 					}
 
 					// заказы на отгрузку (Склад)
 					private function orders_stock_checked_and_packed_Template($id_row=0){
+						$this->filtres_order = " `global_status` IN ('in_work','paused')";
 						$this->filtres_position = " `status_sklad` = 'ready_for_shipment'";
 						$this->orders_stock_Template($id_row);
 					}
 
 					// отгруженные (Склад)
 					private function orders_stock_goods_shipped_for_client_Template($id_row=0){
+						$this->filtres_order = " `global_status` IN ('shipped')";
 						$this->filtres_position = " `status_sklad` = 'goods_shipped_for_client'";
 						$this->orders_stock_Template($id_row);
 					}
@@ -1737,8 +1805,9 @@
 										<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
 									</td>';
 							// № резерва
+							$number_rezerv = '<a href="'.$this->link_enter_to_filters('number_rezerv',$this->position['number_rezerv']).'">'.base64_decode($this->position['number_rezerv']).'</a>';
 							$html .= '<td>
-										<div class="number_rezerv">'.base64_decode($this->position['number_rezerv']).'</div>
+										<div class="number_rezerv">'.$number_rezerv.'</div>
 									</td>';
 
 							// подрядчик печати
@@ -1780,17 +1849,33 @@
 
 					// Все (Снабжение)
 					private function orders_snab_all_Template($id_row=0){
+						// echo 'Привет Мир =)we qwqfwqfqwe ewq qwefwqe fqweq<br><br><br><br><br>';
+						if(isset($_GET['status_snab']) && trim($_GET['status_snab']) !=""){
+							// echo 'Привет Мир =)';
+							$this->filtres_position = " `".CAB_ORDER_MAIN."`.`status_snab` = '".$_GET['status_snab']."'";
+						}
+						if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+							// echo 'Привет Мир =)';
+							if($this->filtres_position != ''){
+									$this->filtres_position .= " AND";
+								}
+							$this->filtres_position .= " `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+						}
+
 						$this->filtres_order .= (($this->filtres_order!="")?" AND":"")." `global_status` = 'in_work'";
 						$this->group_access = 8;
 						// id начальника отдела производства
 						$this->director_of_operations_ID = 87; 
 
-						echo $this->order_standart_rows_Template($id_row=0);
+						 $this->order_standart_rows_Template($id_row=0);
 					}
 
 					// Запуск в обработку (Снабжение)
 					private function orders_snab_starting_in_processing_Template($id_row=0){
-						$this->filtres_order = " `snab_id` = '0'";
+						// echo 'Привет Мир =)we qwqfwqfqwe ewq qwefwqe fqweq<br><br><br><br><br>';
+						
+						// $this->filtres_order = " `snab_id` = '0'";
+						$this->filtres_position = " `status_snab` IN ('is_pending','in_operation')";
 						$this->orders_snab_all_Template($id_row);
 					}
 
@@ -1816,7 +1901,7 @@
 					// Продукция (Снабжение)
 					private function orders_snab_products_Template($id_row=0){
 						$this->filtres_order = " snab_id = '".$this->user_id."'";
-						$this->filtres_position = " (`status_snab` IN ('products_bought','to_bought_products','waits_products') OR `status_sklad` = 'goods_in_stock') ";
+						$this->filtres_position = " (`status_snab` IN ('products_bought','to_bought_products','waits_products') OR (`status_sklad` = 'goods_in_stock' AND `status_snab` <> 'in_production') ) ";
 						
 						$this->orders_snab_all_Template($id_row);
 					}
@@ -1831,14 +1916,8 @@
 						$this->filtres_order = " snab_id = '".$this->user_id."'";
 						$this->orders_production_Template($id_row);
 					}
-					// пауза/вопрос/ТЗ не корректно (Снабжение)
-					private function orders_snab_pause_and_questions_Template($id_row=0){
-						echo $this->wrap_text_in_warning_message('фильтрация временно работает только по статусу заказа и Снаба');
-						$this->filtres_order = " snab_id = '".$this->user_id."'";
-						$this->filtres_order = " `global_status` IN ('in_work','paused')";
-						$this->filtres_position = " `status_snab` = 'question'";
-						$this->orders_snab_all_Template($id_row);
-					}
+					
+					
 
 				/**
 				 *	выгрузка позиций по шаблону Производство
@@ -1865,7 +1944,6 @@
 						$this->filtres_services .= " OR `performer_status` IN ('in_processed','')";
 						$this->filtres_services .= " OR `date_ready` = '0000-00-00 00:00'";
 						$this->filtres_services .= " OR `machine` <> '')";
-
 						$this->orders_production_Template($id_row=0);
 					}
 					

@@ -48,7 +48,7 @@
 			'otgrugen' => 'Отгруженные',
 			'we_are_waiting_the_products' => 'Ожидается',
 			// заказы
-			'stock_all' => 'Все',
+			'stock_all' => 'Все в работе',
 			'stock_waits_products' => 'Продукция ожидается',
 			'stock_goods_in_stock' => 'На складе',
 			'stock_sended_on_outsource' => 'Отправлено на аутсорс',

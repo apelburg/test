@@ -445,11 +445,15 @@ $(document).on('change', '.choose_statuslist_order_and_paperwork', function(even
 $(document).on('change', '.choose_statuslist_sklad', function(event) {
 	var row_id = $(this).attr('data-id'); //main_rows_id
 	var value = $(this).val();
+	var document_id = $(this).attr('data-document_id');
+	var order_id = $(this).attr('data-order_id');
 	// отправляем запрос
 	$.post('', {
 		AJAX:'choose_statuslist_sklad',
 		row_id:row_id,
-		value:value
+		value:value,
+		order_id:order_id,
+		document_id:document_id
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
 	},'json');
@@ -1164,7 +1168,7 @@ function del_id_chose_supplier_id(data){
 //////////////////////////
 //	НАЗНАЧЕНИЕ ПОСТАВЩИКА 	
 //////////////////////////
-$(document).on('click', '.change_supplier', function(event) {
+$(document).on('dblclick', '.change_supplier', function(event) {
 	$(this).attr('id', 'chose_supplier_id');
 	chose_supplier($(this));
 });
@@ -1594,7 +1598,7 @@ function check_loading_ajax(){
 //	детализация по списку услуг
 ////////////////////////////////
 
-$(document).on('click', '#general_panel_orders_tbl tr td.price_for_the_position', function(event) {
+$(document).on('dblclick', '#general_panel_orders_tbl tr td.price_for_the_position', function(event) {
 	var dop_data_id = $(this).attr('data-cab_dop_data_id');
 	var specificate_id = $(this).attr('data-specificate_id');
 	var id = $(this).attr('data-id');

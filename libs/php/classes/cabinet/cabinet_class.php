@@ -153,7 +153,8 @@
 				'returns_client_collateral' => 'Возврат залога клиенту',
 				'cancelled'=>'Аннулирован',
 				'get_ttn' =>'Запрошена ТТН',
-				'uslovno_oplachen' => 'Условно оплачен' //
+				'uslovno_oplachen' => 'Условно оплачен',
+				// 'get_vaselin' => 'Берите вазелин и дуйте к начальству' //
 
 				// 'maket_without_payment' =>'Макет без оплаты'
 	    	);
@@ -350,6 +351,41 @@
 					$this->filtres_html['approval_date'] = '<li>дата утв. макета: '.$date.'<a href="'.$this->link_exit_out_filters('approval_date').'" class="close">x</a></li>';	
 				}
 
+				// фильтр по номеру резерва
+				if(isset($_GET['number_rezerv']) && $_GET['number_rezerv'] != ''){
+					$this->filtres_html['number_rezerv'] = '<li>номер резерва: '.base64_decode($_GET['number_rezerv']).'<a href="'.$this->link_exit_out_filters('number_rezerv').'" class="close">x</a></li>';	
+				}
+
+				// фильтр по поставщику --- ДОДЕЛАТЬ
+				// if(isset($_GET['supplier']) && $_GET['supplier'] != ''){
+				// 	$this->filtres_html['supplier'] = '<li>Поставщик: '.base64_decode($_GET['number_rezrev']).'<a href="'.$this->link_exit_out_filters('number_rezrev').'" class="close">x</a></li>';	
+				// }
+				
+
+				// проверяем на наличие фильтра по Статусу снабжение
+				if(isset($_GET['status_snab']) && $_GET['status_snab'] != ''){
+					if(isset($this->statuslist_snab[$_GET['status_snab']])){
+						$status_snab = $this->statuslist_snab[$_GET['status_snab']];
+					}else if(isset($this->statuslist_snab_service[$_GET['status_snab']])){
+						$status_snab = $this->statuslist_snab_service[$_GET['status_snab']];
+					}else{
+						$status_snab = $_GET['status_snab'];
+					}
+					$this->filtres_html['status_snab'] = '<li>статус Снаб: '.$status_snab.'<a href="'.$this->link_exit_out_filters('status_snab').'" class="close">x</a></li>';	
+				}
+				// // проверяем на наличие фильтра по Статусу склада
+				// if(isset($_GET['status_sklad']) && $_GET['status_sklad'] != ''){
+				// 	$this->filtres_html['status_sklad'] = '<li>статус Склад: '.$_GET['status_sklad'].'<a href="'.$this->link_exit_out_filters('status_sklad').'" class="close">x</a></li>';	
+				// }
+				// // проверяем на наличие фильтра по Статусу дизайна
+				// if(isset($_GET['status_design']) && $_GET['status_design'] != ''){
+				// 	$this->filtres_html['status_design'] = '<li>статус Диз: '.$_GET['status_design'].'<a href="'.$this->link_exit_out_filters('status_design').'" class="close">x</a></li>';	
+				// }
+				// проверяем на наличие фильтра по Статусу производства
+				// if(isset($_GET['status_production']) && $_GET['status_production'] != ''){
+				// 	$this->filtres_html['status_production'] = '<li>статус Пр-во: '.$_GET['status_production'].'<a href="'.$this->link_exit_out_filters('status_production').'" class="close">x</a></li>';	
+				// }
+
 				// фильтр по услуге
 				if(isset($_GET['service_id']) && $_GET['service_id'] != ''){
 					if(empty($this->Services_list_arr)){// если массив услуг пуст - заполняем его
@@ -455,7 +491,7 @@
 				// проверяем на разрешение смены статуса снабжения
 				if($this->user_access == 7 || $this->user_access == 1){ // на будущеее, пока работаем по параметру
 				// if($enable_selection){
-					$html .= '<select class="choose_statuslist_sklad" data-id="'.$main_rows_id.'">';
+					$html .= '<select data-document_id="'.$this->specificate['id'].'" data-order_id="'.$this->Order['id'].'" class="choose_statuslist_sklad" data-id="'.$main_rows_id.'">';
 						foreach ($this->statuslist_sklad as $name_en => $name_ru) {
 							$is_checked = ($name_en == $real_val)?'selected="selected"':'';
 							$html .= '<option value=\''.$name_en.'\' '.$is_checked.'>'.$name_ru.'</option>';
@@ -484,6 +520,9 @@
 				// подсветка статусво снаба
 				switch ($real_val) {
 					case 'question':
+						$this->js_dop_class = 'alert_class-red_service_status';
+						break;	
+					case 'not_adopted':
 						$this->js_dop_class = 'alert_class-red_service_status';
 						break;					
 					default:
@@ -642,9 +681,12 @@
 
 				// выодим статус снабжения
 				$this->performer_status = $this->decoder_statuslist_snab($cab_order_main_row['status_snab'],$cab_order_main_row['date_delivery_product'],0,$cab_order_main_row['id']);
+				if($this->user_access == 8){
+					// $this->performer_status = ''.$this->performer_status.'</a>';
+				}
 				$html .= '<tr>';
 					$html .= '<td style="width: 78px;">';
-					$html .= '<div class="otdel_name">Снабжение</div>';
+					$html .= '<div class="otdel_name"><a href="'.$this->link_enter_to_filters('status_snab',$cab_order_main_row['status_snab']).'">Снабжение</a></div>';
 					$html .= '</td>';
 					$html .= '<td>';				
 						$html .= '<div class="otdel_status '.$this->js_dop_class.'">';
@@ -669,6 +711,7 @@
 
 				//$html .= '<tr><td colspan="2">'.$this->print_arr($this->Position_status_list).'</td></tr>';
 				
+				$this->position_question = 0;
 				// выводим статусы услуг
 				foreach ($this->Position_status_list as $performer => $performer_status_arr) {
 					$html .= '<tr>';
@@ -681,6 +724,10 @@
 					foreach ($performer_status_arr as $key => $value) {
 						$performer_status = $this->get_statuslist_uslugi_Dtabase_Html($value['id'],$value['performer_status'],$value['id_dop_uslugi_row'],$value['performer']);
 						$this->get_performer_status($value,$performer_status);
+
+						if($performer_status == ''){
+							$this->position_question = 1;
+						}
 
 						$html .= '<div class="otdel_status '.$this->js_dop_class.'" data-pisition_id="'.$this->position['id'].'" data-id="'.$value['id_dop_uslugi_row'].'">';
 						$html .= '<div class="service_name">'.$value['service_name'].'</div>';
@@ -700,26 +747,53 @@
 				return $html;
 			}
 
+			// получаем статусы услуг по которым услуги должны попасть во вкладку ТЗ не корреутно/ пауза /вопрос
+			protected function get_services_status_pause(){
+				if(!isset($this->services_status_pause)){
+					global $mysqli;
+					$query = "SELECT * FROM `".USLUGI_STATUS_LIST."` WHERE `pause`='on'";
+					
+					$result = $mysqli->query($query) or die($mysqli->error);
+						
+					if($result->num_rows > 0){			
+						while($row = $result->fetch_assoc()){
+							$this->services_status_pause[$row['id']] = $row['name'];
+						}						
+					}
+				}
+				return $this->services_status_pause;
+			}
+
 			protected function get_performer_status($service,$performer_status){
 						$this->js_dop_class = '';
+
+
+
+
 						$this->performer_status = $performer_status;
+
+						$this->get_services_status_pause();
+						if(in_array($service['performer_status'], $this->services_status_pause)){
+							$this->poused_and_question = 0;		
+							$this->js_dop_class = 'alert_class-red_service_status';					
+						}
+
 						switch ($service['performer_status']) {
 							case 'ТЗ не корректно':
-								$this->poused_and_question = 0;		
-								$this->js_dop_class = 'alert_class-black_service_status';					
+								
 								break;
-							case 'стоимость работ не корректна':
-								$this->poused_and_question = 0;	
-								$this->js_dop_class = 'alert_class-black_service_status';
-								break;
-							case 'пауза':
-								$this->poused_and_question = 0;	
-								$this->js_dop_class = 'alert_class-red_service_status';
-								break;
-							case 'вопрос':
-								$this->poused_and_question = 0;
-								$this->js_dop_class = 'alert_class-red_service_status';
-								break;
+							// case 'стоимость работ не корректна':
+							// 	$this->poused_and_question = 0;	
+							// 	$this->js_dop_class = 'alert_class-black_service_status';
+							// 	break;
+							// case 'пауза':
+							// 	$this->poused_and_question = 0;	
+							// 	$this->js_dop_class = 'alert_class-red_service_status';
+							// 	break;
+							// case 'вопрос':
+							// 	$this->poused_and_question = 0;
+							// 	$this->js_dop_class = 'alert_class-red_service_status';
+							// 	break;
 							case 'макет отправлен в СНАБ':
 								if($this->user_access == 8){
 									$this->js_dop_class = 'js-button-maket_is_adopted';
@@ -781,15 +855,14 @@
 						}
 
 						$query = "SELECT * FROM `".USLUGI_STATUS_LIST."` WHERE `parent_id` IN (".$id_s.") ORDER BY `parent_id` ASC";
-						//echo $query.'<br>';
+						
 						$result = $mysqli->query($query) or die($mysqli->error);
 						
 						if($result->num_rows > 0){			
 							while($row = $result->fetch_assoc()){
 								$is_checked = ($real_val==$row['name'])?'selected="selected"':'';
 								$html.= '<option value="'.$row['name'].'" '.$is_checked.'><!--'.$row['id'].' '.$row['parent_id'].'--> '.$row['name'].'</option>';
-							}
-						
+							}						
 						}
 						$html.= '</select>';	
 					}else{
@@ -899,6 +972,11 @@
 			protected function for_shipping_Template($id_row=0){
 				include_once './libs/php/classes/cabinet/cabinet_order_shipping_class.php';
 				new Order_shipping($id_row,$this->user_access,$this->user_id);
+			}
+			// роутер по отгруженным
+			protected function already_shipped_Template($id_row=0){
+				include_once './libs/php/classes/cabinet/cabinet_order_fully_shipped_class.php';
+				new Order_fully_shipped($id_row,$this->user_access,$this->user_id);
 			}
 
 			
@@ -2512,6 +2590,12 @@
 				$first_val = '';
 				switch ($this->user_access) {
 					case '1':
+
+						foreach ($this->buch_status as $name_en => $name_ru) {
+							$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+							if($n==0){$first_val = $name_en;}
+							$n++;
+						}
 						foreach ($this->buch_status_service as $name_en => $name_ru) {
 							$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
 							if($n==0){$first_val = $name_en;}
@@ -2522,6 +2606,7 @@
 							if($n==0){$first_val = $name_en;}
 							$n++;
 						}
+
 						break;
 					case '2':
 						foreach ($this->buch_status as $name_en => $name_ru) {
@@ -2557,7 +2642,7 @@
 
 				$html .= '</form>';
 
-				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:","height":"450"}';
 				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 				// echo 'base';
 			}	
@@ -3496,10 +3581,25 @@
 							$tbl = RT_LIST;
 							break;
 						case 'paperwork':
-							// исключение для работы по спецификациям
-							if(isset($_GET['subsection']) && $_GET['subsection'] != 'the_order_is_create'){
-								$tbl = CAB_BILL_AND_SPEC_TBL;	
-							}							
+							// исключение для работы по документам
+							switch ($_GET['subsection']) {
+								case 'the_order_is_create':
+									# code...
+									break;
+								case 'order_in_work':
+									# code...
+									break;
+								case 'order_is_paperwork':
+									# code...
+									break;
+								case 'order_shipped':
+									# code...
+									break;
+								
+								default:
+									$tbl = CAB_BILL_AND_SPEC_TBL;	
+									break;
+							}					
 							break;						
 						default:
 							break;
@@ -3916,6 +4016,7 @@
 			// смена статуса склада
 			protected function choose_statuslist_sklad_AJAX(){
 				global $mysqli;
+				$reload = 0;
 				$query = "UPDATE  `".CAB_ORDER_MAIN."`  SET  
 					`status_sklad` =  '".$_POST['value']."' ";
 				// все статусы склада транслируются в статусы снабжения
@@ -3930,6 +4031,9 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				// echo $query;
 				
+				// проверяем отгрузку заказа
+				$this->check_shipped_order();
+
 				// если нужно - обновляем контент на странице
 				if($reload == 1){ 
 					$json_answer = '{"response":"OK","function":"reload_order_tbl"}';	
@@ -3964,7 +4068,7 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 
 				// сохраняем снабженца по заказу
-				if(isset($_POST['order_id']) && $_POST['order_id'] != 'undefined'){
+				if(isset($_POST['order_id']) && $_POST['order_id'] != 'undefined' && $this->user_access = 8){
 					$query = "UPDATE  `".CAB_ORDER_ROWS."`  SET  
 					`snab_id` =  '".$this->user_id."'
 					WHERE  `id` ='".$_POST['order_id']."';";
@@ -4392,12 +4496,19 @@
 				$html = '';
 
 				$enable_edit = ((isset($_POST['order_status']) && $_POST['order_status'] != 'in_work' && $_POST['order_status'] != 'paused'  && $_POST['order_status'] != 'cancelled' && $_POST['order_status'] != 'shipped'))?1:0;
-				$readonly = ($enable_edit == 0)?' disabled':'';
+				
 				if($this->user_access != 5){
 					$enable_edit = 1;
-					$readonly = '';
 				}
+				// запрет для буха
+				if($this->user_access == 2){
+					$enable_edit = 0;					
+				}
+				$readonly = ($enable_edit == 0)?' disabled':'';
+
+
 				// получаем информацию по позиции
+				// positions_rows_Database
 				$position = $this->get_cab_position_Database($_POST['position_id']);
 				// подгружаем форму по резерву
 				$html .= '<div class="container_form">';
@@ -4472,7 +4583,7 @@
 						$html .= '<li  data-cab_dop_data_id="'.$_POST['id_dop_data'].'" data-uslugi_id="'.$usluga['uslugi_id'].'" data-order_status="'.$_POST['order_status'].'"  data-dop_usluga_id="'.$usluga['id'].'" data-id_tz="tz_id_'.$n.'" class="lili '.$usluga['for_how'].' '.(($n==0)?'checked':'').''.$no_active.'" data-id_dop_inputs="'.addslashes($usluga['print_details_dop']).'">'.$usluga['name'].'</li>';
 						if($n == 0){
 							// запоминаем тз по первой услуге
-							$first_right_content .= $this->get_dop_inputs_for_services($usluga['uslugi_id'],$usluga['id'],((isset($_POST['order_status']) && $_POST['order_status'] != 'in_work' && $_POST['order_status'] != 'paused'  && $_POST['order_status'] != 'cancelled' && $_POST['order_status'] != 'shipped'))?1:0);						
+							$first_right_content .= $this->get_dop_inputs_for_services($usluga['uslugi_id'],$usluga['id'], $enable_edit);						
 						}
 						$n++;
 					}
@@ -4574,14 +4685,21 @@
 			}
 
 			// ролучаем dop_inputs
-			protected function get_dop_inputs_for_services($id, $dop_usluga_id, $enable_edit = 1){
+			protected function get_dop_inputs_for_services($id, $dop_usluga_id, $enable_edit = 0){
 				global $mysqli;
 
 				// допуски на редактирование
-				$readonly = (($enable_edit == '0')?' disabled':'');
-				if($this->user_access == 9 || $this->user_access == 8 || $this->user_access == 1){
-					$readonly = '';
+				$enable_edit = ((isset($_POST['order_status']) && $_POST['order_status'] != 'in_work' && $_POST['order_status'] != 'paused'  && $_POST['order_status'] != 'cancelled' && $_POST['order_status'] != 'shipped'))?1:0;
+				
+				if($this->user_access != 5){
+					$enable_edit = 1;
 				}
+				// запрет для буха
+				if($this->user_access == 2){
+					$enable_edit = 0;					
+				}
+				$readonly = ($enable_edit == 0)?' disabled':'';
+
 				
 				include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 				// запрашиваем информацию по ТЗ и , если нужно
@@ -5336,6 +5454,44 @@
 				return 'не назначен';
 			}
 		}
+
+		// проверка отгрузки заказа
+		protected function check_shipped_order(){
+			if(!isset($_POST['order_id']) || !isset($_POST['document_id'])){return;}
+
+			// if($_POST['value'] != "goods_shipped_for_client")
+			$order_id = (int)$_POST['order_id'];
+			$document_id = (int)$_POST['document_id'];
+
+			global $mysqli;
+			// запрос 
+			$query = "SELECT `id`,`status_sklad`,`status_snab` FROM `".CAB_ORDER_MAIN."`  WHERE `the_bill_id` IN (SELECT `id` FROM `".CAB_BILL_AND_SPEC_TBL."` WHERE `order_id` = '".$order_id."')";
+			
+			$shipped = 1;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					// echo $row['status_sklad'];
+					if($row['status_sklad'] != 'goods_shipped_for_client'){
+						$shipped = 0;
+					}
+				}
+			}
+			// echo $query;
+
+			if($shipped == 1){
+				$this->db_edit_one_val(CAB_ORDER_ROWS,'global_status',$order_id,'shipped');
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$message = 'Заказ перемещён в раздел "Отгруженные"';
+				$json = '{"response":"OK","function2":"reload_order_tbl","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+				echo $json;
+				exit;
+			}
+		}	
+
+
+
+
 		
 		// фильтрация позиций ЗАПРОСОВ по горизонтальному меню
 		protected function requests_Template_recuestas_main_rows_Database($id){
@@ -5418,8 +5574,11 @@
 		protected function get_cab_position_Database($id){
 			global $mysqli;
 			$arr = array();
+
 		    $query  = "SELECT *,
-		    `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`  FROM `".CAB_ORDER_MAIN."`";
+		    `".CAB_ORDER_DOP_DATA."`.`id` AS `id_dop_data`,
+		    `".CAB_ORDER_MAIN."`.`number_rezerv` 
+		    FROM `".CAB_ORDER_MAIN."`";
 		    $query .= " INNER JOIN `".CAB_ORDER_DOP_DATA."` ON `".CAB_ORDER_DOP_DATA."`.`row_id` = `".CAB_ORDER_MAIN."`.`id`";
 		    $query .= " WHERE `".CAB_ORDER_MAIN."`.`id` = '".(int)$id."'";
 		   
@@ -5433,7 +5592,7 @@
 			// echo $query;
 			return $postion_arr;
 		}
-
+		
 		
 
 		protected function get_all_services_names_Database(){
@@ -5593,7 +5752,7 @@
 						выводим кнопку отключения услуги только СНАБАМ, АДМИНАМ И АВТОРУ ДОБАВЛЕННОЙ УСЛУГИ, 
 						а так же показываем кнопку у тех услуг которые не имеют автора - это услуги добавленные ещё в запросе
 					*/
-					if($service['author_id_added_services'] == 0 || $service['author_id_added_services'] == $this->user_id || $this->user_access == 1 || $this->user_access == 8){
+					if($service['author_id_added_services'] == 0 && $this->user_access !=2 || ($service['author_id_added_services'] == $this->user_id || $this->user_access == 1 || $this->user_access == 8)){
 						$this->Service_swhitch_On_Of = ((int)$service['on_of'] == 1)?'<span  data-id="'.$service['id'].'" class="on_of">+</span>':'<span  data-id="'.$service['id'].'" class="on_of minus">-</span>';
 					}else{
 						$this->Service_swhitch_On_Of = '';
@@ -5685,7 +5844,11 @@
 				// добавляем строку пробел
 				$html .= '<tr class="itogo_for_position_probel no_calc">';
 					$html .= '<td colspan="8"></td>';
-					$html .= '<td colspan="5" class="postfaktum"><input type="button" data-rowspan_id="tovar_provided_'.($key+1).'" data-id_dop_data="'.$position['id_dop_data'].'" class="add_service" name="add_service" value="Добавить"></td>';			
+					$html .= '<td colspan="5" class="postfaktum">';
+						if($this->user_access != 2){
+							$html .= '<input type="button" data-rowspan_id="tovar_provided_'.($key+1).'" data-id_dop_data="'.$position['id_dop_data'].'" class="add_service" name="add_service" value="Добавить">';	
+						}						
+					$html .= '</td>';
 					$html .= '<td colspan="2"></td>';		
 				$html .= '</tr>';
 
@@ -5888,6 +6051,7 @@
 				$where = 1;
 			}
 
+			
 			// фильрация по позициям (указываем в последнюю очередь)
 			if($this->filtres_position != ''){
 				$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_position;
@@ -5901,7 +6065,7 @@
 				$query .= " ORDER BY `".CAB_ORDER_MAIN."`.`sequence_number` ASC";
 			}
 			
-			// echo $query.'<br>';
+			// echo $query.'<br><br>';
 			
 
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -6429,13 +6593,13 @@
 					return $html;
 				}
 
-				public function get_a_detailed_specifications($os__cab_order_main_rows_ID){
+				public function get_a_detailed_specifications($type_product, $no_cat_json){
 					// получаем информацию по позиции
-					$position = $this->get_cab_position_Database($os__cab_order_main_rows_ID);
+					$position['type'] = $type_product; // тип товара для запроса по полям (таблица os__rt_main_rows, колонка type)
+					$position['no_cat_json']  = $no_cat_json; // Json с описанием из формы (таблица os__rt_dop_data, колонка no_cat_json)
+				
 					$html = '';
-					// $html .= $this->print_arr($position);
-					// получаем описание
-					$html .= $this->decode_json_no_cat_to_html($position[0]);
+					$html .= $this->decode_json_no_cat_to_html($position);
 					return $html;
 				}
 
@@ -6452,6 +6616,9 @@
 
 				// html шаблон вывода позиций  (МЕН/СНАБ/АДМИН)
 				protected function get_order_specificate_position_Html_Template(){
+					if($this->position['status_snab'] == 'question' || $this->position['status_snab'] == 'not_adopted'){
+						$this->poused_and_question = 0;
+					}
 					$html = '';
 					$html .= '<tr class="position-row position-row-production" id="position_row_'.$this->position['sequence_number'].'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
 					// порядковый номер позиции в заказе
@@ -6486,11 +6653,21 @@
 							
 					// поставщик товара и номер резерва для каталожной продукции 
 					$html .= '<td>';
+					$number_rezerv = '<a href="'.$this->link_enter_to_filters('number_rezerv',$this->position['number_rezerv']).'">'.base64_decode($this->position['number_rezerv']).'</a>';
 					$html .= '<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
-							<div class="number_rezerv">'.base64_decode($this->position['number_rezerv']).'</div>
+							<div class="number_rezerv">'.$number_rezerv.'</div>
 							</td>';
 					// подрядчк печати 
-					$html .= '<td  class="change_supplier"  data-id="'.$this->position['suppliers_id'].'" data-id_dop_data="'.$this->position['id_dop_data'].'">'.$this->position['suppliers_name'].'</td>';
+					$change_supplier = '';
+					if($this->user_access == 1 || $this->user_access == 8){
+						$change_supplier = 'change_supplier';
+					}
+					if($this->user_access == 5 && ($this->Order['global_status'] == 'in_operation' || $this->Order['global_status'] == 'being_prepared' )){
+						$change_supplier = 'change_supplier';	
+					}
+
+					$html .= '<td class="'.$change_supplier.'"  data-id="'.$this->position['suppliers_id'].'" data-id_dop_data="'.$this->position['id_dop_data'].'">'.$this->position['suppliers_name'].'</td>';	
+					
 					
 					// сумма за позицию включая стоимость услуг 
 					$html .= '<td  data-order_id="'.$this->Order['id'].'" data-id="'.$this->position['id'].'" data-order_num_user="'.$this->order_num_for_User.'" data-order_num="'.$this->Order['order_num'].'" data-specificate_id="'.$this->specificate['id'].'" data-cab_dop_data_id="'.$this->position['id_dop_data'].'" class="price_for_the_position">'.$this->Price_for_the_position.'</td>';

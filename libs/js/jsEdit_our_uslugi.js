@@ -19,6 +19,21 @@ $(document).on('change', '.select_performer', function(event) {
     },'json');
 });
 
+$(document).on('click', '.tz_incorrect', function(event) {
+    // event.preventDefault();
+    var value = '';
+    var id_row = $(this).attr('data-id');
+    if ($(this).prop('checked')) {
+        value = 'on';
+    }
+    $.post('', {
+        AJAX: 'edit_status_pause_tz_incorect',
+        id_row:id_row,
+        value:value
+    }, function(data, textStatus, xhr) {
+        standard_response_handler(data);
+    },'json');
+});
 
 //////////////////////////
 //  вызов кокна добавления доп поля
