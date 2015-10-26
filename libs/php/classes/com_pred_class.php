@@ -765,7 +765,7 @@
 				$str_len = 40;
 				$pos_name = $pos_level['name'];
 				$pos_name = nl2br($pos_name);
-				$pos_name = iconv("UTF-8","windows-1251//TRANSLIT", $pos_name);
+				/*$pos_name = iconv("UTF-8","windows-1251//TRANSLIT", $pos_name);
 				
 				if(strpos($pos_name,'<br>') == true) $pos_name = str_replace('<br>','<br />',$pos_name);
 				$pos_name_arr = explode('<br />',$pos_name);
@@ -779,7 +779,7 @@
 				}
 				
 				$pos_name = implode($new_line,$pos_name_arr);
-				$pos_name = iconv("windows-1251","UTF-8//TRANSLIT", $pos_name);
+				$pos_name = iconv("windows-1251","UTF-8//TRANSLIT", $pos_name);*/
 				
 				
 				if($save_on_disk && isset($dispSetObj->art)){
@@ -794,8 +794,8 @@
 				
 			
 				// НАЧИНАЕМ ПЕРЕБИРАТЬ ДАННЫЕ РАСЧЕТОВ
-				// примечание - у позиции может быть любое количество расчетов( а каждый расчет в свою очередьколичество
-				//  может содержать любое нанесений и доп услуг)
+				// примечание - у позиции может быть любое количество расчетов( а каждый расчет в свою очередь может содержать
+				//  любое количество нанесений и доп услуг)
 				foreach($pos_level['dop_data'] as $r_key => $r_level){ 
 				    $all_print_summ=$all_extra_summ=0;
 					
@@ -812,7 +812,12 @@
 			        
 					// добавляем данные в  содержимое ячейки
 					$description_cell = '<div style="margin-top:5px;"><b>Сувенир:</b></div>
-					<div>&nbsp;&nbsp;&nbsp;'.$pos_name.'</div>
+					<table border="0">
+					  <tr>
+						<td style="width:6px;"></td>
+						<td><div contenteditable="true" class="saveKpPosDescription"  pos_id="'.$pos_key.'">'.$pos_name.'</div></td>
+					  </tr>
+					</table>
 					<div>&nbsp;&nbsp;&nbsp;'.$article.'</div>
 					<table style="font-family:arial;font-size:13px;right;margin-top:10px;width:100%;border-collapse:collapse;width:350px;table-layout:_fixed;" border="0">
 					  <tr>
@@ -1697,6 +1702,18 @@
 			
 		    $query="UPDATE `".KP_LIST."` SET 
 							  `display_setting_2` = '".$val."' WHERE `id` = '".$kp_id."'";
+		    $mysqli->query($query)or die($mysqli->error);
+		}
+		static function savePosDescription($id,$val){
+		    global $mysqli;
+			
+			//$val = strip_tags(base64_decode($val),'<div>');
+			$val = base64_decode($val);
+			//$val = str_replace(array('<div>','</div>'),array('<br>',''),$val);
+			echo '----'.$val.'----';
+		    $query="UPDATE `".KP_MAIN_ROWS."` SET 
+							  `name` = '".mysql_real_escape_string($val)."' WHERE `id` = '".$id."'";
+			echo $query;
 		    $mysqli->query($query)or die($mysqli->error);
 		}
 		

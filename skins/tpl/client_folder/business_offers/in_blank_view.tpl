@@ -141,8 +141,54 @@
 	   }
     
   };
-  
 
+$(document).on('keyup', '.saveKpPosDescription', function(event) {
+    // первым параметром перелаём название функции отвечающей за отправку запроса AJAX
+    // вторым параметром передаём объект к которому добавляется класс saved (класс подсветки)
+    timing_save_input2('save_pos_status',$(this));
+});
+
+function save_pos_status(obj){// на вход принимает object input
+    var id = obj.attr('pos_id');
+	//alert(obj);
+	console.log(obj.context.outerText);
+	 $.ajax({
+			type: 'POST',
+			url: '',
+			dataType: 'html',
+			data: 'saveKpPosData=posDescription&val='+Base64.encode(obj.context.outerText)+'&id='+id
+		    })
+		    .done(function(response) {
+			  console.log(response);
+			  obj.removeClass('saved');
+		    });
+}
+
+
+// функция тайминга
+function timing_save_input2(fancName,obj){
+
+    //если сохраниться разрешено, т.е. уже 2 сек. запросы со страницы не отправлялись
+    if(!obj.hasClass('saved')){
+        window[fancName](obj);
+        obj.addClass('saved');                  
+    }else{// стоит запрет, проверяем очередь по сейву данной функции        
+        if(obj.hasClass(fancName)){ //стоит в очереди на сохранение
+            // стоит очередь, значит мимо... всё и так сохранится
+        }else{
+            // не стоит в очереди, значит ставим
+            obj.addClass(fancName);
+            // вызываем эту же функцию через n времени всех очередей
+            var time = 20000;
+            $('.'+fancName).each(function(index, el) {
+                console.log($(this).html());
+                
+                setTimeout(function(){timing_save_input(fancName,$('.'+fancName).eq(index));// обнуляем очередь
+        	if(obj.hasClass(fancName)){obj.removeClass(fancName);}}, time); 
+            });         
+        }       
+    }
+}
 </script>
 
 <table width="100%" border="0">

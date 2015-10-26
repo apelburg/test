@@ -108,6 +108,10 @@
 		 Com_pred::set_recipient($_GET['set_recipient'],$_GET['row_id']);
 		 exit;
 	 }
+	 if(isset($_POST['saveKpPosData'])){
+		 if($_POST['saveKpPosData']=='posDescription') Com_pred::savePosDescription($_POST['id'],$_POST['val']);
+		 exit;
+	 }
 	
 	
 	///////////////////////////////////////  END AJAX  /////////////////////////////////////////////////
