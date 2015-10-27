@@ -94,6 +94,20 @@
 		       $result = $mysqli->query($query)or die($mysqli->error);
 			   if($result->num_rows>0){
 			       $row=$result->fetch_assoc();
+				   
+				   if($row['characteristics']!=''){
+				       require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+				       $arr =  json_decode($row['characteristics'],TRUE);//
+					   $ch_arr = array();
+					   foreach($arr as $key => $data){
+					       $data = rtCalculators::json_fix_cyr($data);
+					       if($key == 'colors') $ch_arr[] = 'цвет: '.implode(', ',$data);
+						   if($key == 'materials') $ch_arr[] = 'материалы: '.implode(', ',$data);
+					   }
+				       $characteristics =(count($ch_arr)>0)? implode('<br>',$ch_arr):'';
+				   }
+				   else $characteristics = '';
+				   
 				   $query2="INSERT INTO `".KP_MAIN_ROWS."` 
 							   SET 
 							   `kp_id` = '".$kp_id."',
@@ -101,7 +115,9 @@
 							   `art` = '".$row['art']."',
 							   `type` = '".$row['type']."',
 							   `art_id` = '".$row['art_id']."',
-							   `name` = '".$row['name']."'
+							   `name` = '".$row['name']."',
+							   `description` = '".$row['description']."',
+							   `characteristics` = '".$characteristics."' 
 							  ";
 				   $result2 = $mysqli->query($query2)or die($mysqli->error);
 				   $row_id = $mysqli->insert_id;
@@ -114,6 +130,22 @@
 					   $result3 = $mysqli->query($query3)or die($mysqli->error);
 					   if($result3->num_rows>0){
 						    $row3=$result3->fetch_assoc();
+							
+							if($row['type']!='cat'){
+							    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/os_form_class.php");
+							    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
+							    $cabinet = new Cabinet();
+							    $details =  $cabinet->get_a_detailed_specifications($row['type'], $row3['no_cat_json']);
+								$details =  strip_tags($details,'<div><br><br/><br />');
+								$details =  str_replace(array('<div>','</div>'),array('<br>',''),$details);	
+								$details =  str_replace(array("\n","\r","\t"),'',$details);			
+								$details =  str_replace('<br><br>','<br>',$details);
+								$details =  preg_replace('/<div[^<]+>/','',$details);
+								$details =  $row['name'].'<br>'.$details;
+								
+							}
+							else $details ='';
+							
 						    $query4=  "INSERT INTO `".KP_DOP_DATA."` 
 									   SET 
 									   `row_id` = '".$row_id."',
@@ -124,6 +156,7 @@
 									   `price_in` = '".$row3['price_in']."',
 									   `price_out` = '".$row3['price_out']."',
 									   `discount` = '".$row3['discount']."',
+									   `details` = '".$details."',
 									   `tirage_json` = '".$row3['tirage_json']."'  
 									  ";
 		 			       $result4 = $mysqli->query($query4)or die($mysqli->error);
@@ -277,7 +310,7 @@
 		   $query = "SELECT list_tbl.recipient_id AS recipient_id ,list_tbl.display_setting AS display_setting ,list_tbl.display_setting_2 AS display_setting_2, main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
-						  
+dop_data_tbl.details AS details,			  
 						  dop_uslugi_tbl.id AS uslugi_id ,dop_uslugi_tbl.uslugi_id AS dop_usluga_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.for_how AS for_how, dop_uslugi_tbl.print_details AS print_details
 		          FROM
@@ -313,6 +346,7 @@
 																	'expel' => $row['expel'],
 																	'shipping_date' => $row['shipping_date'],
 																	'shipping_time' => $row['shipping_time'],
+																	'details' => $row['details'],
 																	'quantity' => $row['dop_t_quantity'],
 																	'discount' => $row['dop_t_discount'],
 																	'price_in' => $row['dop_t_price_in'],
@@ -765,21 +799,7 @@
 				$str_len = 40;
 				$pos_name = $pos_level['name'];
 				$pos_name = nl2br($pos_name);
-				/*$pos_name = iconv("UTF-8","windows-1251//TRANSLIT", $pos_name);
 				
-				if(strpos($pos_name,'<br>') == true) $pos_name = str_replace('<br>','<br />',$pos_name);
-				$pos_name_arr = explode('<br />',$pos_name);
-				$new_line = '<br />&nbsp;&nbsp;&nbsp;';
-				foreach($pos_name_arr as $key => $piece){
-				    if(strlen($piece) > $str_len){  
-					    $piece = wordwrap($piece,$str_len,$new_line);
-				        $pos_name_arr[$key] = $piece;
-					}
-					else $pos_name_arr[$key] = trim($piece);
-				}
-				
-				$pos_name = implode($new_line,$pos_name_arr);
-				$pos_name = iconv("windows-1251","UTF-8//TRANSLIT", $pos_name);*/
 				
 				
 				if($save_on_disk && isset($dispSetObj->art)){
@@ -797,6 +817,11 @@
 				// примечание - у позиции может быть любое количество расчетов( а каждый расчет в свою очередь может содержать
 				//  любое количество нанесений и доп услуг)
 				foreach($pos_level['dop_data'] as $r_key => $r_level){ 
+				
+				    if($pos_level['row_type']!='cat' && isset($r_level['details'])){
+				       $pos_name = $r_level['details'];
+				    }
+				
 				    $all_print_summ=$all_extra_summ=0;
 					
 				    //$r_ - сокращение обозначающее - уровень Расчёта позиции
@@ -810,12 +835,12 @@
 					$summ = $quantity*$price;
 					$itogo+=$summ;
 			        
-					// добавляем данные в  содержимое ячейки
+					// добавляем данные в  содержимое ячейки<td><div contenteditable="true" class="saveKpPosDescription"  pos_id="'.$pos_key.'">'.$pos_name.'</div></td>
 					$description_cell = '<div style="margin-top:5px;"><b>Сувенир:</b></div>
-					<table border="0">
+					<table border="0" tbl="managed">
 					  <tr>
 						<td style="width:6px;"></td>
-						<td><div contenteditable="true" class="saveKpPosDescription"  pos_id="'.$pos_key.'">'.$pos_name.'</div></td>
+						<td style="width:400px;" managed="text" bd_row_id="'.(($pos_level['row_type']=='cat')? $pos_key:$r_key).'" bd_field="'.(($pos_level['row_type']=='cat')?'name':'details').'" action="saveKpPosDescription">'.$pos_name.'</td>
 					  </tr>
 					</table>
 					<div>&nbsp;&nbsp;&nbsp;'.$article.'</div>
@@ -1126,7 +1151,7 @@
 				    $description_cell .= '<td align="right" style="width:100px;"><b>'.number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'</b></td>';
 					$description_cell .= '<td align="left" style="width:30px;"><b>руб.</b></td></tr></table>';
 					
-					$tbl_rows[] = '<tr><td style="border:#CCCCCC solid 1px;" width="300" valign="middle" align="center">'.$img_cell.'</td><td style="border:#CCCCCC solid 1px;padding:6px;" width="325" valign="top">'.$description_cell.'</td></tr>';
+					$tbl_rows[] = '<tr><td style="border-bottom:#91B73F solid 2px;" width="300" valign="middle" align="center">'.$img_cell.'</td><td style="border-bottom:#91B73F solid 2px;padding:6px;" width="325" valign="top">'.$description_cell.'</td></tr>';
 					$description_cell = $print_description ='';
 	
 					unset($details_block11);
@@ -1149,27 +1174,27 @@
 			$recipient_id = $multi_dim_arr[key($multi_dim_arr)]['recipient_id'];
 			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
 			$cont_face_data = Client::get_cont_face_details($recipient_id);
-			//print_r($cont_face_data_arr);//exit;
+			//print_r($cont_face_data_arr);//exit;625
 			
-			$kp_content = '<div id="kpBlankConteiner" style="width:625px;background-color:#FFFFFF;">'.(($show_logo)?'<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">':'').'<input  type="hidden"  style="width:90px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'>';
+			$kp_content = '<div id="kpBlankConteiner" style="width:675px;background-color:#FFFFFF;border:#91B73F solid 0px;">'.(($show_logo)?'<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">':'').'<input  type="hidden"  style="width:90px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'>';
 
 			if(!($save_on_disk && isset($dispSetObj->header))){
 			   $kp_content .= '<div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><managedDisplay name="header" style="display:'.(isset($dispSetObj->header)?'none':'block').'"><br />В компанию: '.Client::get_client_name($client_id).'<br />Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</managedDisplay></div>';
 			}
-			$kp_content .= '<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center">Презентация</div>';
-			$kp_content .=  '<table width="625"  style="border:#CCCCCC solid 1px; border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">'.implode('',$tbl_rows).'</table>';
+			$kp_content .= '<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center;">Презентация</div>';
+			$kp_content .=  '<div style="border-top:#91B73F solid 2px;"><table width="625"  style="border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">'.implode('',$tbl_rows).'</table></div>';
 			
 			
 			
 			/********************   ++++++++++++++  *********************/
 			
 
-			if($save_on_disk && isset($dispSetObj->full_summ)){
+			if($save_on_disk && !isset($dispSetObj->full_summ)){
 			    if($itogo != 0){
 			         $full_itog = $itogo + $itogo_print_uslugi + $itogo_extra_uslugi;
 					 $kp_content .= '<div style="text-align:right;">
 					 <managedDisplay name="full_summ" style="text-align:right;display:'.(isset($dispSetObj->full_summ)?'none':'inline-block').'">
-					 <table align="right" style="margin:15px 20px 10px 0;font-family:arial" border="0">
+					 <table align="right" style="margin:15px 0px 10px 0;font-family:arial" border="0">
 						 <tr>
 							 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
 						 </tr>
@@ -1188,13 +1213,13 @@
 					 </div>';
 				 }
 			}
-			else{
+			else if(!$save_on_disk){
 				if($itogo != 0){
 			
 					 $full_itog = $itogo + $itogo_print_uslugi + $itogo_extra_uslugi;
 					 $kp_content .= '<div style="text-align:right;">
 					 <managedDisplay name="full_summ" style="text-align:right;display:'.(isset($dispSetObj->full_summ)?'none':'inline-block').'">
-					 <table align="right" style="margin:15px 20px 10px 0;font-family:arial" border="0">
+					 <table align="right" style="margin:15px 0px 10px 0;font-family:arial" border="0">
 						 <tr>
 							 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
 						 </tr>
@@ -1704,16 +1729,13 @@
 							  `display_setting_2` = '".$val."' WHERE `id` = '".$kp_id."'";
 		    $mysqli->query($query)or die($mysqli->error);
 		}
-		static function savePosDescription($id,$val){
+		static function savePosDescription($id,$val,$bd_field){
 		    global $mysqli;
-			
-			//$val = strip_tags(base64_decode($val),'<div>');
-			$val = base64_decode($val);
-			//$val = str_replace(array('<div>','</div>'),array('<br>',''),$val);
-			echo '----'.$val.'----';
-		    $query="UPDATE `".KP_MAIN_ROWS."` SET 
-							  `name` = '".mysql_real_escape_string($val)."' WHERE `id` = '".$id."'";
-			echo $query;
+
+			//echo '----'.$val.'----';
+		    if($bd_field=='name') $query="UPDATE `".KP_MAIN_ROWS."` SET `name`='".cor_data_for_SQL($val)."' WHERE `id`='".$id."'";
+		    if($bd_field=='details') $query="UPDATE `".KP_DOP_DATA."` SET `details`='".cor_data_for_SQL($val)."' WHERE `id`='".$id."'";
+			//echo $query;
 		    $mysqli->query($query)or die($mysqli->error);
 		}
 		
