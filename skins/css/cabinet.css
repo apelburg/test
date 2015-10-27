@@ -9,6 +9,7 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 #cabinet_general_content table tr td,#cabinet_general_content table tr th{
 	text-align: left; padding: 5px
 }
+
 #cabinet_general_content table tr th.invoice_num,#cabinet_general_content table tr td.invoice_num{text-align: center;}
 
 
@@ -16,30 +17,30 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 
 #cabinet_general_content table tr th{ background-color: #f1f1f1;font-size: 12px; height: 15px;  border-bottom: 1px solid #8b8a89;}
 #cabinet_general_content table tr td table th{border-bottom: 1px solid #e2e2e2;height: 12px; background-color: #fff}
-#cabinet_general_content .cab_position_div{
+/*#cabinet_general_content .cab_position_div{
 	float: left;
 	width: 100%;
-}
+}*/
 #cabinet_general_content table tr td.each_art{ 
 	padding-top: 0;
 	padding-left: 0;
 	d
 }
 
-#cabinet_general_content .cab_position_div tr td{ border:none; padding: 2px}
-/*#cabinet_general_content .cab_position_div tr:hover td,*/
-/*#general_panel_orders_tbl tr.position-row:hover td{ background-color: #f1f1f1; cursor: default;}*/
-#cabinet_general_content .cab_position_div tr th:nth-of-type(1){ padding-left: 5px;width: 85px;}
-#cabinet_general_content .cab_position_div tr td:nth-of-type(1){ padding-left: 5px;}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(2){/* width: 340px;*/}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(3){width: 60px;}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(4){width: 40px;  text-align: right;}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(5){width: 60px;}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(6){width: 60px;}
-#cabinet_general_content .cab_position_div tr th:nth-of-type(7){width: 60px;}
+#cabinet_general_content  table tr.cab_position_div td{ border:none; padding: 2px}
+/*#cabinet_general_conten table trt .cab_position_div tr:hover td,*/
+/*#general_panel_orders_t table trbl tr.position-row:hover td{ background-color: #f1f1f1; cursor: default;}*/
+#cabinet_general_content  table tr.cab_position_div th:nth-of-type(1){ padding-left: 5px;width: 85px;}
+#cabinet_general_content  table tr.cab_position_div td:nth-of-type(1){ padding-left: 5px;}
+#cabinet_general_content  table tr.cab_position_div th:nth-of-type(2){/* width: 340px;*/}
+#cabinet_general_content  table tr.cab_position_div th:nth-of-type(3){width: 60px;}
+#cabinet_general_content  table tr.cab_position_div th:nth-of-type(4){width: 40px;  text-align: right;}
+#cabinet_general_content  table tr.cab_position_div th:nth-of-type(5){width: 60px;}
+#cabinet_general_content  table tr.cab_position_div th:nth-of-type(6){width: 60px;}
+#cabinet_general_content  table tr.cab_position_div th:nth-of-type(7){width: 60px;}
 
-#cabinet_general_content .cab_position_div tr td.change_ttn_number,
-#cabinet_general_content .cab_position_div tr th.change_ttn_number{
+#cabinet_general_content .cab_position_div td.change_ttn_number,
+#cabinet_general_content .cab_position_div th.change_ttn_number{
 	width: 120px; text-align: center;
 }
 .number_order{width: 82px;}
@@ -51,11 +52,11 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 #cabinet_general_content_row tr th:nth-last-child(1){width: 150px;padding: 0}
 .cabinet_general_content_row tr th:nth-of-type(2){width: 60px;padding: 0}
 
-#cabinet_general_content .cab_position_div tr th:nth-last-child(3){width: 100px;padding: 2px}
-#cabinet_general_content .cab_position_div tr th:nth-last-child(2){width: 120px;padding: 2px}
-#cabinet_general_content .cab_position_div tr th:nth-last-child(1){width: 126px;padding: 2px}
-#cabinet_general_content .cab_position_div tr th{ font-size: 10px;  background-color: #FAFAFA; font-weight: normal;text-align: left;  color: #727272}
-#cabinet_general_content .cab_position_div tr td{ font-size: 13px; text-align: left;}
+#cabinet_general_content  table tr.cab_position_div th:nth-last-child(3){width: 100px;padding: 2px}
+#cabinet_general_content  table tr.cab_position_div th:nth-last-child(2){width: 120px;padding: 2px}
+#cabinet_general_content  table tr.cab_position_div th:nth-last-child(1){width: 126px;padding: 2px}
+#cabinet_general_content  table tr.cab_position_div th{ font-size: 10px;  background-color: #FAFAFA; font-weight: normal;text-align: left;  color: #727272}
+#cabinet_general_content  table tr.cab_position_div td{ font-size: 13px; text-align: left;}
 
 #cabinet_general_content .cabinett_row_show{
 	background-color: #f1f1f1;
@@ -1228,6 +1229,10 @@ input.get_a_detailed_specifications {
 }
 .edit_tz_for_no_cat:hover{
 	background-position: -19px 2px;
+}
+.command_for_edit_tz_for_no_cat,
+.edit_tz_for_no_cat{
+	cursor: pointer;
 }
 .edit_tz_for_no_cat:hover,
 .command_for_edit_tz_for_no_cat:hover{

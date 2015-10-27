@@ -561,34 +561,38 @@ $(document).on('change','.select_global_status select',function(){
 
 // свернуть/развернуть строку ЗАПРОСА
 $(document).on('click','#cabinet_general_content .cabinett_row_hide',function() {	
-	if($(this).hasClass('show')){
-		$(this).parent().attr('rowspan','2').parent().next().show();
-		$(this).removeClass('show');
+	// if($(this).hasClass('show')){
+	// 	$(this).parent().attr('rowspan','2').parent().next().show();
+	// 	$(this).removeClass('show');
 
 
-		var order_id = $(this).parent().parent().attr('data-id');
-		// сохраняем положение раскрытого/скрытого заказа
-		$.post('',{
-			AJAX: 'open_close_order',
-			order_id: order_id,
-			open_close: '1'
-		}, function(data, textStatus, xhr) {
-			standard_response_handler(data);
-		},'json');
-	}else{
-		$(this).parent().attr('rowspan','1').parent().next().hide();
-		$(this).addClass('show');
-		var order_id = $(this).parent().parent().attr('data-id');
-		// сохраняем положение раскрытого/скрытого заказа
-		$.post('',{
-			AJAX: 'open_close_order',
-			order_id: order_id,
-			open_close: '0'
-		}, function(data, textStatus, xhr) {
-
-			standard_response_handler(data);
-		},'json');
-	}	
+	// 	var order_id = $(this).parent().parent().attr('data-id');
+	// 	// сохраняем положение раскрытого/скрытого заказа
+	// 	$.post('',{
+	// 		AJAX: 'open_close_order',
+	// 		order_id: order_id,
+	// 		open_close: '1'
+	// 	}, function(data, textStatus, xhr) {
+	// 		standard_response_handler(data);
+	// 	},'json');
+	// }else{
+	// 	$(this).parent().attr('rowspan','1').parent().next().hide();
+	// 	$(this).addClass('show');
+	// 	var order_id = $(this).parent().parent().attr('data-id');
+	// 	// сохраняем положение раскрытого/скрытого заказа
+	// 	$.post('',{
+	// 		AJAX: 'open_close_order',
+	// 		order_id: order_id,
+	// 		open_close: '0'
+	// 	}, function(data, textStatus, xhr) {
+	// 		standard_response_handler(data);
+	// 	},'json');
+	// }	
+	if($(this).hasClass('show')){ // если поле скрыто
+		tbl_row_open($(this));
+	}else{ // если поле открыто
+		tbl_row_close($(this));
+	}
 });
 
 // свернуть/развернуть строку ЗАКАЗА
@@ -1507,21 +1511,22 @@ $(document).on('click', '.edit_tz_for_no_cat', function(event) {
 // вкл. / откл. Индикатора "Внимание ТЗ нужно поправить"
 $(document).on('click', '.command_for_edit_tz_for_no_cat', function(event) {
 	event.preventDefault();
-	
-	$(this).toggleClass('checked');
-	var value = 0;
-	if($(this).hasClass('checked')){
-		value = 1;
+	if(!$(this).hasClass('disabled')){
+		$(this).toggleClass('checked');
+		var value = 0;
+		if($(this).hasClass('checked')){
+			value = 1;
+		}
+		var position_id = $(this).attr('data-position_id');
+		
+		$.post('', {
+			AJAX:'command_for_edit_tz_for_no_cat',
+			position_id:position_id,
+			value:value
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');
 	}
-	var position_id = $(this).attr('data-position_id');
-	
-	$.post('', {
-		AJAX:'command_for_edit_tz_for_no_cat',
-		position_id:position_id,
-		value:value
-	}, function(data, textStatus, xhr) {
-		standard_response_handler(data);
-	},'json');
 });
 
 

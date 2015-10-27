@@ -209,9 +209,9 @@
 				
 			// статусы СНАБ
 			protected $statuslist_snab = array(
-				'adopted' => 'Принят',
+				// 'adopted' => 'Принят',
 				// 'maquette_adopted' => 'Макет принят',
-				'not_adopted' => 'Не принят',
+				// 'not_adopted' => 'Не принят',
 				'maquette_maket' => 'Ожидает макет',
 				'waits_union' => 'Ожидает объединения',
 				// 'products_capitalized_warehouse' => 'Продукция оприходована складом',// сервисный статус, вытекает из статуса склада - принято на склад
@@ -961,7 +961,11 @@
 		//	-----  START  -----  Вывод данных  -----  START  -----
 		/////////////////////////////////////////////////////////////////////////////////////
 			
-			
+			// роутер по запросам
+			protected function requests_Template($id_row=0){
+				include_once './libs/php/classes/cabinet/cabinet_requests_class.php';
+				new Requests($id_row,$this->user_access,$this->user_id);					
+			}
 
 			// роутер по предзаказу
 			protected function paperwork_Template($id_row=0){
@@ -2116,6 +2120,7 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$requsit_arr = array();
 					
+					// echo $query;
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 						$requsit_arr = $row;
@@ -2218,8 +2223,10 @@
 								$html .= '<div class="buh_window" data-specification_id="'.$document['id'].'">';
 									// получаем реквизиты клиента выбранные при формировании оферты
 									$requsit_arr = $this->get_requisits($agreement_arr['client_requisit_id']);
-									$html .= '<span><span style="font-style: italic;">Юр/л клиента:</span> '.$requsit_arr['comp_full_name'].'</span><br>';
-
+									$html .= '<span><span style="font-style: italic;">Юр/л клиента:</span> '.(isset($requsit_arr['comp_full_name'])?$requsit_arr['comp_full_name']:'реквизиты не найдены').'</span><br>';
+									// $html .= '$agreement_arr = '.$this->print_arr($agreement_arr);
+									// $html .= '$requsit_arr = '.$this->print_arr($requsit_arr);
+									// $html .= '$document = '.$this->print_arr($document);
 									// получаем наши реквизиты выбранные при формировании оферты
 									$requsit_our_arr = $this->get_requisits_our($agreement_arr['our_requisit_id']);
 									$html .= '<span><span style="font-style: italic;">Юр/л АПЛ:</span> '.$requsit_our_arr['comp_full_name'].'</span><br>';
@@ -2821,6 +2828,26 @@
 						}
 						break;
 					case 'in_work':
+						if(!isset($_POST['confirm_question'])){
+							$html = '<form>';
+							$html = '<input type="hidden" value="1" name="confirm_question">';
+							foreach ($_POST as $key => $value) {
+								$html .= '<input type="hidden" value="'.$value.'" name="'.$key.'">';
+							}
+							$html .= '</form>';
+							
+							$html .= 'При подтверждении этого статуса редактирование основной информации по услугам в заказе будет не доступно!<br>';
+							$html .= 'Проверьте НОМЕР РЕЗЕРВА!<br>';
+							$html .= 'Проверьте КОРРЕКТНОСТЬ ЗАПОЛНЕНИЯ ТЗ для подразделений!<br>';
+							$html .= 'Спасибо.';
+
+							echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Внимание","width":"600"}';
+							exit;
+						}
+
+
+
+
 						if($this->check_the_pyment_order((int)$_POST['order_id'])){
 							$href = 'http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section=orders&subsection=order_start';
 							$json_answer = '{"response":"OK","function":"location_href","href":"'.$href.'"}';
@@ -5176,6 +5203,7 @@
 			// if(substr_count($status_snab, '_pause')){
 			// 	$status_snab = 'На паузе';
 			// }
+				
 			$status_snab = $this->POSITION_NO_CATALOG->get_name_group($status_snab);
 			// echo '<pre>';
 			// print_r($this->POSITION_NO_CATALOG->status_snab);
@@ -5665,7 +5693,6 @@
 					DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`,
 					`".RT_MAIN_ROWS."`.*,
 					`".RT_LIST."`.`id` AS `request_id`,
-					`".RT_LIST."`.`manager_id`,
 					`".RT_LIST."`.`manager_id`,
 					`".RT_LIST."`.`client_id`
 					FROM `".RT_MAIN_ROWS."` 
@@ -6181,6 +6208,12 @@
 				$where = 1;
 			}
 
+			// номер резерва (фильтр)
+			if(isset($_GET['number_rezerv']) && trim($_GET['number_rezerv']) !=""){
+				$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_MAIN."`.`number_rezerv` = '".$_GET['number_rezerv']."'";
+				$where = 1;
+			}
+
 			
 			// фильрация по позициям (указываем в последнюю очередь)
 			if($this->filtres_position != ''){
@@ -6667,10 +6700,13 @@
 							// ссылка на спецификацию
 							$html .= ''.$this->get_document_link($this->specificate,$this->specificate['client_id'],$this->specificate['create_time']);
 							
-							// номер запроса
-							$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
-							// снабжение
-							$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
+							if($this->user_access != 2){
+								// номер запроса
+								$html .= '&nbsp;<span class="greyText"> (<a href="?page=client_folder&client_id='.$this->specificate['client_id'].'&query_num='.$this->specificate['query_num'].'" target="_blank" class="greyText">Запрос №: '.$this->specificate['query_num'].'</a>)</span>';
+								// снабжение
+								$html .= '&nbsp; <span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->specificate['snab_id'],8).'</span>';
+							}							
+
 							// дата лимита + % предоплаты, если работаем по дате
 							if($this->specificate['date_type'] == 'date'){
 								$html .= '<br> <span class="greyText '.$this->red_flag_date_limit.'" style="padding:5px">оплатить '.$this->specificate['prepayment'].'% и утвердить макет до: '.$this->specificate['shipping_date_limit'].'</span>';
@@ -6765,9 +6801,10 @@
 					// $json = json_encode($_POST);
 
 					$json_str = '{';
-
+					$n = 0;
 					foreach ($_POST as $key => $value) {
-						$json_str .= '"'.$key.'":"'.$value.'"';
+						$json_str .= (($n > 0)?',':'').'"'.$key.'":"'.$value.'"';
+						$n++;
 					}
 					$json_str .= '}';
 
@@ -6820,9 +6857,10 @@
 						$html .= '<input type="button" class="get_size_table_read" data-id_dop_data="'.$this->position['quantity'].'" data-position_id="'.$this->position['id'].'" value="Подробно" >';
 						$html .= '</div>';
 					}else{
-						if($this->user_access == 9){
-							$html .= '<div class="command_for_edit_tz_for_no_cat '.(($this->position['flag_need_edit_tz_no_cat'] == 1)?'checked':'').'"  data-position_id="'.$this->position['id'].'"></div>';	
-						}else if($this->user_access == 8 || $this->user_access == 1){
+						$disabled_command_edit_tz = ($this->user_access != 1 && $this->user_access != 8 && $this->user_access != 9)?'disabled ':'';
+						$html .= '<div title="необходимо исправить ТЗ" class="'.$disabled_command_edit_tz.'command_for_edit_tz_for_no_cat '.(($this->position['flag_need_edit_tz_no_cat'] == 1)?'checked':'').'"  data-position_id="'.$this->position['id'].'"></div>';	
+
+						if($this->user_access == 8 || $this->user_access == 1){
 							$html .= '<div class="command_for_edit_tz_for_no_cat '.(($this->position['flag_need_edit_tz_no_cat'] == 1)?'checked':'').'"  data-position_id="'.$this->position['id'].'"></div>';	
 							$html .= '<div class="edit_tz_for_no_cat" data-id_dop_data="'.$this->position['quantity'].'" data-position_id="'.$this->position['id'].'" ></div>';	
 						}
@@ -6909,7 +6947,9 @@
 						$html .= '<span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span>';
 					$html .= '</td>';
 					$html .= '<td>';
+					if($this->user_access != 5){
 						$html .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
+					}						
 					$html .= '</td>';
 				$html .= '</tr>';	
 			$html .= '</table>';	

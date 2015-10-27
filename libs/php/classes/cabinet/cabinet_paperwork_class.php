@@ -69,7 +69,9 @@
 						// вывод html строк позиций по досументу 
 						// запрашивается раньше спец-ии, чтобы подсчитать её стоимость
 						$positions_rows = $this->table_order_positions_rows_Html();
-
+						if($positions_rows == ''){
+							continue;
+						}
 
 						// проверяем не просрочена ли дата оплаты
 						$this->check_type_the_document_and_payment_date();
@@ -183,9 +185,9 @@
 						$this->price_specificate += $this->Price_for_the_position;
 						$this->position_item++;
 						$this->position_num++;
-						}
-						return $html;
 					}
+					return $html;
+				}
 
 				// html шаблон вывода позиций  (МЕН/СНАБ/АДМИН)
 				// get_order_specificate_position_Html_Template()
