@@ -60,6 +60,17 @@
 		$return_json = '{"response":"OK"}'; 
 		echo $return_json; 
 	}
+	// редактирование принадлежности статуса ко вкладке тз не корректно
+	private function edit_status_get_performer_comment_AJAX(){
+		global $mysqli;
+
+		$query = "UPDATE `".USLUGI_STATUS_LIST."` SET 
+			`get_performer_comment` = '".$_POST['value']."'
+		 WHERE `id`='".$_POST['id_row']."'";
+		$result = $mysqli->multi_query($query) or die($mysqli->error);
+		$return_json = '{"response":"OK"}'; 
+		echo $return_json; 
+	}
 	
 	// получаем контент по услуге и статусам
 	private function get_edit_content_for_usluga_AJAX(){
@@ -616,8 +627,11 @@
 				}else{
 					$html .= $row['name']. '<span style="    color: rgba(255, 0, 0, 0.77); font-size:12px">&nbsp; статус зарезервирован системой </span>';
 				}
-				$html .= '&nbsp;&nbsp;<input type="checkbox" data-id="'.$row['id'].'" id="tz_incorrect'.$n.'" class="tz_incorrect" '.(($row['pause']=='on')?'checked':'').'><label for="tz_incorrect'.$n++.'">Вкладка ТЗ не корректно / пауза</label>';
-				// $html .= '<input type="checkbox" class="tz_incorrect" '.(($row['pause']=='on')?'checked':'').'>';
+
+				// checkbox для фильтра во вкладку пауза
+				$html .= '&nbsp;&nbsp;<input type="checkbox" data-id="'.$row['id'].'" id="tz_incorrect'.$n.'" class="tz_incorrect" '.(($row['pause']=='on')?'checked':'').'><label for="tz_incorrect'.$n++.'">Вкладка "пауза"</label>';
+				// get_performer_comment
+				$html .= '&nbsp;&nbsp;<input type="checkbox" data-id="'.$row['id'].'" id="get_performer_comment'.$n.'" class="get_performer_comment" '.(($row['get_performer_comment']=='on')?'checked':'').'><label for="get_performer_comment'.$n++.'">запросить коммантарий</label>';
 				
 				$html .= '</div>';
 			}

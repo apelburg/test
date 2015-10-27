@@ -40,6 +40,9 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
         <tr>
             <td>
                 <div>
+                    <?php 
+                    echo get_worked_link_for_cabinet();
+                   ?>
                     <a href="?page=clients&section=clients_list" class="<?php if($page=='clients')echo'selected'; ?>">Клиенты</a>
                 
                     <a href="?page=suppliers&section=suppliers_list" class="<?php if($page=='suppliers')echo'selected'; ?>">Поставщики</a>
@@ -62,9 +65,7 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
 
                    <!--  <a href="?page=cabinet&section=requests&subsection=no_worcked" class="<?php //if($page=='cabinet')echo'selected'; ?>">Кабинет</a> -->
 
-                   <?php 
-                    echo get_worked_link_for_cabinet();
-                   ?>
+                   
                     
                     <a href="?page=admin" class="<?php if($page=='admin')echo'selected'; ?>">Админка</a>
                 
