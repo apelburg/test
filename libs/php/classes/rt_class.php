@@ -615,7 +615,8 @@
 				$result = $mysqli->query($query)or die($mysqli->error);
 				while($item = $result->fetch_assoc()) $characteristics['materials'][] = $item['material'];
 				
-				$characteristics =(count($characteristics)>0)?json_encode($characteristics):'';
+				require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+				$characteristics =(count($characteristics)>0)?rtCalculators::json_fix_cyr(json_encode($characteristics)):'';
 					
 				// вносим основные данные о позиции в RT_MAIN_ROWS
 				// ПРИМЕЧАНИЕ id артикула на сегодняшний день из корзины  поступает в виде $data['article']
@@ -627,8 +628,7 @@
 												`art` = '".$art_data['art']."',
 												`name` = '".$art_data['name']."',
 												`description` = '".$art_data['description']."',
-												`characteristics` = '".$characteristics."'"; 
-												
+												`characteristics` = '".mysql_real_escape_string($characteristics)."'"; 								
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$row_id = $mysqli->insert_id;
 				

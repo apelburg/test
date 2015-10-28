@@ -172,18 +172,18 @@
             <td><label><input type="checkbox" name="dop_uslugi" onclick="kpDisplayManager.saveChanges(this);" />дополнительные услуги</label></td>
           </tr> -->
           </table>
-        <div style="margin:20px 0 0 20px;"><a href="#" onclick="return kpDisplayManager.saveChangesInBase();" class="someABtn">Сохранить</a></div>
+        <!-- <div style="margin:20px 0 0 20px;"><a href="#" onclick="return kpDisplayManager.saveChangesInBase();" class="someABtn">Сохранить</a></div>
          <table width="550" id="kpDisplayManagerBarTbl" style="margin-top:50px;font-size:11px;" border="0">
            <tr>
-            <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="0" <?php echo ($display_setting_2==0)?'checked':'';?> /><ul><li>Cумма нанесений точно по прайсу,</li><li>Общая стоимость нанесения: - вся стоимость нанесения с коэффициэнтами и надбавками</li><li>Общая стоимость доп услуг - только доп услуги</li></ul></label></td>
-          </tr>
+             <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="0" <?php echo ($display_setting_2==0)?'checked':'';?> /><ul><li>Cумма нанесений прайс плюс коэффициэнт печати и коэффициэнт цвета</li><li>Общая стоимость нанесения: - включает в себя блок который относится к печати логотипа(вся стоимость плюс коэффициэнт печати и коэффициэнт цвета)</li><li>Общая стоимость доп услуг - включает в себя все допуслуги из 3 блок</li></ul></label></td>
+           </tr>
            <tr>
-            <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="1" <?php echo ($display_setting_2==1)?'checked':'';?> /><ul><li>Cумма нанесений точно по прайсу</li><li>Общая стоимость нанесения: - вся стоимость нанесения без с коэффициэнтов и надбавок</li><li>Общая стоимость доп услуг - коэффициэнты и надбавки печати  и доп услуги</li></ul></label></td>
-          </tr>
+             <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="1" <?php echo ($display_setting_2==1)?'checked':'';?> /><ul><li>Cумма нанесений точно по прайсу</li><li>Общая стоимость нанесения: - вся стоимость нанесения без с коэффициэнтов и надбавок</li><li>Общая стоимость доп услуг - коэффициэнты и надбавки печати  и доп услуги</li></ul></label></td>
+           </tr>
            <tr>
-            <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="2" <?php echo ($display_setting_2==2)?'checked':'';?> /><ul><li>Cумма нанесений прайс плюс коэффициэнт печати и коэффициэнт цвета</li><li>Общая стоимость нанесения: - включает в себя блок который относится к печати логотипа(вся стоимость плюс коэффициэнт печати и коэффициэнт цвета)</li><li>Общая стоимость доп услуг - включает в себя все допуслуги из 3 блок</li></ul></label></td>
+             <td><label><input type="radio" name="deatils_tpl" onclick="kpDisplayManager.saveChangesRadio(this);" value="2" <?php echo ($display_setting_2==2)?'checked':'';?> /><ul><li>Cумма нанесений точно по прайсу,</li><li>Общая стоимость нанесения: - вся стоимость нанесения с коэффициэнтами и надбавками</li><li>Общая стоимость доп услуг - только доп услуги</li></ul></label></td>
           </tr>
-        </table>
+        </table> -->
         </div>
         
     </td>

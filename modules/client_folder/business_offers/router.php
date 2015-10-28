@@ -109,7 +109,8 @@
 		 exit;
 	 }
 	 if(isset($_POST['AJAX']) && isset($_POST['action'])){
-		 if($_POST['action']=='saveKpPosDescription') Com_pred::savePosDescription($_POST['id'],$_POST['field_val'],$_POST['field_name']);
+		 if($_POST['action']=='changeKpPosDescription') Com_pred::changePosDescription($_POST['id'],$_POST['field_val'],$_POST['field_name']);
+		 if($_POST['action']=='changeKpRepresentedData') Com_pred::changeRepresentedData($_POST['id'],$_POST['field_val'],$_POST['field_name']);//,$_POST['field_name']
 		 exit;
 	 }
 	
