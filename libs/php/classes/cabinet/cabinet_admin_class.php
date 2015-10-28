@@ -85,6 +85,16 @@
 			$this->user_id = $_SESSION['access']['user_id'];
 			$this->user_access = $user_access;
 
+			## данные POST
+			if(isset($_POST['AJAX'])){
+				$this->_AJAX_($_POST['AJAX']);
+			}
+
+			## данные GET --- НА ВРЕМЯ ОТЛАДКИ !!!
+			if(isset($_GET['AJAX'])){
+				$this->_AJAX_($_GET['AJAX']);
+			}
+			
 			}
 
 

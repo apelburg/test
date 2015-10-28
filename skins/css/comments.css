@@ -12,9 +12,8 @@
 	border:1px solid transparent;
 	background-image: url('../../skins/images/img_design/comment_icons.png');
 	background-repeat: no-repeat;
-	background-position-y: -7px;
-
-	background-position-x: -3px;
+	background-position-y: 5px;
+	background-position-x: 5px;
 }
 .icon_comment_show:hover,
 .icon_comment_order_show:hover{
@@ -22,12 +21,12 @@
 }
 .icon_comment_show.no_empty,
 .icon_comment_order_show.no_empty{
-	background-position-x: -57px;
+	background-position-x: -50px;
 }
 
 .icon_comment_show.white,
 .icon_comment_order_show.white{
-	background-position-y: -67px;
+	background-position-y: 5px;
 }
 .history_query {
 	background-color: #f1f1f1;

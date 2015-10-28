@@ -588,6 +588,13 @@ $(document).on('click','#cabinet_general_content .cabinett_row_hide',function() 
 	// 		standard_response_handler(data);
 	// 	},'json');
 	// }	
+	// замена класса строки заказа / запроса
+	if( $(this).parent().parent().hasClass('row_open') ){
+		$(this).parent().parent().removeClass('row_open').addClass('row_close');
+	}else if( $(this).parent().parent().hasClass('row_close') ){
+		$(this).parent().parent().removeClass('row_close').addClass('row_open');
+	}
+
 	if($(this).hasClass('show')){ // если поле скрыто
 		tbl_row_open($(this));
 	}else{ // если поле открыто
@@ -597,7 +604,13 @@ $(document).on('click','#cabinet_general_content .cabinett_row_hide',function() 
 
 // свернуть/развернуть строку ЗАКАЗА
 $(document).on('click','#cabinet_general_content .cabinett_row_hide_orders',function() {	
-	
+	// замена класса строки заказа / запроса
+	if( $(this).parent().parent().hasClass('row_open') ){
+		$(this).parent().parent().removeClass('row_open').addClass('row_close');
+	}else if( $(this).parent().parent().hasClass('row_close') ){
+		$(this).parent().parent().removeClass('row_close').addClass('row_open');
+	}
+
 	if($(this).hasClass('show')){ // если поле скрыто
 		tbl_row_open($(this));
 	}else{ // если поле открыто
@@ -995,9 +1008,9 @@ $(document).on('change','.status_snab select',function(){
 
 // запрос - прикрепить / сменить менеджера
 $(document).on('click', '.attach_the_manager', function(event) {
-	var client_id = Number($(this).parent().parent().find('.attach_the_client').attr('data-id'));
+	var client_id = Number($(this).parent().parent().parent().find('.attach_the_client').attr('data-id'));
 	var manager_id = Number($(this).attr('data-id'));
-	var rt_list_id = Number($(this).parent().parent().attr('data-id'));
+	var rt_list_id = Number($(this).parent().parent().parent().attr('data-id'));
 	$.post('', {
 		AJAX:'get_a_list_of_managers_to_be_attached_to_the_request',
 		client_id:client_id,
@@ -1013,10 +1026,10 @@ $(document).on('click', '.attach_the_manager', function(event) {
 // запрос - прикрепить / сменить клиента
 // вывод спика для выбора клиента, который будет прикреплён к запросу
 $(document).on('click', '.attach_the_client', function(event) {
-	var manager_id = Number($(this).parent().parent().find('.attach_the_manager').attr('data-id'));
+	var manager_id = Number($(this).parent().find('.attach_the_manager').attr('data-id'));
 	var client_id = Number($(this).attr('data-id'));
-	var rt_list_id = Number($(this).parent().parent().attr('data-id'));
-	var obj = $(this).parent().parent();
+	var rt_list_id = Number($(this).parent().attr('data-id'));
+	var obj = $(this).parent();
 	$.post('', {
 		AJAX:'get_a_list_of_clients_to_be_attached_to_the_request',
 		client_id:client_id,
@@ -3206,4 +3219,7 @@ jQuery(function($){
   
 });
 
-// клик по неактивной кнопке
+$(document).on('click', '.filter_class', function(event) {
+	event.preventDefault();
+	window.location.href = $(this).attr('data-href');
+});

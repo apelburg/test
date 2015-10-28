@@ -128,7 +128,7 @@
 				`".RT_LIST."`.*, 
 				(UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)-UNIX_TIMESTAMP())*(-1) AS `time_attach_manager_sec`,
 				SEC_TO_TIME(UNIX_TIMESTAMP()-UNIX_TIMESTAMP(`os__rt_list`.`time_attach_manager`)) AS `time_attach_manager`,
-				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i:%s')  AS `create_time`
+				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i')  AS `create_time`
 				FROM `".RT_LIST."`";
 				
 			if($id_row==1){
@@ -176,6 +176,7 @@
 
     	// шаблон html вывода запроса
     	protected function request_Template($id_row){
+    		
     		// вывод шапки главной таблицы
     		echo $this->get_header_general_tbl();
 
@@ -255,39 +256,21 @@
 					$general_tbl_row_body = $this->get_row_query_Html_temp();
 					
 					// если запрос по строке, возвращаем строку
-					if($id_row != 0){return $general_tbl_row_body;}
+					if($id_row != 0){
+						return $general_tbl_row_body;
+					}
 
-					$general_tbl_row .= '<tr data-id="'.$this->Query['id'].'" id="rt_list_id_'.$this->Query['id'].'"  class="order_head_row" '.$this->open_close_tr_style.'>
+					$general_tbl_row .= '<tr data-id="'.$this->Query['id'].'" id="rt_list_id_'.$this->Query['id'].'"  class="order_head_row '.$this->open_close_row_class.'" '.$this->open_close_tr_style.'>
 										'.$general_tbl_row_body.'
 										</tr>';
 					
 					$general_tbl_row .= '<tr class="query_detail" '.$this->open_close_tr_style.'>';
-						//$general_tbl_row .= '<td class="show_hide"><span class="cabinett_row_hide"></span></td>';
-						// $general_tbl_row .= '<td colspan="7" class="each_art">';
-
-						// шапка таблицы вариантов запроса
-						// $variant_top = '<table class="cab_position_div">
-						// 	<tr>
-						// 		<th>артикул</th>
-						// 		<th>номенклатура</th>
-						// 		<th>тираж</th>
-						// 		<th>цены:</th>
-						// 		<th>товар</th>
-						// 		<th>печать</th>
-						// 		<th>доп. услуги</th>
-						// 		<th>в общем</th>
-						// 		<th></th>
-						// 		<th></th>
-						// 	</tr>';
-
-
-						// прикручиваем найденные варианты
-						$general_tbl_row .=	$html;
-						// закрываем теги
-						// $general_tbl_row .= '</table>';
-						// $general_tbl_row .= '</td>';
+				
+					// прикручиваем найденные варианты
+					$general_tbl_row .=	$html;
 					
 					$general_tbl_row .= '</tr>';
+					
 					echo $general_tbl_row;
 					unset($general_tbl_row);	
 					$this->query_num = $this->Query['query_num'];		
@@ -295,12 +278,17 @@
 			echo $this->get_footer_tbl();
 		}
 
-		// строка запроса
+		// шаблон строки строки запроса
 		protected function get_row_query_Html_temp(){
 			$html  = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->rowspan.'"><span class="cabinett_row_hide '.$this->open_close_class.'"></span></td>';
 			$html .= '<td><a href="./?page=client_folder&client_id='.$this->Query['client_id'].'&query_num='.$this->Query['query_num'].'">'.$this->Query['query_num'].'</a> </td>';
-			$html .= '<td><span data-sec="'.$this->Query['time_attach_manager_sec']*(-1).'" '.$this->overdue.'>'.$this->Query['time_attach_manager'].'</span>'.$this->get_manager_name_Database_Html($this->Query['manager_id']).'</td>';
-			$html .= '<td>'.$this->get_client_name_Database($this->Query['client_id']).'</td>';
+			
+			$html .= $this->get_client_name_for_qury_Database($this->Query['client_id']);
+			$html .= '<td>';
+				$html .= '<div>'.$this->get_manager_name_Database_Html($this->Query['manager_id']).'</div>';
+				$html .= '<div style="padding-top: 5px;"><span class="greyText" data-sec="'.$this->Query['time_attach_manager_sec']*(-1).'" '.$this->overdue.'>'.$this->Query['time_attach_manager'].'</span></div>';
+				
+			$html .= '</td>';
 			$html .= '<td>'.$this->Query['create_time'].'</td>';
 			$html .= '<td></td>';
 			$html .= '<td><span data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span></td>';
@@ -310,7 +298,7 @@
 			return $html;
 		}
 
-		// возвращает строку с названиями ячеек по позициям
+		// шаблон строки с названиями ячеек по позициям
 		protected function get_header_start_position_list_tr(){
 			$html = '<tr class="query_detail cab_position_div" '.$this->open_close_tr_style.'>';
 				$html .= '<th>артикул</th>';
@@ -329,7 +317,7 @@
 		protected function position_dop_data_Temp($Query, $position){
 			$html = '<tr data-id_dop_data="'.$position['id_dop_data'].'" class="'.$position['type'].'_1 query_detail" '.$this->open_close_tr_style.'">';
 				$html .= '<td>'.$position['art'].'</td>';
-				$html .= '<td><a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Query['client_id'].'&section=rt_position&id='.$position['id'].'">'.$position['name'].'</a> <span class="variant_comments_dop">( Вариант '.$this->name_count++.' )</span></td>';
+				$html .= '<td><a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Query['client_id'].'&section=rt_position&id='.$position['id'].'">'.$position['name'].'</a> <span class="greyText"> вар '.$this->name_count++.'</span></td>';
 				$html .= '<td>'.$position['quantity'].'</td>';
 				$html .= '<td>'.$this->Price_for_the_goods.'</td>';
 				$html .= '<td>'.$this->Price_of_printing.'</td>';
@@ -340,17 +328,17 @@
 			return $html;
 		}
 
-		// возвращает шапку главной таблицы
+		// шаблон шапки главной таблицы
 		protected function get_header_general_tbl(){
-			$html = '<table class="cabinet_general_content_row">';
+			$html = '<table class="query_tbl" id="general_panel_orders_tbl">';
 				$html .= '<tr>';
 					$html .= '<th id="show_allArt"></th>';
-					$html .= '<th>Номер</th>';
-					$html .= '<th>Куратор компании</th>';					
+					$html .= '<th>Номер</th>';					
 					$html .= '<th>Компания</th>';
-					$html .= '<th>Дата запроса</th>';
+					$html .= '<th>Менеджер</th>';
+					$html .= '<th style="width:87px">Дата запроса</th>';
 					$html .= '<th></th>';
-					$html .= '<th>Коммент</th>';
+					$html .= '<th>Комментарий</th>';
 					$html .= '<th>Сумма</th>';
 					$html .= '<th>Статус</th>';
 				$html .= '</tr>';
