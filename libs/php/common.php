@@ -82,7 +82,7 @@
 	function cor_data_for_SQL($data){
 	    if(is_int($data) || is_double($data)) return($data);
 	    //return strtr($data,"1","2");
-		$data = strip_tags($data,'<b><br><a>');
+		$data = strip_tags($data,'<b><br><br /><a>');
 		return mysql_real_escape_string($data);
 	}
 	

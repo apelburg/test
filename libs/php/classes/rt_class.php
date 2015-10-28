@@ -593,12 +593,31 @@
 			
 			$sort_id = 0;
 			foreach($basket_arr as $data){
+			    $id =  $data['article'];
+				$characteristics = array();
+			
 				// выбираем из базы каталога данные об артикуле
-				$query = "SELECT*FROM `".BASE_TBL."` WHERE id = '".$data['article']."'"; 								
+				$query = "SELECT*FROM `".BASE_TBL."` WHERE id = '".$id."'"; 								
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$art_data = $result->fetch_assoc();
 			
-			
+				///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				//                                         получаем цвета артикула                                           //
+				///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				$query = "SELECT color FROM `".BASE_COLORS_TBL."` WHERE  art_id ='".$id."' AND color<>''";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				while($item = $result->fetch_assoc()) $characteristics['colors'][] = $item['color'];
+				
+				///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				//                                      получаем материалы артикула                                          //
+				///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				$query = "SELECT*FROM `".BASE_MATERIALS_TBL."` WHERE  art_id ='".$id."'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				while($item = $result->fetch_assoc()) $characteristics['materials'][] = $item['material'];
+				
+				require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+				$characteristics =(count($characteristics)>0)?rtCalculators::json_fix_cyr(json_encode($characteristics)):'';
+					
 				// вносим основные данные о позиции в RT_MAIN_ROWS
 				// ПРИМЕЧАНИЕ id артикула на сегодняшний день из корзины  поступает в виде $data['article']
 				$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 
@@ -607,8 +626,9 @@
 												`type` = 'cat',
 												`art_id` = '".$data['article']."',
 												`art` = '".$art_data['art']."',
-												`name` = '".$art_data['name']."'"; 
-												
+												`name` = '".$art_data['name']."',
+												`description` = '".$art_data['description']."',
+												`characteristics` = '".mysql_real_escape_string($characteristics)."'"; 								
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$row_id = $mysqli->insert_id;
 				

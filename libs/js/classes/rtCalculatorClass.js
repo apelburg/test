@@ -1196,17 +1196,21 @@ var rtCalculator = {
 			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
 			if(trsArr[i].getAttribute('pos_id')){
 				pos_id = trsArr[i].getAttribute('pos_id');
-				
+				console.log(pos_id);
 				// работаем с рядом - ищем мастер кнопку 
 				var inputs = trsArr[i].getElementsByTagName('input');
 				for( var j= 0 ; j < inputs.length; j++){
-					if(!(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn' && inputs[j].checked == true)) pos_id = false;/*{
+					if(inputs[j].type == 'checkbox' && inputs[j].name == 'masterBtn'){
+						if(inputs[j].checked != true) pos_id = false;
+					}
+					/*{
 						  // if(inputs[j].getAttribute('rowIdNum') && inputs[j].getAttribute('rowIdNum') !=''){inputs[j].getAttribute('rowIdNum')
 								 idsObj[pos_id] = {}; 
 				    }
 					else  pos_id = false;*/
 				}
 			}
+			console.log(pos_id);
 			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие до нового ряда позици на нажатие зеленой кнопки
 			// светофора (позиции для отправки в КП)
 			if(pos_id!==false){
