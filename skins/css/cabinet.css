@@ -73,7 +73,7 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 	background-color: #e2e2e2; 
 	color: grey;
 }
-td.show_hide{
+#general_panel_orders_tbl td.show_hide{
 	width: 15px; 
 	cursor: default;
 }
@@ -91,30 +91,94 @@ td.show_hide{
     color: #017E46;
 }
 .query_detail{display: none}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl tr th:nth-of-type(5),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl tr th:nth-of-type(7),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl tr th:nth-of-type(8){
+	text-align: right;
+}
+
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th:nth-of-type(1),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th:nth-of-type(2){
+	text-align: left;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th:nth-of-type(3),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th:nth-of-type(4),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th:nth-of-type(5),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th:nth-of-type(6),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th:nth-of-type(7){
+	text-align: right;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th:nth-of-type(3){width: 120px;}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.query_detail td:nth-of-type(3),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.query_detail td:nth-of-type(4),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.query_detail td:nth-of-type(5),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.query_detail td:nth-of-type(6),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.query_detail td:nth-of-type(7){
+	text-align: right;
+}
+
+#cabinet_general_content #general_panel_orders_tbl  tr.order_head_row.row_open td{
+
+    box-shadow: inset 0 15px 15px  -17px #333 , inset 0 0px 0px  -15px ;
+   
+}
+#cabinet_general_content #general_panel_orders_tbl  tr.order_head_row.row_open td table tr td{
+	box-shadow: none;
+	background: none;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.cab_position_div th{
+	border-right: none;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.query_detail:hover td{
+	background: #F1F1F1;
+}
+
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr td .icon_comment_show,
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr td .icon_comment_order_show{
+	float: right;
+}
+
+
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.order_head_row td:nth-of-type(8){
+	text-align: right;
+}
+
 .cabinett_row_hide,
 .cabinett_row_hide_orders{
 	border-top: 1px solid #e2e2e2;
-  border-bottom: 1px solid #e2e2e2;
-  content: "";
-  position: absolute;
-  width: 25px;
-  margin-left: -5px;
-  height: 100%;
-  background: #f1f1f1;
-  background-image: url('../../skins/images/img_design/cabinet_1.png');
-  background-position: 50%;
-  background-repeat: no-repeat;
-  color: grey;
-  top: -1px;
-  /*padding-top: 25px;*/
+	border-bottom: 1px solid #e2e2e2;
+	border-right: 1px solid #E2E2E2;
+	content: "";
+	position: absolute;
+	width: 24px;
+	margin-left: -5px;
+	height: 100%;
+	background: #f1f1f1;
+	background-image: url('../../skins/images/img_design/cabinet_1.png');
+	background-position: 50%;
+	background-repeat: no-repeat;
+	color: grey;
+	top: -1px;
+	/*padding-top: 25px;*/
+	background-color: #e2e2e2;
 }
 .cabinett_row_hide.show,
 .cabinett_row_hide_orders.show{
 	background-image: url('../../skins/images/img_design/cabinet_2.png');
+	background-color: #F7F7F7;
+
 }
 .cabinett_row_hide:hover,
 .cabinett_row_hide_orders:hover{
-	background-color: #e2e2e2;
+	border-right:1px solid #bbbaba;
+	background-color: #bbbaba;
+ 	border-top: 1px solid #B0AAAA;
+ 	border-bottom: 1px solid #B0AAAA;
+ 	z-index: 2;
+}
+.cabinett_row_hide.show:hover,
+.cabinett_row_hide_orders.show:hover{
+ 	background-color:#E2E2E2;
  	border-top: 1px solid #B0AAAA;
  	border-bottom: 1px solid #B0AAAA;
  	z-index: 2;
@@ -175,16 +239,34 @@ tr.cat_8 td {
 .take_in_operation,
 .get_in_work{
 	padding: 5px;
-	border: 1px solid #92B73E;
+	border: 1px solid #ACBF82;
 	cursor: default;
-	float: left;
+	/*float: left;*/
 }
+
+
 .attach_the_manager:hover,
 .attach_the_client:hover,
 .take_in_operation:hover,
 .get_in_work:hover{
-	background-color: #f1f1f1;
+	background-color: #BAD08B;
 }
+.row_close .attach_the_manager:hover,
+.row_close .attach_the_client:hover,
+.row_close .take_in_operation:hover,
+.row_close .get_in_work:hover{
+	background-color: #E2E2E2;
+}
+.row_close .attach_the_manager,
+.row_close .attach_the_client,
+.row_close .take_in_operation,
+.row_close .get_in_work{
+	padding: 5px;
+	border: 1px solid #E2E2E2;
+	cursor: default;
+	/*float: left;*/
+}
+
 
 #chose_manager_tbl table,#chose_client_tbl table{
 	width: 100%;
@@ -210,21 +292,32 @@ tr.cat_8 td {
 }
 
 #cabinet_general_content  #general_panel_orders_tbl th{
-	background-color: #fff;
-  border-right: 1px solid #BDBDBD;
-  border-top: 1px solid #6d6e72;
-
-  border-bottom: 1px solid #6d6e72;
-  color: #767676;
-  padding: 5px;
+	background-color: #F1F1F1;
+	border-right: 1px solid #BDBDBD;
+	/*border-top: 1px solid #6d6e72;
+	border-bottom: 1px solid #6d6e72;*/
+	border-top: 1px solid #98A57B;
+    border-bottom: 1px solid #E2E2E2;
+	color: #767676;
+	padding: 5px;
 }
 
 #general_panel_orders_tbl{
 	font-size: 12px;
 }
-#general_panel_orders_tbl .order_head_row td{
+/*#general_panel_orders_tbl .order_head_row td{
     background-color: #c8db9e;
 }
+#general_panel_orders_tbl .order_head_row td {
+    background: rgb(200, 219, 158);
+}*/
+.order_head_row.row_open td {
+    background: rgb(200, 219, 158);
+}
+.order_head_row.row_close td {
+    background: #F7F7F7;
+}
+
 #general_panel_orders_tbl .specificate_rows td{
 	background-color: #e9f1ff;
 }
@@ -313,7 +406,18 @@ tr.cat_8 td {
     position: relative;
     margin: 0;
 }
-
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row td.attach_the_client{
+	padding: 5px;
+	border:none;
+	border-top: 1px solid #E2E2E2;
+	cursor: default;
+}
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row td.attach_the_client:hover{
+	background-color: #BAD08B;
+}
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.row_close td.attach_the_client:hover{
+	background-color: #E2E2E2;
+}
 #chose_supplier_tbl tr td{
   padding: 2px 5px; /*cursor: default;*/
   cursor: pointer;
@@ -608,7 +712,7 @@ table.cabinet_general_content_row tr td.select_global_status_paperwork:hover{
 	display: none; /*скрыть позиции*/
 }
 #cabinet_general_content table#general_panel_orders_tbl tr.order_head_row td{
-	border-top: 1px solid #6d6e72;
+	border-top: 1px solid #E2E2E2;
 }
 #cabinet_general_content table#general_panel_orders_tbl tr.position-row-production td{
 	border: 1px solid #f1f1f1;
@@ -761,19 +865,35 @@ input.calendar_date_ready{
 
 #cabinet_general_content table tr th.buh_uchet,
 #cabinet_general_content table tr th.buh_uchet_for_spec,
-#cabinet_general_content table tr th.buh_uchet_for_щквук{
+#cabinet_general_content table tr th.buh_uchet_for_order{
 	text-align: center;
 }
 #cabinet_general_content table tr td.buh_uchet,
 #cabinet_general_content table tr td.buh_uchet_for_spec,
 #cabinet_general_content table tr td.buh_uchet_for_order{
-	background-image: url('../../skins/images/img_design/open_buch_uchet.png');
+	background-image: url('../../skins/images/img_design/BUCH.png');
 	background-position: 50%;
 	background-repeat: no-repeat;
 }
+
+#cabinet_general_content table tr.order_head_row.row_open td.buh_uchet,
+#cabinet_general_content table tr.order_head_row.row_open td.buh_uchet_for_spec,
+#cabinet_general_content table tr.order_head_row.row_open td.buh_uchet_for_order{
+	background-image: url('../../skins/images/img_design/BUCH_color.png');
+	background-position: 50%;
+	background-repeat: no-repeat;
+}
+
+
 .buh_uchet:hover,
 .buh_uchet_for_spec:hover,
 #cabinet_general_content .buh_uchet_for_order:hover{
+	background-color: #E2E2E2;
+    cursor: pointer;
+}
+.row_open .buh_uchet:hover,
+.row_open .buh_uchet_for_spec:hover,
+#cabinet_general_content .row_open .buh_uchet_for_order:hover{
 	background-color: #BBCE91;
     cursor: pointer;
 }
@@ -1253,4 +1373,30 @@ input.get_a_detailed_specifications {
 }
 #edit_tz_no_cat_for_order_width_snab_and_admin .row .cell:nth-of-type(1){
 	width: 300px;
+}
+#cabinet_general_content .filter_class{
+	background-image: url('../../skins/images/img_design/filter_class_bg.png');
+	background-position: top right;
+	background-repeat: no-repeat;
+}
+#cabinet_general_content .filter_class:hover{
+	background-color: rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+}
+.men_in_order{
+	width: 90%;
+    padding: 1%;
+}
+
+#general_panel_orders_tbl.order_tbl tr th:nth-of-type(5),
+#general_panel_orders_tbl.order_tbl .order_head_row  td:nth-of-type(5),
+#general_panel_orders_tbl.order_tbl .position-row  td:nth-of-type(6),
+#general_panel_orders_tbl.order_tbl .specificate_rows  td:nth-of-type(3){
+	text-align: right;
+}
+#general_panel_orders_tbl.order_tbl tr th:nth-of-type(5){
+	width: 80px
+}
+#general_panel_orders_tbl.order_tbl .position-row  td:nth-of-type(6){
+	width: 15px;
 }

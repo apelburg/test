@@ -163,28 +163,37 @@
 						}
 					}
 			}
+
 			//////////////////////////
 			//	заказ создан
 			//////////////////////////
+			// шаблон шапки главной таблицы
+			protected function get_header_general_tbl(){
+				$html = '<table id="general_panel_orders_tbl" class="order_tbl">';
+					$html .= '<tr>';
+						$html .= '<th colspan="1"></th>';
+						$html .= '<th colspan="2">Номер</th>';
+						$html .= '<th>Компания</th>';
+						$html .= '<th colspan="3">Менеджер отдела</th>';
+						$html .= '<th>Сумма</th>';
+						$html .= '<th>Бух. учёт</th>';
+						$html .= '<th>Комментарий</th>';
+						$html .= '<th>Срок сдачи</th>';
+						$html .= '<th  colspan="2">статус</th>';
+					$html .= '</tr>';
+				return $html;
+			}
+
+			// возвращает закрывающий тег главной таблицы
+			protected function get_footer_tbl(){
+				return '</table>';
+			}
 				// html шаблон заказа (МЕН/СНАБ/АДМИН)
 				private function order_standart_rows_Template($id_row=0){
 
 					
 					$html = '';
-					$table_head_html = '
-						<table id="general_panel_orders_tbl">
-						<tr>
-							<th colspan="3">Артикул/номенклатура/печать</th>
-							<th>тираж<br>запас</th>
-							<th>поставщик товара и резерв</th>
-							<th>подрядчик печати</th>
-							<th>сумма</th>
-							<th>тех + доп инфо</th>
-							<th>дата утв. макета</th>
-							<th>дата сдачи</th>
-							<th  colspan="2">статус</th>
-						</tr>
-					';
+					$table_head_html = $this->get_header_general_tbl();
 
 					$this->collspan = 12;
 
@@ -247,22 +256,22 @@
 
 
 						// формируем строку с информацией о заказе
-						$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
+						$table_order_row .= '<tr class="order_head_row '.$this->open_close_row_class.'" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
 						
 						//////////////////////////
 						//	тело строки заказа -- start ---
 						//////////////////////////
 							$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.($this->rows_num+1).'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
-							$table_order_row2_body .= '<td colspan="5" class="orders_info">';
+							// $table_order_row2_body .= '<td colspan="6" class="orders_info">';
 									
 							// исполнители заказа
-							$table_order_row2_body .= $this->performer_table_for_order();								
+							$table_order_row2_body .= $this->performer_table_standart_for_order();								
 
-							$table_order_row2_body .= '</td>';
+							// $table_order_row2_body .= '</td>';
 							
 							
 							// стоимость заказа
-							$table_order_row2_body .= '<td><span class="show_the_full_information">'.$this->price_order.'</span> р.</td>';
+							$table_order_row2_body .= '<td><span class="show_the_full_information">'.$this->money_format($this->price_order).'</span></td>';
 							
 							// бух учет
 							$table_order_row2_body .= '<td class="buh_uchet_for_order" data-id="'.$this->Order['order_num'].'"></td>';
@@ -2269,7 +2278,9 @@
 									
 								// исполнители заказа
 								$table_order_row .= $this->performer_table_for_order();
-								
+								$table_order_row .= '</td>';
+
+
 								// дата сдачи
 								$table_order_row .= '<td>';
 									$table_order_row .= $this->order_shipping_date;

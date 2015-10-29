@@ -685,8 +685,8 @@
 					// $this->performer_status = ''.$this->performer_status.'</a>';
 				}
 				$html .= '<tr>';
-					$html .= '<td style="width: 78px;">';
-					$html .= '<div class="otdel_name"><a href="'.$this->link_enter_to_filters('status_snab',$cab_order_main_row['status_snab']).'">Снабжение</a></div>';
+					$html .= '<td style="width: 78px;"  class="filter_class" data-href="'.$this->link_enter_to_filters('status_snab',$cab_order_main_row['status_snab']).'">';
+					$html .= '<div class="otdel_name" style="padding: 5px;">Снабжение</div>';
 					$html .= '</td>';
 					$html .= '<td>';				
 
@@ -3613,6 +3613,8 @@
 					$this->open_close_rowspan = "rowspan";
 					// стили для строк которые скрываем или показываем
 					$this->open_close_tr_style = ' style="display: table-row;"';
+					// доп class открытия / закрытия для строки заказа/ запроса
+					$this->open_close_row_class = " row_open";
 					return true;
 				}else{
 					// class для кнопки показать / скрыть
@@ -3621,6 +3623,8 @@
 					$this->open_close_rowspan = "data-rowspan";
 					// стили для строк которые скрываем или показываем
 					$this->open_close_tr_style = '';
+					// доп class открытия / закрытия для строки заказа/ запроса
+					$this->open_close_row_class = " row_close";
 					return false;
 				}
 			}
@@ -5184,18 +5188,23 @@
 
 
 				// стоимость товара
-				$this->Price_for_the_goods = $position['price_out'] * ($position['quantity']+$position['zapas']);
+				$this->Price_for_the_goods = $this->money_format( $position['price_out'] * ($position['quantity']+$position['zapas']) );
 				// стоимость услуг печати
-				$this->Price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity']));
+				$this->Price_of_printing = $this->money_format( $this -> calc_summ_dop_uslug($dop_usl_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity'])) );
 				// стоимость услуг не относящихся к печати
-				$this->Price_of_no_printing = $this-> calc_summ_dop_uslug($dop_usl_no_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity']));
+				$this->Price_of_no_printing = $this->money_format( $this->calc_summ_dop_uslug($dop_usl_no_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity'])) );
 				// общаяя цена позиции включает в себя стоимость услуг и товара
-				$this->Price_for_the_position = $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing;
+				$this->Price_for_the_position = $this->money_format( $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing );
 					
 
 			////////////////////////////////////
 			//	Расчёт стоимости позиций END
 			////////////////////////////////////
+		}
+
+		// денежный формат
+		protected function money_format($number){
+			return number_format($number, 2, '.', ' ');
 		}
 
 		// преобразует статус снабжения в читабельный вид
@@ -5417,6 +5426,22 @@
 			}
 			return $name;
 		}
+		// выводит имя клиента для запроса в форме редактирования
+		protected function get_client_name_for_qury_Database($id){
+			global $mysqli;		
+			//получаем название клиента
+			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$name = '';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$name = '<td class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</td>';
+				}
+			}else{
+				$name = '<td'.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</td>';
+			}
+			return $name;
+		}
 
 		// выводит имя клиента для запроса в форме редактирования
 		protected function get_client_name_simple_Database($id,$no_edit=0){
@@ -5487,7 +5512,7 @@
 		// получаем имя менеджера
 		protected 	function get_manager_name_Database_Html($id,$no_edit=0){
 		    global $mysqli;
-		    $String = '<span'.(($no_edit==0)?' class="attach_the_manager add"':' class="dop_grey_small_info"').' data-id="0">Прикрепить менеджера</span>';
+		    $String = '<div'.(($no_edit==0)?' class="attach_the_manager add"':' class="dop_grey_small_info"').' data-id="0">Прикрепить менеджера</div>';
 		   	$arr = array();
 		    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `id` = '".(int)$id."'";
 		    $result = $mysqli->query($query)or die($mysqli->error);
@@ -5497,7 +5522,12 @@
 				}
 		    }		    
 		    if(count($arr)){
-		    	$String = '<span'.(($no_edit==0)?' class="attach_the_manager"':' class="dop_grey_small_info"').' data-id="'.$arr['id'].'">'.$arr['name'].' '.$arr['last_name'].'</span>';
+		    		$name = $arr['name']; 
+		    	if($arr['last_name'] != ''){
+		    		$name = mb_substr($name, 0,2);
+					$name = ($name!='')?$name.'.':'';
+		    	}
+		    	$String = '<div'.(($no_edit==0)?' class="attach_the_manager"':' class="dop_grey_small_info"').' data-id="'.$arr['id'].'">'.$arr['last_name'].' '.$name.'</div>';
 		    }
 		    return $String;
 		}
@@ -5749,47 +5779,6 @@
 				}
 			}
 			return $arr;
-		}
-
-		// отработка кнопок фильтров горизонтального меню
-		protected function get_filter_list_Order($where){
-			if (isset($_GET['subsection'])) {
-				switch ($this->user_access) {
-					case '1': // админы
-						break;
-
-					case '2': // бух
-						break;
-
-					case '4': // пр-во
-						// фильтрация по заказу отсутствует
-						break;
-
-					case '5': // мен
-						
-						break;
-
-					case '6': // доставка
-						# code...
-						break;
-
-					case '7': // склад
-						# code...
-						break;
-
-					case '8': // снабжение
-						# code...
-						break;
-
-					case '9': // диз
-						# code...
-						break;
-					
-					default:
-						# code...
-						break;
-				}
-			}
 		}
 
 		protected function get_a_detailed_article_on_the_price_of_positions_Html(){
@@ -6694,7 +6683,7 @@
 					$this->rows_num++;
 					$html = '';
 					$html .= '<tr  class="specificate_rows" '.$this->open_close_tr_style.' data-id="'.$this->specificate['id'].'">';
-						$html .= '<td colspan="4">';
+						$html .= '<td colspan="5">';
 							// спецификация
 							// $html .= 'Спецификация '.$this->specificate_item;
 							// ссылка на спецификацию
@@ -6725,7 +6714,7 @@
 
 						// сумма по спецификации
 						$html .= '<td>';
-							$html .= '<span>'.$this->price_specificate.'</span>р';
+							$html .= '<span>'.$this->money_format($this->price_specificate).'</span>';
 						$html .= '</td>';
 						
 						// % оплаты
@@ -6841,11 +6830,9 @@
 					$html = '';
 					$html .= '<tr class="position-row position-row-production" id="position_row_'.$this->position['sequence_number'].'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
 					// порядковый номер позиции в заказе
-					
-						
-					$html .= '<td><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
+					$html .= '<td style="width:15px"><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
 					// описание позиции
-					$html .= '<td style="width:300px">';
+					$html .= '<td colspan="2" style="width:300px">';
 					// комментарии
 					// наименование товара
 					$html .= '<div style="position:relative">';
@@ -6956,6 +6943,52 @@
 			return $html;
 		}
 		
+		// шаблон html исполнителей по заказу
+		protected function performer_table_standart_for_order(){
+			$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
+			// $html = '<table class="curator_on_request">';
+				// $html .= '<tr>';
+				$html = '<td colspan="2" class="filter_class" data-href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">';
+					$html .= '<div>'.$this->order_num_for_User.'</div>';
+				$html .= '</td>';
+
+				$array_client = $this->get_client_name_Array_Database($this->Order['client_id']);
+				$html .= '<td  colspan="1"  class="filter_class" data-href="'.$array_client['link'].'">';
+					$html .= '<div>'.$array_client['name'].'</div>';
+				$html .= '</td>';
+				
+				$html .= '<td colspan="3">';
+					if($this->user_access != 5){
+						$html .= '<div class="filter_class men_in_order" data-href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'"><span class="greyText">менеджер:'.$this->meneger_name_for_order.'</span></div>';
+					}						
+					$html .= '<div class=" men_in_order" data-href=""><span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span></div>';
+				$html .= '</td>';
+					// $html .= '<td>';
+					// if($this->user_access != 5){
+					// 	$html .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
+					// }						
+					// $html .= '</td>';
+				// $html .= '</tr>';	
+			// $html .= '</table>';	
+			return $html;
+		}
+		// выводит имя клиента в заказе, по ссылке в url добавляется id клиента
+		protected function get_client_name_Array_Database($id){
+			global $mysqli;		
+			//получаем название клиента
+			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$arr['name'] = 'Клиент не прикреплён';
+			$arr['link'] = '#';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr['link'] = ((!isset($_GET['client_id']) || (isset($_GET['client_id']) && $_GET['client_id']!=$row['id']))?$this->change_one_get_URL('client_id').$row['id'].'"':'');
+					$arr['name'] = $this->str_reduce($row['company'],45);
+				}
+			}
+			return $arr;
+		}
+
 		private function wrap_text_in_warning_message_post($text){
 			$html = '<div class="warning_message"><div>';	
 			$html .= $text;

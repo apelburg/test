@@ -368,7 +368,7 @@
 					if($table_order_positions_rows == ''){continue;}
 
 					// формируем строку с информацией о заказе
-					$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
+					$table_order_row .= '<tr class="order_head_row '.$this->open_close_row_class.'" data-id="'.$this->Order['id'].'" data-order_num="'.$this->Order['order_num'].'">';
 					
 			
 					//////////////////////////
