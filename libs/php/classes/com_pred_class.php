@@ -95,6 +95,8 @@
 			   if($result->num_rows>0){
 			       $row=$result->fetch_assoc();
 				   
+				   $description = ($row['description']!='')? 'описание: '.$row['description']:'';
+				   
 				   if($row['characteristics']!=''){
 				       $arr =  json_decode($row['characteristics'],TRUE);
 					   $ch_arr = array();
@@ -155,7 +157,7 @@
 									   `price_out` = '".$row3['price_out']."',
 									   `discount` = '".$row3['discount']."',
 									   `details` = '".$details."',
-									   `tirage_json` = '".$row3['tirage_json']."'  
+									   `tirage_str` = '".Com_pred::convertTirageJSON($row3['tirage_json'])."' 
 									  ";
 		 			       $result4 = $mysqli->query($query4)or die($mysqli->error);
 						   $dop_row_id = $mysqli->insert_id; 
@@ -308,7 +310,7 @@
 		   $query = "SELECT list_tbl.recipient_id AS recipient_id ,list_tbl.display_setting AS display_setting ,list_tbl.display_setting_2 AS display_setting_2, main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.characteristics AS characteristics, main_tbl.description AS description,	
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
-dop_data_tbl.details AS details, 	  
+dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, 		  
 						  dop_uslugi_tbl.id AS uslugi_id ,dop_uslugi_tbl.uslugi_id AS dop_usluga_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.for_how AS for_how, dop_uslugi_tbl.print_details AS print_details
 		          FROM
@@ -346,6 +348,7 @@ dop_data_tbl.details AS details,
 																	'expel' => $row['expel'],
 																	'shipping_date' => $row['shipping_date'],
 																	'shipping_time' => $row['shipping_time'],
+																	'tirage_str' => $row['tirage_str'],
 																	'details' => $row['details'],
 																	'quantity' => $row['dop_t_quantity'],
 																	'discount' => $row['dop_t_discount'],
@@ -429,16 +432,17 @@ dop_data_tbl.details AS details,
 	   }
 	   static function save_in_pdf_on_server($kp_id,$client_id,$user_id,$filename){
 	   
-            $html = self::open_in_blank($kp_id,$client_id,$user_id,true,true);
+            $html = self::open_in_blank($kp_id,$client_id,$user_id,true);
 			
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
 			$mpdf=new mPDF();
+			$mpdf->SetHTMLHeader('<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg"><br><br>'); 
 			$mpdf->WriteHTML($html,2);
 			$mpdf->Output($filename,'F');
 	   }
 	   static function save_in_pdf($kp_id,$client_id,$user_id,$filename = '1.pdf'){
 	   
-            $html = self::open_in_blank($kp_id,$client_id,$user_id,true,true);
+            $html = self::open_in_blank($kp_id,$client_id,$user_id,true);
 		    //echo $html;
 		    //exit;
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
@@ -448,6 +452,7 @@ dop_data_tbl.details AS details,
 	
 			$mpdf=new mPDF();
 			//$mpdf->WriteHTML($stylesheet,1);
+			$mpdf->SetHTMLHeader('<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg"><br><br>'); 
 			$mpdf->WriteHTML($html,2);
 			$mpdf->Output($filename,'D');
 			//$mpdf->Output();
@@ -746,7 +751,7 @@ dop_data_tbl.details AS details,
 		   return $rt;	
 		   	
 	   }
-	    static function open_in_blank($kp_id,$client_id,$user_id,$show_logo = true,$save_on_disk = false){
+	    static function open_in_blank($kp_id,$client_id,$user_id,$save_on_disk = false){
 	        global $mysqli;
 			
 		    // Здесь делаем то что в старой версии делали при сохранении КП в файл
@@ -809,7 +814,7 @@ dop_data_tbl.details AS details,
 				   $article = '';
 				}
 				else{
-				   $article = '<managedDisplay name="art" style="display:'.(isset($dispSetObj->art)?'none':'inline-block').'">арт.: <a href="/index.php?page=description&id='.@$id.'" target="_blank">'.@$pos_level['art'].'</a></managedDisplay>';
+				   $article = '<managedDisplay name="art" style="display:'.(isset($dispSetObj->art)?'none':'inline-block').'">арт.: <a href="/description/'.@$pos_level['art_id'].'/" target="_blank">'.@$pos_level['art'].'</a></managedDisplay>';
 				}
 				
 			
@@ -846,16 +851,32 @@ dop_data_tbl.details AS details,
 						<td style="width:6px;"></td>
 						<td>'.$article.'</td>
 					  </tr>
-					  <tr>
-						<td style="width:6px;"></td>
-						<td managed="text" bd_row_id="'.$pos_key.'" action="changeKpRepresentedData" bd_field="characteristics">'.$pos_level['characteristics'].'</td>
-					  </tr>
-					  <tr>
-						<td style="width:6px;"></td>
-						<td managed="text" bd_row_id="'.$pos_key.'" action="changeKpRepresentedData" bd_field="description">'.$pos_level['description'].'</td>
-					  </tr>
-					</table>
-					<table style="font-family:arial;font-size:13px;right;margin-top:10px;width:100%;border-collapse:collapse;width:350px;table-layout:_fixed;" border="0">
+					  </table>';
+					  if(!($save_on_disk && isset($dispSetObj->sizes))) $description_cell .= '<managedDisplay name="sizes" style="display:'.((!isset($dispSetObj->sizes) && $r_level['tirage_str']!='')?'inline-block':'none').'">
+						 <table border="0" tbl="managed">
+						  <tr>
+							<td style="width:6px;"></td>
+							<td style="width:400px;" managed="text" bd_row_id="'.$r_key.'" action="changeKpPosDescription" bd_field="tirage_str">'.$r_level['tirage_str'].'</td>
+						  </tr>
+						  </table>
+					  </managedDisplay>';
+                      if(!($save_on_disk && isset($dispSetObj->characteristics))) $description_cell .= '<managedDisplay name="characteristics" style="display:'.((!isset($dispSetObj->characteristics) && $pos_level['characteristics']!='')?'inline-block':'none').'">
+						 <table border="0" tbl="managed">
+						  <tr>
+							<td style="width:6px;"></td>
+							<td style="width:400px;" managed="text" bd_row_id="'.$pos_key.'" action="changeKpRepresentedData" bd_field="characteristics">'.$pos_level['characteristics'].'</td>
+						  </tr>
+						  </table>
+					  </managedDisplay>';
+					  if(!($save_on_disk && isset($dispSetObj->description))) $description_cell .= '<managedDisplay name="description" style="display:'.((!isset($dispSetObj->description) && $pos_level['description']!='')?'inline-block':'none').'">
+					   <table border="0" tbl="managed">
+						  <tr>
+							<td style="width:6px;"></td>
+							<td style="width:400px;" managed="text" bd_row_id="'.$pos_key.'" action="changeKpRepresentedData" bd_field="description">'.$pos_level['description'].'</td>
+						  </tr>
+						</table>
+					</managedDisplay>';
+					 $description_cell .= '<table style="font-family:arial;font-size:13px;right;margin-top:10px;width:100%;border-collapse:collapse;width:350px;table-layout:_fixed;" border="0">
 					  <tr>
 						<td align="right" style="width:250px;color:#888;">1шт.</td>
 						<td align="right" style="width:70px;padding:0 5px;"><nobr>'.number_format($price,2,'.',' ').'</nobr></td>
@@ -1187,13 +1208,13 @@ dop_data_tbl.details AS details,
 			$cont_face_data = Client::get_cont_face_details($recipient_id);
 			//print_r($cont_face_data_arr);//exit;625
 			
-			$kp_content = '<div id="kpBlankConteiner" style="width:675px;background-color:#FFFFFF;border:#91B73F solid 0px;">'.(($show_logo)?'<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">':'').'<input  type="hidden"  style="width:90px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'>';
+			$kp_content = '<div id="kpBlankConteiner" style="width:625px;background-color:#FFFFFF;border:#91B73F solid 0px;"><input  type="hidden" style="width:90px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'>';
 
 			if(!($save_on_disk && isset($dispSetObj->header))){
 			   $kp_content .= '<div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><managedDisplay name="header" style="display:'.(isset($dispSetObj->header)?'none':'block').'"><br />В компанию: '.Client::get_client_name($client_id).'<br />Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</managedDisplay></div>';
 			}
 			$kp_content .= '<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center;">Презентация</div>';
-			$kp_content .=  '<div style="border-top:#91B73F solid 2px;"><table width="625"  style="border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">'.implode('',$tbl_rows).'</table></div>';
+			$kp_content .=  '<div style="border-top:#91B73F solid 2px;width:625px;"><table width="625"  style="border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">'.implode('',$tbl_rows).'</table></div>';
 			
 			
 			
@@ -1205,17 +1226,17 @@ dop_data_tbl.details AS details,
 			         $full_itog = $itogo + $itogo_print_uslugi + $itogo_extra_uslugi;
 					 $kp_content .= '<div style="text-align:right;">
 					 <managedDisplay name="full_summ" style="text-align:right;display:'.(isset($dispSetObj->full_summ)?'none':'inline-block').'">
-					 <table align="right" style="margin:15px 0px 10px 0;font-family:arial" border="0">
-						 <tr>
+					 <table align="right" style="margin:15px 0px 10px 0;font-family:arial" border="0">';
+						 if(($itogo_print_uslugi+$itogo_extra_uslugi) != 0) $kp_content .= '<tr>
 							 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
-						 </tr>
-						 <tr>
+						 </tr>';
+						if($itogo_print_uslugi != 0)  $kp_content .= '<tr>
 							 <td align="right" height="20" valign="top">Общая стоимость нанесения:</td><td align="right" valign="top">'.number_format($itogo_print_uslugi,2,',',' ').'руб.</td>
-						 </tr>
-						  <tr>
+						 </tr>';
+						if($itogo_extra_uslugi != 0)  $kp_content .= '<tr>
 							 <td align="right" height="30" valign="top">Общая стоимость доп услуг:</td><td align="right" valign="top">'.number_format($itogo_extra_uslugi,2,',',' ').'руб.</td>
-						 </tr>
-						 <tr style="font-family:verdana;font-size:14px;font-weight:bold;">
+						 </tr>';
+						$kp_content .= '<tr style="font-family:verdana;font-size:14px;font-weight:bold;">
 							 <td align="right" valign="top">Итоговая сумма:</td><td align="right" valign="top" style="white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
 						 </tr>
 					 </table>
@@ -1230,17 +1251,17 @@ dop_data_tbl.details AS details,
 					 $full_itog = $itogo + $itogo_print_uslugi + $itogo_extra_uslugi;
 					 $kp_content .= '<div style="text-align:right;">
 					 <managedDisplay name="full_summ" style="text-align:right;display:'.(isset($dispSetObj->full_summ)?'none':'inline-block').'">
-					 <table align="right" style="margin:15px 0px 10px 0;font-family:arial" border="0">
-						 <tr>
+					 <table align="right" style="margin:15px 0px 10px 0;font-family:arial" border="0">';
+					if(($itogo_print_uslugi+$itogo_extra_uslugi) != 0) $kp_content .= '<tr>
 							 <td width="230" height="20" align="right" valign="top" style="padding-right:2px;" >Общая стоимость сувениров:</td><td width="150" align="right" valign="top">'.number_format($itogo,2,',',' ').'руб.</td>
-						 </tr>
-						 <tr>
+						 </tr>';
+				    if($itogo_print_uslugi != 0)  $kp_content .= '<tr>
 							 <td align="right" height="20" valign="top">Общая стоимость нанесения:</td><td align="right" valign="top"><span id="itogo_display_setting_1_0"  style="display:'.(($display_setting_2==0)?'inline-block':'none').'">'.number_format($itogo_print_uslugi1,2,',',' ').'</span><span id="itogo_display_setting_1_1" style="display:'.(($display_setting_2==1)?'inline-block':'none').'">'.number_format($itogo_print_uslugi2,2,',',' ').'</span><span id="itogo_display_setting_1_2" style="display:'.(($display_setting_2==2)?'inline-block':'none').'">'.number_format($itogo_print_uslugi3,2,',',' ').'</span>руб.</td>
-						 </tr>
-						  <tr>
+						 </tr>';
+					if($itogo_extra_uslugi != 0)  $kp_content .= '<tr>
 							 <td align="right" height="30" valign="top">Общая стоимость доп услуг:</td><td align="right" valign="top"><span id="itogo_display_setting_2_0" style="display:'.(($display_setting_2==0)?'inline-block':'none').'">'.number_format($itogo_extra_uslugi1,2,',',' ').'</span><span id="itogo_display_setting_2_1" style="display:'.(($display_setting_2==1)?'inline-block':'none').'">'.number_format(($itogo_extra_uslugi2),2,',',' ').'</span><span id="itogo_display_setting_2_2" style="display:'.(($display_setting_2==2)?'inline-block':'none').'">'.number_format(($itogo_extra_uslugi3),2,',',' ').'</span>руб.</td>
-						 </tr>
-						 <tr style="font-family:verdana;font-size:14px;font-weight:bold;">
+						 </tr>';
+					 $kp_content .= '<tr style="font-family:verdana;font-size:14px;font-weight:bold;">
 							 <td align="right" valign="top">Итоговая сумма:</td><td align="right" valign="top" style="white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
 						 </tr>
 					 </table>
@@ -1740,12 +1761,74 @@ dop_data_tbl.details AS details,
 							  `display_setting_2` = '".$val."' WHERE `id` = '".$kp_id."'";
 		    $mysqli->query($query)or die($mysqli->error);
 		}
+		static function convertTirageJSON($tirage_json){
+		
+		    global $mysqli;
+			if($tirage_json=='' || $tirage_json=='{}') return '';
+		    // Задача получить данные о размерах в рассчете
+			
+		
+			$tirageArr = json_decode($tirage_json,true);
+			if($tirageArr!=NULL){
+			    // echo print_r($tirageArr);
+				foreach($tirageArr as $sizeId => $data){
+					 if($data['tir']!=0){
+						 $sizesArr[$sizeId] = array('tir'=>$data['tir']);
+						 $sizesIdsArr[] = $sizeId;
+					 }
+				 }
+				 if(isset($sizesIdsArr)){
+					 $query2 = "SELECT id, size FROM `".BASE_DOP_PARAMS_TBL."`  WHERE  id IN('".implode("','",$sizesIdsArr)."')";
+					 $result2 = $mysqli->query($query2) or die($mysqli->error);
+					 if($result2->num_rows > 0){
+						 while($row2 = $result2->fetch_assoc()){
+							 if($row2['size']!='') $sizesFinalArr[] = $row2['size'].': '.$sizesArr[$row2['id']]['tir'].' шт.';
+						 }
+					 }
+				 }
+			 }
+			 return (isset($sizesFinalArr))? 'размеры: '.implode(', ',$sizesFinalArr):'';
+		}
+		static function getSizesForRow($row_id){
+		
+		    global $mysqli;
+		    // Задача получить данные о размерах в рассчете
+			
+			 $query = "SELECT tirage_json, quantity
+							  FROM `".KP_DOP_DATA."`  WHERE id ='".$row_id."'";
+			 $result = $mysqli->query($query) or die($mysqli->error);
+			 $row = $result->fetch_assoc();
+			 if(!($row['tirage_json']=='' || $row['tirage_json']=='{}')){
+			     $tirageArr = json_decode($row['tirage_json'],true);
+				 if($tirageArr!=NULL){
+					 // echo print_r($tirageArr);
+					 foreach($tirageArr as $sizeId => $data){
+						 if($data['dop']!=0 || $data['tir']!=0){
+							 $sizesArr[$sizeId] = array('tir'=>$data['tir'],'dop'=>$data['dop']);
+							 $sizesIdsArr[] = $sizeId;
+						 }
+					 }
+					 if(isset($sizesIdsArr)){
+						 $query2 = "SELECT id, size FROM `".BASE_DOP_PARAMS_TBL."`  WHERE  id IN('".implode("','",$sizesIdsArr)."')";
+						 $result2 = $mysqli->query($query2) or die($mysqli->error);
+						 if($result2->num_rows > 0){
+							 while($row2 = $result2->fetch_assoc()){
+								 if($row2['size']!='') $sizesFinalArr['sizes'][] = $row2['size'].': '.$sizesArr[$row2['id']]['tir'].(($sizesArr[$row2['id']]['dop']>0)?' + '.$sizesArr[$row2['id']]['dop']:'').' шт.';
+							 }
+						 }
+					 }
+				 }
+			 }
+			 
+			 return (isset($sizesFinalArr))?$sizesFinalArr['sizes']:false;
+		}
 		static function changePosDescription($id,$val,$bd_field){
 		    global $mysqli;
 
 			//echo '----'.$val.'----';
 		    if($bd_field=='name') $query="UPDATE `".KP_MAIN_ROWS."` SET `name`='".cor_data_for_SQL($val)."' WHERE `id`='".$id."'";
 		    if($bd_field=='details') $query="UPDATE `".KP_DOP_DATA."` SET `details`='".cor_data_for_SQL($val)."' WHERE `id`='".$id."'";
+			if($bd_field=='tirage_str') $query="UPDATE `".KP_DOP_DATA."` SET `tirage_str`='".cor_data_for_SQL($val)."' WHERE `id`='".$id."'";
 			//echo $query;
 		    $mysqli->query($query)or die($mysqli->error);
 		}

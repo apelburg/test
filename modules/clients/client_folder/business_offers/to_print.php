@@ -20,7 +20,7 @@
 	    include($_SERVER['DOCUMENT_ROOT'].'/os/libs/config.php');
 	    
 	    list($id,$client_id,$manager_id) = explode('-',$param);
-	    echo Com_pred::open_in_blank($id,$client_id,$manager_id);
+	    echo Com_pred::open_in_blank($id,$client_id,$manager_id,false);
 	}
 	if($version == 'old') echo Com_pred::open_old_kp($param);
 	exit;

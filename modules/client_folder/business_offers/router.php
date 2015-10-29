@@ -143,7 +143,7 @@
 		 $rows = Com_pred::create_list($query_num,$client_id,array('type'=>'new','kp'=>$kp_id));
 		 $create_list = FALSE;
 		 $in_blank_view = '<div style="margin:20px 0 0 10px;"><a href="?'.$_SERVER['QUERY_STRING'].'&save_in_pdf='.$kp_id.'" class="someABtn" >сохранить на диск</a></div>';
-		 $in_blank_view .= Com_pred::open_in_blank($kp_id,$client_id,$user_id,false,false);
+		 $in_blank_view .= Com_pred::open_in_blank($kp_id,$client_id,$user_id,false);
 		 //$detailed_view .= '<a href="?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'">open_in_blank</a>';
 		 
 	}

@@ -54,10 +54,10 @@
 
 	  },
 	  setDisplayState:function(name,state){ 
-	     var spansNodes = this.kpConteiner.getElementsByTagName('managedDisplay'); 
-		 var ln = spansNodes.length;
+	     var nodes = this.kpConteiner.getElementsByTagName('managedDisplay'); 
+		 var ln = nodes.length;
 		 for(var i=0;i< ln;i++){ //in spansArr
-		     if(spansNodes[i].hasAttribute('name') && spansNodes[i].getAttribute('name')==name) spansNodes[i].style.display = state;
+		     if(nodes[i].hasAttribute('name') && nodes[i].getAttribute('name')==name) nodes[i].style.display = state;
 		 }
 	  },
       saveChanges:function(checkBox){ 
@@ -156,9 +156,7 @@
           <tr>
             <td><label><input type="checkbox" name="art" onclick="kpDisplayManager.saveChanges(this);" />номер артикула</label></td>
           </tr>
-         <!-- <tr>
-            <td><label><input type="checkbox" name="characters" onclick="kpDisplayManager.saveChanges(this);" />характеристики (цвет, материал)</label></td>
-          </tr>
+         <!-- 
           <tr>
             <td><label><input type="checkbox" name="itogo" onclick="kpDisplayManager.saveChanges(this);" />сумма позиции (итого)</label></td>
           </tr>-->
@@ -167,6 +165,15 @@
           </tr>
           <tr>
             <td><label><input type="checkbox" name="header" onclick="kpDisplayManager.saveChanges(this);" />шапка кп</label></td>
+          </tr>
+          <tr>
+            <td><label><input type="checkbox" name="sizes" onclick="kpDisplayManager.saveChanges(this);" />размеры</label></td>
+          </tr>
+          <tr>
+            <td><label><input type="checkbox" name="characteristics" onclick="kpDisplayManager.saveChanges(this);" />характеристики (цвет, материал)</label></td>
+          </tr>
+          <tr>
+            <td><label><input type="checkbox" name="description" onclick="kpDisplayManager.saveChanges(this);" />описание</label></td>
           </tr>
           <!-- <tr>
             <td><label><input type="checkbox" name="dop_uslugi" onclick="kpDisplayManager.saveChanges(this);" />дополнительные услуги</label></td>
