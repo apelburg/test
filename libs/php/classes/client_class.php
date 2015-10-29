@@ -102,9 +102,272 @@ class Client {
 	// выовд контактных данных в html
 
 	*/
+
+	private $user_access = 0;
+	private $user_id = 0;
 	
 	
-	public function __construct($id) {
+	public function __construct($id = 0 ) {
+		$this->user_id = isset($_SESSION['access']['user_id'])?$_SESSION['access']['user_id']:0;
+		$this->user_access = $this->get_user_access_Database_Int($this->user_id);
+
+		## данные POST
+		if(isset($_POST['AJAX'])){
+			$this->_AJAX_($_POST['AJAX']);
+		}
+
+
+		if($id > 0){
+			$this->get_object($id);
+		}
+	}
+
+	// запрашивает из базы допуски пользователя
+	// необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
+	private function get_user_access_Database_Int($id){
+		global $mysqli;
+		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$int = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$int = (int)$row['access'];
+			}
+		}
+		//echo $query;
+		return $int;
+	}
+
+	// стандартный AJAX обработчик
+	private function _AJAX_($name){
+		$method_AJAX = $name.'_AJAX';
+		// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+		if(method_exists($this, $method_AJAX)){
+			$this->$method_AJAX();
+			exit;
+		}					
+	}
+
+	private function wrap_text_in_warning_message_post($text){
+		$html = '<div class="warning_message"><div>';	
+		$html .= $text;
+		$html .= '</div></div>';
+		return $html;
+	}
+
+	// новая форма заведения нового клиента
+	private function get_form_the_create_client_AJAX(){
+		$html = '';
+		$html .= '<div id="create_client">';
+		if(isset($_POST['company']) && trim($_POST['company']) == ''){
+			$text = 'Введите название компании';
+			$html .= $this->wrap_text_in_warning_message_post($text);
+		}
+		$html .= '<form>';
+			$html .= '<table>';
+				$html .= '<tr>';
+					$html .= '<td>Название</td>';
+					$html .= '<td>';
+					$html .= '<input type="text" name="company" placeholder="Мишка на Севере" value="'.((isset($_POST['company'])?$_POST['company']:'')).'">';
+					$html .= '<input type="hidden" name="AJAX" value="insert_new_client">';
+					$html .= '</td>';
+				$html .= '</tr>';
+				$html .= '<tr>';
+					$html .= '<td colspan="2"></td>';
+				$html .= '</tr>	';
+				$html .= '<tr>';
+					$html .= '<td>Дополнительная информация</td>';
+					$html .= '<td><textarea type="text" name="dop_info">'.((isset($_POST['dop_info'])?$_POST['dop_info']:'')).'</textarea></td>';
+				$html .= '</tr>	';
+			$html .= '</table>';
+
+		unset($_POST['AJAX']);
+		foreach ($_POST as $key => $value) {
+			$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+		}
+
+		$html .= '</form>';
+
+		$html .= '</div>';
+
+		echo '{"response":"show_new_window","title":"Новый клиент","html":"'.base64_encode($html).'"}';
+
+	}
+	private function insert_new_client_AJAX(){
+		if(!isset($_POST['company']) || trim($_POST['company']) == ''){
+			$this->get_form_the_create_client_AJAX();
+			exit;
+		}
+
+		
+
+
+		//если клиент был создан из запроса
+		if(isset($_POST['rt_list_id']) && (int)$_POST['rt_list_id'] > 0){
+			switch ($this->user_access) {
+				case '1':
+					// запрашиваем окно со списком всех менеджеров 
+					// для выбора куратора клиента
+					$html = $this->get_choose_curators();
+					echo '{"response":"show_new_window","title":"Добавление куратора","html":"'.base64_encode($html).'"}';
+					break;
+				case '5':
+					$this->client_id = $this->create_new_client();
+
+					// куратором нового клиента будет менеджер
+					// сразу же прикрепляем его
+					$this->attach_relate_manager($this->client_id,$this->user_id);
+
+					echo '{"response":"OK","function":"reload_order_tbl"}';
+					break;
+				default:
+					break;
+			}
+		}		
+	}
+
+	private function create_new_client(){
+		global $mysqli;		
+		$query ="INSERT INTO `".CLIENTS_TBL."` SET
+			`set_client_date` = CURRENT_DATE(),
+		    `company` = '".$this->cor_data_for_SQL($_POST['company'])."',
+			`dop_info` = '".$this->cor_data_for_SQL($_POST['dop_info'])."'";					 
+		$result = $mysqli->query($query) or die($mysqli->error);
+		return $mysqli->insert_id;
+	}
+
+	// получаем форму выбора кураторов
+	private function get_choose_curators(){
+		// получаем список менеджеров
+		$access_arr[] = 5;
+		$managers_arr = $this->get_manager_list($access_arr);
+
+		$html = '';
+		$html .= '<form  id="chose_many_curators_tbl">';
+		$html .=' <div id="json_manager_arr">{}</div>';
+		$html .=' <input type="hidden" name="Json_meneger_arr" value=\'\' id="json_manager_arr_val">';
+				$html .='<table>';
+
+				$count = count($managers_arr);
+				for ($i=0; $i <= $count; $i) {
+					$html .= '<tr>';
+				    for ($j=1; $j<=3; $j++) {
+				    	if(isset($managers_arr[$i])){
+					    	$checked = ($managers_arr[$i]['id'] == $_POST['manager_id'])?'class="checked"':'';
+					    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
+					    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
+				    		$i++;
+				    	}else{
+				    		$html .= '<td  date-lll="'.$i.'"></td>';
+				    		$i++;
+				    	}				    	
+				    }				    
+				    $html .= '</tr>';
+				}
+
+				$html .= '</table>';
+
+		$html .= '<input type="hidden" name="AJAX" value="create_new_client_and_insert_curators">';
+
+		unset($_POST['AJAX']);
+		foreach ($_POST as $key => $value) {
+			$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+		}
+
+		$html .= '</form>';
+
+		return $html;
+	}
+	// создание новокго клиента и прикрепление кораторов
+	private function create_new_client_and_insert_curators_AJAX(){
+		$html = '';
+		$html .= $this->print_arr($_POST);
+
+		$managers_arr = json_decode($_POST['Json_meneger_arr'], true);
+		
+		// если кураторы не были получены
+		if(empty($managers_arr)){
+			$message = "Для создания заказа необхождимо выбрать минимум одного куратора.";
+			echo '{"response":"show_new_window","title":"Выбрать куратора","html":"'.base64_encode($this->get_choose_curators).'","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';	
+		}
+		// $html .= $this->print_arr(json_decode($_POST['Json_meneger_arr']));
+		
+		// заводим клиента
+		$this->client_id = $this->create_new_client();
+
+		// удаляем всех кураторов
+		$this->remove_curator_width_client($this->client_id);
+		// заводим новых кураторов
+		foreach ($managers_arr as $key => $user_id) {
+			$this->attach_relate_manager($this->client_id, $user_id);
+		}
+		// прикрепляем к запросу менеджера(ов)
+		$this->attach_for_query_many_managers($managers_arr,$this->client_id);
+		$message = 'Клиент успешно заведён, прикреплённые менеджеры увидят запрос';
+		
+		/*
+			тут нужно уведомление на почту для каждого прикреплённого менеджера !!!!!!!!!!
+		*/
+
+
+		echo '{"response":"OK","function":"reload_order_tbl","function":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';	
+		// echo '{"response":"OK","title":"ТЕСТ","html":"'.base64_encode($html).'"}';
+	}
+
+	// прикрепление к запросу нескольких менеджеров
+	private function attach_for_query_many_managers($managers_arr,$client_id){
+		$dop_managers_id = '';
+		
+
+		if(count($managers_arr) > 1){
+			$dop_managers_id = implode(',', $managers_arr);
+		}
+
+		global $mysqli;		
+		$query ="UPDATE  `".RT_LIST."` SET  
+			`manager_id` =  '0',
+			`client_id` =  '".(int)$client_id."', 
+			`time_attach_manager` = NOW(),
+			`status` = 'not_process',
+			`dop_managers_id` = '".$dop_managers_id."'
+			WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+
+	// echo $query;
+		$result = $mysqli->query($query) or die($mysqli->error);
+	}
+
+	// прикрепление кураторов
+	private function attach_relate_manager($client_id, $user_id){
+		global $mysqli;		
+		$query = "INSERT INTO `".RELATE_CLIENT_MANAGER_TBL."` SET
+		`client_id` = '".$client_id."'
+		, `manager_id` = '".$user_id."'";
+        $result = $mysqli->query($query) or die($mysqli->error);
+	}
+
+	// удаляем всех кураторов по клиенту
+	private function remove_curator_width_client($client_id){
+		global $mysqli;
+		// открепить менеджера от клиента
+		$query ="DELETE FROM  `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".(int)$client_id."';";	
+		$result = $mysqli->multi_query($query) or die($mysqli->error);	
+		return 1;
+	}
+
+	// отдаёт $html распечатанного массива
+	protected function print_arr($arr){
+		ob_start();
+		echo '<pre>';
+		print_r($arr);
+		echo '</pre>';
+		$content = ob_get_contents();
+		ob_get_clean();
+		
+		return $content;
+	}
+
+	// возвращает объект клиента если в класс передан $id
+	private function get_object($id){
 		global $mysqli;		
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
@@ -531,6 +794,28 @@ class Client {
 		}
 		return implode(',', $men_names);
 	}
+
+	// получаем массив пользователей с правами 5 и 1
+	private function get_manager_list($access_arr = array(0 => 5)){
+		$n = 0;
+		$access_str = '';
+		foreach ($access_arr as $key => $value) {
+			$access_str = (($n>0)?',':'')."'".$value."'";
+			$n++;
+		}
+
+		global $mysqli;
+		$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `access` IN (".$access_str.") ORDER BY `last_name` ASC;";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$manager_names = array();			
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$manager_names[] = $row; 
+			}
+		}
+		return $manager_names;
+	}
+
 	static function get_manager_name($manager_id){
 		global $mysqli;
 		$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `id` IN (".$manager_id.");";
@@ -687,6 +972,9 @@ class Client {
 		*/	
 		return 1;
 	}	
+
+
+
 	public function create($array_in){
 		if(empty($array_in))return "не достаточно данных";
 		global $mysqli;

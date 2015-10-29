@@ -109,7 +109,7 @@
 			switch ($this->user_access) {
 				case '1':					
 					$text = 'администратор <br>';
-					echo $this->wrap_text_in_warning_message($text);
+					//echo $this->wrap_text_in_warning_message($text);
 					
 					include_once 'cabinet_admin_class.php';
 					// создаём экземпляр класса
@@ -123,7 +123,7 @@
 
 				case '2':				
 					$text = 'бухгалтер<br>';
-					echo $this->wrap_text_in_warning_message($text);
+					//echo $this->wrap_text_in_warning_message($text);
 					include_once 'cabinet_buch_class.php';
 					// создаём экземпляр класса
 					$this->CLASS = new Cabinet_buch_class($this->user_access);//echo $this->wrap_text_in_warning_message($this->print_arr($_SESSION));
@@ -135,7 +135,7 @@
 
 				case '4':					
 					$text = 'производство';// УСЛУГИ
-					echo $this->wrap_text_in_warning_message($text);
+					//echo $this->wrap_text_in_warning_message($text);
 					
 					include_once 'cabinet_production_class.php';
 					// создаём экземпляр класса
@@ -147,7 +147,7 @@
 					break;
 				case '5':
 					$text = 'менеджер';
-					echo $this->wrap_text_in_warning_message($text);
+					//echo $this->wrap_text_in_warning_message($text);
 					include_once 'cabinet_men_class.php';
 					// создаём экземпляр класса
 					$this->CLASS = new Cabinet_men_class($this->user_access);
@@ -159,14 +159,14 @@
 
 				case '6':
 					$text = 'водитель';// УСЛУГИ
-					echo $this->wrap_text_in_warning_message($text);
+					//echo $this->wrap_text_in_warning_message($text);
 					break;
 
 				case '7':
 					$text = 'склад';
-					echo $this->wrap_text_in_warning_message($text);
+					//echo $this->wrap_text_in_warning_message($text);
 
-					echo '';
+					//echo '';
 
 
 					include_once 'cabinet_sklad_class.php';
@@ -182,7 +182,7 @@
 
 				case '8':
 					$text = 'снабжение';
-					echo $this->wrap_text_in_warning_message($text);
+					//echo $this->wrap_text_in_warning_message($text);
 					include_once 'cabinet_snab_class.php';
 					// создаём экземпляр класса
 					$this->CLASS = new Cabinet_snab_class($this->user_access);
@@ -194,7 +194,7 @@
 
 				case '9':
 					$text = 'дизайнер';// УСЛУГИ
-					echo $this->wrap_text_in_warning_message($text);
+				//	echo $this->wrap_text_in_warning_message($text);
 
 					include_once 'cabinet_designers_class.php';
 					// создаём экземпляр класса
@@ -357,23 +357,46 @@
 				include_once ('./libs/php/classes/manager_class.php');
 				$manager = Manager::get_snab_name_for_query_String($_POST['manager_id']);
 				
-				$message = 'Запрос был перенаправлен менеджеру '.$manager.'';
-				
-				echo '{"response":"OK","function2":"change_attache_manager","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-						
+				$message = 'Запрос был перенаправлен менеджеру '.$manager.' -'.$this->user_access;
+				if($this->user_access != 5){
+				echo '{"response":"OK","function2":"change_attache_manager","function3":"reload_order_tbl","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+				}else{
+					echo '{"response":"OK","function":"reload_order_tbl"}';
+				}
 			}
 
 			// выводит форму со списоком клиентов для прикрепления к запросу 
 			private function get_a_list_of_clients_to_be_attached_to_the_request_AJAX(){
 				global $mysqli;
 				$html ='';
-				$query = "SELECT * FROM `".CLIENTS_TBL."` ";
+				if($this->user_access == 1){
+					$query = "SELECT * FROM `".CLIENTS_TBL."` ";
+				}else{
+
+					/*
+						2 запроса оказались быстрее, чем один составной !!!!ЫЫЫЫ
+					*/
+					$query = "SELECT `client_id` FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$this->user_id."'";
+					$result = $mysqli->query($query) or die($mysqli->error);				
+					
+					$id_str = "'0'";
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$id_str .= ",'".$row['client_id']."'";
+						}
+					}
+					// echo $query;
+					$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` IN (".$id_str.")";
+				}
+				
 
 				// Запрос с сортировкой почему-то не хочет выводит ь некоторые компании
 				// к примеру не выводит компанию *Морской салон ЗАО  - id = 18
 				// $query = "SELECT * FROM `".CLIENTS_TBL."`  order by company ASC;";
 				$result = $mysqli->query($query) or die($mysqli->error);				
 				$clients = array();
+				$clients[0]['id'] = 'new_client';
+				$clients[0]['company'] = 'НОВЫЙ КЛИЕНТ';
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
 						$clients[] = $row;
@@ -393,7 +416,7 @@
 				    for ($j=1; $j<=3; $j++) {
 				    	if(isset($clients[$i])){
 					    	$checked = ($clients[$i]['id'] == $_POST['client_id'])?'class="checked"':'';
-					    	$row .= '<td '.$checked.' data-id="'.$clients[$i]['id'].'">'.$clients[$i]['company']."</td>";
+					    	$row .= '<td '.$checked.' data-id="'.$clients[$i]['id'].'" id="client_'.$clients[$i]['id'].'">'.$clients[$i]['company']."</td>";
 				    		// если присутствует выбранный клиент, ставим флаг
 				    		if($checked!=''){$f_r = 1;}	
 				    	}else{
@@ -421,11 +444,33 @@
 				$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
 				$html .= '<input type="hidden" value="'.$_POST['client_id'].'" name="client_id">';
 				$html .= '<form>';
-				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента","height":"800","width":"1000"}';
+				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($i>30)?'"height":"800",':'').'"width":"1000"}';
 			}
+
+
+			// перенаправляем запрос в client_class.php
+				private function insert_new_client_AJAX(){
+					include_once ('./libs/php/classes/client_class.php');
+					new Client;
+				}
+				private function create_new_client_and_insert_curators_AJAX(){
+					include_once ('./libs/php/classes/client_class.php');
+					new Client;
+				}
+				private function get_form_the_create_client_AJAX(){
+					include_once ('./libs/php/classes/client_class.php');
+					new Client;
+				}
+
 
 			// прикрепляет клиента к запросу
 			private function attach_client_to_request_AJAX(){
+				if($_POST['client_id'] == 'new_client'){
+					$_POST['AJAX'] = 'insert_new_client';
+					include_once ('./libs/php/classes/client_class.php');
+					new Client;
+					exit;
+				}
 				// получаем кураторов по выбранному клиенту
 				// подключаем класс клиента
 				include_once ('./libs/php/classes/client_class.php');
@@ -456,23 +501,38 @@
 						WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 						$result = $mysqli->query($query) or die($mysqli->error);	
 						$message = 'Запрос был перенаправлен менеджеру '.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'';
-						echo '{"response":"OK","function2":"change_attache_manager","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+						if($this->user_access != 5){
+							echo '{"response":"OK","function2":"change_attache_manager","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+						}else{
+							echo '{"response":"OK","function":"reload_order_tbl"}';
+						}
 						// echo '{"response":"OK","function":"change_attache_manager","rt_list_id":"'.$_POST['rt_list_id'].'", "manager_id":"'.$managers_arr[0]['id'].'","manager_name":"'.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'"}';
 
 						break;
 					
 					default:
 						// если к клиенту присоединено несколько кураторов выполняем первый пункт по умолчанию, потом вызываем окно с выбором менеджера
-						global $mysqli;
-						// прикрепить клиента и менеджера к запросу	
-						$query ="UPDATE  `".RT_LIST."` SET  
-							`manager_id` =  '".(int)$managers_arr[0]['id']."',
-							`client_id` =  '".(int)$_POST['client_id']."', 
-							`time_attach_manager` = NOW(),
-							`status` = 'not_process'
-							WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
-						$result = $mysqli->query($query) or die($mysqli->error);	
 						
+						
+						/*
+							
+						***************************************************************
+						
+						временно отключаем прикрепление первого менеджера автоматически
+						
+						***************************************************************
+							global $mysqli;
+							// прикрепить клиента и менеджера к запросу	
+							$query ="UPDATE  `".RT_LIST."` SET  
+								`manager_id` =  '".(int)$managers_arr[0]['id']."',
+								`client_id` =  '".(int)$_POST['client_id']."', 
+								`time_attach_manager` = NOW(),
+								`status` = 'not_process'
+								WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+							$result = $mysqli->query($query) or die($mysqli->error);	
+						
+						*/
+		
 						//////////////////////////
 						//	осбираем форму для выбора одного из кураторов
 						//  

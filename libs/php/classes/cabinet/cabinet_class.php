@@ -68,7 +68,7 @@
 			'6' => 'Доставка',
 			'7' => 'Склад',
 			'8' => 'Снабжение',
-			'9' => 'Дизайнер' 
+			'9' => 'Дизайнер'
 		);
 
 		/*
@@ -1505,12 +1505,21 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 			}
 
-			// записывает запрос
+			// записывает статус запроса
 			protected function chenge_query_status($query_num,$new_status){
 				// устанавливаем статус запроса на history
 				global $mysqli;
                 $query = "UPDATE `".RT_LIST."` SET `status`= '".$new_status."' 
                 WHERE  `query_num` = '".$query_num."';";
+                $result = $mysqli->query($query) or die($mysqli->error);
+                return true;
+			}
+			// записывает статус запроса
+			protected function chenge_query_status_for_id_row($id,$new_status){
+				// устанавливаем статус запроса на history
+				global $mysqli;
+                $query = "UPDATE `".RT_LIST."` SET `status`= '".$new_status."' 
+                WHERE  `id` = '".$id."';";
                 $result = $mysqli->query($query) or die($mysqli->error);
                 return true;
 			}
@@ -2634,7 +2643,6 @@
 				$first_val = '';
 				switch ($this->user_access) {
 					case '1':
-
 						foreach ($this->buch_status as $name_en => $name_ru) {
 							$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
 							if($n==0){$first_val = $name_en;}
@@ -2650,15 +2658,16 @@
 							if($n==0){$first_val = $name_en;}
 							$n++;
 						}
-
 						break;
+
 					case '2':
 						foreach ($this->buch_status as $name_en => $name_ru) {
 							$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
 							if($n==0){$first_val = $name_en;}
 							$n++;
 						}
-						break;					
+						break;	
+
 					default:
 						foreach ($this->commands_men_for_buch as $name_en => $name_ru) {
 							$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
@@ -2674,7 +2683,7 @@
 
 				$html .= '<form>';
 
-				$html .= '<input type="hidden" name="status_buch" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="status_order" value="'.$first_val.'">';	
 				$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
 
 				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
@@ -2691,7 +2700,78 @@
 				// echo 'base';
 			}	
 
-			// вывод меню комманд по спецификации 
+			// вывод меню комманд по запросу
+			protected function get_command_for_change_status_query_AJAX(){
+				if($this->user_access != 1){
+					$message = "У вас не достаточно прав для изменения статуса Заказа / предзаказа.";
+					echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+					exit;
+				}
+				global $mysqli;
+				// запрос информации по заказу
+				$query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['row_id']."';";
+				$this->Query = array();
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->Query = $row;
+					}
+				}
+
+
+				$html = '';
+				$n = 0;
+				$html .= '<ul id="get_commands_men_for_query" class="check_one_li_tag">';
+				$first_val = '';
+				$status_query_enablsed_arr = array();
+				
+				$status_query_enablsed_arr['history'] = 'История';
+				$status_query_enablsed_arr['in_work'] = 'В работе';
+				$status_query_enablsed_arr['new_query'] = 'Новый запрос';
+				$status_query_enablsed_arr['not_process'] = 'Не обработан менеджером';
+				$status_query_enablsed_arr['taken_into_operation'] = 'Взят в обработку';
+				
+				foreach ($status_query_enablsed_arr as $name_en => $name_ru) {
+					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+					if($n==0){$first_val = $name_en;}
+					$n++;
+				}
+				
+
+
+				$html .= '</ul>';
+
+
+				$html .= '<form>';
+
+				$html .= '<input type="hidden" name="query_status" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="AJAX" value="command_for_change_status_query">';	
+
+				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+				unset($_POST['AJAX']);
+				// перебираем остальные значения для передачи их далее
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
+
+				$html .= '</form>';
+
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
+				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+				// echo 'base';
+			}
+
+			protected function command_for_change_status_query_AJAX(){
+				if($this->chenge_query_status_for_id_row($_POST['row_id'], $_POST['query_status'])){
+					echo '{"response":"OK","function":"reload_order_tbl"}';
+				}else{
+					$message = "Что-то пошло не так.";
+					echo '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';	
+				}
+			}
+
+			// вывод меню комманд по заказу
 			protected function get_commands_for_order_status_AJAX(){
 				if($this->user_access != 1 and $this->user_access != 5){
 					$message = "У вас не достаточно прав для изменения статуса Заказа / предзаказа.";
@@ -5426,8 +5506,9 @@
 			}
 			return $name;
 		}
+
 		// выводит имя клиента для запроса в форме редактирования
-		protected function get_client_name_for_qury_Database($id){
+		protected function get_client_name_for_query_Database($id, $no_edit=0){
 			global $mysqli;		
 			//получаем название клиента
 			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
@@ -5435,7 +5516,7 @@
 			$name = '';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$name = '<td class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</td>';
+					$name = '<td'.(($no_edit==0)?' class="attach_the_client"':' class="dop__info"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
 				}
 			}else{
 				$name = '<td'.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</td>';
@@ -5528,6 +5609,45 @@
 					$name = ($name!='')?$name.'.':'';
 		    	}
 		    	$String = '<div'.(($no_edit==0)?' class="attach_the_manager"':' class="dop_grey_small_info"').' data-id="'.$arr['id'].'">'.$arr['last_name'].' '.$name.'</div>';
+		    }
+		    return $String;
+		}
+
+		// получаем имена менеджеров для запроса
+		protected function get_all_manager_name_Database_Html($query,$no_edit=0){
+			if($query['manager_id'] != 0){
+				return $this-> get_manager_name_Database_Html($query['manager_id'],$no_edit);
+			}else if( $query['dop_managers_id'] == ''){
+				$String = '<div'.(($no_edit==0)?' class="attach_the_manager add"':' class="dop_grey_small_info"').' data-id="0">Прикрепить менеджера</div>';
+				return $String;
+			}
+
+			global $mysqli;
+		    
+		   	$managers_arr = array();
+		    $query="SELECT `id`,`name`,`last_name` FROM `".MANAGERS_TBL."`  WHERE `id` IN (".$query['dop_managers_id'].")";
+		    $result = $mysqli->query($query)or die($mysqli->error);
+		    
+		    if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+				    $managers_arr[$row['id']] = $row;
+				}
+		    }	 
+
+		    if(count($managers_arr)){
+		    	$String = '<div class="dop_grey_small_info">';
+		    		
+		    	foreach ($managers_arr as $key => $manager) {
+		    		$name = $manager['name']; 
+			    	if($manager['last_name'] != ''){
+			    		$name = mb_substr($name, 0,2);
+						$name = ($name!='')?$name.'.':'';
+			    	}	
+
+		    		$String .= ''.$manager['last_name'].' '.$manager['name'].'<br>';
+		    	}
+		    	
+		    	$String .= '</div>';
 		    }
 		    return $String;
 		}
@@ -6819,6 +6939,7 @@
 					// echo '{"response":"show_new_window","html":"'.base64_encode($query).'"}';
 					echo '{"response":"OK"}';
 				}
+
 
 
 
