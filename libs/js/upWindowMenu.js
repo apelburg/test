@@ -1567,7 +1567,7 @@
 		// AJAX запрос
 		make_ajax_request(url,callback);
 		function callback(response){ 
-		   alert(response);
+		    // alert(response);
 		    if(response == '1') location = OS_HOST+'?page=client_folder&section=business_offers&query_num='+query_num+'&client_id='+client_id;
 		    /*console.log(response);*/ 
 			close_processing_timer(); closeAllMenuWindows();

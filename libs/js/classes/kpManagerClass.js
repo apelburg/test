@@ -57,6 +57,13 @@
 				kpManager.textarea = document.createElement('div');
 				kpManager.textarea.className = 'mailTextarea';
 				kpManager.textarea.contentEditable = "true";
+				$(kpManager.textarea).bind({
+					paste : function(e){
+					   e.preventDefault();
+					   alert('копи-паст запрещен');
+					}
+				});
+				
 				document.getElementById('mailMessage').appendChild(kpManager.textarea);
 				
 				// поле отображения прикрепленного файла
