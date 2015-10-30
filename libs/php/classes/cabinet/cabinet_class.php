@@ -970,7 +970,7 @@
 			// роутер по предзаказу
 			protected function paperwork_Template($id_row=0){
 				include_once './libs/php/classes/cabinet/cabinet_paperwork_class.php';
-				new Paperwork($id_row,$this->user_access,$this->user_id);					
+				new Paperwork($id_row,$this->user_access,$this->user_id);				
 			}
 
 			// роутер по заказу
@@ -5516,7 +5516,8 @@
 			$name = '';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$name = '<td'.(($no_edit==0)?' class="attach_the_client"':' class="dop__info"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
+					$href = './?page='.$_GET['page'].(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$row['id'];
+					$name = '<td'.(($no_edit==0)?' class="attach_the_client"':' class="dop__info filter_class" data-href="'.$href.'"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
 				}
 			}else{
 				$name = '<td'.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</td>';
@@ -5614,18 +5615,21 @@
 		}
 
 		// получаем имена менеджеров для запроса
-		protected function get_all_manager_name_Database_Html($query,$no_edit=0){
-			if($query['manager_id'] != 0){
-				return $this-> get_manager_name_Database_Html($query['manager_id'],$no_edit);
-			}else if( $query['dop_managers_id'] == ''){
+		protected function get_all_manager_name_Database_Html($Query,$no_edit=0){
+			if($Query['manager_id'] != 0){
+				return $this-> get_manager_name_Database_Html($Query['manager_id'],$no_edit);
+			}else if( $Query['dop_managers_id'] == ''){
 				$String = '<div'.(($no_edit==0)?' class="attach_the_manager add"':' class="dop_grey_small_info"').' data-id="0">Прикрепить менеджера</div>';
 				return $String;
 			}
 
+
+
 			global $mysqli;
-		    
+		    // обработка ситуации, когда прикреплено несколько гепотетических кандидатов на обработку запроса
+		    // но запрос не закреплён пока что ни за кем конкретно
 		   	$managers_arr = array();
-		    $query="SELECT `id`,`name`,`last_name` FROM `".MANAGERS_TBL."`  WHERE `id` IN (".$query['dop_managers_id'].")";
+		    $query="SELECT `id`,`name`,`last_name` FROM `".MANAGERS_TBL."`  WHERE `id` IN (".$Query['dop_managers_id'].")";
 		    $result = $mysqli->query($query)or die($mysqli->error);
 		    
 		    if($result->num_rows > 0){
@@ -5635,7 +5639,15 @@
 		    }	 
 
 		    if(count($managers_arr)){
-		    	$String = '<div class="dop_grey_small_info">';
+		    	// добавляем возможность редактирования списка для администратора
+		    	if($this->user_access == 1){
+		    		$String = '<div class="dop_grey_small_info attach_the_manager_any" data-client_id="'.$Query['client_id'].'"  data-row_id="'.$Query['id'].'">';
+		    		$String .= '<div class="managers_id_str" style="display:none">'.$Query['dop_managers_id'].'</div>'; 
+		    		// $String = '<div class="dop_grey_small_info">'.$this->print_arr($Query);
+		    	}else{
+		    		$String = '<div class="dop_grey_small_info">';	
+		    	}
+		    	
 		    		
 		    	foreach ($managers_arr as $key => $manager) {
 		    		$name = $manager['name']; 
@@ -5651,6 +5663,17 @@
 		    }
 		    return $String;
 		}
+
+		// сохраняем спискок прикреплённых менеджеров кандидатов
+		protected function save_get_choose_curators_edit_AJAX(){
+
+		}
+
+		// получаем список прикрепленных менеджеров - кандидатов
+		protected function get_choose_curators_edit_AJAX(){
+    		$html = $this->get_choose_curators_edit();
+			echo '{"response":"show_new_window","title":"Выберите менеджера","html":"'.base64_encode($html).'"}';
+    	}
 
 		// получаем информацию о менеджере 
 		protected function get_manager_name_Database_Array($id){

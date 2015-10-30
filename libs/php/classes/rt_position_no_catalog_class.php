@@ -216,11 +216,32 @@ class Position_no_catalog{
 				)
 			),
 
+		
+
 		'calculate_is_ready' => array(
 			'name' => array(
 				1 => 'Рассчитано снабжением',				
 				5 => 'Рассчитано снабжением',
 				8 => 'Расчёт готов'
+				),
+			'buttons' =>  array( // кнопки для данного статуса
+				// 'on_recalculation_snab' => array( // 
+				// 	'name' => 'Запросить перерасчёт',
+				// 	'access' => '5'
+				// 	)
+				// )
+				'accept_snab_job' => array( // статус снабжения по позиции
+					'name' => 'Принять расчёт',
+					'class' => 'status_art_right_class',// класс кнопки для смены статуса
+					'access' => '5'
+					)
+				)
+			),
+		'accept_snab_job' => array(
+			'name' => array(
+				1 => 'Рассчитано снабжением / принято',				
+				5 => 'Рассчитано снабжением / принято',
+				8 => 'Расчёт принят'
 				),
 			'buttons' =>  array( // кнопки для данного статуса
 				// 'on_recalculation_snab' => array( // 
@@ -240,7 +261,7 @@ class Position_no_catalog{
 
 	function __construct($user_access = 0){
 		$this->user_id = $_SESSION['access']['user_id'];
-		$this->user_access = $user_access;
+		$this->user_access = ($user_access != 0)?$user_access:$this->get_user_access_Database_Int($this->user_id);
 
 		$this->id_position = isset($_GET['id'])?$_GET['id']:0;
 
@@ -258,6 +279,22 @@ class Position_no_catalog{
 		// print_r($this->user_access);
 		// echo '</pre>';
 			
+	}
+
+	// запрашивает из базы допуски пользователя
+	// необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
+	private function get_user_access_Database_Int($id){
+		global $mysqli;
+		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$int = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$int = (int)$row['access'];
+			}
+		}
+		//echo $query;
+		return $int;
 	}
 
 
@@ -401,8 +438,8 @@ class Position_no_catalog{
 		// $this->status_snab[$status_snab]['name'][$_SESSION['access']['access']];
 			
 		// получаем имя вкладки
-			if(isset($this->status_snab[$status_snab]['name'][$_SESSION['access']['access']])){				
-				$name_group = $this->status_snab[$status_snab]['name'][$_SESSION['access']['access']];				
+			if(isset($this->status_snab[$status_snab]['name'][$this->user_access])){				
+				$name_group = $this->status_snab[$status_snab]['name'][$this->user_access];				
 			}else{
 
 				// ТАКЖЕ СУЩЕСТВУЮТ ЕЩЕ ВАРИАНТЫ ПОСТАВЛЕННЫЕ НА ПАУЗУ _pause

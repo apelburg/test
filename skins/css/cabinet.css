@@ -236,6 +236,7 @@ tr.cat_8 td {
 	font-size: 20px;
 }
 .attach_the_manager,
+.attach_the_manager_any,
 .attach_the_client,
 .take_in_operation,
 .get_in_work{
@@ -247,12 +248,14 @@ tr.cat_8 td {
 
 
 .attach_the_manager:hover,
+.attach_the_manager_any:hover,
 .attach_the_client:hover,
 .take_in_operation:hover,
 .get_in_work:hover{
 	background-color: #BAD08B;
 }
 .row_close .attach_the_manager:hover,
+.row_close .attach_the_manager_any:hover,
 .row_close .attach_the_client:hover,
 .row_close .take_in_operation:hover,
 .row_close .get_in_work:hover{
@@ -260,6 +263,7 @@ tr.cat_8 td {
 }
 .row_close .attach_the_manager,
 .row_close .attach_the_client,
+.row_close .attach_the_manager_any,
 .row_close .take_in_operation,
 .row_close .get_in_work{
 	padding: 5px;
@@ -1431,6 +1435,9 @@ input.get_a_detailed_specifications {
 #chose_client_tbl table tr td#client_0{
 	color: red;
 }
-#json_manager_arr{
+#chose_many_curators_tbl #json_manager_arr{
 	display: none;
+}
+table#general_panel_orders_tbl {
+    border-bottom: 1px solid #E2E2E2;
 }

@@ -125,6 +125,85 @@
 		}
 
 
+    	// получаем массив пользователей с правами 5 и 1
+		protected function get_manager_list($access_arr = array(0 => 5)){
+			$n = 0;
+			$access_str = '';
+			foreach ($access_arr as $key => $value) {
+				$access_str = (($n>0)?',':'')."'".$value."'";
+				$n++;
+			}
+
+			global $mysqli;
+			$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `access` IN (".$access_str.") ORDER BY `last_name` ASC;";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$manager_names = array();			
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$manager_names[] = $row; 
+				}
+			}
+			return $manager_names;
+		}
+
+		
+
+    	// получаем форму выбора кураторов
+		protected function get_choose_curators_edit(){
+			
+			
+			
+			// получаем список менеджеров
+			$access_arr[] = 5;
+			$managers_arr = $this->get_manager_list($access_arr);
+
+			$managers_Json_arr  = explode(',', $_POST['managers_id_str']);
+			$Json = '{';
+			$n = 0;
+			foreach ($managers_Json_arr as $value) {
+				$Json .= (($n++>0)?',':'').'"'.$value.'":"'.$value.'"';
+
+			}
+			$Json .= '}';
+
+			$html = '';
+			$html .= '<form  id="chose_many_curators_tbl">';
+			$html .=' <div id="json_manager_arr">'.$Json.'</div>';
+			$html .=' <input type="hidden" name="Json_meneger_arr" value=\''.$Json.'\' id="json_manager_arr_val">';
+					$html .='<table>';
+
+					$count = count($managers_arr);
+					for ($i=0; $i <= $count; $i) {
+						$html .= '<tr>';
+					    for ($j=1; $j<=3; $j++) {
+					    	if(isset($managers_arr[$i])){
+						    	$checked = (in_array($managers_arr[$i]['id'], $managers_Json_arr))?'class="checked"':'';
+						    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
+						    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
+					    		$i++;
+					    	}else{
+					    		$html .= '<td  date-lll="'.$i.'"></td>';
+					    		$i++;
+					    	}				    	
+					    }				    
+					    $html .= '</tr>';
+					}
+
+					$html .= '</table>';
+
+			$html .= '<input type="hidden" name="AJAX" value="create_new_client_and_insert_curators">';
+
+			unset($_POST['AJAX']);
+			foreach ($_POST as $key => $value) {
+				$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+			}
+
+			$html .= '</form>';
+
+			return $html;
+		}
+
+
 		function __destruct(){}
 }
 
