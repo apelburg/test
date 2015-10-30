@@ -4,15 +4,29 @@
 
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
-		'important' => 'Важно',
+		// Запросы
 		'no_worcked_men' => 'Не обработанные',
+		'query_taken_into_operation' => 'В обработке',
+		'query_worcked_men' => 'В работе',
+		'send_to_snab' => 'Отправлено в Snab',
+		'query_worcked_snab' => 'В работе Snab',
+		'calk_snab' => 'Рассчитаные Snab',
+		'denied' => 'ТЗ не корректно',
+		'query_variant_in_pause' => 'На паузе',
+		'query_denided_variants' => 'Отказанные',
+		'query_history' => 'История',
+		'query_all' => 'Все',
+
+
+		// другое....
+		'important' => 'Важно',
 		'in_work' => 'В работе',
 		'in_work_snab' => 'В работе СНАБ',
 		'send_to_snab'=>'Отправлено в СНАБ',
 		// 'send_to_snab' => '&&&',
 		'calk_snab' => 'Рассчитанные СНАБ',
 		'ready_KP' => 'Выставлено КП',
-		'denied' => 'ТЗ не корректно',
+		
 		'all' => 'Все',
 		'orders' => 'Заказы',
 		'requests' =>'Запросы',
@@ -23,7 +37,6 @@
 		'start' => 'Запуск',
 		'tz_no_correct' => 'ТЗ не корректно',
 		'purchase' => 'Закупка',
-		'denided_query' => 'Отказанные',
 		'design' => 'Дизайн',
 		'production' => 'Производство',
 		'ready_for_shipment' => 'Готов к отгрузке',
@@ -122,10 +135,29 @@
 		############################################
 			protected function get_in_work_AJAX(){
 				global $mysqli;
-				// прикрепить клиента и менеджера к запросу	
-				$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+				/*
+
+				Проверяется в JS
+
+				$query ="SELECT * FROM  `".RT_LIST."` WHERE `id` = '".(int)$_POST['row_id']."';";	
 				$result = $mysqli->query($query) or die($mysqli->error);	
-				echo '{"response":"OK","function":"window_reload"}';
+				
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->Query[] = $row;
+					}
+				}
+				if($this->Query['client_id'] == 0){
+					$message = 'Чтобы взять запрос в работу необходимо прикрепить клиента!!!';
+					$json = '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+					echo $json;
+					exit;
+				}
+				*/
+				// прикрепить клиента и менеджера к запросу	
+				$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['row_id']."';";	
+				$result = $mysqli->query($query) or die($mysqli->error);	
+				echo '{"response":"OK","function":"reload_order_tbl"}';
 			}
 
 			protected function take_in_operation_AJAX(){
@@ -133,7 +165,7 @@
 				// прикрепить клиента и менеджера к запросу	
 				$query ="UPDATE  `".RT_LIST."` SET `status`='taken_into_operation',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 				$result = $mysqli->query($query) or die($mysqli->error);	
-				echo '{"response":"OK","function":"window_reload"}';
+				echo '{"response":"OK","function":"reload_order_tbl"}';
 			}	
 
 			
@@ -148,7 +180,29 @@
 		##                          START                          ##
 		##      методы для работы с поддиректориями subsection     ##
 		#############################################################
+/*
+		protected function get_button_status_for_managers(){
+			switch ($this->Requests['status']) {
+					case 'not_process':
+						$this->status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+						$this->client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
+						break;
+					case 'taken_into_operation':
+						$this->status_or_button = '<div class="get_in_work">Взять в работу</div>';
+						$this->client_button = $this->get_client_name_Database($this->Requests['client_id'],0);						
+						break;
 
+					case 'new_query':
+						$this->status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+						$this->client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
+						break;					
+
+					default:
+						$this->status_or_button = $this->name_cirillic_status[$this->Requests['status']];
+						$this->client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
+						break;
+				}
+		}
 		
 		//////////////////////////
 		//	Запросы
@@ -328,36 +382,17 @@
 				//	собираем строку с номером заказа (шапку заказа)
 				//////////////////////////
 
-				switch ($this->Requests['status']) {
-					case 'not_process':
-						$status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
-						$client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
-						break;
-					case 'taken_into_operation':
-						$status_or_button = '<div class="get_in_work">Взять в работу</div>';
-						$client_button = $this->get_client_name_Database($this->Requests['client_id'],0);						
-						break;
-
-					case 'new_query':
-						$status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
-						$client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
-						break;					
-
-					default:
-						$status_or_button = $this->name_cirillic_status[$this->Requests['status']];
-						$client_button = $this->get_client_name_Database($this->Requests['client_id'],1);						
-						break;
-				}
+				$this->get_button_status_for_managers();				
 
 				$general_tbl_row .= '
 						<tr data-id="'.$this->Requests['id'].'" id="rt_list_id_'.$this->Requests['id'].'">							
 							<td class="show_hide" '.$this->open_close_rowspan.'="2"><span class="cabinett_row_hide'.$this->open_close_class.'"></span></td>
 							<td><a target="_blank" href="./?page=client_folder&client_id='.$this->Requests['client_id'].'&query_num='.$this->Requests['query_num'].'">'.$this->Requests['query_num'].'</a></td>
-							<td>'.$client_button.'</td>
+							<td>'.$this->client_button.'</td>
 							<td>'.$this->Requests['create_time'].'</td>
 							<td><span data-rt_list_query_num="'.$this->Requests['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Requests['query_num']).'"></span></td>
 							<td>'.RT::calcualte_query_summ($this->Requests['query_num']).'</td>
-							<td>'.$status_or_button.'</td>
+							<td>'.$this->status_or_button.'</td>
 						</tr>';
 				
 				$general_tbl_row .= '<tr class="query_detail" '.$this->open_close_tr_style.'>';
@@ -411,7 +446,7 @@
 			// выводим
 			echo $html;
 		}
-
+*/
 					
 				
 

@@ -1,3 +1,4 @@
+
 <?php
 	
 	class Requests extends Cabinet{
@@ -50,23 +51,28 @@
     	}
 
     	
-		// все
-    	protected function requests_all_Template($id_row){
-    		$this->filtres_query = " `".RT_LIST."`.`status` <> 'history'";
-    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
+    	// Ожидают распределения (Админ)
+    	protected function requests_query_wait_the_process_Template($id_row){
+    		$this->filtres_query = " `".RT_LIST."`.`status` = 'new_query'";
+    		$this->filtres_query .= " AND `".RT_LIST."`.`manager_id` = '24'";
     		$this->request_Template($id_row);
     	}
-    	// не обработанные менеджер
+		
+
+    	// Ожидают обработки (Мен)/ Не обработанные (Админ)
     	protected function requests_no_worcked_men_Template($id_row){    		
-    		$this->filtres_query = "  (`".RT_LIST."`.`status` = 'not_process' OR `".RT_LIST."`.`status` = 'new_query')";
+    		$this->filtres_query = "  (
+    			`".RT_LIST."`.`status` = 'not_process' 
+    			OR `".RT_LIST."`.`status` = 'new_query'
+    			)";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
     		$this->request_Template($id_row);
     	}
 
-    	// ТЗ не корректно снаб
-    	protected function requests_denied_Template($id_row){    		
-    		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
-    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`row_status` IN ('tz_is_not_correct_on_recalculation','tz_is_not_correct')";
+    	// В обработке (Админ/Мен)
+    	protected function requests_query_taken_into_operation_Template($id_row){    		
+    		$this->filtres_query = "  `".RT_LIST."`.`status` = 'taken_into_operation'";
+    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
     		$this->request_Template($id_row);
     	}
 
@@ -77,45 +83,89 @@
     		$this->request_Template($id_row);
     	}
 
-    	// рассчитанные СНАБ
-    	protected function requests_calk_snab_Template($id_row){    		
-    		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
-    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` = 'calculate_is_ready'";
-    		$this->request_Template($id_row);
-    	}
-
     	// Отказанные варианты (красный)
-    	protected function requests_denided_query_Template($id_row){    		
+    	protected function requests_query_denided_variants_Template($id_row){    		
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` = 'red'";
     		$this->request_Template($id_row);
     	}
 
 
-    	// в работе
-    	protected function requests_in_work_Template($id_row){
+    	// В работе Sales (Админ) / В работе (Мен)
+    	protected function requests_query_worcked_men_Template($id_row){
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
     		$this->request_Template($id_row);
     	}
 
-    	// отправлено в снаб
+    	// рассчитанные Snab
+    	protected function requests_calk_snab_Template($id_row){    		
+    		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
+    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` = 'calculate_is_ready'";
+    		$this->request_Template($id_row);
+    	}
+
+    	// отправлено в Snab
     	protected function requests_send_to_snab_Template($id_row){
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` IN ('on_calculation_snab','on_recalculation_snab')";
     		$this->request_Template($id_row);
     	}
 
-    	// в работе снаб 
-    	protected function requests_in_work_snab_Template($id_row){
+    	// ТЗ не корректно Snab
+    	protected function requests_denied_Template($id_row){    		
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
-    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` IN ('in_calculation')";
+    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`row_status` IN ('tz_is_not_correct_on_recalculation','tz_is_not_correct')";
     		$this->request_Template($id_row);
     	}
 
-    	// история
-    	protected function requests_history_Template($id_row){
+    	// в работе Snab (Админ / Мен)
+    	protected function requests_query_worcked_snab_Template($id_row){
+    		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
+    		if($this->user_access == 1){
+    			// для админа работа снаб - это все статусы, где снаб принимает какое-либо участие
+    			$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' 
+    			AND (`".RT_DOP_DATA."`.`status_snab` IN (";
+				$this->filtres_position .= "'on_calculation_snab'";
+				$this->filtres_position .= ",'on_recalculation_snab'";
+				$this->filtres_position .= ",'tz_is_not_correct_on_recalculation'";
+				$this->filtres_position .= ",'tz_is_correct_on_recalculation'";
+				$this->filtres_position .= ",'tz_is_correct'";
+				$this->filtres_position .= ",'tz_is_not_correct'";
+				$this->filtres_position .= ",'in_calculation'";
+				$this->filtres_position .= ",'edit_and_query_the_recalculate'";
+				$this->filtres_position .= ",'calculate_is_ready'";
+
+    			$this->filtres_position .= "'in_calculation'";// в работе снаб
+    			$this->filtres_position .= ",'on_calculation_snab'";// отправлено в снаб
+    			$this->filtres_position .= ",'on_recalculation_snab'";// отправлено в снаб
+    			$this->filtres_position .= ",'tz_is_not_correct_on_recalculation'";
+    			$this->filtres_position .= ",'tz_is_not_correct'";
+    			$this->filtres_position .= ") OR `".RT_DOP_DATA."`.`status_snab` LIKE '%pause%')";	
+    		}else{
+    			// для мена только статус в расчёте
+    			$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` IN ('in_calculation')";	
+    		}
+    		
+    		$this->request_Template($id_row);
+    	}
+    	// на паузе (Мен / Снаб)
+    	protected function requests_query_variant_in_pause_Template($id_row){
+    		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
+    		$this->filtres_position .= " `".RT_DOP_DATA."`.`status_snab` LIKE '%pause%'";
+    		$this->request_Template($id_row);
+    	}
+
+    	// история (Админ / Мен)
+    	protected function requests_query_history_Template($id_row){
     		$this->filtres_query = " `".RT_LIST."`.`status` = 'history'";
+    		$this->request_Template($id_row);
+    	}
+
+    	// все (Админ/Мен)
+    	protected function requests_query_all_Template($id_row){
+    		$this->filtres_query = " `".RT_LIST."`.`status` <> 'history'";
+    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
     		$this->request_Template($id_row);
     	}
 
@@ -142,8 +192,19 @@
 				}
 				// для менеджера 
 				if($this->user_access == 5){
-					$query .= " ".(($where)?'AND':'WHERE')." `".RT_LIST."`.`manager_id` = '".$this->user_id."'";
-					$where = 1;
+					if($_GET['subsection'] == "no_worcked_men"){
+						$query .= " ".(($where)?'AND':'WHERE')." 
+						(`".RT_LIST."`.`manager_id` = '".$this->user_id."' 
+						 OR (`".RT_LIST."`.`manager_id` = '0' AND `".RT_LIST."`.`dop_managers_id` LIKE '%10%') )";
+						
+
+						$where = 1;
+					}else{
+						$query .= " ".(($where)?'AND':'WHERE')." 
+						`".RT_LIST."`.`manager_id` = '".$this->user_id."' 
+						";
+						$where = 1;
+					}
 				}
 			}
 
@@ -172,6 +233,34 @@
 			}
     	}
 
+    	// статусы / кнопки запроса
+    	protected function get_button_status_for_request(){
+    		// echo $this->user_access;
+			if($this->user_access == 5){
+				switch ($this->Query['status']) {
+					case 'not_process':
+						$this->status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+						// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],1);						
+						break;
+					case 'taken_into_operation':
+						$this->status_or_button = '<div class="get_in_work">Взять в работу</div>';
+						// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],0);						
+						break;
+
+					case 'new_query':
+						$this->status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+						// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],1);						
+						break;					
+
+					default:
+						$this->status_or_button = $this->name_cirillic_status[$this->Query['status']];
+						// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],1);						
+						break;
+				}
+			}else {
+				$this->status_or_button = (isset($this->name_cirillic_status[$this->Query['status']])?$this->name_cirillic_status[$this->Query['status']]:'статус не предусмотрен!!!!'.$this->Query['status']);
+			}
+		}
 
 
     	// шаблон html вывода запроса
@@ -242,8 +331,10 @@
 
 					}
 
-					
-					$this->status_or_button = (isset($this->name_cirillic_status[$this->Query['status']])?$this->name_cirillic_status[$this->Query['status']]:'статус не предусмотрен!!!!'.$this->Query['status']);
+					// получаем статус 
+					$this->get_button_status_for_request();
+
+					//$this->status_or_button = (isset($this->name_cirillic_status[$this->Query['status']])?$this->name_cirillic_status[$this->Query['status']]:'статус не предусмотрен!!!!'.$this->Query['status']);
 					
 
 					// выделяем красным текстом если менеджер не взял запрос в обработку в течение 5 часов
@@ -283,10 +374,17 @@
 			$html  = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->rowspan.'"><span class="cabinett_row_hide '.$this->open_close_class.'"></span></td>';
 			$html .= '<td><a href="./?page=client_folder&client_id='.$this->Query['client_id'].'&query_num='.$this->Query['query_num'].'">'.$this->Query['query_num'].'</a> </td>';
 			
-			$html .= $this->get_client_name_for_qury_Database($this->Query['client_id']);
+			$no_edit = (($_GET['subsection'] == 'query_taken_into_operation' && $this->user_access == 5 || $this->user_access == 1)?0:1);
+			if($_GET['subsection'] == 'query_history'){
+				$no_edit = 1;
+			}
+			$html .= $this->get_client_name_for_query_Database($this->Query['client_id'],$no_edit);
 			$html .= '<td>';
-				$html .= '<div>'.$this->get_manager_name_Database_Html($this->Query['manager_id']).'</div>';
-				$html .= '<div style="padding-top: 5px;"><span class="greyText" data-sec="'.$this->Query['time_attach_manager_sec']*(-1).'" '.$this->overdue.'>'.$this->Query['time_attach_manager'].'</span></div>';
+				$html .= '<div>'.$this->get_all_manager_name_Database_Html($this->Query,$no_edit).'</div>';
+				// если не история - считаем сколько времени назад взяли заказ в работу
+				if($_GET['subsection'] != 'query_history'){
+					$html .= '<div style="padding-top: 5px;"><span class="greyText" data-sec="'.$this->Query['time_attach_manager_sec']*(-1).'" '.$this->overdue.'>'.$this->Query['time_attach_manager'].'</span></div>';
+				}
 				
 			$html .= '</td>';
 			$html .= '<td>'.$this->Query['create_time'].'</td>';
@@ -294,7 +392,7 @@
 			$html .= '<td><span data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span></td>';
 			
 			$html .='<td>'.RT::calcualte_query_summ($this->Query['query_num']).'</td>';
-			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.'">'.$this->status_or_button.'</td>';
+			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.' query_status">'.$this->status_or_button.'</td>';
 			return $html;
 		}
 
@@ -357,6 +455,10 @@
 		
 		// ЗАПРОС позиции по запросу
 		protected function get_positions_Database_Array(){
+			if ($this->Query_id_str == '') {
+				return array();
+			}
+
 			$where = 0;
 
 			global $mysqli;
@@ -392,6 +494,7 @@
 
 
 			// echo $query.'<br>';
+
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();

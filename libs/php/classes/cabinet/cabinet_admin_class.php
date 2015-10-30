@@ -7,10 +7,21 @@
 
 		// словарь
 		public $menu_name_arr = array(
+			// запросы
+			'query_wait_the_process' => 'Ожидают распределения',
+			'no_worcked_men' => 'Ожидают обработки',
+			'query_taken_into_operation' => 'В обработке',
+			'query_worcked_men' => 'В работе Sales',
+			'query_worcked_snab' => 'Работа Snab',
+			'query_history' => 'История',
+			'query_all' => 'Все',
+
+
+			// другое.....
 			'important' => 'Важно',
 			'in_processed'=>'обрабатывается',
 			'no_worcked_snab' => 'Не обработанные СНАБ',		
-			'no_worcked_men' => 'Не обработанные МЕН',
+			'no_worcked_men' => 'Не обработанные МЕН',	
 			'send_to_snab' => 'Отправлены в СНАБ',
 			'calk_snab' => 'Рассчитанные',
 			'ready_KP' => 'Выставлено КП',

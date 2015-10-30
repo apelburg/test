@@ -79,14 +79,14 @@
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'all' => array('access'=>true),
-													'no_worcked_men' => array('access'=>true),
-													'in_work' => array('access'=>true),
-													// 'send_to_snab' => array('access'=>true),
-													// 'calk_snab' => array('access'=>true),
-													//'ready_KP' => array('access'=>true), // будем прикручивать на будущие версии
-													// 'denied' => array('access'=>true),
-													'history' => array('access'=>true)
+													'query_wait_the_process' =>  array('access'=>true),
+													'no_worcked_men' =>  array('access'=>true),
+													'query_taken_into_operation' =>  array('access'=>true),
+													'query_worcked_men' =>  array('access'=>true),
+													'query_worcked_snab' =>  array('access'=>true),
+													'query_history' =>  array('access'=>true),
+													'query_all' =>  array('access'=>true),
+													
 													)
 												), 
 											'paperwork'=> array(
@@ -269,13 +269,16 @@
 												'access'=>true,
 												'subsection'=>array( // 2
 													'no_worcked_men' => array('access'=>true),
-													'in_work' => array('access'=>true),
+													'query_taken_into_operation' => array('access'=>true),
+													'query_worcked_men' => array('access'=>true),
 													'send_to_snab' => array('access'=>true),
-													'in_work_snab' => array('access'=>true),
+													'query_worcked_snab' => array('access'=>true),
 													'calk_snab' => array('access'=>true),
 													'denied' => array('access'=>true),
-													'paused' => array('access'=>true),
-													'denided_query' => array('access'=>true)
+													'query_variant_in_pause' => array('access'=>true),
+													'query_denided_variants' => array('access'=>true),
+													'query_history' => array('access'=>true),
+													'query_all' => array('access'=>true),
 													)
 												),
 											'paperwork'=> array(

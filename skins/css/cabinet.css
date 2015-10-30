@@ -1,7 +1,8 @@
 input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif;color:#3a3938;outline:none}
 #cabinet_general_content{
 	float: left;
-	width: 100%
+    width: 100%;
+    padding-top: 5px;
 }
 #cabinet_general_content table{
 	width: 100%; border-collapse: collapse;
@@ -268,19 +269,27 @@ tr.cat_8 td {
 }
 
 
-#chose_manager_tbl table,#chose_client_tbl table{
+#chose_many_curators_tbl table,
+#chose_manager_tbl table,
+#chose_client_tbl table{
 	width: 100%;
 }
-#chose_manager_tbl table tr td,#chose_client_tbl table tr td{
+#chose_many_curators_tbl table tr td,
+#chose_manager_tbl table tr td,
+#chose_client_tbl table tr td{
 	padding: 2px 0px 2px 5px;
 	font-size: 12px;
 }
-#chose_manager_tbl table tr td:hover, #chose_client_tbl table tr td:hover {
+#chose_many_curators_tbl table tr td:hover,
+#chose_manager_tbl table tr td:hover, 
+#chose_client_tbl table tr td:hover {
 	background-color: #EDB4B4;
 	cursor: default;
 }
 
-#chose_manager_tbl table tr td.checked, #chose_client_tbl table tr td.checked{
+#chose_many_curators_tbl table tr td.checked,
+#chose_manager_tbl table tr td.checked, 
+#chose_client_tbl table tr td.checked{
 	background-color: #A6CC8B;
 	font-weight: bold;
 	color: #fff;
@@ -872,7 +881,8 @@ input.calendar_date_ready{
 #cabinet_general_content table tr td.buh_uchet_for_spec,
 #cabinet_general_content table tr td.buh_uchet_for_order{
 	background-image: url('../../skins/images/img_design/BUCH.png');
-	background-position: 50%;
+	/*background-position: 50%;*/
+	background-position: 10px;
 	background-repeat: no-repeat;
 }
 
@@ -880,7 +890,8 @@ input.calendar_date_ready{
 #cabinet_general_content table tr.order_head_row.row_open td.buh_uchet_for_spec,
 #cabinet_general_content table tr.order_head_row.row_open td.buh_uchet_for_order{
 	background-image: url('../../skins/images/img_design/BUCH_color.png');
-	background-position: 50%;
+	/*background-position: 50%;*/
+	background-position: 10px;
 	background-repeat: no-repeat;
 }
 
@@ -1379,8 +1390,13 @@ input.get_a_detailed_specifications {
 	background-position: top right;
 	background-repeat: no-repeat;
 }
+
 #cabinet_general_content .filter_class:hover{
 	background-color: rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+}
+#cabinet_general_content .row_open .filter_class:hover{
+	background-color: #BBCE91;
 	cursor: pointer;
 }
 .men_in_order{
@@ -1399,4 +1415,22 @@ input.get_a_detailed_specifications {
 }
 #general_panel_orders_tbl.order_tbl .position-row  td:nth-of-type(6){
 	width: 15px;
+}
+#show_allArt {
+	width: 15px;
+}
+#general_panel_orders_tbl .query_status{
+	cursor: pointer;
+}
+#general_panel_orders_tbl .row_open .query_status:hover{
+	background-color: #BAD08B;
+}
+#general_panel_orders_tbl .row_close .query_status:hover{
+	background-color: #E2E2E2;
+}
+#chose_client_tbl table tr td#client_0{
+	color: red;
+}
+#json_manager_arr{
+	display: none;
 }
