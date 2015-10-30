@@ -1,7 +1,7 @@
 // JavaScript Document
 
    function ConvertSpecOfferClass (){
-	   this.page_h = 980;//980
+	   this.page_h = 970;//980
 	   this.img_h = 65;// 45 + margin 60
 	   this.container_h = this.page_h - 5; // запас чтобы не было в притык
 	   this.level = 1;
@@ -11,13 +11,12 @@
    }
    
    ConvertSpecOfferClass.prototype.start = function (){
-	   
-	   
+
 	   this.tbl_container_div =  document.createElement('div');
 	   tbl = document.getElementsByTagName('table')[0];
 	   
 	   var img  = new Image();
-	   img.src = './../../skins/images/img_design/spec_offer_top_plank_2.jpg';
+	   img.src = 'http://' + location.host +'/skins/images/img_design/spec_offer_top_plank_2.jpg';
 	   img.style.margin = '0px 0px 20px 0px';
 	
 	   tbl.parentNode.insertBefore(this.tbl_container_div, tbl);
@@ -49,11 +48,12 @@
 	   var max_pos = this.page_h*(this.level-1)+this.container_h;
 	   //var max_pos = this.page_h*this.level;
 	   var img  = new Image();
-	   img.src = './../../skins/images/img_design/spec_offer_top_plank2.jpg';
+	   img.src =  'http://' + location.host + '/skins/images/img_design/spec_offer_top_plank_2.jpg';
 	   
 	   //img.style.marginTop="-75px";
 	   var new_table = document.createElement('table');
-	   new_table.style.border = '#CCCCCC solid 1px';
+	   new_table.style.border = '#CCCCCC solid 0px';
+	   new_table.style.width = tbl.offsetWidth;
 	   new_table.style.borderCollapse = 'collapse'; 
 	   new_table.style.backgroundColor = '#FFFFFF'; 
 	   new_table.style.fontFamily = 'Verdana, Arial, Helvetica, sans-serif';

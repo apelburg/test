@@ -31,12 +31,12 @@
 			
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
-		       $query2 ="UPDATE `".BASE__PRINT_PLACES_TYPES_TBL."` SET name='".$val[1]."', comment='".$val[2]."' WHERE id = '".$val[0]."'";
+		       $query2 ="UPDATE `".BASE__PRINT_PLACES_TYPES_TBL."` SET name='".cor_data_for_SQL($val[1])."', comment='".cor_data_for_SQL($val[2])."' WHERE id = '".$val[0]."'";
 			   $mysqli->query($query2)or die($mysqli->error);
 			}
 			else{
 			  
-			   $query2 ="INSERT INTO `".BASE__PRINT_PLACES_TYPES_TBL."` VALUES('','".$val[1]."','".$val[2]."')";
+			   $query2 ="INSERT INTO `".BASE__PRINT_PLACES_TYPES_TBL."` VALUES('','".cor_data_for_SQL($val[1])."','".cor_data_for_SQL($val[2])."')";
 			   //echo $query2;
 			   $mysqli->query($query2)or die($mysqli->error);
 			}

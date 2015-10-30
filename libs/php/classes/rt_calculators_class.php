@@ -378,11 +378,11 @@
 									   `uslugi_id` ='".$details_obj->print_details->print_id."',
 									   `performer` ='".self::get_performer_id($details_obj->print_details->print_id)."',
 									   `glob_type` ='print',
-									   `tz` ='".$details_obj->print_details->comment."',
+									   `tz` ='".cor_data_for_SQL($details_obj->print_details->comment)."',
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = '".$details_obj->price_in."',
 									   `price_out` ='".$details_obj->price_out."',
-									   `print_details` ='".$print_details."'"; 
+									   `print_details` ='".cor_data_for_SQL($print_details)."'"; 
 				//echo $query;
 				$mysqli->query($query)or die($mysqli->error);
 				//echo 1;

@@ -32,12 +32,12 @@
 			echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
-		       $query2 ="UPDATE `".BASE__CALCULATORS_Y_PRICE_PARAMS."` SET  print_type_id='".$usluga_id."' , param_type='".$val[1]."', value='".$val[2]."', percentage='".$val[3]."'  WHERE id = '".$val[0]."'";
+		       $query2 ="UPDATE `".BASE__CALCULATORS_Y_PRICE_PARAMS."` SET  print_type_id='".$usluga_id."' , param_type='".cor_data_for_SQL($val[1])."', value='".cor_data_for_SQL($val[2])."', percentage='".(float)$val[3]."'  WHERE id = '".$val[0]."'";
 			   $mysqli->query($query2)or die($mysqli->error);
 			}
 			else{
 			  
-			   $query2 ="INSERT INTO `".BASE__CALCULATORS_Y_PRICE_PARAMS."` VALUES('','".$usluga_id."','".$val[1]."','".$val[2]."','".$val[3]."')";
+			   $query2 ="INSERT INTO `".BASE__CALCULATORS_Y_PRICE_PARAMS."` VALUES('','".$usluga_id."','".cor_data_for_SQL($val[1])."','".cor_data_for_SQL($val[2])."','".(float)$val[3]."')";
 			   //echo $query2;
 			   $mysqli->query($query2)or die($mysqli->error);
 			}

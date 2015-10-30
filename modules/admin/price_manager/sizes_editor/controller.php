@@ -33,13 +33,13 @@
 			
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
-		       $query2 ="UPDATE `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` SET place_id='".$val[1]."', print_id='".$usluga_id."' , size='".$val[2]."', val='".$val[3]."', type='".$val[4]."', target='".$val[5]."', `default`='".$val[6]."' WHERE id = '".$val[0]."'";
+		       $query2 ="UPDATE `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` SET place_id='".$val[1]."', print_id='".$usluga_id."' , size='".cor_data_for_SQL($val[2])."', val='".(float)$val[3]."', type='".cor_data_for_SQL($val[4])."', target='".cor_data_for_SQL($val[5])."', `default`='".(int)$val[6]."' WHERE id = '".$val[0]."'";
 			  echo $query2;
 			   $mysqli->query($query2)or die($mysqli->error);
 			}
 			else{
 			  
-			   $query2 ="INSERT INTO `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` VALUES('','".$val[1]."','".$usluga_id."','".$val[2]."','','".$val[3]."','".$val[4]."','".$val[5]."','".$val[6]."')";
+			   $query2 ="INSERT INTO `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` VALUES('','".(int)$val[1]."','".$usluga_id."','".cor_data_for_SQL($val[2])."','','".(float)$val[3]."','".cor_data_for_SQL($val[4])."','".cor_data_for_SQL($val[5])."','".(int)$val[6]."')";
 			   //echo $query2;
 			   $mysqli->query($query2)or die($mysqli->error);
 			}

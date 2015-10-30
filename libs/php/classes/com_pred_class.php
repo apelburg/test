@@ -436,7 +436,8 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 			
 			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
 			$mpdf=new mPDF();
-			$mpdf->SetHTMLHeader('<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg"><br><br>'); 
+			//$mpdf->SetHTMLHeader('<div style="height:80px;border:#000 solid 1px;"><img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg"></div><br><br><br><br>'); 
+			$mpdf->SetHTMLHeader('<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">');
 			$mpdf->WriteHTML($html,2);
 			$mpdf->Output($filename,'F');
 	   }
@@ -452,7 +453,8 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 	
 			$mpdf=new mPDF();
 			//$mpdf->WriteHTML($stylesheet,1);
-			$mpdf->SetHTMLHeader('<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg"><br><br>'); 
+			//$mpdf->SetHTMLHeader('<div style="height:80px;border:#000 solid 1px;"><img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg"></div><br><br><br><br>'); 
+			$mpdf->SetHTMLHeader('<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">'); 
 			$mpdf->WriteHTML($html,2);
 			$mpdf->Output($filename,'D');
 			//$mpdf->Output();
@@ -842,7 +844,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 			        
 					// добавляем данные в  содержимое ячейки<td><div contenteditable="true" class="saveKpPosDescription"  pos_id="'.$pos_key.'">'.$pos_name.'</div></td>
 					$description_cell = '<div style="margin-top:5px;"><b>Сувенир:</b></div>
-					<table border="0" tbl="managed">
+					<table border="0" style="font-family:arial;font-size:13px;" tbl="managed">
 					  <tr>
 						<td style="width:6px;"></td>
 						<td style="width:400px;" managed="text" bd_row_id="'.(($pos_level['row_type']=='cat')? $pos_key:$r_key).'" bd_field="'.(($pos_level['row_type']=='cat')?'name':'details').'" action="changeKpPosDescription">'.$pos_name.'</td>
@@ -853,7 +855,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 					  </tr>
 					  </table>';
 					  if(!($save_on_disk && isset($dispSetObj->sizes))) $description_cell .= '<managedDisplay name="sizes" style="display:'.((!isset($dispSetObj->sizes) && $r_level['tirage_str']!='')?'inline-block':'none').'">
-						 <table border="0" tbl="managed">
+						 <table border="0" style="font-family:arial;font-size:13px;" tbl="managed">
 						  <tr>
 							<td style="width:6px;"></td>
 							<td style="width:400px;" managed="text" bd_row_id="'.$r_key.'" action="changeKpPosDescription" bd_field="tirage_str">'.$r_level['tirage_str'].'</td>
@@ -861,7 +863,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 						  </table>
 					  </managedDisplay>';
                       if(!($save_on_disk && isset($dispSetObj->characteristics))) $description_cell .= '<managedDisplay name="characteristics" style="display:'.((!isset($dispSetObj->characteristics) && $pos_level['characteristics']!='')?'inline-block':'none').'">
-						 <table border="0" tbl="managed">
+						 <table border="0" style="font-family:arial;font-size:13px;" tbl="managed">
 						  <tr>
 							<td style="width:6px;"></td>
 							<td style="width:400px;" managed="text" bd_row_id="'.$pos_key.'" action="changeKpRepresentedData" bd_field="characteristics">'.$pos_level['characteristics'].'</td>
@@ -869,14 +871,14 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 						  </table>
 					  </managedDisplay>';
 					  if(!($save_on_disk && isset($dispSetObj->description))) $description_cell .= '<managedDisplay name="description" style="display:'.((!isset($dispSetObj->description) && $pos_level['description']!='')?'inline-block':'none').'">
-					   <table border="0" tbl="managed">
+					   <table border="0" style="font-family:arial;font-size:13px;" tbl="managed">
 						  <tr>
 							<td style="width:6px;"></td>
 							<td style="width:400px;" managed="text" bd_row_id="'.$pos_key.'" action="changeKpRepresentedData" bd_field="description">'.$pos_level['description'].'</td>
 						  </tr>
 						</table>
 					</managedDisplay>';
-					 $description_cell .= '<table style="font-family:arial;font-size:13px;right;margin-top:10px;width:100%;border-collapse:collapse;width:350px;table-layout:_fixed;" border="0">
+					 $description_cell .= '<table style="font-family:arial;font-size:13px;margin-top:10px;width:100%;border-collapse:collapse;width:350px;table-layout:_fixed;" border="0">
 					  <tr>
 						<td align="right" style="width:250px;color:#888;">1шт.</td>
 						<td align="right" style="width:70px;padding:0 5px;"><nobr>'.number_format($price,2,'.',' ').'</nobr></td>
@@ -899,8 +901,9 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 						
 						foreach($r_level['dop_uslugi']['print'] as $u_key => $u_level){
 						    // echo  '<pre>'; print_r($u_level); echo '</pre>';  //
-						
+						    if($u_level['print_details']=='') continue;
 							$print_details_obj = json_decode($u_level['print_details']);
+							if($print_details_obj == NULL) continue;
 							$print_details_arr = json_decode($u_level['print_details'],TRUE);
 							$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
 							// расчет стоимости нанесения
@@ -1168,7 +1171,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 					    /*if(true!($save_on_disk && isset($dispSetObj->dop_uslugi))){ //style="display:'.(isset($dispSetObj->dop_uslugi)?'none':'block').'}"*/
 					
 						$description_cell .= '<managedDisplay name="dop_uslugi" style="display:'.(isset($dispSetObj->dop_uslugi)?'none':'block').'"><hr style="border:none;border-top:#888 solid 1px;"><div><b>Дополнительные услуги:</b></div>';
-						$description_cell .=  '<table style="margin-top:5px;border-collapse:collapse;" border="0">';
+						$description_cell .=  '<table style="margin-top:5px;border-collapse:collapse; font-family:arial;font-size:13px;" border="0">';
 						foreach($details_block11 as $key => $rows){
 						   $description_cell .=  '<tr><td align="left" height="25" colspan="3" style="padding:0 5px 0 15px;color:#888">'.$rows['cap'].'</td>';
 						   $description_cell .= implode('',$rows['data']);
@@ -1183,7 +1186,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 				    $description_cell .= '<td align="right" style="width:100px;"><b>'.number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'</b></td>';
 					$description_cell .= '<td align="left" style="width:30px;"><b>руб.</b></td></tr></table>';
 					
-					$tbl_rows[] = '<tr><td style="border-bottom:#91B73F solid 2px;" width="300" valign="middle" align="center">'.$img_cell.'</td><td style="border-bottom:#91B73F solid 2px;padding:6px;" width="325" valign="top">'.$description_cell.'</td></tr>';
+					$tbl_rows[] = '<tr><td style="border-bottom:#91B73F solid 2px; border-top:#91B73F solid 2px;" width="300" valign="middle" align="center">'.$img_cell.'</td><td style="border-bottom:#91B73F solid 2px; border-top:#91B73F solid 2px;padding:6px;" width="325" valign="top">'.$description_cell.'</td></tr>';
 					$description_cell = $print_description ='';
 	
 					unset($details_block11);
@@ -1208,13 +1211,18 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 			$cont_face_data = Client::get_cont_face_details($recipient_id);
 			//print_r($cont_face_data_arr);//exit;625
 			
-			$kp_content = '<div id="kpBlankConteiner" style="width:625px;background-color:#FFFFFF;border:#91B73F solid 0px;"><input  type="hidden" style="width:90px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'>';
+			$kp_content = '<div id="kpBlankConteiner" style="width:675px;background-color:#FFFFFF;border:#91B73F solid 0px;"><table width="675"  style="border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top"><tr><td colspan="2" style="text-align:right;">
+			<input  type="hidden" style="width:90px;" id="kpDisplaySettings" value='.$display_setting.'><input  type="hidden" id="kpDisplaySettings_kpId" value='.$kp_id.'>';
 
 			if(!($save_on_disk && isset($dispSetObj->header))){
-			   $kp_content .= '<div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><managedDisplay name="header" style="display:'.(isset($dispSetObj->header)?'none':'block').'"><br />В компанию: '.Client::get_client_name($client_id).'<br />Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</managedDisplay></div>';
+			   $kp_content .= '<div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><managedDisplay name="header" style="display:'.(isset($dispSetObj->header)?'none':'block').'">В компанию: '.Client::get_client_name($client_id).'<br />Кому: '.$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname'].'</managedDisplay></div>';
 			}
-			$kp_content .= '<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center;">Презентация</div>';
-			$kp_content .=  '<div style="border-top:#91B73F solid 2px;width:625px;"><table width="625"  style="border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">'.implode('',$tbl_rows).'</table></div>';
+			//s$kp_content .= '<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center;border:#91B73F solid 1px;width:675px;">Презентация</div>';
+			$kp_content .= '</td></tr>
+			                <tr><td colspan="2" style="text-align:center;">
+							<div style="font-family:verdana; font-size:18px;padding:10px;color:#10B050;">Презентация</div></td></tr>';
+			$kp_content .=  '</td></tr>'.implode('',$tbl_rows).'<tr><td colspan="2" style="text-align:right;">';
+			// <div style="border-top:#91B73F solid 2px;width:675px;"></div>
 			
 			
 			
@@ -1236,13 +1244,11 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 						if($itogo_extra_uslugi != 0)  $kp_content .= '<tr>
 							 <td align="right" height="30" valign="top">Общая стоимость доп услуг:</td><td align="right" valign="top">'.number_format($itogo_extra_uslugi,2,',',' ').'руб.</td>
 						 </tr>';
-						$kp_content .= '<tr style="font-family:verdana;font-size:14px;font-weight:bold;">
-							 <td align="right" valign="top">Итоговая сумма:</td><td align="right" valign="top" style="white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
+						$kp_content .= '<tr>
+							 <td align="right" valign="top" style="font-family:verdana;font-size:14px;font-weight:bold;">Итоговая сумма:</td><td align="right" valign="top" style="font-family:verdana;font-size:14px;font-weight:bold;white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
 						 </tr>
 					 </table>
-					 </managedDisplay>
-					 <div style="clear:both;"></div>
-					 </div>';
+					 </managedDisplay>';
 				 }
 			}
 			else if(!$save_on_disk){
@@ -1265,16 +1271,14 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 							 <td align="right" valign="top">Итоговая сумма:</td><td align="right" valign="top" style="white-space: nowrap">'.number_format($full_itog,2,',',' ').'руб.</td>
 						 </tr>
 					 </table>
-					 </managedDisplay>
-					 <div style="clear:both;"></div>
-					 </div>';
+					 </managedDisplay>';
 				}
 			}
 			
 			
 			
 		   $kp_content .= '<div style="text-align:right;font-family:arial;font-size:12px;line-height:20px;"><br>'.convert_bb_tags(mysql_result(select_manager_data($user_id),0,'mail_signature')).'<br><br><br></div>';
-		   $kp_content .= '<div style="text-align:justify;font-family:verdana;font-size:10px;line-height:11px;padding:0 20px;"><br>Данная презентация носит исключительно информационный характер и никакая информация, опубликованная в ней, ни при каких условиях не является офертой или публичной офертой, определяемой положениями пункта 2 статьи 437 и статьи 435 Гражданского кодекса Российской Федерации. Для получения подробной информации о реализуемых товарах, работах и услугах и их цене необходимо обращаться к менеджерам компании Апельбург<br><br><br></div></div>';
+		   $kp_content .= '<div style="text-align:justify;font-family:verdana;font-size:10px;line-height:11px;padding:0 20px;"><br>Данная презентация носит исключительно информационный характер и никакая информация, опубликованная в ней, ни при каких условиях не является офертой или публичной офертой, определяемой положениями пункта 2 статьи 437 и статьи 435 Гражданского кодекса Российской Федерации. Для получения подробной информации о реализуемых товарах, работах и услугах и их цене необходимо обращаться к менеджерам компании Апельбург<br><br><br></div></td></tr></table></div>';
 		   
 		   
 		   return $kp_content;
@@ -1340,9 +1344,9 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 			
 			// собираем контент коммерческого предложения
 			//if($save_on_disk)//?'.$_SERVER['QUERY_STRING'].'&show_kp_in_blank='.$kp_id.'
-			$kp_content = '<div style="width:625px;background-color:#FFFFFF;"><div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><br />В компанию: '.$client_data_arr['comp_full_name'].'<br />Кому: '.$cont_face_data_arr['name'].'<br />Контакты: '.$cont_face_data_arr['phone'].'<br />'.$cont_face_data_arr['email'].'<br /><br /></div>
+			$kp_content = '<div style="width:675px;background-color:#FFFFFF;"><div style="text-align:right;font-family:verdana;font-size:12px;font-weight:bold;line-height:16px;"><br />В компанию: '.$client_data_arr['comp_full_name'].'<br />Кому: '.$cont_face_data_arr['name'].'<br />Контакты: '.$cont_face_data_arr['phone'].'<br />'.$cont_face_data_arr['email'].'<br /><br /></div>
 			<div style="font-family:verdana;font-size:18px;padding:10px;color:#10B050;text-align:center">Презентация</div>';
-			$kp_content .=  '<table width="625"  style="border:#CCCCCC solid 1px; border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">';
+			$kp_content .=  '<table width="675"  style="border:#CCCCCC solid 1px; border-collapse:collapse;background-color:#FFFFFF;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px;" valign="top">';
 			$tr_td = '<tr><td style="border:#CCCCCC solid 1px;" width="300" valign="middle" align="center">';
 			$td_tr = '</td></tr>';
 			$td_td = '</td><td style="border:#CCCCCC solid 1px;padding:6px;" width="325" valign="top">';

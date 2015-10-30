@@ -29,12 +29,12 @@
 			
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
-		       $query2 ="UPDATE `".BASE__CALCULATORS_COEFFS."` SET  print_id='".$data->print_type_id."' , type='".$val[1]."', title='".$val[2]."', percentage='".$val[3]."', optional='".$val[4]."', multi='".$val[5]."', target='".$val[6]."' WHERE id = '".$val[0]."'";
+		       $query2 ="UPDATE `".BASE__CALCULATORS_COEFFS."` SET  print_id='".$data->print_type_id."' , type='".cor_data_for_SQL($val[1])."', title='".cor_data_for_SQL($val[2])."', percentage='".(float)$val[3]."', optional='".(int)$val[4]."', multi='".(int)$val[5]."', target='".cor_data_for_SQL($val[6])."' WHERE id = '".$val[0]."'";
 			   $mysqli->query($query2)or die($mysqli->error);
 			}
 			else{
 			  
-			   $query2 ="INSERT INTO `".BASE__CALCULATORS_COEFFS."` VALUES('','".$data->print_type_id."','".$val[1]."','".$val[2]."','".$val[3]."','".$val[4]."','".$val[5]."','".$val[6]."')";
+			   $query2 ="INSERT INTO `".BASE__CALCULATORS_COEFFS."` VALUES('','".$data->print_type_id."','".cor_data_for_SQL($val[1])."','".cor_data_for_SQL($val[2])."','".(float)$val[3]."','".(int)$val[4]."','".(int)$val[5]."','".cor_data_for_SQL($val[6])."')";
 			   //echo $query2;
 			   $mysqli->query($query2)or die($mysqli->error);
 			}

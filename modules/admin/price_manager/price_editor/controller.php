@@ -49,10 +49,10 @@
 			
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
-		       $query2 ="UPDATE `".BASE__CALCULATORS_PRICE_TABLES_TBL."` SET `print_type_id` = '".$data->print_type_id."', `price_type` = '".$data->price_type."' , `count` = '".$data->count."', `param_val`='".$val[1]."', `param_type`='".$val[2]."'";
+		       $query2 ="UPDATE `".BASE__CALCULATORS_PRICE_TABLES_TBL."` SET `print_type_id` = '".$data->print_type_id."', `price_type` = '".$data->price_type."' , `count` = '".$data->count."', `param_val`='".(int)$val[1]."', `param_type`='".cor_data_for_SQL($val[2])."'";
 			   
 			   for($i=1,$j=3;$i<=20;$i++,$j++){
-				   if(isset($val[$j])) $query2.= ", `".$i."`='".$val[$j]."'";
+				   if(isset($val[$j])) $query2.= ", `".$i."`='".(float)$val[$j]."'";
 				   else $query2.= ", `".$i."`='0'";
 				}
 			   
@@ -67,7 +67,12 @@
 				
 				
 				for($i=1;$i<=22;$i++){
-				   if(isset($val[$i])) $query2.= ",'".$val[$i]."'";
+				   if(isset($val[$i])){
+					   if($i==1) $query2.= ",'".(int)$val[$i]."'";
+					   if($i==2) $query2.= ",'".cor_data_for_SQL($val[$i])."'";
+				       if($i>=3) $query2.= ",'".(float)$val[$i]."'";
+				   }
+				   
 				   else $query2.= ",''";
 				}
 				$query2.= ")";

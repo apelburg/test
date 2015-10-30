@@ -207,9 +207,9 @@ $this->footer_line_spacing = 0.25;	// spacing between bottom of header and line 
 
 // If 'pad' margin-top sets fixed distance in mm (padding) between bottom of header and top of text.
 // If 'stretch' margin-top sets a minimum distance in mm between top of page and top of text, which expands if header is too large to fit.
-$this->setAutoTopMargin = false;	
+$this->setAutoTopMargin = stretch;	
 $this->setAutoBottomMargin = false;	
-$this->autoMarginPadding = 2;		// distance in mm used as padding if 'stretch' mode is used
+$this->autoMarginPadding = 3;		// distance in mm used as padding if 'stretch' mode is used
 
 
 
