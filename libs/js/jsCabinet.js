@@ -70,7 +70,10 @@
 			    	var obj = $(this);
 			    	$('#general_form_for_create_product .pad:hidden').remove();
 				    $.post('', serialize, function(data, textStatus, xhr) {
-				    	obj.dialog( "destroy" );				
+				    	if(data['response'] != 'false'){
+				    		obj.dialog( "destroy" );
+				    	}
+				    		
 						standard_response_handler(data);
 					},'json');				    	
 			    }
@@ -1022,6 +1025,23 @@ $(document).on('click', '.attach_the_manager', function(event) {
 	},'json');
 });
 
+// запрос - назначить несколько менеджеров
+$(document).on('click', '.attach_the_manager_any', function(event) {
+	var client_id = Number($(this).attr('data-client_id'));
+	var row_id = Number($(this).attr('data-row_id'));
+	var managers_id_str = $(this).find('.managers_id_str').html();
+	$.post('', {
+		AJAX:'get_choose_curators_edit',
+		client_id:client_id,
+		row_id:row_id,
+		managers_id_str:managers_id_str
+
+	}, function(data, textStatus, xhr) {
+		// show_dialog_and_send_POST_window(data,'Выбрать менеджера');
+		standard_response_handler(data);
+	},'json');
+});
+
 
 // запрос - прикрепить / сменить клиента
 // вывод спика для выбора клиента, который будет прикреплён к запросу
@@ -1089,12 +1109,17 @@ function change_attache_manager(data){
 
 // принять запрос в обработку
 $(document).on('click', '.take_in_operation', function(event) {
-	var obj = $(this);
-	var obj_row = $(this).parent().parent();
+	// var obj = $(this);
+	// var obj_row = $(this).parent().parent();
 	var rt_list_id = $(this).parent().parent().attr('data-id');
+	var client_id = $(this).attr('data-client_id');
+	var manager_id = $(this).attr('data-manager_id');
+
 	$.post('', {
 		AJAX: 'take_in_operation',
-			rt_list_id:rt_list_id
+		rt_list_id:rt_list_id,
+		manager_id:manager_id,
+		client_id:client_id		
 		}, function(data, textStatus, xhr) {
 			if(data['response'] != 'OK'){
 				alert(data);

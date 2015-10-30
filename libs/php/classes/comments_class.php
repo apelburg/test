@@ -12,8 +12,8 @@ class Comments_for_query_class{
 	// id пользователя
 	private $user_id;
 
-	function __construct(){
-		$this->user_id = $_SESSION['access']['user_id'];
+	function __construct($user_access = 0){
+		$this->user_id = (isset($_SESSION['access']['user_id'])?$_SESSION['access']['user_id']:0);
 		//////////////////////////////////////////////////////////////////////////////
 		//	обработчик AJAX через ключ _AJAX 										//
 		//	если существует метод с названием из запроса AJAX - обращаемся к нему	//
@@ -76,16 +76,34 @@ class Comments_for_query_class{
 				$html .= '</div>';			
 			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 		}
+	// сохранение комментария к запросу
+	private function save_query_comment_Database(){		
+		$this->save_query_comment((int)$_POST['id'], (int)$_POST['query_num'], $_POST['name'], $_POST['comment_text']);
+	}
+
+
+
+	// сохранение комментария к заказу
+	public function save_order_comment_Pub($id, $order_num, $name, $text){
+		$this->save_order_comment($id, $order_num, $name, $text);		
+	}
+	// сохранение комментария к заказу
+	public function save_query_comment_Pub($id, $query_num, $name, $text){
+		$this->save_query_comment($id, $query_num, $name, $text);		
+	}
+
 	
-	private function save_query_comment_Database(){
+
+	// сохранение комментария к запросу
+	private function save_query_comment($id, $query_num, $name, $text){
 		global $mysqli;
 		$query ="INSERT INTO `".RT_LIST_COMMENTS."` SET
-	             `user_id` = '".(int)$_POST['id']."',
-	             `query_num` = '".(int)$_POST['query_num']."',
-	             `user_name` = '".$_POST['name']."',
-	             `comment_text` = '".$_POST['comment_text']."',
+	             `user_id` = '".$id."',
+	             `query_num` = '".$query_num."',
+	             `user_name` = '".$name."',
+	             `comment_text` = '".$text."',
 	            `create_time` = NOW()";
-			$result = $mysqli->query($query) or die($mysqli->error);	
+		$result = $mysqli->query($query) or die($mysqli->error);	
 		return  $mysqli->insert_id;
 	}
 
@@ -239,14 +257,19 @@ class Comments_for_order_class extends Comments_for_query_class{
 			$html .= '</div>';			
 			echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 		}
-	
+
+	// сохранение комментария к заказу
 	private function save_order_comment_Database(){
+		$this->save_order_comment((int)$_POST['id'], (int)$_POST['order_num'], $_POST['name'], $_POST['comment_text']);		
+	}
+	// сохранение комментария к заказу
+	private function save_order_comment($id, $order_num, $name, $text){
 		global $mysqli;
 		$query ="INSERT INTO `".CAB_LIST_COMMENTS."` SET
-	             `user_id` = '".(int)$_POST['id']."',
-	             `order_num` = '".(int)$_POST['order_num']."',
-	             `user_name` = '".$_POST['name']."',
-	             `comment_text` = '".$_POST['comment_text']."',
+	             `user_id` = '".$id."',
+	             `order_num` = '".$order_num."',
+	             `user_name` = '".$name."',
+	             `comment_text` = '".$text."',
 	            `create_time` = NOW()";
 			$result = $mysqli->query($query) or die($mysqli->error);	
 		return  $mysqli->insert_id;

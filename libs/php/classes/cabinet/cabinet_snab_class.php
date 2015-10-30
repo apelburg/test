@@ -4,6 +4,19 @@
 
 		// расшифровка меню СНАБ
 		public $menu_name_arr = array(
+
+		// запросы
+		'send_to_snab' => 'Не обработанные СНАБ',
+		'query_worcked_snab' => 'В работе',
+		'calk_snab' => 'Рассчитанные',
+		'accept_snab_job' => 'Принятые МЕН',
+		'denied' => 'ТЗ не корректно',
+		'pause' => 'На паузе',
+		'query_all' => 'Все',
+		'query_history' => 'История',
+
+
+
 		'important' => 'Важно',
 		'no_worcked_snab' => 'Не обработанные СНАБ',		
 		'no_worcked_men' => 'Не обработанные МЕН',

@@ -50,12 +50,15 @@
 			
     	}
 
+
+    	
+
     	
     	// Ожидают распределения (Админ)
     	protected function requests_query_wait_the_process_Template($id_row){
     		$this->filtres_query = " `".RT_LIST."`.`status` = 'new_query'";
-    		$this->filtres_query .= " AND `".RT_LIST."`.`manager_id` = '24'";
-    		$this->request_Template($id_row);
+    		// $this->filtres_query .= " AND `".RT_LIST."`.`manager_id` = '24'";
+    		$this->standart_request_method($id_row);
     	}
 		
 
@@ -63,31 +66,30 @@
     	protected function requests_no_worcked_men_Template($id_row){    		
     		$this->filtres_query = "  (
     			`".RT_LIST."`.`status` = 'not_process' 
-    			OR `".RT_LIST."`.`status` = 'new_query'
     			)";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// В обработке (Админ/Мен)
     	protected function requests_query_taken_into_operation_Template($id_row){    		
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'taken_into_operation'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// пауза МЕН
     	protected function requests_pause_Template($id_row){    		
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`row_status` LIKE '%pause%'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// Отказанные варианты (красный)
     	protected function requests_query_denided_variants_Template($id_row){    		
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` = 'red'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
 
@@ -95,28 +97,35 @@
     	protected function requests_query_worcked_men_Template($id_row){
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
+    	}
+
+    	// рассчитанные Snab
+    	protected function requests_accept_snab_job_Template($id_row){    		
+    		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
+    		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` = 'accept_snab_job'";
+    		$this->standart_request_method($id_row);
     	}
 
     	// рассчитанные Snab
     	protected function requests_calk_snab_Template($id_row){    		
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` = 'calculate_is_ready'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// отправлено в Snab
     	protected function requests_send_to_snab_Template($id_row){
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` IN ('on_calculation_snab','on_recalculation_snab')";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// ТЗ не корректно Snab
     	protected function requests_denied_Template($id_row){    		
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`row_status` IN ('tz_is_not_correct_on_recalculation','tz_is_not_correct')";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// в работе Snab (Админ / Мен)
@@ -147,26 +156,26 @@
     			$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red' AND `".RT_DOP_DATA."`.`status_snab` IN ('in_calculation')";	
     		}
     		
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
     	// на паузе (Мен / Снаб)
     	protected function requests_query_variant_in_pause_Template($id_row){
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position .= " `".RT_DOP_DATA."`.`status_snab` LIKE '%pause%'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// история (Админ / Мен)
     	protected function requests_query_history_Template($id_row){
     		$this->filtres_query = " `".RT_LIST."`.`status` = 'history'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// все (Админ/Мен)
     	protected function requests_query_all_Template($id_row){
     		$this->filtres_query = " `".RT_LIST."`.`status` <> 'history'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
-    		$this->request_Template($id_row);
+    		$this->standart_request_method($id_row);
     	}
 
     	// ЗАПРОС из базы строк запросов
@@ -195,7 +204,7 @@
 					if($_GET['subsection'] == "no_worcked_men"){
 						$query .= " ".(($where)?'AND':'WHERE')." 
 						(`".RT_LIST."`.`manager_id` = '".$this->user_id."' 
-						 OR (`".RT_LIST."`.`manager_id` = '0' AND `".RT_LIST."`.`dop_managers_id` LIKE '%10%') )";
+						 OR (`".RT_LIST."`.`manager_id` = '0' AND `".RT_LIST."`.`dop_managers_id` LIKE '%$this->user_id%') )";
 						
 
 						$where = 1;
@@ -239,7 +248,8 @@
 			if($this->user_access == 5){
 				switch ($this->Query['status']) {
 					case 'not_process':
-						$this->status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+
+						$this->status_or_button = '<div data-client_id="'.$this->Query['client_id'].'" data-manager_id="'.$this->Query['manager_id'].'" class="take_in_operation">Принять в обработку</div>';
 						// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],1);						
 						break;
 					case 'taken_into_operation':
@@ -262,6 +272,13 @@
 			}
 		}
 
+		protected function standart_request_method($id_row){
+			// фильтрация start .. если есть
+
+
+			// шаблон html вывода запроса
+			$this->request_Template($id_row);
+		}
 
     	// шаблон html вывода запроса
     	protected function request_Template($id_row){
@@ -384,15 +401,14 @@
 				// если не история - считаем сколько времени назад взяли заказ в работу
 				if($_GET['subsection'] != 'query_history'){
 					$html .= '<div style="padding-top: 5px;"><span class="greyText" data-sec="'.$this->Query['time_attach_manager_sec']*(-1).'" '.$this->overdue.'>'.$this->Query['time_attach_manager'].'</span></div>';
-				}
-				
+				}				
 			$html .= '</td>';
 			$html .= '<td>'.$this->Query['create_time'].'</td>';
 			$html .= '<td></td>';
 			$html .= '<td><span data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span></td>';
 			
 			$html .='<td>'.RT::calcualte_query_summ($this->Query['query_num']).'</td>';
-			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.' query_status">'.$this->status_or_button.'</td>';
+			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.' '.(($this->user_access == 1)?'query_status':'').'">'.$this->status_or_button.'</td>';
 			return $html;
 		}
 
@@ -421,7 +437,9 @@
 				$html .= '<td>'.$this->Price_of_printing.'</td>';
 				$html .= '<td>'.$this->Price_of_no_printing.'</td>';
 				$html .= '<td>'.$this->Price_for_the_position.'</td>';
-				$html .= '<td data-type="'.$position['type'].'" data-status="'.$position['status_snab'].'" class="'.$position['status_snab'].'_'.$this->user_access.' '.$Query['status'].'_status_snab_'.$this->user_access.'">'.$this->show_cirilic_name_status_snab($position['status_snab']).'</td>';
+
+				$status_snab = ($Query['status'] != 'new_query')?$this->show_cirilic_name_status_snab($position['status_snab']):'';
+				$html .= '<td data-type="'.$position['type'].'" data-status="'.$position['status_snab'].'" class="'.$position['status_snab'].'_'.$this->user_access.' '.$Query['status'].'_status_snab_'.$this->user_access.'">'.$status_snab.'</td>';
 			$html .= '</tr>';
 			return $html;
 		}

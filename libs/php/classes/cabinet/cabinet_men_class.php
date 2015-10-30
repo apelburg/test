@@ -165,6 +165,17 @@
 				// прикрепить клиента и менеджера к запросу	
 				$query ="UPDATE  `".RT_LIST."` SET `status`='taken_into_operation',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 				$result = $mysqli->query($query) or die($mysqli->error);	
+					
+				// если передан id менеджера и он равен нулю
+				if(isset($_POST['manager_id']) && isset($_POST['client_id']) && $_POST['manager_id'] == 0){		
+					// проверяем прикреплен ли данный менеджер как куратор к данному клиенту
+					// если нет , значит это вариант с новым клиентом и нам необходимо вписать к клиенту нового куратора
+					include_once ('./libs/php/classes/client_class.php');
+					$Client_class = new Client;
+
+					$Client_class->attach_relate_manager((int)$_POST['client_id'], $this->user_id);
+				}
+
 				echo '{"response":"OK","function":"reload_order_tbl"}';
 			}	
 

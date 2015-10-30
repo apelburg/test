@@ -168,7 +168,7 @@ class Client {
 				$html .= '<tr>';
 					$html .= '<td>Название</td>';
 					$html .= '<td>';
-					$html .= '<input type="text" name="company" placeholder="Мишка на Севере" value="'.((isset($_POST['company'])?$_POST['company']:'')).'">';
+					$html .= '<input type="text" name="company" placeholder="Название компани" value="'.((isset($_POST['company'])?$_POST['company']:'НОВЫЙ КЛИЕНТ '.$this->check_number_new_clients())).'">';
 					$html .= '<input type="hidden" name="AJAX" value="insert_new_client">';
 					$html .= '</td>';
 				$html .= '</tr>';
@@ -193,6 +193,21 @@ class Client {
 		echo '{"response":"show_new_window","title":"Новый клиент","html":"'.base64_encode($html).'"}';
 
 	}
+
+	// получаем номер нового клиента
+	private function check_number_new_clients(){
+		global $mysqli;
+		$query = "SELECT COUNT(*) AS count FROM `".CLIENTS_TBL."` WHERE `company` LIKE '%НОВЫЙ КЛИЕНТ%'";
+		$count = 0;
+		$result = $mysqli->query($query) or die($mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$count = $row['count'];
+			}
+		}
+		return ($count+1);
+	}
+
 	private function insert_new_client_AJAX(){
 		if(!isset($_POST['company']) || trim($_POST['company']) == ''){
 			$this->get_form_the_create_client_AJAX();
@@ -209,7 +224,7 @@ class Client {
 					// запрашиваем окно со списком всех менеджеров 
 					// для выбора куратора клиента
 					$html = $this->get_choose_curators();
-					echo '{"response":"show_new_window","title":"Добавление куратора","html":"'.base64_encode($html).'"}';
+					echo '{"response":"show_new_window","title":"Выберите менеджера","html":"'.base64_encode($html).'"}';
 					break;
 				case '5':
 					$this->client_id = $this->create_new_client();
@@ -217,6 +232,10 @@ class Client {
 					// куратором нового клиента будет менеджер
 					// сразу же прикрепляем его
 					$this->attach_relate_manager($this->client_id,$this->user_id);
+
+					// прикрепляем к запросу менеджера(ов)
+					$men_arr[$this->user_id] = $this->user_id;
+					$this->attach_for_query_many_managers($men_arr,$this->client_id);
 
 					echo '{"response":"OK","function":"reload_order_tbl"}';
 					break;
@@ -287,57 +306,86 @@ class Client {
 		
 		// если кураторы не были получены
 		if(empty($managers_arr)){
-			$message = "Для создания заказа необхождимо выбрать минимум одного куратора.";
-			echo '{"response":"show_new_window","title":"Выбрать куратора","html":"'.base64_encode($this->get_choose_curators).'","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';	
+			$message = "Для создания заказа необхождимо выбрать минимум одного претендента на обработку запроса.";
+			// echo '{"response":"show_new_window","title":"Выбрать куратора","html":"'.base64_encode($this->get_choose_curators()).'"}';	
+			echo '{"response":"false","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+			exit;
 		}
+
+
 		// $html .= $this->print_arr(json_decode($_POST['Json_meneger_arr']));
 		
 		// заводим клиента
-		$this->client_id = $this->create_new_client();
+		if(!isset($_POST['client_id'])){
+			$message = 'Клиент успешно заведён, прикреплённые менеджеры увидят запрос';
+			$this->client_id = $this->create_new_client();
+		}else{
+			// случай для редактирования списка админом
+			$message = 'Список прикреплённых менеджеров успешно изменён';
+			$this->client_id = (int)$_POST['client_id'];
+			$_POST['rt_list_id'] = $_POST['row_id'];
+		}
+		
 
 		// удаляем всех кураторов
-		$this->remove_curator_width_client($this->client_id);
-		// заводим новых кураторов
-		foreach ($managers_arr as $key => $user_id) {
-			$this->attach_relate_manager($this->client_id, $user_id);
-		}
+		//$this->remove_curator_width_client($this->client_id);
+		
+
+		// // заводим новых кураторов
+		// foreach ($managers_arr as $key => $user_id) {
+		// 	$this->attach_relate_manager($this->client_id, $user_id);
+		// }
 		// прикрепляем к запросу менеджера(ов)
 		$this->attach_for_query_many_managers($managers_arr,$this->client_id);
-		$message = 'Клиент успешно заведён, прикреплённые менеджеры увидят запрос';
+		
 		
 		/*
 			тут нужно уведомление на почту для каждого прикреплённого менеджера !!!!!!!!!!
 		*/
 
 
-		echo '{"response":"OK","function":"reload_order_tbl","function":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';	
+		echo '{"response":"OK","function":"reload_order_tbl","function2":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';	
 		// echo '{"response":"OK","title":"ТЕСТ","html":"'.base64_encode($html).'"}';
 	}
 
 	// прикрепление к запросу нескольких менеджеров
 	private function attach_for_query_many_managers($managers_arr,$client_id){
+		// заводим переменную для хранения id списка менеджеров
 		$dop_managers_id = '';
 		
+		// получаем первого менеджера из массива прикреплённых
+		$manager_id = current($managers_arr);
 
+		// если менеджеров более одного 
 		if(count($managers_arr) > 1){
+			// сохраняем список менеджеров
 			$dop_managers_id = implode(',', $managers_arr);
+			// запрос пока что ни за кем конкретно не закреплён
+			$manager_id = 0;
 		}
 
 		global $mysqli;		
-		$query ="UPDATE  `".RT_LIST."` SET  
-			`manager_id` =  '0',
-			`client_id` =  '".(int)$client_id."', 
-			`time_attach_manager` = NOW(),
-			`status` = 'not_process',
-			`dop_managers_id` = '".$dop_managers_id."'
-			WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+		$query = "UPDATE  `".RT_LIST."` SET ";
+		$query .= "`manager_id` =  '".$manager_id."'";
+		$query .= ",`client_id` =  '".(int)$client_id."' ";
+		// если прикреплял админ - запоминаем время назначения менеджера
+		if($this->user_access == 1){
+			$query .= ",`time_attach_manager` = NOW()";	
+			
+		}	
+		if($this->user_id != $manager_id){
+			$query .= ",`status` = 'not_process'";		
+		}		
+		
+		$query .= ",`dop_managers_id` = '".$dop_managers_id."'";
+		$query .= " WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 
 	// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 	}
 
 	// прикрепление кураторов
-	private function attach_relate_manager($client_id, $user_id){
+	public function attach_relate_manager($client_id, $user_id){
 		global $mysqli;		
 		$query = "INSERT INTO `".RELATE_CLIENT_MANAGER_TBL."` SET
 		`client_id` = '".$client_id."'

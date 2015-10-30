@@ -437,15 +437,25 @@
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													'no_worcked_snab' => array('access'=>true),
-													'in_work' => array('access'=>true),
+													 // Не обработанные СНАБ
+													'send_to_snab' => array('access'=>true),
+													// В работе
+													'query_worcked_snab' => array('access'=>true),
+													// Рассчитанные
 													'calk_snab' => array('access'=>true),
+													// Принятые МЕН
+													'accept_snab_job' => array('access'=>true),
+													// ТЗ не корректно
 													'denied' => array('access'=>true),
-													'paused' => array('access'=>true),
-													'all' => array('access'=>true),
-													'history' => array('access'=>true)
+													// На паузе
+													'pause' => array('access'=>true),
+													// История
+													'query_history' => array('access'=>true),
+													// Все
+													'query_all' =>  array('access'=>true),
+													
 													)
-												),
+												), 
 											'orders'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2

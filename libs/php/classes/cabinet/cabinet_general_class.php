@@ -346,11 +346,13 @@
 				global $mysqli;
 				// прикрепить менеджера к запросу	
 				$client_id = (trim($_POST['client_id'])=='')?0:$_POST['client_id'];
-				$query ="UPDATE  `".RT_LIST."` SET  
-				`manager_id` =  '".(int)$_POST['manager_id']."', 
-				`time_attach_manager` = NOW(),
-				`status` = 'not_process'
-				 WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+				$query = " UPDATE  `".RT_LIST."` SET "; 
+				$query .= "`manager_id` =  '".(int)$_POST['manager_id']."'"; 
+				if($this->user_id != $_POST['manager_id']){
+					$query .= ",`time_attach_manager` = NOW()";
+					$query .= ",`status` = 'not_process'";	
+				}				
+				$query .= "WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 				$result = $mysqli->query($query) or die($mysqli->error);	
 				// echo '{"response":"OK"}';
 
@@ -440,11 +442,16 @@
 
 				$html .= '</table>';
 				$html .= '<input type="hidden" value="attach_client_to_request" name="AJAX">';
-				$html .= '<input type="hidden" value="" name="manager_id">';
-				$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
-				$html .= '<input type="hidden" value="'.$_POST['client_id'].'" name="client_id">';
+				// $html .= '<input type="hidden" value="" name="manager_id">';
+				if(isset($_POST)){
+					unset($_POST['AJAX']);
+					foreach ($_POST as $key => $value) {
+						$html .= '<input type="hidden" value="'.$value.'" name="'.$key.'">';	
+					}	
+				}
+				
 				$html .= '<form>';
-				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($i>30)?'"height":"800",':'').'"width":"1000"}';
+				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($i>30)?'"height":"600",':'').'"width":"1000"}';
 			}
 
 
@@ -453,6 +460,7 @@
 					include_once ('./libs/php/classes/client_class.php');
 					new Client;
 				}
+
 				private function create_new_client_and_insert_curators_AJAX(){
 					include_once ('./libs/php/classes/client_class.php');
 					new Client;
@@ -493,12 +501,16 @@
 						// Переписываем менеджера, отправляем данные о нем в браузер, вызываем там функцию и меняем имя менеджера на странице
 						global $mysqli;
 						// прикрепить клиента и менеджера к запросу	
-						$query ="UPDATE  `".RT_LIST."` SET  
-						`manager_id` =  '".(int)$managers_arr[0]['id']."',
-						`client_id` =  '".(int)$_POST['client_id']."', 
-						`time_attach_manager` = NOW(),
-						`status` = 'not_process' 
-						WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+						$query = "UPDATE  `".RT_LIST."` SET  ";
+						$query .= "`manager_id` =  '".(int)$managers_arr[0]['id']."'";
+						$query .= ",`client_id` =  '".(int)$_POST['client_id']."'";
+					
+						if($this->user_id != $managers_arr[0]['id']){
+							$query .= ",`time_attach_manager` = NOW()";
+							$query .= ",`status` = 'not_process' ";
+						}
+						
+						$query .= " WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 						$result = $mysqli->query($query) or die($mysqli->error);	
 						$message = 'Запрос был перенаправлен менеджеру '.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'';
 						if($this->user_access != 5){

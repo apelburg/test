@@ -539,7 +539,11 @@
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
 		
-		static function add_data_from_basket($client,$manager_login){
+		static function add_data_from_basket($client,$manager_login,$customer_data){
+
+
+
+
 			global $mysqli;
 			//global $print_mode_names;
 			$user_id = $_SESSION['access']['user_id'];
@@ -591,6 +595,8 @@
 												
 			$result = $mysqli->query($query) or die($mysqli->error);
 			
+
+
 			$sort_id = 0;
 			foreach($basket_arr as $data){
 			    $id =  $data['article'];
@@ -660,6 +666,34 @@
 				}
 	
 			}
+			
+
+
+			/**
+			 *	сохраняем данные введённые в форму 
+			 *  отправки заказа из корзины в комментарии по запросу	
+			 *
+			 *	@author  Алексей Капитонов
+			 *	@version 15:60 30.10.2015
+			*/
+
+// ini_set('error_reporting', E_ALL);
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+				// -->  START  <-- //
+				include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/comments_class.php");
+				$COMMENTS = new Comments_for_query_class;
+
+				$text = (trim($customer_data['name'])!='')?'Имя: '.$customer_data['name'].'<br>':'';
+				$text .= (trim($customer_data['reg_phone'])!='')?'Телефон: '.$customer_data['reg_phone'].'<br>':'';
+				$text .= (trim($customer_data['email'])!='')?'E-mail: '.$customer_data['email'].'<br>':'';
+				$text .= (trim(cor_data_for_SQL($customer_data['coment']))!='')?'Пожелания: '.cor_data_for_SQL($customer_data['coment']).'<br>':'';
+
+				$COMMENTS->save_query_comment_Pub(0, $query_num, 'Клиент', $text);
+			
+				// -->   END   <-- //
+
+
 			$out_put = array(0  , $client_id);
 			return json_encode($out_put);
 			
