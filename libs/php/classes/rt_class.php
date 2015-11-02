@@ -627,10 +627,10 @@
 				unset($tirage_json);
 				
 				/*
-				пока нет калькуляторов это не востребованно 
+				// пока нет калькуляторов это не востребованно 
 				
 				
-			    это просто пример
+			    // это просто пример
 				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['glob_type'] = 'print';
 				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['type'] = '';
 				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['quantity'] = $basket_data['quantity'];
@@ -638,7 +638,7 @@
 				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['price_out'] = 20;
                 */
 			}		
-			// print_r($data_arr);
+			print_r($data_arr);
 			// exit;
 			$query_num = RT::create_new_query($client_id,$manager_id_arr[0],$data_arr);
 			
@@ -684,8 +684,37 @@
 			// ЗАДАЧА:
 			// НА ОСНОВЕ ПОЛУЧЕННЫХ ДАННЫХ СОЗДАТЬ НОВЫЙ ЗАПРОС
 			// ДАННЫЕ ДОЛЖНЫ БЫТЬ ПЕРЕДАННЫХ В ВИДЕ МНОГОМЕРНОГО МАССИВА СЛЕДУЮЩЕГО ПОРЯДКА 
-			// (ПОЗИЦИЯ ) = наименование позиции
-			//              = тип 
+
+			//    [0] => Array
+			//        (
+			//            [art_id] => val
+			//            [art] => val
+			//            [type] => val
+			//            [name] => val
+			//            [dop_data] => Array
+			//                (
+			//                    [0] => Array
+			//                        (
+			//                            [quantity] => val
+			//                            [price_out] => val
+			//                            [dop_uslugi] => Array
+			//                                (
+			//                                    [0] => Array
+			//                                        (
+			//                                            [glob_type] => val
+			//                                            [quantity] => val
+			//                                            [price_in] => val
+			//                                            [price_out] => val
+			//                                        )
+			//
+			//                                )
+			//
+			//                        )
+			//
+			//                )
+			//
+			//         )
+
 			// СОЗДАТЬ ЗАПИСЬ В ТАБЛИЦЕ RT_LIST
 			// СОЗДАТЬ ЗАПИСЬ В ТАБЛИЦЕ RT_MAIN_ROWS
             // СОЗДАТЬ N - ЗАПИСЕЙ В ТАБЛИЦЕ RT_DOP_DATA
