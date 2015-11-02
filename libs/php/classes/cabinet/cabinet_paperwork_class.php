@@ -291,12 +291,14 @@
 				// шаблон вывода Документов
 				$this->get_paperwork_specificate_rows_Template();
 			}
+
 			
 			// ШАБЛОН + ЗАПРОС (форма вывода Заказ/Предзаказ)
-			private function order_rows($id_row){
+			protected function order_rows($id_row){
 
 				$html = '';
-				$table_head_html = '';
+				$table_head_html = $this->get_header_general_tbl();
+
 				if ($this->user_access == 2) {
 					echo '
 					<style type="text/css" media="screen">
@@ -305,22 +307,9 @@
 					</style>';	
 				}
 
-				$table_head_html .= '
-					<table id="general_panel_orders_tbl">
-					<tr>
-						<th colspan="3">Артикул/номенклатура/печать</th>
-						<th>тираж<br>запас</th>
-					<th>поставщик товара и резерв</th>
-						<th>подрядчик печати</th>
-						<th>сумма</th>
-						<th>тех + доп инфо</th>
-						<th>дата утв. макета</th>
-						<th>дата сдачи</th>
-						<th  colspan="2">статус</th>
-					</tr>
-				';
-					$this->collspan = 12;
-					// запрос строк заказов
+				$this->collspan = 12;
+				
+				// запрос строк заказов
 				$this->get_the_orders_Database($id_row);
 
 				$table_order_row = '';		
@@ -375,11 +364,11 @@
 					//	тело строки заказа -- start ---
 					//////////////////////////
 						$table_order_row2_body = '<td class="show_hide" '.$this->open_close_rowspan.'="'.($this->rows_num+1).'"><span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span></td>';
-						$table_order_row2_body .= '<td colspan="5" class="orders_info">';
+						// $table_order_row2_body .= '<td colspan="5" class="orders_info">';
 						
 						// исполнители заказа
-						$table_order_row2_body .= $this->performer_table_for_order();
-						$table_order_row2_body .= '</td>';
+						$table_order_row2_body .= $this->performer_table_standart_for_order();
+						// $table_order_row2_body .= '</td>';
 							
 							
 						// стоимость заказа

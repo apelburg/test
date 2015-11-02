@@ -167,27 +167,7 @@
 			//////////////////////////
 			//	заказ создан
 			//////////////////////////
-			// шаблон шапки главной таблицы
-			protected function get_header_general_tbl(){
-				$html = '<table id="general_panel_orders_tbl" class="order_tbl">';
-					$html .= '<tr>';
-						$html .= '<th colspan="1"></th>';
-						$html .= '<th colspan="2">Номер</th>';
-						$html .= '<th>Компания</th>';
-						$html .= '<th colspan="3">Менеджер отдела</th>';
-						$html .= '<th>Сумма</th>';
-						$html .= '<th>Бух. учёт</th>';
-						$html .= '<th>Комментарий</th>';
-						$html .= '<th>Срок сдачи</th>';
-						$html .= '<th  colspan="2">статус</th>';
-					$html .= '</tr>';
-				return $html;
-			}
-
-			// возвращает закрывающий тег главной таблицы
-			protected function get_footer_tbl(){
-				return '</table>';
-			}
+			
 				// html шаблон заказа (МЕН/СНАБ/АДМИН)
 				private function order_standart_rows_Template($id_row=0){
 
@@ -1006,7 +986,7 @@
 							if($table_order_positions_rows==''){continue;}
 
 							// формируем строку с информацией о заказе
-							$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
+							$table_order_row .= '<tr class="order_head_row '.$this->open_close_row_class.'" data-id="'.$this->Order['id'].'">';
 								$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
 														<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
 													</td>';
@@ -1638,9 +1618,10 @@
 						$table_head_html .= '
 							<table id="general_panel_orders_tbl">
 								<tr>
-									<th colspan="3">Артикул/номенклатура/печать</th>
-									<th>тираж</th>
-									<th>логотип</th>
+									<th></th>
+									<th colspan="2">Номер</th>
+									<th>Компания</th>
+									<th colspan="2">Менеджер отдела</th>
 									<th>поставщик товара</th>
 									<th>№ резерва</th>
 									<th>подрядчик печати</th>
@@ -1687,24 +1668,22 @@
 
 							
 							// формируем строку с информацией о заказе
-							$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
+							$table_order_row .= '<tr class="order_head_row '.$this->open_close_row_class.'" data-id="'.$this->Order['id'].'">';
 								$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
 														<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
 													</td>';
-								$table_order_row .= '<td colspan="3" class="orders_info">';
+								// $table_order_row .= '<td colspan="3" class="orders_info">';
 									
 								// исполнители заказа
-								$table_order_row .= $this->performer_table_for_order();
+								$table_order_row .= $this->performer_table_standart_for_stock_order();
 								
-								$table_order_row .= '</td>';
+								// $table_order_row .= '</td>';
 								$table_order_row .= '<td>';													
 									$table_order_row .= '<span data-cab_list_order_num="'.$this->order_num.'" data-cab_list_query_num="'.$this->Order['query_num'].'"  class="icon_comment_order_show white '.Comments_for_order_class::check_the_empty_order_coment_Database($this->Order['order_num']).'"></span>	';
 								$table_order_row .= '</td>';
 								$table_order_row .= '<td>';		
 								$table_order_row .= '</td>';
 								$table_order_row .= '<td>';		
-								$table_order_row .= '</td>';
-								$table_order_row .= '<td>';													
 								$table_order_row .= '</td>';
 								// $table_order_row .= '<td><strong>'.$this->Order['date_of_delivery_of_the_order'].'</strong></td>';
 												$table_order_row .= '<td><strong></strong></td>';
@@ -1816,7 +1795,7 @@
 							// // порядковый номер позиции в заказе
 							$html .= '<td><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
 							// // описание позиции
-							$html .= '<td>';
+							$html .= '<td colspan="2">';
 							
 							// наименование товара
 							$html .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';
@@ -1832,9 +1811,11 @@
 							$html .= '<td><span class="greyText">'.$this->logotip.'</span></td>';
 							
 							// поставщик товара  
-							$html .= '<td>
-										<div class="supplier">'.$this->get_supplier_name($this->position['art']).'</div>
-									</td>';
+							$html .= '<td>';
+								$supplier_name = ($this->position['art']!="")?'<a href="'.$this->link_enter_to_filters('supplier',substr($this->position['art'], 0,2)).'">'.$this->get_supplier_name($this->position['art']).'</a>':'';
+								$html .= '<div class="supplier">'.$supplier_name.'</div>';
+							$html .= '</td>';
+							
 							// № резерва
 							$number_rezerv = '<a href="'.$this->link_enter_to_filters('number_rezerv',$this->position['number_rezerv']).'">'.base64_decode($this->position['number_rezerv']).'</a>';
 							$html .= '<td>
@@ -2221,8 +2202,7 @@
 							<tr>
 								<th>от</th>
 								<th>до</th>
-							</tr>
-						';
+							</tr>';
 
 						// запрос заказов
 						$this->get_the_orders_Database($id_row);
@@ -2269,7 +2249,7 @@
 
 							
 							// формируем строку с информацией о заказе
-							$table_order_row .= '<tr class="order_head_row" data-id="'.$this->Order['id'].'">';
+							$table_order_row .= '<tr class="order_head_row '.$this->open_close_row_class.'" data-id="'.$this->Order['id'].'">';
 								$table_order_row .= '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->position_item.'">
 														<span class="cabinett_row_hide_orders'.$this->open_close_class.'"></span>
 													</td>';
