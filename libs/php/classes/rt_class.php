@@ -539,7 +539,7 @@
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
 		
-		static function add_data_from_basket($client,$manager_login,$customer_data){
+		static function add_data_from_basket($client,$manager_login,$customer_data=FALSE){
 
 
 
@@ -575,38 +575,18 @@
 			// содержимое корзины
 			$basket_arr = $_SESSION['basket'];
 			// print_r($basket_arr);
-			// exit;
+	
+			foreach($basket_arr as $key => $basket_data){
 			
-			
-			
-			// определяем номер запроса
-			$query = "SELECT MAX(query_num) max FROM `".RT_LIST."`"; 								
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$query_num_data = $result->fetch_assoc();
-			$query_num = ($query_num_data['max']==0)? 10000:$query_num_data['max']+1;
-			//echo $query_num;
-			
-			// вносим строку с данными заказа в RT_LIST
-			$query = "INSERT INTO `".RT_LIST."` SET 
-												`create_time` = NOW(),
-												`client_id` = '$client_id',
-												`manager_id` = '$manager_id_arr[0]',
-												`query_num` = '".$query_num."'"; 
-												
-			$result = $mysqli->query($query) or die($mysqli->error);
-			
-
-
-			$sort_id = 0;
-			foreach($basket_arr as $data){
-			    $id =  $data['article'];
+			    $id =  $basket_data['article'];
 				$characteristics = array();
 			
 				// выбираем из базы каталога данные об артикуле
 				$query = "SELECT*FROM `".BASE_TBL."` WHERE id = '".$id."'"; 								
 				$result = $mysqli->query($query) or die($mysqli->error);
 				$art_data = $result->fetch_assoc();
-			
+				
+				
 				///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				//                                         получаем цвета артикула                                           //
 				///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -623,49 +603,44 @@
 				
 				require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 				$characteristics =(count($characteristics)>0)?rtCalculators::json_fix_cyr(json_encode($characteristics)):'';
+				
+				
+			    $data_arr[$key]['art_id'] = $basket_data['article'];
+				$data_arr[$key]['art'] = $art_data['art'];
+				$data_arr[$key]['type'] = 'cat';
+				$data_arr[$key]['name'] = $art_data['name'];
+				$data_arr[$key]['description'] = $basket_data['article'];
+				$data_arr[$key]['characteristics'] = $characteristics;
+				
+				
+				if(!empty($basket_data['size_id']) && $basket_data['size_id']!='undefined'){
+				    $tirage_json = array();
+				    $tirage_json[$basket_data['size_id']] = array("dop"=>"0","tir"=>$basket_data['quantity']);
+				    $tirage_json = json_encode($tirage_json);	
 					
-				// вносим основные данные о позиции в RT_MAIN_ROWS
-				// ПРИМЕЧАНИЕ id артикула на сегодняшний день из корзины  поступает в виде $data['article']
-				$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 
-				                                `sort` = '".++$sort_id."',
-												`query_num` = '$query_num',
-												`type` = 'cat',
-												`art_id` = '".$data['article']."',
-												`art` = '".$art_data['art']."',
-												`name` = '".$art_data['name']."',
-												`description` = '".$art_data['description']."',
-												`characteristics` = '".mysql_real_escape_string($characteristics)."'"; 								
-				$result = $mysqli->query($query) or die($mysqli->error);
-				$row_id = $mysqli->insert_id;
-				
-				// вносим основные данные о количестве RT_DOP_DATA
-				$query = "INSERT INTO `".RT_DOP_DATA."` SET 
-												`row_id` = '$row_id',
-												`quantity` = '".$data['quantity']."',
-												`price_out` = '".$data['price']."'"; 
-				if(!empty($data['size_id']) && $data['size_id']!='undefined'){
-				    $tirage_json[$data['size_id']] = array("dop"=>"0","tir"=>$data['quantity']);
-				    $query .= ",`tirage_json` = '".json_encode($tirage_json)."'";	
-					unset($tirage_json);
-				}							
-												
-				$result = $mysqli->query($query) or die($mysqli->error);
-				$dop_row_id = $mysqli->insert_id;
-				
-				if(isset($data['param1'])){ //если есть данные о нанесении
-					// вносим основные данные о количестве RT_DOP_USLUGI
-					// в корзине - $data['param2'](цена всего тиража) $data['param3'](цена штуки)
-					$query = "INSERT INTO `".RT_DOP_USLUGI."` SET 
-													`dop_row_id` = '$dop_row_id',
-													`glob_type` = 'print',
-													`type` = '".$data['param1']."',
-													`quantity` = '".$data['param3']/$data['param2']."',
-													`price_out` = '".$data['param2']."'"; 
-													
-					$result = $mysqli->query($query) or die($mysqli->error);
 				}
-	
-			}
+				else $tirage_json = '{}';
+				
+				$data_arr[$key]['dop_data'][0]['quantity'] = $basket_data['quantity'];
+				$data_arr[$key]['dop_data'][0]['price_out'] = $basket_data['price'];
+				$data_arr[$key]['dop_data'][0]['tirage_json'] = $tirage_json;
+				unset($tirage_json);
+				
+				/*
+				пока нет калькуляторов это не востребованно 
+				
+				
+			    это просто пример
+				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['glob_type'] = 'print';
+				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['type'] = '';
+				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['quantity'] = $basket_data['quantity'];
+				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['price_in'] = 10;
+				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['price_out'] = 20;
+                */
+			}		
+			// print_r($data_arr);
+			// exit;
+			$query_num = RT::create_new_query($client_id,$manager_id_arr[0],$data_arr);
 			
 
 
@@ -677,27 +652,108 @@
 			 *	@version 15:60 30.10.2015
 			*/
 
-// ini_set('error_reporting', E_ALL);
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-				// -->  START  <-- //
+			// ini_set('error_reporting', E_ALL);
+			// ini_set('display_errors', 1);
+			// ini_set('display_startup_errors', 1);
+			
+			// -->  START  <-- //
+			if($customer_data){
 				include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/comments_class.php");
 				$COMMENTS = new Comments_for_query_class;
-
+	
 				$text = (trim($customer_data['name'])!='')?'Имя: '.$customer_data['name'].'<br>':'';
 				$text .= (trim($customer_data['reg_phone'])!='')?'Телефон: '.$customer_data['reg_phone'].'<br>':'';
 				$text .= (trim($customer_data['email'])!='')?'E-mail: '.$customer_data['email'].'<br>':'';
 				$text .= (trim(cor_data_for_SQL($customer_data['coment']))!='')?'Пожелания: '.cor_data_for_SQL($customer_data['coment']).'<br>':'';
-
+	
 				$COMMENTS->save_query_comment_Pub(0, $query_num, 'Клиент', $text);
 			
 				// -->   END   <-- //
-
+            }
 
 			$out_put = array(0  , $client_id);
 			return json_encode($out_put);
 			
 		}
+		
+		
+		
+		static function create_new_query($client_id,$manager_id,$data_arr){
+			global $mysqli;
+			
+			// ЗАДАЧА:
+			// НА ОСНОВЕ ПОЛУЧЕННЫХ ДАННЫХ СОЗДАТЬ НОВЫЙ ЗАПРОС
+			// ДАННЫЕ ДОЛЖНЫ БЫТЬ ПЕРЕДАННЫХ В ВИДЕ МНОГОМЕРНОГО МАССИВА СЛЕДУЮЩЕГО ПОРЯДКА 
+			// (ПОЗИЦИЯ ) = наименование позиции
+			//              = тип 
+			// СОЗДАТЬ ЗАПИСЬ В ТАБЛИЦЕ RT_LIST
+			// СОЗДАТЬ ЗАПИСЬ В ТАБЛИЦЕ RT_MAIN_ROWS
+            // СОЗДАТЬ N - ЗАПИСЕЙ В ТАБЛИЦЕ RT_DOP_DATA
+            // СОЗДАТЬ N - ЗАПИСЕЙ В ТАБЛИЦЕ RT_DOP_USLUGI
+			
+			
+			// определяем номер запроса
+			$query = "SELECT MAX(query_num) max FROM `".RT_LIST."`"; 								
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$query_num_data = $result->fetch_assoc();
+			$query_num = ($query_num_data['max']==0)? 10000:$query_num_data['max']+1;
+			//echo $query_num;
+			
+			// вносим данные заказа в RT_LIST
+			$query = "INSERT INTO `".RT_LIST."` SET 
+												`create_time` = NOW(),
+												`client_id` = '$client_id',
+												`manager_id` = '$manager_id',
+												`query_num` = '".$query_num."'"; 
+			//echo  "\r\n".$query;									
+			$result = $mysqli->query($query) or die($mysqli->error);
+			
+			
+			
+			$sort_id = 0;
+			foreach($data_arr as $data){
+				
+				// вносим основные данные о позиции в RT_MAIN_ROWS
+				$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 
+											`sort` = '".++$sort_id."',
+											`query_num` = '$query_num' ";
+											 foreach($data as $field => $val){
+												if($field!='dop_data') $query  .= ", `".@$field."` = '".@$val."'";
+											 } 
+				//echo   "\r\n".$query;					
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$row_id = $mysqli->insert_id;
+				
+				if(isset($data['dop_data'])){ // если есть расчеты
+					foreach($data['dop_data'] as $dop_data){	
+						// вносим основные данные о количестве RT_DOP_DATA
+						$query = "INSERT INTO `".RT_DOP_DATA."` SET 
+						            `row_id` = '$row_id' ";
+							         foreach($dop_data as $field => $val){
+									    if($field!='dop_uslugi') $query  .= ", `".@$field."` = '".@$val."'";
+									 } 
+						//echo   "\r\n".$query;									
+						$result = $mysqli->query($query) or die($mysqli->error);
+						$dop_row_id = $mysqli->insert_id;
+
+						if(isset($dop_data['dop_uslugi'])){ // если есть данные о доп услугах
+						    foreach($dop_data['dop_uslugi'] as $dop_uslugi){
+								$query = "INSERT INTO `".RT_DOP_USLUGI."` SET 
+											`dop_row_id` = '$dop_row_id' ";
+											 foreach($dop_uslugi as $field => $val){
+												 $query  .= ", `".@$field."` = '".@$val."'";
+											 } 
+ 
+								//echo  "\r\n". $query;								
+								$result = $mysqli->query($query) or die($mysqli->error);
+							}
+						}
+				    }	
+				}	
+			}
+			return $query_num;
+		}
+		
 		static function calcualte_query_summ($query_num){
 		    global $mysqli;   //print_r($data); 
 		    $query = "SELECT dop_data_tbl.id AS dop_data_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.expel AS expel,
@@ -1041,146 +1097,167 @@ echo $query;
 			 return json_encode((array)$sizesFinalArr);
 		}
 
-    /**
-     *	AJAX 	
-     *	@author  Алексей	
-     *	@version  18:36 МСК 27.09.2015	
-     */
-
-    private function _AJAX_(){
-		$method_AJAX = $_POST['AJAX'].'_AJAX';
-
-		// если в этом классе существует такой метод - выполняем его и выходим
-		if(method_exists($this, $method_AJAX)){
-			$this->$method_AJAX();
-			exit;
-		}	
-	}
-    /**
-     *	вывод формы со списком доп услуг 	
-     *	@author  Алексей	
-     *	@version 18:36 МСК 27.09.2015
-     */
-    private function get_uslugi_list_Database_Html_AJAX(){
-		global $type_product;
-		// получение формы выбора услуги
-		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
-			$html = '<form>';
-			$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
-			$html .= $this->get_uslugi_list_Database_Html();
-			$html .= '<input type="hidden" name="for_all" value="'.$_POST['for_all'].'">';
-			$html .= '<input type="hidden" name="id_uslugi" value="">';
-			$html .= '<input type="hidden" name="dop_row_id" value="'.(isset($_POST['dop_row_id'])?$_POST['dop_row_id']:'').'">';
-			$html .= '<input type="hidden" name="quantity" value="'.(isset($_POST['quantity'])?$_POST['quantity']:'').'">';
-			$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
-			$html .= '<input type="hidden" name="AJAX" value="add_new_dop_service">';
-			$html .= '</form>';
-			echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите услугу"}';
-			
-			// echo '{"response":"show_new_window","title":"Выберите услугу","html":"'.base64_encode($html).'"}';
+		/**
+		 *	AJAX 	
+		 *	@author  Алексей	
+		 *	@version  18:36 МСК 27.09.2015	
+		 */
+	
+		private function _AJAX_(){
+			$method_AJAX = $_POST['AJAX'].'_AJAX';
+	
+			// если в этом классе существует такой метод - выполняем его и выходим
+			if(method_exists($this, $method_AJAX)){
+				$this->$method_AJAX();
+				exit;
+			}	
 		}
-	}
-	/**
-	 *	добавляет новую услугу
-	 *
-     *	@author  Алексей	
-     *	@version  18:36 МСК 27.09.2015 		
-	 */
-	private function add_new_dop_service_AJAX(){
-		global $mysqli;
-
-		$id_uslugi = $_POST['id_uslugi'];
-		$dop_row_id = $_POST['dop_row_id'];
-		$quantity = $_POST['quantity'];
-
-		global $mysqli;
-		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` 
-		WHERE `id` = '".$id_uslugi."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
-		$usluga = array();
-		if($result->num_rows > 0){		
-			while($row = $result->fetch_assoc()){
-				$usluga = $row;
-			}		
-		}
-
-		// если массив услуг пуст
-		if(empty($usluga)){return 'такой услуги не существует';}
-
-		// вставляем новую услугу в базу
-		$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
-		             `dop_row_id` = '".$dop_row_id."',
-		             `uslugi_id` = '".$id_uslugi."',
-					 `glob_type` = 'extra',
-					 `price_in` = '".$usluga['price_in']."',
-					 `price_out` = '".$usluga['price_out']."',					 
-					 `performer` = '".$usluga['performer']."',
-					 `price_out_snab` = '".$usluga['price_out']."',
-					 `for_how` = '".$usluga['for_how']."',
-					 `creator_id` = '". $_SESSION['access']['user_id']."',
-					 `quantity` = '".$quantity."'";
-		$result = $mysqli->multi_query($query) or die($mysqli->error);
-		echo '{"response":"OK","function":"window_reload"}';
-	}
-
-	/**
-	 *	вывод списка доп услуг 		
-	 * 	
-     *	@author  Алексей	
-     *	@version  18:36 МСК 27.09.2015 		
-	 */
-	private function get_uslugi_list_Database_Html( $id=0, $pad=30){	
-
-		global $mysqli; 
-		$html = '';
-		$apl_services = '';
-		$supplier_services = '';
-		$calc_services = '';
-		
-		$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."' AND `deleted` = '0'";
-		$result = $mysqli->query($query) or die($mysqli->error);
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$price = '<div class="echo_price_uslug"><span></span><span></span></div>';
-				if($row['id']==2){
-					/**
-					 *	услуги оутсорс 		
-					 */
-					$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
-					
-					$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
-					
-					// присваиваем конечным услугам класс may_bee_checked
-					$supplier_services.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
-				}else if($row['id']!=6 && $row['parent_id']!=6){// исключаем нанесение apelburg
-					/**
-					 *	услуги АПЛ	
-					 */
-					$child = '';
-					// if($row['parent_id']==0){
-					// 	// кнопка калькулятора
-					// 	$child .= '<div data-id="'.$row['id'].'" data-client_id="'.$_POST['client_id'].'"  data-client_id="'.$_POST['query_num'].'" data-type="'.$row['type'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">КАЛЬКУЛЯТОР</span></div>';
-					// }
-					$child .= $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
-					
-					
-					$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
-					
-					// присваиваем конечным услугам класс may_bee_checked
-					$apl_services.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
-				}else{
-
-					// Это услуги из КАЛЬКУЛЯТОРА
-					// запрос на детей
-					// $child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
-
-					// $price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
-					// // присваиваем конечным услугам класс may_bee_checked
-					//$apl_services.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
-				}
+		/**
+		 *	вывод формы со списком доп услуг 	
+		 *	@author  Алексей	
+		 *	@version 18:36 МСК 27.09.2015
+		 */
+		private function get_uslugi_list_Database_Html_AJAX(){
+			global $type_product;
+			// получение формы выбора услуги
+			if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
+				$html = '<form>';
+				$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
+				$html .= $this->get_uslugi_list_Database_Html();
+				$html .= '<input type="hidden" name="for_all" value="'.$_POST['for_all'].'">';
+				$html .= '<input type="hidden" name="id_uslugi" value="">';
+				$html .= '<input type="hidden" name="dop_row_id" value="'.(isset($_POST['dop_row_id'])?$_POST['dop_row_id']:'').'">';
+				$html .= '<input type="hidden" name="quantity" value="'.(isset($_POST['quantity'])?$_POST['quantity']:'').'">';
+				$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
+				$html .= '<input type="hidden" name="AJAX" value="add_new_dop_service">';
+				$html .= '</form>';
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите услугу"}';
+				
+				// echo '{"response":"show_new_window","title":"Выберите услугу","html":"'.base64_encode($html).'"}';
 			}
 		}
-		return $apl_services.$supplier_services;
-	} 
+		/**
+		 *	добавляет новую услугу
+		 *
+		 *	@author  Алексей	
+		 *	@version  18:36 МСК 27.09.2015 		
+		 */
+		private function add_new_dop_service_AJAX(){
+			global $mysqli;
+	
+			$id_uslugi = $_POST['id_uslugi'];
+			$dop_row_id = $_POST['dop_row_id'];
+			$quantity = $_POST['quantity'];
+	
+			global $mysqli;
+			$query = "SELECT * FROM `".OUR_USLUGI_LIST."` 
+			WHERE `id` = '".$id_uslugi."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$usluga = array();
+			if($result->num_rows > 0){		
+				while($row = $result->fetch_assoc()){
+					$usluga = $row;
+				}		
+			}
+	
+			// если массив услуг пуст
+			if(empty($usluga)){return 'такой услуги не существует';}
+	
+			// вставляем новую услугу в базу
+			$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
+						 `dop_row_id` = '".$dop_row_id."',
+						 `uslugi_id` = '".$id_uslugi."',
+						 `glob_type` = 'extra',
+						 `price_in` = '".$usluga['price_in']."',
+						 `price_out` = '".$usluga['price_out']."',					 
+						 `performer` = '".$usluga['performer']."',
+						 `price_out_snab` = '".$usluga['price_out']."',
+						 `for_how` = '".$usluga['for_how']."',
+						 `creator_id` = '". $_SESSION['access']['user_id']."',
+						 `quantity` = '".$quantity."'";
+			$result = $mysqli->multi_query($query) or die($mysqli->error);
+			echo '{"response":"OK","function":"window_reload"}';
+		}
+	
+		/**
+		 *	вывод списка доп услуг 		
+		 * 	
+		 *	@author  Алексей	
+		 *	@version  18:36 МСК 27.09.2015 		
+		 */
+		private function get_uslugi_list_Database_Html( $id=0, $pad=30){	
+	
+			global $mysqli; 
+			$html = '';
+			$apl_services = '';
+			$supplier_services = '';
+			$calc_services = '';
+			
+			$query = "SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '".$id."' AND `deleted` = '0'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$price = '<div class="echo_price_uslug"><span></span><span></span></div>';
+					if($row['id']==2){
+						/**
+						 *	услуги оутсорс 		
+						 */
+						$child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+						
+						$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+						
+						// присваиваем конечным услугам класс may_bee_checked
+						$supplier_services.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+					}else if($row['id']!=6 && $row['parent_id']!=6){// исключаем нанесение apelburg
+						/**
+						 *	услуги АПЛ	
+						 */
+						$child = '';
+						// if($row['parent_id']==0){
+						// 	// кнопка калькулятора
+						// 	$child .= '<div data-id="'.$row['id'].'" data-client_id="'.$_POST['client_id'].'"  data-client_id="'.$_POST['query_num'].'" data-type="'.$row['type'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">КАЛЬКУЛЯТОР</span></div>';
+						// }
+						$child .= $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+						
+						
+						$price = ($child =='')?'<div class="echo_price_uslug"><span>'.$row['price_in'].'</span><span>'.$row['price_out'].'</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+						
+						// присваиваем конечным услугам класс may_bee_checked
+						$apl_services.= '<div data-id="'.$row['id'].'" data-parent_id="'.$row['parent_id'].'" class="lili'.(($child=='')?' may_bee_checked '.$row['for_how']:' f_open').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+					}else{
+	
+						// Это услуги из КАЛЬКУЛЯТОРА
+						// запрос на детей
+						// $child = $this->get_uslugi_list_Database_Html($row['id'],($pad+30));
+	
+						// $price = ($child =='')?'<div class="echo_price_uslug"><span>&nbsp;</span><span>&nbsp;</span><span>'.(($row['for_how']=="for_one")?'за ед.':'за тираж').'</span></div>':'';
+						// // присваиваем конечным услугам класс may_bee_checked
+						//$apl_services.= '<div data-id="'.$row['id'].'" data-type="'.$row['type'].'" data-parent_id="'.$row['parent_id'].'" class="lili calc_icon'.(($child=='')?' calc_icon_chose':'').'" style="padding-left:'.$pad.'px;background-position-x:'.($pad-27).'px" data-bg_x="'.($pad-27).'"><span class="name_text">'.$row['name'].'</span>'.$price.'</div>'.$child;
+					}
+				}
+			}
+			return $apl_services.$supplier_services;
+		} 
+		
+		static function distrubuteQuantityOnSizes($row_id,$quantity){
+			global $mysqli;  
+			
+			// данный метод распределяет количество устанавливаемое в запросе на размеры позиции если таковые имеются
+			// АЛГОРИТМ
+			// при увеличении количества новое добавляются в в свободные начиная с самой большой
+			// при уменьшении наоборот
+			// если достигнут лимит должно быть дано оповещение что будет товар будет под заказ 
+		
+			$query="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$row_id."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows>0){
+			    $row = $result->fetch_assoc();
+				if($row['tirage_json']==''||$row['tirage_json']=='{}') return false;
+			    $tirage_arr = json_decode($row['tirage_json'],true);
+				print_r($tirage_arr);
+			}
+			// при 0 количестве исходном распреедляется равномерно начиная с самого большого но не более имеющегося и резевр в том числе если убираем то обратно убираем количества из размеров начиная с самого маленького
+		}
+	
     }
 ?>
