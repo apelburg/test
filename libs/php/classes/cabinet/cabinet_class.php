@@ -3900,6 +3900,12 @@
 					$html .= '</div>';
 				}
 
+				$html .= '<div class="add_new_comment">';
+				$html .= '<form>';
+				$html .= '<div id="add_comments_of_position" class="" data-position_id="'.$_POST['row_id'].'">переписка по позиции</div>';
+				$html .= '</form>';
+				$html .= '</div>';
+
 				echo '{"response":"OK","html":"'.base64_encode($html).'","title":"ТЗ"}';
 			}
 
@@ -7116,6 +7122,35 @@
 			// $html .= '</table>';	
 			return $html;
 		}
+		// шаблон html исполнителей по заказу
+		protected function performer_table_standart_for_stock_order(){
+			$this->meneger_name_for_order = $this->get_name_employee_Database_Html($this->Order['manager_id']);
+			// $html = '<table class="curator_on_request">';
+				// $html .= '<tr>';
+				$html = '<td colspan="2" class="filter_class" data-href="'.$this->link_enter_to_filters('order_num',$this->order_num_for_User).'">';
+					$html .= '<div>'.$this->order_num_for_User.'</div>';
+				$html .= '</td>';
+
+				$array_client = $this->get_client_name_Array_Database($this->Order['client_id']);
+				$html .= '<td  colspan="1"  class="filter_class" data-href="'.$array_client['link'].'">';
+					$html .= '<div>'.$array_client['name'].'</div>';
+				$html .= '</td>';
+				
+				$html .= '<td colspan="2">';
+					if($this->user_access != 5){
+						$html .= '<div class="filter_class men_in_order" data-href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'"><span class="greyText">менеджер:'.$this->meneger_name_for_order.'</span></div>';
+					}						
+					$html .= '<div class=" men_in_order" data-href=""><span class="greyText">снабжение: '.$this->get_name_no_men_employee_Database_Html($this->Order['snab_id'],8).'</span></div>';
+				$html .= '</td>';
+					// $html .= '<td>';
+					// if($this->user_access != 5){
+					// 	$html .= '<span class="greyText">менеджер: <a href="'.$this->link_enter_to_filters('manager_id', $this->Order['manager_id']).'">'.$this->meneger_name_for_order.'</a></span>';
+					// }						
+					// $html .= '</td>';
+				// $html .= '</tr>';	
+			// $html .= '</table>';	
+			return $html;
+		}
 		// выводит имя клиента в заказе, по ссылке в url добавляется id клиента
 		protected function get_client_name_Array_Database($id){
 			global $mysqli;		
@@ -7139,6 +7174,28 @@
 			$html .= '</div></div>';
 
 			return $html;
+		}
+
+		// шаблон шапки главной таблицы
+		protected function get_header_general_tbl(){
+			$html = '<table id="general_panel_orders_tbl" class="order_tbl">';
+				$html .= '<tr>';
+					$html .= '<th colspan="1"></th>';
+					$html .= '<th colspan="2">Номер</th>';
+					$html .= '<th>Компания</th>';
+					$html .= '<th colspan="3">Менеджер отдела</th>';
+					$html .= '<th>Сумма</th>';
+					$html .= '<th>Бух. учёт</th>';
+					$html .= '<th>Комментарий</th>';
+					$html .= '<th>Срок сдачи</th>';
+					$html .= '<th  colspan="2">статус</th>';
+				$html .= '</tr>';
+			return $html;
+		}
+
+		// возвращает закрывающий тег главной таблицы
+		protected function get_footer_tbl(){
+			return '</table>';
 		}
 
 		function __destruct() {			

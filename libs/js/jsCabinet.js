@@ -17,6 +17,7 @@
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
 			window_preload_del();
 		}
+		
 		if(data['function'] !== undefined){ // вызов функции... если требуется
 			window[data['function']](data);
 			window_preload_del();

@@ -91,7 +91,7 @@ $(document).on('click', '.add_nah', function(event) {
 $(document).on('click', '#add_new_comment_button', function(event) {
 	event.preventDefault();
 	var obj = $(this);
-	var serialize = $('#dialog_gen_window_form form').serialize();
+	var serialize = $('#dialog_gen_window_form .add_new_comment form,.add_new_comment form').serialize();
 	$(this).parent().find('.comment_text textarea').val('');
 	$.post('', serialize, function(data, textStatus, xhr) {
 		if (data['response']!="OK") {

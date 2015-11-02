@@ -9,13 +9,12 @@
 	save_way_back(array('page=cabinet'),'?page=cabinet&client_id='.$client_id);
 	$quick_button_back = get_link_back();
 	
-	include './libs/php/classes/comments_class.php';
+	include_once './libs/php/classes/comments_class.php';
 	new Comments_for_query_class;
 	new Comments_for_order_class;
 	$PositionComments = new Comments_for_order_dop_data_class;
 
-
-	include './libs/php/classes/os_form_class.php';
+	include_once './libs/php/classes/os_form_class.php';
 	include_once './libs/php/classes/supplier_class.php';
 	include_once './libs/php/classes/rt_position_no_catalog_class.php';
 	include_once './libs/php/classes/cabinet/cabinet_class.php';		

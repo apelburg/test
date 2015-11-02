@@ -426,6 +426,7 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 	}
 
 	private function add_new_comment_for_position_AJAX(){
+		// echo 'comment ok';exit;
 			$this->save_position_comment_Database();
 			$html = '<div class="comment table">';
 				$html .= '<div class="row">';
