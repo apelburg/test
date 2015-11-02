@@ -29,7 +29,7 @@
                       echo '<button type="button" onclick="location = \'?page=client_folder&query_num='.$query_num.'&client_id='.$client_id.'\';" style="cursor:pointer;">вернуться в РТ</button>&nbsp;&nbsp;';
                     
                        }
-                     echo '<button type="button" onclick="location = \'?page=cabinet&section=requests&subsection=all\';" style="cursor:pointer;">в раздел Кабинет</button>';
+                     echo '<button type="button" onclick="location = \'?page=cabinet&section=requests&subsection=no_worcked_men\';" style="cursor:pointer;">в раздел Кабинет</button>';
                        if($dateDataObj->doc_type=='spec')
                        {
                         echo '&nbsp;&nbsp;<button type="button" onclick="location = \'?page=client_folder&section=agreements&client_id='.$client_id.'\';" style="cursor:pointer;">в раздел Договоры</button>';
