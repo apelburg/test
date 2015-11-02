@@ -796,6 +796,7 @@
 			 }
 			 return  number_format($summ,'2','.','');
 		}
+
 		static function getArtRelatedPrintInfo($art_id){
 			$out_put = array();
 			// ищем типы нанесения присвоенные данному артикулу на прямую 

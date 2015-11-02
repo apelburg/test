@@ -73,7 +73,7 @@
 						// фильтрация по менеджеру
 						if($this->user_access == 5){
 							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
-							$where = 1;							
+							$where = 1;
 						}
 
 						// фильтрация по заказу
@@ -81,7 +81,6 @@
 							$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_order;
 							$where = 1;
 						}
-
 
 
 						switch ($_GET['subsection']) {

@@ -58,7 +58,7 @@
 			'partially_shipped' => 'Частично',
 			'fully_shipped' => 'Полностью',
 			'partially_shipped' => 'Частично отгружен',
-			'the_order_is_create' => 'Заказ сформирован',
+			'the_order_is_create' => 'Предзаказ',
 			'payment_the_bill' => 'Счёт оплачен',	
 			'refund_in_a_row' => 'Возврат средств',
 			'cancelled' => 'Аннулированные',

@@ -100,7 +100,7 @@
 	    	protected $paperwork_status = array(
 	    		// ПРЕДЗАКАЗ
 
-				'being_prepared'=>'В оформлении',
+				'being_prepared'=>'Предзаказ',
 				'in_operation'=>'Запуск в работу',
 				);
 
@@ -1491,7 +1491,7 @@
 				
 				$this->attach_the_specification_for_other_order_Database($order_id,$order_num_NEW,$_POST['checked_spec_id']);
 
-				echo '{"response":"OK","function":"reload_order_tbl"}';
+				echo '{"response":"OK","function":"location_href","href":"?page=cabinet&section=paperwork&subsection=the_order_is_create"}';
 			}
 
 			protected function attach_the_specification_for_other_order_Database($order_id,$order_num_NEW,$id_string){
@@ -6980,7 +6980,7 @@
 					$html = '';
 					$html .= '<tr class="position-row position-row-production" id="position_row_'.$this->position['sequence_number'].'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
 					// порядковый номер позиции в заказе
-					$html .= '<td style="width:15px"><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
+					$html .= '<td style="width:15px"><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.(($this->Order['number_of_positions'] == 0)?'-':$this->Order['number_of_positions']).')</span></td>';
 					// описание позиции
 					$html .= '<td colspan="2" style="width:300px">';
 					// комментарии
@@ -7197,6 +7197,14 @@
 		protected function get_footer_tbl(){
 			return '</table>';
 		}
+
+		// создание запроса
+		protected function create_new_query_AJAX(){
+			if(isset($_GET['client_id'])){
+				
+			}
+		}
+
 
 		function __destruct() {			
 		}

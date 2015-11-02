@@ -30,8 +30,6 @@
 			$this->POSITION_NO_CATALOG = new Position_no_catalog();
 
 
-
-
 			$this->user_id = $user_id;
 			$this->user_access = $user_access;	
 			// echo 'привет мир';
@@ -95,6 +93,17 @@
 
     	// В работе Sales (Админ) / В работе (Мен)
     	protected function requests_query_worcked_men_Template($id_row){
+    		if(isset($_GET['client_id']) AND ($this->user_access == 5 || $this->user_access == 1)){
+				global $quick_button;
+				$quick_button = '<div class="quick_button_div"><a href="#" id="create_new_query" class="button add">Создать запрос</a></div>';	
+			}else{
+				if($this->user_access == 5 || $this->user_access == 1){ // снабжение не создаёт заказы
+					global $quick_button;
+					$quick_button = '<div class="quick_button_div"><a href="#" id="create_new_query" class="button add disabled">Создать запрос</a></div>';	
+				}
+			}
+
+
     		$this->filtres_query = "  `".RT_LIST."`.`status` = 'in_work'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
     		$this->standart_request_method($id_row);
