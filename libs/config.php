@@ -87,6 +87,7 @@
 	define("OFFERTS_TBL","os__offerts"); // таблица созданных договоров
 	define("OFFERTS_ROWS_TBL","os__offerts_rows"); // таблица созданных договоров
 	define("PLANNER","os__planner"); // 
+	define("REMAINDER_PROTOCOL","os__remainder_protocol"); // 
 	
 	// заказы в кабинете
 	define("CAB_ORDER_ROWS", "os__cab_orders_list");  // таблица заказов
@@ -132,7 +133,6 @@
 	
 	define("COM_PRED_LIST_OLD","os__com_pred_list_old"); // КП
 	define("LAST_COM_PRED_NUM","os__last_com_pred_num"); // последний номер КП
-
     
 	
 	$client_id = (isset($_GET['client_id']))? $_GET['client_id'] : false ;
