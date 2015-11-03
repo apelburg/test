@@ -678,7 +678,7 @@
 		
 		
 		
-		static function create_new_query($client_id,$manager_id,$data_arr){
+		static function create_new_query($client_id,$manager_id,$data_arr,$query_status = 'new_query'){
 			global $mysqli;
 			
 			// ЗАДАЧА:
@@ -704,7 +704,8 @@
 												`create_time` = NOW(),
 												`client_id` = '$client_id',
 												`manager_id` = '$manager_id',
-												`query_num` = '".$query_num."'"; 
+												`query_num` = '".$query_num."', 
+												`status` = '".$query_status."'";
 			//echo  "\r\n".$query;									
 			$result = $mysqli->query($query) or die($mysqli->error);
 			

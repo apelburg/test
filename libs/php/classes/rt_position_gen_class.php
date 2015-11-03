@@ -27,87 +27,87 @@ class Position_general_Class{
 	public $POSITION_NO_CATALOG;
 
 	// статусы кнопки для различных групп пользователей 
-	private $status_snab = array(
+	// private $status_snab = array(
 
-		'on_calculation' => array( //на расчёт мен
-			'name' => 'В работе',
-			'buttons' =>  array( // кнопки для данного статуса
-				'on_calculation_snab' => array(// статус позиции или даже запроса
-					'name' => 'Запросить расчёт',
-					'class' => 'status_art_right_class',// класс кнопки для смены статуса
-					'access' => '5'
-					)
-				)
-			),
-		// НЕ ИСПОЛЬЗУЕТСЯ ... ПОКА
-		// 'on_calculation_snab' => array( 
-		// 	'name' => 'Запрошен расчёт', // в снабжение
-		// 	'buttons' =>  array( // кнопки для данного статуса
-		// 		'in_calculation' => array(		
-		// 			'name' => 'Принять в работу',
-		// 			'class' => 'status_art_right_class',// класс кнопки для смены статуса
-		// 			'access' => '8'
-		// 			),
-		// 		'tz_is_not_correct' => array( // статус снабжения по позиции
-		// 			'name' => 'ТЗ не корректно',
-		// 			'class' => 'status_art_right_class',// класс кнопки для смены статуса
-		// 			'access' => '8'
-		// 			)
-		// 		)
-		// 	),
-		'on_recalculation_snab' => array(
-			'name' => 'На перерасчёт',
-			'buttons' =>  array( // кнопки для данного статуса
-				'in_calculation' => array(		
-					'name' => 'Принять в работу',
-					'class' => 'status_art_right_class',// класс кнопки для смены статуса
-					'access' => '8'
-					),
-				'tz_is_not_correct' => array( // статус снабжения по позиции
-					'name' => 'ТЗ не корректно',
-					'class' => 'status_art_right_class',// класс кнопки для смены статуса
-					'access' => '8'
-					)
-				)
-			),
-		'tz_is_not_correct' => array( // статус снабжения по позиции
-			'name' => 'ТЗ не корректно',
-			'buttons' =>  array( // кнопки для данного статуса
-				'on_recalculation_snab' => array( // 
-					'name' => 'Запросить расчёт',
-					'class' => 'status_art_right_class',// класс кнопки для смены статуса
-					'access' => '5'
-					)
-				)
+	// 	'on_calculation' => array( //на расчёт мен
+	// 		'name' => 'В работе',
+	// 		'buttons' =>  array( // кнопки для данного статуса
+	// 			'on_calculation_snab' => array(// статус позиции или даже запроса
+	// 				'name' => 'Запросить расчёт',
+	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
+	// 				'access' => '5'
+	// 				)
+	// 			)
+	// 		),
+	// 	// НЕ ИСПОЛЬЗУЕТСЯ ... ПОКА
+	// 	// 'on_calculation_snab' => array( 
+	// 	// 	'name' => 'Запрошен расчёт', // в снабжение
+	// 	// 	'buttons' =>  array( // кнопки для данного статуса
+	// 	// 		'in_calculation' => array(		
+	// 	// 			'name' => 'Принять в работу',
+	// 	// 			'class' => 'status_art_right_class',// класс кнопки для смены статуса
+	// 	// 			'access' => '8'
+	// 	// 			),
+	// 	// 		'tz_is_not_correct' => array( // статус снабжения по позиции
+	// 	// 			'name' => 'ТЗ не корректно',
+	// 	// 			'class' => 'status_art_right_class',// класс кнопки для смены статуса
+	// 	// 			'access' => '8'
+	// 	// 			)
+	// 	// 		)
+	// 	// 	),
+	// 	'on_recalculation_snab' => array(
+	// 		'name' => 'На перерасчёт',
+	// 		'buttons' =>  array( // кнопки для данного статуса
+	// 			'in_calculation' => array(		
+	// 				'name' => 'Принять в работу',
+	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
+	// 				'access' => '8'
+	// 				),
+	// 			'tz_is_not_correct' => array( // статус снабжения по позиции
+	// 				'name' => 'ТЗ не корректно',
+	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
+	// 				'access' => '8'
+	// 				)
+	// 			)
+	// 		),
+	// 	'tz_is_not_correct' => array( // статус снабжения по позиции
+	// 		'name' => 'ТЗ не корректно',
+	// 		'buttons' =>  array( // кнопки для данного статуса
+	// 			'on_recalculation_snab' => array( // 
+	// 				'name' => 'Запросить расчёт',
+	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
+	// 				'access' => '5'
+	// 				)
+	// 			)
 			
-			),
-		'in_calculation' => array(
-			'name' => 'В расчёте снабжение',
-			'buttons' =>  array( // кнопки для данного статуса
-				'calculate_is_ready' => array(
-					'name' => 'Расчёт готов',
-					'class' => 'status_art_right_class',// класс кнопки для смены статуса
-					'access' => '8'
-					),
-				'create_text_mail_for_supplier' => array(
-					'name' => 'Письмо поставщику',
-					'class' => 'create_text_mail_for_supplier',
-					'access' => '8' 
-					)
-				)
-			),
+	// 		),
+	// 	'in_calculation' => array(
+	// 		'name' => 'В расчёте снабжение',
+	// 		'buttons' =>  array( // кнопки для данного статуса
+	// 			'calculate_is_ready' => array(
+	// 				'name' => 'Расчёт готов',
+	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
+	// 				'access' => '8'
+	// 				),
+	// 			'create_text_mail_for_supplier' => array(
+	// 				'name' => 'Письмо поставщику',
+	// 				'class' => 'create_text_mail_for_supplier',
+	// 				'access' => '8' 
+	// 				)
+	// 			)
+	// 		),
 
-		'calculate_is_ready' => array(
-			'name' => 'Расчёт от снабжения',
-			'buttons' =>  array( // кнопки для данного статуса
-				'on_recalculation_snab' => array( // 
-					'name' => 'Запросить перерасчёт',
-					'access' => '5'
-					)
-				)
-			),
+	// 	'calculate_is_ready' => array(
+	// 		'name' => 'Расчёт от снабжения',
+	// 		'buttons' =>  array( // кнопки для данного статуса
+	// 			'on_recalculation_snab' => array( // 
+	// 				'name' => 'Запросить перерасчёт',
+	// 				'access' => '5'
+	// 				)
+	// 			)
+	// 		),
 		
-		);
+	// 	);
 
 
 	function __construct(){

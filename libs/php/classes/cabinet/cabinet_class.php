@@ -2683,7 +2683,7 @@
 
 				$html .= '<form>';
 
-				$html .= '<input type="hidden" name="status_order" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="status_buch" value="'.$first_val.'">';	
 				$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
 
 				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
@@ -7198,12 +7198,36 @@
 			return '</table>';
 		}
 
-		// создание запроса
-		protected function create_new_query_AJAX(){
-			if(isset($_GET['client_id'])){
-				
-			}
+		// вывод пришедших данных в новом окне
+		private function show_post_arr_in_new_window_ajax(){
+			$html = $this->print_arr($_POST);
+			echo '{"response":"show_new_window_simple", "html":"'.base64_encode($html).'","title":"метод '.$_POST['AJAX'].'_AJAX()","width":"600"}';
 		}
+		
+		/**
+		 *	создание запроса
+		 *
+		 *	@param 		AJAX
+		 *	@return  	html
+		 *	@see 		windows, forms
+		 *	@author  	Алексей Капитонов
+		 *	@version 	12:12 03.11.2015
+		*/
+			// первый запрос на создание нового запроса
+			protected function create_new_query_AJAX(){
+				include_once ('./libs/php/classes/client_class.php');
+				$this->CLIENT = new Client;
+				$this->CLIENT->button_new_query_wtidth_cabinet();
+			}
+
+			// прикрепляет клиента к запросу
+			protected function attach_client_for_new_query_AJAX(){
+				include_once ('./libs/php/classes/client_class.php');
+				new Client;
+				exit;
+			}
+			
+			
 
 
 		function __destruct() {			

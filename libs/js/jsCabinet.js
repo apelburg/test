@@ -17,7 +17,7 @@
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
 			window_preload_del();
 		}
-		
+
 		if(data['function'] !== undefined){ // вызов функции... если требуется
 			window[data['function']](data);
 			window_preload_del();
@@ -36,6 +36,7 @@
 		if(data['response'] != "OK"){ // вывод при ошибке
 			console.log(data);
 		}
+		
 		if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
 			alert(data['error']);
 		}
@@ -3246,3 +3247,19 @@ $(document).on('click', '.filter_class', function(event) {
 	event.preventDefault();
 	window.location.href = $(this).attr('data-href');
 });
+
+// новый запрос
+$(document).on('click', '#create_new_query', function(event) {
+	event.preventDefault();
+	var message = 'Вы уверены, что хотите завести новый запрос?';
+	if(confirm(message)){
+		$.post('', {
+			AJAX: 'create_new_query'
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');	
+	}
+	
+
+});
+
