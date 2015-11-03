@@ -555,7 +555,8 @@
 			$client_data = $result->fetch_assoc();
 			$client_id = $client_data['id'];
 			//echo $client_id;
-			
+			print_r($manager_login);
+			exit;
 			// узнаем id менеджера
 			$manager_login_arr = explode('&',$manager_login);
 			foreach($manager_login_arr as $manager_login){
