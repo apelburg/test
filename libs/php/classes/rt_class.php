@@ -538,37 +538,48 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
+		static function add_data_from_basket_directly($client,$manager_login){
 		
-		static function add_data_from_basket($client,$manager_login,$customer_data=FALSE){
-
-
-
-
-			global $mysqli;
-			//global $print_mode_names;
-			$user_id = $_SESSION['access']['user_id'];
-			
+		    global $mysqli;
 			
 			// узнаем id клиента
-			$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `company` = '".$client."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			$client_data = $result->fetch_assoc();
-			$client_id = $client_data['id'];
-			//echo $client_id;
-			print_r($manager_login);
-			exit;
+			if($client){
+				$query = "SELECT*FROM `".CLIENTS_TBL."` WHERE `company` = '".$client."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				$client_data = $result->fetch_assoc();
+				$client_id = $client_data['id'];
+			}
+			else $client_id = 0;
+	
+			
 			// узнаем id менеджера
 			$manager_login_arr = explode('&',$manager_login);
-			foreach($manager_login_arr as $manager_login){
-				$query = "SELECT*FROM `".MANAGERS_TBL."` WHERE `nickname` = '".$manager_login."'";
-				$result = $mysqli->query($query) or die($mysqli->error);
-				if($result->num_rows>0){
-				    $manager_data = $result->fetch_assoc();
-				    $manager_id_arr[] = $manager_data['id'];
+			if(isset($manager_login_arr)){
+				foreach($manager_login_arr as $manager_login){
+					$query = "SELECT*FROM `".MANAGERS_TBL."` WHERE `nickname` = '".$manager_login."'";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					if($result->num_rows>0){
+						$manager_data = $result->fetch_assoc();
+						$manager_id_arr[] = $manager_data['id'];
+					}
+					else $manager_id_arr[] = 0;
 				}
-				else $manager_id_arr[] = 0;
 			}
-			//print_r($manager_id_arr);
+			else $manager_id_arr[] = 0;
+			
+			RT::add_data_from_basket($client_id,$manager_id_arr);
+			
+			$out_put = array(0  , $client_id);
+			return json_encode($out_put);
+		
+		}
+		static function add_data_from_basket($client_id,$manager_id_arr,$customer_data=FALSE){
+		
+			global $mysqli;
+			
+			// print_r($manager_id_arr); echo '--'; exit;
+
+			$user_id = $_SESSION['access']['user_id'];
 			
 			//
 			$date = date('Y-m-d H:i:s');
@@ -671,10 +682,6 @@
 			
 				// -->   END   <-- //
             }
-
-			$out_put = array(0  , $client_id);
-			return json_encode($out_put);
-			
 		}
 		
 		
