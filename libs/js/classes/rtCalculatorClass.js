@@ -59,6 +59,7 @@ var rtCalculator = {
 	previos_data:{},
 	complite_count:0,
 	dscntDisclaimerProtocol:{},
+	sizeExistsDisclaimerProtocol:{},
 	primary_val:false
 	,
 	init_tbl:function(head_tbl_id,body_tbl_id){// метод запускаемый при наступлении события window.onload()
@@ -309,8 +310,8 @@ var rtCalculator = {
         tooltip.style.position = "absolute";  
         tooltip.id = "dscntDisclaimer"+row_id; 
         tooltip.className = "rtDiscountTooltip"; 
-		tooltip.innerHTML = "на ячейку установлена "+((discount<0)?"скидка":"наценка")+"<br>введеная цена будет не верна"; 
-		var pos = getPos(cur_cell);
+		tooltip.innerHTML = "на ячейку установлена "+((discount<0)?"скидка":"наценка")+"<br>введеная цена будет не верна1"; 
+		var pos = rtCalculator.getPos(cur_cell);
 		tooltip.style.top = pos[0] + 2 +"px";
 		//tooltip.style.left = pos[1] -200 +"px";
 		document.body.appendChild(tooltip);
@@ -325,9 +326,36 @@ var rtCalculator = {
 		function closeDscntDisclaimer2(){
 			delete rtCalculator.dscntDisclaimerProtocol[row_id];	
 		}
+	}
+	,
+	sizeExistsDisclaimer:function(cur_cell,row_id){
+		rtCalculator.sizeExistsDisclaimerProtocol[row_id] = true;
 		
-		function getPos(element) {
-		   var y= 0;
+		tooltip = document.createElement("div");  
+        tooltip.style.position = "absolute";  
+		tooltip.style.textAlign = "left";
+        tooltip.id = "sizeExistsDisclaimer"+row_id; 
+        tooltip.className = "rtDiscountTooltip"; 
+		tooltip.innerHTML = "иди в карточку и меняй там. СЦУКО.<br><span style='color:grey'>строка 243, \"Ближайшие задачи ОС\"  </span>"; 
+		var pos = rtCalculator.getPos(cur_cell);
+		tooltip.style.top = pos[0] + 2 +"px";
+		//tooltip.style.left = pos[1] -200 +"px";
+		document.body.appendChild(tooltip);
+		tooltip.style.left = (pos[1] -tooltip.offsetWidth + 5) +"px";
+		
+		var closeDscntTimer = setTimeout(closeSizeExsDisclaimer1,4000); 
+		var closeDscntTimer = setTimeout(closeSizeExsDisclaimer2,10000); 
+		function closeSizeExsDisclaimer1(){
+		    if(document.getElementById('sizeExistsDisclaimer'+row_id)) document.getElementById('sizeExistsDisclaimer'+row_id).parentNode.removeChild(document.getElementById('sizeExistsDisclaimer'+row_id));	
+			
+		}
+		function closeSizeExsDisclaimer2(){
+			delete rtCalculator.sizeExistsDisclaimerProtocol[row_id];	
+		}
+	}
+	,
+	getPos:function(element){
+		 var y= 0;
 		   var х = 0;
 		   for(var e = element; e != null; e = e.offsetParent){ // Цикл по offsetParent
 			  y += e.offsetTop;
@@ -338,7 +366,6 @@ var rtCalculator = {
 			  if(e.scrollTop) y -= e.scrollTop; 
 		   }
 		   return [y,х];
-		}
 	}
 	,
 	checkQuantity:function(){// корректировка значений вводимых пользователем
@@ -536,7 +563,7 @@ var rtCalculator = {
 			}
 			
 		}
-		
+
 		if(printsExitst || extraExitst){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
 		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity_and_calculators=1&quantity='+cell.innerHTML+'&id='+row_id+'&print='+printsExitst+'&extra='+extraExitst);
 			//alert(url);
@@ -549,23 +576,37 @@ var rtCalculator = {
 						
 		function callbackPrintsExitst(response){
 		    // alert(response);
-			var response_obj = JSON.parse(response);
-							
-			if(response_obj.print.lackOfQuantity){
+			
+			try {  var response_obj = JSON.parse(response); }
+			catch (e) {}
+			
+			if(response_obj){
+				if(response_obj.warning || response_obj.warning=='size_exists'){
+					// если найдено что позиция имеет какие-либо размеры изменение количества должно быть отменено
+					// возвращаем в ячейку прежнее значение
+					//alert(response_obj.warning);
+					rtCalculator.sizeExistsDisclaimer(cell,row_id);
+					cell.innerHTML = rtCalculator.tbl_model[row_id]['quantity'];
+					return;
+				}
+			}
+		
+		
+			if(response_obj.print && response_obj.print.lackOfQuantity){
 				 var str =''; 
 				 for(var index in response_obj.print.lackOfQuantity){
 					 str += (parseInt(index)+1)+'). '+response_obj.print.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.print.lackOfQuantity[index].minQuantity+"\r";  
 				 }
 				 alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
 			}
-			if(response_obj.print.outOfLimit){
+			if(response_obj.print && response_obj.print.outOfLimit){
 				 var str ='';  
 				 for(var index in response_obj.print.outOfLimit){
 					 str += (parseInt(index)+1)+'). '+response_obj.print.outOfLimit[index].print_type+', лимит тиража - '+response_obj.print.outOfLimit[index].limitValue+"\r";  
 				 }
 				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :\r"+str+"для этих нанесений требуется индивидуальный расчет");
 			}
-			if(response_obj.print.needIndividCalculation){ 
+			if(response_obj.print && response_obj.print.needIndividCalculation){ 
 				 var str ='';  
 				 for(var index in response_obj.print.needIndividCalculation){
 					 str += (parseInt(index)+1)+'). '+response_obj.print.needIndividCalculation[index].print_type+"\r";  
@@ -577,7 +618,7 @@ var rtCalculator = {
 			// console.log(response_obj);
 			// если ответ был ok значит все нормально изменения сделаны 
 			// теперь нужно внести изменения в hmlt
-			if(response_obj.print.result == 'ok' && response_obj.extra.result == 'ok'){
+			if((response_obj.print && response_obj.print.result == 'ok') && (response_obj.extra && response_obj.extra.result == 'ok')){
 				rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
 				//// console.log(response_obj.new_sums);
 				if(response_obj.print.new_sums){ 
@@ -617,6 +658,20 @@ var rtCalculator = {
 			rtCalculator.changes_in_process = false;
 		}
 		function callbackOnlyQuantity(response){
+			// alert(response);
+			try {  var response_obj = JSON.parse(response); }
+			catch (e) {}
+			
+			if(response_obj){
+				if(response_obj.warning || response_obj.warning=='size_exists'){
+					// если найдено что позиция имеет какие-либо размеры изменение количества должно быть отменено
+					// возвращаем в ячейку прежнее значение
+					// alert(response_obj.warning);
+					rtCalculator.sizeExistsDisclaimer(cell,row_id);
+					cell.innerHTML = rtCalculator.tbl_model[row_id]['quantity'];
+					return;
+				}
+			}
 			//alert('callbackOnlyQuantity');
 			// вносим изменённое значение в соответствующую ячейку this.tbl_model
 			rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;

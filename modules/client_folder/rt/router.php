@@ -73,6 +73,13 @@
 	}
 	if(isset($_GET['change_quantity'])){
 		 // echo $_GET['quantity'];
+		 
+		 // проверяем есть ли размеры у позиции если есть дальше не идем и отдаем оповещение
+		 if(RT::checkPosAboutSizes($_GET['id'])==true){
+			 echo '{"warning":"size_exists"}';
+			 exit;
+		 }
+		 
 		 RT::change_quantity($_GET['quantity'],$_GET['id']);
 		 exit;
 	}
@@ -170,6 +177,13 @@
 	}
     if(isset($_GET['change_quantity_and_calculators'])){
 		// echo $_GET['quantity'];
+		
+	    // проверяем есть ли размеры у позиции если есть дальше не идем и отдаем оповещение
+		if(RT::checkPosAboutSizes($_GET['id'])==true){
+			echo '{"warning":"size_exists"}';
+		    exit;
+		}
+		
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 		
 		echo rtCalculators::change_quantity_and_calculators($_GET['quantity'],$_GET['id'],$_GET['print'],$_GET['extra']);
