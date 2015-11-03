@@ -30,8 +30,6 @@
 			$this->POSITION_NO_CATALOG = new Position_no_catalog();
 
 
-
-
 			$this->user_id = $user_id;
 			$this->user_access = $user_access;	
 			// echo 'привет мир';
@@ -273,6 +271,13 @@
 		}
 
 		protected function standart_request_method($id_row){
+			// кнопка новый запрос
+			if($this->user_access == 5 || $this->user_access == 1){ // кнопка новый запрос для админа не проработано
+			// if($this->user_access == 5){
+				global $quick_button;
+				$quick_button = '<div class="quick_button_div"><a href="#" id="create_new_query" class="button add">Новый запрос</a></div>';	
+			}
+
 			// фильтрация start .. если есть
 
 
@@ -280,7 +285,7 @@
 			$this->request_Template($id_row);
 		}
 
-    	// шаблон html вывода запроса
+		// шаблон html вывода запроса
     	protected function request_Template($id_row){
     		
     		// вывод шапки главной таблицы
@@ -319,34 +324,43 @@
 
 
 					// если позиций нет - переходим к следующей интерации цикла
-					if(empty($this->positions_arr[$this->Query['query_num']])){continue;}
+					//if(empty($this->positions_arr[$this->Query['query_num']])){continue;}
 
 					// если это первая строка нового запроса, выводим строку названий колонок вариантов
-					if($this->query_num != $this->Query['query_num']){
-						$html .= $this->get_header_start_position_list_tr();
-					}
+					
 
 					
 					
-					$this->position_count = count($this->positions_arr[$this->Query['query_num']]);
-					
-					$this->rowspan = $this->position_count +3;
-					// перебор вариантов
-					foreach ($this->positions_arr[$this->Query['query_num']] as $this->position) {
-						////////////////////////////////////
-						//	Расчёт стоимости позиций START  
-						////////////////////////////////////
-						$this->GET_PRICE_for_position($this->position);				
-						
-						//////////////////////////
-						//	собираем строки вариантов по каждой позиции
-						//////////////////////////
-						// 
-						if($name_product != $this->position['name']){$name_product = $this->position['name']; $this->name_count = 1;}
-						
-						$html .= $this->position_dop_data_Temp($this->Query, $this->position);
+				
+					if(isset($this->positions_arr[$this->Query['query_num']])){
+						if($this->query_num != $this->Query['query_num']){
+							$html .= $this->get_header_start_position_list_tr();
+						}
 
+						$this->position_count = count($this->positions_arr[$this->Query['query_num']]);
+					
+						$this->rowspan = $this->position_count +3;
+						// перебор вариантов
+						foreach ($this->positions_arr[$this->Query['query_num']] as $this->position) {
+							////////////////////////////////////
+							//	Расчёт стоимости позиций START  
+							////////////////////////////////////
+							$this->GET_PRICE_for_position($this->position);				
+							
+							//////////////////////////
+							//	собираем строки вариантов по каждой позиции
+							//////////////////////////
+							// 
+							if($name_product != $this->position['name']){$name_product = $this->position['name']; $this->name_count = 1;}
+							
+							$html .= $this->position_dop_data_Temp($this->Query, $this->position);
+
+						}	
+					}else{
+						$this->rowspan = 3;
+						$html .= $this->get_header_start_position_list_tr_empty();
 					}
+					
 
 					// получаем статус 
 					$this->get_button_status_for_request();
@@ -426,6 +440,15 @@
 			$html .= '</tr>';
 			return $html; 
 		}
+		// шаблон пустого запроса
+		protected function get_header_start_position_list_tr_empty(){
+			$html = '<tr class="query_detail cab_position_div" '.$this->open_close_tr_style.'>';
+				$html .= '<th></th>';
+				$html .= '<th colspan="7">Данные отсутствуют</th>';
+			$html .= '</tr>';
+			return $html; 	
+		}
+
 
 		// шаблон строки варианта позиции
 		protected function position_dop_data_Temp($Query, $position){

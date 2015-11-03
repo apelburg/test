@@ -271,6 +271,9 @@ tr.cat_8 td {
 	cursor: default;
 	/*float: left;*/
 }
+.dop_grey_small_info.attach_the_manager_any{
+	color: #000;
+}
 
 
 #chose_many_curators_tbl table,

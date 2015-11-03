@@ -100,7 +100,7 @@
 	    	protected $paperwork_status = array(
 	    		// ПРЕДЗАКАЗ
 
-				'being_prepared'=>'В оформлении',
+				'being_prepared'=>'Предзаказ',
 				'in_operation'=>'Запуск в работу',
 				);
 
@@ -1491,7 +1491,7 @@
 				
 				$this->attach_the_specification_for_other_order_Database($order_id,$order_num_NEW,$_POST['checked_spec_id']);
 
-				echo '{"response":"OK","function":"reload_order_tbl"}';
+				echo '{"response":"OK","function":"location_href","href":"?page=cabinet&section=paperwork&subsection=the_order_is_create"}';
 			}
 
 			protected function attach_the_specification_for_other_order_Database($order_id,$order_num_NEW,$id_string){
@@ -2683,7 +2683,7 @@
 
 				$html .= '<form>';
 
-				$html .= '<input type="hidden" name="status_order" value="'.$first_val.'">';	
+				$html .= '<input type="hidden" name="status_buch" value="'.$first_val.'">';	
 				$html .= '<input type="hidden" name="AJAX" value="get_listing_type_the_bill">';	
 
 				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
@@ -6980,7 +6980,7 @@
 					$html = '';
 					$html .= '<tr class="position-row position-row-production" id="position_row_'.$this->position['sequence_number'].'" data-cab_dop_data_id="'.$this->id_dop_data.'" data-id="'.$this->position['id'].'" '.$this->open_close_tr_style.'>';
 					// порядковый номер позиции в заказе
-					$html .= '<td style="width:15px"><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
+					$html .= '<td style="width:15px"><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.(($this->Order['number_of_positions'] == 0)?'-':$this->Order['number_of_positions']).')</span></td>';
 					// описание позиции
 					$html .= '<td colspan="2" style="width:300px">';
 					// комментарии
@@ -7197,6 +7197,38 @@
 		protected function get_footer_tbl(){
 			return '</table>';
 		}
+
+		// вывод пришедших данных в новом окне
+		private function show_post_arr_in_new_window_ajax(){
+			$html = $this->print_arr($_POST);
+			echo '{"response":"show_new_window_simple", "html":"'.base64_encode($html).'","title":"метод '.$_POST['AJAX'].'_AJAX()","width":"600"}';
+		}
+		
+		/**
+		 *	создание запроса
+		 *
+		 *	@param 		AJAX
+		 *	@return  	html
+		 *	@see 		windows, forms
+		 *	@author  	Алексей Капитонов
+		 *	@version 	12:12 03.11.2015
+		*/
+			// первый запрос на создание нового запроса
+			protected function create_new_query_AJAX(){
+				include_once ('./libs/php/classes/client_class.php');
+				$this->CLIENT = new Client;
+				$this->CLIENT->button_new_query_wtidth_cabinet();
+			}
+
+			// прикрепляет клиента к запросу
+			protected function attach_client_for_new_query_AJAX(){
+				include_once ('./libs/php/classes/client_class.php');
+				new Client;
+				exit;
+			}
+			
+			
+
 
 		function __destruct() {			
 		}

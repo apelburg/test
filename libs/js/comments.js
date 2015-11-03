@@ -41,6 +41,18 @@ $(document).on('click', '.icon_comment_order_show', function(event) {
 	},'json');
 });
 
+
+$(document).on('click', '.get_comments_for_positions', function(event) {
+	event.preventDefault();
+	var position_id = $(this).attr('data-id');
+	$.post('', {
+		AJAX:'get_comment_for_position',
+		position_id:position_id
+	}, function(data, textStatus, xhr) {
+		show_dialog_comments(Base64.decode(data['html']),'Комментарии по позиции',800)
+	},'json');
+});
+
 $(document).on('click', '#add_comments_of_order', function(event) {
 	var order_num = $(this).attr('data-order_num');
 	$(this).animate({

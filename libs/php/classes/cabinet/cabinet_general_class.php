@@ -369,6 +369,11 @@
 
 			// выводит форму со списоком клиентов для прикрепления к запросу 
 			private function get_a_list_of_clients_to_be_attached_to_the_request_AJAX(){
+				$html = $this->get_form_attach_the_client('attach_client_to_request');
+				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
+			}
+
+			private function get_form_attach_the_client($AJAX = 'test'){
 				global $mysqli;
 				$html ='';
 				if($this->user_access == 1){
@@ -424,7 +429,7 @@
 				    	}else{
 				    		$row .= "<td></td>";
 				    	}			    	
-				    	$i++;
+				    	$i++;$this->i = $i;
 				    }
 				    $row .= '</tr>';
 
@@ -441,7 +446,7 @@
 				$html .= $first_row.$html_row;
 
 				$html .= '</table>';
-				$html .= '<input type="hidden" value="attach_client_to_request" name="AJAX">';
+				$html .= '<input type="hidden" value="'.$AJAX.'" name="AJAX">';
 				// $html .= '<input type="hidden" value="" name="manager_id">';
 				if(isset($_POST)){
 					unset($_POST['AJAX']);
@@ -449,9 +454,10 @@
 						$html .= '<input type="hidden" value="'.$value.'" name="'.$key.'">';	
 					}	
 				}
+
 				
 				$html .= '<form>';
-				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($i>30)?'"height":"600",':'').'"width":"1000"}';
+				return $html;
 			}
 
 
@@ -466,6 +472,11 @@
 					new Client;
 				}
 				private function get_form_the_create_client_AJAX(){
+					include_once ('./libs/php/classes/client_class.php');
+					new Client;
+				}
+
+				private function insert_new_client_for_new_qury_AJAX(){
 					include_once ('./libs/php/classes/client_class.php');
 					new Client;
 				}

@@ -73,7 +73,7 @@
 						// фильтрация по менеджеру
 						if($this->user_access == 5){
 							$query .= " ".(($where)?'AND':'WHERE')." `".CAB_ORDER_ROWS."`.`manager_id` = '".$this->user_id."'";
-							$where = 1;							
+							$where = 1;
 						}
 
 						// фильтрация по заказу
@@ -81,7 +81,6 @@
 							$query .= " ".(($where)?'AND':'WHERE')." ".$this->filtres_order;
 							$where = 1;
 						}
-
 
 
 						switch ($_GET['subsection']) {
@@ -1795,7 +1794,7 @@
 							// // порядковый номер позиции в заказе
 							$html .= '<td><span class="orders_info_punct">'.$this->position['sequence_number'].'п<br>('.$this->Order['number_of_positions'].')</span></td>';
 							// // описание позиции
-							$html .= '<td colspan="2">';
+							$html .= '<td colspan="2" class="get_comments_for_positions" data-id="'.$this->position['id'].'">';
 							
 							// наименование товара
 							$html .= '<span class="art_and_name">'.$this->position['art'].'  '.$this->position['name'].'</span>';

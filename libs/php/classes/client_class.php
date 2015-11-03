@@ -147,6 +147,28 @@ class Client {
 			exit;
 		}					
 	}
+	// прикрепляет клиента к запросу
+	private function attach_client_for_new_query_AJAX(){
+		if(isset($_POST['client_id']) && $_POST['client_id'] == 'new_client'){
+			// начинаем заводить клиента
+			$this->get_form_the_create_client_AJAX('insert_new_client_for_new_qury');
+			exit;
+		}else{
+			// создаём запрос и переадресовываем на старицу запроса
+			if(isset($_POST['client_id'])){
+				include_once ('./libs/php/classes/rt_class.php');
+
+				$data_arr = array();
+				// echo $_SERVER['HTTP_HOST'];
+				$qury_num_NEW = RT::create_new_query((int)$_POST['client_id'], $this->user_id, $data_arr,'in_work');
+				// $qury_num_NEW = 10;
+				$href = '?page=client_folder&client_id='.$_POST['client_id'].'&query_num='.$qury_num_NEW;
+				echo '{"response":"OK","function":"location_href","href":"'.$href.'"}';	
+			}
+			
+			exit;
+		}
+	}
 
 	private function wrap_text_in_warning_message_post($text){
 		$html = '<div class="warning_message"><div>';	
@@ -156,7 +178,7 @@ class Client {
 	}
 
 	// новая форма заведения нового клиента
-	private function get_form_the_create_client_AJAX(){
+	private function get_form_the_create_client_AJAX($AJAX = 'insert_new_client'){
 		$html = '';
 		$html .= '<div id="create_client">';
 		if(isset($_POST['company']) && trim($_POST['company']) == ''){
@@ -169,7 +191,7 @@ class Client {
 					$html .= '<td>Название</td>';
 					$html .= '<td>';
 					$html .= '<input type="text" name="company" placeholder="Название компани" value="'.((isset($_POST['company'])?$_POST['company']:'НОВЫЙ КЛИЕНТ '.$this->check_number_new_clients())).'">';
-					$html .= '<input type="hidden" name="AJAX" value="insert_new_client">';
+					$html .= '<input type="hidden" name="AJAX" value="'.$AJAX.'">';
 					$html .= '</td>';
 				$html .= '</tr>';
 				$html .= '<tr>';
@@ -182,6 +204,9 @@ class Client {
 			$html .= '</table>';
 
 		unset($_POST['AJAX']);
+		unset($_POST['company']);
+		unset($_POST['dop_info']);
+
 		foreach ($_POST as $key => $value) {
 			$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
 		}
@@ -208,14 +233,196 @@ class Client {
 		return ($count+1);
 	}
 
+
+	// кнопка новый запрос из кабинета
+	public function button_new_query_wtidth_cabinet(){
+		$html = '';
+		if($this->user_access == 1){
+			include_once ('./libs/php/classes/rt_class.php');
+
+			$data_arr = array();
+			// echo $_SERVER['HTTP_HOST'];
+			$qury_num_NEW = RT::create_new_query(0, 24, $data_arr);
+			// $qury_num_NEW = 10;
+			$href = '?page=cabinet&section=requests&subsection=query_wait_the_process';
+			echo '{"response":"OK","function":"location_href","href":"'.$href.'"}';
+			exit;
+		}
+		// если мы находимся в клиенте
+		if(isset($_GET['client_id']) && $_GET['client_id'] != ''){
+			include_once ('./libs/php/classes/rt_class.php');
+
+			$data_arr = array();
+			// echo $_SERVER['HTTP_HOST'];
+			$qury_num_NEW = RT::create_new_query((int)$_GET['client_id'], $this->user_id, $data_arr,'in_work');
+			// $qury_num_NEW = 10;
+			$href = '?page=client_folder&client_id='.$_GET['client_id'].'&query_num='.$qury_num_NEW;
+			echo '{"response":"OK","function":"location_href","href":"'.$href.'"}';
+			// header('Location: http://'.$_SERVER['HTTP_HOST'].'/os/'.$href);
+			exit;
+		}else{ // если мы находимся вне клиента
+			$html = $this->get_form_attach_the_client('attach_client_for_new_query');
+			echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
+			exit;
+		}
+		
+	}
+
+	// вывод пришедших данных в новом окне
+	private function chow_post_arr_in_new_window_ajax(){
+		$html = $this->print_arr($_POST);
+		echo '{"response":"show_new_window_simple", "html":"'.base64_encode($html).'","width":"600"}';
+	}
+
+	// protected function attach_client_for_new_query_AJAX(){
+	// в cabinet_class.php		
+	// }
+
+	// форма выбора клиента 
+	private function get_form_attach_the_client($AJAX = 'test'){
+				global $mysqli;
+				$html ='';
+				if($this->user_access == 1){
+					$query = "SELECT * FROM `".CLIENTS_TBL."` ";
+				}else{
+
+					/*
+						2 запроса оказались быстрее, чем один составной !!!!ЫЫЫЫ
+					*/
+					$query = "SELECT `client_id` FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$this->user_id."'";
+					$result = $mysqli->query($query) or die($mysqli->error);				
+					
+					$id_str = "'0'";
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$id_str .= ",'".$row['client_id']."'";
+						}
+					}
+					// echo $query;
+					$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` IN (".$id_str.")";
+				}
+				
+
+				// Запрос с сортировкой почему-то не хочет выводит ь некоторые компании
+				// к примеру не выводит компанию *Морской салон ЗАО  - id = 18
+				// $query = "SELECT * FROM `".CLIENTS_TBL."`  order by company ASC;";
+				$result = $mysqli->query($query) or die($mysqli->error);				
+				$clients = array();
+				$clients[0]['id'] = 'new_client';
+				$clients[0]['company'] = 'НОВЫЙ КЛИЕНТ';
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$clients[] = $row;
+					}
+				}
+
+				$html .= '<form  id="chose_client_tbl">';
+				$html .='<table>';
+
+				$html_row = '';
+				$first_row = ''; 
+				$f_r = 0;
+
+				$count = count($clients);
+				for ($i=0; $i <= $count; $i) {
+					$row = '<tr>';
+				    for ($j=1; $j<=3; $j++) {
+				    	if(isset($clients[$i])){
+					    	$checked = (isset($_POST['client_id']) && $clients[$i]['id'] == $_POST['client_id'])?'class="checked"':'';
+					    	$row .= '<td '.$checked.' data-id="'.$clients[$i]['id'].'" id="client_'.$clients[$i]['id'].'">'.$clients[$i]['company']."</td>";
+				    		// если присутствует выбранный клиент, ставим флаг
+				    		if($checked!=''){$f_r = 1;}	
+				    	}else{
+				    		$row .= "<td></td>";
+				    	}			    	
+				    	$i++;
+				    	$this->i = $i;
+				    }
+				    $row .= '</tr>';
+
+				    // если нам попалась строка с выбранным клиентом, запоминаем её и не добавляем в Html...
+				    // добавим её в начало таблицы позже
+				    if($f_r==1){
+				    	$first_row .= $row; $f_r = 0;
+				    }else{
+				    	$html_row .= $row;
+				    }
+				}
+
+				// помещаем выбранного клиента в начало таблицы
+				$html .= $first_row.$html_row;
+
+				$html .= '</table>';
+				$html .= '<input type="hidden" value="'.$AJAX.'" name="AJAX">';
+				// $html .= '<input type="hidden" value="" name="manager_id">';
+				if(isset($_POST)){
+					unset($_POST['AJAX']);
+					foreach ($_POST as $key => $value) {
+						$html .= '<input type="hidden" value="'.$value.'" name="'.$key.'">';	
+					}	
+				}
+
+				if(!isset($_POST['client_id'])){
+					$html .= '<input type="hidden" value="" name="client_id">';
+				}
+				
+				$html .= '<form>';
+				return $html;
+	}
+
+	// заведение нового клиента при создании запроса
+	private function insert_new_client_for_new_qury_AJAX(){
+		if(!isset($_POST['company']) || trim($_POST['company']) == ''){
+			$this->get_form_the_create_client_AJAX('insert_new_client_for_new_qury');
+			exit;
+		}
+			switch ($this->user_access) {
+				case '1':
+					$message = 'заведение запроса из под админа не предусмотрено
+					т.к. это слишком трудоемкий и долгий процесс
+					до запуска  не актуально
+					вывод кнопки будет отключен для админа';
+					
+					// $message .= $this->print_arr($_POST);
+					// $message = 'Для корректного сохранения данных по оплате, сначало заполните поле "дата"!!!';
+					$json = '{"response":"OK","show_new_window_simple","html":"'.base64_encode($message).'"}';
+					echo $json;
+					exit;
+					break;
+				case '5':
+					// создаём клиента
+					$this->client_id = $this->create_new_client($_POST['company'], $_POST['dop_info']);
+
+					// куратором нового клиента будет менеджер
+					$this->attach_relate_manager($this->client_id,$this->user_id);
+
+
+					// создаем новый запрос
+					include_once ('./libs/php/classes/rt_class.php');
+					$data_arr = array();
+					$qury_num_NEW = RT::create_new_query($this->client_id, $this->user_id, $data_arr,'in_work');
+
+					$href = '?page=client_folder&client_id='.$this->client_id.'&query_num='.$qury_num_NEW;
+					echo '{"response":"OK","function":"location_href","href":"'.$href.'"}';
+					exit;
+					break;
+				default:
+					break;
+			}
+
+		$message = 'в методе insert_new_client_for_new_qury_AJAX() что-то пошло не так ... client_class.php';
+		$json = '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+		echo $json;
+		exit;	
+	}
+
+
+	// заведение нового клиента при присвоении его к существующему запросу
 	private function insert_new_client_AJAX(){
 		if(!isset($_POST['company']) || trim($_POST['company']) == ''){
 			$this->get_form_the_create_client_AJAX();
 			exit;
 		}
-
-		
-
 
 		//если клиент был создан из запроса
 		if(isset($_POST['rt_list_id']) && (int)$_POST['rt_list_id'] > 0){
@@ -227,7 +434,7 @@ class Client {
 					echo '{"response":"show_new_window","title":"Выберите менеджера","html":"'.base64_encode($html).'"}';
 					break;
 				case '5':
-					$this->client_id = $this->create_new_client();
+					$this->client_id = $this->create_new_client($_POST['company'], $_POST['dop_info']);
 
 					// куратором нового клиента будет менеджер
 					// сразу же прикрепляем его
@@ -245,12 +452,12 @@ class Client {
 		}		
 	}
 
-	private function create_new_client(){
+	private function create_new_client($company, $dop_info){
 		global $mysqli;		
 		$query ="INSERT INTO `".CLIENTS_TBL."` SET
 			`set_client_date` = CURRENT_DATE(),
-		    `company` = '".$this->cor_data_for_SQL($_POST['company'])."',
-			`dop_info` = '".$this->cor_data_for_SQL($_POST['dop_info'])."'";					 
+		    `company` = '".$this->cor_data_for_SQL($company)."',
+			`dop_info` = '".$this->cor_data_for_SQL($dop_info)."'";					 
 		$result = $mysqli->query($query) or die($mysqli->error);
 		return $mysqli->insert_id;
 	}
@@ -316,9 +523,9 @@ class Client {
 		// $html .= $this->print_arr(json_decode($_POST['Json_meneger_arr']));
 		
 		// заводим клиента
-		if(!isset($_POST['client_id'])){
+		if(!isset($_POST['client_id']) || isset($_POST['client_id']) && $_POST['client_id'] == 'new_client'){
 			$message = 'Клиент успешно заведён, прикреплённые менеджеры увидят запрос';
-			$this->client_id = $this->create_new_client();
+			$this->client_id = $this->create_new_client($_POST['company'], $_POST['dop_info']);
 		}else{
 			// случай для редактирования списка админом
 			$message = 'Список прикреплённых менеджеров успешно изменён';
@@ -378,7 +585,10 @@ class Client {
 		}		
 		
 		$query .= ",`dop_managers_id` = '".$dop_managers_id."'";
-		$query .= " WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
+
+		
+		$query .= " WHERE `id` = '".(int)$_POST['rt_list_id']."';";		
+				
 
 	// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);

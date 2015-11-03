@@ -94,8 +94,7 @@
 						$this->price_order += $this->price_specificate;
 
 						// строки позиций идут под спецификацией
-						$html .= $positions_rows;
-												
+						$html .= $positions_rows;												
 					}
 
 					// если количество позиций не известно - сохраняем
