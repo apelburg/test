@@ -1,4 +1,86 @@
 <?php
+
+
+if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']==1
+   
+	require_once (ROOT.'/libs/php/classes/planner_class.php');
+
+    $remainder_user_id = $_SESSION['access']['user_id'];
+	
+	Planner::init_warnings($remainder_user_id);
+	
+	
+    if($remainder_user_id == '18'){
+       //Planner::check_who_needs_approval($remainder_user_id);
+	   //echo'<pre>';print_r($_SESSION['warnings']); echo'<pre>';
+	} 
+	//Planner::set_approval_delay(42,583,24235,3600*3);
+	//Planner::set_approval_result(18,$_POST['plan_id'],$result,$_POST['comment']);
+	//Planner::check_who_needs_approval($remainder_user_id);//////
+    //echo'<pre>';print_r($_SESSION['warnings']['warnings']); echo'<pre>';// exit;	
+	if(isset($_POST['ajax_reminder'])){
+
+		if($_POST['ajax_reminder']=="get_alert_planer"){
+		    // print_r($_SESSION['warnings']['warnings']);
+			echo json_encode($_SESSION['warnings']);
+			exit;
+		}
+		
+		if($_POST['ajax_reminder']=="OK"){
+		    // при клике менеджером на кнопку в "OK" окне
+		    
+			Planner::push_OK($_POST['client_id'],$_POST['window_type'],$_POST['event_type']);
+			echo '{"response":"1"}';
+			exit;
+		}
+		if($_POST['ajax_reminder']=="remaind_after"){
+		    // при клике менеджером на кнопку "ОТЛОЖИТЬ"
+      
+			// объединяем black,red,yellow,green в одну группу expired_event чтобы опция отложить действовала на смежные зоны 
+			// при попадании даты в с межную зону
+			Planner::set_delay($remainder_user_id,$_POST['client_id'],$_POST['window_type'],$_POST['event_type'],$_POST['time']);
+			
+			echo '{"response":"1"}';
+			exit;
+		}
+		if($_POST['ajax_reminder']=="approval_remaind_after"){
+		    // при клике контроллером  на кнопку "ОТЛОЖИТЬ"
+     
+			Planner::set_approval_delay($remainder_user_id,$_POST['client_id'],$_POST['plan_id'],$_POST['time']);
+			
+			echo '{"response":"1"}';
+			exit;
+		}
+		if($_POST['ajax_reminder']=="approval_result"){
+		    // отклонить
+			if($_POST['status'] == 'approved') $status = 'done';
+			if($_POST['status'] == 'no_approved') $status = 'rejected';
+			
+			Planner::set_approval_result($remainder_user_id,$_POST['plan_id'],$status,$_POST['comment']);
+			
+			echo '{"response":"1"}';
+			exit;
+		}
+
+		if($_POST['ajax_reminder']=="window_set_minimize"){
+		    // при клике менеджером на кнопку "СВЕРНУТЬ ОКНО"
+			Planner::window_set_minimize($_POST['client_id'],$_POST['window_type'],$_POST['event_type'],$_POST['window_set_minimize']);
+			exit;
+		}
+		if($_POST['ajax_reminder']=="show_help"){
+		    // при клике менеджером на кнопку "?"
+			echo getHelp('warnings.planner.terms');
+			exit;
+		}
+		if($_POST['ajax_reminder']=="session_was_shown"){
+		    // отправляется клиентом когда очередная сессия оповещений была показа первый раз 
+			// яваскрипт отправляет запрос после того как были выгруженны окна оповещений
+			// здесь в любом случае передаем id реального юзера (да же если админом в другом месте используется фейковый id для отладки)
+			Planner::remaind_counter($_SESSION['access']['user_id']);
+			exit;
+		}
+	}
+}
    
     if(isset($_GET['add_data_to_rt_from_basket'])){
 		 include_once ROOT.'/libs/php/classes/rt_class.php';

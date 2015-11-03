@@ -626,7 +626,7 @@
 				$data_arr[$key]['dop_data'][0]['tirage_json'] = $tirage_json;
 				unset($tirage_json);
 				
-				/*
+				 /*
 				// пока нет калькуляторов это не востребованно 
 				
 				
@@ -634,11 +634,11 @@
 				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['glob_type'] = 'print';
 				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['type'] = '';
 				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['quantity'] = $basket_data['quantity'];
-				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['price_in'] = 10;
-				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['price_out'] = 20;
-                */
+				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['price_in'] = 1;
+				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['price_out'] = 10;
+               */
 			}		
-			print_r($data_arr);
+			// print_r($data_arr);
 			// exit;
 			$query_num = RT::create_new_query($client_id,$manager_id_arr[0],$data_arr);
 			
