@@ -27,7 +27,7 @@ echo '<script type="text/javascript" src="libs/js/client_folders.js"></script>' 
 echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP_EOL;
 }
 
-if(isset($_SESSION['access']['user_id'])){
+if(false/*isset($_SESSION['access']['user_id'])*/){
    echo '<script src="'.HOST.'/libs/js/classes/reminder.js"></script>'.PHP_EOL;
    echo '<link href="'.HOST.'/skins/css/reminder.css" rel="stylesheet" type="text/css">'.PHP_EOL;
    echo '<link href="'.HOST.'/libs/js/classes/reminder.css" rel="stylesheet" type="text/css">'.PHP_EOL;
@@ -119,7 +119,7 @@ if(isset($_SESSION['access']['user_id'])){
 </div>
 <!-- Планнер (dialog_window_minimized_container) -->
 <?php 
-if(isset($_SESSION['access']['user_id'])){ echo Planner::$warnings_container; }
+if(false/*isset($_SESSION['access']['user_id'])*/){ echo Planner::$warnings_container; }
 ?> 
 <!-- / Планнер -->  
 <div style="position:absolute;right:0px;bottom:0px;"><a href="#" onclick="alert(error_report);return false;">ошибки</a></div><!---->

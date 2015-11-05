@@ -1275,24 +1275,15 @@ echo $query;
 			return $apl_services.$supplier_services;
 		} 
 		
-		static function distrubuteQuantityOnSizes($row_id,$quantity){
+		static function checkPosAboutSizes($row_id){
 			global $mysqli;  
 			
-			// данный метод распределяет количество устанавливаемое в запросе на размеры позиции если таковые имеются
-			// АЛГОРИТМ
-			// при увеличении количества новое добавляются в в свободные начиная с самой большой
-			// при уменьшении наоборот
-			// если достигнут лимит должно быть дано оповещение что будет товар будет под заказ 
+			// данный метод проверяет если у данной позиции размеры
 		
-			$query="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$row_id."'";
+			$query="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$row_id."' AND (`tirage_json` <> '' AND `tirage_json` <> '{}')";
 			$result = $mysqli->query($query)or die($mysqli->error);
-			if($result->num_rows>0){
-			    $row = $result->fetch_assoc();
-				if($row['tirage_json']==''||$row['tirage_json']=='{}') return false;
-			    $tirage_arr = json_decode($row['tirage_json'],true);
-				print_r($tirage_arr);
-			}
-			// при 0 количестве исходном распреедляется равномерно начиная с самого большого но не более имеющегося и резевр в том числе если убираем то обратно убираем количества из размеров начиная с самого маленького
+			if($result->num_rows>0) return true;
+			else  return false;
 		}
 	
     }
