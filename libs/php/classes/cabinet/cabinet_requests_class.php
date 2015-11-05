@@ -323,15 +323,13 @@
 					$count_button_show_catalog_variants=0;
 
 
-					// если позиций нет - переходим к следующей интерации цикла
-					//if(empty($this->positions_arr[$this->Query['query_num']])){continue;}
+					if($_GET['subsection'] != 'query_worcked_men' && $_GET['subsection'] != 'query_all' && $_GET['subsection'] != 'query_wait_the_process'){
+						// если позиций нет - переходим к следующей интерации цикла
+						if(empty($this->positions_arr[$this->Query['query_num']])){continue;}
+					}
 
+					
 					// если это первая строка нового запроса, выводим строку названий колонок вариантов
-					
-
-					
-					
-				
 					if(isset($this->positions_arr[$this->Query['query_num']])){
 						if($this->query_num != $this->Query['query_num']){
 							$html .= $this->get_header_start_position_list_tr();
