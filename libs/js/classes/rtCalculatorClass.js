@@ -336,14 +336,14 @@ var rtCalculator = {
 		tooltip.style.textAlign = "left";
         tooltip.id = "sizeExistsDisclaimer"+row_id; 
         tooltip.className = "rtDiscountTooltip"; 
-		tooltip.innerHTML = "иди в карточку и меняй там. СЦУКО.<br><span style='color:grey'>строка 243, \"Ближайшие задачи ОС\"  </span>"; 
+		tooltip.innerHTML = "Изделие содержит размерный ряд<br>для изменения тиража<br>пройдите в карточку артикула"; 
 		var pos = rtCalculator.getPos(cur_cell);
-		tooltip.style.top = pos[0] + 2 +"px";
+		tooltip.style.top = pos[0] - 10 +"px";
 		//tooltip.style.left = pos[1] -200 +"px";
 		document.body.appendChild(tooltip);
 		tooltip.style.left = (pos[1] -tooltip.offsetWidth + 5) +"px";
 		
-		var closeDscntTimer = setTimeout(closeSizeExsDisclaimer1,4000); 
+		var closeDscntTimer = setTimeout(closeSizeExsDisclaimer1,6000); 
 		var closeDscntTimer = setTimeout(closeSizeExsDisclaimer2,10000); 
 		function closeSizeExsDisclaimer1(){
 		    if(document.getElementById('sizeExistsDisclaimer'+row_id)) document.getElementById('sizeExistsDisclaimer'+row_id).parentNode.removeChild(document.getElementById('sizeExistsDisclaimer'+row_id));	
