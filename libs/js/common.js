@@ -886,7 +886,7 @@
 			var url = '?page=clients&section=clients_list&generate_manager_list';
 			make_ajax_request(url,call_back);
 			function call_back(response){
-				//alert(response);
+
 				if(response){
 					
 					var arr = response.split('[&]');

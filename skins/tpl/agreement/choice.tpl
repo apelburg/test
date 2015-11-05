@@ -1,4 +1,19 @@
 <script type="text/javascript" src="libs/js/calendar.js"></script>
+<script type="text/javascript">
+    function checkRadioBtns(btn){
+	    console.log($(':radio[name=agreement_id]:checked'));
+		if($(':radio[name=agreement_id]:checked').length>0){
+		   btn.form.submit();
+		}
+		else{
+		  var dialog = $('<div>Вы не выбрали Договор на основании которого будет создана Спецификация</div>');
+		  $(dialog).css({ display: 'none'});
+		  $('body').append(dialog);
+		  $(dialog).dialog({ modal: true, autoOpen: false ,width: 500, buttons: [{ text: "Ok", click: function() {$( this ).dialog( "close" );}}]});
+		  $(dialog).dialog( "open" );
+		}
+	}
+</script>
 <style>
 .main_menu_tbl{ display:none; }
 .calendarLaunchButtonContainer{
@@ -137,7 +152,7 @@
             <div style="float:left" id="setDateFieldPrefix">Выбрано:</div>
             <div style="float:left" id="setDateField"><?php echo date('d.m.Y'); ?></div>
             
-            <div style="float:right"><input class="button" type="submit" value="Далее"></div>
+            <div style="float:right"><input class="button" type="button" onclick="checkRadioBtns(this);"; value="Далее"></div>
             
             
             <div style="clear_div"></div>

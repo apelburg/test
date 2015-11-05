@@ -16,7 +16,7 @@
 	if($dateDataObj->doc_type=='spec' && !$agreement_id)
 	{
 	    $our_firm = fetch_our_certain_firm_data($_GET['our_firm_id']);
-		$our_firm_acting_manegement_face = our_firm_acting_manegement_face($_GET['our_firm_id']);
+		$our_firm_acting_manegement_face = our_firm_acting_manegement_face_new($_GET['signator_id']);
 		
 		$client_firm =  Client::fetch_requisites($_GET['requisit_id']);
 		$client_firm_acting_manegement_face = Client::requisites_acting_manegement_face_details($_GET['requisit_id']);

@@ -1,5 +1,5 @@
 <?php
-// удалить insert_copied_rows_old
+// удалить insert_copied_rows_TO_HOLE_TBL insert_copied_rows_insert_part_TO_HOLE_TBL
     class RT{
 	    //public $val = NULL;
 	    function __construct(){
@@ -164,7 +164,7 @@
 			
 			return 1;
 		}
-		static function insert_copied_rows_insert_part_TO_HOLE_TBL($place_id,$mainCopiedRowId,$query_num,$dop_data /* $place_id - куда вставляем, $pos_id - что будем вставлять */){
+		/*static function insert_copied_rows_insert_part_TO_HOLE_TBL($place_id,$mainCopiedRowId,$query_num,$dop_data / * $place_id - куда вставляем, $pos_id - что будем вставлять * /){
 		    global $mysqli;
 			
 			// echo 'insert_copied_rows_insert_part'."\r\n";
@@ -232,7 +232,7 @@
 			
 			
 	      
-		}
+		}*/
 		static function insert_copied_rows_insert_part($sort_id,$mainCopiedRowId,$query_num,$dop_data /* $sort_id - значение которое мы присвоим полю sort нового ряда, $mainCopiedRowId - что будем вставлять */){
 		    global $mysqli;
 			
@@ -264,7 +264,8 @@
 						// меняем row_id обозначивающий внешний ключ на id вставленного в RT_MAIN_ROWS ряда и присваиваем id пустое значение 
 						$copied_dop_row = $result3->fetch_assoc();
 						$dop_row_id = $copied_dop_row['id'];
-						$copied_dop_row['status_snab']='on_calculation';
+						$copied_dop_row['status_snab']='on_calculation';// устанавливаем флаг в рассчете у менедежера
+						$copied_dop_row['no_cat_json']= mysql_real_escape_string($copied_dop_row['no_cat_json']);
 						$copied_dop_row['id']='';
 						// id родительского ряда равно последнего вставленного ряда
 						$copied_dop_row['row_id']= $row_id;
@@ -292,7 +293,7 @@
 				}	 
 			}
 		}
-		static function insert_copied_rows($query_num,$control_num,$place_id){
+		static function insert_copied_rows($query_num,$place_id){
 			
 			if(empty($_SESSION['rt']['buffer']['copied_rows'])) return '[0,"нет сохраненной информации для вставки"]';
 			
@@ -300,15 +301,14 @@
 			$data = (array)$data;
 			// print_r($data); 
 			// exit;
-			$shift_counter = 0;
 		    foreach ($data as $mainCopiedRowId => $dop_data) {
 			    // если у нас есть место в которое мы хотим вставить скопированные ряды
 			    if($place_id){
 				    // echo 'mainCopiedRowId-'.$mainCopiedRowId."\r\n";
-					// первым шагом "опускаем" ряды, которые находятся на том и ниже местах куда хотим вставить скопированные ряды
-					// тоесть увеличиваем sort на 1 (sort+1) в рамках данной заявки там где id равно или больше $place_id
-					// функция возвращает новый sort_id который был у ряда в который мы хотим вставить, чтобы затем присвоить его
-					// новому ряду
+					// первым шагом "опускаем" сортировку рядов, которые находятся на том и ниже местах куда хотим вставить
+					// скопированные ряды тоесть увеличиваем sort на 1 (sort+1) в рамках данной заявки там где id равно или больше 
+					// $place_id функция возвращает новый sort_id который был у ряда в который мы хотим вставить, чтобы затем 
+					// присвоить его новому ряду
 					$sort_id = RT::change_rows_sort((int)$place_id,$query_num);
 				}
 				else{
@@ -355,7 +355,7 @@
 			return $sort_id++;
 			
 		}
-		static function insert_copied_rows_TO_HOLE_TBL($query_num,$control_num,$place_id){
+		/*static function insert_copied_rows_TO_HOLE_TBL($query_num,$control_num,$place_id){
 			
 			if(empty($_SESSION['rt']['buffer']['copied_rows'])) return '[0,"нет сохраненной информации для вставки"]';
 			
@@ -386,7 +386,7 @@
 				RT::insert_copied_rows_insert_part((int)$place_id,(int)$mainCopiedRowId,$query_num,$dop_data);
 			}
 			return '[1]';
-		}
+		}*/
 		static function delete_rows($data){
 			
 			global $mysqli;
@@ -457,81 +457,7 @@
 			}
 			return '[1]';
 		}
-		
-		static function insert_copied_rows_old($query_num,$control_num,$pos_id){
-		    global $mysqli;   //print_r($data); 
-         
-            if(empty($_SESSION['rt']['buffer']['copied_rows'])) return "[0]";
-			
-			if(($data = json_decode($_SESSION['rt']['buffer']['copied_rows']))==NULL) return "[0]";
-			
-			print_r($data); 
-			exit;
-			
-			// копируем выбранные ряды в таблицы
-			foreach ($data as $key => $dop_data) {
-			    //echo $key;
-				// выбираем данные из таблицы RT_MAIN_ROWS
-				$query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$key."'";
-				$result = $mysqli->query($query)or die($mysqli->error);
-				if($result->num_rows>0){
-				    // сохраняем полученный вывод в массив и производим корректировку данных:
-					// меняем номер запроса на текущий и присваиваем id пустое значение 
-				    $copied_data = $result->fetch_assoc();
-					$copied_data['query_num']=$query_num;
-				    $copied_data['id']='';
-				    $query="INSERT INTO `".RT_MAIN_ROWS."` VALUES ('".implode("','",$copied_data)."')"; 
-				    //echo $query;
-				    $mysqli->query($query)or die($mysqli->error);
-				    $row_id = $mysqli->insert_id;
-					
-				    foreach ($dop_data as $dop_key => $dop_value){
-					    //echo  $dop_key;
-						// выбираем данные из таблицы RT_DOP_DATA
-						$query="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_key."'";
-				        $result = $mysqli->query($query)or die($mysqli->error);
-						if($result->num_rows>0){
-						    // сохраняем полученный вывод в массив и производим корректировку данных:
-					        // меняем row_id обозначивающий внешний ключ на id вставленного в RT_MAIN_ROWS ряда и присваиваем id пустое значение 
-				            $copied_data = $result->fetch_assoc();
-							$dop_row_id = $copied_data['id'];
-							$copied_data['id']='';
-							$copied_data['row_id']= $row_id;
-							$query="INSERT INTO `".RT_DOP_DATA."` VALUES ('".implode("','",$copied_data)."')"; 
-							//echo $query;
-							$mysqli->query($query)or die($mysqli->error);
-							$new_dop_row_id = $mysqli->insert_id;
-							
-							// выбираем данные из таблицы RT_DOP_USLUGI
-							$query="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_row_id."'";
-							$result = $mysqli->query($query)or die($mysqli->error);
-							if($result->num_rows>0){
-							    while($copied_data = $result->fetch_assoc()){
-									// сохраняем полученный вывод в массив и производим корректировку данных:
-									// меняем dop_row_id обозначивающий внешний ключ на id вставленного в RT_DOP_DATA ряда и
-									$copied_data['id']='';
-									$copied_data['dop_row_id']= $new_dop_row_id;
-									$query="INSERT INTO `".RT_DOP_USLUGI."` VALUES ('".implode("','",$copied_data)."')"; 
-									//echo $query;
-									$mysqli->query($query)or die($mysqli->error);
-								}
-								
-							}
-							
-						}
-					}
-				}
-				
-				
-				
-			}
-			//$query="UPDATE `".RT_MAIN_ROWS."` SET  `master_btn` = '".$data_obj->status."'  WHERE `id` IN('".str_replace(";","','",$data_obj->ids)."')";
-			//echo $query;
-			//$result = $mysqli->query($query)or die($mysqli->error);
-			
-			return "[1,".$_SESSION['rt']['buffer']['copied_rows']."]";
-			
-		}
+
 		static function set_masterBtn_status($data_obj){
 		    global $mysqli;   //print_r($data); 
 			$query="UPDATE `".RT_MAIN_ROWS."` SET  `master_btn` = '".$data_obj->status."'  WHERE `id` IN('".str_replace(";","','",$data_obj->ids)."')";
@@ -652,9 +578,13 @@
 			}		
 			// print_r($data_arr);
 			// exit;
-			$query_num = RT::create_new_query($client_id,$manager_id_arr[0],$data_arr);
+			$query_num = RT::create_new_query($client_id,$manager_id_arr,$data_arr);
 			
-
+			// echo '<pre>';
+			// print_r($manager_id_arr);
+			// echo '</pre>';
+			// exit('654');
+			
 
 			/**
 			 *	сохраняем данные введённые в форму 
@@ -684,10 +614,75 @@
             }
 		}
 		
-		
-		
-		static function create_new_query($client_id,$manager_id,$data_arr,$query_status = 'new_query'){
+		// запрашивает из базы допуски пользователя
+		// необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
+		static function get_user_access_Database_Int($id){
 			global $mysqli;
+			$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
+			$result = $mysqli->query($query) or die($mysqli->error);				
+			$int = 0;
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$int = (int)$row['access'];
+				}
+			}
+			//echo $query;
+			return $int;
+		}
+
+		// создание запроса
+		static function create_new_query($client_id,$manager_arr,$data_arr,$query_status = 'new_query'){
+			global $mysqli;
+		
+
+			$dop_managers_id = '';
+			// если передан массив
+
+			if(is_array($manager_arr)){		
+
+				if(empty($manager_arr)){
+					// если массив менеджеров пуст
+					$manager_id = 0;
+					$query_status = 'new_query';
+				}else{
+
+					if(count($manager_arr) > 1){
+						// echo 'Hellow world';
+						if(!isset($_SESSION['access']['user_id'])){exit('Не известный юзер!!!');}
+
+						$real_user_acces = self::get_user_access_Database_Int($_SESSION['access']['user_id']);
+						if ($real_user_acces == 1
+							|| isset($_SESSION['access']['user_id']) && !in_array($_SESSION['access']['user_id'], $manager_arr)){
+							// если данный пользователь не найден среди кураторов данного клиента
+							// И
+							// если кураторов несколько
+							$dop_managers_id = implode(',', $manager_arr);
+							$manager_id = 0;
+							$query_status = 'not_process';	
+						}else if (isset($_SESSION['access']['user_id']) && in_array($_SESSION['access']['user_id'], $manager_arr)) {
+							// если данный пользователь является куратором клиента
+							$manager_id = $_SESSION['access']['user_id'];
+							$query_status = 'in_work';	
+						}
+		
+					}else{
+						// если куратор 1
+						$manager_id = $manager_arr[0];
+						$query_status = 'not_process';
+					}
+				}	
+			}else{ 
+				$manager_id = $manager_arr;
+			}
+
+			/*
+				статус - ссылка на вкладку
+				new_query   - ?page=cabinet&section=requests&subsection=query_wait_the_process
+				not_process - ?page=cabinet&section=requests&subsection=no_worcked_men
+				in_work     - ?page=cabinet&section=requests&subsection=query_worcked_men
+
+
+			*/
 			
 			// ЗАДАЧА:
 			// НА ОСНОВЕ ПОЛУЧЕННЫХ ДАННЫХ СОЗДАТЬ НОВЫЙ ЗАПРОС
@@ -742,8 +737,10 @@
 												`client_id` = '$client_id',
 												`manager_id` = '$manager_id',
 												`query_num` = '".$query_num."', 
+												`dop_managers_id` = '".$dop_managers_id."',
 												`status` = '".$query_status."'";
-			//echo  "\r\n".$query;									
+			// echo  "\r\n".$query;	
+			// exit;								
 			$result = $mysqli->query($query) or die($mysqli->error);
 			
 			

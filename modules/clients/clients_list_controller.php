@@ -5,8 +5,8 @@
     ////////////////////////////////  AJAX   ////////////////////////////////////
     if(isset($_GET['generate_manager_list'])){
 	    $arr = get_managers_list();
-		foreach($arr as $manager) if(trim($manager['name']) != '') $managers[] = $manager['id'].'[,]'.$manager['name'];
-	    //print_r($arr); 
+		foreach($arr as $manager) if(trim($manager['name']) != '' && ($manager['access']==1 || $manager['access']==5)) $managers[] = $manager['id'].'[,]'.$manager['name'].' '.$manager['last_name'];
+	    ////print_r($arr); 
 		echo implode('[&]',$managers);
 		exit;
 	}

@@ -159,6 +159,10 @@
 		 case 'short_description':
 		 include 'short_description_controller.php';
 		 break;
+		  
+		 case 'signator_choosing':
+		 include 'signator_choosing_controller.php';
+		 break;
 		 
 		 case 'delete_agreement':
 		 include 'delete_agreement_controller.php';

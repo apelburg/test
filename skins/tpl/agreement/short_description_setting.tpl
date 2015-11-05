@@ -8,8 +8,8 @@
         <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <input type="hidden" name="address" value="<?php echo $_GET['address']; ?>">
         <input type="hidden" name="prepayment" value="<?php echo $_GET['prepayment']; ?>">
-        <input type="hidden" name="section" value="<?php echo $section; ?>">
         <input type="hidden" name="dateDataObj" value="<?php echo htmlspecialchars($_GET['dateDataObj']); ?>">
+        <input type="hidden" name="section" value="signator_choosing">
         <?php if(isset($_GET['agreement_type'])) echo '<input type="hidden" name="agreement_type" value="'.$_GET['agreement_type'].'">'; ?>
         <?php if(isset($_GET['date'])) echo '<input type="hidden" name="date" value="'.$_GET['date'].'">'; ?>
         <?php if(isset($_GET['requisit_id'])) echo '<input type="hidden" name="requisit_id" value="'.$_GET['requisit_id'].'">'; ?>

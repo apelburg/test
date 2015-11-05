@@ -860,7 +860,7 @@ if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']=
 		$query = "SELECT*FROM `".MANAGERS_TBL."`";
 	    $result = mysql_query($query,$db);
 		if(mysql_num_rows($result)>0) while($item = mysql_fetch_assoc($result)){
-		     $manager_arr[] = array('id' => $item['id'],'name' => $item['name'],'last_name' => $item['last_name'],'email_2' => $item['email_2']);
+		     $manager_arr[] = array('id' => $item['id'],'access' => $item['access'],'name' => $item['name'],'last_name' => $item['last_name'],'email_2' => $item['email_2']);
 		}
 		else $manager_arr[] = 'none';
 		return $manager_arr;
@@ -2262,6 +2262,16 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		if(!$result) echo(mysql_error());
 		if(mysql_num_rows($result)>0){
 		    return array('position' => mysql_result($result,0,'position'),'position_in_padeg' => mysql_result($result,0,'position_in_padeg'),'name' => mysql_result($result,0,'name'),'name_in_padeg' => mysql_result($result,0,'name_in_padeg'),'basic_doc' => mysql_result($result,0,'basic_doc'));
+		}
+	}
+	
+	function our_firm_acting_manegement_face_new($id){
+	    global $mysqli;
+		$query = "SELECT*FROM `".OUR_FIRMS_MANAGEMENT_TBL."` WHERE `id` = '".$id."'";
+	    $result = $mysqli->query($query)or die($mysqli->error);
+		if($result->num_rows>0){
+		    $row=$result->fetch_assoc();
+		    return array('position' => $row['position'], 'position_in_padeg' => $row['position_in_padeg'], 'name' => $row['name'],'name_in_padeg' => $row['name_in_padeg'], 'basic_doc' => $row['basic_doc']);
 		}
 	}
 	

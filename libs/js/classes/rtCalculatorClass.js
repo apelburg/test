@@ -147,10 +147,10 @@ var rtCalculator = {
 						if(type=='out_summ'){
 							this.tbl_model[row_id].dop_data.expel.main=expel;
 						}
-						else if(type=='print_out_summ'){
+						else if(type=='print_out_summ' || type=='print_in_summ'){
 							this.tbl_model[row_id].dop_data.expel.print=expel;
 						}
-						else if(type=='dop_uslugi_out_summ'){
+						else if(type=='dop_uslugi_out_summ' || type=='dop_uslugi_in_summ'){
 							this.tbl_model[row_id].dop_data.expel.dop=expel;
 						}
 						
@@ -185,8 +185,8 @@ var rtCalculator = {
 				var tds_arr = trs_arr[i].getElementsByTagName('td');
 				for(var j in tds_arr){
 					if(tds_arr[j].nodeName == 'TD'){
-				        if(i == 0 && tds_arr[j].getAttribute('connected_vals')){// взаимно переключаемые ряды (ед/тираж, вход/выход)
-						   tds_arr[j].onclick = this.relay_connected_cols;
+				        if(i == 0 && tds_arr[j].getAttribute('swiched_cols')){// swiched_cols взаимно переключаемые ряды (ед/тираж, вход/выход)
+						   tds_arr[j].onclick = this.swich_cols;
 					    }
 					}
 			    }	
@@ -743,6 +743,8 @@ var rtCalculator = {
 				if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type];
 				else if(type=='print_exists_flag') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]; 
 				else if(connected_vals=='print' || connected_vals=='uslugi') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'р'; 
+				else if(type=='margin') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'%'; 
+				else if(type=='discount') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]+'%';
 				else tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
 			    /*if(tds_arr[j].getAttribute('type') == 'in_summ') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id]['in_summ'];*/
 			}
@@ -795,17 +797,23 @@ var rtCalculator = {
 		
 		// при отключении или включении ячеек НАНЕСЕНИЯ и ДОП УСЛУГ необходимо произвести перерасчет внутри ряда
 		// если откючается весь ряд этого делать не нужно
-		if(type=='print_out_summ' || type=='dop_uslugi_out_summ'){
+		if(type=='print_out_summ' || type=='print_in_summ' || type=='dop_uslugi_out_summ' || type=='dop_uslugi_in_summ'){
 		    // получаем значения входящей и исходящей суммы по данному типу ячейки
-		    var cur_out_summ = parseFloat(cell.innerHTML);
+		    if(type=='print_out_summ' || type=='dop_uslugi_out_summ') var cur_out_summ = parseFloat(cell.innerHTML);
+			if(type=='print_in_summ'  || type=='dop_uslugi_in_summ') var cur_in_summ = parseFloat(cell.innerHTML);
 			// соседняя ячейка
-			var sibling_cell = cell.previousSibling;
+			if(type=='print_out_summ' || type=='dop_uslugi_out_summ') var sibling_cell = cell.previousSibling;
+			if(type=='print_in_summ'  || type=='dop_uslugi_in_summ') var sibling_cell = cell.nextSibling;
+			
 			while(sibling_cell != null){
 				if(sibling_cell.nodeName == 'TD'){
-					 var cur_in_summ  = parseFloat(sibling_cell.innerHTML);
+					 if(type=='print_out_summ' || type=='dop_uslugi_out_summ')  var cur_in_summ  = parseFloat(sibling_cell.innerHTML);
+			         if(type=='print_in_summ'  || type=='dop_uslugi_in_summ')  var cur_out_summ  = parseFloat(sibling_cell.innerHTML);
 					 break;
 				}
-				sibling_cell = sibling_cell.previousSibling;
+				if(type=='print_out_summ' || type=='dop_uslugi_out_summ') sibling_cell = sibling_cell.previousSibling;
+			    if(type=='print_in_summ'  || type=='dop_uslugi_in_summ') sibling_cell = sibling_cell.nextSibling;
+				
 			}
 
 			// получаем значения входящей и исходящей суммы по данному типу ячейки
@@ -823,9 +831,9 @@ var rtCalculator = {
 		}
 		
 		// изменяем значение status в JS модели таблицы - rtCalculator.tbl_model
-		if(type =='out_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] = status;
-		else if(type =='print_out_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] = status;
-		else if(type =='dop_uslugi_out_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop'] = status;
+		if(type =='out_summ' || type=='in_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] = status;
+		else if(type =='print_out_summ' || type=='print_in_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] = status;
+		else if(type =='dop_uslugi_out_summ' || type=='dop_uslugi_in_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop'] = status;
 		
 		// меняем значение status в HTML
 		cell.setAttribute('expel',Number(status));
@@ -1189,13 +1197,13 @@ var rtCalculator = {
 	    
 	}
 	,
-	relay_connected_cols:function(e){ 
+	swich_cols:function(e){ 
 	   
 	    e = e|| window.event;
 		var cell = e.target || e.srcElement;
 		if(cell.nodeName=='SPAN') cell = cell.parentNode;
 		
-		var value =  cell.getAttribute("connected_vals");
+		var value =  cell.getAttribute("swiched_cols");
 
 		var tds_arr = rtCalculator.head_tbl.getElementsByTagName('td');
 		relay(tds_arr,value);
@@ -1204,8 +1212,7 @@ var rtCalculator = {
 		function relay(tds_arr,value){
 			for(var j in tds_arr){
 				if(tds_arr[j].getAttribute){
-					if(tds_arr[j].getAttribute('connected_vals') && tds_arr[j].getAttribute('connected_vals')==value){
-						//// console.log(value+" "+tds_arr[j].getAttribute('connected_vals'));
+					if(tds_arr[j].getAttribute('swiched_cols') && tds_arr[j].getAttribute('swiched_cols')==value){
 						var stat = parseInt(tds_arr[j].getAttribute("c_stat"));
 						var new_stat = (stat+1)%2;
 						tds_arr[j].setAttribute("c_stat",new_stat);
@@ -1425,11 +1432,11 @@ var rtCalculator = {
 		// 3. Получаем ответ об успешном действии
 		// 4. Вносим изменения в HTML
 
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('insert_copied_rows=1&control_num='+control_num+'&query_num='+query_num+((typeof place_id != 'undefined')?'&place_id='+place_id:''));
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('insert_copied_rows=1&query_num='+query_num+((typeof place_id != 'undefined')?'&place_id='+place_id:''));
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ 
-		    /*alert(response);
-		    console.log(response); //  
+		  /* alert(response);
+		     console.log(response); //  
 			 alert(response); */
 
             close_processing_timer(); 
