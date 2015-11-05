@@ -135,7 +135,7 @@
 	}
 	if(isset($_GET['insert_copied_rows'])){
 	     $place_id = (isset($_GET['place_id']))? $_GET['place_id']: FALSE;
-		 echo RT::insert_copied_rows($_GET['query_num'],$_GET['control_num'],$place_id);
+		 echo RT::insert_copied_rows($_GET['query_num'],$place_id);
 		 exit;
 	}
 	if(isset($_GET['deleting'])){

@@ -1425,11 +1425,11 @@ var rtCalculator = {
 		// 3. Получаем ответ об успешном действии
 		// 4. Вносим изменения в HTML
 
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('insert_copied_rows=1&control_num='+control_num+'&query_num='+query_num+((typeof place_id != 'undefined')?'&place_id='+place_id:''));
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('insert_copied_rows=1&query_num='+query_num+((typeof place_id != 'undefined')?'&place_id='+place_id:''));
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ 
-		    /*alert(response);
-		    console.log(response); //  
+		    alert(response);
+		   /* console.log(response); //  
 			 alert(response); */
 
             close_processing_timer(); 
@@ -1442,7 +1442,7 @@ var rtCalculator = {
 				alert(data[1]);
 				return;
 			}/**/
-			location.reload();
+			//location.reload();
 		}
 	}
 	,
