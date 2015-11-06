@@ -495,7 +495,36 @@
 			
 			RT::add_data_from_basket($client_id,$manager_id_arr);
 			
-			$out_put = array(0  , $client_id);
+			$query_status = 'new_query';
+			if(is_array($manager_id_arr)){
+				if(!empty($manager_id_arr)){
+					if(count($manager_id_arr) > 1){
+						// echo 'Hellow world';
+						if(!isset($_SESSION['access']['user_id'])){exit('Не известный юзер!!!');}
+
+						$real_user_acces = self::get_user_access_Database_Int($_SESSION['access']['user_id']);
+						if ($real_user_acces == 1
+							|| !in_array($_SESSION['access']['user_id'], $manager_id_arr)){
+							// если данный пользователь не найден среди кураторов данного клиента
+							// или это админ
+							$query_status = 'not_process';	
+						}else if (isset($_SESSION['access']['user_id']) && in_array($_SESSION['access']['user_id'], $manager_id_arr)) {
+							// если данный пользователь является куратором клиента
+							$query_status = 'in_work';	
+						}
+						
+					}else{
+						$query_status = 'not_process';
+					}
+				}	
+			}
+
+			$array_request['new_query'] = 'query_wait_the_process';
+			$array_request['not_process'] = 'no_worcked_men';
+			$array_request['in_work'] = 'query_worcked_men';
+
+
+			$out_put = array(0  , $client_id, $array_request[$query_status] );
 			return json_encode($out_put);
 		
 		}
@@ -674,6 +703,9 @@
 			}else{ 
 				$manager_id = $manager_arr;
 			}
+
+
+			
 
 			/*
 				статус - ссылка на вкладку

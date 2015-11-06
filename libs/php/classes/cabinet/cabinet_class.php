@@ -5651,7 +5651,7 @@
 		    		$String .= '<div class="managers_id_str" style="display:none">'.$Query['dop_managers_id'].'</div>'; 
 		    		// $String = '<div class="dop_grey_small_info">'.$this->print_arr($Query);
 		    	}else{
-		    		$String = '<div class="dop_grey_small_info">';	
+		    		$String = '<div class="dop_grey_small_info attach_the_manager_any_black">';	
 		    	}
 		    	
 		    		
