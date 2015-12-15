@@ -133,6 +133,7 @@
 		############################################
 		###		        AJAX START               ###
 		############################################
+			// взять в работу
 			protected function get_in_work_AJAX(){
 				global $mysqli;
 				/*
@@ -154,14 +155,45 @@
 					exit;
 				}
 				*/
+
 				// прикрепить клиента и менеджера к запросу	
+				
 				$query ="UPDATE  `".RT_LIST."` SET `status`='in_work',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['row_id']."';";	
 				$result = $mysqli->query($query) or die($mysqli->error);	
 				echo '{"response":"OK","function":"reload_order_tbl"}';
+				
+				// $html = $this->print_arr($_SESSION);
+				// echo '{"response":"show_new_window","html":"'.base64_encode($html).'"}';
 			}
 
+
+			// взять в обработку
 			protected function take_in_operation_AJAX(){
 				global $mysqli;
+
+				// проверяем на уже прикреплённых менов к запросу
+				$query =  " SELECT * FROM `".RT_LIST."`";
+				$query .= " WHERE `id` = '".(int)$_POST['rt_list_id']."'";
+				$this->Query = array();
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);		
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$this->Query = $row;
+					}
+				}
+
+
+				if($this->Query['manager_id'] != 0 && $this->Query['manager_id'] != $this->user_id){
+					// получаем имя прикреплённого менеджера
+					$men_arr = $this->get_manager_name_Database_Array($this->Query['manager_id']);
+
+					// Lfyysq pfgh
+					$message = "Извините, но данный запрос уже обрабатывает менеджер (".$men_arr['name']." ".$men_arr['last_name'].")";
+					echo '{"response":"OK","function2":"reload_order_tbl","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+					exit;
+				}
+
 				// прикрепить клиента и менеджера к запросу	
 				$query ="UPDATE  `".RT_LIST."` SET `status`='taken_into_operation',  `time_taken_into_operation` = NOW(), `manager_id` = '".$this->user_id."' WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 				$result = $mysqli->query($query) or die($mysqli->error);	
