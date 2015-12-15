@@ -298,7 +298,13 @@ body {
 
 .size_card{ width: 30%; min-width: 300px}
 
-.variant_info table tr.variant_calc_itogo td{ background-color:#CBDFA7;}
+.variant_info table tr.variant_calc_itogo td{ 
+  background-color: #F3F3F3;
+  font-weight: normal;
+  text-align: right;
+  color: #5a5c61;
+  font-size: 10px;
+}
 .variant_info table tr.variant_calc_itogo td:nth-of-type(1){ font-weight: bold}
 
 .variant_info table tr td{ padding: 5px}
@@ -326,6 +332,9 @@ body {
   height: 30px;
   background-position: 0px 2px;
   border: 1px solid #fff;
+}
+.tirage_and_price_for_all.for_all{
+  display: none;
 }
 .tz_text_see{
   background: url('../images/img_design/tz_text_edit.png') no-repeat; 
@@ -374,7 +383,7 @@ body {
 .variant_info .size_card table tr td:nth-of-type(5) input[type="text"]{ width: 20px; padding: 3px 2px}
 
 .variant_info{width: 100%}
-.variant_info .cell{ vertical-align: baseline; padding: 5px 10px 5px 0}
+.variant_info .cell{ vertical-align: top; padding: 5px 10px 5px 0}
 .variant_info table{width:100%; border:none;border-collapse: collapse}
 .variant_info table tr th{ background-color: #F3F3F3;  font-weight: normal; text-align: right;color: #5a5c61;
   font-size: 10px; }

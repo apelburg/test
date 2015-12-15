@@ -117,7 +117,7 @@
 								<td>
 									<ul id="all_variants_menu">
 										<!-- вставка кнопок вариантов -->
-										<?php echo $POSITION_GEN->POSITION_CATALOG->generate_variants_menu($variants_arr); ?>
+										<?php echo $POSITION->Variants->generate_variants_menu($variants_arr); ?>
 									</ul>
 								</td>
 								<td>

@@ -83,19 +83,22 @@ $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', functio
 
 	var id,dop_row_id,quantity;
 	// для каталожной и некаталожной карточки продукции основные данные ищем по разному
-	if($('#dialog_gen_window_form form input[name="type_product"]').val() != 'cat'){
+	// if($('#dialog_gen_window_form form input[name="type_product"]').val() != 'cat'){
 		id = $(this).attr('data-id');
-		dop_row_id = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked').attr('data-id');
+		dop_row_id = $('.variant_content_block:visible').attr('data-id')
+		// dop_row_id = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked').attr('data-id');
 		// получим тираж
-		quantity = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked td:nth-of-type(3) span').html();
-	}else{
-		var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
-		id = $(this).attr('data-id');
-		//console.log($(id_variant).attr('data-id'));
-		dop_row_id = $('#variants_name .variant_name.checked ').attr('data-id');
+		quantity = $('.variant_content_block:visible .tirage_var').val();
+		
+		// quantity = $('#'+$('#all_variants_menu_pol .variant_name.checked').attr('data-cont_id')+' table tr.checked td:nth-of-type(3) span').html();
+	// }else{
+		// var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+		// id = $(this).attr('data-id');
+		// console.log($(id_variant).attr('data-id'));
+		// dop_row_id = $('#variants_name .variant_name.checked ').attr('data-id');
 		// получим тираж
-		quantity = $(id_variant+' .tirage_var').val();
-	}
+		// quantity = $(id_variant+' .tirage_var').val();
+	// }
 
 	// console.log(quantity);
 	$('#dialog_gen_window_form form input[name="quantity"]').val(quantity);

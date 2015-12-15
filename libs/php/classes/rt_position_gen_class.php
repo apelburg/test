@@ -49,19 +49,6 @@ class Position_general_Class{
 		}
 	}
 
-	private function get_user_access_Database_Int($id){
-		global $mysqli;
-		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);				
-		$int = 0;
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$int = (int)$row['access'];
-			}
-		}
-		//echo $query;
-		return $int;
-	}
 
 	# В данном классе расположены обработчики AJAX ОБЩИЕ для всей продукции !!!
 	/////////////////  AJAX START ///////////////// 
@@ -128,7 +115,9 @@ class Position_general_Class{
 		if(empty($usluga)){return 'такой услуги не существует';}
 
 
-
+		if(!isset($this->POSITION_NO_CATALOG)){
+			$this->POSITION_NO_CATALOG = new Position_no_catalog($this->user_access);
+		}
 
 
 		// получаем флаг если этой услуги ещё нет и придётся формировать имя группы услуг
@@ -197,7 +186,6 @@ class Position_general_Class{
 	}
 
 	protected function get_uslugi_list_Database_Html_AJAX(){
-		global $type_product;
 		// получение формы выбора услуги
 		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
 			$html = '<form>';
@@ -207,7 +195,7 @@ class Position_general_Class{
 			$html .= '<input type="hidden" name="id_uslugi" value="">';
 			$html .= '<input type="hidden" name="dop_row_id" value="'.(isset($_POST['dop_row_id'])?$_POST['dop_row_id']:'').'">';
 			$html .= '<input type="hidden" name="quantity" value="'.(isset($_POST['quantity'])?$_POST['quantity']:'').'">';
-			$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
+			$html .= '<input type="hidden" name="type_product" value="'.(isset($_POST['type_product'])?$_POST['type_product']:'').'">';
 			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
 			$html .= '</form>';
 			
@@ -268,6 +256,22 @@ class Position_general_Class{
 			}
 		}
 		return $apl_services.$supplier_services;
+	}
+
+	// запрашивает из базы допуски пользователя
+	// необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
+	protected function get_user_access_Database_Int($id){
+		global $mysqli;
+		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$int = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$int = (int)$row['access'];
+			}
+		}
+		//echo $query;
+		return $int;
 	}
 
 	// отдаёт $html распечатанного массива

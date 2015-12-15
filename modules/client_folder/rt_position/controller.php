@@ -24,6 +24,10 @@
 	$arr_for_type = $POSITION->Variants->get_variants_arr_sort_for_type($variants_arr);
 
 	$ch = 0;
+	// echo '<pre>';
+	// print_r($variants_arr);
+	// echo '</pre>';
+		
 	foreach ($variants_arr as $key => $variant) {
 		// по умолчанию блоки скрыты
 		$display_this_block = ' style="display:none"';
@@ -37,31 +41,40 @@
 			$show_archive_class ='';
 		}
 
-		///////// ВАРИАНТЫ СВЕТОФОР  ///////
-		switch ( $variant['row_status'] ) {
-			case 'sgreen':// 
-				if($ch < 1){
-					$display_this_block=' style="display:block"';$ch++;
-				}	
-				break;	
+		// если вариант выбран по ссылке через GET параметр
+		if(isset($_GET['varID_checked']) && $_GET['varID_checked'] > 0){
+			if($_GET['varID_checked'] == $variant['id']){
+				$display_this_block =' style="display:block"';$ch++;	
+			}		
+		}else{
+			///////// ВАРИАНТЫ СВЕТОФОР  ///////
+			switch ( $variant['row_status'] ) {
+				case 'sgreen':// 
+					if($ch < 1){
+						$display_this_block=' style="display:block"';$ch++;
+					}	
+					break;	
 
-			case 'green':// не история - рабочий вариант расчёта
-				// может входить в КП
-				if($ch < 1 && @count($arr_for_type['sgreen']) == 0){$display_this_block=' style="display:block"';$ch++;}				
-				break;	
-			
-			case 'grey':// не история - вариант расчёта не учитывается в РТ
-				// серый вариант расчёта не входит в КП	
-				if ($ch == 0 && @count($arr_for_type['green']) == 0 && @count($arr_for_type['sgreen']) == 0){
-					$display_this_block=' style="display:block"';$ch++;
-				}
-				break;						
-			
-			default: // вариант расчёта red (архив), остальное не важно
-				if ($ch == 0 && @count($arr_for_type['green']) == 0 && @count($arr_for_type['sgreen']) == 0 && @count($arr_for_type['grey']) == 0){
-					$display_this_block =' style="display:block"';$ch++;
-				}
-				break;
+				case 'green':// не история - рабочий вариант расчёта
+					// может входить в КП
+					if($ch < 1 && @count($arr_for_type['sgreen']) == 0){
+						$display_this_block=' style="display:block"';$ch++;
+					}				
+					break;	
+				
+				case 'grey':// не история - вариант расчёта не учитывается в РТ
+					// серый вариант расчёта не входит в КП	
+					if ($ch == 0 && @count($arr_for_type['green']) == 0 && @count($arr_for_type['sgreen']) == 0){
+						$display_this_block=' style="display:block"';$ch++;
+					}
+					break;						
+				
+				default: // вариант расчёта red (архив), остальное не важно
+					if ($ch == 0 && @count($arr_for_type['green']) == 0 && @count($arr_for_type['sgreen']) == 0 && @count($arr_for_type['grey']) == 0){
+						$display_this_block =' style="display:block"';$ch++;
+					}
+					break;
+			}
 		}
 		
 		// размерная таблица
@@ -100,8 +113,11 @@
 				break;
 		}
 		
-		include 'skins/tpl/client_folder/rt_position/variants_template.tpl';
+		// include 'skins/tpl/client_folder/rt_position/variants_template.tpl';
+		include 'skins/tpl/client_folder/rt_position/calculate_tbl.tpl';
 	}
+
+
 
 
 
