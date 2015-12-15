@@ -17,6 +17,7 @@
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
 			window_preload_del();
 		}
+
 		if(data['function'] !== undefined){ // вызов функции... если требуется
 			window[data['function']](data);
 			window_preload_del();
@@ -35,6 +36,7 @@
 		if(data['response'] != "OK"){ // вывод при ошибке
 			console.log(data);
 		}
+		
 		if(data['error']  !== undefined){ // на случай предусмотренной ошибки из PHP
 			alert(data['error']);
 		}
@@ -67,22 +69,20 @@
 			    text: 'OK',
 			    click: function() {
 			    	var serialize = $('#dialog_gen_window_form form').serialize();
-			    	
+			    	var obj = $(this);
 			    	$('#general_form_for_create_product .pad:hidden').remove();
 				    $.post('', serialize, function(data, textStatus, xhr) {
-				    	
-				    	
-						$('#dialog_gen_window_form').html('');
-						$('#dialog_gen_window_form').dialog( "destroy" );				
-						
+				    	if(data['response'] != 'false'){
+				    		obj.dialog( "destroy" );
+				    	}
+				    		
 						standard_response_handler(data);
-
 					},'json');				    	
 			    }
 			});
 
 			if($('#dialog_gen_window_form').length==0){
-				$('body').append('<div id="dialog_gen_window_form"></div>');
+				$('body').append('<div style="display:none" id="dialog_gen_window_form"></div>');
 			}
 			$('#dialog_gen_window_form').html(html);
 			$('#dialog_gen_window_form').dialog({
@@ -109,8 +109,8 @@
 			    	
 			    	$('#general_form_for_create_product .pad:hidden').remove();
 				    $.post('', serialize, function(data, textStatus, xhr) {
-				    	$('#dialog_gen_window_form').html('');
-						$('#dialog_gen_window_form').dialog( "destroy" );				
+				    	$('#dialog_gen_window_form2').html('');
+						$('#dialog_gen_window_form2').dialog( "destroy" );				
 						
 						standard_response_handler(data);
 					},'json');				    	
@@ -118,7 +118,7 @@
 			});
 
 			if($('#dialog_gen_window_form2').length==0){
-				$('body').append('<div id="dialog_gen_window_form2"></div>');
+				$('body').append('<div style="display:none" id="dialog_gen_window_form2"></div>');
 			}
 			$('#dialog_gen_window_form2').html(html);
 			$('#dialog_gen_window_form2').dialog({
@@ -143,12 +143,11 @@
 			    text: 'Закрыть',
 			    click: function() {
 					// подчищаем за собой
-					$('#dialog_gen_window_form_'+window_num+'').html('');
-					$('#dialog_gen_window_form_'+window_num+'').dialog( "destroy" );
+					$(this).dialog("destroy");
 			    }
 			});			
 
-			$('body').append('<div id="dialog_gen_window_form_'+window_num+'"></div>');			
+			$('body').append('<div style="display:none" id="dialog_gen_window_form_'+window_num+'"></div>');			
 			$('#dialog_gen_window_form_'+window_num+'').html(html);
 			$('#dialog_gen_window_form_'+window_num+'').dialog({
 		          width: width,
@@ -205,13 +204,36 @@
 		function window_reload(data) {
 			location.reload();
 		}
-		// закрытие анимации предзагрузки на ESC
+		// переадресация из php
+		function location_href(data){
+			window.location.href = data.href;
+		}
+
 		$(document).keydown(function(e) {	
 			if(e.keyCode == 27){//ESC		
 				window_preload_del();
 			}	
 		});
+
+
+	function echo_message_js(text, message_type){
+		$("<li/>", {
+			"class": message_type,
+			"css":{"opacity":1,"top":0},
+			click: function(){
+			    $(this).animate({opacity:0},'fast',function(){$(this).remove()});
+			}
+		}).append(text).appendTo("#apl-notification_center").fadeIn('slow', 
+		    function(){
+		    var el = jQuery(this);
+		        setTimeout(function(){
+		        el.fadeOut('slow',
+			        function(){
+		    	        jQuery(this).remove();
+		        	});
+		    }, 7000);
+		});
+	}
 //////////////////////////////////
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
 //////////////////////////////////
-

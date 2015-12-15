@@ -597,10 +597,28 @@ class Client {
 	// прикрепление кураторов
 	public function attach_relate_manager($client_id, $user_id){
 		global $mysqli;		
-		$query = "INSERT INTO `".RELATE_CLIENT_MANAGER_TBL."` SET
-		`client_id` = '".$client_id."'
-		, `manager_id` = '".$user_id."'";
-        $result = $mysqli->query($query) or die($mysqli->error);
+	
+		// проверяем не является данный юзер на данный момент куратором этой компании
+		$query =  " SELECT * FROM `".RELATE_CLIENT_MANAGER_TBL."`";
+		$query .= " WHERE `client_id` = '".$client_id."'
+		AND `manager_id` = '".$user_id."'";
+		$arr = array();
+		$result = $mysqli->query($query) or die($mysqli->error);		
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$arr[] = $row;
+			}
+		}
+
+		// если нет - записываем его в кураторы
+		if(count($arr) == 0){
+			$query = "INSERT INTO `".RELATE_CLIENT_MANAGER_TBL."` SET
+			`client_id` = '".$client_id."'
+			, `manager_id` = '".$user_id."'";
+	        $result = $mysqli->query($query) or die($mysqli->error);
+		}
+
+		
 	}
 
 	// удаляем всех кураторов по клиенту
