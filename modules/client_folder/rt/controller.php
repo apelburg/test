@@ -365,28 +365,28 @@
 			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
 			               <td width="40" type="svetofor" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
 			               <td width="60" type="quantity" class="quantity right r_border"  editable="true">'.$dop_row['quantity'].'</td>
-						   <td width="90" type="price_in" editable="true" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
-						   <td width="15" connected_vals="art_price" c_stat="1" class="currency left">'.$currency.'</td>
-						   <td width="90" type="price_in_summ" connected_vals="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
+						   <td width="90" type="price_in" editable="true" swiched_cols="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
+						   <td width="15" swiched_cols="art_price" c_stat="1" class="currency left">'.$currency.'</td>
+						   <td width="90" type="price_in_summ" swiched_cols="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
 						  
-						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left hidden">'.$currency.'</td>
+						   <td width="15" swiched_cols="art_price" c_stat="0" class="currency left hidden">'.$currency.'</td>
 						   <td width="45" class="center" type="discount" discount_fieid="1">'.$discount.'</td>
-						   <td width="90" type="price_out" editable="true" connected_vals="art_price" c_stat="1" class="out right">'.$price_out.'</td>
-						   <td width="15" class="currency left r_border" connected_vals="art_price" c_stat="1" >'.$currency.'</td>
-						   <td width="90" type="price_out_summ"  connected_vals="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
-						   <td width="15" connected_vals="art_price" c_stat="0" class="currency left r_border hidden">'.$currency.'</td>
+						   <td width="90" type="price_out" editable="true" swiched_cols="art_price" c_stat="1" class="out right">'.$price_out.'</td>
+						   <td width="15" class="currency left r_border" swiched_cols="art_price" c_stat="1" >'.$currency.'</td>
+						   <td width="90" type="price_out_summ"  swiched_cols="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
+						   <td width="15" swiched_cols="art_price" c_stat="0" class="currency left r_border hidden">'.$currency.'</td>
 						   <td width="25" class="calc_btn" calc_btn="print">'.$print_btn.'</td>
                            <td type="print_exists_flag" class="hidden">'.$print_exists_flag.'</td>
-			               <td width="80" type="print_in_summ"  connected_vals="print" c_stat="0" class="test_data in hidden '.$expel_class_print.'">'.$print_in_summ_format.$currency.'</td> 
-			               <td width="80" type="print_out_summ"  connected_vals="print" c_stat="1" class="out '.$expel_class_print.'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
+			               <td width="80" type="print_in_summ"  connected_vals="print" swiched_cols="summs" c_stat="0" class="test_data in hidden '.$expel_class_print.'" expel="'.$expel['print'].'">'.$print_in_summ_format.$currency.'</td> 
+			               <td width="80" type="print_out_summ"  connected_vals="print" swiched_cols="summs" c_stat="1" class="out '.$expel_class_print.'" expel="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
 			               <td width="25" class="calc_btn" calc_btn="extra" '.$extra_exists_flag.' data-id="'.$key.' ">'.$dop_uslugi_btn.'</td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
-			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0" class="test_data r_border in hidden '.$expel_class_dop.'">'.$dop_uslugi_in_summ_format.$currency.'</td>';
-			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1"  class="out r_border '.$expel_class_dop.'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>
-						   <td type="in_summ" connected_vals="total_summ" c_stat="0" class="total in right hidden '.$expel_class_main.'">'.$in_summ_format.'</td>
-						   <td width="15" connected_vals="total_summ" c_stat="0" class="currency hidden r_border '.$expel_class_main.'">'.$currency.'</td>
-						   <td type="out_summ" connected_vals="total_summ" c_stat="1" class="total out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$out_summ_format.'</td>
-						   <td width="15" connected_vals="total_summ" c_stat="1" class="currency r_border left '.$expel_class_main.'">'.$currency.'</td>
+			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" swiched_cols="summs" c_stat="0" class="test_data r_border in hidden '.$expel_class_dop.'" expel="'.$expel['dop'].'">'.$dop_uslugi_in_summ_format.$currency.'</td>';
+			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" swiched_cols="summs" c_stat="1"  class="out r_border '.$expel_class_dop.'" expel="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>
+						   <td type="in_summ" connected_vals="total_summ" swiched_cols="summs" c_stat="0" swiched_cols="summs" class="total in right hidden '.$expel_class_main.'"  expel="'.$expel['main'].'">'.$in_summ_format.'</td>
+						   <td width="15" connected_vals="total_summ" swiched_cols="summs" c_stat="0" class="currency hidden r_border '.$expel_class_main.'">'.$currency.'</td>
+						   <td type="out_summ" connected_vals="total_summ" swiched_cols="summs" c_stat="1" class="total out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$out_summ_format.'</td>
+						   <td width="15" connected_vals="total_summ" swiched_cols="summs" c_stat="1" class="currency r_border left '.$expel_class_main.'">'.$currency.'</td>
 						   <td width="70" class="grey r_border center">'.$srock_sdachi.'</td>
 						   <td type="delta" class="delta right">'.$delta_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
@@ -423,27 +423,27 @@
 				  <td class="hidden">draft</td>
 				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status_all.'.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
 				  <td width="60" type="quantity" class="quantity right r_border">тираж</td>
-				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br><span class="small">входящая штука</span></td>
-				  <td width="15" connected_vals="art_price" c_stat="1" class="grey w_border"></td>
-				  <td width="90" connected_vals="art_price" c_stat="0" class="grey w_border right hidden pointer">$ товара<br><span class="small">входящая тираж</span></td>
-				  <td width="15" connected_vals="art_price" c_stat="0" class="grey w_border hidden"></td>
+				  <td width="90" swiched_cols="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br><span class="small">входящая штука</span></td>
+				  <td width="15" swiched_cols="art_price" c_stat="1" class="grey w_border"></td>
+				  <td width="90" swiched_cols="art_price" c_stat="0" class="grey w_border right hidden pointer">$ товара<br><span class="small">входящая тираж</span></td>
+				  <td width="15" swiched_cols="art_price" c_stat="0" class="grey w_border hidden"></td>
 				  <td width="45" class="grey w_border">наценка</td>
-				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border right pointer">$ товара<br><span class="small">исходящая штука</span></td>
-				  <td width="15" connected_vals="art_price" c_stat="1" class="grey w_border r_border"></td>
-				  <td width="90" connected_vals="art_price" c_stat="0" class="grey w_border right pointer hidden">$ товара<br><span class="small">исходящая тираж</span></td>
-				  <td width="15" connected_vals="art_price" c_stat="0" class="grey w_border r_border hidden"></td>
+				  <td width="90" swiched_cols="art_price" c_stat="1" class="grey w_border right pointer">$ товара<br><span class="small">исходящая штука</span></td>
+				  <td width="15" swiched_cols="art_price" c_stat="1" class="grey w_border r_border"></td>
+				  <td width="90" swiched_cols="art_price" c_stat="0" class="grey w_border right pointer hidden">$ товара<br><span class="small">исходящая тираж</span></td>
+				  <td width="15" swiched_cols="art_price" c_stat="0" class="grey w_border r_border hidden"></td>
 				  <td width="25"></td>
 	              <td class="hidden">нанес подробн</td>
-	              <td width="80" connected_vals="print" c_stat="0" class="pointer hidden">$ печать<br><span class="small">входящая тираж</span></td> 	  
-			      <td width="80" connected_vals="print" c_stat="1" class="pointer">$ печать<br><span class="small">исходящая тираж</span></td>
+	              <td width="80" connected_vals="print" swiched_cols="summs"  c_stat="0" class="pointer hidden">$ печать<br><span class="small">входящая тираж</span></td> 	  
+			      <td width="80" connected_vals="print" swiched_cols="summs"  c_stat="1" class="pointer">$ печать<br><span class="small">исходящая тираж</span></td>
 			      <td width="25"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
-           $rt.= '<td width="80"  connected_vals="uslugi" c_stat="0" class="pointer r_border hidden">$ доп. услуги<br><span class="small">входящая тираж</span></td> 
-			      <td width="80"  connected_vals="uslugi" c_stat="1" class="out pointer r_border">$ доп. услуги<br><span class="small">исходящая тираж</span></td>
-				  <td connected_vals="total_summ" c_stat="0" class="total pointer hidden center">итого<br><span class="small">входящая</span></td>
-				  <td width="15" connected_vals="total_summ" c_stat="0" class="hidden r_border"></td>
-				  <td connected_vals="total_summ" c_stat="1" class="total pointer center">итого<br><span class="small">исходящая</span></td>
-				  <td width="15" connected_vals="total_summ" c_stat="1" class="r_border"></td>
+           $rt.= '<td width="80"  connected_vals="uslugi" swiched_cols="summs"  c_stat="0" class="pointer r_border hidden">$ доп. услуги<br><span class="small">входящая тираж</span></td> 
+			      <td width="80"  connected_vals="uslugi" swiched_cols="summs"  c_stat="1" class="out pointer r_border">$ доп. услуги<br><span class="small">исходящая тираж</span></td>
+				  <td connected_vals="total_summ" c_stat="0" swiched_cols="summs"  class="total pointer hidden center">итого<br><span class="small">входящая</span></td>
+				  <td width="15" connected_vals="total_summ" swiched_cols="summs"  c_stat="0" class="hidden r_border"></td>
+				  <td connected_vals="total_summ" swiched_cols="summs"  c_stat="1" class="total pointer center">итого<br><span class="small">исходящая</span></td>
+				  <td width="15" connected_vals="total_summ" swiched_cols="summs"  c_stat="1" class="r_border"></td>
 				  <td width="70" class="center grey r_border">срок сдачи</td>
 				  <td class="delta right">delta</td>
 				  <td width="10"></td>
@@ -460,27 +460,27 @@
 				  <td class="hidden">dop_details</td>
 				  <td></td>
 				  <td class="quantity r_border"></td>
-				  <td connected_vals="art_price" c_stat="1"></td>
-				  <td width="15" connected_vals="art_price" c_stat="1"></td>
-				  <td type="price_in_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_in_summ'],'2','.','').'</td>
-				  <td width="15" connected_vals="art_price" c_stat="0" class="hidden">р</td>
+				  <td swiched_cols="art_price" c_stat="1"></td>
+				  <td width="15" swiched_cols="art_price" c_stat="1"></td>
+				  <td type="price_in_summ" swiched_cols="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_in_summ'],'2','.','').'</td>
+				  <td width="15" swiched_cols="art_price" c_stat="0" class="hidden">р</td>
 				  <td width="45" class=""></td>
-				  <td connected_vals="art_price" c_stat="1"></td>
-				  <td width="15" connected_vals="art_price" c_stat="1" class="r_border"></td>
-				  <td type="price_out_summ" connected_vals="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_out_summ'],'2','.','').'</td>
-				  <td width="15" connected_vals="art_price" c_stat="0" class="r_border hidden">р</td>
+				  <td swiched_cols="art_price" c_stat="1"></td>
+				  <td width="15" swiched_cols="art_price" c_stat="1" class="r_border"></td>
+				  <td type="price_out_summ" swiched_cols="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_out_summ'],'2','.','').'</td>
+				  <td width="15" swiched_cols="art_price" c_stat="0" class="r_border hidden">р</td>
 				  <td></td>
 	              <td class="hidden">нанес подробн</td>
-	              <td type="print_in_summ" connected_vals="print" c_stat="0" class="hidden">'.number_format(@$total['print_in_summ'],'2','.','').'р</td> 		  
-			      <td type="print_out_summ" connected_vals="print" c_stat="1">'.number_format(@$total['print_out_summ'],'2','.','').'р</td>
+	              <td type="print_in_summ" connected_vals="print" swiched_cols="summs" c_stat="0" class="hidden">'.number_format(@$total['print_in_summ'],'2','.','').'р</td> 		  
+			      <td type="print_out_summ" connected_vals="print" swiched_cols="summs" c_stat="1">'.number_format(@$total['print_out_summ'],'2','.','').'р</td>
 			      <td></td>';
     if($test_data)	$rt.= '<td class="test_data_cap"></td>';
-           $rt.= '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" c_stat="0"  class="r_border hidden">'.number_format(@$total['dop_uslugi_in_summ'],'2','.','').'р</td> 
-			      <td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" c_stat="1" class="out r_border">'.number_format(@$total['dop_uslugi_out_summ'],'2','.','').'р</td>
-			      <td type="in_summ" connected_vals="total_summ" c_stat="0" class="right hidden">'.number_format(@$total['in_summ'],'2','.','').'</td>
-				  <td width="15" connected_vals="total_summ" c_stat="0" class="left hidden r_border">р</td>
-				  <td  type="out_summ" connected_vals="total_summ" c_stat="1" class="right">'.number_format(@$total['out_summ'],'2','.','').'</td>
-				  <td width="15" connected_vals="total_summ" c_stat="1" class="left r_border">р</td>
+           $rt.= '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" swiched_cols="summs" c_stat="0"  class="r_border hidden">'.number_format(@$total['dop_uslugi_in_summ'],'2','.','').'р</td> 
+			      <td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" swiched_cols="summs" c_stat="1" class="out r_border">'.number_format(@$total['dop_uslugi_out_summ'],'2','.','').'р</td>
+			      <td type="in_summ" connected_vals="total_summ" swiched_cols="summs"c_stat="0" class="right hidden">'.number_format(@$total['in_summ'],'2','.','').'</td>
+				  <td width="15" connected_vals="total_summ" swiched_cols="summs" c_stat="0" class="left hidden r_border">р</td>
+				  <td  type="out_summ" connected_vals="total_summ" swiched_cols="summs" c_stat="1" class="right">'.number_format(@$total['out_summ'],'2','.','').'</td>
+				  <td width="15" connected_vals="total_summ" swiched_cols="summs" c_stat="1" class="left r_border">р</td>
 				  <td width="70" class="grey r_border"></td>
 				  <td type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>

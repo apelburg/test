@@ -608,12 +608,7 @@
 			// print_r($data_arr);
 			// exit;
 			$query_num = RT::create_new_query($client_id,$manager_id_arr,$data_arr);
-			
-			// echo '<pre>';
-			// print_r($manager_id_arr);
-			// echo '</pre>';
-			// exit('654');
-				
+
 
 			/**
 			 *	сохраняем данные введённые в форму 
@@ -662,7 +657,7 @@
 		// создание запроса
 		static function create_new_query($client_id,$manager_arr,$data_arr,$query_status = 'new_query'){
 			global $mysqli;
-				
+
 
 			$dop_managers_id = '';
 			// если передан массив
@@ -693,7 +688,7 @@
 							$manager_id = $_SESSION['access']['user_id'];
 							$query_status = 'in_work';	
 						}
-						
+
 					}else{
 						// если куратор 1
 						$manager_id = $manager_arr[0];
@@ -703,9 +698,6 @@
 			}else{ 
 				$manager_id = $manager_arr;
 			}
-
-
-			
 
 			/*
 				статус - ссылка на вкладку

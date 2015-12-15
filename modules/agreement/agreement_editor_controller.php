@@ -90,7 +90,7 @@
 		{  
 			 
 			$agreement = Agreement::fetch_agreement_content($agreement_id);
-			$our_firm_acting_manegement_face = our_firm_acting_manegement_face($agreement['our_requisit_id']);
+			$our_firm_acting_manegement_face = our_firm_acting_manegement_face_new($_GET['signator_id']);
 			$client_firm_acting_manegement_face = Client::requisites_acting_manegement_face_details($agreement['client_requisit_id']);
 			//echo '<pre>'; print_r($client_firm_acting_manegement_face); echo '</pre>';
             $spec_num = (!empty($_GET['existent_agreement_spec_num']))? $_GET['existent_agreement_spec_num']: false;
@@ -435,7 +435,7 @@
 	        $specification_num = 
 	*/
 			
-			$our_firm_acting_manegement_face = our_firm_acting_manegement_face($_GET['our_firm_id']);
+			$our_firm_acting_manegement_face = our_firm_acting_manegement_face_new($_GET['signator_id']);
 			$client_firm_acting_manegement_face = Client::requisites_acting_manegement_face_details($_GET['requisit_id']);
 			
 		    $oferta_id = Agreement::create_oferta($dateDataObj,$_SESSION['data_for_specification'],$client_id,$_GET['our_firm_id'],$_GET['requisit_id'],$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$_GET['short_description'],urldecode($_GET['address']),$_GET['prepayment']);

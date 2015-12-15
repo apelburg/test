@@ -260,8 +260,22 @@
 							 exit;
 						 }
 						 
+						 if($main_data['type']!='cat'){
+							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/os_form_class.php");
+							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
+							 $cabinet = new Cabinet();
+							 $details =  $cabinet->get_a_detailed_specifications($main_data['type'], $dop_data['no_cat_json']);
+							 $details =  strip_tags($details,'<div><br><br/><br />');
+							 $details =  str_replace(array('<div>','</div>'),array('<br>',''),$details);	
+							 $details =  str_replace(array("\n","\r","\t"),'',$details);			
+							 $details =  str_replace('<br><br>','<br>',$details);
+							 $details =  preg_replace('/<div[^<]+>/','',$details);
+							 $name .= $details;
+							
+						 }
+						 
 				         // записываем ряд
-						$specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$dop_data['quantity'],$dop_data['price_out']);
+						 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$dop_data['quantity'],$dop_data['price_out']);
 						 
 						 
 						 $query3="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `dop_row_id` = '".$dop_id."' ORDER BY glob_type DESC";
@@ -777,6 +791,21 @@
 							 exit;
 						 }
 						 
+						 if($main_data['type']!='cat'){
+							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/os_form_class.php");
+							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
+							 $cabinet = new Cabinet();
+							 $details =  $cabinet->get_a_detailed_specifications($main_data['type'], $dop_data['no_cat_json']);
+							 $details =  strip_tags($details,'<div><br><br/><br />');
+							 $details =  str_replace(array('<div>','</div>'),array('<br>',''),$details);	
+							 $details =  str_replace(array("\n","\r","\t"),'',$details);			
+							 $details =  str_replace('<br><br>','<br>',$details);
+							 $details =  preg_replace('/<div[^<]+>/','',$details);
+							 $name .= $details;
+							
+						 }
+
+						 
 				         // записываем ряд
 						 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$dop_data['quantity'],$price,$date,$dateDataObj,$dates_data);
 						 
@@ -992,6 +1021,20 @@
 			else return false;
 		
 		}
+	    static  function our_firm_manegement_faces($id){
+			global $mysqli;
+			
+			$out_put = array();
+			$query = "SELECT*FROM `".OUR_FIRMS_MANAGEMENT_TBL."` WHERE `requisites_id` = '".$id."' ORDER BY `acting`";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows>0){
+				while($item=$result->fetch_assoc()){
+					if($item['name']!='') $out_put[] = array('id' => $item['id'],'position' => $item['position'],'name' => $item['name'],'acting' => $item['acting']);
+				}
+			}
+			
+			return (count($out_put)>0)? $out_put:false;
+	    }
 		static function getSpecificationsDates($inDataArr){
 			global $mysqli;
 			global $user_id;
