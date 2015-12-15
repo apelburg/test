@@ -1,0 +1,36 @@
+#ja--image-gallety-togle{
+	position: absolute;
+	float: left;
+	width: 12px;
+	height: 50px;
+	/*background: red;*/
+	/*margin-left: -14px;*/
+	border-radius: 5px 0 0 5px;
+	border: 1px solid #ADACAB;
+	padding: 0 2px;
+    margin-left: -18px;
+}
+
+#ja--image-gallety-togle.hidden{
+	position: absolute;
+	width: 12px;
+	height: 50px;
+	/*background: red;*/
+	border-radius:  0 5px 5px 0;
+	padding: 0 2px;
+    margin-left: -14px;
+}
+#ja--image-gallety-togle .triangle{
+	border: 8px solid transparent;    
+    float: left;
+    position: absolute;
+    margin-top: 16px;
+    margin-left: -4px;
+    border-right: 6px solid #C7C8CA;;
+}
+
+#ja--image-gallety-togle.hidden .triangle {
+    border-left: 6px solid #C7C8CA;
+    border-right:none;
+    margin-left: 2px;
+}

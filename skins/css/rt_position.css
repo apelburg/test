@@ -35,7 +35,7 @@ body {
 #number_position_and_type span{ color: #5a5c61; font-size: 10px}
 
 #order_art_edit_content_table{width: 100%}
-#order_art_edit_left{ width: 277px; padding-left: 10px}
+#order_art_edit_left{ width: 277px; padding-left: 7px}
 #order_art_edit_centr{
 	vertical-align: baseline;
 }
