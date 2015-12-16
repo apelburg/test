@@ -548,33 +548,37 @@ var rtCalculator = {
 		
 	    
 		// проверяем есть ли в ячейке расчеты нанесения
-		var printsExitst = false;
-		var extraExitst = false;
+		var printsExists = false;
+		var extraExists = false;
 		var tds_arr = cur_tr.getElementsByTagName('td');
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type') && tds_arr[j].getAttribute('type') == 'print_exists_flag'){
 				// отправляем запрос на сервер
 				if(tds_arr[j].innerHTML == 'yes'){
-					printsExitst = true;
+					printsExists = true;
 				}
 			}
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('calc_btn') && tds_arr[j].getAttribute('calc_btn') == 'extra' && tds_arr[j].getAttribute('extra_exists_flag')){
-					extraExitst = true;
+					extraExists = true;
 			}
 			
 		}
-
-		if(printsExitst || extraExitst){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
-		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity_and_calculators=1&quantity='+cell.innerHTML+'&id='+row_id+'&print='+printsExitst+'&extra='+extraExitst);
+        //////////////////////////////////// card rt
+		rtCalculator.makeQuantityCalculations2('rt',cell,cell.innerHTML,row_id,printsExists,extraExists);
+	}	
+	,
+	makeQuantityCalculations2(source,cell,quantity,row_id,printsExists,extraExists){
+	    if(printsExists || extraExists){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity_and_calculators=1&quantity='+quantity+'&id='+row_id+'&print='+printsExists+'&extra='+extraExists);
 			//alert(url);
-		    rtCalculator.send_ajax(url,callbackPrintsExitst);
+		    rtCalculator.send_ajax(url,callbackprintsExists);
 		}
 		else{// отправляем запрос на изменение только лишь значения тиража в базе данных 
-		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('change_quantity=1&quantity='+cell.innerHTML+'&id='+row_id);
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity=1&quantity='+quantity+'&id='+row_id);
 		    rtCalculator.send_ajax(url,callbackOnlyQuantity);
 		}
 						
-		function callbackPrintsExitst(response){
+		function callbackprintsExists(response){
 		    // alert(response);
 			
 			try {  var response_obj = JSON.parse(response); }
@@ -659,30 +663,42 @@ var rtCalculator = {
 		}
 		function callbackOnlyQuantity(response){
 			// alert(response);
-			try {  var response_obj = JSON.parse(response); }
-			catch (e) {}
+		
 			
-			if(response_obj){
-				if(response_obj.warning || response_obj.warning=='size_exists'){
-					// если найдено что позиция имеет какие-либо размеры изменение количества должно быть отменено
-					// возвращаем в ячейку прежнее значение
-					// alert(response_obj.warning);
-					rtCalculator.sizeExistsDisclaimer(cell,row_id);
-					cell.innerHTML = rtCalculator.tbl_model[row_id]['quantity'];
-					return;
-				}
-			}
-			//alert('callbackOnlyQuantity');
-			// вносим изменённое значение в соответствующую ячейку this.tbl_model
-			rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
-			// производим пересчет ряда
-			rtCalculator.calculate_row(row_id);
+			if(source=='rt')rtCalculator.set_quantity___end(cell,row_id,response);
+			if(source=='card')rtCalculator.set_quantity__card_end(cell,row_id,response);
 			
-			// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
-			rtCalculator.change_html(row_id);
-			
-			rtCalculator.changes_in_process = false;
 		}
+	}
+	,
+	set_quantity__card_end:function(cell,row_id,response){
+		alert(2);
+	}
+	,
+	set_quantity___end:function(cell,row_id,response){
+		
+		try {  var response_obj = JSON.parse(response); }
+		catch (e) {}
+		if(response_obj){
+			if(response_obj.warning || response_obj.warning=='size_exists'){
+				// если найдено что позиция имеет какие-либо размеры изменение количества должно быть отменено
+				// возвращаем в ячейку прежнее значение
+				// alert(response_obj.warning);
+				rtCalculator.sizeExistsDisclaimer(cell,row_id);
+				cell.innerHTML = rtCalculator.tbl_model[row_id]['quantity'];
+				return;
+			}
+		}
+		//alert('callbackOnlyQuantity');
+		// вносим изменённое значение в соответствующую ячейку this.tbl_model
+		rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
+		// производим пересчет ряда
+		rtCalculator.calculate_row(row_id);
+		
+		// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
+		rtCalculator.change_html(row_id);
+		
+		rtCalculator.changes_in_process = false;
 	}
 	,
 	calculate_row:function(row_id){

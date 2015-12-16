@@ -20,6 +20,10 @@ $(document).on('click', '.getSizesBtn', function(event) {
 		else obj.replaceWith('<br>'+json_obj.sizes.join('<br>'));
       })
 });
+// блокирование части элементов на странице
+$( document ).ready(function() {
+  $('#blanket').height($('#rt_tbl_body').height()+250);
+});  
 </script>
 <link href="<?php  echo HOST; ?>/skins/css/rt_position.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
@@ -46,4 +50,8 @@ $(document).on('click', '.getSizesBtn', function(event) {
 <div class="scrolled_tbl_container"> 
 <?php echo $rt; ?>
 </div>
+<?php if($block_page_elements){ ?>
+<div style="position:absolute;top:37px;left:50px;width:140px;height:35px;border:#ffff00 solid 0px"></div>
+<div style="position:absolute;top:110px;left:0px;right:0px;height:95px;border:#ffff00 solid 0px"></div>
+<?php } ?>
 <!-- end skins/tpl/client_folder/rt/show.tpl -->

@@ -225,7 +225,10 @@
 	$cont_face = '<div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">Контактное лицо: '.(($cont_face_data['id']==0)?'не установлено':$cont_face_data['details']['last_name'].' '.$cont_face_data['details']['name'].' '.$cont_face_data['details']['surname']).'</div>';
 	
 	$create_time = RT::fetch_query_create_time($query_num);
-	$theme = RT::fetch_theme($query_num);
+	$query_related_data = RT::fetch_query_related_data($query_num);
+	$theme = $query_related_data['theme'];
+	$query_status = $query_related_data['status'];
+	$block_page_elements = !($query_status=='in_work')?true:false;
 	$theme_block = '<input id="query_theme_input" class="query_theme" query_num="'.$query_num.'" type="text" value="'.(($theme=='')?'Введите тему':htmlspecialchars($theme,ENT_QUOTES)).'" onclick="fff(this,\'Введите тему\');">';	
 
 	// шаблон поиска
