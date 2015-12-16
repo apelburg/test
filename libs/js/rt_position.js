@@ -708,6 +708,8 @@ $(document).on('click','#choose_end_variant',function(){
 */
 
 $(document).on('click', '#variants_name .variant_name', function(){
+	// меняем URL
+	$.urlVar('varID_checked',$(this).attr('data-id'));
 	// отработка показа / скрытия вариантов расчёта
 	// при клике по кнопкам вариантов
 	$('.variant_name').removeClass('checked');
@@ -719,6 +721,7 @@ $(document).on('click', '#variants_name .variant_name', function(){
 	test_chenge_archive_list();
 	// расчет таблицы активного поля
 	calkulate_table_calc();
+
 });
 
 // смена функциональной кнопки выбора основного варианта
@@ -1046,13 +1049,13 @@ function recalculate_table_price_Itogo(){
 	// console.log(per);
 	// заполняем ИТОГО
 	// цена входящая за тираж или услугу
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(2) span').html(Math.ceil((price_in)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(3) span').html(Math.ceil((price_in)*100)/100);
 	//%
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(3) span').html(Math.ceil((per/i)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(4) span').html(Math.ceil((per/i)*100)/100);
 	// исходящая цена
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(4) span').html(Math.ceil((price_out)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span').html(Math.ceil((price_out)*100)/100);
 	// прибль
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span').html(Math.ceil((pribl)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span').html(Math.ceil((pribl)*100)/100);
 	// console.log(profit);
 
 }

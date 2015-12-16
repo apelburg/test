@@ -26,90 +26,7 @@ class Position_general_Class{
 	// экземпляр класса продукции НЕ каталог
 	public $POSITION_NO_CATALOG;
 
-	// статусы кнопки для различных групп пользователей 
-	// private $status_snab = array(
-
-	// 	'on_calculation' => array( //на расчёт мен
-	// 		'name' => 'В работе',
-	// 		'buttons' =>  array( // кнопки для данного статуса
-	// 			'on_calculation_snab' => array(// статус позиции или даже запроса
-	// 				'name' => 'Запросить расчёт',
-	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
-	// 				'access' => '5'
-	// 				)
-	// 			)
-	// 		),
-	// 	// НЕ ИСПОЛЬЗУЕТСЯ ... ПОКА
-	// 	// 'on_calculation_snab' => array( 
-	// 	// 	'name' => 'Запрошен расчёт', // в снабжение
-	// 	// 	'buttons' =>  array( // кнопки для данного статуса
-	// 	// 		'in_calculation' => array(		
-	// 	// 			'name' => 'Принять в работу',
-	// 	// 			'class' => 'status_art_right_class',// класс кнопки для смены статуса
-	// 	// 			'access' => '8'
-	// 	// 			),
-	// 	// 		'tz_is_not_correct' => array( // статус снабжения по позиции
-	// 	// 			'name' => 'ТЗ не корректно',
-	// 	// 			'class' => 'status_art_right_class',// класс кнопки для смены статуса
-	// 	// 			'access' => '8'
-	// 	// 			)
-	// 	// 		)
-	// 	// 	),
-	// 	'on_recalculation_snab' => array(
-	// 		'name' => 'На перерасчёт',
-	// 		'buttons' =>  array( // кнопки для данного статуса
-	// 			'in_calculation' => array(		
-	// 				'name' => 'Принять в работу',
-	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
-	// 				'access' => '8'
-	// 				),
-	// 			'tz_is_not_correct' => array( // статус снабжения по позиции
-	// 				'name' => 'ТЗ не корректно',
-	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
-	// 				'access' => '8'
-	// 				)
-	// 			)
-	// 		),
-	// 	'tz_is_not_correct' => array( // статус снабжения по позиции
-	// 		'name' => 'ТЗ не корректно',
-	// 		'buttons' =>  array( // кнопки для данного статуса
-	// 			'on_recalculation_snab' => array( // 
-	// 				'name' => 'Запросить расчёт',
-	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
-	// 				'access' => '5'
-	// 				)
-	// 			)
-			
-	// 		),
-	// 	'in_calculation' => array(
-	// 		'name' => 'В расчёте снабжение',
-	// 		'buttons' =>  array( // кнопки для данного статуса
-	// 			'calculate_is_ready' => array(
-	// 				'name' => 'Расчёт готов',
-	// 				'class' => 'status_art_right_class',// класс кнопки для смены статуса
-	// 				'access' => '8'
-	// 				),
-	// 			'create_text_mail_for_supplier' => array(
-	// 				'name' => 'Письмо поставщику',
-	// 				'class' => 'create_text_mail_for_supplier',
-	// 				'access' => '8' 
-	// 				)
-	// 			)
-	// 		),
-
-	// 	'calculate_is_ready' => array(
-	// 		'name' => 'Расчёт от снабжения',
-	// 		'buttons' =>  array( // кнопки для данного статуса
-	// 			'on_recalculation_snab' => array( // 
-	// 				'name' => 'Запросить перерасчёт',
-	// 				'access' => '5'
-	// 				)
-	// 			)
-	// 		),
-		
-	// 	);
-
-
+	
 	function __construct(){
 		$this->user_id = $_SESSION['access']['user_id'];
 
@@ -132,19 +49,6 @@ class Position_general_Class{
 		}
 	}
 
-	private function get_user_access_Database_Int($id){
-		global $mysqli;
-		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);				
-		$int = 0;
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$int = (int)$row['access'];
-			}
-		}
-		//echo $query;
-		return $int;
-	}
 
 	# В данном классе расположены обработчики AJAX ОБЩИЕ для всей продукции !!!
 	/////////////////  AJAX START ///////////////// 
@@ -161,7 +65,7 @@ class Position_general_Class{
 	/////////////////  AJAX METHODs  ///////////////// 
 
 
-	private function save_tz_text_AJAX(){
+	protected function save_tz_text_AJAX(){
 		global $mysqli;
 		$query = "UPDATE `".RT_DOP_USLUGI."` SET `tz`='".base64_encode($_POST['tz'])."' WHERE `id`='".$_POST['rt_dop_uslugi_id']."';
 ";
@@ -177,7 +81,7 @@ class Position_general_Class{
 	}
 
 	// редактирование темы в запросе
-	private function save_query_theme_AJAX(){
+	protected function save_query_theme_AJAX(){
 		global $mysqli;
 		$query = "UPDATE `".RT_LIST."` SET";
 		$query .= " `theme` = '".$_POST['value']."'";
@@ -211,7 +115,9 @@ class Position_general_Class{
 		if(empty($usluga)){return 'такой услуги не существует';}
 
 
-
+		if(!isset($this->POSITION_NO_CATALOG)){
+			$this->POSITION_NO_CATALOG = new Position_no_catalog($this->user_access);
+		}
 
 
 		// получаем флаг если этой услуги ещё нет и придётся формировать имя группы услуг
@@ -266,7 +172,7 @@ class Position_general_Class{
 	}
 
 	// сохранение информации по резерву
-	private function reserv_save_AJAX(){
+	protected function reserv_save_AJAX(){
 		global $mysqli;
 
 		$query = "UPDATE `".RT_MAIN_ROWS."` 
@@ -279,8 +185,7 @@ class Position_general_Class{
 		echo '{"response":"OK"}';
 	}
 
-	private function get_uslugi_list_Database_Html_AJAX(){
-		global $type_product;
+	protected function get_uslugi_list_Database_Html_AJAX(){
 		// получение формы выбора услуги
 		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
 			$html = '<form>';
@@ -290,7 +195,7 @@ class Position_general_Class{
 			$html .= '<input type="hidden" name="id_uslugi" value="">';
 			$html .= '<input type="hidden" name="dop_row_id" value="'.(isset($_POST['dop_row_id'])?$_POST['dop_row_id']:'').'">';
 			$html .= '<input type="hidden" name="quantity" value="'.(isset($_POST['quantity'])?$_POST['quantity']:'').'">';
-			$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
+			$html .= '<input type="hidden" name="type_product" value="'.(isset($_POST['type_product'])?$_POST['type_product']:'').'">';
 			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
 			$html .= '</form>';
 			
@@ -351,6 +256,44 @@ class Position_general_Class{
 			}
 		}
 		return $apl_services.$supplier_services;
+	}
+
+	// запрашивает из базы допуски пользователя
+	// необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
+	protected function get_user_access_Database_Int($id){
+		global $mysqli;
+		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$int = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$int = (int)$row['access'];
+			}
+		}
+		//echo $query;
+		return $int;
+	}
+
+	// отдаёт $html распечатанного массива
+	protected function print_arr($arr){
+		ob_start();
+		echo '<pre>';
+		print_r($arr);
+		echo '</pre>';
+		$content = ob_get_contents();
+		ob_get_clean();
+		
+		return $content;
+	}
+	// форматируем денежный формат + округляем
+	protected function round_money($num){
+		return number_format(round($num, 2), 2, '.', '');
+	}
+	// подсчёт процентов наценки
+	protected function get_percent_Int($price_in,$price_out){
+		$per = ($price_in!= 0)?$price_in:0.09;
+		$percent = round((($price_out-$price_in)*100/$per),2);
+		return $percent;
 	}
 
 	/////////////////   AJAX  END   ///////////////// 

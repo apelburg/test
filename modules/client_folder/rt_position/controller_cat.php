@@ -29,6 +29,8 @@
 	// вид печати
 	$print_names = $POSITION_GEN->POSITION_CATALOG->get_print_names_string();
 	// получаем изображения артикула
+	
+
 	$images_data = $POSITION_GEN->POSITION_CATALOG->fetch_images_for_article2($art_id,'1');
 	// получаем дополнительные параметры: размер, цену ...
 	$art_dop_params = $POSITION_GEN->POSITION_CATALOG->get_dop_params($art_id);

@@ -1,4 +1,5 @@
 <link href="./skins/css/rt_position.css" rel="stylesheet" type="text/css">
+<link href="./skins/css/position.css" rel="stylesheet" type="text/css">
 <link href="./skins/css/forum.css" rel="stylesheet" type="text/css">
 <link href="libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
 
