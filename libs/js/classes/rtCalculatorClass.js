@@ -27,7 +27,7 @@ $(window).on('beforeunload', function() {
 });
 	
 window.onunload = function(){// пока с этим не ясно
-   alert(1);
+   //alert(1);
 }
 print_r.count = 0;
 function print_r(val/* array or object */){
@@ -376,7 +376,7 @@ var rtCalculator = {
 		var result = correctToInt(cell.innerHTML);
 
 		if(result != 0) setCaretToPos2(cell,result);
-		rtCalculator.makeQuantityCalculations(cell);
+		rtCalculator.makeQuantityCalculationsPreparing(cell);
 		
 		
 	
@@ -524,7 +524,7 @@ var rtCalculator = {
 
 	}
 	,
-	makeQuantityCalculations:function(cell){
+	makeQuantityCalculationsPreparing:function(cell){
 	    // Когда в ячейке(поле ввода) в результате каких то действий происходит изменение содержимого нужно вызывать этот метод
 		// метод производит калькуляцию текущих данных, и вычисляет разность текущих данных с теми которые были до изменения 
 
@@ -564,12 +564,12 @@ var rtCalculator = {
 			
 		}
         //////////////////////////////////// card rt
-		rtCalculator.makeQuantityCalculations2('rt',cell,cell.innerHTML,row_id,printsExists,extraExists);
+		rtCalculator.makeQuantityCalculations('card',cell,cell.innerHTML,row_id,printsExists,extraExists);
 	}	
 	,
-	makeQuantityCalculations2(source,cell,quantity,row_id,printsExists,extraExists){
+	makeQuantityCalculations(source,cell,quantity,row_id,printsExists,extraExists){
 	    if(printsExists || extraExists){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
-		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity_and_calculators=1&quantity='+quantity+'&id='+row_id+'&print='+printsExists+'&extra='+extraExists);
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity_and_calculators=1&quantity='+quantity+'&id='+row_id+'&print='+printsExists+'&extra='+extraExists+'&source='+source);
 			//alert(url);
 		    rtCalculator.send_ajax(url,callbackprintsExists);
 		}
@@ -599,16 +599,26 @@ var rtCalculator = {
 			if(response_obj.print && response_obj.print.lackOfQuantity){
 				 var str =''; 
 				 for(var index in response_obj.print.lackOfQuantity){
-					 str += (parseInt(index)+1)+'). '+response_obj.print.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.print.lackOfQuantity[index].minQuantity+"\r";  
+					 str += (parseInt(index)+1)+'). '+response_obj.print.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.print.lackOfQuantity[index].minQuantity+"<br>";  
 				 }
-				 alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
+				 var dialog = $('<div>Тираж  меньше минимального тиража для нанесения(ний):<br>'+str+'стоимость будет пересчитана как для минимального тиража</div>');
+				 $('body').append(dialog);
+				 $(dialog).dialog({modal: true, width: 500,minHeight : 200, buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}]});
+				 $(dialog).dialog('open');
+				 
+				 //alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
 			}
 			if(response_obj.print && response_obj.print.outOfLimit){
 				 var str ='';  
 				 for(var index in response_obj.print.outOfLimit){
-					 str += (parseInt(index)+1)+'). '+response_obj.print.outOfLimit[index].print_type+', лимит тиража - '+response_obj.print.outOfLimit[index].limitValue+"\r";  
+					 str += (parseInt(index)+1)+'). '+response_obj.print.outOfLimit[index].print_type+', лимит тиража - '+response_obj.print.outOfLimit[index].limitValue+"<br>";  
 				 }
-				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :\r"+str+"для этих нанесений требуется индивидуальный расчет");
+				 var dialog = $('<div>Все перерасчеты отклонены!!!<br>Потому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :<br>'+str+'для этих нанесений требуется индивидуальный расчет</div>');
+				 $('body').append(dialog);
+				 $(dialog).dialog({modal: true, width: 500,minHeight : 200 , buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}], close: function( event, ui ) {location.reload();} });
+				 $(dialog).dialog('open');
+				 return;
+				 //alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :\r"+str+"для этих нанесений требуется индивидуальный расчет");
 			}
 			if(response_obj.print && response_obj.print.needIndividCalculation){ 
 				 var str ='';  
@@ -619,63 +629,78 @@ var rtCalculator = {
 				
 			}
 			
-			// console.log(response_obj);
-			// если ответ был ok значит все нормально изменения сделаны 
-			// теперь нужно внести изменения в hmlt
+			// если ответы ok для print и extra значит все нормально изменения сделаны 
+			// вызываем функции производящие изменения в HTML
 			if((response_obj.print && response_obj.print.result == 'ok') && (response_obj.extra && response_obj.extra.result == 'ok')){
-				rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
-				//// console.log(response_obj.new_sums);
-				if(response_obj.print.new_sums){ 
-				    rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.print.new_sums.summ_in);
-				    rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.print.new_sums.summ_out);
-					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] && (rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='green' || rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='sgreen')){
-						rtCalculator.tbl_model['total_row']["print_in_summ"]  += rtCalculator.tbl_model[row_id]["print_in_summ"]-rtCalculator.previos_data['print_in_summ'];
-						rtCalculator.tbl_model['total_row']["print_out_summ"] += rtCalculator.tbl_model[row_id]["print_out_summ"]-rtCalculator.previos_data['print_out_summ'];
-					}
-					
-				}
-				rtCalculator.tbl_model[row_id]["print_exists_flag"] = 'yes';
-				
-				if(response_obj.extra.new_sums){
-					rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"] = parseFloat(response_obj.extra.new_sums.summ_in);
-				    rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"] = parseFloat(response_obj.extra.new_sums.summ_out);
-					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop'] && (rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='green' || rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='sgreen')){
-						rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"]  += rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"]-rtCalculator.previos_data['dop_uslugi_in_summ'];
-						rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"]  += rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"]-rtCalculator.previos_data['dop_uslugi_out_summ'];
-					}
-				}
-
-				
-				
-				// производим пересчет ряда
-				rtCalculator.calculate_row(response_obj.row_id);
-				
-				//**print_r(rtCalculator.tbl_model[row_id]);
-				
-				// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
-				rtCalculator.change_html(response_obj.row_id);
+			    if(source=='rt')rtCalculator.quantityCalculationsResponseFull(cell,row_id,response_obj);
+			    if(source=='card')rtCalculator.cardQuantityCalculationsResponseFull(cell,row_id,response_obj);
 			}
 			else{
 				// самый лучщий вариант иначе могут быть разные ошибки
 				location.reload();
 			}
-			rtCalculator.changes_in_process = false;
+			
 		}
 		function callbackOnlyQuantity(response){
 			// alert(response);
 		
 			
-			if(source=='rt')rtCalculator.set_quantity___end(cell,row_id,response);
-			if(source=='card')rtCalculator.set_quantity__card_end(cell,row_id,response);
+			if(source=='rt')rtCalculator.quantityCalculationsResponse(cell,row_id,response);
+			if(source=='card')rtCalculator.cardQuantityCalculationsResponse(cell,row_id,response);
 			
 		}
 	}
 	,
-	set_quantity__card_end:function(cell,row_id,response){
+	cardQuantityCalculationsResponse:function(cell,row_id,response){
 		alert(2);
 	}
 	,
-	set_quantity___end:function(cell,row_id,response){
+	cardQuantityCalculationsResponseFull:function(cell,row_id,response_obj){
+		alert(3);
+		console.log(response_obj);
+	}
+	,
+	quantityCalculationsResponseFull:function(cell,row_id,response_obj){
+	        // console.log(response_obj);
+			
+		    // Вносим изменения в hmlt
+		
+			rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
+			//// console.log(response_obj.new_sums);
+			if(response_obj.print.new_sums){ 
+				rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.print.new_sums.summ_in);
+				rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.print.new_sums.summ_out);
+				if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] && (rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='green' || rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='sgreen')){
+					rtCalculator.tbl_model['total_row']["print_in_summ"]  += rtCalculator.tbl_model[row_id]["print_in_summ"]-rtCalculator.previos_data['print_in_summ'];
+					rtCalculator.tbl_model['total_row']["print_out_summ"] += rtCalculator.tbl_model[row_id]["print_out_summ"]-rtCalculator.previos_data['print_out_summ'];
+				}
+				
+			}
+			rtCalculator.tbl_model[row_id]["print_exists_flag"] = 'yes';
+			
+			if(response_obj.extra.new_sums){
+				rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"] = parseFloat(response_obj.extra.new_sums.summ_in);
+				rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"] = parseFloat(response_obj.extra.new_sums.summ_out);
+				if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop'] && (rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='green' || rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='sgreen')){
+					rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"]  += rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"]-rtCalculator.previos_data['dop_uslugi_in_summ'];
+					rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"]  += rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"]-rtCalculator.previos_data['dop_uslugi_out_summ'];
+				}
+			}
+
+			
+			
+			// производим пересчет ряда
+			rtCalculator.calculate_row(response_obj.row_id);
+			
+			//**print_r(rtCalculator.tbl_model[row_id]);
+			
+			// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
+			rtCalculator.change_html(response_obj.row_id);
+			
+			rtCalculator.changes_in_process = false;
+	}
+	,
+	quantityCalculationsResponse:function(cell,row_id,response){
 		
 		try {  var response_obj = JSON.parse(response); }
 		catch (e) {}

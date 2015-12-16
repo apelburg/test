@@ -540,7 +540,7 @@
 			//print_r($out);
 			echo (isset($out))? json_encode($out):'';
 		}
-		static function change_quantity_and_calculators($quantity,$dop_data_id,$print,$extra){
+		static function change_quantity_and_calculators($quantity,$dop_data_id,$print,$extra,$source){
 		    global $mysqli;  
 			
 			// ЗАДАЧА:
@@ -582,7 +582,7 @@
 					
 					// если все в порядке и нет ни каких исключений делаем дальнейшие операции
 					if(!(self::$needIndividCalculation || self::$outOfLimit)){
-						 
+						 if($source=='card') $new_sums_details = array();
 						 foreach($dataArr as $key => $dataVal){
 						 // рассчитываем окончательную стоимость с учетом коэффициентов и надбавок
 							if($quantity != 0) $new_data = self::make_calculations($quantity,$dataVal['new_price_arr'],$dataVal['print_details_obj']->dop_params);
@@ -600,8 +600,13 @@
 										  WHERE id = '".$dataVal['uslugi_row_id']."'";
 							$mysqli->query($query)or die($mysqli->error);
 							
-							$itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
-							$itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
+							if($source=='rt'){
+							    $itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
+							    $itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
+							}
+							if($source=='card'){
+							   $new_sums_details[$dataVal['uslugi_row_id']] = array('price_in' => $new_data["new_price_arr"]["price_in"],'price_out' => $new_data["new_price_arr"]["price_out"]);
+							}
 						}
 					}
 					
@@ -615,18 +620,27 @@
 					if(self::$outOfLimit)  $out_put['print']['outOfLimit'] = self::$outOfLimitDetails;
 					if(self::$needIndividCalculation)  $out_put['print']['needIndividCalculation'] = self::$needIndividCalculationDetails;
 					
-					if($out_put['print']['result']=='ok') $out_put['print']['new_sums'] = $itog_sums;
+					if($out_put['print']['result']=='ok'){
+					     if($source=='rt') $out_put['print']['new_sums'] = $itog_sums;
+						 if($source=='card') $out_put['print']['new_sums_details'] = $new_sums_details;
+					}
 				}
 			}
 			if($extra == 'true' && $out_put['print']['result']=='ok'){// $out_put['print']['result']=='error' то работать с extra нет смысла
-			    $out_put['extra']['new_sums'] = array("summ_in"=>0,"summ_out"=>0);
+			    if($source=='rt') $out_put['extra']['new_sums'] = array("summ_in"=>0,"summ_out"=>0);
 			    // считаем новые itog_sums
 			    $query="SELECT*FROM `".RT_DOP_USLUGI."` WHERE glob_type ='extra' AND dop_row_id = '".$dop_data_id."'";
 				$result = $mysqli->query($query)or die($mysqli->error);
 				if($result->num_rows>0){
 					while($row = $result->fetch_assoc()){
-					     $out_put['extra']['new_sums']['summ_in'] += ($row['for_how']=='for_all')? $row['price_in']:$quantity*$row['price_in'];
-						 $out_put['extra']['new_sums']['summ_out'] +=($row['for_how']=='for_all')? $row['price_out']:$quantity*$row['price_out'];
+					     if($source=='rt'){
+						     $out_put['extra']['new_sums']['summ_in'] += ($row['for_how']=='for_all')? $row['price_in']:$quantity*$row['price_in'];
+						     $out_put['extra']['new_sums']['summ_out'] +=($row['for_how']=='for_all')? $row['price_out']:$quantity*$row['price_out'];
+						 }
+						 if($source=='card'){
+						     $out_put['extra']['new_sums_details'][$row['id']] = array('for_how' => $row['for_how'],'price_in' => $row['price_in'],'price_out' => $row['price_out']);
+						 }
+						
 					}
 				}
 				
