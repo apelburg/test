@@ -36,6 +36,21 @@
 			echo json_encode($out_put);
 			
 		}
+		static function fetch_data_for_dop_uslugi_row($dop_uslugi_row_id){
+		    global $mysqli; 
+			
+			$out_put = array();
+			  
+            // получаем данные о расчетах дополнительных услуг для данного ряда расчета
+			$query="SELECT*FROM `".RT_DOP_USLUGI."` WHERE `glob_type` = 'print' AND `id` = '".$dop_uslugi_row_id."'";
+			//echo $query;
+			
+			$result = $mysqli->query($query)or die($mysqli->error);/**/
+			if($result->num_rows>0){
+			    $row = $result->fetch_assoc();
+				echo json_encode($row);
+			}
+		}
 		static function grab_data_for_print($data){
 		    // global $mysqli;   
 			// print_r($data);

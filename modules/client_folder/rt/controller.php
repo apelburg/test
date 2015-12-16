@@ -418,6 +418,11 @@
 				  <td class="hidden">тип</td>
 				  <td class="art_name right">
 				      <a href="#" onclick="console.log(rtCalculator.tbl_model);/*print_r(rtCalculator.tbl_model);*/">_</a>
+					  &nbsp;
+					  <a href="#" onclick="printCalculator.test_evoke_calculator();">_</a>
+					  &nbsp;
+					  <a href="#" onclick="printCalculator.evoke_calculator();">_</a>
+					  
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>

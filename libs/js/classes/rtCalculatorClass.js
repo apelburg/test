@@ -564,7 +564,7 @@ var rtCalculator = {
 			
 		}
         //////////////////////////////////// card rt
-		rtCalculator.makeQuantityCalculations('card',cell,cell.innerHTML,row_id,printsExists,extraExists);
+		rtCalculator.makeQuantityCalculations('rt',cell,cell.innerHTML,row_id,printsExists,extraExists);
 	}	
 	,
 	makeQuantityCalculations(source,cell,quantity,row_id,printsExists,extraExists){
@@ -617,6 +617,7 @@ var rtCalculator = {
 				 $('body').append(dialog);
 				 $(dialog).dialog({modal: true, width: 500,minHeight : 200 , buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}], close: function( event, ui ) {location.reload();} });
 				 $(dialog).dialog('open');
+				 rtCalculator.changes_in_process=false;
 				 return;
 				 //alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :\r"+str+"для этих нанесений требуется индивидуальный расчет");
 			}
@@ -625,7 +626,11 @@ var rtCalculator = {
 				 for(var index in response_obj.print.needIndividCalculation){
 					 str += (parseInt(index)+1)+'). '+response_obj.print.needIndividCalculation[index].print_type+"\r";  
 				 }
-				 alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :\r"+str+"");
+				 var dialog = $('<div>Все перерасчеты отклонены!!!<br>Потому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :<br>'+str+'</div>');
+				 $('body').append(dialog);
+				 $(dialog).dialog({modal: true, width: 500,minHeight : 200 , buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}] });
+				 $(dialog).dialog('open');
+				 // alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :\r"+str+"");
 				
 			}
 			
@@ -661,7 +666,7 @@ var rtCalculator = {
 	}
 	,
 	quantityCalculationsResponseFull:function(cell,row_id,response_obj){
-	        // console.log(response_obj);
+	        console.log(response_obj);
 			
 		    // Вносим изменения в hmlt
 		
