@@ -51,7 +51,14 @@ $(document).on('click', '.row_price_out_one.price_out', function(event) {
 // кнопка переключатель цены в таблице расчета
 $(document).on('click', '.js--button-out_ptice_for_tirage', function(event) {
   event.preventDefault();
-  console.log('// кнопка переключатель цены в таблице расчета');
+  if($(this).hasClass('for_out')){
+    $(this).removeClass('for_out').addClass('for_in').find('div').html('входящая<br>(сумма)');
+    $('.calkulate_table:visible td:nth-of-type(6)').removeClass('for_out').addClass('for_in');
+  }else{
+    $(this).addClass('for_out').removeClass('for_in').find('div').html('исходящая<br>(сумма)');
+    $('.calkulate_table:visible td:nth-of-type(6)').removeClass('for_in').addClass('for_out');
+  }
+  
 });
 
 

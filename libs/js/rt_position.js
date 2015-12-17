@@ -1036,7 +1036,7 @@ function recalculate_table_price_Itogo(){
 
 // row_tirage_in_one price_in
 	//    price in
-		price_in += Number($('.calkulate_table:visible .tirage_and_price_for_one .row_tirage_in_one.price_in span.price_in_all').val());
+		price_in += Number($('.calkulate_table:visible tr.tirage_and_price_for_one td.row_tirage_in_one.price_in input').val());
 		$('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.price_in span').each(function(index, el){
 			price_in += Number($(this).html());	
 		});
@@ -1045,39 +1045,44 @@ function recalculate_table_price_Itogo(){
 		});
 
 	//    price out
-		price_out += Number($('.calkulate_table:visible .tirage_and_price_for_one .row_price_out_one.price_out span').html());
-		$('.calkulate_table:visible .uslugi_class.price_out_men span').each(function(index, el){
+		price_out += Number($('.calkulate_table:visible td.row_price_out_one.price_out input').val());
+		$('.calkulate_table:visible .row_price_out_gen.uslugi_class.price_out_men span').each(function(index, el){
 			price_out += Number($(this).html());	
 		});
-		$('.calkulate_table:visible .uslugi_class.price_out_men input').each(function(index, el){
+		$('.calkulate_table:visible .row_price_out_gen.uslugi_class.price_out_men input').each(function(index, el){
 			price_out += Number($(this).val());	
 		});
 
 
 
 	//    pribl (маржа)
-		pribl += Number($('.calkulate_table:visible .row_pribl_out_gen.pribl span').html());
+		pribl += Number($('.calkulate_table:visible .row_pribl_out_one.pribl span').html());
 		$('.calkulate_table:visible .row_pribl_out_gen.uslugi_class.pribl span').each(function(index, el){
 			pribl += Number($(this).html());	
 			// console.log(Number($(this).html()));
 		});
 
-	//	price_out_tir_out
-		price_out_tir_out += Number($('.calkulate_table:visible .price_out_summ.for_tir span.for_out').html());
-		$('.calkulate_table:visible .row_pribl_out_gen.uslugi_class.pribl span.for_out').each(function(index, el){
+	//	var price_out_tir_out = 0;
+		price_out_tir_out += Number($('.calkulate_table:visible .tirage_and_price_for_one .price_out_summ span.for_out').html());
+		$('.calkulate_table:visible .calculate.calculate_usl .price_out_summ.for_out span.for_out').each(function(index, el){
 			price_out_tir_out += Number($(this).html());	
+			console.log(Number($(this).html()));
 		});
-	//	price_out_tir_in
+		price_out_tir_out;
+
+
+	//	var price_out_tir_in = 0;
 		
-		price_out_tir_in += Number($('.calkulate_table:visible .price_out_summ.for_tir span.for_in').html());
-		$('.calkulate_table:visible .row_pribl_out_gen.uslugi_class.pribl span.for_in').each(function(index, el){
+		price_out_tir_in += Number($('.calkulate_table:visible .price_out_summ span.for_in').html());
+		$('.calkulate_table:visible .calculate.calculate_usl .price_out_summ.for_out span.for_in').each(function(index, el){
 			price_out_tir_in += Number($(this).html());	
 		});
+		price_out_tir_in;
 
 
 
-		$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span.for_in').html(Math.ceil((price_out_tir_in)*100)/100);
-		$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span.for_out').html(Math.ceil((price_out_tir_out)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_in').html(Math.ceil((price_out_tir_in)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_out').html(Math.ceil((price_out_tir_out)*100)/100);
 
 
 	// console.log(per);

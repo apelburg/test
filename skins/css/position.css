@@ -56,13 +56,19 @@
     background-color: rgba(169, 204, 106, 0.42);
 }
 .js--button-out_ptice_for_tirage:hover,
-.js--calculate_tbl-edit_percent:hover{
+.js--calculate_tbl-edit_percent:hover,
+.js--button-out_ptice_for_tirage.for_in{
 	background: #CBDFA7;
 	cursor: pointer;
 }
-.js--calculate_tbl-edit_percent:hover span{
+.js--calculate_tbl-edit_percent:hover span,
+.js--button-out_ptice_for_tirage.for_in span{
 	border-color: #CBDFA7;
 }
+.js--button-out_ptice_for_tirage.for_out {
+    background-color: #E4E4E4;
+}
+
 #order_art_edit .greyText{
 	font-size: 11px;
     color: #B3B3B3;
@@ -76,4 +82,7 @@
 .calkulate_table tr td.for_in .for_in,
 .calkulate_table tr td.for_out .for_out{
 	display: block;
+}
+.edit_cell{
+    min-width: 27px;
 }
