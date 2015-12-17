@@ -81,13 +81,13 @@
 			$create_time_arr2 = explode('-',$create_time_arr[0]);
 			return $create_time_arr2[2].'.'.$create_time_arr2[1].'.'.$create_time_arr2[0].' '.$create_time_arr[1];
 		}
-		static function fetch_theme($query_num){
+		static function fetch_query_related_data($query_num){
 		    global $mysqli; 
 			
-			$query = "SELECT theme FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
+			$query = "SELECT theme, status FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$row = $result->fetch_assoc();
-			return $row['theme'];
+			return $row;
 		}
 		static function save_theme($query_num,$theme){
 		    global $mysqli; 
