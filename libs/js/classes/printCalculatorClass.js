@@ -589,6 +589,7 @@ var printCalculator = {
 		btn2.onclick = printCalculator.distributePrint;
 		var infoField = document.createElement('DIV');
 		infoField.className = "calculatorMenuCell";
+
 		infoField.innerHTML = "Тираж "+printCalculator.currentCalculationData.quantity+' шт.';
 		
 		
@@ -1259,6 +1260,7 @@ var printCalculator = {
 				if(printCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type]){
 
 					delete printCalculator.currentCalculationData.print_details.dop_params[glob_type][target][type];
+
 					printCalculator.makeProcessing();
 				}
 			}
@@ -1739,6 +1741,7 @@ var printCalculator = {
 			// console.log(response);
 			location.reload();
 		}
+
 		
 	}
 	,
