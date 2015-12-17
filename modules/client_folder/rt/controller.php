@@ -419,9 +419,9 @@
 				  <td class="art_name right">
 				      <a href="#" onclick="console.log(rtCalculator.tbl_model);/*print_r(rtCalculator.tbl_model);*/">_</a>
 					  &nbsp;
-					  <a href="#" onclick="printCalculator.test_evoke_calculator();">_</a>
+					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>
 					  &nbsp;
-					  <a href="#" onclick="printCalculator.evoke_calculator();">_</a>
+					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:3,quantity:1});">_</a>
 					  
 				  </td>
 				  <td class="hidden">dop_details</td>
