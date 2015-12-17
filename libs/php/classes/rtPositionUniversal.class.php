@@ -838,7 +838,7 @@ class Services extends Variants
 	// $pause - флаг запрета редактирования
 	// названия группы услуги
 	// public function uslugi_template_cat_Html($arr=array(), $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
-	public function htmlTemplate($arr,$variant, $edit_true = true){
+	public function htmlTemplate($arr,$variant, $edit_true = true,$art_id){
 		// определяем редакторов для полей (html тегов)
 		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
@@ -914,7 +914,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					$calc_info = '';$calc_class= '';$calc_button='';
 					if($service['parent_id'] == 6){
 						$calc_class = ' service-calculator';
-						$calc_button = '<div class="getCalculatorMethod" onclick="getCalculatorMethod()"></div>';
+						$calc_button = '<div class="getCalculatorMethod" onclick="printCalculator.evoke_calculator_directly({art_id:'.$art_id.',dop_data_row_id:'.$variant['id'].',dop_uslugi_id:'.$service_attach['id'].'});"></div>';
 						$calc_info = '';	
 					}
 					

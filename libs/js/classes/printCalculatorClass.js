@@ -2,7 +2,7 @@ var printCalculator = {
 	evoke_calculator_directly: function(data){
 	    //console.log(data);
 		if(data.dop_uslugi_id){
-			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_data_for_dop_uslugi_row='+data.dop_uslugi_id);
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_data_for_dop_uslugi_row='+data.dop_uslugi_id,'section');
 			printCalculator.send_ajax(url,callback);
 			function callback(response){ 
 			
@@ -79,7 +79,7 @@ var printCalculator = {
 			//    расчетов дополнительных услуг, если массив был пустой вызываем метод запускающий калькулятор
 			
 			// этап 1
-			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_dop_uslugi_for_row='+dop_data_row_id);
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_dop_uslugi_for_row='+dop_data_row_id,'section');
 			printCalculator.send_ajax(url,callback);
 			function callback(response){ 
 			    // alert(response);
@@ -199,7 +199,7 @@ var printCalculator = {
 			td.onclick = function(){ 
 			
 				// отправляем запрос на удаление для текущего нанесения
-				var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&delete_prints_for_row='+printCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&usluga_id='+this.getAttribute('usluga_id'));
+				var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&delete_prints_for_row='+printCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&usluga_id='+this.getAttribute('usluga_id'),'section');
 				printCalculator.send_ajax(url,callback);
 			
 				function callback(response){ 
@@ -243,7 +243,7 @@ var printCalculator = {
 		    $("#calculatorDeleteAllPrinstBtn").remove();
 			
 			// отправляем запрос на удаление всех нанесений для текущего расчета
-			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&delete_prints_for_row='+printCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&all=true');
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&delete_prints_for_row='+printCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&all=true','section');
 		    printCalculator.send_ajax(url,callback);
 		
 			function callback(response){ 
@@ -263,7 +263,7 @@ var printCalculator = {
 	,
 	evoke_calculator:function(){
 		// отправляем запрос чтобы получить описание параметров дефолтных параметров калькулятора для данного ариткула
-	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&grab_calculator_data={"art_id":"'+printCalculator.dataObj_toEvokeCalculator.art_id+'","type":"print"}');
+	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&grab_calculator_data={"art_id":"'+printCalculator.dataObj_toEvokeCalculator.art_id+'","type":"print"}','section');
 		printCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){
@@ -356,7 +356,7 @@ var printCalculator = {
 							
 							
 							
-							var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&distribute_print=1&details='+JSON.stringify(details));
+							var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&distribute_print=1&details='+JSON.stringify(details),'section');
 							printCalculator.send_ajax(url,callback);
 						 
 							//$("#distributionSaveResultBtn").remove();
@@ -1728,7 +1728,7 @@ var printCalculator = {
         // console.log('<<< saveCalculatorResult --');
 		
 		// формируем url для AJAX запроса
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&save_calculator_result=1&details='+JSON.stringify(printCalculator.currentCalculationData));
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&save_calculator_result=1&details='+JSON.stringify(printCalculator.currentCalculationData),'section');
 		
 		//alert(url);//
 		document.getElementById("calculatorsaveResultPlank").style.visibility ='hidden';
