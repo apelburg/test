@@ -1,7 +1,19 @@
 <?php
 
 
-// расширение для класса позиции
+/** 
+ * Правила комментирования можно посмотреть на странице 
+ * описания http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html#@since
+ * 
+ */
+
+
+/**
+ *	унифицированный класс работы с позицией
+ *
+ *	@author  	Алексей Капитонов
+ *	@version 	12:33 17.12.2015
+ */
 class rtPositionUniversal extends Position_general_Class
 {	
 	public $user_id;
@@ -19,22 +31,42 @@ class rtPositionUniversal extends Position_general_Class
 		// получаем позицию
 		$this->getPosition((isset($_GET['id']))?$_GET['id']:'none');
 
-		// echo '<pre>';
-		// print_r($this->position);
-		// echo '</pre>';
 		// передававться через ключ AJAX
 		if(isset($_POST['AJAX'])){
 			$this->_AJAX_();
 		}			
 	}
 
-	// поиск и обработка методов AJAX
-	private function _AJAX_(){
+
+	/**
+	 *	для генерации отвта выделен целый класс
+	 *
+	 *	метод имеет область видимости private 
+	 *  НО должен быть protected, для этого необходимо произвести рефакторинг всех 
+	 *  AJAX методов и преобразовать их ответы в соответствии с новыми правилами
+	 *
+	 *	@param name		method name width prefix _AJAX
+	 *	@return  		string
+	 *	@see 			{"respons","OK"}
+	 *	@author  		Алексей Капитонов
+	 *	@version 		12:16 17.12.2015
+	 */
+	protected function _AJAX_(){
 		$method_AJAX = $_POST['AJAX'].'_AJAX';
+		//echo $method_AJAX;exit;
+		
 		if(method_exists($this, $method_AJAX)){
-			$this->$method_AJAX();
+			// подключаем файл с набором стандартных утилит 
+			// AJAX, stdApl
+			include_once __DIR__.'/../../../../libs/php/classes/aplStdClass.php';
+			// создаем экземпляр обработчика
+			$this->responseClass = new responseClass();
+			// обращаемся непосредственно 
+			$this->$method_AJAX();				
+			// вывод ответа
+			echo $this->responseClass->getResponse();					
 			exit;
-		}		
+		}					
 	}
 
 	//////////////////////////
@@ -45,7 +77,7 @@ class rtPositionUniversal extends Position_general_Class
 	        $query .= "`show_img` = '".$_POST['val']."'";
 	        $query .= "WHERE `id` = '".(int)$_POST['id_row']."'";
 	        $result = $this->mysqli->query($query) or die($this->mysqli->error);
-			echo '{"response":"OK"}';
+			//echo '{"response":"OK"}';
 		}
 
 	
@@ -72,10 +104,16 @@ class rtPositionUniversal extends Position_general_Class
 		return $arr;
 	}
 
-	// возвращает размерную сетку
+	/**
+	 * возвращает размерную сетку
+	 *
+	 *	@param dop_params_arr	массив размеров (строк доп. параметров) из базы
+	 *	@param variant 			информация по варианту расчёта из базы
+	 *	@return  				HTML размерная сетка
+	 *	@author  				Алексей Капитонов
+	 *	@version 				12:34 17.12.2015
+	 */
 	public function getSizeTable($dop_params_arr, $variant){
-
-
 
 		// преобразует массив дополнительных параметров в таблицу размеров
 
@@ -367,7 +405,12 @@ class rtPositionUniversal extends Position_general_Class
 }
 
 
-// класс расширение для добавления модуля изображений
+/**
+ *	класс расширение для добавления модуля изображений
+ *
+ *	@author  Алексей Капитонов
+ *	@version 10:29 17.12.2015
+ */
 class Images extends rtPositionUniversal
 {	
 	function __construct($id = 0){
@@ -398,68 +441,67 @@ class Images extends rtPositionUniversal
 	}
 
 	private function find_matches($art,$pattern){
-			// global $db;
-			//выбираем id артикулов соответсвующих патерну
-			$query = "SELECT id FROM `".BASE_TBL."` WHERE art != '".$art."' AND SUBSTRING(art,1,".strlen($pattern).")='".$pattern."'";
-			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		// global $db;
+		//выбираем id артикулов соответсвующих патерну
+		$query = "SELECT id FROM `".BASE_TBL."` WHERE art != '".$art."' AND SUBSTRING(art,1,".strlen($pattern).")='".$pattern."'";
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 			
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$itog_ids_arr[] = $row['id'];			
-				}
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$itog_ids_arr[] = $row['id'];			
 			}
-
-			//отсекаем те артикулы которые у которых нулевые остатки и цена
-			$arr15 = (isset($itog_ids_arr))?implode("','",$itog_ids_arr):'';
-			$query = "SELECT art_id FROM `".BASE_DOP_PARAMS_TBL."` WHERE ( ostatok + on_way ) >= '0' AND price > '0' AND art_id IN('".$arr15."') GROUP BY art_id";
-			
-			$result = $this->mysqli->query($query) or die($this->mysqli->error);
-			$itog_ids_arr = array();
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$itog_ids_arr[] = $row['art_id'];	
-				}
-			}
-			
-			//отсекаем те артикулы которые лежат в скрытых категориях
-			$arr15 = implode("','",$itog_ids_arr);
-			$query = "SELECT rel.article_id article_id, rel.category_id category_id
-			           FROM `".BASE_ARTS_CATS_RELATION."` rel 
-					   INNER JOIN `".GIFTS_MENU_TBL."` menu
-					   ON  rel.category_id = menu.id
-			           WHERE menu.hide != '1' AND rel.article_id IN('".$arr15."') ORDER BY rel.category_id ASC LIMIT 0,15";
-			$result = $this->mysqli->query($query) or die($this->mysqli->error);
-			$itog_ids_arr = array();
-			
-
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					// отказался от такого подхода  $hiden_cat_begining = get_menu_item_id(BEGINING_HIDEN_MENU_CATS);
-					// отказался от такого подхода  if((int)$item['category_id'] >= (int)$hiden_cat_begining['id']) break;
-				    $itog_ids_arr[] = $row['article_id'];
-				}
-			}
-			//echo '<pre>';print_r($itog_ids_arr);echo '</pre>';
-			
-			
-			//получаем изображения артикулов
-			$arr15 = implode("','",$itog_ids_arr);
-			$query = "SELECT base.id id,  base.art art, images.name name FROM `".BASE_TBL."` base
-			          INNER JOIN `".IMAGES_TBL."` images 
-					  ON  base.art = images.art  WHERE size = 'small' AND base.id IN('".$arr15."') GROUP BY  base.id ORDER BY images.id ASC";
-			$result = $this->mysqli->query($query) or die($this->mysqli->error);
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$output[] = array('id'=>$row['id'],'art'=>$row['art'],'img'=>$row['name']);
-				}
-			}
-			//echo '<pre>';print_r($output);echo '</pre>';
-			return  (isset($output))?$output:'';			
 		}
+
+		//отсекаем те артикулы которые у которых нулевые остатки и цена
+		$arr15 = (isset($itog_ids_arr))?implode("','",$itog_ids_arr):'';
+		$query = "SELECT art_id FROM `".BASE_DOP_PARAMS_TBL."` WHERE ( ostatok + on_way ) >= '0' AND price > '0' AND art_id IN('".$arr15."') GROUP BY art_id";
+			
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$itog_ids_arr = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$itog_ids_arr[] = $row['art_id'];	
+			}
+		}
+			
+		//отсекаем те артикулы которые лежат в скрытых категориях
+		$arr15 = implode("','",$itog_ids_arr);
+		$query = "SELECT rel.article_id article_id, rel.category_id category_id
+		           FROM `".BASE_ARTS_CATS_RELATION."` rel 
+				   INNER JOIN `".GIFTS_MENU_TBL."` menu
+				   ON  rel.category_id = menu.id
+		           WHERE menu.hide != '1' AND rel.article_id IN('".$arr15."') ORDER BY rel.category_id ASC LIMIT 0,15";
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$itog_ids_arr = array();
+			
+
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				// отказался от такого подхода  $hiden_cat_begining = get_menu_item_id(BEGINING_HIDEN_MENU_CATS);
+				// отказался от такого подхода  if((int)$item['category_id'] >= (int)$hiden_cat_begining['id']) break;
+			    $itog_ids_arr[] = $row['article_id'];
+			}
+		}
+		//echo '<pre>';print_r($itog_ids_arr);echo '</pre>';
+			
+			
+		//получаем изображения артикулов
+		$arr15 = implode("','",$itog_ids_arr);
+		$query = "SELECT base.id id,  base.art art, images.name name FROM `".BASE_TBL."` base
+		          INNER JOIN `".IMAGES_TBL."` images 
+				  ON  base.art = images.art  WHERE size = 'small' AND base.id IN('".$arr15."') GROUP BY  base.id ORDER BY images.id ASC";
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$output[] = array('id'=>$row['id'],'art'=>$row['art'],'img'=>$row['name']);
+			}
+		}
+		//echo '<pre>';print_r($output);echo '</pre>';
+		return  (isset($output))?$output:'';			
+	}
+
 	// получаем другие цвета по артикулу
-	private function get_art_color_variants($art){
-		
-		
+	private function get_art_color_variants($art){		
 	    $prefix = substr($art,0,2);
 		switch($prefix){
 		   case '15':
@@ -488,16 +530,17 @@ class Images extends rtPositionUniversal
 			  break;
 		
 		}
-		// return $matches[1];
-			return $this->find_matches($art,$matches[1]);	
-		//exit;
+			
+		return $this->find_matches($art,$matches[1]);	
 	}
 
 
 	/**
 	 *	старые функции 
 	 *  перенесено из new_veiw.php
-	 *  
+	 *	проверка на существование изображения
+	 *
+	 *  @return     путь до изображения
 	 *	@author  	Андрей
 	 *	@version 	17:27 14.12.2015
 	 */
@@ -663,13 +706,7 @@ class Variants extends rtPositionUniversal
 
 		// подключаемся к базе
 		$this->db();
-
-		// возвращаем найденные вариантырасчёта
-		// return $this->getVariantsDatabase($id);
-
 	}
-
-
 
 	// сортируем варианты по светофору
 	public function get_variants_arr_sort_for_type($variants_arr){
@@ -682,6 +719,7 @@ class Variants extends rtPositionUniversal
 		return $variants_arr_sort;
 	}
 
+	// возвращает Html вкладок для переключения вариантов расчёта
 	public function generate_variants_menu($variants){		
 		$html = ''; // контент функции
 		
@@ -730,7 +768,7 @@ class Variants extends rtPositionUniversal
 		return $html;
 	}
 
-	// получаем все варианты просчёта по данному артикулу
+	// получаем все варианты расчёта по данному артикулу
 	public function getVariantsDatabase($id){
 		// global $mysqli;
 
@@ -800,7 +838,7 @@ class Services extends Variants
 	// $pause - флаг запрета редактирования
 	// названия группы услуги
 	// public function uslugi_template_cat_Html($arr=array(), $NO_show_head = 0, $status_snab='', $pause=0, $edit_true=true){
-	public function htmlTemplate($arr, $NO_show_head = 0, $status_snab='', $pause=0, $edit_true = true){
+	public function htmlTemplate($arr,$variant, $edit_true = true){
 		// определяем редакторов для полей (html тегов)
 		$this->edit_admin = ($this->user_access == 1)?' contenteditable="true" class="edit_span"':'';
 		$this->edit_men = ($this->user_access == 5)?' contenteditable="true" class="edit_span"':'';
@@ -852,59 +890,98 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 
-		$uslname = '';
 		foreach ($services_arr as $key => $service) {
-			// $NO_show_head добавлен как необязательная переменная для отключения вывода 
-			// названия группы услуги
 
-			// if($uslname != $service['parent_name'] && !$NO_show_head){
-			// 	$html .= '<tr  class="group_usl_name" data-usl_id="'.$service['parent_id'].'">';
-		 // 			$html .= '<th colspan="8">'.$service['parent_name'].'</th>';
- 		// 		$html .= '</tr>';
+			foreach ($arr as $key2 => $service_attach) {
+				if($service_attach['uslugi_id']==$key){
 
- 		// 		$uslname = $service['parent_name'];
-			// }
-			foreach ($arr as $key2 => $value2) {
-				if($value2['uslugi_id']==$key){
+					$quantity = ($service_attach['for_how']=="for_all")?1:$service_attach['quantity'];
 
-					$price_in = (($value2['for_how']=="for_all")?$value2['price_in']:($value2['price_in']*$value2['quantity']));
-					$price_out_men = ($value2['for_how']=="for_all")?$value2['price_out']:$value2['price_out']*$value2['quantity'];
+					// цена за штуку
+					$price_in = $service_attach['price_in'];
+					$price_out = $service_attach['price_out'];
+
+					// цена за тираж
+					$tir_price_in = $service_attach['price_in'] * $quantity;
+					$tir_price_out = $service_attach['price_out'] * $quantity;
 					
-					$pribl = ($value2['for_how']=="for_all")?($value2['price_out']-$value2['price_in']):($value2['price_out']*$value2['quantity']-$value2['price_in']*$value2['quantity']);
-					$dop_inf = ($value2['for_how']=="for_one")?'(за тираж '.$value2['quantity'].' шт.)':'';
+					// прибыль за тираж
+					$tir_pribl = $tir_price_out - $tir_price_in;
+					
+					$dop_inf = '';
 					
 					// информация из калькулятора
-					$calc_info = '';$calc_class= '';
+					$calc_info = '';$calc_class= '';$calc_button='';
 					if($service['parent_id'] == 6){
 						$calc_class = ' service-calculator';
-						$calc_info = '<span class="calc_info">/ '.printCalculator::convert_print_details($value2['print_details']).' /</span>';	
+						$calc_button = '<div class="getCalculatorMethod" onclick="getCalculatorMethod()"></div>';
+						$calc_info = '';	
 					}
 					
-
-
-					$price_out_snab = ($value2['for_how']=="for_all")?$value2['price_out_snab']:$value2['price_out_snab']*$value2['quantity'];
-
-
-					$real_price_out = ($service['for_how']=="for_all")?$service['price_out']:$service['price_out']*$value2['quantity'];
-
-
-
 					// ТЗ кнопки
-					$buttons_tz = (trim($value2['tz'])=='')?'<span class="tz_text_new"></span>':'<span class="tz_text_edit"></span>';
+					$buttons_tz = (trim($service_attach['tz'])=='')?'<span class="tz_text_new"></span>':'<span class="tz_text_edit"></span>';
 
 
-					$html .= '<tr class="calculate calculate_usl " data-dop_uslugi_id="'.$value2['id'].'" data-our_uslugi_id="'.$service['id'].'" data-our_uslugi_parent_id="'.trim($service['parent_id']).'"  data-for_how="'.trim($service['for_how']).'">
-										<td><div class="'.$calc_class.'">'.$service['name'].' '.$dop_inf.' <br> '.$calc_info.'</div></td>
-										<td></td>
-										<td class="row_tirage_in_gen uslugi_class price_in"><span '.(($service['edit_pr_in'] == '1')?$this->edit_admin.$this->edit_snab.$this->edit_men:'').'>'.$this->round_money($price_in).'</span></td>
-										<td class="row_tirage_in_gen uslugi_class percent_usl"><span '.$this->edit_admin.$this->edit_snab.$this->edit_men.'>'.$this->get_percent_Int($value2['price_in'],$value2['price_out']).'</span></td>
-										<td class="row_price_out_gen uslugi_class price_out_men"><span '.$this->edit_admin.$this->edit_men.'>'.$this->round_money($price_out_men).'</span></td>
-										<td class="row_pribl_out_gen uslugi_class pribl"><span>'.$this->round_money($pribl).'</span></td>
-										<td></td>
-										<td class="usl_tz">'.$buttons_tz.'<span class="tz_text">'.base64_decode($value2['tz']).'</span><span class="tz_text_shablon">'.$service['tz'].'</span></td>';
-
-					$html .= ($this->user_id == $value2['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';
-					// $html .= $value2['creator_id'];
+					$html .= '<tr class="calculate calculate_usl " data-dop_uslugi_id="'.$service_attach['id'].'" data-our_uslugi_id="'.$service['id'].'" data-our_uslugi_parent_id="'.trim($service['parent_id']).'"  data-for_how="'.trim($service['for_how']).'">';
+						$html .= '<td>';
+							$html .= '<div class="'.$calc_class.'">';
+								// кнопка для вызхова калькулятора
+								$html .= $calc_button;
+								// название услуги (калькулятора)
+								$html .= $service['name'];
+							$html .= '</div>';
+						$html .= '</td>';
+						
+						// тираж
+						$html .= '<td>';
+							$html .= '<div class="greyText">';
+								$html .= $quantity;
+							$html .= '</div>';
+						$html .= '</td>';
+						
+						// входящая штука
+						$html .= '<td class="row_tirage_in_gen uslugi_class price_in">';
+							if($service['edit_pr_in'] != 0){
+								$html .= '<input type="text" value="'.$this->round_money($price_in).'">';
+							}else{
+								$html .= '<span>'.$this->round_money($price_in).'</span>';
+							}							
+						$html .= '</td>';
+						
+						// процент
+						$html .= '<td class="row_tirage_in_gen uslugi_class percent_usl">';
+							$html .= '<span></span>';
+						$html .= '</td>';
+						
+						// исходящая (штука)
+						$html .= '<td class="row_price_out_gen uslugi_class price_out_men">';
+							$html .= '<input type="text" value="'.$this->round_money($price_out).'">';
+						$html .= '</td>';
+						
+						// исходащая / входящая (сумма)
+						// $html .= '<td>';
+							// сумма исх / вход
+							$price_out_summ_out = $this->round_money($quantity * $price_out);
+							$price_out_summ_in = $this->round_money($quantity * $price_in);
+						
+						$html .= '<td class="price_out_summ for_tir" data-for_in="'.$price_out_summ_in.'" data-for_out="'.$price_out_summ_out.'">';
+							$html .= '<span class="for_one">';
+								$html .= $price_out_summ_out;
+							$html .= '</span>';
+							$html .= '<span class="for_in">';
+								$html .= $price_out_summ_in;
+							$html .= '</span>';
+						$html .= '</td>';
+						
+						// маржа
+						$html .= '<td class="row_pribl_out_gen uslugi_class pribl">';
+							$html .= '<span>'.$this->round_money($tir_pribl).'</span>';
+						$html .= '</td>';
+						
+						// кнопка ТЗ
+						$html .= '<td class="usl_tz">'.$buttons_tz.'<span class="tz_text">'.base64_decode($service_attach['tz']).'</span><span class="tz_text_shablon">'.$service['tz'].'</span></td>';
+						// кнопка удаления услуги (только для автора услуги)
+						$html .= ($this->user_id == $service_attach['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';
 					$html .='</tr>';
 
 				}
@@ -916,3 +993,4 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 	}
 }
 
+	

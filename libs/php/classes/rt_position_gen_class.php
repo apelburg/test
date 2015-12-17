@@ -54,7 +54,6 @@ class Position_general_Class{
 	/////////////////  AJAX START ///////////////// 
 	private function _AJAX_(){
 		$method_AJAX = $_POST['AJAX'].'_AJAX';
-
 		// если в этом классе существует такой метод - выполняем его и выходим
 		if(method_exists($this, $method_AJAX)){
 			$this->$method_AJAX();
@@ -63,7 +62,6 @@ class Position_general_Class{
 		
 	}
 	/////////////////  AJAX METHODs  ///////////////// 
-
 
 	protected function save_tz_text_AJAX(){
 		global $mysqli;
@@ -275,7 +273,7 @@ class Position_general_Class{
 	}
 
 	// отдаёт $html распечатанного массива
-	protected function print_arr($arr){
+	public function print_arr($arr){
 		ob_start();
 		echo '<pre>';
 		print_r($arr);
@@ -286,11 +284,11 @@ class Position_general_Class{
 		return $content;
 	}
 	// форматируем денежный формат + округляем
-	protected function round_money($num){
+	public function round_money($num){
 		return number_format(round($num, 2), 2, '.', '');
 	}
 	// подсчёт процентов наценки
-	protected function get_percent_Int($price_in,$price_out){
+	public function get_percent_Int($price_in,$price_out){
 		$per = ($price_in!= 0)?$price_in:0.09;
 		$percent = round((($price_out-$price_in)*100/$per),2);
 		return $percent;

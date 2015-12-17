@@ -38,7 +38,23 @@
  	}, function(data, textStatus, xhr) {
  		standard_response_handler(data);
  	},'json');
- }
+}
+
+// клик по исходящей цене (цена из каталога)
+$(document).on('click', '.row_price_out_one.price_out', function(event) {
+  if($(this).find('input').attr('disabled') == 'disabled'){
+    var message = "Чтобы редактировать цену, воспользуйтесь инструментом наценки";
+    echo_message_js(message,'error_message',800);
+  }
+});
+
+// кнопка переключатель цены в таблице расчета
+$(document).on('click', '.js--button-out_ptice_for_tirage', function(event) {
+  event.preventDefault();
+  console.log('// кнопка переключатель цены в таблице расчета');
+});
+
+
 
 // jQuery дополнение
 // операции над строкой URL

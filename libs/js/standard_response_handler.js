@@ -216,7 +216,9 @@
 		});
 
 
-	function echo_message_js(text, message_type){
+	
+	function echo_message_js(text, message_type, timer){
+		timer = timer || 7000;
 		$("<li/>", {
 			"class": message_type,
 			"css":{"opacity":1,"top":0},
@@ -231,7 +233,7 @@
 			        function(){
 		    	        jQuery(this).remove();
 		        	});
-		    }, 7000);
+		    }, timer);
 		});
 	}
 //////////////////////////////////

@@ -307,8 +307,25 @@ body {
 }
 .variant_info table tr.variant_calc_itogo td:nth-of-type(1){ font-weight: bold}
 
-.variant_info table tr td{ padding: 5px}
-.variant_info table tr th{ padding: 2px 5px}
+.variant_info table tr td{ padding: 3px}
+.variant_info table tr th{ padding: 2px 5px;}
+
+.variant_info table.calkulate_table tr th:nth-of-type(3),
+.variant_info table.calkulate_table tr th:nth-of-type(4),
+.variant_info table.calkulate_table tr th:nth-of-type(5),
+.variant_info table.calkulate_table tr th:nth-of-type(6),
+.variant_info table.calkulate_table tr th:nth-of-type(7),
+.variant_info table.calkulate_table tr th:nth-of-type(8),
+
+.variant_info table.calkulate_table tr td:nth-of-type(3),
+.variant_info table.calkulate_table tr td:nth-of-type(4),
+.variant_info table.calkulate_table tr td:nth-of-type(5),
+.variant_info table.calkulate_table tr td:nth-of-type(6),
+.variant_info table.calkulate_table tr td:nth-of-type(7),
+.variant_info table.calkulate_table tr td:nth-of-type(8){
+  padding-right: 15px;
+}
+
 .variant_info .table_spacer{ height: 10px}
 
 #variants_name ul #show_archive{float: right; padding: 0}
@@ -864,6 +881,7 @@ span.snab_comment {
   padding: 0;
   background: rgb(255, 253, 253);
   /* padding: 5px; */
+  font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif;
   border: 1px solid #DCDADA;
 }
 
@@ -871,13 +889,13 @@ span.snab_comment {
   padding: 2px;
 }
 #position_menu_absolute ul li{
-  list-style: none;
-  margin: 0;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 14px;
-  padding-left: 40px;
-  background-repeat: no-repeat;
+      list-style: none;
+    margin: 0;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    padding-left: 40px;
+    background-repeat: no-repeat;
 }
 #position_menu_absolute ul li.green{
   background-image: url(http://www.apelburg.ru/os//skins/images/img_design/rt_svetofor_green.png);
@@ -997,7 +1015,7 @@ span.calc_info {
 }
 
 .service-calculator {
-    background-image: url('../images/img_design/calc_icon.png');
+    /*background-image: url('../images/img_design/calc_icon.png');*/
     background-repeat: no-repeat;
     background-position-y: 1px;
     padding-left: 27px;

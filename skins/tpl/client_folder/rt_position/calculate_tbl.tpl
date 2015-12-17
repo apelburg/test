@@ -63,7 +63,8 @@
 						<th>входящая<br>(штука)</th>
 						<th>наценка<br>&nbsp;</th>
 						<th>исходящая<br>(штука)</th>
-						<th>исходящая<br>(сумма)</th>
+						<th class="js--button-out_ptice_for_tirage for_tir"><div class="">исходящая
+							<br>(сумма)</div></th>
 						<th>маржа<br>&nbsp;</th>
 						<th class="edit_cell">ТЗ<br>&nbsp;</th>
 						<th class="del_cell">del<br>&nbsp;</th>
@@ -81,33 +82,62 @@
 					</tr>
 					<tr class="tirage_and_price_for_one">
 						<td>Товар</td>
-						<td></td>
-						<td class="row_tirage_in_one price_in"><span contenteditable="true" class="edit_span"><?php echo $variant['price_in']; ?></span></td>
-						<td class="percent_nacenki">
-							<span contenteditable="true" class="edit_span"><?php 
-							$per = ($variant['price_in']!= 0)?$variant['price_in']:0.09;
-							echo round((($variant['price_out']-$variant['price_in'])*100/$per),2);
-							?></span>
-						</td>
-						<td  class="row_price_out_one price_out"><span class="edit_span" contenteditable="true"><?php echo $variant['price_out']; ?></span></td>
-						<td class="row_pribl_out_one pribl"><span><?php echo ($variant['price_out']-$variant['price_in']); ?></span></td>
-						<td></td><td></td>
-					</tr>
-					<tr  class="tirage_and_price_for_all for_all">
+						<td><?=$variant['quantity'];?></td>
+						<td class="row_tirage_in_one price_in"><input type="text" value="<?=$variant['price_in'];?>"></td>
 						
-						<td>тираж</td>
+						<td class="percent_nacenki js--calculate_tbl-edit_percent" data-val="<?=$variant['discount'];?>"  data-id="<?=$variant['id'];?>">
+							<?php
+								// расчет исходящей цены на товар
+								$price_out = $POSITION->round_money(($variant['discount'] != 0 )? (($variant['price_out']/100)*(100 + $variant['discount'])) : $variant['price_out'] );
+							?>
+
+							<span class=""><?=$variant['discount'];?>%</span>
+							<?php
+								if($price_out != $variant['price_out']){
+									echo '<span class="greyText">'.$variant['price_out'].'</span>';
+								}
+							?>
+						</td>
+						<td  class="row_price_out_one price_out">	
+							<input type="text" disabled="disabled" value="<?php echo $price_out ?>">							
+						</td>
+
+							
+
+						<?php
+							// сумма исх / вход
+							$price_out_summ_out = $POSITION->round_money($variant['quantity']*$price_out);
+							$price_out_summ_in = $POSITION->round_money($variant['quantity']*$variant['price_in']);
+						?>
+						<td class="price_out_summ for_out" data-for_in="<?=$price_out_summ_in;?>" data-for_out="<?=$price_out_summ_out;?>">
+							<span class="for_out">
+								<?=$price_out_summ_out;?>
+							</span>
+							<span class="for_in">
+								<?=$price_out_summ_in;?>
+							</span>
+						</td>
+						<?php
+							// на всякий случай посчитано для штуки и для тиража,
+							// вдруг понадобится задействовать эту колонку в переключении 
+							// при клике на сумму
+
+							// по умолчанию стоит цена за тираж
+							$pribl_for_one = $POSITION->round_money($price_out - $variant['price_in']);
+							$pribl_for_tir = $POSITION->round_money($variant['quantity']*($price_out - $variant['price_in']));
+						?>
+						<td class="row_pribl_out_one pribl" data-for_tir="<?=$pribl_for_tir;?>" data-for_one="<?=$pribl_for_one;?>">
+							<span>
+								<?=$pribl_for_tir;?>
+							</span>
+						</td>
 						<td></td>
-						<td class="row_tirage_in_gen price_in"><span class="price_in_all"><?php echo $sum_of_tirage_in;   ?></span></td>
-						<td></td>
-						<td class="row_price_out_gen price_out"><span><?php echo $sum_of_tirage_out;  ?></span></td>
-						<td class="row_pribl_out_gen pribl" ><span><?php echo $sum_prib_of_tirage; ?></span></td>
-						<td></td><td></td>
 					</tr>
 					<?php 
 					
 					$uslugi = $POSITION->Variants->getServices($variant['id']);
 
-					echo $POSITION->Variants->Services->htmlTemplate($uslugi);
+					echo $POSITION->Variants->Services->htmlTemplate($uslugi,$variant);
 					?>
 					<tr>
 						<th colspan="9" class="type_row_calc_tbl">

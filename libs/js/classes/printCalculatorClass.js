@@ -1,4 +1,32 @@
 var printCalculator = {
+	test_evoke_calculator: function(e){
+		e = e || window.event;
+		var cell = e.target || e.srcElement;
+	    //printCalculator.dataObj_toEvokeCalculator = {"art_id":15431,"dop_data_row_id":54,"quantity":300,"cell":cell};
+		
+		
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('fetch_data_for_dop_uslugi_row='+80);
+		printCalculator.send_ajax(url,callback);
+		function callback(response){ 
+		    var data_AboutPrint = JSON.parse(response);
+			data_AboutPrint.print_details =JSON.parse(data_AboutPrint.print_details);
+
+
+			if(typeof printCalculator.currentCalculationData.id !== 'undefined') delete printCalculator.currentCalculationData.id;
+			if(typeof printCalculator.currentCalculationData.type !== 'undefined') delete printCalculator.currentCalculationData.type;
+			
+			
+			
+		    printCalculator.currentCalculationData[0] = data_AboutPrint;
+			printCalculator.currentCalculationData[0].dop_uslugi_id = data_AboutPrint.id;
+		
+		    printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id = 0;
+		    printCalculator.evoke_calculator();
+		}
+
+		printCalculator.evoke_calculator();
+	}
+	,
 	start_calculator:function(e){
 	    e = e || window.event;
 		var cell = e.target || e.srcElement;
@@ -140,7 +168,7 @@ var printCalculator = {
 				// данные конкретного(этого)нанесения
 				printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id = this.getAttribute('index');
 				// запускаем
-				printCalculator.evoke_calculator(printCalculator.dataObj_toEvokeCalculator);
+				printCalculator.evoke_calculator();
 			}
 			
 			// место нанесения
@@ -189,7 +217,7 @@ var printCalculator = {
 		addNewPrintBtn.innerHTML = 'Добавить еще место';
 		addNewPrintBtn.onclick =  function(){ 
 		    $("#calculatorDopUslugiBox").remove();
-		    printCalculator.evoke_calculator(printCalculator.dataObj_toEvokeCalculator);
+		    printCalculator.evoke_calculator();
 	    };
 		box.appendChild(addNewPrintBtn);
 		
@@ -225,9 +253,8 @@ var printCalculator = {
 	}
 	,
 	evoke_calculator:function(){
-		
 		// отправляем запрос чтобы получить описание параметров дефолтных параметров калькулятора для данного ариткула
-	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('grab_calculator_data={"art_id":"'+printCalculator.dataObj_toEvokeCalculator.art_id+'","type":"'+printCalculator.dataObj_toEvokeCalculator.cell.parentNode.getAttribute('calc_btn')+'"}');
+	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&grab_calculator_data={"art_id":"'+printCalculator.dataObj_toEvokeCalculator.art_id+'","type":"print"}');
 		printCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){

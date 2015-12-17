@@ -453,10 +453,28 @@ function get_position_menu_absolute(event,content){
 			      "css":{"opacity":1,"top":(event.pageY-25),"left":(event.pageX-25)},
 			      "id":"position_menu_absolute",
 			      click: function(){
-			          $(this).animate({opacity:0},'fast',function(){$(this).remove()});
+			          remove_position_menu_absolute();
 			      }
 			}).append(content).appendTo('body').fadeIn('slow');
+	
+	// клик вне элемента
+	$(document).click( function(event){
+    	if( $(event.target).closest("#position_menu_absolute").length ) 
+    		return;
+    	remove_position_menu_absolute();
+    	event.stopPropagation();
+    });
+	
+
+
 }
+// удаление меню
+function remove_position_menu_absolute(){
+	$("#position_menu_absolute").animate({opacity:0},'fast',function(){$(this).remove()});
+}
+
+
+
 function destroy_datetimepicker_for_variant_cont(){
 	$('#edit_variants_content .datepicker2').datetimepicker('destroy');
 	$('#edit_variants_content .timepicker2').datetimepicker('destroy');
@@ -996,10 +1014,12 @@ function recalculate_table_price_Itogo(){
 
 
 	// объявляем переменные
-	var price_in = 0;
-	var per = 0;// для временного хранения
-	var price_out = 0;
-	var pribl = 0;
+	var price_in = 0;			// штука
+	var per = 0;	 			// для временного хранения
+	var price_out = 0; 			// штука
+	var price_out_tir_in = 0;	// тираж вход.
+	var price_out_tir_out = 0;	// тираж исх.
+	var pribl = 0;				// маржа
 
 	
 	// ОБСЧИТЫВАЕМ ДАННЫЕ В СТРОКАХ .calkulate_table:visible
@@ -1007,43 +1027,57 @@ function recalculate_table_price_Itogo(){
 
 	//    %
 	var i = 1;// для обсчета процентов
-	per += Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .percent_nacenki span').html());
-	$('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.percent_usl span').each(function(index, el){
-		per += Number($(this).html());	
-		// console.log(Number($(this).html()));
-		i++;	
-	});
+	// per += Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .percent_nacenki span').html());
+	// $('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.percent_usl span').each(function(index, el){
+	// 	per += Number($(this).html());	
+	// 	// console.log(Number($(this).html()));
+	// 	i++;	
+	// });
 
-
+// row_tirage_in_one price_in
 	//    price in
-	price_in += Number($(id_active_variant+' .calkulate_table span.price_in_all').html());
-	$('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.price_in span').each(function(index, el){
-		price_in += Number($(this).html());	
-		// console.log(Number($(this).html()));
-	});
+		price_in += Number($('.calkulate_table:visible .tirage_and_price_for_one .row_tirage_in_one.price_in span.price_in_all').val());
+		$('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.price_in span').each(function(index, el){
+			price_in += Number($(this).html());	
+		});
+		$('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.price_in input').each(function(index, el){
+			price_in += Number($(this).val());	
+		});
 
 	//    price out
-	price_out += Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .row_price_out_one.price_out span').html());
-	$('.calkulate_table:visible .uslugi_class.price_out_men span').each(function(index, el){
-		price_out += Number($(this).html());	
-		// console.log(Number($(this).html()));
-	});
-
-
-	//    pribl
-	pribl += Number($(id_active_variant+' .calkulate_table .row_pribl_out_gen.pribl span').html());
-	$('.calkulate_table:visible .row_pribl_out_gen.uslugi_class.pribl span').each(function(index, el){
-		pribl += Number($(this).html());	
-		// console.log(Number($(this).html()));
-	});
+		price_out += Number($('.calkulate_table:visible .tirage_and_price_for_one .row_price_out_one.price_out span').html());
+		$('.calkulate_table:visible .uslugi_class.price_out_men span').each(function(index, el){
+			price_out += Number($(this).html());	
+		});
+		$('.calkulate_table:visible .uslugi_class.price_out_men input').each(function(index, el){
+			price_out += Number($(this).val());	
+		});
 
 
 
+	//    pribl (маржа)
+		pribl += Number($('.calkulate_table:visible .row_pribl_out_gen.pribl span').html());
+		$('.calkulate_table:visible .row_pribl_out_gen.uslugi_class.pribl span').each(function(index, el){
+			pribl += Number($(this).html());	
+			// console.log(Number($(this).html()));
+		});
+
+	//	price_out_tir_out
+		price_out_tir_out += Number($('.calkulate_table:visible .price_out_summ.for_tir span.for_out').html());
+		$('.calkulate_table:visible .row_pribl_out_gen.uslugi_class.pribl span.for_out').each(function(index, el){
+			price_out_tir_out += Number($(this).html());	
+		});
+	//	price_out_tir_in
+		
+		price_out_tir_in += Number($('.calkulate_table:visible .price_out_summ.for_tir span.for_in').html());
+		$('.calkulate_table:visible .row_pribl_out_gen.uslugi_class.pribl span.for_in').each(function(index, el){
+			price_out_tir_in += Number($(this).html());	
+		});
 
 
 
-
-
+		$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span.for_in').html(Math.ceil((price_out_tir_in)*100)/100);
+		$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span.for_out').html(Math.ceil((price_out_tir_out)*100)/100);
 
 
 	// console.log(per);
@@ -1051,11 +1085,11 @@ function recalculate_table_price_Itogo(){
 	// цена входящая за тираж или услугу
 	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(3) span').html(Math.ceil((price_in)*100)/100);
 	//%
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(4) span').html(Math.ceil((per/i)*100)/100);
+	// $('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(4) span').html(Math.ceil((per/i)*100)/100);
 	// исходящая цена
 	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span').html(Math.ceil((price_out)*100)/100);
 	// прибль
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span').html(Math.ceil((pribl)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(7) span').html(Math.ceil((pribl)*100)/100);
 	// console.log(profit);
 
 }
