@@ -196,8 +196,30 @@
 		}
 	}
 	else{
-	    echo 'клиенты не найдены';
-		$page_navigation = '';
+	    
+		// print_r($filters);
+		$filtersDescriptNames = array('by_rating'=>'фильтрация по Рейтингу','by_letter'=>'фильтрация по Алфавиту','by_profies'=>'фильтрация по Профилю','by_alphabet'=>'сортировка по Алфавиту','by_creating_date'=>'сортировка по Дате создания');
+		$activeFilters = array();
+		// isset($_GET['filter_by_cities']) $_GET['sotring'] by_alphabet by_creating_date
+		foreach($filters as $filter){
+		    if(isset($filtersDescriptNames[$filter['type']])) $activeFilters[] = $filtersDescriptNames[$filter['type']].' <a href="?'.addOrReplaceGetOnURL('','filter_'.$filter['type']).'">снять</a>';
+		}
+		if(isset($_GET['filter_by_cities'])){
+		    $activeFilters[] = 'фильтрация по Городам <a href="?'.addOrReplaceGetOnURL('','filter_by_cities').'">снять</a>';
+		}
+		if(isset($_GET['sotring'])){
+		    if(isset($filtersDescriptNames[$_GET['sotring']]))  $activeFilters[] = $filtersDescriptNames[$_GET['sotring']].' <a href="?'.addOrReplaceGetOnURL('','sotring').'">снять</a>';
+		}
+		
+		$notice_window =  '<div class="notice_window_box"><div class="window">';
+		$notice_window .=  '<h3>клиенты не найдены</h3>';
+		if(count($activeFilters)>0){
+		    $notice_window .=  '<h4>На странице применены фильтры:</h4>';
+		    $notice_window .=  '<div class="row">'.implode('</div><div class="row">',$activeFilters).'</div>';
+		}
+		
+		$notice_window .= '</div></div>';
+		$page_navigation = $header_tbl = $header_tr = '';
 	}
 	
 	$rows = ob_get_contents();

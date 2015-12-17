@@ -1,4 +1,5 @@
 var printCalculator = {
+<<<<<<< HEAD
 	test_evoke_calculator: function(e){
 		e = e || window.event;
 		var cell = e.target || e.srcElement;
@@ -25,6 +26,43 @@ var printCalculator = {
 		}
 
 		printCalculator.evoke_calculator();
+=======
+	evoke_calculator_directly: function(data){
+	    console.log(data);
+		if(data.dop_uslugi_id){
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_data_for_dop_uslugi_row='+data.dop_uslugi_id);
+			printCalculator.send_ajax(url,callback);
+			function callback(response){ 
+			
+				//console.log(response);console.log(data_AboutPrintsArr);
+				var data_AboutPrintsArr = JSON.parse(response);
+				data_AboutPrintsArr.print_details =JSON.parse(data_AboutPrintsArr.print_details);
+
+				printCalculator.currentCalculationData = [];
+				printCalculator.currentCalculationData[0] = data_AboutPrintsArr;
+				printCalculator.currentCalculationData[0].dop_uslugi_id =  data_AboutPrintsArr.id;
+			
+				if(typeof printCalculator.currentCalculationData.id !== 'undefined') delete printCalculator.currentCalculationData.id;
+				if(typeof printCalculator.currentCalculationData.type !== 'undefined') delete printCalculator.currentCalculationData.type;
+				
+				printCalculator.dataObj_toEvokeCalculator = {};
+				printCalculator.dataObj_toEvokeCalculator = data; //{"art_id":15431,"dop_data_row_id":3,"quantity":1};
+				
+				// здесь 0 устанавливается именно в виде строки, если установить числом то не будет работать
+				// из-за проверки этого значения в начале build_print_calculator 
+				// в условиии if(printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id)
+				printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id = "0";
+				printCalculator.evoke_calculator();
+			  
+				
+			}
+		}
+		else{
+			printCalculator.dataObj_toEvokeCalculator = data; //{"art_id":15431,"dop_data_row_id":3,"quantity":1};
+		    printCalculator.evoke_calculator();
+		}
+		
+>>>>>>> 786f2d6b318de2f7868f12d91851c4e04378f3a4
 	}
 	,
 	start_calculator:function(e){
@@ -70,7 +108,7 @@ var printCalculator = {
 			//    расчетов дополнительных услуг, если массив был пустой вызываем метод запускающий калькулятор
 			
 			// этап 1
-			var url = OS_HOST+'?' + addOrReplaceGetOnURL('fetch_dop_uslugi_for_row='+dop_data_row_id);
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_dop_uslugi_for_row='+dop_data_row_id);
 			printCalculator.send_ajax(url,callback);
 			function callback(response){ 
 			    // alert(response);
@@ -190,7 +228,7 @@ var printCalculator = {
 			td.onclick = function(){ 
 			
 				// отправляем запрос на удаление для текущего нанесения
-				var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_prints_for_row='+printCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&usluga_id='+this.getAttribute('usluga_id'));
+				var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&delete_prints_for_row='+printCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&usluga_id='+this.getAttribute('usluga_id'));
 				printCalculator.send_ajax(url,callback);
 			
 				function callback(response){ 
@@ -234,7 +272,7 @@ var printCalculator = {
 		    $("#calculatorDeleteAllPrinstBtn").remove();
 			
 			// отправляем запрос на удаление всех нанесений для текущего расчета
-			var url = OS_HOST+'?' + addOrReplaceGetOnURL('delete_prints_for_row='+printCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&all=true');
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&delete_prints_for_row='+printCalculator.dataObj_toEvokeCalculator.dop_data_row_id+'&all=true');
 		    printCalculator.send_ajax(url,callback);
 		
 			function callback(response){ 
@@ -258,7 +296,7 @@ var printCalculator = {
 		printCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){
-			// alert(response_calculatorParamsData);
+			 // alert(response_calculatorParamsData);
 			// return;
 			if(typeof printCalculator.calculatorParamsObj !== 'undefined') delete printCalculator.calculatorParamsObj;
 			
@@ -347,7 +385,7 @@ var printCalculator = {
 							
 							
 							
-							var url = OS_HOST+'?' + addOrReplaceGetOnURL('distribute_print=1&details='+JSON.stringify(details));
+							var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&distribute_print=1&details='+JSON.stringify(details));
 							printCalculator.send_ajax(url,callback);
 						 
 							//$("#distributionSaveResultBtn").remove();
@@ -1719,7 +1757,7 @@ var printCalculator = {
         // console.log('<<< saveCalculatorResult --');
 		
 		// формируем url для AJAX запроса
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_calculator_result=1&details='+JSON.stringify(printCalculator.currentCalculationData));
+		var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&save_calculator_result=1&details='+JSON.stringify(printCalculator.currentCalculationData));
 		
 		//alert(url);//
 		document.getElementById("calculatorsaveResultPlank").style.visibility ='hidden';

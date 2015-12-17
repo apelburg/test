@@ -418,6 +418,11 @@
 				  <td class="hidden">тип</td>
 				  <td class="art_name right">
 				      <a href="#" onclick="console.log(rtCalculator.tbl_model);/*print_r(rtCalculator.tbl_model);*/">_</a>
+					  &nbsp;
+					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>
+					  &nbsp;
+					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:3,quantity:1});">_</a>
+					  
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
@@ -489,8 +494,9 @@
 				</tr>
 	         </table>'; 
 	   if(isset($tbl_rows)){          
-	       $rt.= '<div id="scrolled_part_container" class="scrolled_tbl_movable_part">
-	             <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0">'.implode('',$tbl_rows).'</table>
+	       $rt.= '<div id="scrolled_part_container" class="scrolled_tbl_movable_part" style="position:relative;">
+	             <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0">'.implode('',$tbl_rows).'</table>'
+				 .(($block_page_elements)?'<div id="blanket" style="position:absolute;top:0px;left:0px;right:0px;bottom:0px;border:#ff0000 solid 0px"></div>':'').'
 			  </div>';
 	    }
 		else{
