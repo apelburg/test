@@ -1,34 +1,6 @@
 var printCalculator = {
-<<<<<<< HEAD
-	test_evoke_calculator: function(e){
-		e = e || window.event;
-		var cell = e.target || e.srcElement;
-	    //printCalculator.dataObj_toEvokeCalculator = {"art_id":15431,"dop_data_row_id":54,"quantity":300,"cell":cell};
-		
-		
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('fetch_data_for_dop_uslugi_row='+80);
-		printCalculator.send_ajax(url,callback);
-		function callback(response){ 
-		    var data_AboutPrint = JSON.parse(response);
-			data_AboutPrint.print_details =JSON.parse(data_AboutPrint.print_details);
-
-
-			if(typeof printCalculator.currentCalculationData.id !== 'undefined') delete printCalculator.currentCalculationData.id;
-			if(typeof printCalculator.currentCalculationData.type !== 'undefined') delete printCalculator.currentCalculationData.type;
-			
-			
-			
-		    printCalculator.currentCalculationData[0] = data_AboutPrint;
-			printCalculator.currentCalculationData[0].dop_uslugi_id = data_AboutPrint.id;
-		
-		    printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id = 0;
-		    printCalculator.evoke_calculator();
-		}
-
-		printCalculator.evoke_calculator();
-=======
 	evoke_calculator_directly: function(data){
-	    console.log(data);
+	    //console.log(data);
 		if(data.dop_uslugi_id){
 			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_data_for_dop_uslugi_row='+data.dop_uslugi_id);
 			printCalculator.send_ajax(url,callback);
@@ -62,7 +34,6 @@ var printCalculator = {
 		    printCalculator.evoke_calculator();
 		}
 		
->>>>>>> 786f2d6b318de2f7868f12d91851c4e04378f3a4
 	}
 	,
 	start_calculator:function(e){

@@ -59,12 +59,11 @@
 				<table class="calkulate_table">
 					<tr>
 						<th  style="width: 316px;"></th>
-						<th>тираж</th>
+						<th>тираж<br>&nbsp;</th>
 						<th>входящая<br>(штука)</th>
 						<th>наценка<br>&nbsp;</th>
 						<th>исходящая<br>(штука)</th>
-						<th class="js--button-out_ptice_for_tirage for_tir"><div class="">исходящая
-							<br>(сумма)</div></th>
+						<th class="js--button-out_ptice_for_tirage for_out"><div class="">исходящая<br>(сумма)</div></th>
 						<th>маржа<br>&nbsp;</th>
 						<th class="edit_cell">ТЗ<br>&nbsp;</th>
 						<th class="del_cell">del<br>&nbsp;</th>
@@ -75,7 +74,10 @@
 						<td><span></span></td>
 						<td><span></span></td>
 						<td><span></span></td>
-						<td><span></span></td>
+						<td class="for_out">
+							<span class="for_out">0</span>
+							<span class="for_in">0</span>
+						</td>
 						<td><span></span></td>
 						<td></td>
 						<td></td>

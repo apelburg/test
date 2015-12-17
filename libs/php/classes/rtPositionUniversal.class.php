@@ -964,8 +964,9 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 							$price_out_summ_out = $this->round_money($quantity * $price_out);
 							$price_out_summ_in = $this->round_money($quantity * $price_in);
 						
-						$html .= '<td class="price_out_summ for_tir" data-for_in="'.$price_out_summ_in.'" data-for_out="'.$price_out_summ_out.'">';
-							$html .= '<span class="for_one">';
+						$html .= '<td class="price_out_summ for_out" data-for_in="'.$price_out_summ_in.'" 
+						data-for_out="'.$price_out_summ_out.'">';
+							$html .= '<span class="for_out">';
 								$html .= $price_out_summ_out;
 							$html .= '</span>';
 							$html .= '<span class="for_in">';
