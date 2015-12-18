@@ -17,7 +17,7 @@
 		static function save_rt_changes($data){
 		    global $mysqli;   //print_r($data); 
 	   
-			$query="UPDATE `".RT_DOP_DATA."` SET  `".$data->prop."` = '".$data->val."'  WHERE `id` = '".$data->id."'";
+			$query="UPDATE `".RT_DOP_DATA."` SET ".(isset($data->discount)? " `discount` = '".$data->discount."', ":"")." `".$data->prop."` = '".$data->val."'  WHERE `id` = '".$data->id."'";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}

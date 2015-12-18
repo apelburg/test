@@ -264,8 +264,8 @@ var rtCalculator = {
 	,
 	complite_input:function(){
 		// метод срабатывает либо при событие onblur в ячейках ввода данных для расчета ( тем самым он срабатывает когда ввод данных завершен
-		// используем этот момент для отправки измененных данных в базу данных на сервер для синхронизации изменений ) 
 		// либо при срабатывании таймера запускающегося при onkeyup в ячейке что позволяет отправлять данные из ячейки с некоторыим интервалом
+		// используем этот момент для отправки измененных данных в базу данных на сервер для синхронизации изменений ) 
 		
 		if(rtCalculator.complite_timer){
 			 clearTimeout(rtCalculator.complite_timer);
@@ -275,7 +275,9 @@ var rtCalculator = {
 		 // console.log('№'+(++rtCalculator.complite_count));
 		 // console.log(1);
 		// получаем значение ячейки
+		var prop = rtCalculator.cur_cell.getAttribute('type');
 		var last_val = rtCalculator.cur_cell.innerHTML;
+		
 		
 		// сравниваем текущее значение с первоначальным, если они равны значит окончательные изменения не были произведены
 		// в таком случае ничего не меняем в базе - прерываем дальнейшее выполнение
@@ -287,15 +289,32 @@ var rtCalculator = {
 		
 		var row_id = rtCalculator.cur_cell.parentNode.getAttribute('row_id');
 		var discount = (rtCalculator.tbl_model[row_id].discount)?rtCalculator.tbl_model[row_id].discount:0;
-		if(discount!=0){
-			console.log(rtCalculator.tbl_model[row_id].discount);
-			if(!rtCalculator.dscntDisclaimerProtocol[row_id]) rtCalculator.shDscntDisclaimer(rtCalculator.cur_cell,row_id,discount);
+		//if(prop == 'price_out' && (discount!=0 || (discount==0 && rtCalculator.previos_data['discount']!=0 ))){
+		if(prop == 'price_out' && discount!=0){
+		    //alert(rtCalculator.previos_data['$discount']);
+			prop = 'discount';
+			last_val = discount;
+			//console.log(rtCalculator.tbl_model[row_id].discount);
+			//if(!rtCalculator.dscntDisclaimerProtocol[row_id]) rtCalculator.shDscntDisclaimer(rtCalculator.cur_cell,row_id,discount);
 		}
 		
-		// формируем url для AJAX запроса
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+row_id+'","prop":"'+rtCalculator.cur_cell.getAttribute('type')+'","val":"'+last_val+'"}');
+		if(prop == 'price_out' && discount==0){
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+row_id+'","discount":"0","prop":"'+prop +'","val":"'+last_val+'"}');
+			
+			
+			//console.log(rtCalculator.tbl_model[row_id].discount);
+			//if(!rtCalculator.dscntDisclaimerProtocol[row_id]) rtCalculator.shDscntDisclaimer(rtCalculator.cur_cell,row_id,discount);
+		}
+		else{
+			if(prop == 'price_out' && discount!=0){
+				prop = 'discount';
+				last_val = discount;
+			}
+			// формируем url для AJAX запроса
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+row_id+'","prop":"'+prop +'","val":"'+last_val+'"}');
+		}
 		rtCalculator.send_ajax(url,callback);
-		//alert(last_val);
+		//alert(url);
 		function callback(){ 
 		    rtCalculator.changes_in_process = false;
 		    /*cell.className = cell.className.slice(0,cell.className.indexOf("active")-1);*/
@@ -502,10 +521,12 @@ var rtCalculator = {
 		//**print_r(rtCalculator.tbl_model[row_id]);
 		
 		// сохраняем итоговые суммы ряда до изменения ячейки
+		rtCalculator.previos_data['price_out'] = rtCalculator.tbl_model[row_id]['price_out'];
 		rtCalculator.previos_data['price_in_summ'] = rtCalculator.tbl_model[row_id]['price_in_summ'];
 		rtCalculator.previos_data['price_out_summ'] = rtCalculator.tbl_model[row_id]['price_out_summ'];
 		rtCalculator.previos_data['in_summ'] = rtCalculator.tbl_model[row_id]['in_summ'];
 		rtCalculator.previos_data['out_summ'] = rtCalculator.tbl_model[row_id]['out_summ'];
+		rtCalculator.previos_data['discount'] = rtCalculator.tbl_model[row_id]['discount'];
 		rtCalculator.previos_data['delta'] = rtCalculator.tbl_model[row_id]['delta'];
 		rtCalculator.previos_data['margin'] = rtCalculator.tbl_model[row_id]['margin'];
 		
@@ -543,6 +564,7 @@ var rtCalculator = {
 		rtCalculator.previos_data['price_out_summ'] = rtCalculator.tbl_model[row_id]['price_out_summ'];
 		rtCalculator.previos_data['in_summ'] = rtCalculator.tbl_model[row_id]['in_summ'];
 		rtCalculator.previos_data['out_summ'] = rtCalculator.tbl_model[row_id]['out_summ'];
+		rtCalculator.previos_data['discount'] = rtCalculator.tbl_model[row_id]['discount'];
 		rtCalculator.previos_data['delta'] = rtCalculator.tbl_model[row_id]['delta'];
 		rtCalculator.previos_data['margin'] = rtCalculator.tbl_model[row_id]['margin'];
 		
@@ -748,6 +770,9 @@ var rtCalculator = {
 		row['out_summ'] = row['price_out_summ'];
 		if(!row['dop_data']['expel']['print']) row['out_summ'] +=row['print_out_summ'];
 		if(!row['dop_data']['expel']['dop'])   row['out_summ'] +=row['dop_uslugi_out_summ'];
+		
+		rtCalculator.tbl_model[row_id]['discount'] = (row['discount']!=0)? (Math.round(((row['price_out']*100/(rtCalculator.previos_data['price_out']*100/(100+row['discount'])))-100)* 100) / 100): 0;
+		//alert('('+row['price_out']+'*'+100+'/'+rtCalculator.previos_data['price_out']+')'+'-'+100);
 		
 		row['delta'] = row['out_summ']-row['in_summ'];
 		row['margin'] = (row['out_summ']>0 && row['in_summ']>0)?((row['out_summ']-row['in_summ'])/row['in_summ'])*100:0;
@@ -2202,7 +2227,7 @@ var rtCalculator = {
 	   var label1 = document.createElement("label"); 
 	   label1.style.cursor ='pointer';
 	   label1.appendChild(input_radio1);
-	   label1.appendChild(document.createTextNode("данная позиция"));
+	   label1.appendChild(document.createTextNode("данный расчет"));
 	   label1.appendChild(document.createElement("br"));
 	   
 	   var input_radio2 = document.createElement("input"); 

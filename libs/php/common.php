@@ -2646,14 +2646,72 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		    
 	}
 	function set_discount(){
-	    global $db;
+	   
+		function make_it($id){
+		    global $mysqli;
+			global $form_data;
+			unset($form_data['id']);
+			extract($form_data);
+			 
+			$query = "SELECT discount, price_out FROM `".RT_DOP_DATA."`  WHERE `id` = '$id'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			//if($result->num_rows>0)
+			$row = $result->fetch_assoc();
+			
+			if(isset($drop_discont) && $drop_discont == 'on'){
+				$query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '0' WHERE `id` = '$id'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+			}
+			else if(isset($new_price) && floatval($new_price) != 0){
+				$percentage = $new_price*100/$row['price_out'];
+				$discount = $percentage - 100; 
+				
+				$query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '$discount' WHERE `id` = '$id'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+			}
+			else if(isset($type_action) && isset($percent) && floatval($percent) != 0){
+				$discount = ($type_action == 'discount')? -$percent : $percent ;
+				
+				$query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '$discount' WHERE `id` = '$id'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+			}
+		}
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		global $mysqli;
 		global $form_data;
 		global $query_num;
 		//print_r($form_data);
 		//exit;
+		
 		extract($form_data);
 		
-		if(floatval($cur_price) == 0) return;
+		if(isset($which_rows) && $which_rows == 'one_row') make_it($id);
+		if(isset($which_rows) && $which_rows == 'all_in_pos'){
+			    
+				// узнаем id позиций
+			    $query = "SELECT id FROM `".RT_DOP_DATA."`  WHERE `row_id` = (SELECT row_id FROM `".RT_DOP_DATA."`  WHERE `id` = '$id')";
+	            $result = $mysqli->query($query)or die($mysqli->error);
+				while($row = $result->fetch_assoc()){
+			        make_it($row['id']);
+				}
+		}
+		if(isset($which_rows) && $which_rows == 'all_in_query'){
+			
+			    // узнаем номер заявки и id входящих в него позиций 
+				$query = "SELECT id FROM `".RT_DOP_DATA."`  WHERE `row_id` IN (SELECT id FROM `".RT_MAIN_ROWS."` WHERE query_num = '$query_num')";
+			    $result = $mysqli->query($query)or die($mysqli->error);
+				while($row = $result->fetch_assoc()){
+				    //echo $row['id'];
+			        make_it($row['id']);
+				}
+		}
+	
+	   	//echo $query;
+		//exit;
+	  
+		/*if(floatval($cur_price) == 0) return;
 		
 		$new_price = strtr($new_price,',','.');
 		$percent = strtr($percent,',','.');
@@ -2672,10 +2730,10 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		}
 		
 		if(floatval($percent) == 0 && floatval($new_price) == 0 && $drop_discont != 'on') return;
-		
+		*/
 		//////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		
+/*		
 		if($which_rows != 'one_row'){
 			
 			
@@ -2712,7 +2770,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		else{
 		    $query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '$discount' WHERE `id` = '$id'";
 	        $result = mysql_query($query,$db) or die(mysql_error());
-		}
+		}*/
 	}
 	
 /*	function get_client_requisites_acting_manegement_face($id){

@@ -254,6 +254,7 @@
 				 $delta = $out_summ-$in_summ; 
 				 $margin = ($in_summ>0 && $out_summ>0)?(($out_summ-$in_summ)/$out_summ)*100:0;
 				 
+				 $price_out = number_format($price_out,'2','.','');
 				 $price_in_summ_format = number_format($price_in_summ,'2','.','');
 				 $price_out_summ_format = number_format($price_out_summ,'2','.','');
 				 $print_in_summ_format = number_format($print_in_summ,'2','.','');
@@ -417,18 +418,11 @@
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
 				  <td class="art_name right">
-				      <a href="#" onclick="console.log(rtCalculator.tbl_model);/*print_r(rtCalculator.tbl_model);*/">_</a>
+				      <a href="#" onclick="/*console.log(rtCalculator.tbl_model);*/print_r(rtCalculator.tbl_model);">_</a>
 					  &nbsp;
-					  
-					  
-					  
 					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>
-					
-					  
-					  
-					  
-					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:3,quantity:1});">_</a>
-					  
+					  &nbsp;
+					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:3,quantity:1});">_</a>		  
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
