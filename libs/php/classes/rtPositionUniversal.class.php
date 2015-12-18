@@ -998,18 +998,23 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					$dop_inf = '';
 					
 					// информация из калькулятора
-					$calc_info = '';$calc_class= '';$calc_button='';
+					$calc_info = '';$calc_class= '';$calc_button='';$calculator_price_out='';
+					$calc_tr_class = '';
+					$td_calculator_price_out='';
 					if($service['parent_id'] == 6){
+						$calc_tr_class = 'calculator_row';
 						$calc_class = ' service-calculator';
 						$calc_button = '<div class="getCalculatorMethod" onclick="printCalculator.evoke_calculator_directly({art_id:'.$art_id.',dop_data_row_id:'.$variant['id'].',dop_uslugi_id:'.$service_attach['id'].'});"></div>';
-						$calc_info = '';	
+						$calc_info = '';
+						$calculator_price_out = 'readonly';
+						$td_calculator_price_out = ' onclick="edit_calcPriceOut_readoly()" ';
 					}
 					
 					// ТЗ кнопки
 					$buttons_tz = (trim($service_attach['tz'])=='')?'<span class="tz_text_new"></span>':'<span class="tz_text_edit"></span>';
 
 
-					$html .= '<tr class="calculate calculate_usl " data-dop_uslugi_id="'.$service_attach['id'].'" data-our_uslugi_id="'.$service['id'].'" data-our_uslugi_parent_id="'.trim($service['parent_id']).'"  data-for_how="'.trim($service['for_how']).'">';
+					$html .= '<tr class="calculate calculate_usl '.$calc_tr_class.'" data-dop_uslugi_id="'.$service_attach['id'].'" data-our_uslugi_id="'.$service['id'].'" data-our_uslugi_parent_id="'.trim($service['parent_id']).'"  data-for_how="'.trim($service['for_how']).'">';
 						$html .= '<td>';
 							$html .= '<div class="'.$calc_class.'">';
 								// кнопка для вызхова калькулятора
@@ -1046,8 +1051,9 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 						$html .= '</td>';
 						
 						// исходящая (штука)
-						$html .= '<td class="row_price_out_gen uslugi_class price_out_men">';
-							$html .= '<input type="text" value="'.$this->round_money($price_out).'">';
+						$html .= '<td '.$td_calculator_price_out.' class="row_price_out_gen uslugi_class price_out_men">';
+							
+							$html .= '<input type="text" '.$calculator_price_out.' value="'.$this->round_money($price_out).'">';
 						$html .= '</td>';
 						
 						// исходащая / входящая (сумма)

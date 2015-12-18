@@ -586,7 +586,7 @@ var rtCalculator = {
 			
 		}
         //////////////////////////////////// card rt
-		rtCalculator.makeQuantityCalculations('card',cell,cell.innerHTML,row_id,printsExists,extraExists);
+		rtCalculator.makeQuantityCalculations('rt',cell,cell.innerHTML,row_id,printsExists,extraExists);
 	}	
 	,
 	makeQuantityCalculations(source,cell,quantity,row_id,printsExists,extraExists){
@@ -775,7 +775,7 @@ var rtCalculator = {
 		//alert('('+row['price_out']+'*'+100+'/'+rtCalculator.previos_data['price_out']+')'+'-'+100);
 		
 		row['delta'] = row['out_summ']-row['in_summ'];
-		row['margin'] = (row['out_summ']>0 && row['in_summ']>0)?((row['out_summ']-row['in_summ'])/row['in_summ'])*100:0;
+		row['margin'] = (row['out_summ']>0 && row['in_summ']>0)?((row['out_summ']-row['in_summ'])/row['out_summ'])*100:0;
 
 		// если ряд не исключен из рассчетов расчитываем разницу появивщуюся в результате изменений и помещаем данные 
 	    if(!row['dop_data']['expel']['main'] && (row['dop_data']['svetofor']=='green' || row['dop_data']['svetofor']=='sgreen')){
@@ -898,7 +898,7 @@ var rtCalculator = {
 			}
 			// меняем значения delta и margin текущей ячейки
 			rtCalculator.tbl_model[row_id]['delta'] = rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'];
-			rtCalculator.tbl_model[row_id]['margin'] = (rtCalculator.tbl_model[row_id]['out_summ']>0 && rtCalculator.tbl_model[row_id]['in_summ']>0)?((rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'])/rtCalculator.tbl_model[row_id]['in_summ'])*100:0;    
+			rtCalculator.tbl_model[row_id]['margin'] = (rtCalculator.tbl_model[row_id]['out_summ']>0 && rtCalculator.tbl_model[row_id]['in_summ']>0)?((rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'])/rtCalculator.tbl_model[row_id]['out_summ'])*100:0;    
 		}
 		
 		// изменяем значение status в JS модели таблицы - rtCalculator.tbl_model

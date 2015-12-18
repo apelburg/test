@@ -1085,19 +1085,22 @@ function recalculate_table_price_Itogo(){
 
 	
 	// заполняем ИТОГО
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_in').html(money_format(Math.ceil((price_out_tir_in)*100)/100));
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_out').html(money_format(Math.ceil((price_out_tir_out)*100)/100));
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_in').html(money_format(price_out_tir_in));
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_out').html(money_format(price_out_tir_out));
 	
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(3) span').html(money_format(Math.ceil((price_in)*100)/100));
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(3) span').html(money_format(price_in));
 	// исходящая цена
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span').html(money_format(Math.ceil((price_out)*100)/100));
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span').html(money_format(price_out));
 	// прибль
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(7) span').html(money_format(Math.ceil((pribl)*100)/100));
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(7) span').html(money_format(pribl));
 }
 
 // приведение к денежнлму формату
 function money_format (num) {
-    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+
+	var new_num = Math.ceil((num)*100)/100;
+    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1");
+    // return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
 // РАСЧЕТ ИТОГО
@@ -1360,7 +1363,7 @@ function chenge_the_general_input(){
 
 	}
 
-	console.log('654');
+	// вносим изменения тиража в таблицу
 	recalkulate_table(general_tirage);
 
 	// сохраняем размерную таблицу
@@ -1369,28 +1372,65 @@ function chenge_the_general_input(){
 	//calkulate_table_calc();
 }
 
+// вносим изменения тиража в таблицу
 function recalkulate_table(general_tirage){
-	// вносим изменения в активную таблицу расчета
+	// вносим изменения тиража в активную таблицу расчета
 	var recalc_itogo = 0;
 	$('.calkulate_table:visible tr').each(function(index, el) {
-		if ($(this).find('td').length > 1 && $(this).find('td:nth-of-type(2) div').length == 0) {
-			$(this).find('td:nth-of-type(2)').html(general_tirage);
-			recalc_itogo = 1;
-			// console.log($(this).find('td:nth-of-type(2)').html());
+		if($(this).hasClass('tirage_and_price_for_one') || $(this).hasClass('calculate_usl')){
+			if ($(this).find('td').length > 1 && $(this).find('td:nth-of-type(2) div').length == 0) {
+				$(this).find('td:nth-of-type(2)').html(general_tirage);
+				recalc_itogo = 1;
+				// console.log($(this).find('td:nth-of-type(2)').html());
+			}
 		}
-		// console.log($(this).find('td:nth-of-type(2)'));
-		
-		// if($(this).hasClass('tirage_and_price_for_one') || $(this).hasClass('calculate_usl')){
-		// 	console.log($(this).find('td:nth-of-type(2)').html());
-		// 	if(Number($(this).find('td:nth-of-type(2)').html()) > 1){
-		// 		$(this).find('td:nth-of-type(2)').html(general_tirage);
-		// 		recalc_itogo = 1;
-		// 	}
-		// }
-	});
+		});
 	if (recalc_itogo) {
+		recalculate_services_and_prints(general_tirage);
+		recalkulate_tovar();
 		recalculate_table_price_Itogo();
 	}
+}
+// пересчет услуг и калькуляторов
+function recalculate_services_and_prints(tirage){
+	var calcExists = ($('.calkulate_table:visible .calculate.calculate_usl').length > 0)?true:false;
+	var extraExists = ($('.calkulate_table:visible .calculate.calculate_usl.calculator_row').length > 0)?true:false;
+	var dop_data_id = $('.variant_name.checked').attr('data-id');
+	
+	
+	rtCalculator.makeQuantityCalculations('card',tirage,dop_data_id,calcExists,extraExists);
+
+}
+
+// отрабатывает после запроса на изменение тиража в РТ
+function response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj){
+	console.log(response_obj);
+}
+
+
+// пересчитываем стоимость товара относительно изменённого тиража
+function recalkulate_tovar(){
+	var position_obj = $('.calkulate_table:visible tr.tirage_and_price_for_one');
+	// изменяем значения относительно тиража
+	// ПОЛУЧАЕМ ЗНАЧЕНИЯ
+	// тираж
+	var quantity = Number(position_obj.find('td:nth-of-type(2)').html());
+	// входящая (штука)
+	var price_in = Number(position_obj.find('td:nth-of-type(3) input').val());
+	// входящая (штука)
+	var discount = Number(position_obj.find('td:nth-of-type(4)').attr('data-val'));
+	// исходящая (штука)
+	var price_out = Number(position_obj.find('td:nth-of-type(5) input').val());
+	
+	// МЕНЯЕМ
+	// входящая (сумма)
+	position_obj.find('td:nth-of-type(6) .for_in').html(money_format(price_in * quantity));
+	// исходящая (сумма)
+	position_obj.find('td:nth-of-type(6) .for_out').html(money_format(price_out * quantity));
+	// маржа (прибыль)
+	position_obj.find('td:nth-of-type(7) span').html(money_format(price_out * quantity - price_in * quantity))
+
+	// вызов метода
 }
 
 
@@ -1463,6 +1503,9 @@ $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
 	});
 	// выводим сумму в input общего тиража
 	$(id).val(summ);
+
+	// вносим изменения тиража в таблицу
+	recalkulate_table(summ);
 
 	// отправляем запрос на изменение данных в базе по отредактированному размеру
 	save_all_table_size();

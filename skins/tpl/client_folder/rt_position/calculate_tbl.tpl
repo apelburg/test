@@ -144,7 +144,7 @@
 					<tr>
 						<th colspan="9" class="type_row_calc_tbl">
 							<div class="add_usl">Добавить услуги к этому варианту</div>
-							<div class="js--get-calculators" onclick="printCalculator.evoke_calculator_directly({art_id:<?=$POSITION->position['art_id'];?>,dop_data_row_id:<?=$variant['id'];?>,quantity:<?=$variant['quantity'];?>});">Добавить нанесение</div>
+							<div class="js--get-calculators" onclick="printCalculator.evoke_calculator_directly({art_id:<?=$POSITION->position['art_id'];?>,dop_data_row_id:<?=$variant['id'];?>,quantity:$('.tirage_option_and_date_print:visible .tirage_var').val()});">Добавить нанесение</div>
 							<!-- <div class="add_usl all">Добавить услуги ко всем рабочим вариантам</div> -->
 						</th>
 							
