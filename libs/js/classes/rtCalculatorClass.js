@@ -585,11 +585,11 @@ var rtCalculator = {
 			}
 			
 		}
-        //////////////////////////////////// card rt
-		rtCalculator.makeQuantityCalculations('rt',cell,cell.innerHTML,row_id,printsExists,extraExists);
+        //////////////////////////////////// card rt 
+		rtCalculator.makeQuantityCalculations('rt',cell.innerHTML,row_id,printsExists,extraExists,cell);
 	}	
 	,
-	makeQuantityCalculations(source,cell,quantity,row_id,printsExists,extraExists){
+	makeQuantityCalculations(source,quantity,row_id,printsExists,extraExists,cell){
 	    if(printsExists || extraExists){// если есть нанесение или доп услуги то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
 		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity_and_calculators=1&quantity='+quantity+'&id='+row_id+'&print='+printsExists+'&extra='+extraExists+'&source='+source,'section');
 			//alert(url);
