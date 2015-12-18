@@ -44,7 +44,7 @@
 $(document).on('click', '.row_price_out_one.price_out', function(event) {
   if($(this).find('input').attr('disabled') == 'disabled'){
     var message = "Чтобы редактировать цену, воспользуйтесь инструментом наценки";
-    echo_message_js(message,'error_message',800);
+    echo_message_js(message,'system_message',800);
   }
 });
 
@@ -121,3 +121,9 @@ $.extend({
   	}
 
 });
+
+
+function edit_calcPriceOut_readoly(){
+  var message = "Чтобы редактировать исходящую цену, воспользуйтесь калькулятором";
+  echo_message_js(message,'system_message',800);
+}
