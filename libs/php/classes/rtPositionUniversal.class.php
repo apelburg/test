@@ -80,6 +80,54 @@ class rtPositionUniversal extends Position_general_Class
 			//echo '{"response":"OK"}';
 		}
 
+		// изменение в размерной сетке
+		private function size_in_var_all_AJAX(){
+			
+			// echo "<pre>";
+			// print_r($_POST);
+			// echo "</pre>";
+			$tir = $_POST['val']; // array / тиражи
+			$key2 = $_POST['key']; // array / id _ row size
+			$dop = $_POST['dop']; // array / запас
+			$id = $_POST['id']; // array / id 
+
+				//print_r($_POST['id']);exit;
+			$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$id[0]."'";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			$json = '';
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$json = $row['tirage_json'];
+					//echo $row['tirage_json'];
+				}
+			}
+			//echo $json;
+			//$r = $json;
+			$arr_json = json_decode($json,true);
+			$sum_tir = 0;
+			$sum_zap = 0;
+			foreach ($key2 as $key => $value) {
+				//echo $value;
+				$arr_json[$value]['dop'] = $dop[$key];
+				$arr_json[$value]['tir'] = $tir[$key];
+
+				$sum_zap += $dop[$key];
+				$sum_tir += $tir[$key];
+			}
+
+			// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
+			//echo $r .'   -   ';
+			//echo json_encode($arr_json);
+			$query = "UPDATE `".RT_DOP_DATA."` SET ";
+			// $query .= "`quantity` = '".$sum_tir."',";
+			$query .= "`zapas` = '".$sum_zap."',";
+			$query .= "`tirage_json` = '".json_encode($arr_json)."' ";
+			$query .= "WHERE  `id` ='".$id[0]."'";	
+			// // echo $query;			
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			// exit;
+		}
+
 		/**
 		 *	копирует услуги варианта
 		 *
@@ -919,6 +967,8 @@ class Services extends Variants
 		}
 		return $service_arr;
 	}
+
+	
 
 	// ВЫВОДИТ СПИСОК УСЛУГ ПРИКРЕПЛЁННЫХ ДЛЯ ВАРИАНТА
 	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
