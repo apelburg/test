@@ -262,6 +262,33 @@ $(document).on('click', '.variant_status_sv', function(event) {
 	/**
 	 *	пункты меню
 	 */
+
+	var li_1 = $('<li/>',{
+		click: function(){
+			window_preload_add();	
+			copy_variant(false);
+			window_preload_del();
+		}
+	}).append('Скопировать товар');
+
+	var li_2 = $('<li/>',{
+		click: function(){
+			window_preload_add();	
+			copy_variant(true);
+			window_preload_del();
+		}
+	}).append('Скопировать товар + услуги');
+
+	var li_3 = $('<li/>',{
+		"class":"grey",
+		click: function(){
+			window_preload_add();		
+			edit_variants('one','grey');
+			window_preload_del();
+		}
+	}).append('Подумать, но не удалять');
+	
+
 	var li_4 = $('<li/>',{
 		"class":"green",
 		click: function(){	
@@ -272,31 +299,6 @@ $(document).on('click', '.variant_status_sv', function(event) {
 	}).append('Использовать в КП');
 
 	var li_5 = $('<li/>',{
-		"class":"grey",
-		click: function(){
-			window_preload_add();		
-			edit_variants('one','grey');
-			window_preload_del();
-		}
-	}).append('Подумать, но не удалять');
-
-	var li_1 = $('<li/>',{
-		click: function(){
-			window_preload_add();	
-			copy_variant(false);
-			window_preload_del();
-		}
-	}).append('Скопировать товар');
-
-	var li_6 = $('<li/>',{
-		click: function(){
-			window_preload_add();	
-			copy_variant(true);
-			window_preload_del();
-		}
-	}).append('Скопировать товар + услуги');
-
-	var li_2 = $('<li/>',{
 		"class":"red",
 		click: function(){
 			window_preload_add();	
@@ -305,7 +307,7 @@ $(document).on('click', '.variant_status_sv', function(event) {
 		}
 	}).append('Отказанный, нет в наличии');
 
-	var li_3 = $('<li/>',{
+	var li_6 = $('<li/>',{
 		"class":"sgreen",
 		click: function(){		
 			window_preload_add();		
@@ -315,7 +317,7 @@ $(document).on('click', '.variant_status_sv', function(event) {
 		}
 	}).append('Окончательный - использовать в СПФ');
 	
-	var obj = $('<ul/>').append(li_1,li_6,li_5,li_4, li_2, li_3);
+	var obj = $('<ul/>').append(li_1,li_2,li_3,li_4, li_5, li_6);
 
 	get_position_menu_absolute(event,obj);
 });
@@ -1001,22 +1003,26 @@ function calkulate_table_calc(){
 	recalculate_table_price_Itogo();
 }
 
-// РАСЧЕТ ИТОГО v 2.0
+/**
+ *	подсчет итого для KK
+ *
+ *	@author  		Алексей Капитонов
+ *	@version 		16:07 17.12.2015
+ */
 function recalculate_table_price_Itogo(){
 	// получаем id активного блока
 	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
 	// получаем тираж
-	var tirage = Number($(id_active_variant+' .tirage_var').val());
+	var tirage = Number($(' .tirage_var').val());
 	// получаем запас
-	var zapas = Number($(id_active_variant+' .dop_tirage_var').val());
+	var zapas = Number($(' .dop_tirage_var').val());
 	// общий тираж
 	var general_tirage = tirage + zapas;
 
 
 	// объявляем переменные
-	var price_in = 0;			// штука
-	var per = 0;	 			// для временного хранения
-	var price_out = 0; 			// штука
+	var price_in = 0;			// штука вход.
+	var price_out = 0; 			// штука исх.
 	var price_out_tir_in = 0;	// тираж вход.
 	var price_out_tir_out = 0;	// тираж исх.
 	var pribl = 0;				// маржа
@@ -1024,17 +1030,7 @@ function recalculate_table_price_Itogo(){
 	
 	// ОБСЧИТЫВАЕМ ДАННЫЕ В СТРОКАХ .calkulate_table:visible
 
-
-	//    %
-	var i = 1;// для обсчета процентов
-	// per += Number($(id_active_variant+' .calkulate_table .tirage_and_price_for_one .percent_nacenki span').html());
-	// $('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.percent_usl span').each(function(index, el){
-	// 	per += Number($(this).html());	
-	// 	// console.log(Number($(this).html()));
-	// 	i++;	
-	// });
-
-// row_tirage_in_one price_in
+	var i = 1;
 	//    price in
 		price_in += Number($('.calkulate_table:visible tr.tirage_and_price_for_one td.row_tirage_in_one.price_in input').val());
 		$('.calkulate_table:visible .row_tirage_in_gen.uslugi_class.price_in span').each(function(index, el){
@@ -1068,7 +1064,7 @@ function recalculate_table_price_Itogo(){
 			price_out_tir_out += Number($(this).html());	
 			console.log(Number($(this).html()));
 		});
-		price_out_tir_out;
+		// price_out_tir_out;
 
 
 	//	var price_out_tir_in = 0;
@@ -1077,27 +1073,35 @@ function recalculate_table_price_Itogo(){
 		$('.calkulate_table:visible .calculate.calculate_usl .price_out_summ.for_out span.for_in').each(function(index, el){
 			price_out_tir_in += Number($(this).html());	
 		});
-		price_out_tir_in;
+		// price_out_tir_in;
 
 
 
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_in').html(Math.ceil((price_out_tir_in)*100)/100);
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_out').html(Math.ceil((price_out_tir_out)*100)/100);
-
-
-	// console.log(per);
+	
 	// заполняем ИТОГО
-	// цена входящая за тираж или услугу
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(3) span').html(Math.ceil((price_in)*100)/100);
-	//%
-	// $('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(4) span').html(Math.ceil((per/i)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_in').html(money_format(Math.ceil((price_out_tir_in)*100)/100));
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(6) span.for_out').html(money_format(Math.ceil((price_out_tir_out)*100)/100));
+	
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(3) span').html(money_format(Math.ceil((price_in)*100)/100));
 	// исходящая цена
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span').html(Math.ceil((price_out)*100)/100);
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(5) span').html(money_format(Math.ceil((price_out)*100)/100));
 	// прибль
-	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(7) span').html(Math.ceil((pribl)*100)/100);
-	// console.log(profit);
-
+	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(7) span').html(money_format(Math.ceil((pribl)*100)/100));
 }
+
+// денежный формат
+// function money_format(number){
+// 	String(number).toFixed(2).replace(/./g, function(c, i, a) {
+//     	return i && c !== "." && ((a.length - i) % 3 === 0) ? '' + c : c;
+// 	});
+// }
+function money_format (num) {
+    return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+}
+
+// console.info(currencyFormat(2665));   // $2,665.00
+// console.info(currencyFormat(102665)); // $102,665.00
+
 
 // РАСЧЕТ ИТОГО
 function calkulate_row_itogo(){

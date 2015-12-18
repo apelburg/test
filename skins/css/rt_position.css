@@ -453,8 +453,10 @@ body {
   height: 21px;
   background-position: 4px 2px;
   }
-.add_usl:hover{ background-color:#BCBFC5; }
-.add_usl{  height: 21px;
+.add_usl:hover,
+.js--get-calculators:hover{ background-color:#BCBFC5; }
+.add_usl,
+.js--get-calculators{  height: 21px;
   float: left;
   padding-right: 15px;
   line-height: 22px;

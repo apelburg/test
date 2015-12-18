@@ -139,12 +139,15 @@
 					
 					$uslugi = $POSITION->Variants->getServices($variant['id']);
 
-					echo $POSITION->Variants->Services->htmlTemplate($uslugi,$variant);
+					echo $POSITION->Variants->Services->htmlTemplate($uslugi,$variant,true,$POSITION->position['art_id']);
 					?>
 					<tr>
 						<th colspan="9" class="type_row_calc_tbl">
 							<div class="add_usl">Добавить услуги к этому варианту</div>
-							<!-- <div class="add_usl all">Добавить услуги ко всем рабочим вариантам</div></th> -->
+							<div class="js--get-calculators" onclick="printCalculator.evoke_calculator_directly({art_id:<?=$POSITION->position['art_id'];?>,dop_data_row_id:<?=$variant['id'];?>,quantity:<?=$variant['quantity'];?>});">Добавить нанесение</div>
+							<!-- <div class="add_usl all">Добавить услуги ко всем рабочим вариантам</div> -->
+						</th>
+							
 					</tr>				
 				</table>
 			</div>
