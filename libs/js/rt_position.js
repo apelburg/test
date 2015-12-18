@@ -1406,7 +1406,7 @@ function recalculate_services_and_prints(tirage){
 function response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj){
 	console.log(response_obj);
 	// при отрицательном отклике - выкидываем оповещение
-	if(response_ob.extra.result != 'ok' || response_ob.print.result != 'ok'){
+	if(response_ob['extra']['result'] != 'ok' || response_ob['print']['result'] != 'ok'){
 		echo_message_js('УПС... ;(','system_message',2500);
 		var message = "Прикреплённые услуги не были пересчитаны";
   		echo_message_js(message,'error_message',2500);
@@ -1417,7 +1417,7 @@ function response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj
 	}
 
 	// перебираем изменённые строки
-	response_ob.new_sum_details.each(function(element, index){
+	response_ob['new_sum_details'].each(function(element, index){
 		console.log(element);
 	});
 
