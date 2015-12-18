@@ -585,7 +585,7 @@ var rtCalculator = {
 			}
 			
 		}
-        //////////////////////////////////// card rt 
+        //////////////////////////////////// card rt
 		rtCalculator.makeQuantityCalculations('rt',cell.innerHTML,row_id,printsExists,extraExists,cell);
 	}	
 	,
@@ -601,7 +601,7 @@ var rtCalculator = {
 		}
 						
 		function callbackprintsExists(response){
-		    // alert(response);
+		    //alert(response);
 			
 			try {  var response_obj = JSON.parse(response); }
 			catch (e) {}
