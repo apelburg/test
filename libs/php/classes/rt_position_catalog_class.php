@@ -136,48 +136,48 @@ class Position_catalog{
 
 
 
-	private function size_in_var_all_AJAX(){
-		global $mysqli;
-		// echo "<pre>";
-		// print_r($_POST);
-		// echo "</pre>";
-		$tir = $_POST['val']; // array / тиражи
-		$key2 = $_POST['key']; // array / id _ row size
-		$dop = $_POST['dop']; // array / запас
-		$id = $_POST['id']; // array / id 
+	// private function size_in_var_all_AJAX(){
+	// 	global $mysqli;
+	// 	// echo "<pre>";
+	// 	// print_r($_POST);
+	// 	// echo "</pre>";
+	// 	$tir = $_POST['val']; // array / тиражи
+	// 	$key2 = $_POST['key']; // array / id _ row size
+	// 	$dop = $_POST['dop']; // array / запас
+	// 	$id = $_POST['id']; // array / id 
 
-			//print_r($_POST['id']);exit;
-		$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$id[0]."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
-		$json = '';
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$json = $row['tirage_json'];
-				//echo $row['tirage_json'];
-			}
-		}
-		//echo $json;
-		//$r = $json;
-		$arr_json = json_decode($json,true);
-		$sum_tir = 0;
-		$sum_zap = 0;
-		foreach ($key2 as $key => $value) {
-			//echo $value;
-			$arr_json[$value]['dop'] = $dop[$key];
-			$arr_json[$value]['tir'] = $tir[$key];
+	// 		//print_r($_POST['id']);exit;
+	// 	$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$id[0]."'";
+	// 	$result = $mysqli->query($query) or die($mysqli->error);
+	// 	$json = '';
+	// 	if($result->num_rows > 0){
+	// 		while($row = $result->fetch_assoc()){
+	// 			$json = $row['tirage_json'];
+	// 			//echo $row['tirage_json'];
+	// 		}
+	// 	}
+	// 	//echo $json;
+	// 	//$r = $json;
+	// 	$arr_json = json_decode($json,true);
+	// 	$sum_tir = 0;
+	// 	$sum_zap = 0;
+	// 	foreach ($key2 as $key => $value) {
+	// 		//echo $value;
+	// 		$arr_json[$value]['dop'] = $dop[$key];
+	// 		$arr_json[$value]['tir'] = $tir[$key];
 
-			$sum_zap += $dop[$key];
-			$sum_tir += $tir[$key];
-		}
+	// 		$sum_zap += $dop[$key];
+	// 		$sum_tir += $tir[$key];
+	// 	}
 
-		// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
-		//echo $r .'   -   ';
-		//echo json_encode($arr_json);
-		$query = "UPDATE `".RT_DOP_DATA."` SET `quantity` = '".$sum_tir."',`zapas` = '".$sum_zap."',`tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
-		// // echo $query;			
-		$result = $mysqli->query($query) or die($mysqli->error);
-		exit;
-	}
+	// 	// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
+	// 	//echo $r .'   -   ';
+	// 	//echo json_encode($arr_json);
+	// 	$query = "UPDATE `".RT_DOP_DATA."` SET `quantity` = '".$sum_tir."',`zapas` = '".$sum_zap."',`tirage_json` = '".json_encode($arr_json)."' WHERE  `id` ='".$id[0]."'";	
+	// 	// // echo $query;			
+	// 	$result = $mysqli->query($query) or die($mysqli->error);
+	// 	exit;
+	// }
 	private function change_status_row_AJAX(){
 		global $mysqli;
 		$id_in = $_POST['id_in'];

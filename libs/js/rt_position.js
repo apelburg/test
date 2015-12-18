@@ -789,39 +789,56 @@ $(document).on('click','#extract_from_archive',function(){
 
 
 // изменение входящей цены за единицу товара
-$(document).on('keyup','.row_tirage_in_one.price_in .edit_span',function(){
-	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+// $(document).on('keyup','.row_tirage_in_one.price_in .edit_span',function(){
+// 	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
 
-	//цена входящая
-	var price_in = Number($(this).html());
-	//цена исходящая
-	var price_out = Number($(id_variant+' .tirage_and_price_for_one .row_price_out_one.price_out span').html());
-	//%
-	var percent;
-	percent = Math.ceil(((price_out-price_in)*100/price_in)*100)/100;
-	// если продаем в убыток, делаем наценку 0 и входящую стоимость приравниваем к исходящей
-	if(percent<0){
-		price_in = price_out;
-		$(this).html(price_in.toFixed(2));
-		$(id_variant+' .tirage_and_price_for_one .percent_nacenki span').html(0);
-	}else{
-		$(id_variant+' .tirage_and_price_for_one .percent_nacenki span').html(percent);
-	}
+// 	//цена входящая
+// 	var price_in = Number($(this).html());
+// 	//цена исходящая
+// 	var price_out = Number($(id_variant+' .tirage_and_price_for_one .row_price_out_one.price_out span').html());
+// 	//%
+// 	var percent;
+// 	percent = Math.ceil(((price_out-price_in)*100/price_in)*100)/100;
+// 	// если продаем в убыток, делаем наценку 0 и входящую стоимость приравниваем к исходящей
+// 	if(percent<0){
+// 		price_in = price_out;
+// 		$(this).html(price_in.toFixed(2));
+// 		$(id_variant+' .tirage_and_price_for_one .percent_nacenki span').html(0);
+// 	}else{
+// 		$(id_variant+' .tirage_and_price_for_one .percent_nacenki span').html(percent);
+// 	}
 
-	// меняем исходящую цену за тираж
-	var tirage = Number($(id_variant+' .tirage_var').val());
-	var zapas = Number($(id_variant+' .dop_tirage_var').val());
-	var pr = (zapas+tirage)*price_in;
-	$(id_variant+' .row_tirage_in_gen.price_in span.price_in_all').html(pr.toFixed(2));
+// 	// меняем исходящую цену за тираж
+// 	var tirage = Number($(id_variant+' .tirage_var').val());
+// 	var zapas = Number($(id_variant+' .dop_tirage_var').val());
+// 	var pr = (zapas+tirage)*price_in;
+// 	$(id_variant+' .row_tirage_in_gen.price_in span.price_in_all').html(pr.toFixed(2));
 
 
-	// пересчёт таблицы с ценами и услугами
-	recalculate_table_price_Itogo();
-	// сохраняем входящую и исходящую цены за ед. товара
-	save_price_in_out_for_one_price();
+// 	// пересчёт таблицы с ценами и услугами
+// 	recalculate_table_price_Itogo();
+// 	// сохраняем входящую и исходящую цены за ед. товара
+// 	save_price_in_out_for_one_price();
+// });
+
+$(document).on('keyup', '.tirage_and_price_for_one .row_tirage_in_one.price_in input', function(event) {
+	// $(this).val()
+	recalkulate_tovar();
+	$.post('', {
+		// global_change: 'AJAX',
+		AJAX: 'save_price_in_out_for_one_price',
+		price_in:$(this).val(),
+		price_out:$(this).parent().parent().find('.row_price_out_one.price_out input').val(),
+		dop_data: $('.variant_name.checked').attr('data-id')
+	}, function(data, textStatus, xhr) {
+		// console.log(data);
+
+		standard_response_handler(data);
+	},'json');
 });
 
 function save_price_in_out_for_one_price(){
+	
 	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
 	var dop_data_id = $('#variants_name .variant_name.checked ').attr('data-id');
 	console.log(id_variant+' .calkulate_table .tirage_and_price_for_one .row_tirage_in_one.price_in span');
@@ -1366,8 +1383,7 @@ function chenge_the_general_input(){
 	// вносим изменения тиража в таблицу
 	recalkulate_table(general_tirage);
 
-	// сохраняем размерную таблицу
-	save_all_table_size();
+	
 	// пересчёт таблицы с ценами
 	//calkulate_table_calc();
 }
@@ -1391,7 +1407,15 @@ function recalkulate_table(general_tirage){
 		recalculate_table_price_Itogo();
 	}
 }
-// пересчет услуг и калькуляторов
+/**
+ *	пересчет услуг и калькуляторов
+ *  вызывает метод из rtClass, который запрашивает пересчет калькуляторов и услуг
+ *  а так же меняет тираж в услуга
+ *
+ *	@param 		tirage - тираж 
+ *	@author  	Алексей Капитонов
+ *	@version 	17:21 18.12.2015
+ */
 function recalculate_services_and_prints(tirage){
 	var calcExists = ($('.calkulate_table:visible .calculate.calculate_usl').length > 0)?true:false;
 	var extraExists = ($('.calkulate_table:visible .calculate.calculate_usl.calculator_row').length > 0)?true:false;
@@ -1402,11 +1426,51 @@ function recalculate_services_and_prints(tirage){
 
 }
 
-// отрабатывает после запроса на изменение тиража в РТ
+// пересчет каждой услуги относительно 
+function recalculate_services(){
+	// перебираем строки услуг и калькуляторов
+	var prise_in = 0;
+	var prise_out = 0;
+	var quantity = 0;
+	var price_in_obj = new Object();
+
+	$('.calkulate_table:visible .calculate.calculate_usl').each(function(index, el) {
+		// получаем тираж
+		if($(this).find('td:nth-of-type(2) div').length > 0){
+			quantity = Number($(this).find('td:nth-of-type(2) div').html());
+		}else{
+			quantity = Number($(this).find('td:nth-of-type(2)').html());
+		}
+
+		// получаем входящую цену
+		price_in_obj = $(this).find('.row_tirage_in_gen.uslugi_class.price_in');
+		if (price_in_obj.find('span').length > 0) {
+			prise_in = Number(price_in_obj.find('span').html())
+		}else{
+			prise_in = Number(price_in_obj.find('input').val())
+		}
+
+		// получаем исходящую цену
+		prise_out = $(this).find('.row_price_out_gen.uslugi_class.price_out_men input').val();
+		
+		$(this).find('.price_out_summ .for_out').html(money_format(prise_out*quantity));
+		$(this).find('.price_out_summ .for_in').html(money_format(prise_in*quantity));
+		$(this).find('.row_pribl_out_gen.uslugi_class.pribl span').html(money_format(prise_out*quantity - prise_in*quantity));
+
+	});
+}
+
+/**
+ *	обработчик ответа на запрос на изменение тиража в РТ
+ *  изменяет данные в расчётной таблице
+ *  
+ *	@author  Алексей Капитонов
+ *	@version 18.12.2015
+ */
 function response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj){
 	console.log(response_obj);
 	// при отрицательном отклике - выкидываем оповещение
-	if(response_ob['extra']['result'] != 'ok' || response_ob['print']['result'] != 'ok'){
+	if(response_obj['extra']['result'] != 'ok' || response_obj['print']['result'] != 'ok'){
 		echo_message_js('УПС... ;(','system_message',2500);
 		var message = "Прикреплённые услуги не были пересчитаны";
   		echo_message_js(message,'error_message',2500);
@@ -1414,17 +1478,45 @@ function response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj
 		var message = "Страница будет перезагружена через 7 секунд.";
   		echo_message_js(message,'error_message',2500);
   		setTimeout(function(){window_reload();}, 7000);
+  		return false;
 	}
+	if(response_obj['extra']['result'] == 'ok' && response_obj['print']['result'] == 'ok'){
+		// сохраняем размерную таблицу
+		save_all_table_size();
+		// console.log(response_obj['new_sums_details']);
+		// перебираем изменённые строки
+		var id = $('.variant_name.checked').attr('data-id');
 
-	// перебираем изменённые строки
-	response_ob['new_sum_details'].each(function(element, index){
-		console.log(element);
-	});
+		for (i in response_obj['new_sums_details']) {
+	  		// console.log(i+":");
+			for (service_id in response_obj['new_sums_details'][i]) {
+				// console.log(response_obj['new_sums_details'][i]['price_in']);
+				// console.log(service_id);
+				// console.log(id);
 
+				//console.log("* * * "+service_id+":"+response_obj['new_sums_details'][i][service_id]);
+				if($('#editable_from_rtClass_' + id + '_' + i + ' .row_tirage_in_gen.uslugi_class.price_in span').length == 1){
+					$('#editable_from_rtClass_' + id + '_' + i + ' .row_tirage_in_gen.uslugi_class.price_in span').html(response_obj['new_sums_details'][i]['price_in']);	
+				}else{
+					$('#editable_from_rtClass_' + id + '_' + i + ' .row_tirage_in_gen.uslugi_class.price_in input').val(response_obj['new_sums_details'][i]['price_in']);
+				}
+				$('#editable_from_rtClass_' + id + '_' + i + ' .row_price_out_gen.uslugi_class.price_out_men input').val(response_obj['new_sums_details'][i]['price_out']);
+			}
+		}
+		// пересчёт услуг в расчетной таблице 
+		recalculate_services();
+	}
+	
 }
 
 
-// пересчитываем стоимость товара относительно изменённого тиража
+/**
+ *	пересчитывает стоимость товара относительно изменённого тиража
+ *	изменяет данные в расчётной таблице
+ *
+ *	@author  Алексей Капитонов
+ *	@version 17:19 18.12.2015
+ */
 function recalkulate_tovar(){
 	var position_obj = $('.calkulate_table:visible tr.tirage_and_price_for_one');
 	// изменяем значения относительно тиража
@@ -1521,10 +1613,13 @@ $(document).on('keyup','.val_tirage, .val_tirage_dop', function(){
 	$(id).val(summ);
 
 	// вносим изменения тиража в таблицу
-	recalkulate_table(summ);
+	if($(this).attr('class') == 'val_tirage'){
+		recalkulate_table(summ);	
+	}
+	
 
 	// отправляем запрос на изменение данных в базе по отредактированному размеру
-	save_all_table_size();
+	// save_all_table_size();
 	// $.post('', {
 	// 	global_change: 'AJAX',
 	// 	change_name: 'size_in_var',
