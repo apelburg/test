@@ -39,7 +39,7 @@ class rtPositionUniversal extends Position_general_Class
 
 
 	/**
-	 *	для генерации отвта выделен целый класс
+	 *	для генерации отвта выделен класс responseClass()
 	 *
 	 *	метод имеет область видимости private 
 	 *  НО должен быть protected, для этого необходимо произвести рефакторинг всех 
@@ -80,6 +80,93 @@ class rtPositionUniversal extends Position_general_Class
 			//echo '{"response":"OK"}';
 		}
 
+		/**
+		 *	копирует услуги варианта
+		 *
+		 *	@author  Алексей Капитонов
+		 *	@version 11:30 18.12.2015
+		 */
+		private function copy_services_row_for_variant($dop_row_reference_id, $dop_row_new_id){
+			$query = "SELECT * FROM  `".RT_DOP_USLUGI."`
+					WHERE  `dop_row_id` ='".$dop_row_reference_id."'";  /// !!!! править тут !!!!
+			$services_arr = array();
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$services_arr[] = $row;
+				}
+			}
+			// echo $query;
+			if(count($services_arr)>0){
+				
+				foreach ($services_arr as $key => $service) {
+					$query = '';
+					$query .= "INSERT INTO `".RT_DOP_USLUGI."` SET";
+					$n = 0;
+					foreach ($service as $name_column => $value) {
+						if($name_column=="id"){continue;}
+						if($name_column!='dop_row_id'){
+							$query .= (($n>0)?',':'')." `".$name_column."`='".$value."' ";
+						}else{
+							$query .= (($n>0)?',':'')." `".$name_column."`='".$dop_row_new_id."' ";
+						}
+						$n++;
+					}
+					$query .= '; ';
+					$result = $this->mysqli->query($query) or die($this->mysqli->error);
+				}
+				// echo $query;
+				
+			}
+			return;
+		}
+
+		/**
+		 *	создаёт копию варианта
+		 *
+		 *	@param 		$_POST['id'] - RT_DOP_DATA_ID
+		 *	@param 		$_POST['row_id'] - RT_MAIN_ROWS_ID
+		 *  @param 		$_POST['services'] - true / false (копировать/не копировать) услуги 
+		 *	@return  	JSON
+		 *	@author  	Алексей Капитонов
+		 *	@version 	11:30 18.12.2015
+		 */
+		private function new_variant_AJAX(){
+
+			$reference_id = (int)$_POST['id'];
+			// собираем запрос, копируем строку в БД
+			$query = "INSERT INTO `".RT_DOP_DATA."` 
+			(row_id, quantity,price_in, price_out,discount,tirage_json) 
+			(SELECT row_id, quantity,price_in, price_out,discount,tirage_json 
+				FROM `".RT_DOP_DATA."` WHERE id = '".$reference_id."')";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			// запоминаем новый id
+			$insert_id = $this->mysqli->insert_id;
+
+			if(isset($_POST['services']) && $_POST['services'] == 'true'){
+				// копируем услуги
+				$this->copy_services_row_for_variant($reference_id, $insert_id);
+			}
+			// узнаем количество строк
+			$query = "SELECT COUNT( * ) AS `num`
+					FROM  `".RT_DOP_DATA."`
+					WHERE  `row_id` ='".$_POST['row_id']."'";  /// !!!! править тут !!!!
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$num_rows = $row['num'];
+				}
+			}
+			
+			// AJAX options
+			$options['text'] = "test";
+			$options['new_id'] = $insert_id;
+			$options['num_row'] = ($num_rows-1);
+			$options['num_row_for_name'] = "Вариант ".$num_rows;
+			// AJAX options prepare
+			$this->responseClass->addResponseOptions($options);			
+		}
+
 	
 	public function getPosition($id = 0){
 		if(empty($this->position)){
@@ -112,7 +199,7 @@ class rtPositionUniversal extends Position_general_Class
 	 *	@return  				HTML размерная сетка
 	 *	@author  				Алексей Капитонов
 	 *	@version 				12:34 17.12.2015
-	 */
+	 */	
 	public function getSizeTable($dop_params_arr, $variant){
 
 		// преобразует массив дополнительных параметров в таблицу размеров
@@ -934,9 +1021,14 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 						
 						// тираж
 						$html .= '<td>';
+						if($service_attach['for_how'] == 'for_all'){
 							$html .= '<div class="greyText">';
 								$html .= $quantity;
 							$html .= '</div>';
+						}else{
+							$html .= $quantity;
+						}
+							
 						$html .= '</td>';
 						
 						// входящая штука

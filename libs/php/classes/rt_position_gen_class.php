@@ -50,17 +50,37 @@ class Position_general_Class{
 	}
 
 
-	# В данном классе расположены обработчики AJAX ОБЩИЕ для всей продукции !!!
-	/////////////////  AJAX START ///////////////// 
-	private function _AJAX_(){
+	/**
+	 *	для генерации отвта выделен класс responseClass()
+	 *
+	 *	метод имеет область видимости private 
+	 *  НО должен быть protected, для этого необходимо произвести рефакторинг всех 
+	 *  AJAX методов и преобразовать их ответы в соответствии с новыми правилами
+	 *
+	 *	@param name		method name width prefix _AJAX
+	 *	@return  		string
+	 *	@see 			{"respons","OK"}
+	 *	@author  		Алексей Капитонов
+	 *	@version 		12:16 17.12.2015
+	 */
+	protected function _AJAX_(){
 		$method_AJAX = $_POST['AJAX'].'_AJAX';
-		// если в этом классе существует такой метод - выполняем его и выходим
-		if(method_exists($this, $method_AJAX)){
-			$this->$method_AJAX();
-			exit;
-		}		
+		//echo $method_AJAX;exit;
 		
+		if(method_exists($this, $method_AJAX)){
+			// подключаем файл с набором стандартных утилит 
+			// AJAX, stdApl
+			include_once __DIR__.'/../../../../libs/php/classes/aplStdClass.php';
+			// создаем экземпляр обработчика
+			$this->responseClass = new responseClass();
+			// обращаемся непосредственно 
+			$this->$method_AJAX();				
+			// вывод ответа
+			echo $this->responseClass->getResponse();					
+			exit;
+		}					
 	}
+
 	/////////////////  AJAX METHODs  ///////////////// 
 
 	protected function save_tz_text_AJAX(){
@@ -69,13 +89,22 @@ class Position_general_Class{
 ";
 		$result = $mysqli->query($query) or die($mysqli->error);
 
-		// echo '{"response":"OK" , "name":"save_tz_text_AJAX","increment_id":"'.$_POST['increment_id'].'"}';
-		
+		// AJAX options			
 		if(trim($_POST['tz'])==''){
-			echo '{"response":"OK" , "name":"save_empty_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';
+			$options['name'] = 'save_empty_tz_text_AJAX';
+			if(isset($_POST['increment_id'])){
+				$options['increment_id'] = $_POST['increment_id'];
+			}
+			// echo '{"response":"OK" , "name":"save_empty_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';
 		}else{
-			echo '{"response":"OK" , "name":"save_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';	
-		}		
+			$options['name'] = 'save_tz_text_AJAX';
+			if(isset($_POST['increment_id'])){
+				$options['increment_id'] = $_POST['increment_id'];
+			}
+			// echo '{"response":"OK" , "name":"save_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';	
+		}	
+		// AJAX options prepare
+		$this->responseClass->addResponseOptions($options);	
 	}
 
 	// редактирование темы в запросе
@@ -86,7 +115,7 @@ class Position_general_Class{
 		$query .= " WHERE id='".(int)$_POST['row_id']."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 
-		echo '{"response":"OK"}';
+		//echo '{"response":"OK"}';
 		// echo '{"response":"show_new_window","html":"'.base64_encode($query).'"}';	
 	}
 
@@ -166,7 +195,19 @@ class Position_general_Class{
 				$html = $this->POSITION_NO_CATALOG->uslugi_template_Html($NEW_usl, $flag);
 				break;
 		}
-		echo '{"response":"close_window","function":"window_reload","name":"add_uslugu'.$dop.'","parent_id":"'.$usluga['parent_id'].'","html":"'.base64_encode($html).'"}';
+
+		// AJAX options
+		$this->responseClass->response = 'close_window';
+		$options['name'] = 'add_uslugu'.$dop;
+		$options['parent_id'] = $usluga['parent_id'];
+		$options['html'] = $html;
+		// AJAX options prepare
+		$this->responseClass->addResponseFunction('window_reload',$options);
+		// echo '{"response":"close_window",
+		// "function":"window_reload",
+		// "name":"add_uslugu'.$dop.'",
+		// "parent_id":"'.$usluga['parent_id'].'",
+		// "html":"'.base64_encode($html).'"}';
 	}
 
 	// сохранение информации по резерву
@@ -180,7 +221,8 @@ class Position_general_Class{
 		// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 
-		echo '{"response":"OK"}';
+		// echo '{"response":"OK"}';
+		// exit;
 	}
 
 	protected function get_uslugi_list_Database_Html_AJAX(){

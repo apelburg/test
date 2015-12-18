@@ -30,7 +30,7 @@
 	<div id="info_string_on_query">
 		<ul>
 			<li id="back_to_string_of_claim"><a href="?page=client_folder&query_num=<?php echo  $order_num; ?>&client_id=<?php echo $client_id; ?>"></a></li>
-			<li id="claim_number" data-order="<?=$order_num_id;?>">Запрос № <?=$POSITION->position['query_num'];?></li>
+			<li id="claim_number" data-order="<?=$POSITION->position['id'];?>">Запрос № <?=$POSITION->position['query_num'];?></li>
 			<li id="claim_date"><span>от <?=$POSITION->position['date_create'];?></span></li>
 			
 			<li id="query_theme_block"><span>Тема:</span> <input id="query_theme_input" class="query_theme" data-id="<?=$POSITION->position['RT_LIST_ID'];?>" type="text" value="<?=$POSITION->position['theme']?>" onclick="fff(this,'Введите тему');"></li>

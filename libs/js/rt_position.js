@@ -399,7 +399,7 @@ function copy_variant(services){
 		services:services
 		
 	}, function(data, textStatus, xhr) {
-		if(data['response']=='1'){
+		if(data['response']=='OK'){
 			// клонируем html вкладки текущего расчета
 			var menu_li = $('#variants_name .variant_name.checked ').clone();
 			// ставим название и на всякий подчищаем архивный класс, если он есть
@@ -417,7 +417,12 @@ function copy_variant(services){
 			// клонируем html текущего расчёта со всеми данными
 			var div_html = $('#'+id_div).clone();
 			// id на новый
-			div_html.attr('id','variant_content_block_'+data['num_row']);
+			div_html
+			.attr('id','variant_content_block_'+data['num_row'])
+			.attr('data-id',data['new_id']);
+			// правим URL
+			$.setUrlVal('varID_checked',data['new_id']);
+
 			// подчищаем архивный класс, если есть
 			div_html.removeClass('archiv_opacity');
 			// скрываем все видимые блоки расчета
@@ -426,7 +431,7 @@ function copy_variant(services){
 			$('#edit_variants_content .variant_content_block:last-of-type').after(div_html);
 
 			// убиваем календари 
-			destroy_datetimepicker_for_variant_cont()
+			destroy_datetimepicker_for_variant_cont();
 			// создаем календари для всех по новой
 			create_datepicker_for_variant_cont();// ДАТА
 			create_timepicker_for_variant_cont();// ВРЕМЯ
@@ -1010,6 +1015,7 @@ function calkulate_table_calc(){
  *	@version 		16:07 17.12.2015
  */
 function recalculate_table_price_Itogo(){
+	console.log('func : recalculate_table_price_Itogo');
 	// получаем id активного блока
 	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
 	// получаем тираж
@@ -1062,7 +1068,7 @@ function recalculate_table_price_Itogo(){
 		price_out_tir_out += Number($('.calkulate_table:visible .tirage_and_price_for_one .price_out_summ span.for_out').html());
 		$('.calkulate_table:visible .calculate.calculate_usl .price_out_summ.for_out span.for_out').each(function(index, el){
 			price_out_tir_out += Number($(this).html());	
-			console.log(Number($(this).html()));
+			// console.log(Number($(this).html()));
 		});
 		// price_out_tir_out;
 
@@ -1089,19 +1095,10 @@ function recalculate_table_price_Itogo(){
 	$('.calkulate_table:visible .variant_calc_itogo td:nth-of-type(7) span').html(money_format(Math.ceil((pribl)*100)/100));
 }
 
-// денежный формат
-// function money_format(number){
-// 	String(number).toFixed(2).replace(/./g, function(c, i, a) {
-//     	return i && c !== "." && ((a.length - i) % 3 === 0) ? '' + c : c;
-// 	});
-// }
+// приведение к денежнлму формату
 function money_format (num) {
     return num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
 }
-
-// console.info(currencyFormat(2665));   // $2,665.00
-// console.info(currencyFormat(102665)); // $102,665.00
-
 
 // РАСЧЕТ ИТОГО
 function calkulate_row_itogo(){
@@ -1362,12 +1359,39 @@ function chenge_the_general_input(){
 		}
 
 	}
+
+	console.log('654');
+	recalkulate_table(general_tirage);
+
 	// сохраняем размерную таблицу
 	save_all_table_size();
 	// пересчёт таблицы с ценами
-	calkulate_table_calc();
+	//calkulate_table_calc();
 }
 
+function recalkulate_table(general_tirage){
+	// вносим изменения в активную таблицу расчета
+	var recalc_itogo = 0;
+	$('.calkulate_table:visible tr').each(function(index, el) {
+		if ($(this).find('td').length > 1 && $(this).find('td:nth-of-type(2) div').length == 0) {
+			$(this).find('td:nth-of-type(2)').html(general_tirage);
+			recalc_itogo = 1;
+			// console.log($(this).find('td:nth-of-type(2)').html());
+		}
+		// console.log($(this).find('td:nth-of-type(2)'));
+		
+		// if($(this).hasClass('tirage_and_price_for_one') || $(this).hasClass('calculate_usl')){
+		// 	console.log($(this).find('td:nth-of-type(2)').html());
+		// 	if(Number($(this).find('td:nth-of-type(2)').html()) > 1){
+		// 		$(this).find('td:nth-of-type(2)').html(general_tirage);
+		// 		recalc_itogo = 1;
+		// 	}
+		// }
+	});
+	if (recalc_itogo) {
+		recalculate_table_price_Itogo();
+	}
+}
 
 
 // перенос содержимого общего тиража и запаса в первое поле размерной сетки, остальное трется
