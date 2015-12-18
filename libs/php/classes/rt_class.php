@@ -1302,11 +1302,20 @@ echo $query;
 		static function checkPosAboutSizes($row_id){
 			global $mysqli;  
 			
-			// данный метод проверяет если у данной позиции размеры
+			// данный метод проверяет если у данной позиции размерный ряд
+			// логика следующая - если json в ячейке tirage_json валидный и содержит более одного 
+			// элемента первого уровня (если преобразованный массив имеет более одного элемента) то размерный ряд есть
 		
-			$query="SELECT*FROM `".RT_DOP_DATA."` WHERE `id` = '".$row_id."' AND (`tirage_json` <> '' AND `tirage_json` <> '{}')";
+			$query="SELECT tirage_json FROM `".RT_DOP_DATA."` WHERE `id` = '".$row_id."'";
 			$result = $mysqli->query($query)or die($mysqli->error);
-			if($result->num_rows>0) return true;
+			if($result->num_rows>0){
+			    $row = $result->fetch_assoc();
+				if($row['tirage_json']=='' || $row['tirage_json']=='{}') return false;
+                $arr =@json_decode($row['tirage_json'],true);
+				if(!is_array($arr)) return false;
+				if(count($arr)<2) return false;
+				return true;
+			}
 			else  return false;
 		}
 	

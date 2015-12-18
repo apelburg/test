@@ -601,7 +601,7 @@ var rtCalculator = {
 		}
 						
 		function callbackprintsExists(response){
-		    //alert(response);
+		    // alert(response);
 			
 			try {  var response_obj = JSON.parse(response); }
 			catch (e) {}
