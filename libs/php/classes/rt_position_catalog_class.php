@@ -288,82 +288,84 @@ class Position_catalog{
 		return '<div id="attaching_names_of_print_types">'.$name_ru_arr.'</div>';
 	}
 
-	// копируем услуги варианта
-	private function copy_services_row_for_variant($dop_row_reference_id, $dop_row_new_id){
-		global $mysqli;
-		$query = "SELECT * FROM  `".RT_DOP_USLUGI."`
-				WHERE  `dop_row_id` ='".$dop_row_reference_id."'";  /// !!!! править тут !!!!
-		$services_arr = array();
-		$result = $mysqli->query($query) or die($mysqli->error);
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$services_arr[] = $row;
-			}
-		}
-		// echo $query;
-		if(count($services_arr)>0){
+	// // копируем услуги варианта
+	// private function copy_services_row_for_variant($dop_row_reference_id, $dop_row_new_id){
+	// 	global $mysqli;
+	// 	$query = "SELECT * FROM  `".RT_DOP_USLUGI."`
+	// 			WHERE  `dop_row_id` ='".$dop_row_reference_id."'";  /// !!!! править тут !!!!
+	// 	$services_arr = array();
+	// 	$result = $mysqli->query($query) or die($mysqli->error);
+	// 	if($result->num_rows > 0){
+	// 		while($row = $result->fetch_assoc()){
+	// 			$services_arr[] = $row;
+	// 		}
+	// 	}
+	// 	// echo $query;
+	// 	if(count($services_arr)>0){
 			
-			foreach ($services_arr as $key => $service) {
-				$query = '';
-				$query .= "INSERT INTO `".RT_DOP_USLUGI."` SET";
-				$n = 0;
-				foreach ($service as $name_column => $value) {
-					if($name_column=="id"){continue;}
-					if($name_column!='dop_row_id'){
-						$query .= (($n>0)?',':'')." `".$name_column."`='".$value."' ";
-					}else{
-						$query .= (($n>0)?',':'')." `".$name_column."`='".$dop_row_new_id."' ";
-					}
-					$n++;
-				}
-				$query .= '; ';
-				$result = $mysqli->query($query) or die($mysqli->error);
-			}
-			// echo $query;
+	// 		foreach ($services_arr as $key => $service) {
+	// 			$query = '';
+	// 			$query .= "INSERT INTO `".RT_DOP_USLUGI."` SET";
+	// 			$n = 0;
+	// 			foreach ($service as $name_column => $value) {
+	// 				if($name_column=="id"){continue;}
+	// 				if($name_column!='dop_row_id'){
+	// 					$query .= (($n>0)?',':'')." `".$name_column."`='".$value."' ";
+	// 				}else{
+	// 					$query .= (($n>0)?',':'')." `".$name_column."`='".$dop_row_new_id."' ";
+	// 				}
+	// 				$n++;
+	// 			}
+	// 			$query .= '; ';
+	// 			$result = $mysqli->query($query) or die($mysqli->error);
+	// 		}
+	// 		// echo $query;
 			
-		}
-		return;
-	}
+	// 	}
+	// 	return;
+	// }
 
-	// создаём сопию варианта
-	private function new_variant_AJAX(){
-		global $mysqli;
+	// создаём копию варианта
+	// перенесён в universal class
+	// private function new_variant_AJAX(){
+	// 	global $mysqli;
 
-		$reference_id = (int)$_POST['id'];
-		// собираем запрос, копируем строку в БД
-		$query = "INSERT INTO `".RT_DOP_DATA."` 
-		(row_id, quantity,price_in, price_out,discount,tirage_json) 
-		(SELECT row_id, quantity,price_in, price_out,discount,tirage_json 
-			FROM `".RT_DOP_DATA."` WHERE id = '".$reference_id."')";
-		$result = $mysqli->query($query) or die($mysqli->error);
-		// запоминаем новый id
-		$insert_id = $mysqli->insert_id;
+	// 	$reference_id = (int)$_POST['id'];
+	// 	// собираем запрос, копируем строку в БД
+	// 	$query = "INSERT INTO `".RT_DOP_DATA."` 
+	// 	(row_id, quantity,price_in, price_out,discount,tirage_json) 
+	// 	(SELECT row_id, quantity,price_in, price_out,discount,tirage_json 
+	// 		FROM `".RT_DOP_DATA."` WHERE id = '".$reference_id."')";
+	// 	$result = $mysqli->query($query) or die($mysqli->error);
+	// 	// запоминаем новый id
+	// 	$insert_id = $mysqli->insert_id;
 
-		if(isset($_POST['services']) && $_POST['services'] == 'true'){
-			// копируем услуги
-			$this->copy_services_row_for_variant($reference_id, $insert_id);
-		}
-		// узнаем количество строк
-		$query = "SELECT COUNT( * ) AS `num`
-				FROM  `".RT_DOP_DATA."`
-				WHERE  `row_id` ='".$_POST['row_id']."'";  /// !!!! править тут !!!!
-		$result = $mysqli->query($query) or die($mysqli->error);
-		if($result->num_rows > 0){
-			while($row = $result->fetch_assoc()){
-				$num_rows = $row['num'];
-			}
-		}
+	// 	if(isset($_POST['services']) && $_POST['services'] == 'true'){
+	// 		// копируем услуги
+	// 		$this->copy_services_row_for_variant($reference_id, $insert_id);
+	// 	}
+	// 	// узнаем количество строк
+	// 	$query = "SELECT COUNT( * ) AS `num`
+	// 			FROM  `".RT_DOP_DATA."`
+	// 			WHERE  `row_id` ='".$_POST['row_id']."'";  /// !!!! править тут !!!!
+	// 	$result = $mysqli->query($query) or die($mysqli->error);
+	// 	if($result->num_rows > 0){
+	// 		while($row = $result->fetch_assoc()){
+	// 			$num_rows = $row['num'];
+	// 		}
+	// 	}
 
 
 
-		echo '{ "response":"1",
-				"text":"test",
-				"new_id":"'.$insert_id.'",
-				"num_row":"'.($num_rows-1).'",
-				"num_row_for_name":"Вариант '.$num_rows.'"
-				}';
-		exit;
-	}
+	// 	echo '{ "response":"1",
+	// 			"text":"test",
+	// 			"new_id":"'.$insert_id.'",
+	// 			"num_row":"'.($num_rows-1).'",
+	// 			"num_row_for_name":"Вариант '.$num_rows.'"
+	// 			}';
+	// 	exit;
+	// }
+
 	private function save_standart_day_AJAX(){
 		global $mysqli;
 
