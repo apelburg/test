@@ -1405,6 +1405,22 @@ function recalculate_services_and_prints(tirage){
 // отрабатывает после запроса на изменение тиража в РТ
 function response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj){
 	console.log(response_obj);
+	// при отрицательном отклике - выкидываем оповещение
+	if(response_ob.extra.result != 'ok' || response_ob.print.result != 'ok'){
+		echo_message_js('УПС... ;(','system_message',2500);
+		var message = "Прикреплённые услуги не были пересчитаны";
+  		echo_message_js(message,'error_message',2500);
+
+		var message = "Страница будет перезагружена через 7 секунд.";
+  		echo_message_js(message,'error_message',2500);
+  		setTimeout(function(){window_reload();}, 7000);
+	}
+
+	// перебираем изменённые строки
+	response_ob.new_sum_details.each(function(element, index){
+		console.log(element);
+	});
+
 }
 
 

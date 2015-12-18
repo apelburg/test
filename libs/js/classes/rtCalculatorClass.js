@@ -683,8 +683,7 @@ var rtCalculator = {
 	}
 	,
 	cardQuantityCalculationsResponseFull:function(cell,row_id,response_obj){
-		alert(3);
-		console.log(response_obj);
+		response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj);
 	}
 	,
 	quantityCalculationsResponseFull:function(cell,row_id,response_obj){
