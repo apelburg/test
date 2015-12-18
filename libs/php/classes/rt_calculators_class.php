@@ -567,7 +567,8 @@
             $out_put = array();
 			$out_put['row_id'] = $dop_data_id;
 			$out_put['print']['result']='ok';
-			$out_put['extra']['result']='ok';	
+			$out_put['extra']['result']='ok';
+			if($source=='card')$out_put['new_sums_details']	= array();
 			
 			if($print == 'true'){
 			    $itog_sums = array("summ_in"=>0,"summ_out"=>0);
@@ -637,7 +638,7 @@
 					
 					if($out_put['print']['result']=='ok'){
 					     if($source=='rt') $out_put['print']['new_sums'] = $itog_sums;
-						 if($source=='card') $out_put['print']['new_sums_details'] = $new_sums_details;
+						 if($source=='card') $out_put['new_sums_details'] = $new_sums_details;
 					}
 				}
 			}
@@ -653,7 +654,7 @@
 						     $out_put['extra']['new_sums']['summ_out'] +=($row['for_how']=='for_all')? $row['price_out']:$quantity*$row['price_out'];
 						 }
 						 if($source=='card'){
-						     $out_put['extra']['new_sums_details'][$row['id']] = array('for_how' => $row['for_how'],'price_in' => $row['price_in'],'price_out' => $row['price_out']);
+						     $out_put['new_sums_details'][$row['id']] = array('for_how' => $row['for_how'],'price_in' => $row['price_in'],'price_out' => $row['price_out']);
 						 }
 						
 					}

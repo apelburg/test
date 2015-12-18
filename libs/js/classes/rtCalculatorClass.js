@@ -586,17 +586,17 @@ var rtCalculator = {
 			
 		}
         //////////////////////////////////// card rt
-		rtCalculator.makeQuantityCalculations('rt',cell,cell.innerHTML,row_id,printsExists,extraExists);
+		rtCalculator.makeQuantityCalculations('card',cell,cell.innerHTML,row_id,printsExists,extraExists);
 	}	
 	,
 	makeQuantityCalculations(source,cell,quantity,row_id,printsExists,extraExists){
-	    if(printsExists || extraExists){// если нанесение есть то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
-		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity_and_calculators=1&quantity='+quantity+'&id='+row_id+'&print='+printsExists+'&extra='+extraExists+'&source='+source);
+	    if(printsExists || extraExists){// если есть нанесение или доп услуги то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity_and_calculators=1&quantity='+quantity+'&id='+row_id+'&print='+printsExists+'&extra='+extraExists+'&source='+source,'section');
 			//alert(url);
 		    rtCalculator.send_ajax(url,callbackprintsExists);
 		}
 		else{// отправляем запрос на изменение только лишь значения тиража в базе данных 
-		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity=1&quantity='+quantity+'&id='+row_id);
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity=1&quantity='+quantity+'&id='+row_id+'&source='+source,'section');
 		    rtCalculator.send_ajax(url,callbackOnlyQuantity);
 		}
 						
@@ -771,7 +771,7 @@ var rtCalculator = {
 		if(!row['dop_data']['expel']['print']) row['out_summ'] +=row['print_out_summ'];
 		if(!row['dop_data']['expel']['dop'])   row['out_summ'] +=row['dop_uslugi_out_summ'];
 		
-		rtCalculator.tbl_model[row_id]['discount'] = (row['discount']!=0)? (Math.round(((row['price_out']*100/(rtCalculator.previos_data['price_out']*100/(100+row['discount'])))-100)* 100) / 100): 0;
+		rtCalculator.tbl_model[row_id]['discount'] = (row['discount']!=0)? ((row['price_out']!=0)?(Math.round(((row['price_out']*100/(rtCalculator.previos_data['price_out']*100/(100+row['discount'])))-100)* 100) / 100): 0): 0;
 		//alert('('+row['price_out']+'*'+100+'/'+rtCalculator.previos_data['price_out']+')'+'-'+100);
 		
 		row['delta'] = row['out_summ']-row['in_summ'];
