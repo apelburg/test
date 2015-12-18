@@ -536,7 +536,7 @@ var rtCalculator = {
 		rtCalculator.tbl_model[row_id][type] = (type=='quantity')? parseInt(cell.innerHTML):parseFloat(cell.innerHTML);
 		
 		// производим пересчет ряда
-		rtCalculator.calculate_row(row_id);
+		rtCalculator.calculate_row(row_id,type);
 		
 		//**print_r(rtCalculator.tbl_model[row_id]);
 		
@@ -716,7 +716,7 @@ var rtCalculator = {
 			
 			
 			// производим пересчет ряда
-			rtCalculator.calculate_row(response_obj.row_id);
+			rtCalculator.calculate_row(response_obj.row_id,'quantity');
 			
 			//**print_r(rtCalculator.tbl_model[row_id]);
 			
@@ -744,7 +744,7 @@ var rtCalculator = {
 		// вносим изменённое значение в соответствующую ячейку this.tbl_model
 		rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
 		// производим пересчет ряда
-		rtCalculator.calculate_row(row_id);
+		rtCalculator.calculate_row(row_id,'quantity');
 		
 		// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
 		rtCalculator.change_html(row_id);
@@ -752,7 +752,7 @@ var rtCalculator = {
 		rtCalculator.changes_in_process = false;
 	}
 	,
-	calculate_row:function(row_id){
+	calculate_row:function(row_id,type){
 	    // метод который рассчитывает итоговые суммы конкретного ряда таблицы и если ряд не исключен из итоговых расчетов
 		// делает изменения в ряду содержащем абсолютные суммы total_row
 		// методу передается id затронутого ряда таблицы, дальше метод выделят этот ряд в модели таблицы rtCalculator.tbl_model
@@ -770,7 +770,7 @@ var rtCalculator = {
 		if(!row['dop_data']['expel']['print']) row['out_summ'] +=row['print_out_summ'];
 		if(!row['dop_data']['expel']['dop'])   row['out_summ'] +=row['dop_uslugi_out_summ'];
 		
-		rtCalculator.tbl_model[row_id]['discount'] = (row['discount']!=0)? ((row['price_out']!=0)?(Math.round(((row['price_out']*100/(rtCalculator.previos_data['price_out']*100/(100+row['discount'])))-100)* 100) / 100): 0): 0;
+		if(type=='price_out') rtCalculator.tbl_model[row_id]['discount'] = (row['discount']!=0)? ((row['price_out']!=0)?(Math.round(((row['price_out']*100/(rtCalculator.previos_data['price_out']*100/(100+row['discount'])))-100)* 100) / 100): 0): 0;
 		//alert('('+row['price_out']+'*'+100+'/'+rtCalculator.previos_data['price_out']+')'+'-'+100);
 		
 		row['delta'] = row['out_summ']-row['in_summ'];
@@ -1412,7 +1412,7 @@ var rtCalculator = {
 		
 		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)
 		if(!(idsObj = rtCalculator.get_active_rows())){
-			alert('не возможно скопировать ряды, вы не выбрали ни одной позиции');
+            echo_message_js("Невозможно скопировать ряды, вы не выбрали ни одной позиции",'system_message',2000);
 			return;
 		} 
         
@@ -1433,7 +1433,7 @@ var rtCalculator = {
 		var pos_id = cell.getAttribute("pos_id");
 		// собираем данные о расчетах присвоенных данному ряду и о том которые из них "зеленые"
 		if(!(idsObj = rtCalculator.get_active_rows_for_one_position(pos_id))){
-			alert('не возможно скопировать позицию, она не содержит активных рядов');
+            echo_message_js("не возможно скопировать позицию, она не содержит активных расчетов",'system_message',2000);
 			return;
 		} 
 		
@@ -1491,7 +1491,7 @@ var rtCalculator = {
 		if(cell.getAttribute('pos_id')) var place_id = cell.getAttribute('pos_id');
 		if(rtCalculator.body_tbl.getAttribute('query_num')) query_num =  rtCalculator.body_tbl.getAttribute('query_num');
 		else{
-			alert('Не удалось определить номер заявки');
+			echo_message_js("не удалось определить номер заявки",'system_message',2000);
 			return;
 		}
 		
@@ -1543,7 +1543,7 @@ var rtCalculator = {
 				else if(type && type == 'uslugi') var target = 'доп услуги';
 				else if(type && type == 'printsAndUslugi') var target = 'нанесения и доп услуги';
 				else var target = 'ряды';
-				alert('не возможно удалить '+target+', вы не выбрали ни одной позиции');
+				echo_message_js('не возможно удалить '+target+', вы не выбрали ни одной позиции','system_message',2000);
 				closeAllMenuWindows();
 				return;
 			} 
@@ -1704,11 +1704,11 @@ var rtCalculator = {
 		var client_id = tbl.getAttribute('client_id');
 		var query_num = tbl.getAttribute('query_num');
 		if(client_id==''){
-		   alert('не удалось определить клиента');
+		   echo_message_js('не удалось определить клиента','system_message',2000);
 		   return;
 		}
 		if(query_num==''){
-		   alert('не удалось номер заявки');
+		   echo_message_js('не удалось определить номер заявки','system_message',2000);
 		   return;
 		}
 		
@@ -1862,7 +1862,7 @@ var rtCalculator = {
 	    //return;
 		
 		if(nothing || more_then_one || less_then_one){
-			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной товарной позиции\r\rнеобходимо:\r1). отметить нужный товар галочкой в мастер-кнопке\r2). выделить один расчет для данного товара, выставив суперзеную кнопку в светофоре');
+			if(nothing) alert('не возможно создать спецификацию,\rвы не выбрали ни одной товарной позиции\r\rнеобходимо:\r1). отметить нужный товар галочкой в мастер-кнопке\r2). выделить один расчет для данного товара, выставив суперзеную кнопку в светофоре');
 			else if(more_then_one){
 				var alertStrObj ={};
 				var alertStrArr =[];
@@ -1872,9 +1872,9 @@ var rtCalculator = {
 				for(var i in alertStrObj){
 					alertStrArr.push(alertStrObj[i]);
 				}
-				alert('не возможно создать заказ,\rвыбрано более одного варианта расчета в рядах:\r\n'+alertStrArr.join(''));
+				alert('не возможно создать спецификацию,\rвыбрано более одного варианта расчета в рядах:\r\n'+alertStrArr.join(''));
 			}
-			else if(less_then_one) alert('не возможно создать заказ,\rдля выбранных товаров не выбрано ни одного варианта расчета\r\rнеобходимо:\rвыделить один расчет для каждого выбранного товара выставив суперзеную кнопку в светофоре');
+			else if(less_then_one) alert('не возможно создать спецификацию,\rдля выбранных товаров не выбрано ни одного варианта расчета\r\rнеобходимо:\rвыделить один расчет для каждого выбранного товара выставив суперзеную кнопку в светофоре');
 			return;
 		}
 		
@@ -2016,7 +2016,7 @@ var rtCalculator = {
 				 }
 				 var button1 = button.cloneNode();
 				 button1.onclick=function(){
-					 if($('#final_date')[0].value==''){alert('Установите дату');return;} 
+					 if($('#final_date')[0].value==''){echo_message_js('Установите дату','system_message',2000);return;} 
 					 step4({'doc_type':doc_type,'data_type':data_type,'datetime':datetime,'final_date':$('#final_date')[0].value,'winId':winId});
 				 }
 				 button1.innerHTML ="Далее";
@@ -2389,7 +2389,7 @@ var rtCalculator = {
 		}
 
 		if(nothing){
-			alert('не возможно применить ярлык,\rвы не выбрали ни одной позиции');
+			echo_message_js('не возможно применить ярлык, не выбрано ни одной позиции','system_message',2000);
 			return;
 		}
 

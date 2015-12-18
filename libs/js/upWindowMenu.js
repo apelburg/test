@@ -126,7 +126,7 @@
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
-		var innerDiv = document.createElement('div');
+		/*var innerDiv = document.createElement('div');
 		innerDiv.className = "fence";
 		div.appendChild(innerDiv);
 		
@@ -139,7 +139,7 @@
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
-		/*var innerDiv = document.createElement('div');
+		var innerDiv = document.createElement('div');
 		innerDiv.className = "link2";
 		var a = document.createElement('a');
 		a.href = '#';
@@ -187,7 +187,7 @@
 		var a = document.createElement('a');
 		a.href = '#';
 		a.onclick = rtCalculator.makeSpecAndPreorder2;
-		a.appendChild(document.createTextNode('Спецификацию/Предзаказ'));
+		a.appendChild(document.createTextNode('Спецификацию'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
@@ -1349,12 +1349,12 @@
 		var element = e.target;
 		var positions_num =  rtCalculator.get_positions_num_in_query();
 		if(positions_num==0){
-			alert('В заявке отсутствуют позиции');
+			echo_message_js('В заявке отсутствуют позиции','system_message',2000);
 			return;
 		}
 		var idsArr = rtCalculator.get_active_main_rows();
 		if(!idsArr){
-			alert('Вы не выбрали позиции');
+			echo_message_js('невозможно установить дату сдачи, не выбрано ни одного расчета','system_message',2000);
 			closeAllMenuWindows();
 		    return;
 		}
@@ -1546,7 +1546,7 @@
 		
 		// определяем какие ряды были выделены (какие Мастер Кнопки были нажаты и установлен ли зеленый маркер в светофоре)
         if(!(idsObj = rtCalculator.get_active_rows())){
-			alert('не возможно создать КП, вы не выбрали ни одного расчета');
+			echo_message_js('не возможно создать КП, не выбрано ни одного расчета','system_message',2000);
 			return;
 		} 
 		/* console.log(idsObj);return; */
@@ -1585,7 +1585,7 @@
 		var conrtol_num = getControlNum();
 
 		if(str_for_url == ''){
-			alert('вы не выбрали ни одной позиции');
+			echo_message_js('вы не выбрали ни одной позиции','system_message',2000);
 			return;
 		}
 		var stock = element.getAttribute('stock');
@@ -1636,7 +1636,7 @@
 		var conrtol_num = getControlNum();
 		
 		if(str_for_url == ''){
-			alert('вы не выбрали ни одной позиции');
+			echo_message_js('вы не выбрали ни одной позиции','system_message',2000);
 			return;
 		}
 		
@@ -1738,9 +1738,9 @@
         //console.log(JSON.stringify(idsObj));
         
 		if(nothing || more_then_one || less_then_one){
-			if(nothing) alert('не возможно создать заказ,\rвы не выбрали ни одной позиции');
-			if(more_then_one) alert('не возможно создать заказ,\rдля позиции(ий) выбрано более одного варианта расчета');
-			if(less_then_one) alert('не возможно создать заказ,\rдля позиции(ий) невыбрано ни одного варианта расчета');
+			if(nothing) echo_message_js('не возможно создать заказ, вы не выбрали ни одной позиции','system_message',2000);
+			if(more_then_one) echo_message_js('не возможно создать заказ, для позиции(ий) выбрано более одного варианта расчета','system_message',2000);
+			if(less_then_one) echo_message_js('не возможно создать заказ, для позиции(ий) невыбрано ни одного варианта расчета','system_message',2000);
 			return;
 		}
 		
