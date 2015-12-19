@@ -6,6 +6,15 @@
 	if(!@$ACCESS['client_folder']['section']['rt_position']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
     
+
+	if(isset($_POST['set_discount'])){
+      	//print_r($_POST['form_data'])."<br>";
+      	set_discount($_POST['form_data']);
+   		header('Location:'.$_SERVER['HTTP_REFERER']);
+      	exit;
+    }
+
+
     save_way_back(array('section=rt_position','section=planner'),'?page=cabinet&client_id='.$client_id);
 	$quick_button_back = get_link_back();
 	
