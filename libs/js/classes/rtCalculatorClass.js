@@ -2069,9 +2069,9 @@ var rtCalculator = {
 	    
 		e = e || window.event;
 		var element = e.target;
-		
+		/*
 		var client_id = (element.parentNode.parentNode.nodeName == 'TBODY')? element.parentNode.parentNode.parentNode.getAttribute('client_id'):element.parentNode.parentNode.getAttribute('client_id');
-		
+		*/
 		var row_id = element.parentNode.getAttribute('row_id');
 	    //alert(client_id);alert(row_id);
 		
@@ -2120,11 +2120,11 @@ var rtCalculator = {
 	   input_row_id.name = 'form_data[id]';
 	   input_row_id.value = row_id;
 	   
-	   //поле client_id
+	   /*//поле client_id
 	   var input_client_id = document.createElement("input"); 
 	   input_client_id.type = 'hidden';
 	   input_client_id.name = 'form_data[client_id]';
-	   input_client_id.value = client_id;
+	   input_client_id.value = client_id;*/
 	   
 	   //поле cur_price
 	   var input_cur_price = document.createElement("input"); 
@@ -2143,7 +2143,7 @@ var rtCalculator = {
 	   
 	   // объединяем div1
 	   div1.appendChild(input_row_id);  
-	   div1.appendChild(input_client_id);
+	   //div1.appendChild(input_client_id);
 	   div1.appendChild(input_cur_price);
 	   div1.appendChild(document.createTextNode("установить стоимость "));
 	   div1.appendChild(price_input);
