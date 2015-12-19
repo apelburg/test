@@ -2073,21 +2073,25 @@ var rtCalculator = {
 		var client_id = (element.parentNode.parentNode.nodeName == 'TBODY')? element.parentNode.parentNode.parentNode.getAttribute('client_id'):element.parentNode.parentNode.getAttribute('client_id');
 		*/
 		var row_id = element.parentNode.getAttribute('row_id');
+		
+		var its_rt = (element.hasAttribute('its_rt'))? true:false;
+		//alert(its_rt);
 	    //alert(client_id);alert(row_id);
 		
 	    if(document.getElementById("BNODYUF0WE38")) document.getElementById("BNODYUF0WE38").parentNode.removeChild(document.getElementById("BNODYUF0WE38"));
 	
 	   // создаем всплывающее окно
-	   up_window_consructor.setWindowDimentions(310,425)
+	   up_window_consructor.setWindowDimentions(/*((its_rt)? 310:280)*/310,425)
 	   
 	   var arr = up_window_consructor.windowBilder('BNODYUF0WE38');
 	   
+	   /*  
 	   var price_td = rtCalculator.certainTd(element,'price_out');
 	   if(price_td == false){
 		   alert('не удалось определить цену');
 		   return;
 	   }
-	   var cur_price = price_td.innerHTML; 
+	   var cur_price = price_td.innerHTML; */
 	    
 	   ///////////////////////////////////////////////////////
 	   // содержимое сплывающего окна
@@ -2126,11 +2130,11 @@ var rtCalculator = {
 	   input_client_id.name = 'form_data[client_id]';
 	   input_client_id.value = client_id;*/
 	   
-	   //поле cur_price
+	   /*//поле cur_price
 	   var input_cur_price = document.createElement("input"); 
 	   input_cur_price.type = 'hidden';
 	   input_cur_price.name = 'form_data[cur_price]';
-	   input_cur_price.value = cur_price;
+	   input_cur_price.value = cur_price;*/
 	   
 	   //поле ввода цены
 	   var price_input = document.createElement("input"); 
@@ -2144,7 +2148,7 @@ var rtCalculator = {
 	   // объединяем div1
 	   div1.appendChild(input_row_id);  
 	   //div1.appendChild(input_client_id);
-	   div1.appendChild(input_cur_price);
+	   //div1.appendChild(input_cur_price);
 	   div1.appendChild(document.createTextNode("установить стоимость "));
 	   div1.appendChild(price_input);
 	   
@@ -2220,41 +2224,48 @@ var rtCalculator = {
 	   //переключатели radio buttons (для каких рядов произвести действие)
 	   var input_radio1 = document.createElement("input"); 
 	   input_radio1.type = 'radio';
+	   if(!its_rt) input_radio1.style.display = 'none';
 	   input_radio1.name = 'form_data[which_rows]';
 	   input_radio1.value = 'one_row';
 	   input_radio1.checked = 'true';
 	   var label1 = document.createElement("label"); 
 	   label1.style.cursor ='pointer';
+	   if(!its_rt) label1.style.display = 'none';
 	   label1.appendChild(input_radio1);
-	   label1.appendChild(document.createTextNode("данный расчет"));
+	   label1.appendChild(document.createTextNode("на данный расчет"));
 	   label1.appendChild(document.createElement("br"));
 	   
-	   var input_radio2 = document.createElement("input"); 
-	   input_radio2.type = 'radio';
-	   input_radio2.name = 'form_data[which_rows]';
-	   input_radio2.value = 'all_in_pos';
-	   var label2 = document.createElement("label");
-	   label2.style.cursor ='pointer';
-	   label2.appendChild(input_radio2);
-	   label2.appendChild(document.createTextNode("все расчеты в позиции"));
-	   label2.appendChild(document.createElement("br"));
+	   div3.appendChild(label1);
 	   
-	   
-	   var input_radio3 = document.createElement("input"); 
-	   input_radio3.type = 'radio';
-	   input_radio3.name = 'form_data[which_rows]';
-	   input_radio3.value = 'all_in_query';
-	   var label3 = document.createElement("label"); 
-	   label3.style.cursor ='pointer';
-	   label3.appendChild(input_radio3);
-	   label3.appendChild(document.createTextNode("все позиции в заявке"));
-	   label3.appendChild(document.createElement("br"));
-	   
+	   if(its_rt){
+		   var input_radio2 = document.createElement("input"); 
+		   input_radio2.type = 'radio';
+		   input_radio2.name = 'form_data[which_rows]';
+		   input_radio2.value = 'all_in_pos';
+		   var label2 = document.createElement("label");
+		   label2.style.cursor ='pointer';
+		   label2.appendChild(input_radio2);
+		   label2.appendChild(document.createTextNode("на все расчеты в позиции"));
+		   label2.appendChild(document.createElement("br"));
+		   
+		   
+		   var input_radio3 = document.createElement("input"); 
+		   input_radio3.type = 'radio';
+		   input_radio3.name = 'form_data[which_rows]';
+		   input_radio3.value = 'all_in_query';
+		   var label3 = document.createElement("label"); 
+		   label3.style.cursor ='pointer';
+		   label3.appendChild(input_radio3);
+		   label3.appendChild(document.createTextNode("на все позиции в заявке"));
+		   label3.appendChild(document.createElement("br"));
+		   
+		   div3.appendChild(label2);
+	       div3.appendChild(label3);
+	   }
 
        // объединяем div4
-	   div3.appendChild(label1);
-	   div3.appendChild(label2);
-	   div3.appendChild(label3);
+	  
+	  
 	   //div3.appendChild(label4);
 	   
 	   // div4
