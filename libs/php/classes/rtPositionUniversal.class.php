@@ -80,6 +80,46 @@ class rtPositionUniversal extends Position_general_Class
 			//echo '{"response":"OK"}';
 		}
 
+		// сохранение входящей цены за услугу
+		private function save_service_price_in_AJAX(){
+			$query = "UPDATE ".RT_DOP_USLUGI." SET ";
+			$query .= "`price_in`='".$_POST['price_in']."'"; 
+			$query .= "WHERE `id`='".$_POST['dop_uslugi_id']."';";
+			
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		}
+
+		// сохранение наценки / скидки
+		private function save_discount_AJAX(){
+			$query = "UPDATE ".RT_DOP_DATA." SET ";
+			$query .= "`price_out`='".$_POST['price_out']."'"; 
+			$query .= ", `discount`='".$_POST['discount']."'"; 
+			$query .= "WHERE `id`='".$_POST['row_id']."';";
+			
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		}
+
+		// сохранение исходящей цены за услугу
+		private function save_service_price_out_AJAX(){
+			$query = "UPDATE ".RT_DOP_USLUGI." SET ";
+			$query .= "`price_out`='".$_POST['price_out']."'"; 
+			$query .= "WHERE `id`='".$_POST['dop_uslugi_id']."';";
+			
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		}
+
+		// сохранение входящей цены за товар
+		private function save_price_in_out_for_one_price_AJAX(){
+			$query = "UPDATE ".RT_DOP_DATA." SET ";
+			$query .= "`price_in`='".$_POST['price_in']."'"; 
+			// $query .= ", `price_out`='".$_POST['price_out']."' ";
+			$query .= "WHERE `id`='".$_POST['dop_data']."';";
+			
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			// echo '{"response":"OK"}';
+			// exit;
+		}
+
 		// изменение в размерной сетке
 		private function size_in_var_all_AJAX(){
 			
@@ -1049,7 +1089,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 					
 					// информация из калькулятора
 					$calc_info = '';$calc_class= '';$calc_button='';$calculator_price_out='';
-					$calc_tr_class = '';
+					$calc_tr_class = ''; $input_style = '';
 					$td_calculator_price_out='';
 					if($service['parent_id'] == 6){
 						$calc_tr_class = 'calculator_row';
@@ -1058,6 +1098,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 						$calc_info = '';
 						$calculator_price_out = 'readonly';
 						$td_calculator_price_out = ' onclick="edit_calcPriceOut_readoly()" ';
+						$input_style = 'style="border: 1px solid#fff;"';
 					}
 					
 					// ТЗ кнопки
@@ -1103,7 +1144,7 @@ inner join `".OUR_USLUGI_LIST."` AS `".OUR_USLUGI_LIST."_par` ON `".OUR_USLUGI_L
 						// исходящая (штука)
 						$html .= '<td '.$td_calculator_price_out.' class="row_price_out_gen uslugi_class price_out_men">';
 							
-							$html .= '<input type="text" '.$calculator_price_out.' value="'.$this->round_money($price_out).'">';
+							$html .= '<input '.$input_style.' type="text" '.$calculator_price_out.' value="'.$this->round_money($price_out).'">';
 						$html .= '</td>';
 						
 						// исходащая / входящая (сумма)

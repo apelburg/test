@@ -18,18 +18,12 @@
 			window_preload_del();
 		}
 
-		if(data['function'] !== undefined){ // вызов функции... если требуется
-			window[data['function']](data);
-			window_preload_del();
-		}
-
-		if(data['function2'] !== undefined){ // вызов функции 2... если требуется
-			window[data['function2']](data);
-			window_preload_del();
-		}
-
-		if(data['function3'] !== undefined){ // вызов функции 3... если требуется
-			window[data['function3']](data);
+		// поочерёдный вызов функции 
+		if(data['function'] !== undefined){ 
+			count = data['function'].length;
+			for (var i = count - 1; i >= 0; i--) {
+				window[data['function'][i]['function']](data['function'][i]);
+			};
 			window_preload_del();
 		}
 
