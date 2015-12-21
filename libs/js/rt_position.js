@@ -726,22 +726,7 @@ $(document).on('click','#choose_end_variant',function(){
 });
 */
 
-$(document).on('click', '#variants_name .variant_name', function(){
-	// меняем URL
-	$.urlVar('varID_checked',$(this).attr('data-id'));
-	// отработка показа / скрытия вариантов расчёта
-	// при клике по кнопкам вариантов
-	$('.variant_name').removeClass('checked');
-	$(this).addClass('checked');	
-	var id = $(this).attr('data-cont_id');
-	$('.variant_content_block').css({'display':'none'});
-	$('#'+id).css({'display':'block'});
-	// смена функциональной кнопки / выбора основного варианта /
-	test_chenge_archive_list();
-	// расчет таблицы активного поля
-	calkulate_table_calc();
 
-});
 
 // смена функциональной кнопки выбора основного варианта
 function test_chenge_archive_list(){
