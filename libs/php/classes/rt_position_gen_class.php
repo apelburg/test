@@ -203,11 +203,12 @@ class Position_general_Class{
 		$options['html'] = $html;
 		// AJAX options prepare
 		$this->responseClass->addResponseFunction('window_reload',$options);
-		// echo '{"response":"close_window",
-		// "function":"window_reload",
-		// "name":"add_uslugu'.$dop.'",
-		// "parent_id":"'.$usluga['parent_id'].'",
-		// "html":"'.base64_encode($html).'"}';
+		echo '{"response":"close_window",
+		"function":"window_reload",
+		"name":"add_uslugu'.$dop.'",
+		"parent_id":"'.$usluga['parent_id'].'",
+		"html":"'.base64_encode($html).'"}';
+		exit;
 	}
 
 	// сохранение информации по резерву

@@ -82,12 +82,12 @@
 						<td></td>
 						<td></td>
 					</tr>
-					<tr class="tirage_and_price_for_one">
+					<tr class="tirage_and_price_for_one" row_id="<?=$variant['id'];?>">
 						<td>Товар</td>
 						<td><?=$variant['quantity'];?></td>
 						<td class="row_tirage_in_one price_in"><input type="text" value="<?=$variant['price_in'];?>"></td>
 						
-						<td class="percent_nacenki js--calculate_tbl-edit_percent" data-val="<?=$variant['discount'];?>"  data-id="<?=$variant['id'];?>">
+						<td class="percent_nacenki js--calculate_tbl-edit_percent" row_id="<?=$variant['id'];?>" data-val="<?=$variant['discount'];?>" data-real_price_out="<?=$variant['price_out'];?>" data-id="<?=$variant['id'];?>" onclick="rtCalculator.show_discount_window();">
 							<?php
 								// расчет исходящей цены на товар
 								$price_out = $POSITION->round_money(($variant['discount'] != 0 )? (($variant['price_out']/100)*(100 + $variant['discount'])) : $variant['price_out'] );
@@ -101,7 +101,7 @@
 							?>
 						</td>
 						<td  class="row_price_out_one price_out">	
-							<input type="text" disabled="disabled" value="<?php echo $price_out ?>">							
+							<input type="text" value="<?php echo $price_out ?>">							
 						</td>
 
 							

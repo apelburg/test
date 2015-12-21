@@ -17,18 +17,12 @@
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
 			window_preload_del();
 		}
-		if(data['function'] !== undefined){ // вызов функции... если требуется
-			window[data['function']](data);
-			window_preload_del();
-		}
-
-		if(data['function2'] !== undefined){ // вызов функции 2... если требуется
-			window[data['function2']](data);
-			window_preload_del();
-		}
-
-		if(data['function3'] !== undefined){ // вызов функции 3... если требуется
-			window[data['function3']](data);
+		// поочерёдный вызов функции 
+		if(data['function'] !== undefined){ 
+			count = data['function'].length;
+			for (var i = count - 1; i >= 0; i--) {
+				window[data['function'][i]['function']](data['function'][i]);
+			};
 			window_preload_del();
 		}
 
@@ -821,21 +815,7 @@ $(document).on('click','#extract_from_archive',function(){
 // 	save_price_in_out_for_one_price();
 // });
 
-$(document).on('keyup', '.tirage_and_price_for_one .row_tirage_in_one.price_in input', function(event) {
-	// $(this).val()
-	recalkulate_tovar();
-	$.post('', {
-		// global_change: 'AJAX',
-		AJAX: 'save_price_in_out_for_one_price',
-		price_in:$(this).val(),
-		price_out:$(this).parent().parent().find('.row_price_out_one.price_out input').val(),
-		dop_data: $('.variant_name.checked').attr('data-id')
-	}, function(data, textStatus, xhr) {
-		// console.log(data);
 
-		standard_response_handler(data);
-	},'json');
-});
 
 function save_price_in_out_for_one_price(){
 	
@@ -1083,20 +1063,21 @@ function recalculate_table_price_Itogo(){
 
 	//	var price_out_tir_out = 0;
 		price_out_tir_out += Number($('.calkulate_table:visible .tirage_and_price_for_one .price_out_summ span.for_out').html());
-		$('.calkulate_table:visible .calculate.calculate_usl .price_out_summ.for_out span.for_out').each(function(index, el){
+		$('.calkulate_table:visible .calculate.calculate_usl .price_out_summ span.for_out').each(function(index, el){
 			price_out_tir_out += Number($(this).html());	
 			// console.log(Number($(this).html()));
 		});
-		// price_out_tir_out;
+		
+		// echo_message_js(price_out_tir_out, 'system_message', 10000);
 
 
 	//	var price_out_tir_in = 0;
 		
 		price_out_tir_in += Number($('.calkulate_table:visible .price_out_summ span.for_in').html());
-		$('.calkulate_table:visible .calculate.calculate_usl .price_out_summ.for_out span.for_in').each(function(index, el){
+		$('.calkulate_table:visible .calculate.calculate_usl .price_out_summ span.for_in').each(function(index, el){
 			price_out_tir_in += Number($(this).html());	
 		});
-		// price_out_tir_in;
+		// echo_message_js(price_out_tir_in, 'system_message', 10000);
 
 
 
@@ -1426,7 +1407,7 @@ function recalculate_services_and_prints(tirage){
 
 }
 
-// пересчет каждой услуги относительно 
+// пересчет каждой услуги относительно тиража
 function recalculate_services(){
 	// перебираем строки услуг и калькуляторов
 	var prise_in = 0;
@@ -1458,6 +1439,7 @@ function recalculate_services(){
 		$(this).find('.row_pribl_out_gen.uslugi_class.pribl span').html(money_format(prise_out*quantity - prise_in*quantity));
 
 	});
+	// recalculate_table_price_Itogo();
 }
 
 /**
@@ -1505,6 +1487,7 @@ function response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj
 		}
 		// пересчёт услуг в расчетной таблице 
 		recalculate_services();
+		recalculate_table_price_Itogo();
 	}
 	
 }
@@ -1538,7 +1521,7 @@ function recalkulate_tovar(){
 	// маржа (прибыль)
 	position_obj.find('td:nth-of-type(7) span').html(money_format(price_out * quantity - price_in * quantity))
 
-	// вызов метода
+	// recalculate_table_price_Itogo();
 }
 
 
