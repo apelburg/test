@@ -289,21 +289,10 @@ var rtCalculator = {
 		
 		var row_id = rtCalculator.cur_cell.parentNode.getAttribute('row_id');
 		var discount = (rtCalculator.tbl_model[row_id].discount)?rtCalculator.tbl_model[row_id].discount:0;
-		//if(prop == 'price_out' && (discount!=0 || (discount==0 && rtCalculator.previos_data['discount']!=0 ))){
-		if(prop == 'price_out' && discount!=0){
-		    //alert(rtCalculator.previos_data['$discount']);
-			prop = 'discount';
-			last_val = discount;
-			//console.log(rtCalculator.tbl_model[row_id].discount);
-			//if(!rtCalculator.dscntDisclaimerProtocol[row_id]) rtCalculator.shDscntDisclaimer(rtCalculator.cur_cell,row_id,discount);
-		}
+
 		
 		if(prop == 'price_out' && discount==0){
 		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+row_id+'","discount":"0","prop":"'+prop +'","val":"'+last_val+'"}');
-			
-			
-			//console.log(rtCalculator.tbl_model[row_id].discount);
-			//if(!rtCalculator.dscntDisclaimerProtocol[row_id]) rtCalculator.shDscntDisclaimer(rtCalculator.cur_cell,row_id,discount);
 		}
 		else{
 			if(prop == 'price_out' && discount!=0){
@@ -2069,12 +2058,10 @@ var rtCalculator = {
 	    
 		e = e || window.event;
 		var element = e.target;
-		/*
-		var client_id = (element.parentNode.parentNode.nodeName == 'TBODY')? element.parentNode.parentNode.parentNode.getAttribute('client_id'):element.parentNode.parentNode.getAttribute('client_id');
-		*/
-		var row_id = element.parentNode.getAttribute('row_id');
-		
+
 		var its_rt = (element.hasAttribute('its_rt'))? true:false;
+		var row_id = (its_rt)? element.parentNode.getAttribute('row_id'):$(element).parents("tr").attr("row_id");
+		//alert(row_id);
 		//alert(its_rt);
 	    //alert(client_id);alert(row_id);
 		
@@ -2085,13 +2072,6 @@ var rtCalculator = {
 	   
 	   var arr = up_window_consructor.windowBilder('BNODYUF0WE38');
 	   
-	   /*  
-	   var price_td = rtCalculator.certainTd(element,'price_out');
-	   if(price_td == false){
-		   alert('не удалось определить цену');
-		   return;
-	   }
-	   var cur_price = price_td.innerHTML; */
 	    
 	   ///////////////////////////////////////////////////////
 	   // содержимое сплывающего окна
@@ -2123,18 +2103,6 @@ var rtCalculator = {
 	   input_row_id.type = 'hidden';
 	   input_row_id.name = 'form_data[id]';
 	   input_row_id.value = row_id;
-	   
-	   /*//поле client_id
-	   var input_client_id = document.createElement("input"); 
-	   input_client_id.type = 'hidden';
-	   input_client_id.name = 'form_data[client_id]';
-	   input_client_id.value = client_id;*/
-	   
-	   /*//поле cur_price
-	   var input_cur_price = document.createElement("input"); 
-	   input_cur_price.type = 'hidden';
-	   input_cur_price.name = 'form_data[cur_price]';
-	   input_cur_price.value = cur_price;*/
 	   
 	   //поле ввода цены
 	   var price_input = document.createElement("input"); 
