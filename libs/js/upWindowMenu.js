@@ -1153,7 +1153,17 @@
 		var innerDiv = document.createElement('div');
 		innerDiv.className = "link1";
 		var a = document.createElement('a');
-		a.onclick = function(){alert('Вставить изображение')};
+		a.setAttribute('pos_id',pos_id);
+		a.onclick = function(){
+			// event.preventDefault();
+			$.post('', {
+				AJAX: 'getStdKpGalleryWindow',
+				id: $(this).attr('pos_id')
+			}, function(data, textStatus, xhr) {
+				standard_response_handler(data);
+			},'json');
+			// echo_message_js($(this).attr('pos_id'),'system_message')
+		};
 		a.appendChild(document.createTextNode('Вставить изображение'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);

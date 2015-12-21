@@ -86,3 +86,8 @@
 .edit_cell{
     min-width: 27px;
 }
+
+.variant_characteristics_and_delivery table{
+    /*display: none;*/
+    opacity: 0;
+}

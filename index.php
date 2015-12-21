@@ -6,8 +6,8 @@
 	ini_set('display_startup_errors', 1);
 	set_time_limit(0);
 
-    include('libs/mysql.php');
-	include('libs/mysqli.php');
+    include('../libs/mysql.php');
+	include('../libs/mysqli.php');
     include('libs/config.php');
 	include('libs/lock.php');
 	include('libs/access_installer.php');
@@ -15,6 +15,12 @@
 	include('libs/php/common.php');
     include('libs/autorization.php');
 	include('libs/variables.php');
+
+	// aplStdClass
+	include ROOT.'/../libs/php/classes/aplStdClass.php';
+	// галлерея
+	include ROOT.'/libs/php/classes/rt_KpGallery.class.php';
+	new rtKpGallery;
 
 	
 
@@ -32,12 +38,6 @@
 	  
 	   
 	   	case 'cabinet':
-		// главный класс по позициям
-		include_once './libs/php/classes/rt_position_gen_class.php';
-		// класс работы с позициями каталога
-		include_once './libs/php/classes/rt_position_catalog_class.php';
-		// класс работы с позициями не каталога
-		include_once './libs/php/classes/rt_position_no_catalog_class.php';
 	   include 'modules/cabinet/router.php';
 	   break;
 

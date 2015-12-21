@@ -37,3 +37,18 @@ function print_arr($arr){
 	return $html;
 }
 
+// генератор таблиц из массива
+$items_num = 8;
+$cols_num = 2;
+$rows_num = ceil($items_num/$cols_num);
+//echo $rows_num;
+   
+echo "<table border='1' width='100'>";
+for($i =0 ;$i<$rows_num ; $i++){
+	echo "<tr>";
+	for($j =0 ;$j<$cols_num ; $j++){
+		echo "<td style='border:1px solid #000'>".($i+$rows_num*$j)."</td>";
+	}
+	echo "</tr>";
+}
+echo "</table>";
