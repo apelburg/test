@@ -18,6 +18,8 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  	class rtKpGallery extends aplStdAJAXMethod{
  		function __construct(){
 			parent::__construct();
+			// подключаемся к базе
+			// $this->db();
  		}
 
  		//////////////////////////
@@ -56,7 +58,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  				// если сохраненные значения есть
 				
 				global $mysqli; 
-				$query = "UPDATE `".CALCULATE_TBL."` SET";
+				$query = "UPDATE `".RT_MAIN_ROWS."` SET";
 				$query .=" img_folder_choosen_img = '".$_POST['img']."'";
 				$query .=" WHERE `id` = ".$row['id'].";";
 				$result = $mysqli->query($query) or die($mysqli->error);		
@@ -65,7 +67,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  			}
  			protected function chooseNoImgGallery_AJAX(){
  				global $mysqli; 
-				$query = "UPDATE `".CALCULATE_TBL."` SET";
+				$query = "UPDATE `".RT_MAIN_ROWS."` SET";
 				$query .=" img_folder_choosen_img = ''";
 				$query .=" WHERE `id` = ".$_POST['id'].";";
 				$result = $mysqli->query($query) or die($mysqli->error);		
@@ -78,7 +80,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  				global $mysqli;
  				
  				// запрос наличия выбранного изображения для данной строки
- 				$query = "SELECT * FROM `".CALCULATE_TBL."` WHERE `id` = '".$id."' ";
+ 				$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."' ";
  				$row2 = array();
  				$result = $mysqli->query($query) or die($mysqli->error);
  				
@@ -98,7 +100,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  			// вставляет новую запись о выборанном изображении в базу
  			private function newSelectRow($dir, $img){
  			// 	global $mysqli;
- 			// 	$query = "INSERT INTO `".CALCULATE_TBL."` SET";
+ 			// 	$query = "INSERT INTO `".RT_MAIN_ROWS."` SET";
 				// $query .=" img_folder = '".$dir."'";
 				// $query .=", img_folder_choosen_img = '".$img."'";
 				// $result = $mysqli->query($query) or die($mysqli->error);
@@ -111,9 +113,9 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  			// при наличии изображения выбранного в галлерее возвращает его имя
  			// в противном случае false
  			static function checkTheFolder($RT_id, $name = ''){				
-
+ 				// echo method_get_name();
  				$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/admin/order_manager/data/images/'.$RT_id.'/';
- 				$dir = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/images/'.$RT_id.'/';
+ 				$dir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$RT_id.'/';
 				// если папка не нейдена возвращаем false
 				if (!is_dir($dir)) {
 					return flase;
@@ -145,12 +147,12 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				// по умолчанию возвращаем название выбранного изображения
 				switch ($name) {
 					case 'dir':
-						$dir = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/images/'.$RT_id.'/'.$img;
+						$dir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$RT_id.'/'.$img;
 						return $dir;
 						break;
 
 					case 'global_dir':
-					$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/admin/order_manager/data/images/'.$RT_id.'/'.$img;	
+					$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/os/data/images/'.$RT_id.'/'.$img;	
 						return $global_dir;
 						break;
 					
@@ -160,39 +162,39 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				}							
  			}
 
- 			protected function check_changes_to_rt_protocol($control_num,$id){
-				global $db;
+ 			// 	protected function check_changes_to_rt_protocol($control_num,$id){
+			// 	global $db;
 				
-			    $query = "SELECT*FROM `".CALCULATE_TBL_PROTOCOL."`";	
-				$result = mysql_query($query,$db);
-				if(!$result)exit(mysql_error());
+			//     $query = "SELECT*FROM `".CALCULATE_TBL_PROTOCOL."`";	
+			// 	$result = mysql_query($query,$db);
+			// 	if(!$result)exit(mysql_error());
 				
-				$num_rows = mysql_num_rows($result);
-				if($num_rows == $control_num) return $id;
+			// 	$num_rows = mysql_num_rows($result);
+			// 	if($num_rows == $control_num) return $id;
 				
-				//
-				for($i = $control_num ; $i < $num_rows; $i++){
-				    $row_id = mysql_result($result,$i,'row_id');
-					$action = mysql_result($result,$i,'action');
+			// 	//
+			// 	for($i = $control_num ; $i < $num_rows; $i++){
+			// 	    $row_id = mysql_result($result,$i,'row_id');
+			// 		$action = mysql_result($result,$i,'action');
 					
-					if($action == 'insert'){
-					    if($row_id <= $id ) ++$id;
-					} 
-					if($action == 'delete'){
-					    if($row_id < $id )--$id;
-						if($row_id == $id ) return false;
-					}
-				}
+			// 		if($action == 'insert'){
+			// 		    if($row_id <= $id ) ++$id;
+			// 		} 
+			// 		if($action == 'delete'){
+			// 		    if($row_id < $id )--$id;
+			// 			if($row_id == $id ) return false;
+			// 		}
+			// 	}
 				
-				return $id;
-			}
+			// 	return $id;
+			// }
 
 
 			// получаем изображения из папки
 			protected function getImagesList($folder, $id){
 				$saved = $this->checkSavedchoosen($id);
-				$dir = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/images/'.$folder.'/';
-				$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/admin/order_manager/data/images/'.$folder.'/';
+				$dir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder.'/';
+				$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/os/data/images/'.$folder.'/';
 				$html = '';
 				// $html .= $this->printArr(scandir($dir));
 				$html .= '<ul>';
@@ -200,11 +202,6 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				if(is_dir($dir)){
 
 					$files = scandir($dir);
-
-					
-					
-
-
 					for ($i = 0; $i < count($files); $i++) { // Перебираем все файлы
 					    if (($files[$i] == ".") || ($files[$i] == "..")) { // Текущий каталог и родительский пропускаем
 					    	continue;
@@ -275,7 +272,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 
 			// получаем изображение для артикула
 			protected function getArtImg($item){
-				$img_path = '../../img/'.$this->get_big_img_name($item['article']);	
+				$img_path = '../img/'.$this->get_big_img_name($item['art']);	
 			    $img_src = $this->checkImgExists($img_path);
 				// меняем размер изображения
 			    $size_arr = $this->transform_img_size($img_src,226,300); // установленое здесь значение для высоты является оптимальным 
@@ -298,32 +295,45 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 
 			// получаем контент из галлереи загруженных изображений
 			protected function getImageGalleryContent($folder_name, $rt_id){
-				$folder = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/images/'.$folder_name.'/';
-				$html  = '';
+				$folder = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder_name.'/';
+				
+				// DEBUG
+					// $html  = ''.$folder.'<br>'.$rt_id;
+				$html = '';
 				$html .= '<div id="rt-gallery-images">';
 					$html .= $this->getImagesList($folder_name,$rt_id);
 				$html .= '</div>';
 				return $html;
 			}
 
+			// проверка существования папки
+			protected function checkFolderExist($folder){
+				return is_dir('/var/www/admin/data/www/apelburg.ru/os/data/images/'.$folder.'/');
+
+			}
+
 			// создание новой папки
 			protected function greateNewDir($rt_id_row){
 				$dirName_1 = md5(time());
 				
-				$dirName = '/var/www/admin/data/www/apelburg.ru/admin/order_manager/data/images/'.$dirName_1.'/';
+				$dirName = '/var/www/admin/data/www/apelburg.ru/os/data/images/'.$dirName_1.'/';
 				
 				if (!is_dir($dirName)) {
 					//если папкb $dirName не существует
 					mkdir($dirName,0777);
 					
 					global $mysqli; // пишем её название в базу
-					$query = "UPDATE `".CALCULATE_TBL."` SET";
+					$query = "UPDATE `".RT_MAIN_ROWS."` SET";
 					$query .=" img_folder = '".$dirName_1."'";
 					$query .=" WHERE `id` = ".$rt_id_row.";";
 					$result = $mysqli->query($query) or die($mysqli->error);
 				}
 
 				return $dirName_1;
+			}
+
+			private function warpDopText($text){
+				return '<div class="dop_text">'.$text.'</div>';
 			}
 
 			// собираем окно галлереи изображений для позиции
@@ -334,15 +344,26 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 					return;
 				}
 
-				$rt_id = $this->check_changes_to_rt_protocol($_POST['control_num'],$_POST['id']);
+				// $rt_id = $this->check_changes_to_rt_protocol($_POST['control_num'],$_POST['id']);
+				$rt_id = (int)$_POST['id'];
 				$rt_row = $this->checkSavedchoosen($rt_id);
 
 				$folder_name = $rt_row['img_folder'];
-
 				
-				if($folder_name == ''){
+				
+				// $html = $this->warpDopText($this->printArr($rt_row));
+				// $global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/os/data/images/'.$folder_name.'/';					
+				// $html .= $this->warpDopText($global_dir);
+				
+				// $this->responseClass->addMessage($html,'system_message',25000);
+				
+				// проверка на существование папки
+				if($folder_name == '' || !$this->checkFolderExist($folder_name)){
 					// создаем новую папку
+
 					$folder_name = $this->greateNewDir($_POST['id']);
+					$html = 'Создана новая папка';
+					$this->responseClass->addMessage($html,'error_message',25000);
 				}
 
 				$win_DIV_ID = 'rt-gallery-DIV_'.$folder_name;
@@ -396,11 +417,12 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				$firstImg = false;
 
 				$folder_name = $_POST['folder_name'];
-				$uploadDir = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/images/'.$folder_name.'/';
+				$uploadDir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder_name.'/';
 
+				// echo $uploadDir;
 				if (!is_dir($uploadDir)) {
 					$folder_name = $this->greateNewDir($_POST['id']);
-					$uploadDir = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/images/'.$folder_name.'/';
+					$uploadDir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder_name.'/';
 					
 				}
 				// меняем права на папку
@@ -471,7 +493,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 
 							$this->responseClass->addMessage($html,'system_message');
 							// добавляем загруженные изображения
-							$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/admin/order_manager/data/images/'.$folder_name.'/';
+							$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/os/data/images/'.$folder_name.'/';
 							$path = $global_dir.$fileName . ".$extension";
 							$this->responseClass->addResponseFunction('rtGallery_add_img',array('id'=>$folder_name,'html'=>$this->getImgLiHtml($path,$fileName . ".$extension",(($firstImg)?'checked':''))));
 						} else {

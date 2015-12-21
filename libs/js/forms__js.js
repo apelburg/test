@@ -30,7 +30,17 @@
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
 		}
 		if(data['function'] !== undefined){ // вызов функции... если требуется
-			window[data['function']](data);
+			
+			if($.isArray(data['function'])){
+				count = data['function'].length;
+				for (var i = count - 1; i >= 0; i--) {
+					window[data['function'][i]['function']](data['function'][i]);
+				};
+				window_preload_del();
+			}else{
+				window[data['function']](data);
+			}
+			
 		}
 		if(data['response'] != "OK"){ // вывод при ошибке
 			console.log(data);

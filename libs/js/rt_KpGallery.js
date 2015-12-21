@@ -17,7 +17,7 @@
         	'folder_name'	: data['folder_name']
         },
         'buttonText': 'Загрузить',
-        'swf'      	: '../../libs/php/uploadify.swf',
+        'swf'      	: '../libs/php/uploadify.swf',
         'uploader' 	: '',
         'multi'     : false,
         'onUploadSuccess' : function(file, data) {
@@ -29,21 +29,26 @@
     }
 
 
-
+    /**
+     *	вызов перемещён в upWindowMenu.js
+     *
+     *	@author  	Алексей Капитонов
+     *	@version 	16:01 21.12.2015
+     */
 	// запрос окна галлереи 
-	$(document).on('click', '.showImgGalleryWindow', function(event) {
-		var c = $(this).attr('data-control_num');
-		event.preventDefault();
-		$.post('', {
-			AJAX: 'getStdKpGalleryWindow',
-			id: $(this).attr('data-rt_id'),
-			control_num: $(this).attr('data-control_num'),
-			folder_name: $(this).attr('data-rt_folder_name')
+	// $(document).on('click', '.showImgGalleryWindow', function(event) {
+	// 	var c = $(this).attr('data-control_num');
+	// 	event.preventDefault();
+	// 	$.post('', {
+	// 		AJAX: 'getStdKpGalleryWindow',
+	// 		id: $(this).attr('data-rt_id'),
+	// 		control_num: $(this).attr('data-control_num'),
+	// 		folder_name: $(this).attr('data-rt_folder_name')
 
-		}, function(data, textStatus, xhr) {
-			standard_response_handler(data);
-		},'json');
-	});
+	// 	}, function(data, textStatus, xhr) {
+	// 		standard_response_handler(data);
+	// 	},'json');
+	// });
 
 	// добавление изображений
 	function rtGallery_add_img(data){
