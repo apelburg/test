@@ -119,7 +119,7 @@ if(false/*isset($_SESSION['access']['user_id'])*/){
 </div>
 <!-- Планнер (dialog_window_minimized_container) -->
 <?php 
-if(false/*isset($_SESSION['access']['user_id'])*/){ echo Planner::$warnings_container; }
+if(isset($_SESSION['access']['user_id'])){ echo Planner::$warnings_container; }
 ?> 
 <!-- / Планнер -->  
 <div style="position:absolute;right:0px;bottom:0px;"><a href="#" onclick="alert(error_report);return false;">ошибки</a></div><!---->
