@@ -1912,34 +1912,41 @@ var rtCalculator = {
 			    var url = OS_HOST+'?' + addOrReplaceGetOnURL('getSpecificationsDates={"ids":'+JSON.stringify(idsArr)+'}');
 		        make_ajax_request(url,callback);
 				function callback(response){ 
-					//alert(response);
+					// alert(response);
 					try {  var dataObj = JSON.parse(response); }
 					catch (e) { 
 						alert('неправильный формат данных in calculatorClass.makeSpecAndPreorder2() ошибка JSON.parse(response)');
 						return;
 					}
-					console.log(dataObj);console.log(idsObj);console.log(dopInfObj);/**/
+					console.log(dataObj);/*console.log(idsObj);console.log(dopInfObj);*/
 					
                     var content = document.createElement('DIV');
 					content.className = "specificationsPreWin";
 					var winId ="specificationsPreWin2";
 					
-					content.innerHTML += '<div class="cap">Укажите срок сдачи, либо срок изготовления Вашего заказ в рабочих днях.<div>'; 
-					content.innerHTML += '<div class="info">В запрос были введены следующие даты и р/д:<br>(всего-'+dataObj['all_positions']+', установленно-'+dataObj['defined_positions']+')<div>';
+					content.innerHTML += '<div class="cap">Укажите, либо конкретную дату сдачи заказа, либо срок изготовления заказа в рабочих днях. <!--Для создаваемой '+((doc_type=='spec')?'спецификации':'оферты')+' должно быть установленно единное значение.--> Выберите из имеющихся вариантов или укажите новое значение. Выбранное вами значение будет указано в тексте '+((doc_type=='spec')?'спецификации':'оферты')+'.<div>'; 
+					if(dataObj['defined_positions']!=0) content.innerHTML += '<div class="info">На данный момент в расчетах уставноленны следующие даты или р/д:<br>(всего расчетов -'+dataObj['all_positions']+', установленно дат -'+dataObj['defined_positions']+')<div>';
+					else content.innerHTML += '<div class="info">На данный момент в расчетах не установлены даты или р/д, установите значение<div>';
 					
-                    var tbl = '<table id="preWindataTbl" class="dataTbl"><tr class="cap"><th>позиция</th><th>шаблон</th><th></th><th>кто</th><th></th></tr>';
-				    for(var key in dataObj.data){
-						 var value = (dataObj.data[key]['shablon_en']=='date')?((dataObj.data[key]['value'].split('-')).reverse()).join('.'):dataObj.data[key]['value'];
-						 
-						 
-						 tbl += '<tr><td class="first">Арт № '+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'</td>';
-						 tbl += '<td>'+dataObj.data[key]['shablon']+'</td><td>'+value+'</td>';
-						 tbl += '<td>'+dataObj.data[key]['who']+'</td>';
-						 tbl += '<td>';
-						 if(!(dataObj.data[key]['shablon_en']=='date' && dataObj.data[key]['value']<dataObj['min_allowed_date'])) tbl += '<input type="radio" name="radio" data_type="'+dataObj.data[key]['shablon_en']+'" value="'+value+'">';
-						 tbl += '</td></tr>';
+                   
+					if(dataObj['defined_positions']!=0){ 
+					    var tbl = '<table id="preWindataTbl" class="dataTbl"><tr class="cap"><th>№ позиции</th><th>тип даты</th><th width="150"></th><th>кто установил</th><th width="150"></th></tr>';
+						for(var key =0;key < dataObj.data.length;key++){
+						//$(dataObj.data).
+							 var value = (dataObj.data[key]['shablon_en']=='date')?((dataObj.data[key]['value'].split('-')).reverse()).join('.'):dataObj.data[key]['value'];
+							 
+							 
+							 tbl += '<tr><td class="first">'+dopInfObj[dataObj.data[key]['row_id']]['glob_counter']+'</td>';
+							 tbl += '<td>'+dataObj.data[key]['shablon']+'</td><td>'+value+'</td>';
+							 tbl += '<td>'+dataObj.data[key]['who']+'</td>';
+							 tbl += '<td>';
+							 if(!(dataObj.data[key]['shablon_en']=='date' && dataObj.data[key]['value']<dataObj['min_allowed_date'])) tbl += '<input type="radio" name="radio" data_type="'+dataObj.data[key]['shablon_en']+'" value="'+value+'">';
+							 tbl += '</td></tr>';
+						}
+						tbl += '<tr><td colspan="5" class="dopCap">Установть другое значение:</td></tr>';
 					}
-				
+					else var tbl = '<table id="preWindataTbl" class="dataTbl"><tr class="cap"><th></th><th></th><th width="150"></th><th></th><th></th></tr>';
+					
 					tbl += '<tr><td class="first"></td>';
 					tbl += '<td>';
 					tbl +='<select onchange="$(this).parent().parent().find(\'span\').hide(); $(\'#\'+this.options[this.selectedIndex].value).show(); $(\'#alternate_date\')[0].checked=true; " ><option value="" selected="selected"></option><option value="date_block">по дате</option><option value="rd_block">по рд</option></select></td>';					
@@ -1994,7 +2001,7 @@ var rtCalculator = {
 				 time = (time!='')?time:'22:00';
 					
 				 if(data_type=='date'){
-					 content.innerHTML += '<div class="cap"> укажите лимит<br>(до какого числа клиент обязуется оплатить заказ и подписать макет)<div>';
+					 content.innerHTML += '<div class="cap"> укажите до какой даты клиент обязуется оплатить заказ и подписать макет ( дата будет установлена в тексте '+((doc_type=='spec')?'спецификации':'оферты')+' )<div>';
 					 //content.innerHTML +='doc_type-'+ doc_type+' date-'+date+' time-'+time+' data_type-'+data_type+'<br>';
 					 content.innerHTML += '<div class="limitInput"><input  id="datepicker" type="text"><input id="final_date" style="display:none" type="text"><div>';
 					 

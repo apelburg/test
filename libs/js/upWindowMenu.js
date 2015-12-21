@@ -187,7 +187,7 @@
 		var a = document.createElement('a');
 		a.href = '#';
 		a.onclick = rtCalculator.makeSpecAndPreorder2;
-		a.appendChild(document.createTextNode('Спецификацию'));
+		a.appendChild(document.createTextNode('Спецификацию / оферту'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
