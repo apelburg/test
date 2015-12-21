@@ -1150,6 +1150,14 @@
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
+		var innerDiv = document.createElement('div');
+		innerDiv.className = "link1";
+		var a = document.createElement('a');
+		a.onclick = function(){alert('Вставить изображение')};
+		a.appendChild(document.createTextNode('Вставить изображение'));
+		innerDiv.appendChild(a);
+		div.appendChild(innerDiv);
+		
 		
 		target.appendChild(div);
 		
