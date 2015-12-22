@@ -2495,8 +2495,8 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		
 		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."'";
 		
-		if($group_by) $query .= "GROUP BY ".$group_by ;
-		else $query .= "ORDER BY id ";
+		if($group_by) $query .= " GROUP BY ".$group_by ;
+		$query .= " ORDER BY id DESC";
 		
 		$result = mysql_query($query,$db) or die(mysql_error());
 		

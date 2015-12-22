@@ -1925,7 +1925,7 @@ var rtCalculator = {
 					var winId ="specificationsPreWin2";
 					
 					content.innerHTML += '<div class="cap">Укажите, либо конкретную дату сдачи заказа, либо срок изготовления заказа в рабочих днях. <!--Для создаваемой '+((doc_type=='spec')?'спецификации':'оферты')+' должно быть установленно единное значение.--> Выберите из имеющихся вариантов или укажите новое значение. Выбранное вами значение будет указано в тексте '+((doc_type=='spec')?'спецификации':'оферты')+'.<div>'; 
-					if(dataObj['defined_positions']!=0) content.innerHTML += '<div class="info">На данный момент в расчетах уставноленны следующие даты или р/д:<br>(всего расчетов -'+dataObj['all_positions']+', установленно дат -'+dataObj['defined_positions']+')<div>';
+					if(dataObj['defined_positions']!=0) content.innerHTML += '<div class="info">На данный момент в расчетах уставноленны следующие даты или р/д:<br>(всего расчетов -'+dataObj['all_positions']+', установленно дат -'+dataObj['defined_positions']+'). Если расчет неактивный, это значит что дата в нем просрочена.<div>';
 					else content.innerHTML += '<div class="info">На данный момент в расчетах не установлены даты или р/д, установите значение<div>';
 					
                    

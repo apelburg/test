@@ -475,7 +475,7 @@
 		static function fetch_all_client_oferts($client_id){
 			global $mysqli;
 			
-			$query = "SELECT*FROM `".OFFERTS_TBL."` WHERE client_id = '".$client_id."' ORDER BY id";
+			$query = "SELECT*FROM `".OFFERTS_TBL."` WHERE client_id = '".$client_id."' ORDER BY id DESC";
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows > 0){
 				return $result;
@@ -1102,7 +1102,7 @@
 			
 					 $outDataArr['data'] = $newDataArr;
 					 $outDataArr['all_positions'] = $result->num_rows;
-					 $outDataArr['defined_positions'] = count($dataArr);
+					 $outDataArr['defined_positions'] = count($newDataArr);
 					 $outDataArr['min_allowed_date'] = substr(goOnSomeWorkingDays(date("Y-m-d H:i:s"),3,'+'),0,10);//,time()+60*60*24*
 					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
 					 // if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;
