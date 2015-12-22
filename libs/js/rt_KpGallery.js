@@ -71,29 +71,15 @@ $(document).on('click', '#rt-gallery-images li', function(event) {
 	$(this).addClass('checked');
 	var id = $(this).parent().parent().parent().parent().find("input[name*='id']").val();
 
-	// выбираем отсутствие изображения
-	if($(this).hasClass('no_images_select')){
-		$.post('', {
-			AJAX 		:'chooseNoImgGallery',
-			id 			:id
-		}, function(data, textStatus, xhr) {
-			standard_response_handler(data);
-		},'json');
-	}else{// выбираем загруженное изображение
-		var folder_name = $(this).parent().parent().parent().parent().find("input[name*='folder_name']").val();
-		var img = $(this).attr('data-file');
-		$.post('', {
-			AJAX 		:'chooseImgGallery',
-			folder_name :folder_name,
-			id 			:id,
-			img 		:img
-		}, function(data, textStatus, xhr) {
-			standard_response_handler(data);
-		},'json');
-	}
-
-
-	
-	
-	
+	// выбор изображения
+	var folder_name = $(this).attr('data-folder');
+	var img = $(this).attr('data-file');
+	$.post('', {
+		AJAX 		:'chooseImgGallery',
+		folder_name :folder_name,
+		id 			:id,
+		img 		:img
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
 });

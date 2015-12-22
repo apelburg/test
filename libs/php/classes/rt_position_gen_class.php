@@ -317,14 +317,8 @@ class Position_general_Class{
 
 	// отдаёт $html распечатанного массива
 	public function print_arr($arr){
-		ob_start();
-		echo '<pre>';
-		print_r($arr);
-		echo '</pre>';
-		$content = ob_get_contents();
-		ob_get_clean();
-		
-		return $content;
+		return $this->print_arr($arr);
+
 	}
 	// форматируем денежный формат + округляем
 	public function round_money($num){
@@ -335,6 +329,18 @@ class Position_general_Class{
 		$per = ($price_in!= 0)?$price_in:0.09;
 		$percent = round((($price_out-$price_in)*100/$per),2);
 		return $percent;
+	}
+
+	// отдаёт $html распечатанного массива
+	protected function printArr($arr){
+		ob_start();
+		echo '<pre>';
+		print_r($arr);
+		echo '</pre>';
+		$content = ob_get_contents();
+		ob_get_clean();
+		
+		return $content;
 	}
 
 	/////////////////   AJAX  END   ///////////////// 
