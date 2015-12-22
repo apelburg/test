@@ -1,0 +1,50 @@
+div.showImgGalleryWindow{
+  width: 23px;
+    height: 12px;
+    border: 1px solid #CECDCD;
+    margin-left: 3px;
+}
+div.showImgGalleryWindow:after{
+  position: absolute;
+  width: 23px;
+    height: 12px;
+    color: #CECDCD;
+    content: "img";
+    margin-left: -11px;
+    margin-top: -4px;
+}
+div.showImgGalleryWindow:hover{
+  background:  #CECDCD;
+  color: #898787;
+  cursor: pointer;
+}
+div.showImgGalleryWindow:hover:after{
+  color: #898787;
+}
+div#rt-gallery-images {
+   max-height: 355px;
+   overflow-x: hidden;
+}
+div#rt-gallery-images img{
+   max-height: 150px;
+   max-width: 150px;
+}
+div#rt-gallery-images ul li.rt-gallery-cont {
+    list-style: none;
+    display: inline-block;
+    width: 150px;
+    height: 150px;
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid #f1f1f1;
+    text-align: center;
+    vertical-align: text-bottom;
+}
+
+div#rt-gallery-images ul li.rt-gallery-cont.checked{
+   border: 1px solid #77AC78;
+   border-radius: 4px;
+}
+div#apl-notification_center li .dop_text{    
+    text-transform: none;
+}

@@ -769,6 +769,58 @@ class Images extends rtPositionUniversal
 	}
 
 	/**
+ 	 *	получает изображения для артикула
+ 	 *  КОПИЯ ИЗ rt_KpGallery.class.php
+ 	 *
+ 	 *	@param 		$art - артикул
+ 	 *	@return  	array( index => image_name)
+ 	 *	@author  	Алексей Капитонов
+ 	 *	@version 	16:23 22.12.2015
+ 	 */
+ 	private function getBigImagesForArt($art_id){
+ 		// объявляем массив изображений
+ 		$img = array();
+		if(trim($art_id) > 0){
+ 			$query = "SELECT*FROM `".IMAGES_TBL."` WHERE `size` = 'big' AND art_id='".$art_id."' ORDER BY id";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$img[] = $row['name'];
+				}
+			}
+ 		}
+ 		
+		//	если изображений для артикула нет
+		//  или артикул не существует
+		if(count($img) == 0){
+			$img[] = 'no_image.jpg';
+		}
+		return $img;
+ 	}
+ 	private function getSmallImagesForArt($art_id){
+ 		// объявляем массив изображений
+ 		$img = array();
+		if(trim($art_id) > 0){
+ 			$query = "SELECT*FROM `".IMAGES_TBL."` WHERE `size` = 'small' AND art_id='".$art_id."' ORDER BY id";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$img[] = $row['name'];
+				}
+			}
+ 		}
+ 		
+		//	если изображений для артикула нет
+		//  или артикул не существует
+		if(count($img) == 0){
+			$img[] = 'no_image.jpg';
+		}
+		return $img;
+ 	}
+
+
+
+ 	/**
 	 *	старые функции 
 	 *  поверхностный рефакторинг 
 	 *  
@@ -779,89 +831,61 @@ class Images extends rtPositionUniversal
 	 */
 	public function fetchImagesForArt($art){
 		$i=0;
-		if($art && $art > 0){
-			
-			
-			$query = "SELECT * FROM `".IMAGES_TBL."` WHERE art_id ='".$art."' AND size='big' ORDER BY  id ASC";
-			$result = $this->mysqli->query($query) or die($this->mysqli->error);
-			
-			// echo $query; return;
-			// основная картинка
-			
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
 
-					$big_images_id[] = $row['id'];
-					if(!isset($main_img_src)) {
-						$main_img_src = $this->checkImgExists( APELBURG_HOST.'/img/'.$row['name']);
-					}
-
-						$big_images[] = $row['name'];
-					
-				}
-			}else{
-				$main_img_src = $this->checkImgExists(APELBURG_HOST.'/img/no_image.jpg');
+		// if($art && $art > 0){
+			
+		$big_images = $this->getBigImagesForArt($art);
+		$small_images = $this->getSmallImagesForArt($art);
+			
+		$query = "SELECT * FROM `".IMAGES_TBL."` WHERE art_id ='".$art."' AND size='big' ORDER BY  id ASC";
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			
+		$i = 0;
+		foreach ($small_images as $key => $img) {
+			$deleting_img = '';
+			if($img != 'no_image.jpg' && isset($_SESSION['access']['access']) && 
+				($_SESSION['access']['access']== 1 || $_SESSION['access']['access']==3)){
+				$deleting_img = '<div class="catalog_delete_img_link">
+				<a 
+				href="#" 
+				title="удалить изображение из базы" 
+				data-del="'.APELBURG_HOST.'/admin/order_manager/?page=common&delete_img_from_base_by_id='.$big_images[$key].'|'.$img.'" 
+				onclick="if(confirm(\' изображение будет удалено из базы!\')){$.get( $(this).attr(\'data-del\'),function( data ) {});remover_image(this); return false; } else{ return false;}">&#215</a>
+				</div>';
+			}
+			if(!isset($main_img_src)) {
+				$main_img_src = $this->checkImgExists( APELBURG_HOST.'/img/'.$img);
 			}
 
-			
-			// вычисляем превьющки
-			$query = "SELECT * FROM `".IMAGES_TBL."` WHERE art_id ='".$art."' AND size='small' ORDER BY  id ASC";
-			$result = $this->mysqli->query($query) or die($this->mysqli->error);
-
-			$counter = 0;
-			$counter2 = 0;
-			$counter3 = 0;
-
-			// если артикул имеет больше одного превью изображения
-			// - строим панель с превьюшками
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					
-					$deleting_img = '';
-					if(isset($_SESSION['access']['access']) &&  ($_SESSION['access']['access']== 1 || $_SESSION['access']['access']==3)){
-						$deleting_img = '<div class="catalog_delete_img_link">
-						<a 
-						href="#" 
-						title="удалить изображение из базы" 
-						data-del="'.APELBURG_HOST.'/admin/order_manager/?page=common&delete_img_from_base_by_id='.$big_images[$counter3++].'|'.$row['name'].'" 
-						onclick="if(confirm(\' изображение будет удалено из базы!\')){$.get( $(this).attr(\'data-del\'),function( data ) {});remover_image(this); return false; } else{ return false;}">&#215</a>
-						</div>';
-					}			
-
-					$previews_block[] = '<div  class="carousel-block">
-								<img class="articulusImagesMiniImg imagePr" alt="" src="'.checkImgExists(APELBURG_HOST.'/img/'.$row['name']).'" data-src_IMG_link="'.APELBURG_HOST.'/img/'.$big_images[$counter++].'">
-								'.$deleting_img.'
-								</div>';
-				   $i++;
-				}
-			}
-		}else{
-			$main_img_src = $this->checkImgExists(APELBURG_HOST.'/img/no_image.jpg');
-
+			$previews_block[$i] = '<div  class="carousel-block">';
+			$previews_block[$i] .= '<img class="articulusImagesMiniImg imagePr" alt="" src="'.checkImgExists(APELBURG_HOST.'/img/'.$img).'" data-src_IMG_link="'.APELBURG_HOST.'/img/'.$big_images[$key].'">';
+			$previews_block[$i] .= $deleting_img;
+			$previews_block[$i] .= '</div>';
 		}
-
+		// }
+		
 		if(isset($_SESSION['access']['access']) && ($_SESSION['access']['access']==1 || $_SESSION['access']['access']==3)){
 			$previews_block[] = '<div  class="carousel-block" id="image_add"><img class="articulusImagesMiniImg imagePr" alt="" src="'.APELBURG_HOST.'/skins/images/general/add_image_d.png" data-src_IMG_link="'.APELBURG_HOST.'/skins/images/general/add_image_d.png"></div>';	
-			$i++;	
 		}
-		if(isset($i) && $i>0){
-			$string	= implode('',$previews_block);
-			$html = '<div class="carousel shadow" style="">'.PHP_EOL;
-			$html .= count($previews_block)>=3?'<a href="" class="articulusImagesArrow2 carousel-button-left" style="background-image:url('.APELBURG_HOST.'/skins/images/general/artkart/s2.png)"></a>'.PHP_EOL:'';
-			$html .= '<div class="carousel-wrapper">'.PHP_EOL;
-			$html .= '<div class="carousel-items">'.PHP_EOL;	
-			$html .= $string;
-			$html .= '</div>'.PHP_EOL;
-			$html .= '</div>'.PHP_EOL;
-			$html .= count($previews_block)>=3?'<a href="" class="articulusImagesArrow2 carousel-button-right" style="background-image:url('.APELBURG_HOST.'/skins/images/general/artkart/s22.png); float:right; margin-top:-70px"></a>'.PHP_EOL:'';
-			$html .= '</div>'.PHP_EOL;
-			$previews_block = $html;
-		}else{
-			$previews_block = '<div>нет дополнительных картинок</div>';
-		}
+		
+		$string	= implode('',$previews_block);
+		$html = '<div class="carousel shadow" style="">'.PHP_EOL;
+		$html .= count($previews_block)>=3?'<a href="" class="articulusImagesArrow2 carousel-button-left" style="background-image:url('.APELBURG_HOST.'/skins/images/general/artkart/s2.png)"></a>'.PHP_EOL:'';
+		$html .= '<div class="carousel-wrapper">'.PHP_EOL;
+		$html .= '<div class="carousel-items">'.PHP_EOL;	
+		$html .= $string;
+		$html .= '</div>'.PHP_EOL;
+		$html .= '</div>'.PHP_EOL;
+		$html .= count($previews_block)>=3?'<a href="" class="articulusImagesArrow2 carousel-button-right" style="background-image:url('.APELBURG_HOST.'/skins/images/general/artkart/s22.png); float:right; margin-top:-70px"></a>'.PHP_EOL:'';
+		$html .= '</div>'.PHP_EOL;
+		$previews_block = $html;
+		
 		return array('main_img_src' => $main_img_src,
 			'previews_block' => $previews_block);
 	}
+
+
+
 
 	// вывод блока изображений
 	public function getImageHtml(){
