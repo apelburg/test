@@ -475,7 +475,7 @@
 		static function fetch_all_client_oferts($client_id){
 			global $mysqli;
 			
-			$query = "SELECT*FROM `".OFFERTS_TBL."` WHERE client_id = '".$client_id."' ORDER BY id";
+			$query = "SELECT*FROM `".OFFERTS_TBL."` WHERE client_id = '".$client_id."' ORDER BY id DESC";
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows > 0){
 				return $result;
@@ -1043,6 +1043,7 @@
 			
 			 //print_r($inDataArr);
 			 $inDataArr = (array)$inDataArr;
+			 $newDataArr = array();
 			 
 			 foreach($inDataArr['ids'] as $key => $data){
 				//echo $data->row_id.' - <br>';
@@ -1050,7 +1051,10 @@
 			 }
 			 
 			 if(isset($dataArr)){
-				 $query="SELECT id, row_id, shipping_date, shipping_time, shipping_type, work_days, shipping_redactor_id, shipping_redactor_access FROM `".RT_DOP_DATA."` WHERE `id` IN('".implode("','",$dataArr)."')";
+				 $query="SELECT dop.id id, dop.row_id row_id, shipping_date, shipping_time, shipping_type, work_days, shipping_redactor_id, shipping_redactor_access FROM `".RT_MAIN_ROWS."` main 
+				 LEFT JOIN `".RT_DOP_DATA."` dop
+				 ON main.id = dop.row_id
+				 WHERE dop.id IN('".implode("','",$dataArr)."') ORDER BY main.sort";
 				 $result = $mysqli->query($query)or die($mysqli->error);
 				 if($result->num_rows>0){
 				     // SELECT * FROM `os__rt_dop_data` WHERE `id` IN ('681','743','1003','1027') ORDER BY `shipping_type` DESC
@@ -1082,9 +1086,8 @@
 								 $shablon = 'р/д'; 
 								 $shablon_en = 'days'; 
 							 }
-							 $dataArr[$row['id']] = array('row_id'=> $row['row_id'],'value'=> $value,'shablon'=> $shablon,'shablon_en'=> $shablon_en, 'who'=> $who);
+							 $newDataArr[] = array('row_id'=> $row['row_id'],'value'=> $value,'shablon'=> $shablon,'shablon_en'=> $shablon_en, 'who'=> $who);
 						 }
-						 else unset($dataArr[$row['id']]);
 						 // не понадобилось
 						 // определяем максимальное значение установленных рабочих дней в $row['standart']
 						 // if($row['standart']>$max_day_num) $max_day_num = $row['standart'];
@@ -1097,9 +1100,9 @@
 						 
 					 }
 			
-					 $outDataArr['data'] = $dataArr;
+					 $outDataArr['data'] = $newDataArr;
 					 $outDataArr['all_positions'] = $result->num_rows;
-					 $outDataArr['defined_positions'] = count($dataArr);
+					 $outDataArr['defined_positions'] = count($newDataArr);
 					 $outDataArr['min_allowed_date'] = substr(goOnSomeWorkingDays(date("Y-m-d H:i:s"),3,'+'),0,10);//,time()+60*60*24*
 					 // если не во всех расчетах установлен срок изготовления содаем флаг undefined_days_warn
 					 // if(count($dataArr)>$day_num_count) $outDataArr['undefined_days_warn'] = 1;

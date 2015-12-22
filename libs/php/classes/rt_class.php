@@ -541,7 +541,8 @@
 			
 			// содержимое корзины
 			$basket_arr = $_SESSION['basket'];
-			// print_r($basket_arr);
+			//print_r($basket_arr);
+			//exit;
 	
 			foreach($basket_arr as $key => $basket_data){
 			
@@ -707,6 +708,31 @@
 
 
 			*/
+            
+			
+			// трасформирование данных в случае если есть необходимость склеить вместе артикулы повторяющиеся в корзине
+			// эти артикулы могут просто повторяться из-за того что были добавленны в корзину несколько раз
+			// или могут повторяться из-за того что они имеют несколько размеров
+			// после прохождения обработки мы имеем новый масив с объедененными артикулами
+			$data_arr_new = array();
+			if(true){
+				foreach($data_arr as $key =>  $data){
+	
+					$flag = true;
+					if(count($data_arr_new)>0){
+						foreach($data_arr_new as $key_new => $data_new){
+							if($data['art_id'] == $data_new['art_id']){
+								$data_arr_new[$key_new]['dop_data'] = array_merge($data_arr_new[$key_new]['dop_data'],$data_arr[$key]['dop_data']);
+								//$data_arr_new[$key_new]['dop_data'][] = $data_arr[$key]['dop_data'][0]
+								$flag = false;
+							}
+						}
+					}
+					if($flag) $data_arr_new[] = $data;
+				}
+			}
+			else $data_arr_new = $data;
+			
 			
 			// ЗАДАЧА:
 			// НА ОСНОВЕ ПОЛУЧЕННЫХ ДАННЫХ СОЗДАТЬ НОВЫЙ ЗАПРОС
@@ -746,7 +772,8 @@
 			// СОЗДАТЬ ЗАПИСЬ В ТАБЛИЦЕ RT_MAIN_ROWS
             // СОЗДАТЬ N - ЗАПИСЕЙ В ТАБЛИЦЕ RT_DOP_DATA
             // СОЗДАТЬ N - ЗАПИСЕЙ В ТАБЛИЦЕ RT_DOP_USLUGI
-			
+			//print_r($data_arr_new);
+			//exit;
 			
 			// определяем номер запроса
 			$query = "SELECT MAX(query_num) max FROM `".RT_LIST."`"; 								
@@ -770,7 +797,7 @@
 			
 			
 			$sort_id = 0;
-			foreach($data_arr as $data){
+			foreach($data_arr_new as $data){
 				
 				// вносим основные данные о позиции в RT_MAIN_ROWS
 				$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 
