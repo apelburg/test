@@ -74,12 +74,51 @@ $(document).on('click', '#rt-gallery-images li', function(event) {
 	// выбор изображения
 	var folder_name = $(this).attr('data-folder');
 	var img = $(this).attr('data-file');
-	$.post('', {
-		AJAX 		:'chooseImgGallery',
-		folder_name :folder_name,
-		id 			:id,
-		img 		:img
-	}, function(data, textStatus, xhr) {
-		standard_response_handler(data);
-	},'json');
+	
+	// chooseKpPreview(img);
+	// $.post('', {
+		// AJAX 		:'chooseImgGallery',
+		// folder_name :folder_name,
+		// id 			:id,
+		// img 		:img,
+		// type 		:$(this).attr('data-type')
+	// }, function(data, textStatus, xhr) {
+		// standard_response_handler(data);
+	// },'json');
+	$('#data_folder_name').val(folder_name);
+	$('#data_id').val(id);
+	$('#data_img').val(img);
+	$('#data_type').val($(this).attr('data-type'));
+});
+
+// выделение изображения избранного в КП в карточке артикула
+function chooseKpPreview(img){
+	if( $('#articulusImagesPrevBigImg').length ){
+		$('#articulusImagesPrevBigImg .carousel-block').removeClass('kp_checked');
+		$('#articulusImagesPrevBigImg .carousel-block img').each(function(index, el) {
+			// echo_message_js(img+' = '+$(this).attr('data-file'), 'system_message',25000);
+			if ($(this).attr('data-file') == img) {
+				$(this).parent().addClass('kp_checked');
+			};
+		});
+	}
+}
+
+
+$(document).on('click', 'li.rt-gallery-cont .delete_upload_img', function(event) {
+	event.preventDefault();
+	echo_message_js('удалить', 'system_message' ,25000);
+	// удаляем изображение	
+	
+	var img = $(this).parent().attr('data-file');
+	var folder = $(this).parent().attr('data-folder');
+	// alert(img);
+	if( $('#data_delete_img').val() == ''){
+		$('#data_delete_img').val(img);
+	}else{
+		$('#data_delete_img').val($('#data_delete_img').val()+','+img);
+	}
+	$('#data_delete_img_width_folder').val(folder);
+	$(this).parent().hide('fast');
+	
 });

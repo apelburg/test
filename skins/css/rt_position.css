@@ -501,6 +501,11 @@ body {
   display: inline-flex;
   min-height: 60px;
 }
+#articulusImagesPrevBigImg .carousel-block.kp_checked{
+  border-color: #007036;
+  border-radius: 5px;
+}
+
 #articulusImagesPrevBigImg img {
   margin: auto;
   border: 1px solid white;

@@ -33,27 +33,50 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 	 			//	предупреждения для юзера
 	 			//////////////////////////
 	 				// если не получено название папки
-	 				if(!isset($_POST['id'])){
+	 				if(!isset($_POST['data']['id'])){
 	 					$html = 'ID не указан';	
 						$this->responseClass->addMessage($html,'error_message');
 	 					return;
 	 				}
 	 				// если не получено название изоюбражения
-	 				if(!isset($_POST['img'])){
+	 				if(!isset($_POST['data']['img'])){
 	 					$html = 'Image не указана';	
 						$this->responseClass->addMessage($html,'error_message');
 	 					return;
 	 				}
- 					
+	 				if(!isset($_POST['data']['type'])){
+	 					$html = '<br>Не указан тип изображения';	
+						$this->responseClass->addMessage($html,'error_message');
+	 					return;
+	 				}
+
+	 			if(isset($_POST['data']['delete_img']) && trim($_POST['data']['delete_img']) != ''){
+	 			// 	$html = 'Присутствуют изображения на удаление';	
+					// $this->responseClass->addMessage($html,'error_message');
+	 				$img_arr = explode(",", $_POST['data']['delete_img']);
+
+	 				foreach ($img_arr as $key => $value) {
+	 					$file = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$_POST['data']['delete_img_width_folder'].'/'.$value;
+	 					unlink($file);
+	 				}
+					// $this->deleteImages($_POST['data']['delete_img_width_folder'], $_POST['data']['delete_img']);
+	 			}
+
+
+ 				
  				// сохраняем значение в базе
 				$query = "UPDATE `".RT_MAIN_ROWS."` SET";
-				$query .=" img_folder_choosen_img = '".$_POST['img']."'";
-				$query .=", img_folder = '".$_POST['folder_name']."'";
-				$query .=" WHERE `id` = ".(int)$_POST['id'].";";
+				$query .=" img_folder_choosen_img = '".$_POST['data']['img']."'";
+				if( $_POST['data']['folder_name'] != 'img' ){
+					$query .=", img_folder = '".$_POST['data']['folder_name']."'";	
+				}				
+				$query .=", img_type = '".$_POST['data']['type']."'";	
+				$query .=" WHERE `id` = ".(int)$_POST['data']['id'].";";
 				$result = $this->mysqli->query($query) or die($this->mysqli->error);
 
-				$html = $query;	
-				$this->responseClass->addMessage($html,'error_message','25000');
+				$html = 'OK';	
+				$this->responseClass->addMessage($html,'successful_message','25000');
+				$this->responseClass->addResponseFunction('window_reload');
 				return;
  			}
 
@@ -69,7 +92,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  			// }
 
  			// запрос позиции
- 			private function getPosition($id){
+ 			public function getPosition($id){
  				// запрос наличия выбранного изображения для данной строки
  				$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."' ";
  				$row = array();
@@ -82,6 +105,19 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 					}
 				}					
 				return $row;
+ 			}
+
+ 			// возвращает изображение и полный путь
+ 			public function getImageForKP($img_folder, $img_folder_choosen_img, $type){
+ 				public $big;
+ 				public $small;
+
+ 				if ($img_folder_choosen_img == ''){
+ 					
+ 				}else{
+ 					
+ 				}
+
  			}
 
 
@@ -213,7 +249,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 						   	$class_li = "checked";
 						  	$checked = true;
 						}
-						$html .= $this->getImgLiHtml($path, $img_name, $class_li, 'img');
+						$html .= $this->getImgLiHtml($path, $img_name, $class_li, 'img','g_std');
 					}
 
 				//////////////////////////
@@ -239,7 +275,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 						    	$checked = true;
 						    }
 						    
-						    $html .= $this->getImgLiHtml($path, $files[$i], $class_li, $folder);
+						    $html .= $this->getImgLiHtml($path, $files[$i], $class_li, $folder, 'g_upload');
 						}
 					}
 
@@ -303,8 +339,11 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 			}
 
 			// получаем html изображения
-			protected function getImgLiHtml($path, $file = '',$li_class = '', $folder = ''){
-				$html = '<li class="rt-gallery-cont '. $li_class .'" data-folder="'.$folder.'" data-file="'.$file.'" >';
+			protected function getImgLiHtml($path, $file = '',$li_class = '', $folder = '', $type){
+				$html = '<li class="rt-gallery-cont '. $li_class .'" data-type="'.$type.'" data-folder="'.$folder.'" data-file="'.$file.'" >';
+				if($folder != 'img'){
+					$html .= '<div class="delete_upload_img">x</div>';	
+				}				
 				$html .= '<img src="'.$path.'" alt="" />'; // Вывод превью картинки
 				$html .= '</li>';
 				return $html;
@@ -399,6 +438,14 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 						<form>
 							<div id="queue"></div>
 							<input id="'.$token.'" data-folder_name="'.$folder_name.'" name="file_upload" type="file" multiple="true">
+
+							<input id="data_folder_name" name="data[folder_name]" type="hidden" value="">
+							<input id="data_id" name="data[id]" type="hidden" value="">
+							<input id="data_img" name="data[img]" type="hidden" value="">
+							<input id="data_type" name="data[type]" type="hidden" value="">
+							<input id="data_AJAX" name="AJAX" type="hidden" value="chooseImgGallery">
+							<input id="data_delete_img" name="data[delete_img]" type="hidden" value="">
+							<input id="data_delete_img_width_folder" name="data[delete_img_width_folder]" type="hidden" value="">
 						</form>
 						';
 
@@ -407,8 +454,9 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				$html .= '</div>';
 
 				$options['width'] = 1200;
+				$options['button_name'] = 'Сохранить';
 
-				$this->responseClass->addSimpleWindow($html,'Загрузить изображение',$options);
+				$this->responseClass->addPostWindow($html,'Загрузить изображение',$options);
 				// запустим функцию JS и передадим ей новый id
 				$options = array();
 				$options['id'] = $rt_id;
@@ -504,7 +552,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 							// добавляем загруженные изображения
 							$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/os/data/images/'.$folder_name.'/';
 							$path = $global_dir.$fileName . ".$extension";
-							$this->responseClass->addResponseFunction('rtGallery_add_img',array('id'=>$folder_name,'html'=>$this->getImgLiHtml($path,$fileName . ".$extension",(($firstImg)?'checked':''),$folder_name)));
+							$this->responseClass->addResponseFunction('rtGallery_add_img',array('id'=>$folder_name,'html'=>$this->getImgLiHtml($path,$fileName . ".$extension",(($firstImg)?'checked':''),$folder_name,'g_upload')));
 						} else {
 
 							// загрузка не удалась

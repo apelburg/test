@@ -837,10 +837,11 @@ class Images extends rtPositionUniversal
 		$big_images = $this->getBigImagesForArt($art);
 		$small_images = $this->getSmallImagesForArt($art);
 			
-		$query = "SELECT * FROM `".IMAGES_TBL."` WHERE art_id ='".$art."' AND size='big' ORDER BY  id ASC";
-		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		// $query = "SELECT * FROM `".IMAGES_TBL."` WHERE art_id ='".$art."' AND size='big' ORDER BY  id ASC";
+		// $result = $this->mysqli->query($query) or die($this->mysqli->error);
 			
 		$i = 0;
+		// изображения с сайта
 		foreach ($small_images as $key => $img) {
 			$deleting_img = '';
 			if($img != 'no_image.jpg' && isset($_SESSION['access']['access']) && 
@@ -857,11 +858,64 @@ class Images extends rtPositionUniversal
 				$main_img_src = $this->checkImgExists( APELBURG_HOST.'/img/'.$img);
 			}
 
-			$previews_block[$i] = '<div  class="carousel-block">';
-			$previews_block[$i] .= '<img class="articulusImagesMiniImg imagePr" alt="" src="'.checkImgExists(APELBURG_HOST.'/img/'.$img).'" data-src_IMG_link="'.APELBURG_HOST.'/img/'.$big_images[$key].'">';
+			$previews_block[$i] = '<div  class="carousel-block'.(($big_images[$key] == $this->position['img_folder_choosen_img'] || ($this->position['img_folder_choosen_img'] == '' && $big_images[$key] = 'no_image.jpg'))?' kp_checked':'').'">';
+			$previews_block[$i] .= '<img class="articulusImagesMiniImg imagePr" alt="" src="'.checkImgExists(APELBURG_HOST.'/img/'.$img).'" data-file="'.$big_images[$key].'" data-src_IMG_link="'.APELBURG_HOST.'/img/'.$big_images[$key].'">';
 			$previews_block[$i] .= $deleting_img;
 			$previews_block[$i] .= '</div>';
 		}
+
+		//////////////////////////
+		//	Загруженные изображения
+		//////////////////////////
+			$upload_dir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$this->position['img_folder'].'/';
+			$global_link_dir = 'http://'.$_SERVER['HTTP_HOST'].'/os/data/images/'.$this->position['img_folder'].'/';
+			// если директория (папка) существует
+			if($this->position['img_folder'] != '' && is_dir($upload_dir)){			
+				// сканируем директории.		
+				$files = scandir($upload_dir);
+				// перебираем содержимое директории
+				for ($i = 0; $i < count($files); $i++) { // Перебираем все файлы
+				    if (($files[$i] == ".") || ($files[$i] == "..")) { // Текущий каталог и родительский пропускаем
+				    	continue;
+					}
+
+					if(!isset($main_img_src)) {
+						$main_img_src = $this->checkImgExists( $global_link_dir.''.$files[$i] );
+					}
+					$deleting_img = '';
+					// if($img != 'no_image.jpg' && isset($_SESSION['access']['access']) && 
+					// 	($_SESSION['access']['access']== 1 || $_SESSION['access']['access']==3)){
+					// 	$deleting_img = '<div class="catalog_delete_img_link">
+					// 	<a 
+					// 	href="#" 
+					// 	title="удалить изображение из базы" 
+					// 	data-del="#" 
+					// 	onclick="if(confirm(\' изображение будет удалено из базы!\')){$.get( $(this).attr(\'data-del\'),function( data ) {});remover_image(this); return false; } else{ return false;}">&#215</a>
+					// 	</div>';
+					// }
+					$previews_block[$i] = '<div  class="carousel-block'.(($files[$i] == $this->position['img_folder_choosen_img'])?' kp_checked':'').'">';
+					$previews_block[$i] .= '<img class="articulusImagesMiniImg imagePr" alt="" data-file="'.$files[$i].'"  src="'.checkImgExists($global_link_dir.''.$files[$i]).'" data-src_IMG_link="'.$global_link_dir.''.$files[$i].'">';
+					$previews_block[$i] .=  $deleting_img;
+					$previews_block[$i] .= '</div>';
+							     
+					$path = $global_link_dir.$files[$i]; // собираем путь
+
+
+
+					// $class_li = "";
+					// if($files[$i] == $this->position['img_folder_choosen_img']){
+					// 	$class_li = "checked";
+					// 	$checked = true;
+					// }
+						    
+				    //$html .= $this->getImgLiHtml($path, $files[$i], $class_li, $folder);
+				}
+			}
+
+
+
+
+
 		// }
 		
 		if(isset($_SESSION['access']['access']) && ($_SESSION['access']['access']==1 || $_SESSION['access']['access']==3)){
