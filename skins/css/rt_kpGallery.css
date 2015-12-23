@@ -48,3 +48,24 @@ div#rt-gallery-images ul li.rt-gallery-cont.checked{
 div#apl-notification_center li .dop_text{    
     text-transform: none;
 }
+
+li.rt-gallery-cont .delete_upload_img {
+    background: rgba(255, 255, 255, 0.79);
+    width: 17px;
+    height: 17px;
+    /*counter-increment:*/
+    /*content: attr(data-before);*/
+    position: absolute;
+    float: right;
+    margin-left: 123px;
+    font-size: 14px;
+    padding: 2px 2px;
+    border: 1px solid #D2D2D2;
+    border-radius: 1px;
+    color: #A2A2A2;
+    cursor: pointer;
+}
+li.rt-gallery-cont .delete_upload_img:hover{
+  background: $fff;
+}
+

@@ -130,12 +130,13 @@
 			$n = 0;
 			$access_str = '';
 			foreach ($access_arr as $key => $value) {
-				$access_str = (($n>0)?',':'')."'".$value."'";
+				$access_str .= (($n>0)?',':'')."'".$value."'";
 				$n++;
 			}
 
 			global $mysqli;
 			$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `access` IN (".$access_str.") ORDER BY `last_name` ASC;";
+			// echo $query;
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$manager_names = array();			
 			if($result->num_rows > 0){
@@ -144,18 +145,15 @@
 				}
 			}
 			return $manager_names;
+
 		}
 
 		
 
     	// получаем форму выбора кураторов
 		protected function get_choose_curators_edit(){
-			
-			
-			
 			// получаем список менеджеров
-			$access_arr[] = 5;
-			$managers_arr = $this->get_manager_list($access_arr);
+			$managers_arr = $this->get_manager_list(array(1, 5, 4));
 
 			$managers_Json_arr  = explode(',', $_POST['managers_id_str']);
 			$Json = '{';
@@ -179,12 +177,11 @@
 					    	if(isset($managers_arr[$i])){
 						    	$checked = (in_array($managers_arr[$i]['id'], $managers_Json_arr))?'class="checked"':'';
 						    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
-						    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
-					    		$i++;
+						    	$html .= '<td '.$checked.' date-lll="'.$i.'" d="'.$managers_arr[$i]['id'].'_'.in_array($managers_arr[$i]['id'], $managers_Json_arr).'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
 					    	}else{
 					    		$html .= '<td  date-lll="'.$i.'"></td>';
-					    		$i++;
-					    	}				    	
+					    	}	
+					    	$i++;		    	
 					    }				    
 					    $html .= '</tr>';
 					}

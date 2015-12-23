@@ -2,14 +2,17 @@
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- start
 //////////////////////////////////
 	//стандартный обработчик ответа AJAX
+	
 	function standard_response_handler(data){
 		if(data['response']=='show_new_window'){
 			title = data['title'];// для генерации окна всегда должен передаваться title
 			var height = (data['height'] !== undefined)?data['height']:'auto';
 			var width = (data['width'] !== undefined)?data['width']:'auto';
-			show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
+			var button_name = (data['button_name'] !== undefined)?data['button_name']:'OK';
+			show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width,button_name);
 			window_preload_del();
 		}
+		
 		if(data['response']=='show_new_window_simple'){
 			title = data['title'];// для генерации окна всегда должен передаваться title
 			var height = (data['height'] !== undefined)?data['height']:'auto';
@@ -17,6 +20,7 @@
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
 			window_preload_del();
 		}
+
 
 		// поочерёдный вызов функции 
 		if(data['function'] !== undefined){ 
@@ -54,17 +58,18 @@
 	// ОКНА
 	//////////////////////////
 		// показать окно № 1
-		function show_dialog_and_send_POST_window(html,title,height,width){
+		function show_dialog_and_send_POST_window(html,title,height,width, button_name){
 			height_window = height || 'auto';
+			button_name = button_name || 'OK';
 			width = width || '1000';
 			title = title || '*** Название окна ***';
 			var buttons = new Array();
 			buttons.push({
-			    text: 'OK',
+			    text: button_name,
 			    click: function() {
 			    	var serialize = $('#dialog_gen_window_form form').serialize();
 			    	var obj = $(this);
-			    	$('#general_form_for_create_product .pad:hidden').remove();
+			    	// $('#general_form_for_create_product .pad:hidden').remove();
 				    $.post('', serialize, function(data, textStatus, xhr) {
 				    	if(data['response'] != 'false'){
 				    		obj.dialog( "destroy" );
@@ -78,6 +83,7 @@
 			if($('#dialog_gen_window_form').length==0){
 				$('body').append('<div style="display:none" id="dialog_gen_window_form"></div>');
 			}
+			
 			$('#dialog_gen_window_form').html(html);
 			$('#dialog_gen_window_form').dialog({
 		          width: width,
