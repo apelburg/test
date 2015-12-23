@@ -639,70 +639,6 @@ button.CommonRightBtn{
   padding:9px 3px 0px 5px;
   width:62px;
 }
-.subjects_list .main_tbl_ordinary .div0{
-border-bottom:#969699 dashed 1px;
-}
-.subjects_list .main_tbl_ordinary .div1{
-  float:left;
-  padding:9px 3px 0px 5px;
-   overflow:hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  text-decoration:none;
-  width:262px;
-  border-right:#969699  dashed 1px;
-   
-}
-.subjects_list .main_tbl_ordinary .div1 a{
-  padding:7px 4px 7px 2px;
-  /*font-weight:bold;*/
-  overflow:hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  text-decoration:none;
-  display:block;
-  color:#000000;   
-}
-.subjects_list .main_tbl_ordinary .div1 a:hover{
-  /* color:#FF0000;*/
-  font-weight:bold;
-  background-color:#EEE;
-}
-.subjects_list .main_tbl_ordinary .div2{
-  float:right;
-  padding:9px 3px 0px 5px;
-  width:62px;
-}
-/*.subjects_list .main_tbl .list_row .name a, .subjects_list .main_tbl .list_row .name_for_expanded a{
-  padding:7px 4px 7px 2px;
-  / *font-weight:bold;* /
-  overflow:hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  text-decoration:none;
-  display:block;
-  color:#000000;   
-}
-.subjects_list .main_tbl .list_row .name a:hover{
-  /* color:#FF0000;* /
-  font-weight:bold;
-  background-color:#EEE;
-}
-.subjects_list .main_tbl .list_row .rating{
-  padding:9px 3px 0px 5px;
-  width:62px;
-  
-}
-.subjects_list .main_tbl .list_row .overflow{
-  overflow:hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  width: inherit;
-}
-*/
-
-
-
 
 .subjects_list .options_bar{
   padding:9px 20px 9px 20px;
@@ -1698,7 +1634,57 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 .row{display:table-row}
 .cell{display:table-cell;vertical-align:middle;}
 
+
+@font-face{font-family:FontAwesome;src:url(http://files.gifts.ru/s/cdn/fonts/fontawesome/fontawesome-webfont.woff?v=4.4.0) format('woff');font-weight:400;font-style:normal}
+/*!
+ *  Font Awesome 4.4.0 by @davegandy - http://fontawesome.io - @fontawesome
+ *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
+ */
 #calculatorDialogBox{ font-size: 14px ; padding: 0px;}
+#calculatorDialogBox .select_label { 
+    position: relative;
+    vertical-align: middle;
+    display: inline-block;
+}
+#calculatorDialogBox .select_label:before { 
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    content: "\f078";
+    right: 9px;
+    top: 7px;
+    position: absolute;
+    pointer-events: none;
+    font-size: 13px;
+    color: #435159;
+	    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+#calculatorDialogBox select{
+    -webkit-transition: all .3s;
+    -moz-transition: all .3s;
+    transition: all .3s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 0 28px 0 10px;
+    text-indent: .01px;
+    text-overflow: '';
+    font: 14px 'Open Sans',Arial,sans-serif;
+    color: #435159;
+    border:#CCCCCC solid 1px;
+    border-radius: 5px;
+    outline: 0;
+    width: 100%;
+    height: 26px;
+    cursor: pointer;
+   /* background: rgba(67,81,89,.2);*/
+ }
+
 #calculatorDialogBox .hidden{ display:none;}
 #calculatorDialogBox .calculatorTotalDetails{ margin-top:3px; font-size: 10px ; }
 #showProcessingDetailsBox .calculatorTotalDetails{ margin-top:3px; font-size: 10px ; }
@@ -1714,20 +1700,30 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #calculatorDialogBox .calculatorDistributionTbl { border-collapse:collapse}
 #calculatorDialogBox .calculatorDistributionTbl td { vertical-align:top; font-size: 11px; border-bottom: 1px solid #8b8a89;}
 #calculatorDialogBox .printPlaceSelectDiv { float: left; margin-left: 54px; border: #FFFF66 solid 0px;}
-#calculatorDialogBox .printPlaceSelectDiv select{width: 184px; }
-#calculatorDialogBox .printTypesSelectDiv {  margin-left: 320px; border: #3333FF solid 0px;}
-#calculatorDialogBox .printTypesSelectDiv select{ width: 184px; }
+#calculatorDialogBox .printPlaceSelectDiv select{width: 200px; }
+#calculatorDialogBox .printTypesSelectDiv {  margin-left: 365px; border: #3333FF solid 0px;}
+#calculatorDialogBox .printTypesSelectDiv select{ width: 200px; }
 #calculatorDialogBox .calculatorTitle{ float:left;margin:2px 5px 0 0;}
 #calculatorDialogBox .calculatorElementsBox{ float:left;}
 
-#calculatorDialogBox .YPriceParamDiv { border: #3333FF solid 0px;width: 115px;}
+#calculatorDialogBox #calculatoraddYPriceParamLink { margin-bottom:4px;text-decoration:none; border-bottom: 1px dashed;color: #84AD1B;}
+#calculatorDialogBox #calculatoraddYPriceParamLink:hover {color: #b8e34b;}
+
+#calculatorDialogBox #calculatoraddYPriceParamLink:before {content: "\f055";font: normal normal normal 14px/1 FontAwesome; display: inline-block;width: 25px;text-align: center;color: #84AD1B;}
+#calculatorDialogBox #calculatoraddYPriceParamLink:hover:before {color: #b8e34b;}
+#calculatorDialogBox #calculatoraddYPriceParamLink:after { content: '\A\A';
+    white-space: pre;}
+
+
+#calculatorDialogBox .YPriceParamDiv { border: #3333FF solid 0px;width: 120px;border: #3333FF solid 0px;}
+#calculatorDialogBox .YPriceParamDiv select{ margin-top: 1px; width: 120px;}
 
 #calculatorDialogBox .YPriceParamDivContainer{   margin-left: 60px; float:left; border: #3333FF solid 0px; }
-#calculatorDialogBox .YPriceParamCMYKdiv{ margin-left: 12px;  float:left; border: #3333FF solid 0px; }
-#calculatorDialogBox .YPriceParamCMYK{ margin-top: 1px; height: 18px; width: 57px; border: #CCC solid 1px; }
+#calculatorDialogBox .YPriceParamCMYKdiv{ margin-left: 6px;  float:left; border: #3333FF solid 0px; }
+#calculatorDialogBox .YPriceParamCMYK{ margin-top: 1px; height: 19px; width: 70px; border: #CCC solid 1px; }
 
 
-#calculatorDialogBox .printSizesSelectDiv{   margin-left: 315px; }
+#calculatorDialogBox .printSizesSelectDiv{   margin-left: 328px; }
 #calculatorDialogBox .dopParametrsTitle{   background-color:#D2EAAF; text-align:left; padding: 4px 0 0 30px; height: 20px;}
 #calculatorDialogBox .dopParametrsTbl { border-collapse:collapse;  margin: 40px 0 0 40px; }
 #calculatorDialogBox .dopParametrsTbl td{ height: 35px; border:#CCC solid 0px; vertical-align:top}
@@ -1736,7 +1732,7 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #calculatorDialogBox .dopParametrsTbl td.select select{ width: 75px;}
 #calculatorDialogBox .dopParametrsTbl td.multi{ width: 11px;  font-size: 9px;}
 #calculatorDialogBox .dopParametrsTbl td.multi input {width: 13px;}
-#calculatorDialogBox .commentsTextArea{ margin: 0 0 20px 40px; width: 530px;}
+#calculatorDialogBox .commentsTextArea{ margin: 0 0 20px 50px; width: 570px;}
 #calculatorDialogBox .itogDisplayTbl{ margin:7px 0 10px  35px; border-collapse:collapse}
 #calculatorDialogBox .itogDisplayTbl td{width: 105px; height:25px; text-align: right; border:#CCC solid 0px; font-size: 14px; font-weight:bold; font-family:Arial, Helvetica, sans-serif}
 #calculatorDialogBox .itogDisplayTbl tr.head td{ font-size: 11px; font-weight:100; color:#AAA; padding:0 8px;}
