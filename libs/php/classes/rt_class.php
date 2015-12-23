@@ -494,7 +494,7 @@
 			else $manager_id_arr[] = 0;
 			
 			$dop_info_arr = json_decode($dop_info,true);
-			$dop_info_arr = (count($dop_info_arr)>0)?:false;
+			$dop_info_arr = (count($dop_info_arr)>0)?$dop_info_arr:false;
 			
 			RT::add_data_from_basket($client_id,$manager_id_arr,FALSE,$dop_info_arr);
 			
@@ -576,6 +576,7 @@
 				require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 				$characteristics =(count($characteristics)>0)?rtCalculators::json_fix_cyr(json_encode($characteristics)):'';
 				
+				//print_r($dop_info);
 				if($dop_info) $data_arr[$key]['dop_info'] = $dop_info[$key];
 			    $data_arr[$key]['art_id'] = $basket_data['article'];
 				$data_arr[$key]['art'] = $art_data['art'];
@@ -717,7 +718,7 @@
 			// эти артикулы могут просто повторяться из-за того что были добавленны в корзину несколько раз
 			// или могут повторяться из-за того что они имеют несколько размеров
 			// после прохождения обработки мы имеем новый масив с объедененными артикулами
-			//print_r($data_arr);
+			// print_r($data_arr);
 			$data_arr_new = array();
 			if(true){
 				foreach($data_arr as $key =>  $data){
@@ -725,7 +726,7 @@
 					$flag = true;
 					if(count($data_arr_new)>0){
 						foreach($data_arr_new as $key_new => $data_new){
-							if((bool)$data['dop_info']['checked'] == true && $data['art_id'] == $data_new['art_id']){
+							if($data['art_id'] == $data_new['art_id'] && $data['dop_info']['chkd'] == '1' && $data_new['dop_info']['chkd'] == '1'){
 								$data_arr_new[$key_new]['dop_data'] = array_merge($data_arr_new[$key_new]['dop_data'],$data_arr[$key]['dop_data']);
 								//$data_arr_new[$key_new]['dop_data'][] = $data_arr[$key]['dop_data'][0]
 								$flag = false;
@@ -733,13 +734,13 @@
 						}
 					}
 					if($flag){
-					   unset($data['dop_info']);
 					   $data_arr_new[] = $data;
 					}
 				}
 			}
 			else $data_arr_new = $data;
-			
+			// print_r($data_arr_new);
+			// exit;
 			
 			// ЗАДАЧА:
 			// НА ОСНОВЕ ПОЛУЧЕННЫХ ДАННЫХ СОЗДАТЬ НОВЫЙ ЗАПРОС
@@ -805,6 +806,8 @@
 			
 			$sort_id = 0;
 			foreach($data_arr_new as $data){
+				
+				unset($data['dop_info']);
 				
 				// вносим основные данные о позиции в RT_MAIN_ROWS
 				$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 
