@@ -214,26 +214,6 @@
 				window_preload_del();
 			}	
 		});
-
-
-	function echo_message_js(text, message_type){
-		$("<li/>", {
-			"class": message_type,
-			"css":{"opacity":1,"top":0},
-			click: function(){
-			    $(this).animate({opacity:0},'fast',function(){$(this).remove()});
-			}
-		}).append(text).appendTo("#apl-notification_center").fadeIn('slow', 
-		    function(){
-		    var el = jQuery(this);
-		        setTimeout(function(){
-		        el.fadeOut('slow',
-			        function(){
-		    	        jQuery(this).remove();
-		        	});
-		    }, 7000);
-		});
-	}
 //////////////////////////////////
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
 //////////////////////////////////

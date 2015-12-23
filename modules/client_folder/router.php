@@ -33,7 +33,7 @@
 		$main_cont_face_data = get_main_client_cont_face($client_id);
 		///////////////////////////////////////////  end  информация о клиенте   ////////////////////////////////////////////////
 	 }
-
+	
 	 $planner_display = '<div class="quick_button_circle">
 							<div class="quick_button_circle__circle" style="background-image: url(./skins/images/img_design/button_circle_2.png); border-color:red">
 								<div class="quick_button_circle__alert"></div>

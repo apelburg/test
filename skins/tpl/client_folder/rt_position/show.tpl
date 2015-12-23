@@ -1,4 +1,4 @@
-<!-- <?php echo __DIR__; ?>/show.tpl -- START-->
+ <?php echo __DIR__; ?>/show.tpl -- START-->
 
 <!-- стили -->
 <link href="./skins/css/rt_position.css" rel="stylesheet" type="text/css">
@@ -25,18 +25,19 @@
 <script type="text/javascript" src="../libs/js/standard_response_handler.js"></script>
 <!-- скрипт страницы -->
 <script type="text/javascript" src="./libs/js/jsPositionUniverasal.js"></script>
-
+<!-- галлерея изображений -->
+<script type="text/javascript" src="./libs/js/rt_KpGallery.js"></script>
 
 
 <div id="order_art_edit">
 	<div id="info_string_on_query">
 		<ul>
-			<li id="back_to_string_of_claim"><a href="?page=client_folder&query_num=<?php echo  $order_num; ?>&client_id=<?php echo $client_id; ?>"></a></li>
+			<li id="back_to_string_of_claim"><a href="?page=client_folder&query_num=<?=$POSITION->position['query_num'];?>&client_id=<?php echo $client_id; ?>"></a></li>
 			<li id="claim_number" data-order="<?=$POSITION->position['id'];?>">Запрос № <?=$POSITION->position['query_num'];?></li>
 			<li id="claim_date"><span>от <?=$POSITION->position['date_create'];?></span></li>
 			
 			<li id="query_theme_block"><span>Тема:</span> <input id="query_theme_input" class="query_theme" data-id="<?=$POSITION->position['RT_LIST_ID'];?>" type="text" value="<?=$POSITION->position['theme']?>" onclick="fff(this,'Введите тему');"></li>
-			<li style="float:right"><span data-rt_list_query_num="<?php  echo $order_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($order_num); ?> "></span></li>
+			<li style="float:right"><span data-rt_list_query_num="<?=$POSITION->position['query_num'];?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($POSITION->position['query_num']); ?> "></span></li>
 		</ul>
 	</div>
 	<div id="number_position_and_type">
@@ -151,4 +152,4 @@
 	</div>
 	<?php echo $forum; ?>
 </div>
-<!-- <?php echo __DIR__; ?>/show.tpl -- END-->
+<!-- <?php echo __DIR__; ?>/show.tpl -- END

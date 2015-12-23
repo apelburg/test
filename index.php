@@ -6,15 +6,21 @@
 	ini_set('display_startup_errors', 1);
 	set_time_limit(0);
 
-    include('libs/mysql.php');
-	include('libs/mysqli.php');
-    include('libs/config.php');
-	include('libs/lock.php');
-	include('libs/access_installer.php');
-	include('libs/php/classes/mail_class.php');
-	include('libs/php/common.php');
-    include('libs/autorization.php');
-	include('libs/variables.php');
+    include_once('../libs/mysql.php');
+	include_once('../libs/mysqli.php');
+    include_once('libs/config.php');
+	include_once('libs/lock.php');
+	include_once('libs/access_installer.php');
+	include_once('libs/php/classes/mail_class.php');
+	include_once('libs/php/common.php');
+    include_once('libs/autorization.php');
+	include_once('libs/variables.php');
+
+	// aplStdClass
+	include_once ROOT.'/../libs/php/classes/aplStdClass.php';
+	// галлерея
+	include_once ROOT.'/libs/php/classes/rt_KpGallery.class.php';
+	new rtKpGallery;
 
 	
 
@@ -32,49 +38,43 @@
 	  
 	   
 	   	case 'cabinet':
-		// главный класс по позициям
-		include_once './libs/php/classes/rt_position_gen_class.php';
-		// класс работы с позициями каталога
-		include_once './libs/php/classes/rt_position_catalog_class.php';
-		// класс работы с позициями не каталога
-		include_once './libs/php/classes/rt_position_no_catalog_class.php';
-	   include 'modules/cabinet/router.php';
+	   include_once 'modules/cabinet/router.php';
 	   break;
 
 	   case 'clients':
-	   include 'modules/clients/router.php';
+	   include_once 'modules/clients/router.php';
 	   break;
 	   
 	   case 'suppliers':
-	   include 'modules/suppliers/router.php';
+	   include_once 'modules/suppliers/router.php';
 	   break;
 	   
 	   case 'samples':
-	   include 'modules/samples/router.php';
+	   include_once 'modules/samples/router.php';
 	   break;
 	   
 	   case '_test_rt':
-	   include 'modules/_test_rt/router.php';
+	   include_once 'modules/_test_rt/router.php';
 	   break;
 	   
 	   case 'client_folder':
-	   include 'modules/client_folder/router.php';
+	   include_once 'modules/client_folder/router.php';
 	   break;
 
 	   case 'option':
-	   include 'modules/option/router.php';
+	   include_once 'modules/option/router.php';
 	   break;
 	   
 	   case 'admin':
-	   include 'modules/admin/router.php';
+	   include_once 'modules/admin/router.php';
 	   break;
 	   
 	   case 'agreement':
-	   include 'modules/agreement/router.php';
+	   include_once 'modules/agreement/router.php';
 	   break;
 	   
-	   case 'planner':
-	   include 'modules/planner/router.php';
+	   case 'planner':include_once
+	   include_once 'modules/planner/router.php';
 	   break; 
 	 
 	  
@@ -108,13 +108,13 @@
 	   break;
 	   */
 	   default: 
-	   include 'modules/default/router.php';
+	   include_once 'modules/default/router.php';
 	   break;
 	
 	}
 	$content = ob_get_contents();
 	ob_get_clean();
 
-	include'./skins/tpl/index.tpl';
+	include_once'./skins/tpl/index.tpl';
 
 ?>

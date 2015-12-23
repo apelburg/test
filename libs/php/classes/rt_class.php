@@ -464,7 +464,7 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
-		static function add_data_from_basket_directly($client,$manager_login){
+		static function add_data_from_basket_directly($client,$dop_info,$manager_login){
 		
 		    global $mysqli;
 			
@@ -493,7 +493,10 @@
 			}
 			else $manager_id_arr[] = 0;
 			
-			RT::add_data_from_basket($client_id,$manager_id_arr);
+			$dop_info_arr = json_decode($dop_info,true);
+			$dop_info_arr = (count($dop_info_arr)>0)?$dop_info_arr:false;
+			
+			RT::add_data_from_basket($client_id,$manager_id_arr,FALSE,$dop_info_arr);
 			
 			$query_status = 'new_query';
 			if(is_array($manager_id_arr)){
@@ -528,7 +531,7 @@
 			return json_encode($out_put);
 		
 		}
-		static function add_data_from_basket($client_id,$manager_id_arr,$customer_data=FALSE){
+		static function add_data_from_basket($client_id,$manager_id_arr,$customer_data=FALSE,$dop_info=FALSE){
 		
 			global $mysqli;
 			
@@ -541,7 +544,9 @@
 			
 			// содержимое корзины
 			$basket_arr = $_SESSION['basket'];
-			// print_r($basket_arr);
+			
+			//print_r($dop_info_arr);
+			//exit;
 	
 			foreach($basket_arr as $key => $basket_data){
 			
@@ -571,7 +576,8 @@
 				require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 				$characteristics =(count($characteristics)>0)?rtCalculators::json_fix_cyr(json_encode($characteristics)):'';
 				
-				
+				//print_r($dop_info);
+				if($dop_info) $data_arr[$key]['dop_info'] = $dop_info[$key];
 			    $data_arr[$key]['art_id'] = $basket_data['article'];
 				$data_arr[$key]['art'] = $art_data['art'];
 				$data_arr[$key]['type'] = 'cat';
@@ -605,8 +611,7 @@
 				$data_arr[$key]['dop_data'][0]['dop_uslugi'][0]['price_out'] = 10;
                */
 			}		
-			// print_r($data_arr);
-			// exit;
+			
 			$query_num = RT::create_new_query($client_id,$manager_id_arr,$data_arr);
 
 
@@ -707,6 +712,35 @@
 
 
 			*/
+            
+			
+			// трасформирование данных в случае если есть необходимость склеить вместе артикулы повторяющиеся в корзине
+			// эти артикулы могут просто повторяться из-за того что были добавленны в корзину несколько раз
+			// или могут повторяться из-за того что они имеют несколько размеров
+			// после прохождения обработки мы имеем новый масив с объедененными артикулами
+			// print_r($data_arr);
+			$data_arr_new = array();
+			if(true){
+				foreach($data_arr as $key =>  $data){
+	
+					$flag = true;
+					if(count($data_arr_new)>0){
+						foreach($data_arr_new as $key_new => $data_new){
+							if($data['art_id'] == $data_new['art_id'] && $data['dop_info']['chkd'] == '1' && $data_new['dop_info']['chkd'] == '1'){
+								$data_arr_new[$key_new]['dop_data'] = array_merge($data_arr_new[$key_new]['dop_data'],$data_arr[$key]['dop_data']);
+								//$data_arr_new[$key_new]['dop_data'][] = $data_arr[$key]['dop_data'][0]
+								$flag = false;
+							}
+						}
+					}
+					if($flag){
+					   $data_arr_new[] = $data;
+					}
+				}
+			}
+			else $data_arr_new = $data;
+			// print_r($data_arr_new);
+			// exit;
 			
 			// ЗАДАЧА:
 			// НА ОСНОВЕ ПОЛУЧЕННЫХ ДАННЫХ СОЗДАТЬ НОВЫЙ ЗАПРОС
@@ -746,7 +780,8 @@
 			// СОЗДАТЬ ЗАПИСЬ В ТАБЛИЦЕ RT_MAIN_ROWS
             // СОЗДАТЬ N - ЗАПИСЕЙ В ТАБЛИЦЕ RT_DOP_DATA
             // СОЗДАТЬ N - ЗАПИСЕЙ В ТАБЛИЦЕ RT_DOP_USLUGI
-			
+			//print_r($data_arr_new);
+			//exit;
 			
 			// определяем номер запроса
 			$query = "SELECT MAX(query_num) max FROM `".RT_LIST."`"; 								
@@ -770,7 +805,9 @@
 			
 			
 			$sort_id = 0;
-			foreach($data_arr as $data){
+			foreach($data_arr_new as $data){
+				
+				unset($data['dop_info']);
 				
 				// вносим основные данные о позиции в RT_MAIN_ROWS
 				$query = "INSERT INTO `".RT_MAIN_ROWS."` SET 

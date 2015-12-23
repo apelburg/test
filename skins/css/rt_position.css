@@ -349,6 +349,7 @@ body {
   height: 30px;
   background-position: 0px 2px;
   border: 1px solid #fff;
+  cursor: pointer;
 }
 .tirage_and_price_for_all.for_all{
   display: none;
@@ -370,6 +371,7 @@ body {
   height: 30px;
   background-position: 0px 2px;
   border: 1px solid #fff;
+  cursor: pointer;
 }
 .variant_info table tr td .del_row_variants{ 
   background: url('../images/img_design/del_row_variants.png') no-repeat; 
@@ -379,6 +381,7 @@ body {
   height: 30px;
   background-position: 5px 5px;
   border: 1px solid #fff;
+  cursor: pointer;
 }
 .calkulate_table  span.del_row_variants{ 
   background: url('../images/img_design/del_row_variants.png') no-repeat; 
@@ -389,6 +392,17 @@ body {
   background-position: 5px 5px;
   border: 1px solid #fff;
   padding: 0
+}
+
+.tz_text_new,
+.tz_text_edit{
+  width: 30px;
+  border:1px solid #fff;
+}
+.tz_text_new:hover,
+.tz_text_edit:hover{
+  width: 30px;
+  border:1px solid #f1f1f1;
 }
 .variant_info table tr td .edit_row_variants:hover,.variant_info table tr td .del_row_variants:hover{border-color: #E8E8E8;}
 
@@ -487,6 +501,11 @@ body {
   display: inline-flex;
   min-height: 60px;
 }
+#articulusImagesPrevBigImg .carousel-block.kp_checked{
+  border-color: #007036;
+  border-radius: 5px;
+}
+
 #articulusImagesPrevBigImg img {
   margin: auto;
   border: 1px solid white;
@@ -1055,7 +1074,32 @@ span.calc_info {
     
 }
 table.calkulate_table span {
-    width: 76%;
+    /*width: 76%;*/
     float: right;
     margin-left: 0;
+}
+
+.variant_info table.calkulate_table tr td:nth-of-type(7),
+.variant_info table.calkulate_table tr th:nth-of-type(7),
+.variant_info table.calkulate_table tr td:nth-of-type(8),
+.variant_info table.calkulate_table tr th:nth-of-type(8),
+.variant_info table.calkulate_table tr td:nth-of-type(9),
+.variant_info table.calkulate_table tr th:nth-of-type(9){
+  width: 30px;
+  padding: 0;
+}
+.variant_info table.calkulate_table tr td:nth-of-type(8) span{
+  padding: 0;
+}
+
+.variant_info table.calkulate_table tr td:nth-of-type(7),
+.variant_info table.calkulate_table tr th:nth-of-type(7),
+.variant_info table.calkulate_table tr td:nth-of-type(6),
+.variant_info table.calkulate_table tr th:nth-of-type(6),
+.variant_info table.calkulate_table tr td:nth-of-type(5),
+.variant_info table.calkulate_table tr th:nth-of-type(5){
+  width: 185px;
+}
+.sevrice_button_size_table{
+  display: none;
 }

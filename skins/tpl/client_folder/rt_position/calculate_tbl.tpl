@@ -151,8 +151,14 @@
 					</tr>				
 				</table>
 			</div>
-			<div class="cell size_card">
-				<?php echo $get_size_table; ?>								
+			<div class="cell <?php echo ($POSITION->position['type'] == 'cat')?'size_card':'variant_characteristics_and_delivery';?>">
+				<?php 
+					if($POSITION->position['type'] == 'cat'){
+						echo $get_size_table; 	
+					}else{
+						echo $POSITION->Variants->variant_decode_params_json_to_Html($variant['no_cat_json'],$POSITION->position['type']);	
+					}
+				?>					
 			</div>
 		</div>
 	</div>

@@ -85,7 +85,7 @@ if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']=
     if(isset($_GET['add_data_to_rt_from_basket'])){
 		 include_once ROOT.'/libs/php/classes/rt_class.php';
 		 //echo $_GET['client_data'].' - '.$_GET['manager_login'];
-		 echo RT::add_data_from_basket_directly($_GET['client_data'],$_GET['manager_login']);
+		 echo RT::add_data_from_basket_directly($_GET['client_data'],$_GET['dop_info'],$_GET['manager_login']);
 		 exit;
 	}
 	if(isset($_GET['subquery_for_planner_window'])){
@@ -2495,8 +2495,8 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		
 		$query = "SELECT * FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '".$agreement_id."' AND client_id = '".$client_id."'";
 		
-		if($group_by) $query .= "GROUP BY ".$group_by ;
-		else $query .= "ORDER BY id ";
+		if($group_by) $query .= " GROUP BY ".$group_by ;
+		$query .= " ORDER BY id DESC";
 		
 		$result = mysql_query($query,$db) or die(mysql_error());
 		
@@ -2682,8 +2682,8 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		global $mysqli;
 		global $form_data;
 		global $query_num;
-		//print_r($form_data);
-		//exit;
+		// print_r($form_data);
+		// exit;
 		
 		extract($form_data);
 		
@@ -2707,70 +2707,6 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 			        make_it($row['id']);
 				}
 		}
-	
-	   	//echo $query;
-		//exit;
-	  
-		/*if(floatval($cur_price) == 0) return;
-		
-		$new_price = strtr($new_price,',','.');
-		$percent = strtr($percent,',','.');
-		$discount = 0;
-		$flag = 0;
-		
-		if(floatval($new_price) != 0){
-		    $percentage = $new_price*100/$cur_price;
-			$discount = $percentage - 100;
-			$flag = 1;
-		}
-		
-		if(floatval($percent) != 0){
-		    $discount = ($type_action == 'discount')? -$percent : $percent ;
-			$flag = 2;
-		}
-		
-		if(floatval($percent) == 0 && floatval($new_price) == 0 && $drop_discont != 'on') return;
-		*/
-		//////////////////////////////////////////////////////////////////////////////////////////////////
-		
-/*		
-		if($which_rows != 'one_row'){
-			
-			
-			
-			
-			// присваиваем значения
-			if($which_rows == 'all_in_query'){
-			
-			    // узнаем номер заявки и id входящих в него позиций 
-				
-			    $query = "SELECT id FROM `".RT_MAIN_ROWS."` WHERE query_num = '$query_num'";
-	            $result = mysql_query($query,$db) or die(mysql_error());
-				while($row = mysql_fetch_assoc($result)){
-				    $idsArr[] = $row['id'];
-				}
-				//echo '<pre>'; print_r($idsArr); echo '</pre>';
-			    $query="UPDATE `".RT_DOP_DATA."` SET `discount` = '$discount' WHERE `row_id` IN('".implode("','",$idsArr)."')";
-				$result = mysql_query($query,$db) or die(mysql_error());
-			}
-			if($which_rows == 'all_in_pos'){
-			    
-				// узнаем id позиции 
-			    $query = "SELECT row_id FROM `".RT_DOP_DATA."`  WHERE `id` = '$id'";
-	            $result = mysql_query($query,$db) or die(mysql_error());
-				$val = mysql_fetch_assoc($result);
-			    $row_id = $val['row_id'];
-			
-			
-			    $query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '$discount' WHERE `row_id` = '$row_id'";
-				$result = mysql_query($query,$db) or die(mysql_error());
-			
-			}
-		}
-		else{
-		    $query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '$discount' WHERE `id` = '$id'";
-	        $result = mysql_query($query,$db) or die(mysql_error());
-		}*/
 	}
 	
 /*	function get_client_requisites_acting_manegement_face($id){

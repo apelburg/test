@@ -639,7 +639,40 @@ button.CommonRightBtn{
   padding:9px 3px 0px 5px;
   width:62px;
 }
-
+.subjects_list .main_tbl_ordinary .div0{
+border-bottom:#969699 dashed 1px;
+}
+.subjects_list .main_tbl_ordinary .div1{
+  float:left;
+  padding:9px 3px 0px 5px;
+   overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-decoration:none;
+  width:262px;
+  border-right:#969699  dashed 1px;
+   
+}
+.subjects_list .main_tbl_ordinary .div1 a{
+  padding:7px 4px 7px 2px;
+  /*font-weight:bold;*/
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-decoration:none;
+  display:block;
+  color:#000000;   
+}
+.subjects_list .main_tbl_ordinary .div1 a:hover{
+  /* color:#FF0000;*/
+  font-weight:bold;
+  background-color:#EEE;
+}
+.subjects_list .main_tbl_ordinary .div2{
+  float:right;
+  padding:9px 3px 0px 5px;
+  width:62px;
+}
 /*.subjects_list .main_tbl .list_row .name a, .subjects_list .main_tbl .list_row .name_for_expanded a{
   padding:7px 4px 7px 2px;
   / *font-weight:bold;* /
@@ -2636,6 +2669,7 @@ div#apl-notification_center li.successful_message{
 .specificationsPreWin .dataTbl th{ color:#3051BC; font-weight:100;}
 .specificationsPreWin .dataTbl td{ text-align:center; border:#CCC solid 0px}
 .specificationsPreWin .dataTbl td.first{ text-align:left;width:80px;padding-left:20px;}
+.specificationsPreWin .dataTbl td.dopCap{ vertical-align:bottom; text-align:center;height:40px; color:#999999}
 .specificationsPreWin .datepicker{ width:130px;}
 .specificationsPreWin .timepicker{ width:30px;}
 .specificationsPreWin .time_rd{ width:30px;}
