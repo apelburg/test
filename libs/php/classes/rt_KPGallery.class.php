@@ -109,8 +109,8 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 
  			// возвращает изображение и полный путь
  			public function getImageForKP($img_folder, $img_folder_choosen_img, $type){
- 				public $big;
- 				public $small;
+ 				// public $big;
+ 				// public $small;
 
  				if ($img_folder_choosen_img == ''){
  					
