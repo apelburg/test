@@ -117,7 +117,9 @@
 							   `art_id` = '".$row['art_id']."',
 							   `name` = '".$row['name']."',
 							   `description` = '".$row['description']."',
-							   `characteristics` = '".mysql_real_escape_string($characteristics)."' 
+							   `characteristics` = '".mysql_real_escape_string($characteristics)."',
+							   `img_folder` = '".$row['img_folder']."',
+							   `img` = '".$row['img_folder_choosen_img']."' 
 							  ";
 				   $result2 = $mysqli->query($query2)or die($mysqli->error);
 				   $row_id = $mysqli->insert_id;
@@ -307,7 +309,7 @@
 		   
 		   $rows = array();
 		 
-		   $query = "SELECT list_tbl.recipient_id AS recipient_id ,list_tbl.display_setting AS display_setting ,list_tbl.display_setting_2 AS display_setting_2, main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.characteristics AS characteristics, main_tbl.description AS description,	
+		   $query = "SELECT list_tbl.recipient_id AS recipient_id ,list_tbl.display_setting AS display_setting ,list_tbl.display_setting_2 AS display_setting_2, main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.characteristics AS characteristics, main_tbl.description AS description, main_tbl.img_folder AS img_folder, main_tbl.img AS img,	
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
 dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, 		  
@@ -334,6 +336,8 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 				   $multi_dim_arr[$row['main_id']]['name'] = $row['item_name'];
 				   $multi_dim_arr[$row['main_id']]['characteristics'] = $row['characteristics'];
 				   $multi_dim_arr[$row['main_id']]['description'] = $row['description'];
+				   $multi_dim_arr[$row['main_id']]['img_folder'] = $row['img_folder'];
+				   $multi_dim_arr[$row['main_id']]['img'] = $row['img'];
 				   $multi_dim_arr[$row['main_id']]['recipient_id'] = $row['recipient_id'];
 				   $multi_dim_arr[$row['main_id']]['display_setting'] = $row['display_setting'];
 				   $multi_dim_arr[$row['main_id']]['display_setting_2'] = $row['display_setting_2'];
@@ -774,29 +778,45 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 			$itogo=$itogo_print_uslugi=$itogo_extra_uslugi=0;
 			$itogo_print_uslugi1 = $itogo_print_uslugi2= $itogo_print_uslugi3=0;
 			$itogo_extra_uslugi1 = $itogo_extra_uslugi2= $itogo_extra_uslugi3=0;
+
+
+
+
+			// echo '<pre>';
+			// print_r($multi_dim_arr);
+			// echo '</pre>';
 			// Разворачиваем массив 
 			foreach($multi_dim_arr as $pos_key => $pos_level){
 			   
 				// РАБОТАЕМ С ПЕРВОЙ ЯЧЕЙКОЙ РЯДА ТАБЛИЦЫ КП
 				// в этой ячейке подразумевается отображение картинки товарной позиции
 				// соответсвенное если есть что показывать, то добавляем тег img, если нет то  добавляем пустую строку
-				$img_cell = '';
-				if($pos_level['row_type']=='cat'){ // если позиция из каталога получаем картинку из базы данных каталога
-					$art_img = new  Art_Img($pos_level['art']);
-					// проверяем наличие изображения
-					//$img_path = '../../img/'.$art_img->big;
-					$img_path = 'http://www.apelburg.ru/img/'.$art_img->big;
-					if($img_src = checkImgExists($img_path)){				
-						// меняем размер изображения
-						$size_arr = transform_img_size($img_src,230,300);
-						// $size_arr = array(230,300);
-						$img_cell = '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
-					}
-                }
-				else{
-				    $img_src = 'http://www.apelburg.ru/img/no_image.jpg';
-				    $img_cell = '<img src="'.$img_src.'" height="180" width="180">';
-				}				
+				$img_src = 'http://www.apelburg.ru/img/no_image.jpg';
+				$img_cell = '<img src="'.$img_src.'" height="180" width="180">';
+				
+				$art_img = new  Art_Img_development($pos_level['img_folder'],$pos_level['img'], $pos_level['art']);
+				$img_src = $art_img->big;
+				// меняем размер изображения
+				$size_arr = transform_img_size($img_src,230,300);
+				// $size_arr = array(230,300);
+				$img_cell = '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
+				
+
+				
+				// if($pos_level['row_type']=='cat'){ // если позиция из каталога получаем картинку из базы данных каталога
+				// 	$art_img = new  Art_Img($pos_level['art']);
+				// 	// проверяем наличие изображения
+				// 	$img_path = 'http://www.apelburg.ru/img/'.$art_img->big;
+				// 	if($img_src = checkImgExists($img_path)){	
+				// 		// меняем размер изображения
+				// 		$size_arr = transform_img_size($img_src,230,300);
+				// 		// $size_arr = array(230,300);
+				// 		$img_cell = '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
+				// 	}
+    //             }	
+                
+
+							
 				
 				// РАБОТАЕМ СО ВТОРОЙ ЯЧЕЙКОЙ РЯДА ТАБЛИЦЫ КП
 				
@@ -1845,16 +1865,4 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 		
 		
    }
-
-
-
-
-
-
-
-
-
-
-
-
 ?>
