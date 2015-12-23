@@ -15,7 +15,8 @@
 			title = data['title'];// для генерации окна всегда должен передаваться title
 			var height = (data['height'] !== undefined)?data['height']:'auto';
 			var width = (data['width'] !== undefined)?data['width']:'auto';
-			show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width);
+			var button_name = (data['button_name'] !== undefined)?data['button_name']:'OK';
+			show_dialog_and_send_POST_window(Base64.decode(data['html']),title,height,width,button_name);
 		}
 		if(data['response']=='show_new_window_2'){
 			title = data['title'];// для генерации окна всегда должен передаваться title
@@ -69,13 +70,14 @@
 	// ОКНА
 	//////////////////////////
 		// показать окно № 1
-		function show_dialog_and_send_POST_window(html,title,height,width){
+		function show_dialog_and_send_POST_window(html,title,height,width, button_name){
 			height_window = height || 'auto';
+			button_name = button_name || 'OK';
 			width = width || '1000';
 			title = title || '*** Название окна ***';
 			var buttons = new Array();
 			buttons.push({
-			    text: 'OK',
+			    text: button_name,
 			    click: function() {
 			    	var serialize = $('#dialog_gen_window_form form').serialize();
 			    	

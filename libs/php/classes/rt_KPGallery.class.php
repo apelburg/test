@@ -92,7 +92,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  			// }
 
  			// запрос позиции
- 			private function getPosition($id){
+ 			public function getPosition($id){
  				// запрос наличия выбранного изображения для данной строки
  				$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."' ";
  				$row = array();
@@ -105,6 +105,19 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 					}
 				}					
 				return $row;
+ 			}
+
+ 			// возвращает изображение и полный путь
+ 			public function getImageForKP($img_folder, $img_folder_choosen_img, $type){
+ 				public $big;
+ 				public $small;
+
+ 				if ($img_folder_choosen_img == ''){
+ 					
+ 				}else{
+ 					
+ 				}
+
  			}
 
 
