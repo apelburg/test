@@ -92,7 +92,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  			// }
 
  			// запрос позиции
- 			public function getPosition($id){
+ 			private function getPosition($id){
  				// запрос наличия выбранного изображения для данной строки
  				$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."' ";
  				$row = array();
@@ -107,7 +107,6 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				return $row;
  			}
 
- 
 
  			// вставляет новую запись о выборанном изображении в базу
  			private function newSelectRow($dir, $img){
