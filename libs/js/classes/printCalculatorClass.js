@@ -711,6 +711,8 @@ var printCalculator = {
 		// передаем ему id первого места нанесения из printPlaceSelect
 		// он возвращает select и id типа нанесения первого в списке select
 		var printTypesSelect = printCalculator.build_print_types_select();
+		var labelTypes = document.createElement('LABEL');
+		labelTypes.className = 'select_label';  
 		var elementsBox = document.createElement('DIV');
 		elementsBox.className = "calculatorElementsBox";
 		
@@ -728,7 +730,8 @@ var printCalculator = {
 		clear_div.className = "clear_div";
 		
 		printTypesSelectDiv.appendChild(title);
-        elementsBox.appendChild(printTypesSelect);
+		labelTypes.appendChild(printTypesSelect);
+		elementsBox.appendChild(labelTypes);
 		printTypesSelectDiv.appendChild(elementsBox);
 		printTypesSelectDiv.appendChild(clear_div);
 		block_A.appendChild(printTypesSelectDiv);
@@ -878,6 +881,8 @@ var printCalculator = {
 			YPriceParamCMYK.onblur =  printCalculator.onblurCMYK;
 			
 			var YPriceParamSelect = document.createElement('SELECT');
+			var labelYPriceParams = document.createElement('LABEL');
+			labelYPriceParams.className = 'select_label';  
 			var YPriceParamSelectWrap =  document.createElement('DIV');
 			// метод onchangeYPriceParamSelect пикрепляется к Селекту здесь и пикрепляется к добавляемым селектам ниже в специальном цикле 
 			YPriceParamSelect.onchange = function(){ printCalculator.onchangeYPriceParamSelect(YPriceParamDiv,YPriceParamCMYKdiv); }
@@ -912,7 +917,10 @@ var printCalculator = {
 					YPriceParamSelectClone.onchange = function(){ printCalculator.onchangeYPriceParamSelect(YPriceParamDiv,YPriceParamCMYKdiv); }
 					
 					var YPriceParamSelectWrapClone = YPriceParamSelectWrap.cloneNode();
-					YPriceParamSelectWrapClone.appendChild(YPriceParamSelectClone);
+					var labelYPriceParamsClone = labelYPriceParams.cloneNode();
+					//labelYPriceParams
+					labelYPriceParamsClone.appendChild(YPriceParamSelectClone);
+					YPriceParamSelectWrapClone.appendChild(labelYPriceParamsClone);
 					YPriceParamDiv.appendChild(YPriceParamSelectWrapClone);
 					
 					var YPriceParamCMYKсlone = YPriceParamCMYK.cloneNode(true);
@@ -935,6 +943,7 @@ var printCalculator = {
 				     // Select
 				     var YPriceParamSelectClone = YPriceParamSelect.cloneNode(true);
 					 var YPriceParamSelectWrapClone = YPriceParamSelectWrap.cloneNode(true);
+					 var labelYPriceParamsClone = labelYPriceParams.cloneNode(true);
 					 var optionsArr = YPriceParamSelectClone.getElementsByTagName("OPTION");
 					 //var optionsArr = YPriceParamSelectClone.options;
 					 for(var j in optionsArr){
@@ -945,7 +954,9 @@ var printCalculator = {
 					 
 					 //YPriceParamSelectClone.options[parseInt(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].id)].setAttribute("selected",true);
 					 // Select
-				     YPriceParamSelectWrapClone.appendChild(YPriceParamSelectClone);
+					 labelYPriceParamsClone.appendChild(YPriceParamSelectClone);
+				     YPriceParamSelectWrapClone.appendChild(labelYPriceParamsClone);
+					 //labelYPriceParams
 					 YPriceParamDiv.appendChild(YPriceParamSelectWrapClone);
 					 // CMYK
 					 var YPriceParamCMYKсlone = YPriceParamCMYK.cloneNode(true);
@@ -970,7 +981,8 @@ var printCalculator = {
 			else{
 				// Select
 				YPriceParamSelectWrap.appendChild(YPriceParamSelect);
-				YPriceParamDiv.appendChild(YPriceParamSelectWrap);
+				labelYPriceParams.appendChild(YPriceParamSelectWrap);
+				YPriceParamDiv.appendChild(labelYPriceParams);
 				// CMYK
 				YPriceParamCMYKdiv.appendChild(YPriceParamCMYK);
 				
@@ -1233,6 +1245,8 @@ var printCalculator = {
 		docFragment.appendChild(tdClone);
 		
 		var commonSelect = document.createElement('SELECT');
+		var labelCommon = document.createElement('LABEL');
+		labelCommon.className = 'select_label'; 
 		var option = document.createElement('OPTION');
 		option.innerHTML = 'Выбрать';
 		option.setAttribute("item_id",0);
@@ -1292,7 +1306,8 @@ var printCalculator = {
 		}
 		
 		var tdClone = td.cloneNode();
-		tdClone.appendChild(commonSelect);
+		labelCommon.appendChild(commonSelect);
+		tdClone.appendChild(labelCommon);
 		tdClone.className = 'select';
 		docFragment.appendChild(tdClone);
 		
@@ -1791,7 +1806,8 @@ var printCalculator = {
 			// удаляем этот селект
 			// if(value == 0) selectsArr[i].parentNode.parentNode.removeChild(selectsArr[i].parentNode);
 			if(value == 0 && selectsArr.length>1){
-				selectsArr[i].parentNode.parentNode.removeChild(selectsArr[i].parentNode);
+				// удаление div содержащий label и select
+				selectsArr[i].parentNode.parentNode.parentNode.removeChild(selectsArr[i].parentNode.parentNode);
 				CMYKsArr[i].parentNode.removeChild(CMYKsArr[i]);
 			}
 		}

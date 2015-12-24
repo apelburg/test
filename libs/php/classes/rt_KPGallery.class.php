@@ -107,24 +107,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				return $row;
  			}
 
- 			// возвращает изображение и полный путь
- 			public function getImageForKP($img_folder, $img_folder_choosen_img, $type)
-<<<<<<< .mine
- 				//public $big;
- 				//public $small;
-=======
- 				// public $big;
- 				// public $small;
->>>>>>> .theirs
-
- 				if ($img_folder_choosen_img == ''){
- 					
- 				}else{
- 					
- 				}
-
- 			}
-
+ 
 
  			// вставляет новую запись о выборанном изображении в базу
  			private function newSelectRow($dir, $img){
