@@ -1154,7 +1154,7 @@
 		innerDiv.className = "link1";
 		var a = document.createElement('a');
 		a.setAttribute('pos_id',pos_id);
-		a.onclick = function(){
+		a.onclick = function(e){
 			// event.preventDefault();
 			$.post('', {
 				AJAX: 'getStdKpGalleryWindow',
@@ -1162,6 +1162,7 @@
 			}, function(data, textStatus, xhr) {
 				standard_response_handler(data);
 			},'json');
+			openCloseRtMenu(e);
 			// echo_message_js($(this).attr('pos_id'),'system_message')
 		};
 		a.appendChild(document.createTextNode('Вставить изображение'));

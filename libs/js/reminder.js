@@ -176,7 +176,7 @@ function get_ui_window(){
                 var type = index; // green, black
                 // if(type=='last_update'){var last_update = val}
                 // if(type=='was_shown'){var was_shown = val}
-                var class_w = type+'_t';
+                var class_w = type+'_t reminder_win';
                 $.each(val, function(index, val) {
                   var type_action = index;
                   console.log(index);
@@ -260,7 +260,7 @@ function get_ui_window(){
                     col++;
                     if(col<next){
                       col1++;
-                      add_new_window(text,win_warning_type,class_w+' reminder_win',val['client_id'],val['manager_id'],type,type_window2,win_minimized,event_type,plan_id);
+                      add_new_window(text,win_warning_type,class_w,val['client_id'],val['manager_id'],type,type_window2,win_minimized,event_type,plan_id);
                     }
                     
                     
@@ -342,7 +342,7 @@ function get_ui_one_window(){
   //$('#num_window_yet').attr('data-next',data_next);
   $.each(warning_messages, function(index, val) {          
       var type = index; // green, black
-      var class_w = type+'_t';
+      var class_w = type+'_t  reminder_win';
       $.each(val, function(index, val) {
         var type_action = index;
         var event_type = index;  
@@ -420,7 +420,7 @@ function get_ui_one_window(){
           
           if(col==num_2){
             //console.log(col+' - '+num_2);
-            add_new_window(text,win_warning_type,class_w+' reminder_win',val['client_id'],val['manager_id'],type,type_window2,'1',event_type,plan_id);
+            add_new_window(text,win_warning_type,class_w,val['client_id'],val['manager_id'],type,type_window2,'1',event_type,plan_id);
           }else if(col>num_2){
             return false; // выходим из функции
           }              
