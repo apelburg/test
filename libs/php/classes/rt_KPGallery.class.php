@@ -1,4 +1,8 @@
 <?php
+/**
+ *	библиотека универсальных классов	
+ * 		
+ */
 if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] == 42) {
 	ini_set('error_reporting', E_ALL);
 	ini_set('display_errors', 1);
@@ -88,7 +92,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  			// }
 
  			// запрос позиции
- 			public function getPosition($id){
+ 			private function getPosition($id){
  				// запрос наличия выбранного изображения для данной строки
  				$query = "SELECT * FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$id."' ";
  				$row = array();
@@ -360,27 +364,17 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				$dirName = '/var/www/admin/data/www/apelburg.ru/os/data/images/'.$dirName_1.'/';
 				
 				if (!is_dir($dirName)) {
-					//  запрашиваем позицию
-					$rt_main_row = $this->getPosition($rt_id_row);
-					// запрашиваем изображение, которое будет сохранено выбранным по умолчанию
-					$img_arr = $this->getImagesForArt($rt_main_row['art']);
-
 					//если папкb $dirName не существует
 					mkdir($dirName,0777);
-
-					//$img_arr[0]
 					
 					global $mysqli; // пишем её название в базу
 					$query = "UPDATE `".RT_MAIN_ROWS."` SET";
 					$query .=" img_folder = '".$dirName_1."'";
-					$query .=", img_folder_choosen_img = '".$img_arr[0]."'";
 					$query .=" WHERE `id` = ".$rt_id_row.";";
 					$result = $mysqli->query($query) or die($mysqli->error);
 				}
 				return $dirName_1;
 			}
-
-
 
 			private function warpDopText($text){
 				return '<div class="dop_text">'.$text.'</div>';
