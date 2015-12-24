@@ -6,18 +6,23 @@
 	ini_set('display_startup_errors', 1);
 	set_time_limit(0);
 
+
     include_once('../libs/mysql.php');
 	include_once('../libs/mysqli.php');
     include_once('libs/config.php');
 	include_once('libs/lock.php');
-	include_once('libs/access_installer.php');
-	include_once('libs/php/classes/mail_class.php');
-	include_once('libs/php/common.php');
-    include_once('libs/autorization.php');
-	include_once('libs/variables.php');
 
 	// aplStdClass
 	include_once ROOT.'/../libs/php/classes/aplStdClass.php';
+
+	include_once('libs/access_installer.php');
+	include_once('libs/php/classes/mail_class.php');
+	include_once('libs/php/common.php');
+    
+    include_once('libs/autorization.php');
+	include_once('libs/variables.php');
+
+	
 	// галлерея
 	include_once ROOT.'/libs/php/classes/rt_KpGallery.class.php';
 	new rtKpGallery;

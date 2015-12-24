@@ -1612,6 +1612,7 @@ margin-left: -350px;z-index: 999;}
    width: 10%; 
   /* position: absolute; */
   vertical-align: top;
+  display: none;
   }
 #cabinet_central_panel{
   width: 100%;

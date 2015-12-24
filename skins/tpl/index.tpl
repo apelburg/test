@@ -8,8 +8,11 @@
 <link href="./skins/css/styles_sample.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="libs/js/jquery.1.10.2.min.js"></script>
 <script type="text/javascript" src="libs/js/jquery_ui/jquery-ui.min.js"></script>
+<script type="text/javascript" src="libs/js/classes/Base64Class.js"></script>
 <link href="libs/js/jquery_ui/jquery-ui.theme.css" rel="stylesheet" type="text/css">
 <link href="libs/js/jquery_ui/jquery-ui.structure.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" src="<?=HOST;?>/libs/js/standard_response_handler.js"></script>
 <?php
 // echo phpinfo();
 if(isset($_GET['page']) && ($_GET['page']=="samples" || $_GET['page']=="clients")){

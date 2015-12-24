@@ -18,7 +18,7 @@ $('#create_new_supplier').click(function(event) {
     $('<div/>',{class:'errors_text'}).appendTo(obj_form);
     $('<input/>',{type:'text',name:'fullName',placeholder:'Полное название'}).appendTo(obj_form);
     // $('<div/>').text('Дополнительная информация').appendTo(obj_form);
-    $('<input/>',{type:'hidden',name:'ajax_standart_window',val:'create_supplier'}).appendTo(obj_form);
+    $('<input/>',{type:'hidden',name:'AJAX',val:'create_supplier'}).appendTo(obj_form);
     $('<textarea/>',{name:'dop_info',placeholder:'Дополнительная информация'}).css({'width':'100%','height':'100px'}).appendTo(obj_form);
     //console.log('добавил див для окна #'+div_id);
     $('body').append('<div class="dialog_window" id="' + div_id + '"></div>');
@@ -212,7 +212,7 @@ $(function() {
                     d_elem = $(this);
                     $.post('', {
                         id:$(this).dialog('option', 'id'),
-                        ajax_standart_window:"delete_dop_cont_row"
+                        AJAX:"delete_dop_cont_row"
 
                     }, function(data, textStatus, xhr) {
                         if(data=="OK"){
@@ -322,7 +322,7 @@ $(document).on('click', '.button_add_new_row.adres_row', function(event) {
     var html = '<img src="http://www.os1.ru/os/skins/images/img_design/preloader.gif" >'; 
     var tbl = $(this).attr('data-tbl');
     new_html_modal_window(html,'Добавить адрес','greate','add_new_adress_row', '', tbl);
-    $.post('', {ajax_standart_window: 'new_adress_row' }, function(data, textStatus, xhr) {
+    $.post('', {AJAX: 'new_adress_row' }, function(data, textStatus, xhr) {
         $('.html_modal_window_body').html(data);  
         $('.html_modal_window form input:nth-of-type(1)').focus();
         //выравниваем окно
@@ -333,7 +333,7 @@ $(document).on('click', '.button_add_new_row.adres_row', function(event) {
     //ОБРАБОТКА КЛИКОВ НА ЗЕЛЕНЫЕ КНОПКИ СТАНДАРТНОГО МОДАЛЬНОГО ОКНА
     $('.ok_bw, .send_bw, .greate_bw, .save_bw').click( function(event) {
         //отправляем, если это создание новой строки адреса
-        if($('.html_modal_window form input[name="ajax_standart_window"]').val()=="add_new_adress_row"){
+        if($('.html_modal_window form input[name="AJAX"]').val()=="add_new_adress_row"){
             var str = $('.html_modal_window form').serialize();
             $.post('', str, function(data, textStatus, xhr) {
                 if (!isNaN(data)){//если вернулось число
@@ -410,7 +410,7 @@ $(document).on('dblclick', '.edit_adress_row', function(event) {
 
     
     //получаем контент для редактирования адреса
-    $.post('', {ajax_standart_window: 'get_adres', id_row: id_row }, function(data, textStatus, xhr) {
+    $.post('', {AJAX: 'get_adres', id_row: id_row }, function(data, textStatus, xhr) {
         $('.html_modal_window_body').html(data);  
         $('.html_modal_window form input:nth-of-type(1)').focus();
         $('.html_modal_window').animate({marginTop:$('.html_modal_window').innerHeight()/2*(-1)},200);      
@@ -442,7 +442,7 @@ $(document).on('click', '.edit_general_info #del_text', function(event) {
     new_html_modal_window('Вы уверены, что хотите удалить данную запись? ','Подтвердите действие','ok','','','');   
     $('.ok_bw').click(function(event) {
         $.post('', {
-            ajax_standart_window: 'delete_adress_row',
+            AJAX: 'delete_adress_row',
             id_row : id_row ,
             tbl : tbl
         }, function(data, textStatus, xhr) {            
@@ -534,7 +534,7 @@ $(document).on('dblclick','.contact_face_tbl_edit',function(){
 
     var id = $(this).attr('data-contface');
     //делаем запрос, получаем в JSON
-    $.post('',{ajax_standart_window:"show_cont_face_in_json",id : id},function(data){
+    $.post('',{AJAX:"show_cont_face_in_json",id : id},function(data){
         if(data[0]['id'] != id){
             // если id не соответствуют, значит ошибка
             // сообщаем об ошибке
@@ -623,7 +623,7 @@ $(function(){
             text: 'OK',
                 click: function() {
                     var id = $(this).dialog('option', 'id');
-                    $.post('', {id: id,ajax_standart_window:"delete_cont_face_row"}, function(data, textStatus, xhr) {
+                    $.post('', {id: id,AJAX:"delete_cont_face_row"}, function(data, textStatus, xhr) {
                         if(data['response']=='1'){
                             // $('.deleting_row').removeClass('deleting_row');
                             $('#delete_cont_f_row'+id).prev().remove();
@@ -671,7 +671,7 @@ $(function(){
                         if(data['response']=='1'){
                             // ЗАНОСИМ ДАННЫЕ В html
                                 // заносим имя
-                                $.post('', {ajax_standart_window:"get_empty_cont_face"}, function(data, textStatus, xhr) {
+                                $.post('', {AJAX:"get_empty_cont_face"}, function(data, textStatus, xhr) {
                                     // убираем старые данные
                                     $('.client_contact_face_tables,.delete_contact_face_table').remove();
                                     // вставляем новые данные
@@ -715,7 +715,7 @@ $(document).on('click','#client_delete',function(){
                 text: 'Отправить',
                     click: function() {
                         $.post('', {
-                            ajax_standart_window:"client_delete",
+                            AJAX:"client_delete",
                             id:$('#client_delete').attr('data-id')
                         }, function(data) {
                             if(data['response']=='1'){
@@ -761,7 +761,7 @@ $(document).on('click','#add_curator',function(){
       });  
       var json = JSON.stringify(id_man);
       // console.log(json);
-      $.post('', {ajax_standart_window:'update_profile_list_for_supplier',profile_id: json}, function(data, textStatus, xhr) {
+      $.post('', {AJAX:'update_profile_list_for_supplier',profile_id: json}, function(data, textStatus, xhr) {
            console.log(data['response'] + ' '+ data['text']);
 
             
@@ -793,7 +793,7 @@ $(document).on('click','#add_curator',function(){
         buttons: buttons
   });
  
-  $.post('', {ajax_standart_window: "get_suppliers_profile"}, function(data) {
+  $.post('', {AJAX: "get_suppliers_profile"}, function(data) {
     $('#'+id).html(data);
     $('#'+id).dialog("option", 'id', id);
     $('#'+id).dialog("open");
@@ -807,7 +807,7 @@ $(document).on('click','.del_curator',function(){
   var id = $(this).parent().attr('data-id');
   $(this).parent().remove();
   $.post('', {
-    ajax_standart_window: 'remove_curator',
+    AJAX: 'remove_curator',
     id:id
   }, function(data, textStatus, xhr) {
     /*optional stuff to do after success */
