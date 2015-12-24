@@ -1,7 +1,7 @@
 <?php
     session_start();
-
-    if(!isset($_SESSION['access'])){
+    
+	if(!isset($_SESSION['access'])){
          if(!isset($_POST['password']) || ( $_POST['password'] == '' || $_POST['login']== '')){
 	         include('./skins/tpl/sequrity.tpl');
 		     exit;

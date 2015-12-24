@@ -154,6 +154,7 @@
 			$counter = 0;
 			echo "<tr><td>";
 			foreach($clients_data['data'] as $item){
+			    //$width = $item['rate']*12;
 				eval('?>'.$tpl.'<?php '); 
 				if(++$counter%$items_in_col == 0 && $counter/$items_in_col < $num_cols) echo "</td><td>";
 			}

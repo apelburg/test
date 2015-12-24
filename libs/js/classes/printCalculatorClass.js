@@ -625,6 +625,8 @@ var printCalculator = {
 		printPlaceSelectDiv.appendChild(title);
 		// строим select выбора мест нанесений
 		var printPlaceSelect = document.createElement('SELECT');
+		var labelPlaces = document.createElement('LABEL');
+		labelPlaces.className = 'select_label';
 		
 		//// console.log(printCalculator.calculatorParamsObj.places);
 		for(var id in printCalculator.calculatorParamsObj.places){
@@ -662,7 +664,8 @@ var printCalculator = {
 		var elementsBox = document.createElement('DIV');
 		elementsBox.className = "calculatorElementsBox";
 
-		elementsBox.appendChild(printPlaceSelect);
+		labelPlaces.appendChild(printPlaceSelect);
+		elementsBox.appendChild(labelPlaces);
 		printPlaceSelectDiv.appendChild(elementsBox);
 		printPlaceSelectDiv.appendChild(clear_div.cloneNode(true));
 		mainCalculatorBox.appendChild(printPlaceSelectDiv);
@@ -1005,6 +1008,8 @@ var printCalculator = {
 			// printCalculator.dataForProcessing['dop_params']['sizes'] = [];
 			
 			var printSizesSelect = document.createElement('SELECT');
+			var labelSizes = document.createElement('LABEL');
+			labelSizes.className = 'select_label';
 			var printSizesSelectDiv  = document.createElement('DIV');
 			printSizesSelectDiv.className = "printSizesSelectDiv";
 			
@@ -1053,8 +1058,8 @@ var printCalculator = {
 			var elementsBox = document.createElement('DIV');
 		    elementsBox.className = "calculatorElementsBox";
 		 
-			
-			elementsBox.appendChild(printSizesSelect);
+			labelSizes.appendChild(printSizesSelect);
+			elementsBox.appendChild(labelSizes);
 			
 			printSizesSelectDiv.appendChild(title);
 			printSizesSelectDiv.appendChild(elementsBox);
