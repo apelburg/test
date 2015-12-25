@@ -136,6 +136,7 @@ var printCalculator = {
 		
 		var tbl = document.createElement('TABLE');
 		tbl.style.borderCollapse = 'Collapse';
+		tbl.style.width = '100%';
 		var tr = document.createElement('TR');
 		printCalculator.uslugi_panel_print_details = [];
 		
@@ -188,10 +189,12 @@ var printCalculator = {
 			
 			// сумма
 			var td =  td.cloneNode(false);
+			td.style.width = '100px';
 			td.innerHTML = (Math.round(printCalculator.currentCalculationData[i].price_out*printCalculator.currentCalculationData[i].quantity * 100) / 100 ).toFixed(2) +' р.';
 			tr.appendChild(td);
 			
 			var td =  td.cloneNode(false);
+			td.style.width = '100px';
 			td.innerHTML = 'Удалить нанесение';
 			td.style.textDecoration = 'underline';
 			td.style.cursor = 'pointer';
@@ -1693,7 +1696,15 @@ var printCalculator = {
 		box.id = "showProcessingDetailsBox";
 		//box.style.width = '300px';
 		box.style.display = "none";
+		var cap = document.createElement('DIV');
+		cap.className = 'cap';
+		cap.innerHTML = 'Входящий прайс';
+		box.appendChild(cap);
 		box.appendChild(printCalculator.price_tblIn);
+		var cap = document.createElement('DIV');
+		cap.className = 'cap';
+		cap.innerHTML = 'Исходящий прайс';
+		box.appendChild(cap);
 		box.appendChild(printCalculator.price_tblOut);
 		var total_details = document.createElement('DIV');
 		total_details.id = "showProcessingDetailsBoxTotalDetails";
@@ -1702,7 +1713,7 @@ var printCalculator = {
 		box.appendChild(total_details);
 		document.body.appendChild(box);
 		
-		$("#showProcessingDetailsBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Детали расчета",width: 400,close: function() {this.remove();$("#showProcessingDetailsBox").remove();}});
+		$("#showProcessingDetailsBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Детали расчета",width: 490,close: function() {this.remove();$("#showProcessingDetailsBox").remove();}});
 		$("#showProcessingDetailsBox").dialog("open");
 		 //
         //
