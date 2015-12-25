@@ -132,11 +132,8 @@ $(document).ready(function() {
 		   			// r.style.width = nrw+'px';		   			
 		   			r.style.width = oRate['star_width']*ur+3+'px';
 		   			console.log(ur);
-		   			$.post('', {ajax_standart_window:"update_reiting_cont_face",id:iDataId,rate:ur}, function(data, textStatus, xhr) {
-		   				if(data['response']!="1"){
-		   					//сообщаем, что что-то пошло не так
-                        	new_html_modal_window('Что-то пошло не так и данные не были сохранены. Пожалуйста, запомните порядок Ваших действий и опишите их в письме к разработчикам.',data['text'],'','', '', '');
-		   				}
+		   			$.post('', {AJAX:"update_reiting_cont_face",id:iDataId,rate:ur}, function(data, textStatus, xhr) {
+		   				standard_response_handler(data);
 		   			},"json");
 		   		}, 120);
 		   	});

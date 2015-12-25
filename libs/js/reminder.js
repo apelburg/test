@@ -3,6 +3,7 @@
 var _init = $.ui.dialog.prototype._init;
   $.ui.dialog.prototype._init = function() {
     _init.apply(this, arguments);   
+    console.log(this.uiDialogTitlebar.next().attr('class'));
     var dialog_element = this;
     var dialog_id = this.uiDialogTitlebar.next().attr('id');
     var client_id = this.uiDialogTitlebar.next().attr('data-client_id');
@@ -10,6 +11,7 @@ var _init = $.ui.dialog.prototype._init;
     var window_type = this.uiDialogTitlebar.next().attr('data-window_type');
     var event_type = this.uiDialogTitlebar.next().attr('data-event_type');
 
+    if(this.uiDialogTitlebar.attr('id') == dialog_id){return false;}
     this.uiDialogTitlebar.append('<span style="cursor:pointer" id="' + dialog_id + 
     '-minbutton" class="ui-dialog-titlebar-minimize ui-corner-all">'+
     '<span class="ui-icon ui-icon-minusthick"></span></span>');    
@@ -80,7 +82,7 @@ $(window).scroll(function(){
   $('#cont-menu').remove();
 });
 
-$(document).on('mousedown','.red_t .ui-dialog-titlebar,.green_t .ui-dialog-titlebar,.yellow_t .ui-dialog-titlebar,.need_new_event_t .ui-dialog-titlebar,.black_t .ui-dialog-titlebar',function(event){
+$(document).on('mousedown','.red_t .ui-dialog-titlebar,.need_approval_t .ui-dialog-titlebar,.green_t .ui-dialog-titlebar,.yellow_t .ui-dialog-titlebar,.need_new_event_t .ui-dialog-titlebar,.black_t .ui-dialog-titlebar',function(event){
   // запрет контекстного меню браузера
   document.oncontextmenu = function() {return false;};  
   // Блокируем всплывание события contextmenu
@@ -123,9 +125,8 @@ $(document).on('mousedown','.red_t .ui-dialog-titlebar,.green_t .ui-dialog-title
 
 
 
-
 function minimize_ui_window(){
-  $('.ui-icon-minusthick').click();
+  $('.reminder_win .ui-icon-minusthick').click();
 }
 
 function minimize_green(){
@@ -171,23 +172,25 @@ function get_ui_window(){
               warning_messages = val;
               /*делаем что-то с сообщениями*/
               $.each(val, function(index, val) {
+                console.log(index);
                 var type = index; // green, black
                 // if(type=='last_update'){var last_update = val}
                 // if(type=='was_shown'){var was_shown = val}
-                var class_w = type+'_t';
+                var class_w = type+'_t reminder_win';
                 $.each(val, function(index, val) {
                   var type_action = index;
-                  // console.log(index);
+                  console.log(index);
                   var event_type = index;  
                   // console.log(val['type']);
                   $.each($(this), function(index, val) {
-                    // console.log(index);
+                    console.log(val['client_name']);
                     var text = "ВНИМАНИЕ!!! ";  
                     var type_window2 = ((event_type=="звонок")?'phone':'go');
                     var href ='<strong>&laquo;'+ val['client_name']+'&raquo;</strong><br/>';
                     text = text + ((event_type=="звонок")?'ВЫ не совершали звонка клиенту':'У вас небыло встречи с клиентом') + '' + href; 
                     var win_minimized = val['win_minimized'];
-
+                    // console.log(win_minimized);
+                    var plan_id =  'none';
                     switch(type){
                         case 'black':
                           win_warning_type = 'Предупреждение';
@@ -199,19 +202,55 @@ function get_ui_window(){
                           text = text + ' более ' + ((event_type=="звонок")?'40':'90') + ' дней!';
                           break;
                         case 'yellow':
+                          win_minimized = 1;
                           win_warning_type = 'Предупреждение';
                           text = text + ' более ' + ((event_type=="звонок")?'35':'80') + ' дней!';
                           break;
                         case 'green':
+                          return true;
                           win_warning_type = 'Предупреждение';
                           text = text + ' более ' + ((event_type=="звонок")?'30':'75') + ' дней!';
                           break;
                         case 'need_new_event':
+                          // *****
+                          // убраны зеленые напоминалки по просьбе Славы
+                          return true;
+                          // *****
                           win_warning_type = 'Напоминание';
                           text = "Вы не запланировали " + ((event_type=="звонок")?'звонок<br>клиенту':'встречу<br>с клиентом')+" "+href+"";
+                          break;                          
+                        case 'need_approval':
+                          text = '';
+                          plan_id = val['plan_id'];
+                          type_window2 = 'approval';
+                          win_warning_type = 'Подтверждение';
+                          var plan = (val['plan']!="")?'<div class="quote_t">'+val['plan']+'</div>':'<div class="quote_t_red">план отсутствует</div>';
+                          var resultat = (val['result']!="")?'<div class="quote_t">'+val['result']+'</div>':'<div class="quote_t_red">комментарий отсутствует</div>';
+                          var href2 = '<a  target="_blank" href="http://www.apelburg.ru/admin/order_manager/?page=clients&razdel=show_client_folder&sub_razdel=planner&client_id='+val['client_id']+'">&laquo;'+ val['client_name']+'&raquo;</a>';
+                          console.log(val['close_manager_id']+' '+val['close_manager_name']);
+                          if(Number(val['close_manager_id'])!=0 && val['close_manager_id']!=val['manager_id']){
+                            text += ''+
+                            '<strong>'+val['close_manager_name']+
+                            ' ' + val['close_manager_lastname']+
+                            '</strong><br> выполнил(а) встречу с клиентом<br>(встречу заводил(а) <strong>'+
+                            ' ' + val['manager_name']+
+                            ' ' + val['manager_lastname']+
+                            '</strong>)<br> ';                           
+                          }else{
+                            text = ''+
+                            '<strong>'+val['manager_name']+
+                            ' ' + val['manager_lastname']+
+                            '</strong> выполнил(а) встречу с клиентом<br> ';
+                          }
+                          text += ''+href2+'<br>'+
+                                  '<strong>Менеджер поставил план:</strong><br>'+
+                                  plan+
+                                  '<strong>Результат встречи:</strong><br>'+
+                                  resultat;
                           break;
                         default:
-                          text = "не извесный тип окна";
+                          win_warning_type = 'неизвесный тип окна';
+                          text = "неизвесный тип окна";
                           break;
                     }
                     // console.log(event_type);
@@ -221,7 +260,7 @@ function get_ui_window(){
                     col++;
                     if(col<next){
                       col1++;
-                      add_new_window(text,win_warning_type,class_w,val['client_id'],val['manager_id'],type,type_window2,win_minimized,event_type);
+                      add_new_window(text,win_warning_type,class_w,val['client_id'],val['manager_id'],type,type_window2,win_minimized,event_type,plan_id);
                     }
                     
                     
@@ -230,6 +269,7 @@ function get_ui_window(){
               });
               sort_ui_window();
               //разбиваем слои окон по их важности
+              $('.need_approval_t').css({'z-index':'110'});
               $('.black_t').css({'z-index':'100'});
               $('.red_t').css({'z-index':'90'});
               $('.yellow_t').css({'z-index':'80'});
@@ -302,7 +342,7 @@ function get_ui_one_window(){
   //$('#num_window_yet').attr('data-next',data_next);
   $.each(warning_messages, function(index, val) {          
       var type = index; // green, black
-      var class_w = type+'_t';
+      var class_w = type+'_t  reminder_win';
       $.each(val, function(index, val) {
         var type_action = index;
         var event_type = index;  
@@ -314,9 +354,10 @@ function get_ui_one_window(){
                     var text = "ВНИМАНИЕ!!! ";  
                     var type_window2 = ((event_type=="звонок")?'phone':'go');
                     var href ='<strong>&laquo;'+ val['client_name']+'&raquo;</strong><br/>';
+
                     text = text + ((event_type=="звонок")?'ВЫ не совершали звонка клиенту':'У вас небыло встречи с клиентом') + '' + href; 
           var win_minimized = val['win_minimized'];
-
+          var plan_id = 'none';
           switch(type){
               case 'black':
                 win_warning_type = 'Предупреждение';    
@@ -332,12 +373,45 @@ function get_ui_one_window(){
                 text = text + ' более ' + ((event_type=="звонок")?'35':'80') + ' дней!';
                 break;
               case 'green':
+                return true;
                 win_warning_type = 'Предупреждение';
                 text = text + ' более ' + ((event_type=="звонок")?'30':'75') + ' дней!';
                 break;
               case 'need_new_event':
+                // *****
+                // убраны зеленые напоминалки по просьбе Славы
+                return true;
+                // *****
                 win_warning_type = 'Напоминание';
                           text = "Вы не запланировали ни " + ((event_type=="звонок")?'одного звонка':'одной встречи')+"<br>для клиента "+href+"";
+                break;                          
+              case 'need_approval':
+                plan_id = val['plan_id'];
+                type_window2 = 'approval';
+                win_warning_type = 'Подтверждение';
+                var plan = (val['plan']!="")?'<div class="quote_t">'+val['plan']+'</div>':'<div class="quote_t_red">план отсутствует</div>';
+                var resultat = (val['result']!="")?'<div class="quote_t">'+val['result']+'</div>':'<div class="quote_t_red">комментарий отсутствует</div>';
+                var href2 = '<a  target="_blank" href="http://www.apelburg.ru/admin/order_manager/?page=clients&razdel=show_client_folder&sub_razdel=planner&client_id='+val['client_id']+'">&laquo;'+ val['client_name']+'&raquo;</a>';
+                text = '';
+                if(Number(val['close_manager_id'])!=0 && val['close_manager_id']!=val['manager_id']){
+                            text = ''+
+                            '<strong>'+val['close_manager_name']+
+                            ' ' + val['close_manager_lastname']+
+                            '</strong><br> выполнил(а) встречу с клиентом<br>(встречу заводил(а) <strong>'+
+                            ' ' + val['manager_name']+
+                            ' ' + val['manager_lastname']+
+                            '</strong>)<br> ';                            
+                          }else{
+                            text = ''+
+                            '<strong>'+val['manager_name']+
+                            ' ' + val['manager_lastname']+
+                            '</strong> выполнил(а) встречу с клиентом<br> ';
+                          }
+                          text += ''+href2+'<br>'+
+                                  '<strong>Менеджер поставил план:</strong><br>'+
+                                  plan+
+                                  '<strong>Результат встречи:</strong><br>'+
+                                  resultat;
                 break;
               default:
                 text = "не извесный тип окна";
@@ -346,7 +420,7 @@ function get_ui_one_window(){
           
           if(col==num_2){
             //console.log(col+' - '+num_2);
-            add_new_window(text,win_warning_type,class_w,val['client_id'],val['manager_id'],type,type_window2,'1',event_type);
+            add_new_window(text,win_warning_type,class_w,val['client_id'],val['manager_id'],type,type_window2,'1',event_type,plan_id);
           }else if(col>num_2){
             return false; // выходим из функции
           }              
@@ -360,7 +434,7 @@ function sort_ui_window(){
   window.x1 = ($(window).width() / 2)-250;
   window.y1 = ($(window).height() / 2)-50;
   window.alpha = 1; // шаг в градусах;
-  $('.ui-dialog').each(function(index, el) {
+  $('.ui-dialog.reminder_win').each(function(index, el) {
     var R = ++index*2; // радиус окружности        
     //var pi = (Math.P); // число ПИ
     window.alpha = window.alpha + 30; // шаг в градусах;
@@ -380,15 +454,17 @@ function get_new_id_window(){
   var div_id = 'dialog_window_' + div_count;
   return div_id;
 }
-function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_window2,win_minimized,event_type){
+function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_window2,win_minimized,event_type,plan_id){
   var div_id = get_new_id_window();
   var div_title = title;
   var div_content = cont;
+  var window_width = 500;
+  var window_height = 'auto';
   // создание кнопок
   var buttons = new Array();
       
 
-
+    if(type_w!="need_approval"){
     if(type_w!="black"){
       buttons.push({
       text: 'Отложить',
@@ -537,6 +613,315 @@ function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_wind
       //alert('Предупреждение из диалогового окна: ' + div_title);
     }
     });
+    }else{   
+    // START --// ОБРАБОТКА ОКОН need_approval   
+      window_width = 600;
+      window_height = 250;
+        buttons.push({
+        text: 'Отложить',
+        css:{'float':'left'},
+        click: function() {
+          var open_win_top = $(this).offset().top+33;
+          var open_win_left = $(this).offset().left+20;
+          ///-- START --/// СОЗДАЁМ ДОПОЛНИТЕЛЬНОЕ ОКНО ДЛЯ ВЫБОРА ОТСРОЧКИ ОПОВЕЩЕНИЯ
+          var parent_window_id_close = $(this).parent().find('.ui-dialog-content').attr('id');
+          var div_id = get_new_id_window();
+          var div_title = 'Отложить на...';
+
+          // собираем форму LETER 
+          // ОТПРАВКА ДАННЫХ ОТЛОЖИТЬ
+          var obj_form = $('<form/>',{id:'leter_id','style':'min-width:200px'});      
+          $('<input/>',{type:'hidden',name:'ajax_reminder',val:'approval_remaind_after'}).appendTo(obj_form);
+          $('<input/>',{type:'hidden',name:'client_id',val:client_id}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'manager_id',val:manager_id}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'window_type',val:type_w}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'event_type',val:event_type}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'button',val:'remaind_after'}).appendTo(obj_form);
+          $('<input/>',{type:'hidden',name:'time',val:'0'}).appendTo(obj_form);
+          $('<input/>',{type:'hidden',name:'plan_id',val:plan_id}).appendTo(obj_form);
+          
+          // 1,2,3 часа и 1,2,3 дня
+          $('<div/>',{class:'leter_div',html:'1 час'}).attr('data-val',(60*60)).appendTo(obj_form);
+          $('<div/>',{class:'leter_div',html:'2 часа'}).attr('data-val',(60*60*2)).appendTo(obj_form);
+          $('<div/>',{class:'leter_div',html:'3 часа'}).attr('data-val',(60*60*3)).appendTo(obj_form);
+          $('<div/>',{class:'leter_div',html:'1 день'}).attr('data-val',(60*60*24)).appendTo(obj_form);
+          $('<div/>',{class:'leter_div',html:'2 дня'}).attr('data-val',(60*60*24*2)).appendTo(obj_form);
+          $('<div/>',{class:'leter_div',html:'3 дня'}).attr('data-val',(60*60*24*3)).appendTo(obj_form);
+          
+          // console.log('добавил див для окна #'+div_id);
+          $('body').append('<div class="dialog_window" id="' + div_id + '"></div>');
+          $('#'+div_id).html(obj_form);
+          //var div_content = '<form id="leter_id"></form>';
+
+          // кнопки для окна отложить
+          var buttons = new Array();
+
+          buttons.push({
+            text: 'Отмена',
+            click: function() {
+              // закрыть окно выбора отсрочки
+              var window_id_close = $(this).parent().find('.ui-dialog-content').attr('id');
+              $('#'+window_id_close).remove();
+              $('#' + div_id).parent().remove();
+              $('#leter_id').remove();
+            }
+          });
+
+          buttons.push({
+            text: 'ОК',
+            css:{'width':'100px','float':'right'},
+            click: function() {    
+              // проверяем введена ли дата отсрочки
+              var time_reminder = $('#'+div_id+' form input[name="time"]').val();
+              if(time_reminder!="" && time_reminder!=0){
+                $.post('', $('#'+div_id+' form').serialize(), function(data, textStatus, xhr) {
+                  if(data['response']=='1'){
+                    
+                    $('#' + div_id).dialog('destroy');
+                    $('#' + div_id).remove();
+                    $('#' + div_id+'_minimized').remove();
+
+                    // if($('#' + div_id+'_minimized').length==0){
+                    //   console.log('окно уничтожено #' + div_id+'_minimized');
+                    // }
+                    
+                    $('#'+parent_window_id_close).dialog('destroy');
+                    $('#'+parent_window_id_close).remove();
+                    $('#'+parent_window_id_close+'_minimized').remove();
+
+                    // if($('#'+parent_window_id_close+'_minimized').length==0){
+                    //   console.log('окно уничтожено #'+parent_window_id_close+'_minimized');
+                    // }
+                    
+                    get_ui_one_window();
+                  }
+                },'json');
+                
+              }else{
+                alert("Введите время отсрочки напоминания пожалуйста");
+              }
+            }
+          });                    
+          
+          // console.log('создан диалог для окна- '+'#' + div_id);
+          var dialog = $('#' + div_id).dialog({
+            width: 'auto',
+            height: 'auto',
+            modal: true,
+            title : div_title,
+            autoOpen : true,
+            css:{'top':'10px'},
+            buttons: buttons,
+            open:function() {
+              // скрываем крестик
+              // $(this).parents(".ui-dialog:first").find("a").remove();
+              $(this).parent(".ui-dialog:first").find(".ui-dialog-titlebar-close,.ui-dialog-titlebar-minimize").remove();
+              $('.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset').css({'width':'94%'});
+            }
+          });
+          dialog.parent().css({'top':open_win_top,'left':open_win_left});
+          $('#' + div_id).parent(".ui-dialog:first").find(".ui-dialog-titlebar-close,.ui-dialog-titlebar-minimize").remove()
+          ///-- END --/// СОЗДАЁМ ДОПОЛНИТЕЛЬНОЕ ОКНО ДЛЯ ВЫБОРА ОТСРОЧКИ ОПОВЕЩЕНИЯ
+        }
+        });
+        buttons.push({
+        text: 'Подтвердить',
+        css:{'float':'right'},
+        click: function() {
+          var open_win_top = $(this).offset().top+33;
+          var open_win_left = $(this).offset().left+20;
+          ///-- START --/// СОЗДАЁМ ДОПОЛНИТЕЛЬНОЕ ОКНО ДЛЯ КОМЕНТИРОВАНИЯ И ПОДТВЕРЖДЕНИЯ ДЕЙСТВИЯ
+          var parent_window_id_close = $(this).parent().find('.ui-dialog-content').attr('id');
+          var div_id = get_new_id_window();
+          var div_title = 'Подтвердить';
+
+          // собираем форму ПОДТВЕРЖДЕНИЯ
+          // ОТПРАВКА ДАННЫХ ПОДТВЕРДИТЬ
+          var obj_form = $('<form/>',{id:'leter_id','style':'min-width:200px'});      
+          $('<input/>',{type:'hidden',name:'ajax_reminder',val:'approval_result'}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'client_id',val:client_id}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'manager_id',val:manager_id}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'window_type',val:type_w}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'event_type',val:event_type}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'button',val:'remaind_after'}).appendTo(obj_form);
+          $('<input/>',{type:'hidden',name:'plan_id',val:plan_id}).appendTo(obj_form);
+          $('<input/>',{type:'hidden',name:'status',val:'approved'}).appendTo(obj_form);
+
+          $('<textarea/>',{name:'comment',placeholder:'комментарий...'}).css({'width':'100%','height':'100px'}).appendTo(obj_form);
+          
+          
+          // console.log('добавил див для окна #'+div_id);
+          $('body').append('<div class="dialog_window" id="' + div_id + '"></div>');
+          $('#'+div_id).html(obj_form);
+          //var div_content = '<form id="leter_id"></form>';
+
+          // кнопки для окна отложить
+          var buttons = new Array();
+
+          buttons.push({
+            text: 'Отмена',
+            click: function() {
+              // закрыть окно выбора отсрочки
+              var window_id_close = $(this).parent().find('.ui-dialog-content').attr('id');
+              $('#'+window_id_close).remove();
+              $('#' + div_id).parent().remove();
+              $('#leter_id').remove();
+            }
+          });
+
+          buttons.push({
+            text: 'ОК',
+            css:{'width':'100px','float':'right'},
+            click: function() {    
+              // проверяем введена ли дата отсрочки
+                $.post('', $('#'+div_id+' form').serialize(), function(data, textStatus, xhr) {
+                  if(data['response']=='1'){
+                    
+                    $('#' + div_id).dialog('destroy');
+                    $('#' + div_id).remove();
+                    $('#' + div_id+'_minimized').remove();
+
+                    // if($('#' + div_id+'_minimized').length==0){
+                    //   console.log('окно уничтожено #' + div_id+'_minimized');
+                    // }
+                    
+                    $('#'+parent_window_id_close).dialog('destroy');
+                    $('#'+parent_window_id_close).remove();
+                    $('#'+parent_window_id_close+'_minimized').remove();
+
+                    // if($('#'+parent_window_id_close+'_minimized').length==0){
+                    //   console.log('окно уничтожено #'+parent_window_id_close+'_minimized');
+                    // }
+                    
+                    get_ui_one_window();
+                  }
+                },'json');
+            }
+          });                    
+          
+          // console.log('создан диалог для окна- '+'#' + div_id);
+          var dialog = $('#' + div_id).dialog({
+            width: 400,
+            height: 'auto',
+            modal: true,
+            title : div_title,
+            autoOpen : true,
+            css:{'top':'10px'},
+            buttons: buttons,
+            open:function() {
+              // скрываем крестик
+              // $(this).parents(".ui-dialog:first").find("a").remove();
+              $(this).parent(".ui-dialog:first").find(".ui-dialog-titlebar-close,.ui-dialog-titlebar-minimize").remove();
+              $('.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset').css({'width':'94%'});
+            }
+          });
+          dialog.parent().css({'top':open_win_top,'left':open_win_left});
+          $('#' + div_id).parent(".ui-dialog:first").find(".ui-dialog-titlebar-close,.ui-dialog-titlebar-minimize").remove()
+          ///-- END --/// СОЗДАЁМ ДОПОЛНИТЕЛЬНОЕ ОКНО ДЛЯ КОМЕНТИРОВАНИЯ И ПОДТВЕРЖДЕНИЯ ДЕЙСТВИЯ
+        }
+        });
+
+        buttons.push({
+        text: 'Отклонить',
+        css:{'float':'right'},        
+        click: function() {
+          var open_win_top = $(this).offset().top+33;
+          var open_win_left = $(this).offset().left+20;
+          ///-- START --/// СОЗДАЁМ ДОПОЛНИТЕЛЬНОЕ ОКНО ДЛЯ КОМЕНТИРОВАНИЯ И ОТКЛОНЕНИЯ ЗАЯВКИ НА ПОДТВЕРЖДЕНИЕ
+          var parent_window_id_close = $(this).parent().find('.ui-dialog-content').attr('id');
+          var div_id = get_new_id_window();
+          var div_title = 'Отклонить';
+
+          // собираем форму ОТКЛОНИТЬ
+          // ОТПРАВКА ДАННЫХ ОТКЛОНИТЬ
+          var obj_form = $('<form/>',{id:'leter_id','style':'min-width:200px'});      
+          $('<input/>',{type:'hidden',name:'ajax_reminder',val:'approval_result'}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'client_id',val:client_id}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'manager_id',val:manager_id}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'window_type',val:type_w}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'event_type',val:event_type}).appendTo(obj_form);
+          // $('<input/>',{type:'hidden',name:'button',val:'remaind_after'}).appendTo(obj_form);
+          $('<input/>',{type:'hidden',name:'plan_id',val:plan_id}).appendTo(obj_form);
+          $('<input/>',{type:'hidden',name:'status',val:'no_approved'}).appendTo(obj_form);
+
+          $('<textarea/>',{name:'comment',placeholder:'комментарий...'}).css({'width':'100%','height':'100px'}).appendTo(obj_form);
+          
+          
+          // console.log('добавил див для окна #'+div_id);
+          $('body').append('<div class="dialog_window" id="' + div_id + '"></div>');
+          $('#'+div_id).html(obj_form);
+          //var div_content = '<form id="leter_id"></form>';
+
+          // кнопки для окна отложить
+          var buttons = new Array();
+
+          buttons.push({
+            text: 'Отмена',
+            click: function() {
+              // закрыть окно выбора отсрочки
+              var window_id_close = $(this).parent().find('.ui-dialog-content').attr('id');
+              $('#'+window_id_close).remove();
+              $('#' + div_id).parent().remove();
+              $('#leter_id').remove();
+            }
+          });
+
+          buttons.push({
+            text: 'ОК',
+            css:{'width':'100px','float':'right'},
+            click: function() {    
+              // проверяем введена ли дата отсрочки
+                $.post('', $('#'+div_id+' form').serialize(), function(data, textStatus, xhr) {
+                  if(data['response']=='1'){
+                    
+                    $('#' + div_id).dialog('destroy');
+                    $('#' + div_id).remove();
+                    $('#' + div_id+'_minimized').remove();
+
+                    // if($('#' + div_id+'_minimized').length==0){
+                    //   console.log('окно уничтожено #' + div_id+'_minimized');
+                    // }
+                    
+                    $('#'+parent_window_id_close).dialog('destroy');
+                    $('#'+parent_window_id_close).remove();
+                    $('#'+parent_window_id_close+'_minimized').remove();
+
+                    // if($('#'+parent_window_id_close+'_minimized').length==0){
+                    //   console.log('окно уничтожено #'+parent_window_id_close+'_minimized');
+                    // }
+                    
+                    get_ui_one_window();
+                  }
+                },'json');
+            }
+          });                    
+          
+          // console.log('создан диалог для окна- '+'#' + div_id);
+          var dialog = $('#' + div_id).dialog({
+            width: 400,
+            height: 'auto',
+            modal: true,
+            title : div_title,
+            autoOpen : true,
+            css:{'top':'10px'},
+            buttons: buttons,
+            open:function() {
+              // скрываем крестик
+              // $(this).parents(".ui-dialog:first").find("a").remove();
+              $(this).parent(".ui-dialog:first").find(".ui-dialog-titlebar-close,.ui-dialog-titlebar-minimize").remove();
+              $('.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset').css({'width':'94%'});
+            }
+          });
+          dialog.parent().css({'top':open_win_top,'left':open_win_left});
+          $('#' + div_id).parent(".ui-dialog:first").find(".ui-dialog-titlebar-close,.ui-dialog-titlebar-minimize").remove()
+          ///-- END --/// СОЗДАЁМ ДОПОЛНИТЕЛЬНОЕ ОКНО ДЛЯ КОМЕНТИРОВАНИЯ И ОТКЛОНЕНИЯ ЗАЯВКИ НА ПОДТВЕРЖДЕНИЕ
+        }
+        });
+        function comment_and_submit(){
+
+        }
+        
+    }
     // добавляем окно в DOM
     $('body').append('<div class="dialog_window"'+
         ' data-client_id="'+client_id+'"'+
@@ -547,13 +932,16 @@ function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_wind
         ' id="' + div_id + '">' + div_content + '</div>');
     // обявление окна
     var dialog = $('#' + div_id).dialog({
-    width: 500,
-    height: 'auto',
+    width: window_width,
+    height: window_height,
     title : div_title,
     autoOpen : ((typeof win_minimized !=="undefined")?false:true), // автоматическое открытие
     dialogClass: class_d,
     buttons: buttons,
     open:function() {
+      // снимаем фокус с элементов
+      $('#' + div_id+' a').blur();
+
       // скрываем крестик
       $(this).prev().append('<span class="reminder_info"> ? </span>');
       $(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar-close").remove();
@@ -594,39 +982,44 @@ function delete_this_win(e,client_id,event_type,manager_id,type_w){
 
 $(document).on('click','.reminder_info',function(){
   $.post('',{ajax_reminder:'show_help'},function(data){
-    $('#info_window_for_managers').html(data);
-    $('#info_window_for_managers').dialog('open');
+    $('#info_window_for_managers2').html(data);
+    $('#info_window_for_managers2').dialog('open');
+    $('#info_window_for_managers').show();
   });  
 });
 
+// создание окна правил по модулю напоминалок
 function add_info_window(){
-  $('body').append('<div id="info_window_for_managers" style="display:none;"></div>');//.css({'display':'none'})
+  if($('#info_window_for_managers2').length == 0){
+    $('body').append('<div id="info_window_for_managers2" style="display:none;"></div>');//.css({'display':'none'})
 
-  var div_title = 'Уведомления менеджера от ОС (сроки звонков/встреч)';
-  // создание кнопок
-  var buttons = new Array();
-  buttons.push({
-    text: '   ОК   ',
-    css:{'width':'100px','float':'right'},
-    dialogClass: "alert",
-    click: function() {
-      $(this).dialog('close');
-      //alert('Предупреждение из диалогового окна: ' + div_title);
-    }
-  });  
+    var div_title = 'Уведомления менеджера от ОС (сроки звонков/встреч)';
+    // создание кнопок
+    var buttons = new Array();
+    buttons.push({
+      text: '   ОК   ',
+      css:{'width':'100px','float':'right'},
+      dialogClass: "alert",
+      click: function() {
+        $(this).dialog('close');
+        //alert('Предупреждение из диалогового окна: ' + div_title);
+      }
+    });  
+    
+    // обявление окна
+    $('#info_window_for_managers2').dialog({
+      width: 600,
+      height: 600,
+      modal: true,
+      title : div_title,
+      autoOpen : false, // автоматическое открытие запретить
+      //dialogClass: class_d,
+      buttons: buttons,
+      open:function() {
+        // вырезаем свёртывание
+        $(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar-minimize").remove();
+      }
+    });
+  }
   
-  // обявление окна
-  $('#info_window_for_managers').dialog({
-    width: 600,
-    height: 600,
-    modal: true,
-    title : div_title,
-    autoOpen : false, // автоматическое открытие запретить
-    //dialogClass: class_d,
-    buttons: buttons,
-    open:function() {
-      // вырезаем свёртывание
-      $(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar-minimize").remove();
-    }
-  });
 }

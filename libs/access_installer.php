@@ -115,31 +115,10 @@
 													'order_in_work_snab' => array('access'=>true),
 													'production' =>  array('access'=>true),
 													'stock_all' =>  array('access'=>true),
-													'order_all' => array('access'=>true),												
-													// 'production' => array('access'=>true),
-													// 'my_orders_diz' => array('access'=>true),
-													// 'all_orders_diz' => array('access'=>true),
-													// 'not accepted' => array('access'=>true),
-													// 'issue' => array('access'=>true),
-													// 'paused' => array('access'=>true)
-													// 'start' => array('access'=>true),
-													// 'purchase' => array('access'=>true),
-													// 'design' => array('access'=>true),
-													// 'production' => array('access'=>true),
-													// 'ready_for_shipment' => array('access'=>true),
-													// 'paused' => array('access'=>true),
-													// 'all' => array('access'=>true)
+													'order_all' => array('access'=>true)											
+													
 													)
 												),
-											// 'for_shipping'=> array(
-											// 	'access'=>true,
-											// 	'subsection'=>array(  // 2
-											// 		'order_of_documents' => array('access'=>true),
-											// 		'arrange_delivery' => array('access'=>true),
-											// 		'delivery' => array('access'=>true),
-											// 		'pclosing_documents' => array('access'=>true)
-											// 		)
-											// 	),
 											'for_shipping'=> array(
 												'access'=>true,
 												'subsection'=>array(  // 2
@@ -152,25 +131,7 @@
 													'fully_shipped' => array('access'=>true),
 													// 'partially_shipped' => array('access'=>true)
 													)
-												),
-											// 'closed'=> array(
-											// 	'access'=>true, 
-											// 	'subsection'=>array(  // 2
-											// 		'all' => array('access'=>true),
-											// 		)
-											// 	),
-											// 'history'=> array(
-											// 	'access'=>true, 
-											// 	'subsection'=>array(  // 2
-											// 		'all' => array('access'=>true),
-											// 		)
-											// 	),
-											// 'simples'=> array(
-											// 	'access'=>true,
-											// 	'subsection'=>array(  // 2
-											// 		'all' => array('access'=>true),
-											// 		)
-											// 	)
+												)
 											)
 										),
 					   'suppliers'=> array(
@@ -199,31 +160,31 @@
 				       'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
-											'paperwork'=> array(
-												'access'=>true,
-												'subsection'=>array( // 2
-													// запрошен счёт
-													'requested_the_bill' => array('access'=>true),
-													// счёт выставлен
-													'expense' => array('access'=>true),
-													// счёт оплачен
-													'payment_the_bill' => array('access'=>true),
-													// заказы в оформлении
-													'order_is_paperwork' => array('access'=>true),
-													// заказы в работе
-													'order_in_work' => array('access'=>true),
-													// Отгруженные заказы
-													'order_shipped' => array('access'=>true),
-													// Запрос отгрузочных
-													'query_ttn' => array('access'=>true),
-													// возврат средств по счёту
-													'refund_in_a_row' => array('access'=>true),
-													// счёт аннулирован
-													'cancelled' => array('access'=>true),	
-													// все документы
-													'all_the_bill' => array('access'=>true)																											
-													)
-												), 
+											// 'paperwork'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array( // 2
+											// 		// запрошен счёт
+											// 		'requested_the_bill' => array('access'=>true),
+											// 		// счёт выставлен
+											// 		'expense' => array('access'=>true),
+											// 		// счёт оплачен
+											// 		'payment_the_bill' => array('access'=>true),
+											// 		// заказы в оформлении
+											// 		'order_is_paperwork' => array('access'=>true),
+											// 		// заказы в работе
+											// 		'order_in_work' => array('access'=>true),
+											// 		// Отгруженные заказы
+											// 		'order_shipped' => array('access'=>true),
+											// 		// Запрос отгрузочных
+											// 		'query_ttn' => array('access'=>true),
+											// 		// возврат средств по счёту
+											// 		'refund_in_a_row' => array('access'=>true),
+											// 		// счёт аннулирован
+											// 		'cancelled' => array('access'=>true),	
+											// 		// все документы
+											// 		'all_the_bill' => array('access'=>true)																											
+											// 		)
+											// 	), 
 											
 											)
 										)
@@ -233,108 +194,91 @@
 				       'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
-											'orders'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
+											// 'orders'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array(  // 2
 													
-													'production_get_in_work' =>array('access'=>true),
-													'set_in_the_plan' =>array('access'=>true),
-													'production_stencil_shelk_and_transfer' =>array('access'=>true),
-													// 'production_shelk' =>array('access'=>true),
-													// 'production_transfer' =>array('access'=>true),
-													'production_tampoo' =>array('access'=>true),
-													'production_tisnenie' =>array('access'=>true),
-													'production_dop_uslugi' =>array('access'=>true),
-													'production_plenki_and_klishe' =>array('access'=>true),
-													'question_pause' =>array('access'=>true),
-													'the_service_is_performed' =>array('access'=>true),
-													'production' =>array('access'=>true)
-													)
-												)
+											// 		'production_get_in_work' =>array('access'=>true),
+											// 		'set_in_the_plan' =>array('access'=>true),
+											// 		'production_stencil_shelk_and_transfer' =>array('access'=>true),
+											// 		// 'production_shelk' =>array('access'=>true),
+											// 		// 'production_transfer' =>array('access'=>true),
+											// 		'production_tampoo' =>array('access'=>true),
+											// 		'production_tisnenie' =>array('access'=>true),
+											// 		'production_dop_uslugi' =>array('access'=>true),
+											// 		'production_plenki_and_klishe' =>array('access'=>true),
+											// 		'question_pause' =>array('access'=>true),
+											// 		'the_service_is_performed' =>array('access'=>true),
+											// 		'production' =>array('access'=>true)
+											// 		)
+											// 	)
 											)
 										)
 				       );
 	// МЕНЕДЖЕР					  
 	$ACCESS_SHABLON[5] = array(
+
 						'cabinet'=> array(
 										'access'=> true,
-										'section'=> array( // 1
-											// 'important'=> array(
-											// 	'access'=>true,
-											// 	'subsection'=>array( // 2
-											// 		'all' => array('access'=>true)
-											// 		)
-											// 	),											
+										'section'=> array( 							
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
 													'no_worcked_men' => array('access'=>true),
 													'query_taken_into_operation' => array('access'=>true),
 													'query_worcked_men' => array('access'=>true),
-													'send_to_snab' => array('access'=>true),
-													'query_worcked_snab' => array('access'=>true),
-													'calk_snab' => array('access'=>true),
-													'denied' => array('access'=>true),
-													'query_variant_in_pause' => array('access'=>true),
-													'query_denided_variants' => array('access'=>true),
-													'query_history' => array('access'=>true),
+													//'send_to_snab' => array('access'=>true),
+													//'query_worcked_snab' => array('access'=>true),
+													//'calk_snab' => array('access'=>true),
+													//'denied' => array('access'=>true),
+													//'query_variant_in_pause' => array('access'=>true),
+													//'query_denided_variants' => array('access'=>true),
+													//'query_history' => array('access'=>true),
 													'query_all' => array('access'=>true),
 													)
 												),
-											'paperwork'=> array(
-												'access'=>true,
-												'subsection'=>array( // 2
-													// 'all' => array('access'=>true),
-													'create_spec' => array('access'=>true),
-													// 'signed' => array('access'=>true),
-													'requested_the_bill' => array('access'=>true),
-													'expense' => array('access'=>true),
-													'payment_the_bill' => array('access'=>true),
-													'the_order_is_create' => array('access'=>true),
-													'refund_in_a_row' => array('access'=>true),
-													'cancelled' => array('access'=>true),	
-													'all_the_bill' => array('access'=>true)		
-													)
-												), 
-											'orders'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
+											// 'paperwork'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array( // 2
+											// 		// 'all' => array('access'=>true),
+											// 		'create_spec' => array('access'=>true),
+											// 		// 'signed' => array('access'=>true),
+											// 		'requested_the_bill' => array('access'=>true),
+											// 		'expense' => array('access'=>true),
+											// 		'payment_the_bill' => array('access'=>true),
+											// 		'the_order_is_create' => array('access'=>true),
+											// 		'refund_in_a_row' => array('access'=>true),
+											// 		'cancelled' => array('access'=>true),	
+											// 		'all_the_bill' => array('access'=>true)		
+											// 		)
+											// 	), 
+											// 'orders'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array(  // 2
 
 													
-													'order_start' => array('access'=>true),
-													'order_in_work' => array('access'=>true),
-													// 'design_all' =>  array('access'=>true),
+											// 		'order_start' => array('access'=>true),
+											// 		'order_in_work' => array('access'=>true),
+											// 		// 'design_all' =>  array('access'=>true),
 
-													'design_for_one_men' =>  array('access'=>true),
-													'order_in_work_snab' => array('access'=>true),
-													'production' =>  array('access'=>true),
-													'tpause_and_questions' =>  array('access'=>true),
-													'order_all' => array('access'=>true)
-													)
-												),
-											'for_shipping'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'ready_for_shipment' => array('access'=>true),
-													)
-												),											
-											'already_shipped'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'fully_shipped' => array('access'=>true),
-													// 'partially_shipped' => array('access'=>true)
-													)
-												),
-											// 'closed'=> array(
-											// 	'access'=>true, 
-											// 	'subsection'=>array(  // 2
-											// 		'all' => array('access'=>true),
+											// 		'design_for_one_men' =>  array('access'=>true),
+											// 		'order_in_work_snab' => array('access'=>true),
+											// 		'production' =>  array('access'=>true),
+											// 		'tpause_and_questions' =>  array('access'=>true),
+											// 		'order_all' => array('access'=>true)
 											// 		)
 											// 	),
-											// 'history'=> array(
-											// 	'access'=>true, 
+											// 'for_shipping'=> array(
+											// 	'access'=>true,
 											// 	'subsection'=>array(  // 2
-											// 		'all' => array('access'=>true),
+											// 		'ready_for_shipment' => array('access'=>true),
+											// 		)
+											// 	),											
+											// 'already_shipped'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array(  // 2
+											// 		'fully_shipped' => array('access'=>true),
+											// 		// 'partially_shipped' => array('access'=>true)
 											// 		)
 											// 	),
 											)
@@ -394,13 +338,7 @@
 													'stock_sended_on_outsource' => array('access' => true),
 													'stock_checked_and_packed' => array('access' => true),
 													'stock_goods_shipped_for_client' => array('access' => true),
-													// 'order_all' => array('access'=>true),
-													// 'order_start' => array('access'=>true),
-													// 'order_in_work' => array('access'=>true),
-													// 'design_all' =>  array('access'=>true),
-													// 'design_for_one_men' =>  array('access'=>true),
-													// 'production' =>  array('access'=>true),
-													// 'stock' =>  array('access'=>true)
+													
 													)
 												)
 											), 
@@ -428,80 +366,73 @@
 				       'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( // 1
-											// 'important'=> array(
-											// 	'access'=>true,
-											// 	'subsection'=>array( // 2
-											// 		'all' => array('access'=>true)
-											// 		)
-											// 	),
 											'requests'=> array(
 												'access'=>true,
 												'subsection'=>array( // 2
-													 // Не обработанные СНАБ
+													'no_worcked_men' => array('access'=>true),
+													'query_taken_into_operation' => array('access'=>true),
+													'query_worcked_men' => array('access'=>true),
 													'send_to_snab' => array('access'=>true),
-													// В работе
 													'query_worcked_snab' => array('access'=>true),
-													// Рассчитанные
 													'calk_snab' => array('access'=>true),
-													// Принятые МЕН
-													'accept_snab_job' => array('access'=>true),
-													// ТЗ не корректно
 													'denied' => array('access'=>true),
-													// На паузе
-													'pause' => array('access'=>true),
-													// История
+													'query_variant_in_pause' => array('access'=>true),
+													'query_denided_variants' => array('access'=>true),
 													'query_history' => array('access'=>true),
-													// Все
-													'query_all' =>  array('access'=>true),
+													'query_all' => array('access'=>true),
+													)
+												),
+											// 'requests'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array( // 2
+											// 		 // Не обработанные СНАБ
+											// 		'send_to_snab' => array('access'=>true),
+											// 		// В работе
+											// 		'query_worcked_snab' => array('access'=>true),
+											// 		// Рассчитанные
+											// 		// 'calk_snab' => array('access'=>true),
+											// 		// Принятые МЕН
+											// 		'accept_snab_job' => array('access'=>true),
+											// 		// ТЗ не корректно
+											// 		// 'denied' => array('access'=>true),
+											// 		// На паузе
+											// 		// 'pause' => array('access'=>true),
+											// 		// История
+											// 		// 'query_history' => array('access'=>true),
+											// 		// Все
+											// 		'query_all' =>  array('access'=>true),
 													
-													)
-												), 
-											'orders'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													// 'order_all' => array('access'=>true),
-													// 'order_start' => array('access'=>true),
-													// 'order_in_work' => array('access'=>true),
-													// 'design_all' =>  array('access'=>true),
-													// 'design_for_one_men' =>  array('access'=>true),
-													// 'production' =>  array('access'=>true),
-													// 'stock' =>  array('access'=>true)
-													'snab_starting_in_processing' =>  array('access'=>true),
-													'snab_in_Progress' =>  array('access'=>true),
-													'snab_mock_ups_of_the_work' =>  array('access'=>true),
-													'snab_waiting' =>  array('access'=>true),
-													'snab_products' =>  array('access'=>true),
-													'snab_in_the_production_of' =>  array('access'=>true),
-													'snab_our_production' =>  array('access'=>true),
-													'tpause_and_questions' =>  array('access'=>true),
-													'snab_all' =>  array('access'=>true)
-													)
-												),
-											'for_shipping'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'ready_for_shipment' => array('access'=>true),
-													)
-												),											
-											'already_shipped'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
-													'fully_shipped' => array('access'=>true),
-													// 'partially_shipped' => array('access'=>true)
-													)
-												),
-											// 'closed'=> array(
-											// 	'access'=>true, 
+											// 		)
+											// 	), 
+											// 'orders'=> array(
+											// 	'access'=>true,
 											// 	'subsection'=>array(  // 2
-											// 		'all' => array('access'=>true),
+												
+											// 		'snab_starting_in_processing' =>  array('access'=>true),
+											// 		'snab_in_Progress' =>  array('access'=>true),
+											// 		'snab_mock_ups_of_the_work' =>  array('access'=>true),
+											// 		'snab_waiting' =>  array('access'=>true),
+											// 		'snab_products' =>  array('access'=>true),
+											// 		'snab_in_the_production_of' =>  array('access'=>true),
+											// 		'snab_our_production' =>  array('access'=>true),
+											// 		'tpause_and_questions' =>  array('access'=>true),
+											// 		'snab_all' =>  array('access'=>true)
 											// 		)
 											// 	),
-											// 'history'=> array(
-											// 	'access'=>true, 
+											// 'for_shipping'=> array(
+											// 	'access'=>true,
 											// 	'subsection'=>array(  // 2
-											// 		'all' => array('access'=>true),
+											// 		'ready_for_shipment' => array('access'=>true),
+											// 		)
+											// 	),											
+											// 'already_shipped'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array(  // 2
+											// 		'fully_shipped' => array('access'=>true),
+											// 		// 'partially_shipped' => array('access'=>true)
 											// 		)
 											// 	),
+											
 											)
 											
 										)
@@ -511,43 +442,33 @@
 						'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( 
-											'orders'=> array(
-												'access'=>true,
-												'subsection'=>array(  // 2
+											// 'orders'=> array(
+											// 	'access'=>true,
+											// 	'subsection'=>array(  // 2
 													
-													//'all' => array('access'=>true),
-													// 'get_in_work' => array('access'=>true),
-													// 'my_orders' => array('access'=>true),
-													// 'makets' => array('access'=>true),
-													// 'design' => array('access'=>true),
-													// 'related_changes' => array('access'=>true),
-													// 'on_production' => array('access'=>true),
-													// 'films_for_withdrawal' => array('access'=>true),
-													// 'on_foreign_production' => array('access'=>true),
-													// 'in_the_production_apelburg' => array('access'=>true),
-													// 'in_the_production_supplier' => array('access'=>true)
-													'design_waiting_for_distribution' =>array('access'=>true),
-													'design_develop_design' =>array('access'=>true),
-													'design_laid_out_a_layout' =>array('access'=>true),
-													'design_wait_laid_out_a_layout' =>array('access'=>true),
-													'design_edits' =>array('access'=>true),
-													'design_on_agreeing' =>array('access'=>true),
-													'design_prepare_to_print' =>array('access'=>true),
-													'design_films_and_cliches' =>array('access'=>true),
-													'design_pause_question_TK_is_not_correct' =>array('access'=>true),
-													'design_finished_models' =>array('access'=>true),
-													'design_all' =>  array('access'=>true),
-													// 'order_all' =>array('access'=>true)
-													)
-												)
-											),
-											'history'=> array(
-												'access'=>true, 
-												'subsection'=>array(  // 2
-													'all' => array('access'=>true),
-													)
+											// 		'design_waiting_for_distribution' =>array('access'=>true),
+											// 		'design_develop_design' =>array('access'=>true),
+											// 		'design_laid_out_a_layout' =>array('access'=>true),
+											// 		'design_wait_laid_out_a_layout' =>array('access'=>true),
+											// 		'design_edits' =>array('access'=>true),
+											// 		'design_on_agreeing' =>array('access'=>true),
+											// 		'design_prepare_to_print' =>array('access'=>true),
+											// 		'design_films_and_cliches' =>array('access'=>true),
+											// 		'design_pause_question_TK_is_not_correct' =>array('access'=>true),
+											// 		'design_finished_models' =>array('access'=>true),
+											// 		'design_all' =>  array('access'=>true),
+											// 		// 'order_all' =>array('access'=>true)
+											// 		)
+											// 	)
+											// ),
+											// 'history'=> array(
+											// 	'access'=>true, 
+											// 	'subsection'=>array(  // 2
+											// 		'all' => array('access'=>true),
+											// 		)
 												),
-										));	
+										)
+);	
     //--------------------------------------------------------------------------\\
     //                  ЗАГРУЗКА ПРАВ ДАННОГО ПОЛЬЗОВАТЕЛЯ                      \\  
 	//--------------------------------------------------------------------------\\						   

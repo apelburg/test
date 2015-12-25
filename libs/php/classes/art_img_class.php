@@ -42,9 +42,22 @@
 				$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/os/data/images/'.$folder.'/';
  				$dir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder.'/';
 			}
-			if(checkImgExists($dir.$img)){
+
+			// проверка наличия изображения
+			if($this->checkImgExists($dir.$img)){
 				$this->small = $this->big = $global_dir.$img;
+			}else{
+				// если изображение не было найдено - скорее всего оно было удалено из галлереи
+				$this->big = 	'http://'.$_SERVER['HTTP_HOST'].'/img/image_was_deleted.jpg';
+				$this->small = 'http://'.$_SERVER['HTTP_HOST'].'/img/image_was_deleted.jpg';
 			}
+		}
+
+		private function checkImgExists($path){
+			if(@fopen($path, 'r')){//file_exists
+				return true;
+			}
+			return false;
 		}
 		    
 		private function getImg($art){

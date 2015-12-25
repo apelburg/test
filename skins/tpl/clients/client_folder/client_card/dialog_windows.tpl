@@ -19,7 +19,7 @@
 				<td><div>доб. <input type="text" name="dop_phone" id="dop_phone_numver"></div></td>
 			</tr>
 		</table>
-		<input type="hidden" name="ajax_standart_window" value="add_new_phone_row">
+		<input type="hidden" name="AJAX" value="add_new_phone_row">
 		<input type="hidden" name="client_id" value="">
 		<input type="hidden" name="parent_tbl" value="">
 	</form>
@@ -54,7 +54,7 @@
 					</select>
 				</td>
 				<td><input type="text" name="input_text" id="input_text"></td>
-				<input type="hidden" name="ajax_standart_window" value="add_new_other_row">
+				<input type="hidden" name="AJAX" value="add_new_other_row">
 				<!-- <input type="hidden" name="type" id="new_other_row_infoType_input"> -->
 				<input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 				<input type="hidden" name="parent_tbl" value="">
@@ -98,7 +98,7 @@
 				<td><input type="text" name="note" ></td>
 			</tr>
 		</table>
-		<input type="hidden" name="ajax_standart_window" value="contact_face_edit_form">
+		<input type="hidden" name="AJAX" value="contact_face_edit_form">
 		<input type="hidden" name="id" value="">
 	</form>
 </div>
@@ -127,7 +127,7 @@
                 </td>
             </tr>
         </table>
-		<input type="hidden" name="ajax_standart_window" value="edit_client_dop_information">
+		<input type="hidden" name="AJAX" value="edit_client_dop_information">
 		<input type="hidden" name="id" value="<?php echo $client_id; ?>">
 	</form>
 </div>
@@ -174,7 +174,7 @@
 				<td><input type="text" name="note" ></td>
 			</tr>
 		</table>
-		<input type="hidden" name="ajax_standart_window" value="contact_face_new_form">
+		<input type="hidden" name="AJAX" value="contact_face_new_form">
 		<input type="hidden" name="parent_id" value="<?php echo $client_id; ?>">
 	</form>
 </div>
@@ -236,7 +236,7 @@
 			<td>Название</td>
 			<td>
 				<input type="text" name="company">
-				<input type="hidden" name="ajax_standart_window" value="create_client">
+				<input type="hidden" name="AJAX" value="create_client">
 				<input type="hidden" name="rate" value="0">
 			</td>
 		</tr>
@@ -252,7 +252,7 @@
 </div>
 <div id="new_person_type_req">
 	<form>
-		<input type="hidden" name="ajax_standart_window" value="new_person_type_req">
+		<input type="hidden" name="AJAX" value="new_person_type_req">
 		<table>
 			<tr>
 				<td>
@@ -277,7 +277,7 @@
 Укажите причину отказа от клиента:
 <form>
 	<textarea name="text" style="width:100%; height:100%;  min-height: 150px;"></textarea>
-	<input type="hidden" name="ajax_standart_window" value="client_delete">
+	<input type="hidden" name="AJAX" value="client_delete">
 	<input type="hidden" name="id" value="<?php echo $client_id; ?>">
 </form>
 

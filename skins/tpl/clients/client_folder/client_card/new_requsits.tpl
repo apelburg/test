@@ -87,7 +87,7 @@ input:hover,textarea:hover,textarea:focus, input:focus{
 </style>
 
 <form action="" id="create_requisits_form" onsubmit="return sendform_1()" name="form" method="POST">
-<input type="hidden" name="ajax_standart_window" value="create_new_requisites">
+<input type="hidden" name="AJAX" value="create_new_requisites">
 <table class="client_form_table" style="margin-top:15px;">
   <tr>
       <td></td>

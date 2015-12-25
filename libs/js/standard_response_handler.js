@@ -17,6 +17,9 @@
 			title = data['title'];// для генерации окна всегда должен передаваться title
 			var height = (data['height'] !== undefined)?data['height']:'auto';
 			var width = (data['width'] !== undefined)?data['width']:'auto';
+			console.log(Base64.decode(data['html']));
+			console.log(title);
+			
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
 			window_preload_del();
 		}
