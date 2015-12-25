@@ -262,6 +262,10 @@ var rtCalculator = {
 		}
 	}	
 	,
+	show_complite_saving_window:function(){
+		echo_message_js('изменения сохранены','system_message',800);
+	}
+	,
 	complite_input:function(){
 		// метод срабатывает либо при событие onblur в ячейках ввода данных для расчета ( тем самым он срабатывает когда ввод данных завершен
 		// либо при срабатывании таймера запускающегося при onkeyup в ячейке что позволяет отправлять данные из ячейки с некоторыим интервалом
@@ -270,6 +274,10 @@ var rtCalculator = {
 		if(rtCalculator.complite_timer){
 			 clearTimeout(rtCalculator.complite_timer);
 			 rtCalculator.complite_timer = null;
+		}
+		if(rtCalculator.complite_saving_window_timer){
+			 clearTimeout(rtCalculator.complite_saving_window_timer);
+			 rtCalculator.complite_saving_window_timer = null;
 		}
 		 
 		 // console.log('№'+(++rtCalculator.complite_count));
@@ -306,6 +314,9 @@ var rtCalculator = {
 		//alert(url);
 		function callback(){ 
 		    rtCalculator.changes_in_process = false;
+			//echo_message_js('изменения сохранены','system_message',800);
+			
+			rtCalculator.complite_saving_window_timer = setTimeout(rtCalculator.show_complite_saving_window,2000); 
 		    /*cell.className = cell.className.slice(0,cell.className.indexOf("active")-1);*/
 			// console.log(2);
 		}
@@ -712,6 +723,13 @@ var rtCalculator = {
 			// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
 			rtCalculator.change_html(response_obj.row_id);
 			
+			//echo_message_js('изменения сохранены','system_message',800);
+			if(rtCalculator.complite_saving_window_timer){
+				 clearTimeout(rtCalculator.complite_saving_window_timer);
+				 rtCalculator.complite_saving_window_timer = null;
+			}
+			rtCalculator.complite_saving_window_timer = setTimeout(rtCalculator.show_complite_saving_window,2000);
+			
 			rtCalculator.changes_in_process = false;
 	}
 	,
@@ -737,6 +755,13 @@ var rtCalculator = {
 		
 		// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
 		rtCalculator.change_html(row_id);
+		
+		//echo_message_js('изменения сохранены','system_message',800);
+		if(rtCalculator.complite_saving_window_timer){
+			 clearTimeout(rtCalculator.complite_saving_window_timer);
+			 rtCalculator.complite_saving_window_timer = null;
+		}
+		rtCalculator.complite_saving_window_timer = setTimeout(rtCalculator.show_complite_saving_window,2000);
 		
 		rtCalculator.changes_in_process = false;
 	}
@@ -953,7 +978,7 @@ var rtCalculator = {
 		function callback(response){ /*alert(response);*/
 			// вызываем метод производящий замену значений в HTML
 			rtCalculator.change_html(row_id);
-	
+	        //echo_message_js('изменения сохранены','system_message',800);
 			rtCalculator.expel_value_from_calculation.in_process = false;
 		}
 	}

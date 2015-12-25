@@ -215,29 +215,23 @@ var printCalculator = {
 		}
 		box.appendChild(tbl);
 		
+		
+		var BtnsDiv = document.createElement('DIV');
+		BtnsDiv.className = 'BtnsDiv';
 	    // кнопка добавления нового нанесения
 		var addNewPrintBtn = document.createElement('DIV');
 		addNewPrintBtn.id = 'calculatorAddNewPrintBtn';
-		addNewPrintBtn.style.border = '#CCC solid 1px';
-		addNewPrintBtn.style.margin = '20px 1px 1px 50px';
-		addNewPrintBtn.style.padding = '10px 20px';
-		addNewPrintBtn.style.width = '200px';
-		addNewPrintBtn.style.cursor = 'pointer';
 		addNewPrintBtn.innerHTML = 'Добавить еще место';
 		addNewPrintBtn.onclick =  function(){ 
 		    $("#calculatorDopUslugiBox").remove();
 		    printCalculator.evoke_calculator();
 	    };
-		box.appendChild(addNewPrintBtn);
+		BtnsDiv.appendChild(addNewPrintBtn);
+
 		
 		// кнопка удаления всех нанесений
 		var deleteAllPrinstBtn = document.createElement('DIV');
 		deleteAllPrinstBtn.id = 'calculatorDeleteAllPrinstBtn';
-		deleteAllPrinstBtn.style.border = '#CCC solid 1px';
-		deleteAllPrinstBtn.style.margin = '20px 1px 1px 50px';
-		deleteAllPrinstBtn.style.padding = '10px 20px';
-		deleteAllPrinstBtn.style.width = '200px';
-		deleteAllPrinstBtn.style.cursor = 'pointer';
 		deleteAllPrinstBtn.innerHTML = 'Удалить все места печати';
 		deleteAllPrinstBtn.onclick =  function(){ 
 		    $("#calculatorDeleteAllPrinstBtn").remove();
@@ -251,7 +245,8 @@ var printCalculator = {
 				location.reload();
 			}
 	    };
-		box.appendChild(deleteAllPrinstBtn);
+		BtnsDiv.appendChild(deleteAllPrinstBtn);
+		box.appendChild(BtnsDiv);
 		
 		
 		
@@ -332,6 +327,7 @@ var printCalculator = {
 			if(table){
 				
 				calculatorDataBox.appendChild(table);
+				
 			    var saveBtn = document.createElement('DIV'); 
 				saveBtn.className = 'distributionSaveBtn';
 				saveBtn.id = 'distributionSaveResultBtn';
@@ -518,10 +514,21 @@ var printCalculator = {
 			var dataArr = printCalculator.distributionData[printCalculator.currentCalculationData.print_details.place_id][printCalculator.currentCalculationData.print_details.print_id].trs;
 			 
 			var table = document.createElement('TABLE');
-			table.className="calculatorDistributionTbl";
+			table.id ="calculatorDistributionTbl";
 			
 		    for(var i =0; i < dataArr.length; i++){
-				//console.log(dataArr[i]);
+				console.log(dataArr[i]);
+				console.log(dataArr[i].tr.children[0]);
+               /* if(i ==0 ){
+				    var tr = document.createElement('tr');
+				    tr.innerHTML(dataArr[i].tr.innerHTML);
+					table.appendChild(tr);
+				}
+				else */
+				var td = document.createElement('td');
+				td.innerHTML = dataArr[i].tr.children[0].innerHTML;
+				dataArr[i].tr.removeChild(dataArr[i].tr.children[0]);
+				dataArr[i].tr.insertBefore(td,dataArr[i].tr.children[0]);;
 				table.appendChild(dataArr[i].tr);
 			}
 			return table;
@@ -688,7 +695,6 @@ var printCalculator = {
 		printCalculator.commonContainer.appendChild(mainCalculatorBox);
 		dialogBox.appendChild(printCalculator.commonContainer);
 		document.body.appendChild(dialogBox);
-		
 		
 		if(printCalculator.makeProcessingFlag) printCalculator.makeProcessing();
 		
