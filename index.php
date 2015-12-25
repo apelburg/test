@@ -13,7 +13,6 @@
 	include_once('libs/lock.php');
 
 	// aplStdClass
-	echo ROOT.'/../libs/php/classes/aplStdClass.php';
 	include_once ROOT.'/../libs/php/classes/aplStdClass.php';
 
 	include_once('libs/access_installer.php');
