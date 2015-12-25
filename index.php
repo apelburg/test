@@ -79,7 +79,7 @@
 	   include_once 'modules/agreement/router.php';
 	   break;
 	   
-	   case 'planner':include_once
+	   case 'planner':
 	   include_once 'modules/planner/router.php';
 	   break; 
 	 
