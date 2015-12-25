@@ -850,7 +850,7 @@
 			return $query_num;
 		}
 		
-		static function calcualte_query_summ($query_num){
+		static function calcualte_query_summ($query_num){// удалить этот метод вроде не должен нигде использоваться
 		    global $mysqli;   //print_r($data); 
 		    $query = "SELECT dop_data_tbl.id AS dop_data_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.expel AS expel,
 						  

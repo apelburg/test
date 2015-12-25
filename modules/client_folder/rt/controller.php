@@ -392,7 +392,8 @@
 						   <td type="delta" class="delta right">'.$delta_format.'</td>
 						   <td width="10" class="left">'.$currency.'</td>
 						   <td type="margin" class="margin center">'.$margin_format.$margin_currency.'</td>
-						   <td raschet_status="1" style="position: relative;overflow:hidden;white-space: nowrap;"  tooltip="'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>
+						  <!-- <td raschet_status="1" style="position: relative;overflow:hidden;white-space: nowrap;"  tooltip="'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>-->
+						<td></td>
 						</tr>';
 			 // загружаем сформированный ряд в итоговый массив
 		     $tbl_rows[]= $cur_row;
@@ -453,7 +454,7 @@
 				  <td class="delta right">delta</td>
 				  <td width="10"></td>
 				  <td class="margin center">маржина-<br>льность</td>
-				  <td>статус</td>';              
+				  <td><!--статус--></td>';              
 	    $rt.= '</tr>
 	           <tr row_id="total_row" class="grey bottom_border">
 			      <td width="30" height="18"></td>
