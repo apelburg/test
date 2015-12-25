@@ -18,15 +18,15 @@
         <td colspan="2">
             <table class="table_2">
                 <tr>
-                    <td><span id="type-msk">Дом</span></td>
+                    <td><span class="type-msk">Дом</span></td>
                     <td><input type="text" name="house_number" value=""></td>
-                    <td><span id="type-msk">Корпус</span></td>
+                    <td><span class="type-msk">Корпус</span></td>
                     <td><input type="text" name="korpus" value=""></td>
-                    <td><span id="type-msk">Офис</span></td>
+                    <td><span class="type-msk">Офис</span></td>
                     <td><input type="text" name="office" value=""></td>
-                    <td><span id="type-msk">Литера</span></td>
+                    <td><span class="type-msk">Литера</span></td>
                     <td><input type="text" name="liter" value=""></td>
-                    <td><span id="type-msk">Строение</span></td>
+                    <td><span class="type-msk">Строение</span></td>
                     <td><input type="text" name="bilding" value=""></td>
                 </tr>
             </table>
@@ -47,3 +47,4 @@
     </tr>
 </table>
 <input type="hidden" name="adress_type" value="office">
+

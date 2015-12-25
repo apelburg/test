@@ -115,10 +115,9 @@ class Client extends aplStdAJAXMethod{
 
 		## данные POST
 		if(isset($_POST['AJAX'])){
-			global $client_id;
-			global $user_id;
 			// получаем данные пользователя
 			$User = $this->getUserDatabase($this->user_id);
+			
 			$this->user_last_name = $User['last_name'];
 			$this->user_name = $User['name'];
 
@@ -356,11 +355,10 @@ class Client extends aplStdAJAXMethod{
 
 		    $query = "DELETE FROM " . constant($tbl) . " WHERE `id`= '" . $id_row . "'";
 		    $result = $this->mysqli->query($query) or die($this->mysqli->error);
-		    echo '{
-				"response":"1",
-				"text":"Данные успешно удалены"
-			}';
-		    exit;
+		    
+			$html = 'Данные успешно удалены';
+			$this->responseClass->addMessage($html,'successful_message');
+		    // exit;
 		}
 		protected function add_new_adress_row_AJAX() {
 		    //-- START -- //  логирование
@@ -389,18 +387,32 @@ class Client extends aplStdAJAXMethod{
 				;";
 				        
 		    $result = $this->mysqli->query($query) or die($this->mysqli->error);
-		    echo $this->mysqli->insert_id;
-		    exit;
+		    // echo $this->mysqli->insert_id;
+
+		    $html = 'Данные добавлены';
+			$this->responseClass->addMessage($html,'successful_message');
+
+			$this->responseClass->addResponseFunction('edit_general_info');
+		    // exit;
 		}
-				    
+		
+		// окно добавления адреса	    
 		protected function new_adress_row_AJAX() {
 		    ob_start();
 		    include ('./skins/tpl/clients/client_folder/client_card/new_adres.tpl');
-		    $content = ob_get_contents();
+		    $html = ob_get_contents();
+		    foreach ($_POST as $key => $value) {
+		    	$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+		    }
+		    $html .= '<input type="hidden" name="AJAX" value="add_new_adress_row">';
 		    ob_get_clean();
-		    echo $content;
-		    exit;
+		    // echo $content;
+		    // добавляем окно
+			$this->responseClass->addPostWindow($html,'Заведение нового адреса',array('width' => '1000'));
 		}
+
+
+
 				    
 		protected function add_new_phone_row_AJAX() {
 				        
@@ -761,12 +773,14 @@ class Client extends aplStdAJAXMethod{
 			Client::remove_curator($client_id,$manager_id);
 			//-- START -- //  логирование
 			$client_name_i = Client::get_client_name($client_id); // получаем название клиента
-			$manager_name_i = Client::get_manager_name($manager_id);// получаем Фамилию Имя менеджера
+			$User = $this->getUserDatabase($manager_id);// получаем Фамилию Имя менеджера
+			$manager_name_i = $User['name'].' '.$User['last_name'];
 			$user_n = $this->user_name.' '.$this->user_last_name;
 			$text_history = $user_n.' удалил куратора '.$manager_name_i.' у клиента '.$client_name_i;
 			Client::history($this->user_id, $text_history ,'remove_curator',$_GET['client_id']);
 			//-- END -- //  логирование
-			exit;
+			$html = 'Куратор удален';
+			$this->responseClass->addMessage($html,'system_message');
 		}
 		
 		protected function new_person_type_req_AJAX() {

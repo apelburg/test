@@ -235,42 +235,22 @@ $(function() {
 //
 //      АДРЕС  
 //
-
 // СОЗДАНИЕ НОВОГО АДРЕСА
 $(document).on('click', '.button_add_new_row.adres_row', function(event) {
-    var prepend_s = $(this).parent().parent();
-    
-    var html = '<img src="http://www.os1.ru/os/skins/images/img_design/preloader.gif" >'; 
-    var tbl = $(this).attr('data-tbl');
-    new_html_modal_window_new(html,'Добавить адрес','greate','add_new_adress_row', '', tbl);
-    $.post('', {AJAX: 'new_adress_row' }, function(data, textStatus, xhr) {
-        $('.html_modal_window_body').html(data);  
-        $('.html_modal_window form input:nth-of-type(1)').focus();
-        //выравниваем окно
-        $('.html_modal_window').animate({marginTop:$('.html_modal_window').innerHeight()/2*(-1)},200);
-    });
-    //добавляем поле для передачи parent_id
-    $(".html_modal_window form").append('<input type="hidden" name="parent_id" value="'+  $('#chenge_name_company').attr('data-idrow') +'" >');
-    //ОБРАБОТКА КЛИКОВ НА ЗЕЛЕНЫЕ КНОПКИ СТАНДАРТНОГО МОДАЛЬНОГО ОКНА
-    $('.ok_bw, .send_bw, .greate_bw, .save_bw').click( function(event) {
-        //отправляем, если это создание новой строки адреса
-        if($('.html_modal_window form input[name="AJAX"]').val()=="add_new_adress_row"){
-            var str = $('.html_modal_window form').serialize();
-            $.post('', str, function(data, textStatus, xhr) {
-                if (!isNaN(data)){//если вернулось число
-                    //скорее всего вернулся id
-                    //копируем соседнее поле
-                    var html2 = '<tr><td>Адрес</td><td><div class="edit_row edit_adress_row del_text" data-tableName="CLIENT_ADRES_TBL" data-editType="input" data-adress-id="'+data+'" data-button-name-window="save">'+get_adress_info_form()+'</div></td></tr>';
-                    prepend_s.before(html2);
-                    $('#bg_modal_window,.html_modal_window').remove();
-                }else{
-                    //сообщаем, что что-то пошло не так
-                    new_html_modal_window_new('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
-                }
-            });   
-        }
-    });
+    $.post('', {
+        AJAX: 'new_adress_row',
+        tbl:$(this).attr('data-tbl'),
+        parent_id:$('#chenge_name_company').attr('data-idrow')
+    }, function(data, textStatus, xhr) {       
+        standard_response_handler(data);
+    },'json');
 });
+
+function edit_general_info(data){
+    $("#edit_general_info").load(" #edit_general_info");
+}
+
+
 
 // РЕДАКТИРОВАНИЕ ДОПОЛНИТЕЛЬНОЙ ИНФОРМАЦИИ ПО КЛИЕНТУ
 $(document).on('dblclick','#client_dop_information', function(){
@@ -318,7 +298,7 @@ $(function(){
 });
 
 
-// РЕДАКТИРОВАНИЕ АДРЕСА
+// РЕДАКТИРОВАНИЕ АДРЕСА _old
 $(document).on('dblclick', '.edit_adress_row', function(event) {
     var name_window = $(this).parent().prev().html();
     var element = $(this);
@@ -332,7 +312,10 @@ $(document).on('dblclick', '.edit_adress_row', function(event) {
 
     
     //получаем контент для редактирования адреса
-    $.post('', {AJAX: 'get_adres', id_row: id_row }, function(data, textStatus, xhr) {
+    $.post('', {
+        AJAX: 'get_adres', 
+        id_row: id_row 
+    }, function(data, textStatus, xhr) {
         $('.html_modal_window_body').html(data);  
         $('.html_modal_window form input:nth-of-type(1)').focus();
         $('.html_modal_window').animate({marginTop:$('.html_modal_window').innerHeight()/2*(-1)},200);      
@@ -345,7 +328,7 @@ $(document).on('dblclick', '.edit_adress_row', function(event) {
 
 // ВЫБОР ТИПА АДРЕСА    адрес офиса/адрес доставки
 $(document).on('click','.type_adress',function(event) {    
-    $('.html_modal_window form input[name="adress_type"]').val($(this).attr('data-type'));
+    $('#dialog_gen_window_form form input[name="adress_type"]').val($(this).attr('data-type'));
     $('.type_adress').removeClass('checked');
     $(this).addClass('checked');
 });
@@ -368,12 +351,11 @@ $(document).on('click', '.edit_general_info #del_text', function(event) {
             id_row : id_row ,
             tbl : tbl
         }, function(data, textStatus, xhr) {            
-            if(data['response']=='1'){
+            if(data['response']=='OK'){
                 $('#bg_modal_window,.html_modal_window').remove();
                 del_div.parent().parent().remove();
-            }else{
-                new_html_modal_window_new('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
             }
+            standard_response_handler(data);
         }, "json");
     });
 });
@@ -776,8 +758,8 @@ $(document).on('click','.del_curator',function(){
     AJAX: 'remove_curator',
     id:id
   }, function(data, textStatus, xhr) {
-    /*optional stuff to do after success */
-  });
+    standard_response_handler(data);
+  },'json');
 });
 
 //ВЫБОР КУРТОРА... добавление к тегу класса выбора

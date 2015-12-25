@@ -1,21 +1,46 @@
 <?php
 // echo "hellow world<br>";
-class Supplier{
-	#################################
-	###         СВОЙСТВА          ###
-	#################################
+class Supplier extends aplStdAJAXMethod{
+	
 	// содержит название и пути к изображениям для каждого типа контактных данных
-		static $array_img = array('email'=>'<img src="skins/images/img_design/social_icon1.png" >','skype' => '<img src="skins/images/img_design/social_icon2.png" >','isq' => '<img src="skins/images/img_design/social_icon3.png" >','twitter' => '<img src="skins/images/img_design/social_icon4.png" >','fb' => '<img src="skins/images/img_design/social_icon5.png" >',
-	'vk' => '<img src="skins/images/img_design/social_icon6.png" >','other' => '<img src="skins/images/img_design/social_icon7.png" >');
+	static $array_img = array(
+		'email'=>'<img src="skins/images/img_design/social_icon1.png" >',
+		'skype' => '<img src="skins/images/img_design/social_icon2.png" >',
+		'isq' => '<img src="skins/images/img_design/social_icon3.png" >',
+		'twitter' => '<img src="skins/images/img_design/social_icon4.png" >',
+		'fb' => '<img src="skins/images/img_design/social_icon5.png" >',
+		'vk' => '<img src="skins/images/img_design/social_icon6.png" >',
+		'other' => '<img src="skins/images/img_design/social_icon7.png" >'
+		);
 
-	#################################
-	###          МЕТОДЫ           ###
-	#################################
 
-	######################################################
-	###   НЕ УНИФИЦИРОВАННЫЕ (УЗКОНАПРАВЛЕННЫЕ) МЕТОДЫ ###
-	######################################################
 	public function __construct($id) {
+		// подключение к базе
+		$this->db();
+
+		$this->user_id = isset($_SESSION['access']['user_id'])?$_SESSION['access']['user_id']:0;
+		$this->user_access = $this->get_user_access_Database_Int($this->user_id);
+
+
+		## данные POST
+		if(isset($_POST['AJAX'])){
+			// получаем данные пользователя
+			$User = $this->getUserDatabase($this->user_id);
+			
+			$this->user_last_name = $User['last_name'];
+			$this->user_name = $User['name'];
+
+			$this->_AJAX_($_POST['AJAX']);
+		}
+
+
+		if($id > 0){
+			$this->get_object($id);
+		}
+	}
+
+	// собираем объект поставщика
+	private function get_object($id){
 		global $mysqli;		
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".SUPPLIERS_TBL."` WHERE `id` = '".(int)$id."'";
@@ -32,6 +57,7 @@ class Supplier{
 		$this->cont_company_other = (isset($arr['other']))?$arr['other']:'';
 	}
 
+	// получаем полный список поставщиков
 	static function get_all_suppliers_Database_Array(){
 		global $mysqli;		
 		//получаем данные из основной таблицы

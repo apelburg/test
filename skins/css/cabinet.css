@@ -25,9 +25,18 @@ input, textarea, label{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, 
 #cabinet_general_content table tr td.each_art{ 
 	padding-top: 0;
 	padding-left: 0;
-	d
+	
 }
 
+.grey_row_style td,td.class_no_calc{
+	background: #f1f1f1;
+}
+td.class_no_calc{
+	color: red;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl tr.query_detail.grey_row_style td:nth-of-type(7){
+	color: red;
+}
 #cabinet_general_content  table tr.cab_position_div td{ border:none; padding: 2px}
 /*#cabinet_general_conten table trt .cab_position_div tr:hover td,*/
 /*#general_panel_orders_t table trbl tr.position-row:hover td{ background-color: #f1f1f1; cursor: default;}*/

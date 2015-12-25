@@ -24,7 +24,7 @@
 
 	
 	// галлерея
-	include_once ROOT.'/libs/php/classes/rt_KpGallery.class.php';
+	include_once ROOT.'/libs/php/classes/rt_KPGallery.class.php';
 	new rtKpGallery;
 
 	

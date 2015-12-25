@@ -10,7 +10,8 @@
 			// запросы
 			'query_wait_the_process' => 'Ожидают распределения',
 			'no_worcked_men' => 'Ожидают обработки',
-			'query_taken_into_operation' => 'В обработке',
+			// 'query_taken_into_operation' => 'В обработке',
+			'query_taken_into_operation' => 'На рассмотрении',
 			'query_worcked_men' => 'В работе Sales',
 			'query_worcked_snab' => 'Работа Snab',
 			'query_history' => 'История',

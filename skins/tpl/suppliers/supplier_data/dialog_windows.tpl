@@ -54,7 +54,7 @@
 					</select>
 				</td>
 				<td><input type="text" name="input_text" id="input_text"></td>
-				<input type="hidden" name="ajax_standart_window" value="add_new_other_row">
+				<input type="hidden" name="AJAX" value="add_new_other_row">
 				<!-- <input type="hidden" name="type" id="new_other_row_infoType_input"> -->
 				<input type="hidden" name="client_id" value="<?php echo $supplier_id; ?>">
 				<input type="hidden" name="parent_tbl" value="">

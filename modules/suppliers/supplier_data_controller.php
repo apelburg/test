@@ -21,9 +21,9 @@
 	$view_button = '<div class="quick_view_button_div"><a href="#11" class="button">&nbsp;</a></div>';
 
 	/////////////////////////////////// AJAX //////////////////////////////////////
-	if(isset($_POST['ajax_standart_window'])){
+	if(isset($_POST['AJAX'])){
 
-		if($_POST['ajax_standart_window']=="client_delete"){
+		if($_POST['AJAX']=="client_delete"){
 			//-- START -- //  логирование
 	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
 	        $user_n = $user_name.' '.$user_last_name;
@@ -46,7 +46,7 @@
 		  	}			
 			exit;
 		}
-		if ($_POST['ajax_standart_window'] == "edit_adress_row") {
+		if ($_POST['AJAX'] == "edit_adress_row") {
 	        $id_row = $_POST['id'];
 	        $tbl = "CLIENT_ADRES_TBL";
 	        //-- START -- //  логирование
@@ -78,7 +78,7 @@
 	        exit;
 	    }
 
-		if($_POST['ajax_standart_window']=="add_new_phone_row"){
+		if($_POST['AJAX']=="add_new_phone_row"){
 			//-- START -- //  логирование
 	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
 	        $user_n = $user_name.' '.$user_last_name;
@@ -98,7 +98,7 @@
 			exit;
 		}
 		
-		if($_POST['ajax_standart_window']=="update_reiting_cont_face"){
+		if($_POST['AJAX']=="update_reiting_cont_face"){
 			$query = "UPDATE  `".SUPPLIERS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo '{
@@ -107,7 +107,7 @@
 			      }';
 			exit;
 		}
-		if($_POST['ajax_standart_window']=="show_cont_face_in_json"){
+		if($_POST['AJAX']=="show_cont_face_in_json"){
 			$query = "SELECT * FROM `".SUPPLIERS_CONT_FACES_TBL."` WHERE `id` = '".$_POST['id']."'";
 			$arr = array();
 			// echo $query;exit;
@@ -123,7 +123,7 @@
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="contact_face_edit_form"){
+		if($_POST['AJAX']=="contact_face_edit_form"){
 			$tbl = "SUPPLIERS_CONT_FACES_TBL";
 			$id_row = $_POST['id'];
 			//-- START -- //  логирование
@@ -150,7 +150,7 @@
 		}
 
 
-		if($_POST['ajax_standart_window']=="contact_face_new_form"){
+		if($_POST['AJAX']=="contact_face_new_form"){
 			$tbl = "SUPPLIERS_CONT_FACES_TBL";
 			//-- START -- //  логирование
 	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
@@ -177,7 +177,7 @@
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="delete_cont_face_row"){
+		if($_POST['AJAX']=="delete_cont_face_row"){
 
 			$id_row = $_POST['id'];
 			$tbl = "SUPPLIERS_CONT_FACES_TBL";
@@ -198,7 +198,7 @@
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="edit_client_dop_information"){
+		if($_POST['AJAX']=="edit_client_dop_information"){
 			$tbl = "SUPPLIERS_TBL";
 			$id_row = $_POST['id'];
 			//-- START -- //  логирование
@@ -223,13 +223,13 @@
 		      }';
 			exit;
 		}
-		if($_POST['ajax_standart_window']=="remove_curator"){
+		if($_POST['AJAX']=="remove_curator"){
 			$query = "DELETE FROM `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` WHERE `supplier_id` = '".$_GET['suppliers_id']."' AND `activity_id` = '".$_POST['id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo "Delete OK";
 			exit;
 		}
-		if($_POST['ajax_standart_window']=="delete_dop_cont_row"){
+		if($_POST['AJAX']=="delete_dop_cont_row"){
 			
 			$id_row = $_POST['id'];
 			$tbl = "CONT_FACES_CONTACT_INFO_TBL";
@@ -246,7 +246,7 @@
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="chenge_name_company"){
+		if($_POST['AJAX']=="chenge_name_company"){
 			$id = $_POST['id'];
 			$tbl = $_POST['tbl'];
 			$company = $_POST['company'];
@@ -268,7 +268,7 @@
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="chenge_fullname_company"){
+		if($_POST['AJAX']=="chenge_fullname_company"){
 			$id = $_POST['id'];
 			$tbl = $_POST['tbl'];
 			$company = $_POST['company'];
@@ -289,7 +289,7 @@
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="new_adress_row"){
+		if($_POST['AJAX']=="new_adress_row"){
 			ob_start();
 			include('./skins/tpl/suppliers/supplier_data/new_adres.tpl');
 			$content = ob_get_contents();
@@ -298,7 +298,7 @@
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="get_adres"){
+		if($_POST['AJAX']=="get_adres"){
 			$id_row = $_POST['id_row'];
 			$tbl = "CLIENT_ADRES_TBL";
 			$query = "SELECT * FROM ".constant($tbl)." WHERE `id` = '".$id_row."'";
@@ -318,7 +318,7 @@
 			exit;
 		}
 
-		if($_POST['ajax_standart_window']=="add_new_adress_row"){
+		if($_POST['AJAX']=="add_new_adress_row"){
 			$tbl = 'CLIENT_ADRES_TBL';
 			$query = "";
 			$adres_type = (isset($_POST['adress_type']) && $_POST['adress_type']!="")?$_POST['adress_type']:'office';
@@ -344,7 +344,7 @@
 
 		
 
-		if($_POST['ajax_standart_window']=="add_new_other_row"){
+		if($_POST['AJAX']=="add_new_other_row"){
 			//-- START -- //  логирование
 	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
 	        $user_n = $user_name.' '.$user_last_name;
@@ -365,7 +365,7 @@
 			echo $mysqli->insert_id;			
 			exit;
 		}
-		if($_POST['ajax_standart_window']=="get_suppliers_profile"){
+		if($_POST['AJAX']=="get_suppliers_profile"){
 			$query = "SELECT * FROM  `".SUPPLIERS_ACTIVITIES_TBL."` ORDER BY  `name` ASC ";
 			$result = $mysqli->query($query) or die($mysqli->error);
 	        if ($result->num_rows > 0) {
@@ -410,7 +410,7 @@
 
 		}
 
-		if ($_POST['ajax_standart_window'] == "update_profile_list_for_supplier") {
+		if ($_POST['AJAX'] == "update_profile_list_for_supplier") {
         global $mysqli;
         $suppliers_id = $_GET['suppliers_id'];
         $json = $_POST['profile_id'];
@@ -438,7 +438,7 @@
 
 
     	}
-		if($_POST['ajax_standart_window']=="delete_adress_row"){
+		if($_POST['AJAX']=="delete_adress_row"){
 			
 			$id_row = $_POST['id_row'];
 			$tbl = $_POST['tbl'];
@@ -552,7 +552,7 @@
 		ob_get_clean();
 		// AJAX
 		// на случай выдачи контента только с контактными лицами
-		if(isset($_POST['ajax_standart_window']) && $_POST['ajax_standart_window']=="get_empty_cont_face"){
+		if(isset($_POST['AJAX']) && $_POST['AJAX']=="get_empty_cont_face"){
 			echo $supplier_content_contact_faces;
 			exit;
 		}

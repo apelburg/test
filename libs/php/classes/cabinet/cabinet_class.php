@@ -5274,13 +5274,22 @@
 
 
 				// стоимость товара
-				$this->Price_for_the_goods = $this->money_format( $position['price_out'] * ($position['quantity']+$position['zapas']) );
+				// echo $price_for_the_goods.'<br>';
+				$price_for_the_goods = $position['price_out'] * ($position['quantity'] + $position['zapas']);
+				
+				$this->Price_for_the_goods = $this->money_format( $price_for_the_goods );
+				
 				// стоимость услуг печати
-				$this->Price_of_printing = $this->money_format( $this -> calc_summ_dop_uslug($dop_usl_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity'])) );
+				$price_of_printing = $this -> calc_summ_dop_uslug($dop_usl_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity']));
+				$this->Price_of_printing = $this->money_format( $price_of_printing );
+				
 				// стоимость услуг не относящихся к печати
-				$this->Price_of_no_printing = $this->money_format( $this->calc_summ_dop_uslug($dop_usl_no_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity'])) );
+				$price_of_no_printing = $this->calc_summ_dop_uslug($dop_usl_no_print,(($position['print_z']==1)?$position['quantity']+$position['zapas']:$position['quantity']));
+				$this->Price_of_no_printing = $this->money_format( $price_of_no_printing );
+				
 				// общаяя цена позиции включает в себя стоимость услуг и товара
-				$this->Price_for_the_position = $this->money_format( $this->Price_for_the_goods + $this->Price_of_printing + $this->Price_of_no_printing );
+				$this->price_for_the_position = $price_for_the_goods + $price_of_printing + $price_of_no_printing;
+				$this->Price_for_the_position = $this->money_format( $this->price_for_the_position );
 					
 
 			////////////////////////////////////

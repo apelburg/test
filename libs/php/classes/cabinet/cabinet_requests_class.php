@@ -331,6 +331,8 @@
 					
 					// если это первая строка нового запроса, выводим строку названий колонок вариантов
 					if(isset($this->positions_arr[$this->Query['query_num']])){
+						$this->price_for_the_position_ITOGO = 0;
+
 						if($this->query_num != $this->Query['query_num']){
 							$html .= $this->get_header_start_position_list_tr();
 						}
@@ -343,7 +345,16 @@
 							////////////////////////////////////
 							//	Расчёт стоимости позиций START  
 							////////////////////////////////////
-							$this->GET_PRICE_for_position($this->position);				
+							$this->GET_PRICE_for_position($this->position);	
+
+							$this->position['calc'] = true;
+							$expel_arr = json_decode(($this->position['expel']!='')?$this->position['expel']:'{}',true);
+							if(!isset($expel_arr['main'])){
+								$this->position['calc'] = false;
+								$this->price_for_the_position_ITOGO += $this->price_for_the_position;
+							}
+
+							
 							
 							//////////////////////////
 							//	собираем строки вариантов по каждой позиции
@@ -367,7 +378,7 @@
 					
 
 					// выделяем красным текстом если менеджер не взял запрос в обработку в течение 5 часов
-					$this->overdue = (($this->Query['time_attach_manager_sec']*(-1)>18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
+					$this->overdue = (($this->Query['time_attach_manager_sec']*(-1) > 18000)?'style="color:red"':''); // если мен не принял заказ более 5ти часов
 					// если в массиве $_POST содержится значение, значит мы запрашиваем только одну строку и подставляем значение из массива
 					
 						//////////////////////////
@@ -419,7 +430,9 @@
 			$html .= '<td></td>';
 			$html .= '<td><span data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span></td>';
 			
-			$html .='<td>'.RT::calcualte_query_summ($this->Query['query_num']).'</td>';
+			// $rrr = RT::calcualte_query_summ($this->Query['query_num']);
+			$rrr = $this->price_for_the_position_ITOGO;
+			$html .='<td td="'.$rrr.'">'.$rrr.'</td>';
 			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.' '.(($this->user_access == 1)?'query_status':'').'">'.$this->status_or_button.'</td>';
 			return $html;
 		}
@@ -450,14 +463,25 @@
 
 		// шаблон строки варианта позиции
 		protected function position_dop_data_Temp($Query, $position){
-			$html = '<tr data-id_dop_data="'.$position['id_dop_data'].'" class="'.$position['type'].'_1 query_detail" '.$this->open_close_tr_style.'">';
+			// подкрашиваем серые строки
+			$grey_row_style = ($position['row_status'] == 'grey')?' grey_row_style':'';
+
+			$html = '<tr data-id_dop_data="'.$position['id_dop_data'].'" class="'.$position['type'].'_1 query_detail '.$grey_row_style.'" '.$this->open_close_tr_style.'">';
+				// $html .= '<td>'.$position['id_dop_data'].$this->print_arr($Query).'</td>';
 				$html .= '<td>'.$position['art'].'</td>';
-				$html .= '<td><a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Query['client_id'].'&section=rt_position&id='.$position['id'].'">'.$position['name'].'</a> <span class="greyText"> вар '.$this->name_count++.'</span></td>';
+				$html .= '<td><a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Query['client_id'].'&section=rt_position&id='.$position['id'].'&varID_checked='.$position['id_dop_data'].'">'.$position['name'].'</a> <span class="greyText"> вар '.$this->name_count++.'</span></td>';
 				$html .= '<td>'.$position['quantity'].'</td>';
 				$html .= '<td>'.$this->Price_for_the_goods.'</td>';
 				$html .= '<td>'.$this->Price_of_printing.'</td>';
 				$html .= '<td>'.$this->Price_of_no_printing.'</td>';
-				$html .= '<td>'.$this->Price_for_the_position.'</td>';
+				
+				$title = $class_no_calc = '';
+				if($position['calc']){
+					$title = "Данная позиция не учавствует в итоговом расчёте";
+					$class_no_calc = 'class_no_calc';
+				}
+
+				$html .= '<td title="'.$title.'" class="'.$class_no_calc.'">'.$position['calc'].' ' .$this->Price_for_the_position.'</td>';
 
 				$status_snab = ($Query['status'] != 'new_query')?$this->show_cirilic_name_status_snab($position['status_snab']):'';
 				$html .= '<td data-type="'.$position['type'].'" data-status="'.$position['status_snab'].'" class="'.$position['status_snab'].'_'.$this->user_access.' '.$Query['status'].'_status_snab_'.$this->user_access.'">'.$status_snab.'</td>';
@@ -505,7 +529,9 @@
 				SELECT 
 					`".RT_DOP_DATA."`.`id` AS `id_dop_data`,
 					`".RT_DOP_DATA."`.`quantity`,	
-					`".RT_DOP_DATA."`.`price_out`,		
+					`".RT_DOP_DATA."`.`price_out`,
+					`".RT_DOP_DATA."`.`row_status`,
+					`".RT_DOP_DATA."`.`expel`,		
 					`".RT_DOP_DATA."`.`print_z`,	
 					`".RT_DOP_DATA."`.`zapas`,	
 					`".RT_DOP_DATA."`.`status_snab`,	
@@ -528,7 +554,7 @@
 			if($this->filtres_position_sort != ''){
 				$query .= " ".$this->filtres_position_sort;
 			}else{
-				$query .= " ORDER BY `".RT_MAIN_ROWS."`.`type` DESC";
+				$query .= " ORDER BY `".RT_MAIN_ROWS."`.`id` DESC";
 			}
 
 

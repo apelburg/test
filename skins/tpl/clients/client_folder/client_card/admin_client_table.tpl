@@ -5,7 +5,7 @@
 	<table class="client_table_gen">
     	<tr>            
         	<td>
-            	<table class="edit_general_info">
+            	<table class="edit_general_info" id="edit_general_info">
                 	<tr>
                     	<td>Название</td>
                     	<td>

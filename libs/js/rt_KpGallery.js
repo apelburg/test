@@ -16,7 +16,8 @@
         	'id'        	: data['id'],
         	'folder_name'	: data['folder_name']
         },
-        'buttonText': 'Загрузить',
+        'buttonText': 'Загрузить новое изображение',
+        'width': 250,
         'swf'      	: '../libs/php/uploadify.swf',
         'uploader' 	: '',
         'multi'     : false,

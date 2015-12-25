@@ -421,8 +421,8 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				
 				$timestamp = time();
 				$token = md5('unique_salt' . $timestamp);
-				$html .= '<h1>Загрузка изображений</h1>
-						<form>
+				// $html .= '<h1>Загрузка изображений</h1>';
+				$html .= '<form>
 							<div id="queue"></div>
 							<input id="'.$token.'" data-folder_name="'.$folder_name.'" name="file_upload" type="file" multiple="true">
 
@@ -443,7 +443,8 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				$options['width'] = 1200;
 				$options['button_name'] = 'Сохранить';
 
-				$this->responseClass->addPostWindow($html,'Загрузить изображение',$options);
+				$title = 'Выберите изображение для позиции';
+				$this->responseClass->addPostWindow($html,'Выберите изображение для позиции',$options);
 				// запустим функцию JS и передадим ей новый id
 				$options = array();
 				$options['id'] = $rt_id;

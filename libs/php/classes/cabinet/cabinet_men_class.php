@@ -6,7 +6,8 @@
 		public $menu_name_arr = array(
 		// Запросы
 		'no_worcked_men' => 'Не обработанные',
-		'query_taken_into_operation' => 'В обработке',
+		// 'query_taken_into_operation' => 'В обработке',
+		'query_taken_into_operation' => 'На рассмотрении',
 		'query_worcked_men' => 'В работе',
 		'send_to_snab' => 'Отправлено в Snab',
 		'query_worcked_snab' => 'В работе Snab',
