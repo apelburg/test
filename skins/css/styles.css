@@ -1691,9 +1691,10 @@ ul#central_menu li a:hover,ul#central_menu li.selected a { color: #fff;   backgr
 #showProcessingDetailsBox .calculatorTotalDetails{ margin-top:3px; font-size: 10px ; }
 #calculatorDialogBox .rtCalculatorBlockA{margin-top:-21px ; border: #99FFCC solid 0px;}
 #calculatorDialogBox .rtCalculatorBlockB{ height:350px; overflow-y:auto; border: #FFFF00  solid 0px; overflow-y: auto;}
-#showProcessingDetailsBox .calculatorPriceTbl{ border-collapse:collapse; margin-bottom: 20px;}
+#showProcessingDetailsBox .calculatorPriceTbl{ border-collapse:collapse; width:100%; margin-bottom: 20px;}
 #showProcessingDetailsBox .calculatorPriceTbl tr:first-of-type td{ font-size: 11px;border: #DDD  solid 1px; text-align:center;}
 #showProcessingDetailsBox .calculatorPriceTbl td{ font-size: 11px;border: #DDD  solid 1px; text-align:right; padding: 3px 2px;}
+#showProcessingDetailsBox .calculatorPriceTbl td:first-of-type { text-align:center;}
 #showProcessingDetailsBox .cap{ color:#777;margin-bottom: 2px;}
 #calculatorDialogBox .calculatorMenuCell { float:left; padding:6px 40px; color:#000000; border-left: 1px solid #8b8a89; background-color:#99B52A}
 #calculatorDialogBox .deepGreyBg { background-color:#6D6E73; color:#FFFFFF; } 
@@ -2666,6 +2667,9 @@ div#apl-notification_center li{
 }
 div#apl-notification_center li.system_message{
     background-color: #ffc40d;
+}
+div#apl-notification_center li.rt_message{
+    background-color: #DBDE31;
 }
 div#apl-notification_center li.error_message{
     background-color: red;

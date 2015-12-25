@@ -623,10 +623,13 @@ var rtCalculator = {
 				 for(var index in response_obj.print.lackOfQuantity){
 					 str += (parseInt(index)+1)+'). '+response_obj.print.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.print.lackOfQuantity[index].minQuantity+"<br>";  
 				 }
-				 var dialog = $('<div>Тираж  меньше минимального тиража для нанесения(ний):<br>'+str+'стоимость будет пересчитана как для минимального тиража</div>');
+				/* var dialog = $('<div>Тираж  меньше минимального тиража для нанесения(ний):<br>'+str+'стоимость будет пересчитана как для минимального тиража</div>');
 				 $('body').append(dialog);
 				 $(dialog).dialog({modal: true, width: 500,minHeight : 200, buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}]});
-				 $(dialog).dialog('open');
+				 $(dialog).dialog('open');*/
+				 var text = 'Тираж  меньше минимального тиража для нанесения(ий):<br><br>'+str+'<br>стоимость будет пересчитана как для минимального тиража';
+				 
+				 echo_message_js(text,'rt_message',5400);
 				 
 				 //alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
 			}
@@ -1527,7 +1530,7 @@ var rtCalculator = {
 			var data = JSON.parse(response);
 			// alert(data[0]);
 			if(data[0]==0){
-				alert(data[1]);
+				echo_message_js(data[1],'system_message',2400);
 				return;
 			}/**/
 			location.reload();
@@ -1876,7 +1879,11 @@ var rtCalculator = {
 	    //return;
 		
 		if(nothing || more_then_one || less_then_one){
-			if(nothing) alert('не возможно создать спецификацию,\rвы не выбрали ни одной товарной позиции\r\rнеобходимо:\r1). отметить нужный товар галочкой в мастер-кнопке\r2). выделить один расчет для данного товара, выставив суперзеную кнопку в светофоре');
+			if(nothing){ 
+			    //alert('не возможно создать спецификацию,\rвы не выбрали ни одной товарной позиции\r\rнеобходимо:\r1). отметить нужный товар галочкой в мастер-кнопке\r2). выделить один расчет для данного товара, выставив суперзеную кнопку в светофоре');
+			    var text = 'не возможно создать спецификацию, вы не выбрали ни одной товарной позиции<br>необходимо:<br>1). отметить нужный товар галочкой в мастер-кнопке<br>2). выделить один расчет для данного товара, выставив суперзеную кнопку в светофоре';
+			    echo_message_js(text,'system_message',20000);
+			}
 			else if(more_then_one){
 				var alertStrObj ={};
 				var alertStrArr =[];
@@ -1886,9 +1893,13 @@ var rtCalculator = {
 				for(var i in alertStrObj){
 					alertStrArr.push(alertStrObj[i]);
 				}
-				alert('не возможно создать спецификацию,\rвыбрано более одного варианта расчета в рядах:\r\n'+alertStrArr.join(''));
+				var text = 'не возможно создать спецификацию,<br>выбрано более одного варианта расчета в рядах:<br>'+alertStrArr.join('');
+			    echo_message_js(text,'system_message',20000);
 			}
-			else if(less_then_one) alert('не возможно создать спецификацию,\rдля выбранных товаров не выбрано ни одного варианта расчета\r\rнеобходимо:\rвыделить один расчет для каждого выбранного товара выставив суперзеную кнопку в светофоре');
+			else if(less_then_one){
+				var text = 'не возможно создать спецификацию,<br>для выбранных товаров не выбрано ни одного варианта расчета<br>необходимо:<br>выделить один расчет для каждого выбранного товара выставив суперзеную кнопку в светофоре';
+			    echo_message_js(text,'system_message',20000);
+			}
 			return;
 		}
 		

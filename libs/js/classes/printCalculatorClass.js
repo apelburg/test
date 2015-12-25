@@ -62,11 +62,11 @@ var printCalculator = {
 			} 
 		}
 		if(typeof quantity === 'undefined'){
-			alert('Не удается получить данные о количестве товара!!!');
+			echo_message_js('Не удается получить данные о количестве товара!!!','system_message',3800);
 			return;
 		}
 		if(quantity === 0){
-			alert('Расчет не возможен, тираж 0шт. !!!');
+		    echo_message_js('Расчет не возможен, тираж 0шт. !!!','system_message',3800);
 			return;
 		}
 		
@@ -309,11 +309,11 @@ var printCalculator = {
 		
 		//проверяем есть ли данные по месту печати и типу печати если чего-то нет выводим предупреждение
 		if(typeof printCalculator.currentCalculationData.print_details.place_id === 'undefined'){
-			alert('Вы не выбрали место нанесения');
+			echo_message_js("Вы не выбрали место нанесения",'system_message',3800);
 			return;
 		}
 		if(typeof printCalculator.currentCalculationData.print_details.print_id === 'undefined' || printCalculator.currentCalculationData.print_details.print_id == 0){
-			alert('Вы не выбрали тип нанесения');
+			echo_message_js("Вы не выбрали вид нанесения",'system_message',3800);
 			return;
 		}
 		
@@ -336,12 +336,13 @@ var printCalculator = {
 				saveBtn.id = 'distributionSaveResultBtn';
 				saveBtn.innerHTML = 'Сохранить';
 				saveBtn.onclick = function(){
-					alert("Нанесение которое вы собиратесь скопировать, будет скопированно на все варианты расчетов относящихся к позициям которые вы выбрали, нанесение будет скопировано со всеми настройками.");
+					var text = "Нанесение которое вы собиратесь скопировать, будет скопированно на все варианты расчетов относящихся к позициям которые вы выбрали, нанесение будет скопировано со всеми настройками.";
+					echo_message_js(text,'system_message',6800);
 					var idsArr = [];
 					var inputsArr = table.getElementsByTagName('INPUT');
 					for(var i = 0;i < inputsArr.length;i++){
 						if(inputsArr[i].type == 'checkbox' && inputsArr[i].checked == true){
-							idsArr.push(inputsArr[i].value);//alert(inputsArr[i].value);
+							idsArr.push(inputsArr[i].value);
 						}
 					}
 					if(idsArr.length>0){
@@ -363,7 +364,6 @@ var printCalculator = {
 							
 							function callback(response){ 
 								// alert(response);
-								// return;
 								// return;
 								var response_obj =JSON.parse(response);
 								if(response_obj.errors){
@@ -390,7 +390,7 @@ var printCalculator = {
 							}
 					}  
 					else{
-						alert('Вы не выбрали позиции к которым надо применить нанесение');
+						echo_message_js('Вы не выбрали позиции к которым надо применить нанесение','system_message',3800);
 					}
 				}
 				calculatorDataBox.appendChild(saveBtn);
@@ -802,7 +802,6 @@ var printCalculator = {
 			
 			if(document.getElementById("printCalculatorBlockB"))document.getElementById("printCalculatorBlockB").parentNode.removeChild(document.getElementById("printCalculatorBlockB"));
 			if(document.getElementById("printCalculatorItogDisplay")) document.getElementById("printCalculatorItogDisplay").innerHTML = '';
-			// alert('printTypesSelect');
 			var place_id  = printCalculator.currentCalculationData.print_details.place_id;
 			printCalculator.currentCalculationData.print_details = {};
 			printCalculator.currentCalculationData.print_details.dop_params = {};
@@ -817,7 +816,6 @@ var printCalculator = {
 		    printCalculator.makeProcessing();
 			
 		}
-		//alert(printCalculator.currentCalculationData.print_details.print_id);
 		if(typeof printCalculator.currentCalculationData.print_details.print_id === 'undefined'){
 		    var printTypesSelect = document.createElement('DIV');
 			printTypesSelect.appendChild(document.createTextNode("Ошибка: не определен ID типа нанесения "));
@@ -1101,13 +1099,13 @@ var printCalculator = {
 			printCalculator.price_tblIn = printCalculator.build_priceTbl(CurrPrintTypeData['priceIn_tbl'],'in');
 		    // printParamsBox.appendChild(printCalculator.price_tblIn);
 		}
-		else alert('отсутствует прайс входящих цен');
+		else echo_message_js('отсутствует прайс входящих цен','system_message',5800);
 		// исходящяя цена 
 		if(CurrPrintTypeData['priceOut_tbl']){
 			printCalculator.price_tblOut = printCalculator.build_priceTbl(CurrPrintTypeData['priceOut_tbl'],'out');
 		    // printParamsBox.appendChild(printCalculator.price_tblOut);
 		}
-		else alert('отсутствует прайс исходящих цен');
+		else echo_message_js('отсутствует прайс исходящих цен','system_message',5800);
 		
 		console.log('>>> после определения Xindex');
 		console.log(printCalculator.currentCalculationData);
@@ -1187,7 +1185,6 @@ var printCalculator = {
 				
 			}
 		}
-		// alert(dopParamsArr.length);
 		
 		if(dopParamsArr.length>0){
 			
@@ -1345,7 +1342,6 @@ var printCalculator = {
 	}
 	,
 	makeProcessing:function(){
-		// alert('makeProcessing');
 		
 		if(typeof printCalculator.makeProcessingFlag !== 'undefined') delete printCalculator.makeProcessingFlag;
 		
@@ -1735,7 +1731,7 @@ var printCalculator = {
 		// выбран не был 
 		if(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam){
 			if(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam.length==0 || printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[0].id==0){
-				alert("Расчет не может быть произведен:\r\nНе выбран цвет\r\n");
+				echo_message_js("Расчет не может быть произведен - Не выбран цвет!",'system_message',3800);
 				return;
 			}
 		}
@@ -1786,7 +1782,7 @@ var printCalculator = {
 		var container = cur_cell.parentNode;
 		var cellsArr = container.getElementsByTagName("DIV");
 		for( var i = 0; i < cellsArr.length; i++){
-			if(cellsArr[i] == cur_cell) break;//alert(i);
+			if(cellsArr[i] == cur_cell) break;
 		}
 		printCalculator.currentCalculationData.print_details.dop_params.YPriceParam[i].cmyk = cur_cell.innerHTML;
 		// alert(print_r(printCalculator.currentCalculationData.print_details.dop_params.YPriceParam));
@@ -1806,7 +1802,6 @@ var printCalculator = {
 		var selectsArr = YPriceParamDiv.getElementsByTagName("SELECT");
 		var CMYKsArr = YPriceParamCMYKdiv.getElementsByTagName("DIV");
 		
-		//alert(selectsArr.length);
 		// ЗДЕСЬ НЕ ПРАВИЛЬНЫЙ ПРОХОД, здесь идти по СИБЛИНГАМ потому-что в цикле используется удаление
 		var ln = selectsArr.length;
 		for( var i = 0; i < ln; i++){
@@ -1829,8 +1824,6 @@ var printCalculator = {
 			}
 		}
 		
-		// alert(YPriceParamDiv.getElementsByTagName('SELECT').length);
-		//
 		// если количество селектов меньше количества рядов в прайсе открываем ссылку для добавления новых селектов (она могла быть скрыта)
 		if(YPriceParamDiv.getElementsByTagName('SELECT').length <printCalculator.calculatorParamsObj.print_types[printCalculator.currentCalculationData.print_details.print_id].priceOut_tbl[0].length-1){
 		   document.getElementById('calculatoraddYPriceParamLink').className = '';
@@ -1846,7 +1839,7 @@ var printCalculator = {
 			var tbl = tbl[0];
 			var tbl_html = document.createElement('TABLE');
 			tbl_html.className = "calculatorPriceTbl";
-			//alert(tbl.length);
+			
 			for(var row in tbl){
 				var tr = document.createElement('TR');
 				var td = document.createElement('TD');
@@ -1941,7 +1934,8 @@ var printCalculator = {
 				
 			//// console.log(printCalculator.dataForProcessing['price']);
 			if(printCalculator.currentCalculationData.print_details.lackOfQuantOutPrice){
-				alert("Минимальный тираж для данного типа нанесения - "+printCalculator.currentCalculationData.print_details.minQuantOutPrice+"шт \rстоимость будет расчитана как для минимального тиража");	
+				var text = "Минимальный тираж для данного вида нанесения - "+printCalculator.currentCalculationData.print_details.minQuantOutPrice+"шт стоимость будет расчитана как для минимального тиража"
+				echo_message_js(text,'system_message',4800);
 			}
 			return tbl_html;
 			
