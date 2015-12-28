@@ -19,8 +19,17 @@
 		}
 
 		if(data['function'] !== undefined){ // вызов функции... если требуется
-			window[data['function']](data);
-			window_preload_del();
+			
+			if($.isArray(data['function'])){
+				count = data['function'].length;
+				for (var i = count - 1; i >= 0; i--) {
+					window[data['function'][i]['function']](data['function'][i]);
+				};
+				window_preload_del();
+			}else{
+				window[data['function']](data);
+			}
+			
 		}
 
 		if(data['function2'] !== undefined){ // вызов функции 2... если требуется
@@ -1073,7 +1082,7 @@ $(document).on('click', '#chose_manager_tbl table tr td', function(event) {
 		$(this).addClass('checked');
 		// rt_list_id_
 		var rt_list_id = $(this).parent().parent().parent().parent().find('input[name$="rt_list_id"]').val();
-		$('#rt_list_id_'+rt_list_id + ' .attach_the_manager').html($(this).html()).attr('data-id',$(this).attr('data-id'));
+		// $('#rt_list_id_'+rt_list_id + ' .attach_the_manager').html($(this).html()).attr('data-id',$(this).attr('data-id'));
 		var manager_id = $(this).attr('data-id');//alert($(this).parent().parent().parent().parent().html());
 		$(this).parent().parent().parent().parent().find('input[name$="manager_id"]').val(manager_id);
 	}
@@ -1086,7 +1095,7 @@ $(document).on('click', '#chose_client_tbl table tr td', function(event) {
 		$(this).addClass('checked');
 		// rt_list_id_
 		var rt_list_id = $(this).parent().parent().parent().parent().find('input[name$="rt_list_id"]').val();
-		$('#rt_list_id_'+rt_list_id + ' .attach_the_client').html($(this).html()).attr('data-id',$(this).attr('data-id'));
+		// $('#rt_list_id_'+rt_list_id + ' .attach_the_client').html($(this).html()).attr('data-id',$(this).attr('data-id'));
 		var manager_id = $(this).attr('data-id');//alert($(this).parent().parent().parent().parent().html());
 		$(this).parent().parent().parent().parent().find('input[name$="client_id"]').val(manager_id);
 	}

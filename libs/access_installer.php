@@ -234,6 +234,7 @@
 													//'query_variant_in_pause' => array('access'=>true),
 													//'query_denided_variants' => array('access'=>true),
 													//'query_history' => array('access'=>true),
+													'query_history' =>  array('access'=>true),
 													'query_all' => array('access'=>true),
 													)
 												),
