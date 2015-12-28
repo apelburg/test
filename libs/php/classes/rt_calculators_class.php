@@ -667,7 +667,25 @@
 			// если по нужным услугам обновление с флагом result == ok, обновляем количество в RT_DOP_DATA
 			if($out_put['print']['result']=='ok' && $out_put['extra']['result']=='ok'){
 				// обновляем количество 
-				$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$dop_data_id."'";
+				$query="SELECT tirage_json FROM `".RT_DOP_DATA."` WHERE `id` = '".$dop_data_id."'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					$row = $result->fetch_assoc();
+					$tirage_json = @json_decode($row['tirage_json'],true);
+					if(is_array($tirage_json) && count($tirage_json)>0){
+						$tirage_json[key($tirage_json)]['tir'] = $quantity;
+						// $tirage_json = json_encode($tirage_json);
+						
+						// оставляем только один элемент
+						$tirage_json = json_encode(array( key($tirage_json) => $tirage_json[key($tirage_json)] ));
+					}		
+					else $tirage_json = '{}';
+	
+				}
+				else $tirage_json = '{}';
+			
+				
+				$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."', `tirage_json` = '".$tirage_json."'  WHERE `id` = '".$dop_data_id."'";
 				$result = $mysqli->query($query)or die($mysqli->error);
 			}
 			//print_r($out_put);

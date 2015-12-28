@@ -23,8 +23,26 @@
 		}
 		static function change_quantity($quantity,$id){
 		    global $mysqli;   //print_r($data); 
+			
+			$query="SELECT tirage_json FROM `".RT_DOP_DATA."` WHERE `id` = '".$id."'";
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows>0){
+				$row = $result->fetch_assoc();
+				$tirage_json = @json_decode($row['tirage_json'],true);
+				if(is_array($tirage_json) && count($tirage_json)>0){
+				    $tirage_json[key($tirage_json)]['tir'] = $quantity;
+					// $tirage_json = json_encode($tirage_json);
+					
+					// оставляем только один элемент
+				    $tirage_json = json_encode(array( key($tirage_json) => $tirage_json[key($tirage_json)] ));
+				}		
+				else $tirage_json = '{}';
 
-			$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'  WHERE `id` = '".$id."'";
+			}
+			else $tirage_json = '{}';
+			
+
+			$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."', `tirage_json` = '".$tirage_json."'  WHERE `id` = '".$id."'";
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
@@ -585,15 +603,30 @@
 				$data_arr[$key]['description'] = $basket_data['article'];
 				$data_arr[$key]['characteristics'] = $characteristics;
 				
+				///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				//                                      формируем  tirage_json                                               //
+				///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				
 				if(!empty($basket_data['size_id']) && $basket_data['size_id']!='undefined'){
+				    // если id размера( id строки из BASE_DOP_PARAMS_TBL) указано в корзине используем эту информацию 
 				    $tirage_json = array();
 				    $tirage_json[$basket_data['size_id']] = array("dop"=>"0","tir"=>$basket_data['quantity']);
 				    $tirage_json = json_encode($tirage_json);	
 					
 				}
-				else $tirage_json = '{}';
-				
+				else{
+				    // иначе обращаемся к BASE_DOP_PARAMS_TBL и считываем данные 
+				    $query = "SELECT*FROM `".BASE_DOP_PARAMS_TBL."` WHERE  art_id ='".$id."'";
+					$result = $mysqli->query($query)or die($mysqli->error);
+					if($result->num_rows >0){
+					    $item = $result->fetch_assoc();
+						$tirage_json = array();
+				        $tirage_json[$item['id']] = array("dop"=>"0","tir"=>$basket_data['quantity']);
+				        $tirage_json = json_encode($tirage_json);	
+					}
+					else $tirage_json = '{}';
+				   
+				}
 				$data_arr[$key]['dop_data'][0]['quantity'] = $basket_data['quantity'];
 				$data_arr[$key]['dop_data'][0]['price_out'] = $basket_data['price'];
 				$data_arr[$key]['dop_data'][0]['tirage_json'] = $tirage_json;

@@ -229,6 +229,8 @@ var rtCalculator = {
 								   
 								}
 								tds_arr[j].onblur = function(){
+								   // если это не ячейка количества, вызываем complite_input() потому что такие ячейки обрабатываются
+								   // по таймеру, для ячейки количества это не нужно потому что она обрабатывается при каждом keyup
 								   if(rtCalculator.cur_cell.getAttribute('type') && rtCalculator.cur_cell.getAttribute('type')!= 'quantity'){
 									   rtCalculator.complite_input();
 								   } 
@@ -627,9 +629,20 @@ var rtCalculator = {
 				 $('body').append(dialog);
 				 $(dialog).dialog({modal: true, width: 500,minHeight : 200, buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}]});
 				 $(dialog).dialog('open');*/
-				 var text = 'Тираж  меньше минимального тиража для нанесения(ий):<br><br>'+str+'<br>стоимость будет пересчитана как для минимального тиража';
+				 var text = 'Тираж меньше минимального тиража для нанесения(ий):<br><br>'+str+'<br>стоимость будет пересчитана как для минимального тиража';
 				 
-				 echo_message_js(text,'rt_message',5400);
+				 ///echo_message_js(text,'rt_message',5400);
+				 
+				 
+				 if(rtCalculator.show_warning_window_timer){
+					 clearTimeout(rtCalculator.show_warning_window_timer);
+					 rtCalculator.show_warning_window_timer = null;
+					 delete rtCalculator.show_warning_window_text;
+				 }
+				 rtCalculator.show_warning_window_text = text;
+				 rtCalculator.show_warning_window_timer = setTimeout(rtCalculator.show_warning_window,1500);
+				
+				 
 				 
 				 //alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
 			}
@@ -638,7 +651,7 @@ var rtCalculator = {
 				 for(var index in response_obj.print.outOfLimit){
 					 str += (parseInt(index)+1)+'). '+response_obj.print.outOfLimit[index].print_type+', лимит тиража - '+response_obj.print.outOfLimit[index].limitValue+"<br>";  
 				 }
-				 var dialog = $('<div>Все перерасчеты отклонены!!!<br>Потому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :<br>'+str+'для этих нанесений требуется индивидуальный расчет</div>');
+				 var dialog = $('<div>Такой тираж не может быть установлен!!!<br>Он выше максимального тиража указанного в прайсе для нанесения:<br>'+str+'для этих нанесений требуется индивидуальный расчет</div>');
 				 $('body').append(dialog);
 				 $(dialog).dialog({modal: true, width: 500,minHeight : 200 , buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}], close: function( event, ui ) {location.reload();} });
 				 $(dialog).dialog('open');
@@ -651,7 +664,7 @@ var rtCalculator = {
 				 for(var index in response_obj.print.needIndividCalculation){
 					 str += (parseInt(index)+1)+'). '+response_obj.print.needIndividCalculation[index].print_type+"\r";  
 				 }
-				 var dialog = $('<div>Все перерасчеты отклонены!!!<br>Потому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :<br>'+str+'</div>');
+				 var dialog = $('<div>Такой тираж не может быть установлен!!!<br>Потому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :<br>'+str+'</div>');
 				 $('body').append(dialog);
 				 $(dialog).dialog({modal: true, width: 500,minHeight : 200 , buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}] });
 				 $(dialog).dialog('open');
@@ -679,6 +692,10 @@ var rtCalculator = {
 			if(source=='card')rtCalculator.cardQuantityCalculationsResponse(cell,row_id,response);
 			
 		}
+	}
+	,
+	show_warning_window:function(){
+		if(typeof rtCalculator.show_warning_window_text !== 'undefined') echo_message_js(rtCalculator.show_warning_window_text,'rt_message',5400);
 	}
 	,
 	cardQuantityCalculationsResponse:function(cell,row_id,response){
