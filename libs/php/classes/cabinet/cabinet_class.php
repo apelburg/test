@@ -2702,11 +2702,7 @@
 
 			// вывод меню комманд по запросу
 			protected function get_command_for_change_status_query_AJAX(){
-				if($this->user_access != 1){
-					$message = "У вас не достаточно прав для изменения статуса Заказа / предзаказа.";
-					echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-					exit;
-				}
+				
 				global $mysqli;
 				// запрос информации по заказу
 				$query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['row_id']."';";
@@ -2726,11 +2722,28 @@
 				$first_val = '';
 				$status_query_enablsed_arr = array();
 				
-				$status_query_enablsed_arr['history'] = 'История';
-				$status_query_enablsed_arr['in_work'] = 'В работе';
-				$status_query_enablsed_arr['new_query'] = 'Новый запрос';
-				$status_query_enablsed_arr['not_process'] = 'Не обработан менеджером';
-				$status_query_enablsed_arr['taken_into_operation'] = 'Взят в обработку';
+
+				if($this->user_access != 1){
+
+					
+
+					if($this->Query['status'] != 'history' && $this->Query['status'] != 'in_work'){
+						$message = "Отсюда невозможно перевести запрос в другой статус.".$this->Query['status'];
+						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+						exit;
+					}else{
+						$status_query_enablsed_arr['history'] = 'История';
+						$status_query_enablsed_arr['in_work'] = 'В работе';
+					}
+
+				}else{
+					$status_query_enablsed_arr['history'] = 'История';
+					$status_query_enablsed_arr['in_work'] = 'В работе';
+					$status_query_enablsed_arr['new_query'] = 'Новый запрос';
+					$status_query_enablsed_arr['not_process'] = 'Не обработан менеджером';
+					$status_query_enablsed_arr['taken_into_operation'] = 'Взят в обработку';	
+				}
+				
 				
 				foreach ($status_query_enablsed_arr as $name_en => $name_ru) {
 					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
@@ -5684,10 +5697,21 @@
 
 		}
 
-		// получаем список прикрепленных менеджеров - кандидатов
+		// получаем список прикрепленных менеджеров - кандидатов для нового клиента в кабинете
 		protected function get_choose_curators_edit_AJAX(){
     		$html = $this->get_choose_curators_edit();
-			echo '{"response":"show_new_window","title":"Выберите менеджера","html":"'.base64_encode($html).'"}';
+
+    		
+			
+			$message = "Внимание!!! При выборе одного пользователя, он автоматически назначается куратором клиента!";
+			echo '{
+				"response":"show_new_window",
+				"title":"Выберите менеджера",
+				"html":"'.base64_encode($html).'",
+				
+				"function2":"echo_message",
+				"message_type":"successful_message",
+				"message":"'.base64_encode($message).'","time":"10000"}';
     	}
 
 		// получаем информацию о менеджере 

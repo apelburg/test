@@ -391,7 +391,7 @@ class Client extends aplStdAJAXMethod{
 
 		    $html = 'Данные добавлены';
 			$this->responseClass->addMessage($html,'successful_message');
-
+			// добавляем функцию JS
 			$this->responseClass->addResponseFunction('edit_general_info');
 		    // exit;
 		}
@@ -818,11 +818,12 @@ class Client extends aplStdAJAXMethod{
 
 	
 	// прикрепляет клиента к запросу
-	private function attach_client_for_new_query_AJAX(){
+	protected function attach_client_for_new_query_AJAX(){
 		if(isset($_POST['client_id']) && $_POST['client_id'] == 'new_client'){
+			// echo 'get_form_the_create_client1';
 			// начинаем заводить клиента
 			$this->get_form_the_create_client_AJAX('insert_new_client_for_new_qury');
-			exit;
+			
 		}else{
 			// создаём запрос и переадресовываем на старицу запроса
 			if(isset($_POST['client_id'])){
@@ -849,6 +850,7 @@ class Client extends aplStdAJAXMethod{
 
 	// новая форма заведения нового клиента
 	private function get_form_the_create_client_AJAX($AJAX = 'insert_new_client'){
+
 		$html = '';
 		$html .= '<div id="create_client">';
 		if(isset($_POST['company']) && trim($_POST['company']) == ''){
@@ -885,8 +887,13 @@ class Client extends aplStdAJAXMethod{
 
 		$html .= '</div>';
 
-		echo '{"response":"show_new_window","title":"Новый клиент","html":"'.base64_encode($html).'"}';
-
+		// echo '654654654sasasd312';
+		$this->responseClass->addPostWindow($html,'Новый клиент',array('width' => '500'));
+		// echo '654654654sasasd312';
+		// echo '<pre>';
+		// print_r($this->responseClass);
+		// echo '</pre>';
+			
 	}
 
 	// получаем номер нового клиента
@@ -1041,7 +1048,7 @@ class Client extends aplStdAJAXMethod{
 	}
 
 	// заведение нового клиента при создании запроса
-	private function insert_new_client_for_new_qury_AJAX(){
+	protected function insert_new_client_for_new_qury_AJAX(){
 		if(!isset($_POST['company']) || trim($_POST['company']) == ''){
 			$this->get_form_the_create_client_AJAX('insert_new_client_for_new_qury');
 			exit;
@@ -1088,38 +1095,40 @@ class Client extends aplStdAJAXMethod{
 
 
 	// заведение нового клиента при присвоении его к существующему запросу
-	private function insert_new_client_AJAX(){
+	protected function insert_new_client_AJAX(){
 		if(!isset($_POST['company']) || trim($_POST['company']) == ''){
 			$this->get_form_the_create_client_AJAX();
-			exit;
+			// exit;
+		}else{
+
+			//если клиент был создан из запроса
+			if(isset($_POST['rt_list_id']) && (int)$_POST['rt_list_id'] > 0){
+				switch ($this->user_access) {
+					case '1':
+						// запрашиваем окно со списком всех менеджеров 
+						// для выбора куратора клиента
+						$html = $this->get_choose_curators();
+						echo '{"response":"show_new_window","title":"Выберите менеджера","html":"'.base64_encode($html).'"}';
+						break;
+					case '5':
+						$this->client_id = $this->create_new_client($_POST['company'], $_POST['dop_info']);
+
+						// куратором нового клиента будет менеджер
+						// сразу же прикрепляем его
+						$this->attach_relate_manager($this->client_id,$this->user_id);
+
+						// прикрепляем к запросу менеджера(ов)
+						$men_arr[$this->user_id] = $this->user_id;
+						$this->attach_for_query_many_managers($men_arr,$this->client_id);
+
+						echo '{"response":"OK","function":"reload_order_tbl"}';
+						break;
+					default:
+						break;
+				}
+			}	
+			exit;	
 		}
-
-		//если клиент был создан из запроса
-		if(isset($_POST['rt_list_id']) && (int)$_POST['rt_list_id'] > 0){
-			switch ($this->user_access) {
-				case '1':
-					// запрашиваем окно со списком всех менеджеров 
-					// для выбора куратора клиента
-					$html = $this->get_choose_curators();
-					echo '{"response":"show_new_window","title":"Выберите менеджера","html":"'.base64_encode($html).'"}';
-					break;
-				case '5':
-					$this->client_id = $this->create_new_client($_POST['company'], $_POST['dop_info']);
-
-					// куратором нового клиента будет менеджер
-					// сразу же прикрепляем его
-					$this->attach_relate_manager($this->client_id,$this->user_id);
-
-					// прикрепляем к запросу менеджера(ов)
-					$men_arr[$this->user_id] = $this->user_id;
-					$this->attach_for_query_many_managers($men_arr,$this->client_id);
-
-					echo '{"response":"OK","function":"reload_order_tbl"}';
-					break;
-				default:
-					break;
-			}
-		}		
 	}
 
 	private function create_new_client($company, $dop_info){
@@ -1175,7 +1184,7 @@ class Client extends aplStdAJAXMethod{
 		return $html;
 	}
 	// создание новокго клиента и прикрепление кораторов
-	private function create_new_client_and_insert_curators_AJAX(){
+	protected function create_new_client_and_insert_curators_AJAX(){
 		$html = '';
 		$html .= $this->print_arr($_POST);
 
@@ -1192,7 +1201,7 @@ class Client extends aplStdAJAXMethod{
 
 		// $html .= $this->print_arr(json_decode($_POST['Json_meneger_arr']));
 		
-		// заводим клиента
+		// если клиент не заведен заводим клиента
 		if(!isset($_POST['client_id']) || isset($_POST['client_id']) && $_POST['client_id'] == 'new_client'){
 			$message = 'Клиент успешно заведён, прикреплённые менеджеры увидят запрос';
 			$this->client_id = $this->create_new_client($_POST['company'], $_POST['dop_info']);
@@ -1222,11 +1231,12 @@ class Client extends aplStdAJAXMethod{
 
 
 		echo '{"response":"OK","function":"reload_order_tbl","function2":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';	
+		exit;
 		// echo '{"response":"OK","title":"ТЕСТ","html":"'.base64_encode($html).'"}';
 	}
 
 	// прикрепление к запросу нескольких менеджеров
-	private function attach_for_query_many_managers($managers_arr,$client_id){
+	public function attach_for_query_many_managers($managers_arr,$client_id){
 		// заводим переменную для хранения id списка менеджеров
 		$dop_managers_id = '';
 		
@@ -1239,6 +1249,17 @@ class Client extends aplStdAJAXMethod{
 			$dop_managers_id = implode(',', $managers_arr);
 			// запрос пока что ни за кем конкретно не закреплён
 			$manager_id = 0;
+
+
+
+
+		}else if( count($managers_arr) == 1 ){
+			// если в списке менеджеров выбран 1 менеджер - назначаем его уратором нового клиента
+			
+			foreach ($managers_arr as $manager_ids => $manager_ids2) {
+				$this->attach_relate_manager($client_id, $manager_ids);
+			}
+			
 		}
 
 		global $mysqli;		
@@ -1288,6 +1309,7 @@ class Client extends aplStdAJAXMethod{
 	        $result = $mysqli->query($query) or die($mysqli->error);
 		}
 
+		return $mysqli->insert_id;
 		
 	}
 

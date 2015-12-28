@@ -224,7 +224,7 @@
 			if($this->filtres_query_sort != ''){
 				$query .= " ".$this->filtres_query_sort;
 			}
-			// echo $query;
+			// echo $query.'<br>';
 			$result = $mysqli->query($query) or die($mysqli->error);
 
 			$this->Query_arr = array();
@@ -271,6 +271,7 @@
 		}
 
 		protected function standart_request_method($id_row){
+
 			// кнопка новый запрос
 			if($this->user_access == 5 || $this->user_access == 1){ // кнопка новый запрос для админа не проработано
 			// if($this->user_access == 5){
@@ -291,7 +292,7 @@
     		// вывод шапки главной таблицы
     		echo $this->get_header_general_tbl();
 
-			// запрос массив запросов
+			// запрос массива запросов
 			$this->get_queries_Database_Array($id_row);
 
 			
@@ -299,17 +300,17 @@
 			// получаем позиции
 			$this->positions_arr = $this->get_positions_Database_Array();
 
+			
 			$this->query_num = '';
 
+			// итого за запрос
+			$this->price_for_the_position_ITOGO = 0;
 			foreach ($this->Query_arr as $this->Query) {
 					$general_tbl_row = '';
 					
 					// получаем открыт/закрыт
 					$this->open__close = $this->get_open_close_for_this_user($this->Query['open_close']);
 						
-					
-
-										
 					// наименование продукта
 					$name_product = ''; 
 					// порядковый номер варианта расчёта одного и того же продукта
@@ -323,10 +324,10 @@
 					$count_button_show_catalog_variants=0;
 
 
-					if($_GET['subsection'] != 'query_worcked_men' && $_GET['subsection'] != 'query_all' && $_GET['subsection'] != 'query_wait_the_process'){
-						// если позиций нет - переходим к следующей интерации цикла
-						if(empty($this->positions_arr[$this->Query['query_num']])){continue;}
-					}
+					// if($_GET['subsection'] != 'query_worcked_men' && $_GET['subsection'] != 'no_worcked_men' && $_GET['subsection'] != 'query_all' && $_GET['subsection'] != 'query_wait_the_process'){
+					// 	// если позиций нет - переходим к следующей интерации цикла
+					// 	if(empty($this->positions_arr[$this->Query['query_num']])){continue;}
+					// }
 
 					
 					// если это первая строка нового запроса, выводим строку названий колонок вариантов
@@ -412,7 +413,16 @@
 		// шаблон строки строки запроса
 		protected function get_row_query_Html_temp(){
 			$html  = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->rowspan.'"><span class="cabinett_row_hide '.$this->open_close_class.'"></span></td>';
-			$html .= '<td><a href="./?page=client_folder&client_id='.$this->Query['client_id'].'&query_num='.$this->Query['query_num'].'">'.$this->Query['query_num'].'</a> </td>';
+			// маркер не прикрепленного клиента
+			$js_message = 'Чтобы перейти в РТ необходимо прикрепить клиента!!!';
+			$the_client_is_not_attached = 'onClick="echo_message_js(\''.$js_message.'\',\'system_message\');"';
+			$href_RT = '#';
+			if ($this->Query['client_id'] > 0) {
+				$the_client_is_not_attached = '';
+				$href_RT = './?page=client_folder&client_id='.$this->Query['client_id'].'&query_num='.$this->Query['query_num'];
+			}
+
+			$html .= '<td><a '.$the_client_is_not_attached.' href="'.$href_RT.'">'.$this->Query['query_num'].'</a> </td>';
 			
 			$no_edit = (($_GET['subsection'] == 'query_taken_into_operation' && $this->user_access == 5 || $this->user_access == 1)?0:1);
 			if($_GET['subsection'] == 'query_history'){
@@ -433,7 +443,7 @@
 			// $rrr = RT::calcualte_query_summ($this->Query['query_num']);
 			$rrr = $this->price_for_the_position_ITOGO;
 			$html .='<td td="'.$rrr.'">'.$rrr.'</td>';
-			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.' '.(($this->user_access == 1)?'query_status':'').'">'.$this->status_or_button.'</td>';
+			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.' query_status">'.$this->status_or_button.'</td>';
 			return $html;
 		}
 
@@ -558,7 +568,7 @@
 			}
 
 
-			// echo $query.'<br>';
+			// echo '<br><strong>position_query</strong> <br>'.$query.'<br>';
 
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);

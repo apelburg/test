@@ -26,12 +26,18 @@
 
 
 		// поочерёдный вызов функции 
-		if(data['function'] !== undefined){ 
-			count = data['function'].length;
-			for (var i = count - 1; i >= 0; i--) {
-				window[data['function'][i]['function']](data['function'][i]);
-			};
-			window_preload_del();
+		if(data['function'] !== undefined){ // вызов функции... если требуется
+			
+			if($.isArray(data['function'])){
+				count = data['function'].length;
+				for (var i = count - 1; i >= 0; i--) {
+					window[data['function'][i]['function']](data['function'][i]);
+				};
+				window_preload_del();
+			}else{
+				window[data['function']](data);
+			}
+			
 		}
 
 		if(data['response'] != "OK"){ // вывод при ошибке
@@ -242,3 +248,8 @@
 //////////////////////////////////
 //	СТАНДАРТНЫЕ ФУНКЦИИ  -- end
 //////////////////////////////////
+
+on('click', '.selector', function(event) {
+	event.preventDefault();
+	/* Act on the event */
+});
