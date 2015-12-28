@@ -918,9 +918,9 @@ class Images extends rtPositionUniversal
 
 		// }
 		
-		if(isset($_SESSION['access']['access']) && ($_SESSION['access']['access']==1 || $_SESSION['access']['access']==3)){
-			$previews_block[] = '<div  class="carousel-block" id="image_add"><img class="articulusImagesMiniImg imagePr" alt="" src="'.APELBURG_HOST.'/skins/images/general/add_image_d.png" data-src_IMG_link="'.APELBURG_HOST.'/skins/images/general/add_image_d.png"></div>';	
-		}
+		// if(isset($_SESSION['access']['access']) && ($_SESSION['access']['access']==1 || $_SESSION['access']['access']==3)){
+		// 	$previews_block[] = '<div  class="carousel-block" id="image_add"><img class="articulusImagesMiniImg imagePr" alt="" src="'.APELBURG_HOST.'/skins/images/general/add_image_d.png" data-src_IMG_link="'.APELBURG_HOST.'/skins/images/general/add_image_d.png"></div>';	
+		// }
 		
 		$string	= implode('',$previews_block);
 		$html = '<div class="carousel shadow" style="">'.PHP_EOL;
@@ -932,6 +932,8 @@ class Images extends rtPositionUniversal
 		$html .= '</div>'.PHP_EOL;
 		$html .= count($previews_block)>=3?'<a href="" class="articulusImagesArrow2 carousel-button-right" style="background-image:url('.APELBURG_HOST.'/skins/images/general/artkart/s22.png); float:right; margin-top:-70px"></a>'.PHP_EOL:'';
 		$html .= '</div>'.PHP_EOL;
+
+		$html .= '<div id="image_add">Загрузить ещё</div>'.PHP_EOL;
 		$previews_block = $html;
 		
 		return array('main_img_src' => $main_img_src,
