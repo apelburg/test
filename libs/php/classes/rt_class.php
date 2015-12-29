@@ -21,28 +21,32 @@
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
-		static function change_quantity($quantity,$id){
+		static function change_quantity($quantity,$id,$source){
 		    global $mysqli;   //print_r($data); 
 			
-			$query="SELECT tirage_json FROM `".RT_DOP_DATA."` WHERE `id` = '".$id."'";
-			$result = $mysqli->query($query)or die($mysqli->error);
-			if($result->num_rows>0){
-				$row = $result->fetch_assoc();
-				$tirage_json = @json_decode($row['tirage_json'],true);
-				if(is_array($tirage_json) && count($tirage_json)>0){
-				    $tirage_json[key($tirage_json)]['tir'] = $quantity;
-					// $tirage_json = json_encode($tirage_json);
-					
-					// оставляем только один элемент
-				    $tirage_json = json_encode(array( key($tirage_json) => $tirage_json[key($tirage_json)] ));
-				}		
+			if($source=='rt'){
+				$query="SELECT tirage_json FROM `".RT_DOP_DATA."` WHERE `id` = '".$id."'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				if($result->num_rows>0){
+					$row = $result->fetch_assoc();
+					$tirage_json = @json_decode($row['tirage_json'],true);
+					if(is_array($tirage_json) && count($tirage_json)>0){
+						$tirage_json[key($tirage_json)]['tir'] = $quantity;
+						// $tirage_json = json_encode($tirage_json);
+						
+						// оставляем только один элемент
+						$tirage_json = json_encode(array( key($tirage_json) => $tirage_json[key($tirage_json)] ));
+					}		
+					else $tirage_json = '{}';
+	
+				}
 				else $tirage_json = '{}';
-
 			}
-			else $tirage_json = '{}';
-			
 
-			$query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."', `tirage_json` = '".$tirage_json."'  WHERE `id` = '".$id."'";
+            $query="UPDATE `".RT_DOP_DATA."` SET  `quantity` = '".$quantity."'";
+			if($source=='rt') $query.=" , `tirage_json` = '".$tirage_json."'";
+			$query.=" WHERE `id` = '".$id."'";
+			
 			//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);
 		}
@@ -751,18 +755,24 @@
 			// эти артикулы могут просто повторяться из-за того что были добавленны в корзину несколько раз
 			// или могут повторяться из-за того что они имеют несколько размеров
 			// после прохождения обработки мы имеем новый масив с объедененными артикулами
-			// print_r($data_arr);
+
+			// echo '<pre>';print_r($data_arr);echo '</pre>';
 			$data_arr_new = array();
 			if(true){
 				foreach($data_arr as $key =>  $data){
-	
 					$flag = true;
-					if(count($data_arr_new)>0){
-						foreach($data_arr_new as $key_new => $data_new){
-							if($data['art_id'] == $data_new['art_id'] && $data['dop_info']['chkd'] == '1' && $data_new['dop_info']['chkd'] == '1'){
-								$data_arr_new[$key_new]['dop_data'] = array_merge($data_arr_new[$key_new]['dop_data'],$data_arr[$key]['dop_data']);
-								//$data_arr_new[$key_new]['dop_data'][] = $data_arr[$key]['dop_data'][0]
-								$flag = false;
+					// данные попадают в функцию из разных источников, и могут не содержать элемента dop_info, 
+					// который отображает (если товар был отправлен сюда из корзины) был ли выделен товар чекбоксом
+					// если есть dop_info можем сделать обработку, если нет пропускаем елемент
+					if(isset($data['dop_info'])){
+						if(count($data_arr_new)>0){
+							foreach($data_arr_new as $key_new => $data_new){
+								// 
+								if($data['art_id'] == $data_new['art_id'] && $data['dop_info']['chkd'] == '1' && $data_new['dop_info']['chkd'] == '1'){
+									$data_arr_new[$key_new]['dop_data'] = array_merge($data_arr_new[$key_new]['dop_data'],$data_arr[$key]['dop_data']);
+									//$data_arr_new[$key_new]['dop_data'][] = $data_arr[$key]['dop_data'][0]
+									$flag = false;
+								}
 							}
 						}
 					}
@@ -772,7 +782,7 @@
 				}
 			}
 			else $data_arr_new = $data;
-			// print_r($data_arr_new);
+			// echo '<pre>';print_r($data_arr_new);echo '</pre>';
 			// exit;
 			
 			// ЗАДАЧА:

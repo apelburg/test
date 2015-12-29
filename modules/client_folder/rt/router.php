@@ -83,7 +83,7 @@
 			 }
 		 }
 		 
-		 RT::change_quantity($_GET['quantity'],$_GET['id']);
+		 RT::change_quantity($_GET['quantity'],$_GET['id'],$_GET['source']);
 		 exit;
 	}
 	if(isset($_GET['expel_value_from_calculation'])){
