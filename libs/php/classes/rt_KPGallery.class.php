@@ -445,6 +445,10 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 
 				$title = 'Выберите изображение для позиции';
 				$this->responseClass->addPostWindow($html,'Выберите изображение для позиции',$options);
+				
+				$message = 'Чтобы выбрать изображение для КП кликните по картинке затем нажмите на кнопку сохранить.';
+				$this->responseClass->addMessage($message,'system_message');
+
 				// запустим функцию JS и передадим ей новый id
 				$options = array();
 				$options['id'] = $rt_id;

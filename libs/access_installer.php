@@ -83,7 +83,7 @@
 													'no_worcked_men' =>  array('access'=>true),
 													'query_taken_into_operation' =>  array('access'=>true),
 													'query_worcked_men' =>  array('access'=>true),
-													'query_worcked_snab' =>  array('access'=>true),
+													// 'query_worcked_snab' =>  array('access'=>true),
 													'query_history' =>  array('access'=>true),
 													'query_all' =>  array('access'=>true),
 													
