@@ -1,13 +1,9 @@
 <?php
-
-
 /** 
  * Правила комментирования можно посмотреть на странице 
  * описания http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html#@since
  * 
  */
-
-
 /**
  *	унифицированный класс работы с позицией
  *
@@ -19,7 +15,6 @@ class rtPositionUniversal extends Position_general_Class
 	public $user_id;
 	public $user_access;
 	public $position;
-
 	function __construct($user_access = 0){
 		$this->user_access($user_access);
 		
@@ -28,13 +23,11 @@ class rtPositionUniversal extends Position_general_Class
 		
 		// получаем позицию
 		$this->getPosition((isset($_GET['id']))?$_GET['id']:'none');
-
 		// передававться через ключ AJAX
 		if(isset($_POST['AJAX'])){
 			$this->_AJAX_();
 		}			
 	}
-
 	// получаем права и id юзера
 	public function user_access($user_access = 0){
 		$this->user_id = $_SESSION['access']['user_id'];
@@ -47,8 +40,6 @@ class rtPositionUniversal extends Position_general_Class
 			
 		}
 	}
-
-
 	/**
 	 *	для генерации отвта выделен класс responseClass()
 	 *
@@ -79,7 +70,6 @@ class rtPositionUniversal extends Position_general_Class
 			exit;
 		}					
 	}
-
 	//////////////////////////
 	//	AJAX
 	//////////////////////////
@@ -90,7 +80,6 @@ class rtPositionUniversal extends Position_general_Class
 	        $result = $this->mysqli->query($query) or die($this->mysqli->error);
 			//echo '{"response":"OK"}';
 		}
-
 		// сохранение входящей цены за услугу
 		private function save_service_price_in_AJAX(){
 			$query = "UPDATE ".RT_DOP_USLUGI." SET ";
@@ -99,7 +88,6 @@ class rtPositionUniversal extends Position_general_Class
 			
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		}
-
 		// сохранение наценки / скидки
 		private function save_discount_AJAX(){
 			$query = "UPDATE ".RT_DOP_DATA." SET ";
@@ -109,7 +97,6 @@ class rtPositionUniversal extends Position_general_Class
 			
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		}
-
 		// сохранение исходящей цены за услугу
 		private function save_service_price_out_AJAX(){
 			$query = "UPDATE ".RT_DOP_USLUGI." SET ";
@@ -118,7 +105,6 @@ class rtPositionUniversal extends Position_general_Class
 			
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		}
-
 		// сохранение входящей цены за товар
 		private function save_price_in_out_for_one_price_AJAX(){
 			$query = "UPDATE ".RT_DOP_DATA." SET ";
@@ -130,7 +116,6 @@ class rtPositionUniversal extends Position_general_Class
 			// echo '{"response":"OK"}';
 			// exit;
 		}
-
 		// изменение в размерной сетке
 		private function size_in_var_all_AJAX(){
 			
@@ -143,14 +128,10 @@ class rtPositionUniversal extends Position_general_Class
 				$this->responseClass->response['answer'] = 'size_table_has_not_been_saved';
 				return;
 			}
-
 			$tir = $_POST['val']; // array / тиражи
 			$key2 = $_POST['key']; // array / id _ row size
 			$dop = $_POST['dop']; // array / запас
 			$id = $_POST['id']; // array / id 
-
-
-
 				//print_r($_POST['id']);exit;
 			$query = "SELECT `tirage_json` FROM ".RT_DOP_DATA." WHERE `id` = '".$id[0]."'";
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
@@ -170,11 +151,9 @@ class rtPositionUniversal extends Position_general_Class
 				//echo $value;
 				$arr_json[$value]['dop'] = $dop[$key];
 				$arr_json[$value]['tir'] = $tir[$key];
-
 				$sum_zap += $dop[$key];
 				$sum_tir += $tir[$key];
 			}
-
 			// $arr_json[$_POST['key']][$_POST['dop']] = $_POST['val'];
 			//echo $r .'   -   ';
 			//echo json_encode($arr_json);
@@ -187,7 +166,6 @@ class rtPositionUniversal extends Position_general_Class
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
 			// exit;
 		}
-
 		/**
 		 *	копирует услуги варианта
 		 *
@@ -228,7 +206,6 @@ class rtPositionUniversal extends Position_general_Class
 			}
 			return;
 		}
-
 		/**
 		 *	создаёт копию варианта
 		 *
@@ -240,7 +217,6 @@ class rtPositionUniversal extends Position_general_Class
 		 *	@version 	11:30 18.12.2015
 		 */
 		private function new_variant_AJAX(){
-
 			$reference_id = (int)$_POST['id'];
 			// собираем запрос, копируем строку в БД
 			$query = "INSERT INTO `".RT_DOP_DATA."` 
@@ -250,7 +226,6 @@ class rtPositionUniversal extends Position_general_Class
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
 			// запоминаем новый id
 			$insert_id = $this->mysqli->insert_id;
-
 			if(isset($_POST['services']) && $_POST['services'] == 'true'){
 				// копируем услуги
 				$this->copy_services_row_for_variant($reference_id, $insert_id);
@@ -274,7 +249,6 @@ class rtPositionUniversal extends Position_general_Class
 			// AJAX options prepare
 			$this->responseClass->addResponseOptions($options);			
 		}
-
 	
 	public function getPosition($id = 0){
 		if(empty($this->position)){
@@ -282,7 +256,6 @@ class rtPositionUniversal extends Position_general_Class
 		}
 		return $this->position;
 	}
-
 	// получаем дополнительный параметры по артикулу
 	public function getDopParams($art_id){
 		// выгружает данные запроса в массив
@@ -298,7 +271,6 @@ class rtPositionUniversal extends Position_general_Class
 		}
 		return $arr;
 	}
-
 	/**
 	 * возвращает размерную сетку
 	 *
@@ -309,12 +281,9 @@ class rtPositionUniversal extends Position_general_Class
 	 *	@version 				12:34 17.12.2015
 	 */	
 	public function getSizeTable($dop_params_arr, $variant){
-
 		// преобразует массив дополнительных параметров в таблицу размеров
-
 		// выборка данных о введённых ранее размерах из строки JSON 
 		$tirage_json = json_decode($variant['tirage_json'], true);
-
 		$html = "";
 		if(count($dop_params_arr)==0){
 			if($this->user_access == 1){
@@ -322,7 +291,6 @@ class rtPositionUniversal extends Position_general_Class
 			}
 			return $html;
 		};
-
 		// собираем таблицу с доп размерами
 		$html = '
 			<table>
@@ -346,7 +314,6 @@ class rtPositionUniversal extends Position_general_Class
 		 *	Для версии лайт этот флаг везде 1
 		 */
 		$pod_zakaz = 1;
-
 		foreach ($dop_params_arr as $k => $v) {
 			$value = (isset($tirage_json[$v['id']]['tir']))?$tirage_json[$v['id']]['tir']:0;
 			$value_dop = (isset($tirage_json[$v['id']]['dop']))?$tirage_json[$v['id']]['dop']:0;
@@ -371,18 +338,14 @@ class rtPositionUniversal extends Position_general_Class
 			';
 		}
 		$html .= '</table>';
-
 		$html .= '
 			<div class="sevrice_button_size_table">
 				<span onclick="chenge_hidden_input_status(\'0\',this);" class="btn_var_std '.(($pod_zakaz==1)?'checked':'').'" name="order">под заказ</span>
 				<span onclick="chenge_hidden_input_status(\'1\',this);" class="btn_var_std '.(($pod_zakaz==0)?'checked':'').'" name="reserve">под резерв</span>
 			</div>
 			';
-
 		return $html;
-
 	}
-
 	// получаем характеристики изделия
 	public function getCharacteristics(){
 		$html = '';
@@ -407,30 +370,20 @@ class rtPositionUniversal extends Position_general_Class
 		}
 		return $html;
 	}
-
-
 	// создаем экземпляр класса форм
 	private function getForms(){
 		if(!isset($this->FORM)){
 			$this->FORM = new Forms;
 		}
 	}
-
-
-
 	// описание товара некаталог
 	public function variant_no_cat_json_Html($arr,$type_product){
-
-
 		$this->getForms(); /*Экземпляр класса форм*/
 		
 		
 		$html = '';
-
 		// если у нас есть описание заявленного типа товара
 		$type_product_arr_from_form = $this->FORM->get_names_form_type($this->type_product);
-
-
 		if(isset($type_product_arr_from_form)){
 			// $names = $type_product_arr_from_form; // массив описания хранится в классе форм
 			$html .= '<div class="table inform_for_variant">';
@@ -453,9 +406,7 @@ class rtPositionUniversal extends Position_general_Class
 			print_r($arr);
 			echo '</pre>';
 		}
-
 	}
-
 	/**
 	 *	Преобразует массив содержащий id услуг нанесения прикреплённых к артикулу 
 	 *	в строку названий этих нанесений
@@ -487,7 +438,6 @@ class rtPositionUniversal extends Position_general_Class
 		}		
 		return '<div id="attaching_names_of_print_types">'.$name_ru_arr.'</div>';
 	}
-
 	/**
 	 *	детальная информация по артикулу
 	 *
@@ -498,7 +448,6 @@ class rtPositionUniversal extends Position_general_Class
 		$this->color = $this->get_color($art_id);		
 		$this->material = $this->get_material($art_id);
 		$this->get_print_mode = $this->get_print_mode($art_id);
-
 		// global $mysqli;
 		$query = "SELECT * FROM `".BASE_TBL."` WHERE `id` = '".(int)$art_id."'";
 		// echo $query;
@@ -510,7 +459,6 @@ class rtPositionUniversal extends Position_general_Class
 			}
 		}
 	}
-
 	// цвета
 	private function get_color($art_id){
 		// выгружает данные запроса в массив
@@ -526,7 +474,6 @@ class rtPositionUniversal extends Position_general_Class
 		}
 		return $arr;
 	}
-
 	// материал
 	private function get_material($art_id){
 		// выгружает данные запроса в массив
@@ -542,7 +489,6 @@ class rtPositionUniversal extends Position_general_Class
 		}
 		return $arr;
 	}
-
 	// запрос видов печати
 	private function get_print_mode($art_id){
 		// выгружает данные запроса в массив
@@ -562,18 +508,15 @@ class rtPositionUniversal extends Position_general_Class
 		}
 		return $arr;
 	}
-
 	
 	// получаем строку РТ(позицию) из базы
 	private function getPositionDatabase($id){	
-
 		// чеерез get параметр id мы получаем id 1 из строк запроса
 		// получаем основные хар-ки артикула из таблицы артикулов входящих в запрос
 		$query = "SELECT `".RT_LIST."`.*,`".RT_LIST."`.`id` AS `RT_LIST_ID`, `".RT_MAIN_ROWS."`.*, DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`
 		  FROM `".RT_MAIN_ROWS."`
 		  INNER JOIN `".RT_LIST."`
 		  ON `".RT_LIST."`.`query_num` = `".RT_MAIN_ROWS."`.`query_num`
-
 		   WHERE `".RT_MAIN_ROWS."`.`id` = '".$id."'";
 		// echo $query;
 		$result = $this->mysqli->query($query) or die($this->mysqli->error);
@@ -586,20 +529,15 @@ class rtPositionUniversal extends Position_general_Class
 		}
 		return $position;
 	}
-
 	public function getVariants($position_id){		
-
 		$this->Variants =  new Variants($position_id);
-
 		return $this->Variants->getVariantsDatabase($position_id);
 	}
-
 	// получаем изображения
 	public function getImage(){		
 		$this->images =  new Images();
 		return $this->images->getImageHtml();
 	}
-
 	// покдключение к базе
 	// в дальнейшем подключим по уму
 	protected function db(){
@@ -608,10 +546,7 @@ class rtPositionUniversal extends Position_general_Class
 			$this->mysqli = $mysqli;	
 		}		
 	}
-
 }
-
-
 /**
  *	класс расширение для добавления модуля изображений
  *
@@ -624,12 +559,10 @@ class Images extends rtPositionUniversal
 		// подключаем базу на всякий
 		$this->db();
 	}
-
 	// проверка на наличие изображений
 	private function checkImageExist(){
 		return true;
 	}
-
 	//функция вывода вариантов цветов, при нали, при кол-ве цветов более 6 - выводим стрелки прокрутки
 	private function color_variants_to_html($color_variants){
 		//print_r($color_variants);//		
@@ -646,7 +579,6 @@ class Images extends rtPositionUniversal
 		$html .='</div>';
 		return $html;
 	}
-
 	private function find_matches($art,$pattern){
 		// global $db;
 		//выбираем id артикулов соответсвующих патерну
@@ -658,7 +590,6 @@ class Images extends rtPositionUniversal
 				$itog_ids_arr[] = $row['id'];			
 			}
 		}
-
 		//отсекаем те артикулы которые у которых нулевые остатки и цена
 		$arr15 = (isset($itog_ids_arr))?implode("','",$itog_ids_arr):'';
 		$query = "SELECT art_id FROM `".BASE_DOP_PARAMS_TBL."` WHERE ( ostatok + on_way ) >= '0' AND price > '0' AND art_id IN('".$arr15."') GROUP BY art_id";
@@ -681,7 +612,6 @@ class Images extends rtPositionUniversal
 		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		$itog_ids_arr = array();
 			
-
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				// отказался от такого подхода  $hiden_cat_begining = get_menu_item_id(BEGINING_HIDEN_MENU_CATS);
@@ -706,7 +636,6 @@ class Images extends rtPositionUniversal
 		//echo '<pre>';print_r($output);echo '</pre>';
 		return  (isset($output))?$output:'';			
 	}
-
 	// получаем другие цвета по артикулу
 	private function get_art_color_variants($art){		
 	    $prefix = substr($art,0,2);
@@ -740,8 +669,6 @@ class Images extends rtPositionUniversal
 			
 		return $this->find_matches($art,$matches[1]);	
 	}
-
-
 	/**
 	 *	старые функции 
 	 *  перенесено из new_veiw.php
@@ -767,7 +694,6 @@ class Images extends rtPositionUniversal
 		} 
 		return $img_src;
 	}
-
 	/**
  	 *	получает изображения для артикула
  	 *  КОПИЯ ИЗ rt_KpGallery.class.php
@@ -818,11 +744,20 @@ class Images extends rtPositionUniversal
 		return $img;
  	}
 
-
-
  	/**
-	 *	старые функции 
-	 *  поверхностный рефакторинг 
+ 	 *	возвращает карусель превью изображений для карточки артикула
+	 *  
+	 *	@param 		big_images 
+	 *	@param 		small_images
+	 *  @return  	html
+	 *	@author  	Алексей Капитонов
+	 *	@version 	22:28 29.12.2015
+	 */
+ 	private function find_checked_img(){
+ 		return true;
+ 	}
+ 	/**
+	 *	возвращает карусель превью изображений для карточки артикула
 	 *  
 	 *	@param 		articul
 	 *  @return  	array()
@@ -830,17 +765,14 @@ class Images extends rtPositionUniversal
 	 *	@version 	17:27 14.12.2015
 	 */
 	public function fetchImagesForArt($art){
-		$i=0;
-
+		$b = 1;
 		// if($art && $art > 0){
 			
 		$big_images = $this->getBigImagesForArt($art);
 		$small_images = $this->getSmallImagesForArt($art);
-			
-		// $query = "SELECT * FROM `".IMAGES_TBL."` WHERE art_id ='".$art."' AND size='big' ORDER BY  id ASC";
-		// $result = $this->mysqli->query($query) or die($this->mysqli->error);
-			
-		$i = 0;
+		
+		$first_img= '';
+
 		// изображения с сайта
 		foreach ($small_images as $key => $img) {
 			$deleting_img = '';
@@ -855,15 +787,24 @@ class Images extends rtPositionUniversal
 				</div>';
 			}
 			if(!isset($main_img_src)) {
-				$main_img_src = $this->checkImgExists( APELBURG_HOST.'/img/'.$img);
+				$main_img_src = $this->checkImgExists( APELBURG_HOST.'/img/'.$big_images[$key]);
 			}
-
-			$previews_block[$i] = '<div  class="carousel-block'.(($big_images[$key] == $this->position['img_folder_choosen_img'] || ($this->position['img_folder_choosen_img'] == '' && $big_images[$key] = 'no_image.jpg'))?' kp_checked':'').'">';
-			$previews_block[$i] .= '<img class="articulusImagesMiniImg imagePr" alt="" src="'.checkImgExists(APELBURG_HOST.'/img/'.$img).'" data-file="'.$big_images[$key].'" data-src_IMG_link="'.APELBURG_HOST.'/img/'.$big_images[$key].'">';
-			$previews_block[$i] .= $deleting_img;
-			$previews_block[$i] .= '</div>';
+			if ($big_images[$key] == $this->position['img_folder_choosen_img'] || ($this->position['img_folder_choosen_img'] == '' && $big_images[$key] == 'no_image.jpg')){
+				
+				$main_img_src = $this->checkImgExists( APELBURG_HOST.'/img/'.$big_images[$key]);
+				
+				$first_img  = '<div  class="carousel-block checked'.(($big_images[$key] == $this->position['img_folder_choosen_img'] || ($this->position['img_folder_choosen_img'] == '' && $big_images[$key] == 'no_image.jpg'))?' kp_checked':'').'">';
+				$first_img .= '<img class="articulusImagesMiniImg imagePr" alt="" src="'.checkImgExists(APELBURG_HOST.'/img/'.$img).'" data-file="'.$big_images[$key].'" data-src_IMG_link="'.APELBURG_HOST.'/img/'.$big_images[$key].'">';
+				$first_img .= $deleting_img;
+				$first_img .= '</div>';
+			}else{
+				$previews_block[$b]  = ($b>1)?'<div  class="carousel-block">':'';
+				$previews_block[$b] .= '<img class="articulusImagesMiniImg imagePr" alt="" src="'.checkImgExists(APELBURG_HOST.'/img/'.$img).'" data-file="'.$big_images[$key].'" data-src_IMG_link="'.APELBURG_HOST.'/img/'.$big_images[$key].'">';
+				$previews_block[$b] .= $deleting_img;
+				$previews_block[$b++] .= '</div>';
+			}			
+			
 		}
-
 		//////////////////////////
 		//	Загруженные изображения
 		//////////////////////////
@@ -878,61 +819,46 @@ class Images extends rtPositionUniversal
 				    if (($files[$i] == ".") || ($files[$i] == "..")) { // Текущий каталог и родительский пропускаем
 				    	continue;
 					}
-
 					if(!isset($main_img_src)) {
 						$main_img_src = $this->checkImgExists( $global_link_dir.''.$files[$i] );
 					}
-					$deleting_img = '';
-					// if($img != 'no_image.jpg' && isset($_SESSION['access']['access']) && 
-					// 	($_SESSION['access']['access']== 1 || $_SESSION['access']['access']==3)){
-					// 	$deleting_img = '<div class="catalog_delete_img_link">
-					// 	<a 
-					// 	href="#" 
-					// 	title="удалить изображение из базы" 
-					// 	data-del="#" 
-					// 	onclick="if(confirm(\' изображение будет удалено из базы!\')){$.get( $(this).attr(\'data-del\'),function( data ) {});remover_image(this); return false; } else{ return false;}">&#215</a>
-					// 	</div>';
-					// }
-					$previews_block[$i] = '<div  class="carousel-block'.(($files[$i] == $this->position['img_folder_choosen_img'])?' kp_checked':'').'">';
-					$previews_block[$i] .= '<img class="articulusImagesMiniImg imagePr" alt="" data-file="'.$files[$i].'"  src="'.checkImgExists($global_link_dir.''.$files[$i]).'" data-src_IMG_link="'.$global_link_dir.''.$files[$i].'">';
-					$previews_block[$i] .=  $deleting_img;
-					$previews_block[$i] .= '</div>';
-							     
-					$path = $global_link_dir.$files[$i]; // собираем путь
-
-
-
-					// $class_li = "";
-					// if($files[$i] == $this->position['img_folder_choosen_img']){
-					// 	$class_li = "checked";
-					// 	$checked = true;
-					// }
-						    
-				    //$html .= $this->getImgLiHtml($path, $files[$i], $class_li, $folder);
+					
+					if($files[$i] == $this->position['img_folder_choosen_img']){
+						$main_img_src = $this->checkImgExists( $global_link_dir.''.$files[$i] );
+						$first_img = '<div  class="carousel-block checked'.(($files[$i] == $this->position['img_folder_choosen_img'])?' kp_checked ':'').'">';
+						$first_img .= '<img class="articulusImagesMiniImg imagePr" alt="" data-file="'.$files[$i].'"  src="'.checkImgExists($global_link_dir.''.$files[$i]).'" data-src_IMG_link="'.$global_link_dir.''.$files[$i].'">';
+						$first_img .= '</div>';
+					}else{
+						$previews_block[$b]  = ($b>1)?'<div  class="carousel-block">':'';
+						$previews_block[$b] .= '<img class="articulusImagesMiniImg imagePr" alt="" data-file="'.$files[$i].'"  src="'.checkImgExists($global_link_dir.''.$files[$i]).'" data-src_IMG_link="'.$global_link_dir.''.$files[$i].'">';
+						$previews_block[$b++] .= '</div>';
+					}
+					
 				}
+			}		
+		if (isset($previews_block)) {
+			
+			if($first_img ==''){
+				$previews_block[1] = '<div  class="carousel-block checked" style="border: 3px solid rgb(146, 183, 62); border-radius: 5px;">'.$previews_block[1];
+			}else{
+				$previews_block[1] = '<div  class="carousel-block">'.$previews_block[1];
 			}
-
-
-
-
-
-		// }
+			$string	= implode('',$previews_block);
+		}else{
+			$previews_block = array();
+			$string	= '';
+		}
 		
-		// if(isset($_SESSION['access']['access']) && ($_SESSION['access']['access']==1 || $_SESSION['access']['access']==3)){
-		// 	$previews_block[] = '<div  class="carousel-block" id="image_add"><img class="articulusImagesMiniImg imagePr" alt="" src="'.APELBURG_HOST.'/skins/images/general/add_image_d.png" data-src_IMG_link="'.APELBURG_HOST.'/skins/images/general/add_image_d.png"></div>';	
-		// }
 		
-		$string	= implode('',$previews_block);
 		$html = '<div class="carousel shadow" style="">'.PHP_EOL;
 		$html .= count($previews_block)>=3?'<a href="" class="articulusImagesArrow2 carousel-button-left" style="background-image:url('.APELBURG_HOST.'/skins/images/general/artkart/s2.png)"></a>'.PHP_EOL:'';
 		$html .= '<div class="carousel-wrapper">'.PHP_EOL;
 		$html .= '<div class="carousel-items">'.PHP_EOL;	
-		$html .= $string;
+		$html .= $first_img.$string;
 		$html .= '</div>'.PHP_EOL;
 		$html .= '</div>'.PHP_EOL;
 		$html .= count($previews_block)>=3?'<a href="" class="articulusImagesArrow2 carousel-button-right" style="background-image:url('.APELBURG_HOST.'/skins/images/general/artkart/s22.png); float:right; margin-top:-70px"></a>'.PHP_EOL:'';
 		$html .= '</div>'.PHP_EOL;
-
 		$html .= '<div id="image_add">Загрузить ещё</div>'.PHP_EOL;
 		$previews_block = $html;
 		
@@ -940,15 +866,11 @@ class Images extends rtPositionUniversal
 			'previews_block' => $previews_block);
 	}
 
-
-
-
 	// вывод блока изображений
 	public function getImageHtml(){
 		parent::__construct();
 		// шаблон изображений
 			
-
 		$this->color_variants_block = '';			
 		// проверяем наличие других цветов по артикулу для КАТАЛОГА
 		if($this->position['type'] == 'cat'){
@@ -957,7 +879,6 @@ class Images extends rtPositionUniversal
 			}	
 		}
 		
-
 		ob_start();
 		$images_data = $this->fetchImagesForArt($this->position['art_id']);
 		// echo '<pre>';
@@ -973,7 +894,6 @@ class Images extends rtPositionUniversal
 		return $content;
 	}
 }
-
 /**
  *	класс работы с вариантами прикрепленнными к услуге
  *
@@ -984,22 +904,17 @@ class Images extends rtPositionUniversal
 class Variants extends rtPositionUniversal
 {
 	public $Variants = array(); // варианты расчета
-
 	function __construct($id = 0){
 		// если $id не указан или равен 0 - выходим
 		if($id == 0){
 			return;
 		}
-
 		// подключаемся к базе
 		$this->db();
 	}
-
 	// выводит общую информацию по ВАРИАНТУ из json
 	public function variant_decode_params_json_to_Html($JSON_str,$type_product){
-
 		$arr = json_decode($JSON_str, true);
-
 		// return $JSON_str;
 		/*Экземпляр класса форм*/
 		if (!isset($this->FORM)) {
@@ -1009,10 +924,8 @@ class Variants extends rtPositionUniversal
 		
 		
 		$html = '';
-
 		// если у нас есть описание заявленного типа товара
 		$type_product_arr_from_form = $this->FORM->get_names_form_type($type_product);
-
 		/*
 		$arr  = array(
 			'kew' => 'val',
@@ -1023,16 +936,12 @@ class Variants extends rtPositionUniversal
 			);
 		*/
 		
-
 		// определяемся по колличеству колонок в таблице
 		$tab = array();
 		foreach ($arr as $key => $value) {
 			if($key == 'quantity'){ continue; }
 			$tab[] = array( $key => $value);
 		}
-
-
-
 		if(count($tab) >= 11){
 			$j_st = 3;
 		}else if(count($tab) >= 6){
@@ -1040,8 +949,6 @@ class Variants extends rtPositionUniversal
 		}else{
 			$j_st = 1;
 		}
-
-
 		$html = '';
 		if(isset($type_product_arr_from_form)){
 			$html .='<table class="table inform_for_variant">';
@@ -1061,16 +968,13 @@ class Variants extends rtPositionUniversal
 				$html .= '</tr>';
 			}
 			$html .= '</table>';
-
 			return $html;
 		}else{// в случае исключения выводим массив, дабы было видно куда копать
 			echo '<pre>';
 			print_r($arr);
 			echo '</pre>';
 		}
-
 	}
-
 	// сортируем варианты по светофору
 	public function get_variants_arr_sort_for_type($variants_arr){
 		if(!isset($variants_arr_sort)){
@@ -1081,7 +985,6 @@ class Variants extends rtPositionUniversal
 		}
 		return $variants_arr_sort;
 	}
-
 	// возвращает Html вкладок для переключения вариантов расчёта
 	public function generate_variants_menu($variants){		
 		$html = ''; // контент функции
@@ -1091,13 +994,10 @@ class Variants extends rtPositionUniversal
 		
 		$arr_for_type = $this->get_variants_arr_sort_for_type($variants);
 		
-
 		
 		for ($i=0; $i < count($variants); $i++) { 
 			$checked = ''; // имя класса для выбранного элемента
-
 			$row_status = $variants[$i]['row_status'];
-
 			// если это зона записи red, а архив нам не нужно показывать переходим к следующей интерации цикла
 			if(!isset($_GET['show_archive']) && $row_status=='red'){ continue;}
 			// если вариант выбран по ссылке через GET параметр
@@ -1110,7 +1010,6 @@ class Variants extends rtPositionUniversal
 					
 				}		
 			}else{
-
 				switch ( $row_status ) {
 					case 'sgreen':// не история - рабочий вариант расчёта
 						if($ch < 1){$checked='checked';$ch++;}					
@@ -1130,11 +1029,9 @@ class Variants extends rtPositionUniversal
 		}
 		return $html;
 	}
-
 	// получаем все варианты расчёта по данному артикулу
 	public function getVariantsDatabase($id){
 		// global $mysqli;
-
 		$query = "SELECT `".RT_DOP_DATA."`.*, 
 		DATE_FORMAT(shipping_date,'%d.%m.%Y') AS `shipping_date` 
 		FROM `".RT_DOP_DATA."` WHERE `row_id` = '".$id."'";
@@ -1147,12 +1044,9 @@ class Variants extends rtPositionUniversal
 				$variants[] = $row;
 			}
 		}	
-
 		$this->Variants = $variants;
-
 		return $variants;
 	}
-
 	// возвращает услуги для варианта	
 	public function getServices($id){
 		// получаем изображения
@@ -1160,7 +1054,6 @@ class Variants extends rtPositionUniversal
 		return $this->Services->getServicesDatabase($id);	
 	}
 }
-
 /**
  *	класс услуг прикрепленных к варианту
  *
@@ -1176,12 +1069,9 @@ class Services extends Variants
 		if($id == 0){
 			return;
 		}
-
 		// подключаемся к базе
 		$this->db();
 	}
-
-
 	// получаем услуги по варианту расчета
 	public function getServicesDatabase($id){
 		global $mysqli;
@@ -1195,9 +1085,7 @@ class Services extends Variants
 		}
 		return $service_arr;
 	}
-
 	
-
 	// ВЫВОДИТ СПИСОК УСЛУГ ПРИКРЕПЛЁННЫХ ДЛЯ ВАРИАНТА
 	// $NO_show_head добавлен как необязательная переменная для отключения вывода 
 	// $pause - флаг запрета редактирования
@@ -1219,7 +1107,6 @@ class Services extends Variants
 			$this->edit_admin = '';
 			$pause = 1;
 		}
-
 		$html ='';
 		// если массив услуг пуст возвращаем пустое значение 
 		if(!count($arr)){return $html;}
@@ -1230,7 +1117,6 @@ class Services extends Variants
 			$id_s[] = $value['uslugi_id'];
 		}
 		$id_s = implode(', ', $id_s);
-
 		// делаем запрос по услугам
 		// global $mysqli;
 		$query = "SELECT `".OUR_USLUGI_LIST."`.`parent_id`,
@@ -1255,11 +1141,8 @@ class Services extends Variants
 				}
 			}
 		}
-
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
-
 		//foreach ($services_arr as $key => $service) {
-
 			foreach ($arr as $key2 => $service_attach) {
 				// исключение на ошибку в записи uslugi_id
 				//if($service_attach['uslugi_id'] == 0){
@@ -1269,13 +1152,10 @@ class Services extends Variants
 					// }						
 				//}
 				// if($service_attach['uslugi_id']==$key){
-
 					$quantity = ($service_attach['for_how']=="for_all")?1:$service_attach['quantity'];
-
 					// цена за штуку
 					$price_in = $service_attach['price_in'];
 					$price_out = $service_attach['price_out'];
-
 					// цена за тираж
 					$tir_price_in = $service_attach['price_in'] * $quantity;
 					$tir_price_out = $service_attach['price_out'] * $quantity;
@@ -1301,8 +1181,6 @@ class Services extends Variants
 					
 					// ТЗ кнопки
 					$buttons_tz = (trim($service_attach['tz'])=='')?'<span class="tz_text_new"></span>':'<span class="tz_text_edit"></span>';
-
-
 					$html .= '<tr id="editable_from_rtClass_'.$variant['id'].'_'.$service_attach['id'].'" class="calculate calculate_usl '.$calc_tr_class.'" data-dop_uslugi_id="'.$service_attach['id'].'" data-our_uslugi_id="'.@$services_arr[$service_attach['uslugi_id']]['id'].'" data-our_uslugi_parent_id="'.@trim($services_arr[$service_attach['uslugi_id']]['parent_id']).'"  data-for_how="'.@trim($services_arr[$service_attach['uslugi_id']]['for_how']).'">';
 						$html .= '<td title="'.@$services_arr[$service_attach['uslugi_id']]['note'].'">';
 							$html .= '<div class="'.$calc_class.'">';
@@ -1376,14 +1254,10 @@ class Services extends Variants
 						// кнопка удаления услуги (только для автора услуги)
 						$html .= ($this->user_id == $service_attach['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';
 					$html .='</tr>';
-
 				// }
 			}
-
 		//}
-
 		return $html;
 	}
 }
-
-	
+?>

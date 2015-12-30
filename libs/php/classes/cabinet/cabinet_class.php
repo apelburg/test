@@ -91,7 +91,7 @@
 			protected $name_cirillic_status = array(
 				'new_query' => 'новый запрос',
 				'not_process' => 'не обработан менеджером',
-				'taken_into_operation' => 'взят в обработку',
+				'taken_into_operation' => 'на рассмотрении',
 				'in_work' => 'в работе',
 				'history' => 'история'
 			);
@@ -2723,25 +2723,58 @@
 				$status_query_enablsed_arr = array();
 				
 
-				if($this->user_access != 1){
+				if($this->user_access == 5){
 
-					
+					switch ($this->Query['status']) {
+						case 'history':
+							$status_query_enablsed_arr['in_work'] = 'В работу';
+							// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+							// exit;
+							break;
+						case 'taken_into_operation':
+							$status_query_enablsed_arr['in_work'] = 'В работу';
+							$status_query_enablsed_arr['history'] = 'История';
+							// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+							// exit;
+							break;
 
-					if($this->Query['status'] != 'history' && $this->Query['status'] != 'in_work'){
-						$message = "Отсюда невозможно перевести запрос в другой статус.".$this->Query['status'];
-						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-						exit;
-					}else{
-						$status_query_enablsed_arr['history'] = 'История';
-						$status_query_enablsed_arr['in_work'] = 'В работе';
+						case 'in_work':
+							$status_query_enablsed_arr['taken_into_operation'] = 'На рассмотрении';
+							$status_query_enablsed_arr['history'] = 'История';
+							// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+							// exit;
+							break;
+
+						case 'not_process':
+							$status_query_enablsed_arr['in_work'] = 'В работу';
+							$status_query_enablsed_arr['taken_into_operation'] = 'На рассмотрение';
+							// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+							// exit;
+							break;
+						
+						default:
+							echo '{"response":"OK"}';
+							exit;
+							break;
 					}
 
-				}else{
-					$status_query_enablsed_arr['history'] = 'История';
-					$status_query_enablsed_arr['in_work'] = 'В работе';
-					$status_query_enablsed_arr['new_query'] = 'Новый запрос';
+					// if($this->Query['status'] != 'history' && $this->Query['status'] != 'in_work'){
+					// 	$message = "Отсюда невозможно перевести запрос в другой статус.".$this->Query['status'];
+						
+					// }else{
+					// 	$status_query_enablsed_arr['history'] = 'История';
+					// 	$status_query_enablsed_arr['in_work'] = 'В работе';
+					// }
+
+				}else if($this->user_access == 1){					
+					$status_query_enablsed_arr['in_work'] = 'В работе Sales';
+					// $status_query_enablsed_arr['new_query'] = 'Новый запрос';
 					$status_query_enablsed_arr['not_process'] = 'Не обработан менеджером';
-					$status_query_enablsed_arr['taken_into_operation'] = 'Взят в обработку';	
+					$status_query_enablsed_arr['taken_into_operation'] = 'Взят на рассмотрение';	
+					$status_query_enablsed_arr['history'] = 'История';
+				}else{
+					echo '{"response":"OK"}';
+					exit;
 				}
 				
 				

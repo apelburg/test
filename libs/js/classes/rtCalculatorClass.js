@@ -613,9 +613,11 @@ var rtCalculator = {
 					// если найдено что позиция имеет какие-либо размеры изменение количества должно быть отменено
 					// возвращаем в ячейку прежнее значение
 					//alert(response_obj.warning);
-					rtCalculator.sizeExistsDisclaimer(cell,row_id);
-					cell.innerHTML = rtCalculator.tbl_model[row_id]['quantity'];
-					return;
+					if(source=='rt'){
+						rtCalculator.sizeExistsDisclaimer(cell,row_id);
+						cell.innerHTML = rtCalculator.tbl_model[row_id]['quantity'];
+						return;
+					}
 				}
 			}
 		

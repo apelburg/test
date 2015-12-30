@@ -372,9 +372,9 @@
 				$this->responseClass->addMessage($message,'system_message');
 				$this->responseClass->addResponseFunction('reload_order_tbl');
 
-				$options['width'] = 1200;
-				$query .= $this->print_arr($_POST);
-				$this->responseClass->addSimpleWindow($query,'',$options);	
+				// $options['width'] = 1200;
+				// $query .= $this->print_arr($_POST);
+				// $this->responseClass->addSimpleWindow($query,'',$options);	
 				
 			}
 
