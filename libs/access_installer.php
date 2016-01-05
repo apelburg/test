@@ -218,6 +218,9 @@
 	// МЕНЕДЖЕР					  
 	$ACCESS_SHABLON[5] = array(
 
+						'default'=> array('access'=> true),
+						'agreement'=> array('access'=> true),
+						'planner'=> array('access'=> true),
 						'cabinet'=> array(
 										'access'=> true,
 										'section'=> array( 							
@@ -290,7 +293,10 @@
 										'section'=> array( // 1
 										    'rt'=> array('access'=>true),
 											'business_offers'=> array('access'=>true),
+											'agreements'=> array('access'=>true),
+											'planner'=> array('access'=>true),
 											'order_art_edit'=> array('access'=>true),
+											'rt_position'=> array('access'=>true),
 											'order_tbl'=> array(
 												'access'=>true,
 												'change_status_glob'=> array('access'=>true),
@@ -300,7 +306,7 @@
 												'change_status_snab'=> array('access'=>true)
 												)
 											)	
-										),
+										),	
 				       'clients'=> array(
 										'access'=> true,
 										'full_clients_delete'=> false

@@ -150,9 +150,9 @@
 	    $oferts_data = Agreement::fetch_all_client_oferts($client_id);
 		
 		if($oferts_data){
-		    $rows = '<tr class=""><td colspan="10">&nbsp;</td></tr>
-			        <tr class="cup_line_2"><td style="border-left:1px solid #BBBBBB;" colspan="3">документ / номер</td><td>дата документа</td><td colspan="2">подробнее</td><td></td><td colspan="3" align="center">действия</td></tr>
-					<tr class=""><td colspan="10">&nbsp;</td></tr>';
+		    $rows = '<tr class=""><td colspan="11">&nbsp;</td></tr>
+			        <tr class="cup_line_2"><td style="border-left:1px solid #BBBBBB;" colspan="4">документ / номер</td><td>дата документа</td><td colspan="2">подробнее</td><td></td><td colspan="3" align="center">действия</td></tr>
+					<tr class=""><td colspan="11">&nbsp;</td></tr>';
 		    while($data_row= $oferts_data->fetch_assoc()){
                  
 				 
@@ -163,7 +163,7 @@
 				 $type = ($data_row['type']=='date')?'дата':'р/д';
 				 
 				 $rows .= '<tr>'; //agreement_id="'.$agreement['id'].'" '.$hidden.'
-				 $rows .= '<td style="border-right:none;width:95px;">оферта</td><td style="width:50px;">'.$type.'</td><td style="width:120px;">№ '.$data_row['num'].'</td>';
+				 $rows .= '<td style="border-right:none;width:95px;">оферта</td><td style="width:50px;">'.$type.'</td><td style="width:8px;padding-right:0px;border-right:none;">№</td><td managed="text" bd_row_id="'.$data_row['id'].'" bd_field="num" style="width:120px;padding-left:4px;border-left:0px;">'.$data_row['num'].'</td>';
 				 $rows .= '<td style="width:200px;">'.$date.'</td><td colspan="3" managed="text" bd_row_id="'.$data_row['id'].'" bd_field="short_description" max_length="30">'.$data_row['short_description'].'</td>';
 				 $rows .= "<td style='width:100px;border-left:none;border-right:none;'><a href='?page=agreement&section=agreement_editor&client_id=".$client_id."&oferta_id=".$data_row['id']."&dateDataObj={\"doc_type\":\"oferta\"}'>открыть</a></td>";
 				 $rows .= "<td style='width:100px;border-left:none;border-right:none;'><a href='?page=agreement&section=specification_editor&client_id=".$client_id."&oferta_id=".$data_row['id']."&dateDataObj={\"doc_type\":\"oferta\"}'>редактировать</a></td>";

@@ -241,7 +241,7 @@
 	$query_related_data = RT::fetch_query_related_data($query_num);
 	$theme = $query_related_data['theme'];
 	$query_status = $query_related_data['status'];
-	$block_page_elements = !($query_status=='in_work')?true:false;
+	$block_page_elements = ($_SESSION['access']['access']!= 1 && $query_status!='in_work')?true:false;
 	$theme_block = '<input id="query_theme_input" class="query_theme" query_num="'.$query_num.'" type="text" value="'.(($theme=='')?'Введите тему':htmlspecialchars($theme,ENT_QUOTES)).'" onclick="fff(this,\'Введите тему\');">';	
 
 	// шаблон поиска

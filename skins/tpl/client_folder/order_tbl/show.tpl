@@ -1,7 +1,7 @@
 <!-- begin skins/tpl/client_folder/rt/show.tpl --> 
 <link href="<?php  echo HOST; ?>/skins/css/order_art_edit.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
-<link href="<?php  echo HOST; ?>/skins/css/__rt_vremenno.css" rel="stylesheet" type="text/css">
+<link href="<?php  echo HOST; ?>/skins/css/rt.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/skins/css/checkboxes.css" rel="stylesheet" type="text/css">
 <style type="text/css">
 	.cabinet_general_content_row,.dop_usl_tbl{width: 100%; border-collapse: collapse;}

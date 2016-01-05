@@ -75,9 +75,9 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
                    <!--  <a href="?page=cabinet&section=requests&subsection=no_worcked" class="<?php //if($page=='cabinet')echo'selected'; ?>">Кабинет</a> -->
 
                    
-                    
-                    <a href="?page=admin" class="<?php if($page=='admin')echo'selected'; ?>">Админка</a>
-                
+                   <?php if(@$ACCESS['admin']['access']){ ?> 
+                       <a href="?page=admin" class="<?php if($page=='admin')echo'selected'; ?>">Админка</a>
+                   <?php } ?>
                     <!--<a href="?page=_test_rt" class="<?php if($page=='empty4')echo'selected'; ?>">test_rt</a>-->
                 </div>
             </td>

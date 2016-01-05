@@ -1,5 +1,4 @@
 <?php
-
 	// ПРИМЕЧАНИЕ - после заверщения скрипта убрать из common.js функции с окончанием Old
 	
 	// Данные расчетной таблицы хронятся в 3-х таблицах базы данных
@@ -96,7 +95,6 @@
 	 $rows = fetch_rows_from_rt($query_num);
 	 
 	 
-
 	 $test_data = FALSE; // TRUE
 	 // Построение таблицы РТ
 	 // основой для рядов таблицы (тегов <tr>) является второй уровень массива $rows[0], тоесть это те данные которые лежат в $row['dop_data']
@@ -345,7 +343,6 @@
 								   <a href="?page=client_folder&client_id='.$_GET['client_id'].'&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 								 </div>';
 			 }
-
 			 $block = (isset($dop_row['status_snab']) && ($dop_row['status_snab']=='on_calculation_snab' || $dop_row['status_snab']=='on_recalculation_snab' || $dop_row['status_snab']=='in_calculation'))?1:0;
 			 
 		     $cur_row  =  '';
@@ -419,11 +416,9 @@
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
 				  <td class="art_name right">
-				      <a href="#" onclick="/*console.log(rtCalculator.tbl_model);*/print_r(rtCalculator.tbl_model);">_</a>
-					  &nbsp;
-					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>
-					  &nbsp;
-					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:3,quantity:1});">_</a>		  
+				      <!--<a href="#" onclick="/*console.log(rtCalculator.tbl_model);*/print_r(rtCalculator.tbl_model);">_</a>&nbsp;
+					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>&nbsp;
+					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:3,quantity:1});">_</a>-->
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
@@ -565,5 +560,4 @@
 			  
 			  
 			  
-
 ?>

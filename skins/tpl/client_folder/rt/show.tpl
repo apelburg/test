@@ -37,7 +37,7 @@ $( document ).ready(function() {
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/calendar_consturctor.js"></script>
 
 
-<link href="<?php  echo HOST; ?>/skins/css/__rt_vremenno.css" rel="stylesheet" type="text/css">
+<link href="<?php  echo HOST; ?>/skins/css/rt.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/skins/css/checkboxes.css" rel="stylesheet" type="text/css">
 
 

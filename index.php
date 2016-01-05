@@ -11,6 +11,7 @@
 	include_once('../libs/mysqli.php');
     include_once('libs/config.php');
 	include_once('libs/lock.php');
+	include_once('libs/variables.php');
 
 	// aplStdClass
 	include_once ROOT.'/../libs/php/classes/aplStdClass.php';
@@ -20,7 +21,7 @@
 	include_once('libs/php/common.php');
     
     include_once('libs/autorization.php');
-	include_once('libs/variables.php');
+	
 
 	
 	// галлерея
@@ -82,36 +83,6 @@
 	   include_once 'modules/planner/router.php';
 	   break; 
 	 
-	  
-	     /*   
-	   case 'managers':
-	   include 'modules/managers/router.php';
-	   break;
-	   
-	   case 'search':
-	   include 'modules/search/router.php';
-	   break;
-	   
-	   case 'invoiceforpay':
-	   include 'modules/invoiceforpay/router.php';
-	   break;
-	   
-	   case 'our_firms':
-	   include 'modules/our_firms/router.php';
-	   break;
-	   
-	   case 'reports':
-	   include 'modules/reports/router.php';
-	   break;
-	   
-	   case 'agreement':
-	   include 'modules/agreement/router.php';
-	   break;
-	   
-	   case 'common':
-	   include 'modules/common/router.php';
-	   break;
-	   */
 	   default: 
 	   include_once 'modules/default/router.php';
 	   break;
