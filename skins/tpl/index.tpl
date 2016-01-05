@@ -125,6 +125,6 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
 if(isset($_SESSION['access']['user_id'])){ echo Planner::$warnings_container; }
 ?> 
 <!-- / Планнер -->  
-<div style="position:absolute;right:0px;bottom:0px;"><a href="#" onclick="alert(error_report);return false;">ошибки</a></div><!---->
+<!--<div style="position:absolute;right:0px;bottom:0px;"><a href="#" onclick="alert(error_report);return false;">ошибки</a></div>-->
 </body>
 </html>
