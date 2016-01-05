@@ -1,4 +1,4 @@
- <?php echo __DIR__; ?>/show.tpl -- START-->
+<!-- <?php echo __DIR__; ?>/show.tpl -- START-->
 
 <!-- стили -->
 <link href="./skins/css/rt_position.css" rel="stylesheet" type="text/css">
@@ -25,8 +25,7 @@
 <script type="text/javascript" src="../libs/js/standard_response_handler.js"></script>
 <!-- скрипт страницы -->
 <script type="text/javascript" src="./libs/js/jsPositionUniverasal.js"></script>
-<!-- галлерея изображений -->
-<script type="text/javascript" src="./libs/js/rt_KpGallery.js"></script>
+
 
 
 <div id="order_art_edit">
@@ -152,4 +151,4 @@
 	</div>
 	<?php echo $forum; ?>
 </div>
-<!-- <?php echo __DIR__; ?>/show.tpl -- END
+<!-- <?php echo __DIR__; ?>/show.tpl -- END-->

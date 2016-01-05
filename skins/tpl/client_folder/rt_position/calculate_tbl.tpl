@@ -10,8 +10,8 @@
 			<tr class="tirage_option_and_date_print">
 				<td class="tirage_buttons">
 					<strong>Тираж:</strong>
-					<input type="text" class="tirage_var" id="tirage_var_<?php echo $key;?>" value="<?php echo $sum_tir; ?>"> + 
-					<input type="text" class="dop_tirage_var" id="dop_tirage_var_<?php echo $key;?>" value="<?php echo $sum_dop; ?>">
+					<input type="text" class="tirage_var<?=$disabled_input_class;?>" <?=$disabled_input_readonly;?> id="tirage_var_<?php echo $key;?>" value="<?php echo $sum_tir; ?>"> + 
+					<input type="text" class="dop_tirage_var<?=$disabled_input_class;?>" <?=$disabled_input_readonly;?> id="dop_tirage_var_<?php echo $key;?>" value="<?php echo $sum_dop; ?>">
 					<span class="btn_var_std <?php echo $print_z; ?>" name="pz">ПЗ</span>
 					<span class="btn_var_std <?php echo $print_z_no; ?>" name="npz">НПЗ</span>
 				</td>

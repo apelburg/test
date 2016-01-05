@@ -54,8 +54,8 @@
     	
     	// Ожидают распределения (Админ)
     	protected function requests_query_wait_the_process_Template($id_row){
-    		$this->filtres_query = " `".RT_LIST."`.`status` = 'new_query'";
-    		// $this->filtres_query .= " AND `".RT_LIST."`.`manager_id` = '24'";
+    		$this->filtres_query = " `".RT_LIST."`.`status` = 'not_process'";
+    		$this->filtres_query .= " AND `".RT_LIST."`.`manager_id` = '24'";
     		$this->standart_request_method($id_row);
     	}
 		
@@ -245,20 +245,20 @@
     		// echo $this->user_access;
 			if($this->user_access == 5){
 				switch ($this->Query['status']) {
-					case 'not_process':
+					// case 'not_process':
 
-						$this->status_or_button = '<div data-client_id="'.$this->Query['client_id'].'" data-manager_id="'.$this->Query['manager_id'].'" class="take_in_operation">Принять в обработку</div>';
-						// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],1);						
-						break;
-					case 'taken_into_operation':
-						$this->status_or_button = '<div class="get_in_work">Взять в работу</div>';
-						// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],0);						
-						break;
+					// 	$this->status_or_button = '<div data-client_id="'.$this->Query['client_id'].'" data-manager_id="'.$this->Query['manager_id'].'" class="take_in_operation">Принять в обработку</div>';
+					// 	// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],1);						
+					// 	break;
+					// case 'taken_into_operation':
+					// 	$this->status_or_button = '<div class="get_in_work">Взять в работу</div>';
+					// 	// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],0);						
+					// 	break;
 
-					case 'new_query':
-						$this->status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
-						// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],1);						
-						break;					
+					// case 'new_query':
+					// 	$this->status_or_button = '<div class="take_in_operation">Принять в обработку</div>';
+					// 	// $this->client_button = $this->get_client_name_Database($this->Query['client_id'],1);						
+					// 	break;					
 
 					default:
 						$this->status_or_button = $this->name_cirillic_status[$this->Query['status']];
@@ -273,7 +273,7 @@
 		protected function standart_request_method($id_row){
 
 			// кнопка новый запрос
-			if($this->user_access == 5 || $this->user_access == 1){ // кнопка новый запрос для админа не проработано
+			if( $this->user_access == 5 ){ // кнопка новый запрос для админа не проработано
 			// if($this->user_access == 5){
 				global $quick_button;
 				$quick_button = '<div class="quick_button_div"><a href="#" id="create_new_query" class="button add">Новый запрос</a></div>';	
@@ -476,10 +476,19 @@
 			// подкрашиваем серые строки
 			$grey_row_style = ($position['row_status'] == 'grey')?' grey_row_style':'';
 
+			// маркер не прикрепленного клиента
+			$js_message = 'Чтобы перейти в карточку артикула необходимо прикрепить клиента!!!';
+			$the_client_is_not_attached = 'style="cursor:pointer" onClick="echo_message_js(\''.$js_message.'\',\'system_message\');"';
+			$href_art_card = '<div '.$the_client_is_not_attached.'>'.$position['name'].' <span class="greyText"> вар '.$this->name_count++.'</span></div>';
+			if ($this->Query['client_id'] > 0) {
+				$the_client_is_not_attached = '';
+				$href_art_card = '<a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Query['client_id'].'&section=rt_position&id='.$position['id'].'&varID_checked='.$position['id_dop_data'].'">'.$position['name'].'</a> <span class="greyText"> вар '.$this->name_count++.'</span>';
+			}
+
 			$html = '<tr data-id_dop_data="'.$position['id_dop_data'].'" class="'.$position['type'].'_1 query_detail '.$grey_row_style.'" '.$this->open_close_tr_style.'">';
 				// $html .= '<td>'.$position['id_dop_data'].$this->print_arr($Query).'</td>';
 				$html .= '<td>'.$position['art'].'</td>';
-				$html .= '<td><a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Query['client_id'].'&section=rt_position&id='.$position['id'].'&varID_checked='.$position['id_dop_data'].'">'.$position['name'].'</a> <span class="greyText"> вар '.$this->name_count++.'</span></td>';
+				$html .= '<td>'.$href_art_card.'</td>';
 				$html .= '<td>'.$position['quantity'].'</td>';
 				$html .= '<td>'.$this->Price_for_the_goods.'</td>';
 				$html .= '<td>'.$this->Price_of_printing.'</td>';
@@ -493,7 +502,8 @@
 
 				$html .= '<td title="'.$title.'" class="'.$class_no_calc.'">'.$position['calc'].' ' .$this->Price_for_the_position.'</td>';
 
-				$status_snab = ($Query['status'] != 'new_query')?$this->show_cirilic_name_status_snab($position['status_snab']):'';
+				// $status_snab = ($Query['status'] != 'new_query')?$this->show_cirilic_name_status_snab($position['status_snab']):''; // без снабов статус работы не актуален
+				$status_snab = '';
 				$html .= '<td data-type="'.$position['type'].'" data-status="'.$position['status_snab'].'" class="'.$position['status_snab'].'_'.$this->user_access.' '.$Query['status'].'_status_snab_'.$this->user_access.'">'.$status_snab.'</td>';
 			$html .= '</tr>';
 			return $html;
