@@ -604,7 +604,7 @@
 				$data_arr[$key]['art'] = $art_data['art'];
 				$data_arr[$key]['type'] = 'cat';
 				$data_arr[$key]['name'] = $art_data['name'];
-				$data_arr[$key]['description'] = $basket_data['article'];
+				$data_arr[$key]['description'] = $art_data['description'];
 				$data_arr[$key]['characteristics'] = $characteristics;
 				
 				///////////////////////////////////////////////////////////////////////////////////////////////////////////////

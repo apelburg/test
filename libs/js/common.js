@@ -1748,6 +1748,125 @@
 		}	
    }
    
+   function send_select_data_to_rt_from_basket_new_os(){
+		//данные клиента
+		var client_input = document.getElementById('client_input');
+		var client_data = client_input.value;
+		var client_double_input = document.getElementById('client_input_double');
+		var client_double_data = client_double_input.value;
+		
+	    
+		if(client_data == '' || client_data == 'нет вариантов'){
+			client_input.style.backgroundColor = "#CCFF33";
+			client_input.focus();
+			alert('Вы не указали клиента!!!');
+		    return;
+		}
+
+		//данные менеджера
+		var manager_login_input = document.getElementById('manager_login');
+		var manager_login = manager_login_input.value;
+		
+		if(manager_login == '' || manager_login == 'нет вариантов' || client_data != client_double_data ){
+	        show_search_result_list(client_input,'CLIENT_TBL','comp_full_name{@}company','company{@}comp_full_name{@}dop_param','Компания{@}Юр. лицо{@}Конт. лицо{@}Менеджер','/admin/order_manager/');
+		    return;
+     	}
+		
+		// проверяем есть ли одинаковые артикулы в корзине, чтобы понять надо сливать артикулы или нет 
+		// а также проверяем какие чекбоксы выделены, это понадобится для определения какие артикулы сливать 
+		//
+		var checkboxesInfo = check_checkboxes();
+	    console.log(checkboxesInfo);
+		
+	    if(checkboxesInfo.similarArts){
+			// если открываем окно первый раз вызываем метод выбирающий все артикулы  
+			if(typeof send_select_data_to_rt_from_basket_new_os.chose_all_checkboxes_applied ==='undefined'){
+				chosen_all_checkboxes();
+				send_select_data_to_rt_from_basket_new_os.chose_all_checkboxes_applied = true;
+		    }
+			
+			var text = 'В корзине есть повторяющиеся артикулы. Хотите ли Вы, чтобы при переносе товара из корзины в ОС повторяющиеся артикулы были объеденены в одину позицию? Если да нажмите кнопку ОК. Если вы хотите чтобы часть артикулов была объеденена, при этом другие не объеденены, уберите галочки у тех артикулов которые не нужно объединять. ';
+			var dialog = $('<div>'+text+'</div>');
+			
+			function withUnion(){
+			    var checkboxesInfo = check_checkboxes();
+				send(client_data,manager_login,checkboxesInfo.dopInfo); 
+			}
+			function withoutUnion(){ 
+				$(':checkbox[name=marker_for_item]').prop('checked', false);
+				var checkboxesInfo = check_checkboxes();
+				send(client_data,manager_login,checkboxesInfo.dopInfo); 
+			}
+			$(dialog).dialog({width: 700 , title:"создание заявки в ОС", buttons:[ 
+													{text: "Объединить выбранные артикулы",click: withUnion},
+													{text: "Ничего не объединять",click: withoutUnion}
+													]});
+			$(dialog).dialog('open');
+			return;
+		}
+		//console.log(dopInfo);
+		//return;
+		send(client_data,manager_login,checkboxesInfo.dopInfo);
+		
+		function check_checkboxes(){
+			var dopInfo = {};
+			var artIds = [];
+			var similarArts = false;
+			$('input[name=marker_for_item]').each(function(index){ 
+														var art_id = this.getAttribute("art_id");
+														// checking on similar articles
+														if(artIds.join(',').indexOf(art_id)>=0) similarArts = true;
+														if(!similarArts) artIds.push(art_id);
+														dopInfo[this.value] = {art_id:art_id,chkd:Number(this.checked)};
+														
+												  });
+			return {similarArts:similarArts,dopInfo:dopInfo};
+		}
+		
+		function send(client_data,manager_login,dopInfo){
+			
+			// в данной версии у нас есть имя клиента и логин менеджера, отправляем их, но это затем надо заменить на айдишники 
+			//////////////////////////////////////////////////////////////////////////////////////////
+			/////////////////////////////////////    AJAX  ///////////////////////////////////////////
+			
+			var regexp = /%20/g; // Регулярное выражение соответствующее закодированному пробелу
+			var request = HTTP.newRequest();
+			var url =  HOST+"/os/?add_data_to_rt_from_basket=1&client_data=" + encodeURIComponent(client_data).replace(regexp,"+") +  "&dop_info=" + JSON.stringify(dopInfo) +  "&manager_login=" + encodeURIComponent(manager_login).replace(regexp,"+");
+			// alert(url);
+			// return;
+			// производим запрос
+			request.open("GET", url, true);
+			request.send(null);
+	
+			request.onreadystatechange = function(){ // создаем обработчик события
+			   if(request.readyState == 4){ // проверяем состояние запроса если запрос == 4 значит ответ получен полностью
+				   if(request.status == 200){ // проверяем состояние ответа (код состояния HTTP) если все впорядке продолжаем 
+					  ///////////////////////////////////////////
+					  // обрабатываем ответ сервера
+					  //  alert(22);
+					  var request_response = request.responseText;
+					   // alert(request_response);
+					   // console.log(request_response);
+					  
+					  //return;
+					 
+					  var responseObj = JSON.parse(request_response);
+					  //console.log(responseObj);
+					  if(responseObj[0] == 0){
+							location = HOST+ '/os/?page=cabinet&section=requests&subsection=no_worcked_men&client_id=' + responseObj[1];
+					  }
+					  else alert(responseObj[1]); /**/
+					 
+				   }
+				   else{
+					  //alert("AJAX запрос не выполнен");
+				   }
+			   }
+		   }
+		   //////////////////////////////////////////////////////////////////////////////////////////
+		}
+	}
+   
     function print_agreement(){
 	   //
 

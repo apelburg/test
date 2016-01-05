@@ -325,7 +325,7 @@
 								   </div>
 								 </div>
 								 <div>'.$row['name'].'</div>
-								 <div><input type="button" class="getSizesBtn" pos_id="'.$key.'" value="Подробно"></div>';
+								 <div><input type="button" class="getSizesBtn" pos_id="'.$key.'" value="Размеры"></div>';
 				 // дополнительная скрытая инфа 
 		        if($counter==0 &&  count($row['dop_details'])>0)  $dop_details['allowed_prints'] = $row['dop_details'];
 			 }
