@@ -8,6 +8,7 @@
 		// разрешить показ сообщений
 		// private $allow_messages = false;
 		// 
+		// test 
 
 		// словарь
 		public $menu_name_arr = array(
