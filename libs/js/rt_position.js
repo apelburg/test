@@ -894,32 +894,63 @@ $(document).on('keyup','#edit_variants_content .dop_tirage_var',function(){
 	chenge_the_general_input();
 });
 
+// запрещаем ввод в общее поле информации
+function disabled_general_quantyti_input( flag ){
+	if(flag > 0){
+		$('.tirage_var:visible,.dop_tirage_var:visible').addClass('disabled_input').attr('readonly','readonly');		
+	}else{
+		$('.tirage_var:visible,.dop_tirage_var:visible').removeClass('disabled_input').removeAttr('readonly');
+	}
+}
+
+$(document).on('click', '.disabled_input', function(event) {
+	var message ='В карточке содержится более одного размера.';
+	echo_message_js(message,'error_message');
+	 message ='Редактирование тиража и запаса возможно только в блоке размеров';
+	echo_message_js(message,'system_message');
+});
+
 // функция сохранения размерной сетки
 function save_all_table_size(){
-	var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
-	var id_size = new Array();
-	var tirage = new Array();
-	var var_id = new Array();
-	var dop = new Array();
-	$(id_variant+' .size_card .val_tirage').each(function(index, el) {
-		id_size[index] = $(this).attr('data-id_size');
-		tirage[index] = $(this).val();
-		var_id[index] = $(this).attr('data-var_id');
-		dop[index] = $(this).parent().parent().find('.val_tirage_dop').val();
-	});
+	if($('.size_card:visible').length > 0){
+		var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
+		var id_size = new Array();
+		var tirage = new Array();
+		var var_id = new Array();
+		var dop = new Array();
+		var i = 0;
+		var b = 0;
+		$(id_variant+' .size_card .val_tirage').each(function(index, el) {
+			id_size[index] = $(this).attr('data-id_size');
+			tirage[index] = Number($(this).val());
+			if(tirage[index] > 0){
+				i++;
+			}
+			var_id[index] = $(this).attr('data-var_id');
+			dop[index] = Number($(this).parent().parent().find('.val_tirage_dop').val());
+			if(dop[index] > 0){
+				b++;
+			}
+		});
 
-	$.post('', {
-		// global_change: 'AJAX',
-		AJAX: 'size_in_var_all',
-		val:tirage,
-		key:id_size,
-		dop:dop,
-		id: var_id
-	}, function(data, textStatus, xhr) {
-		// console.log(data);
-		standard_response_handler(data);
-	},'json');
+		if(b > 1 || i > 1){
+			disabled_general_quantyti_input( 1 );
+		}else{
+			disabled_general_quantyti_input( 0 );
+		}
 
+		$.post('', {
+			// global_change: 'AJAX',
+			AJAX: 'size_in_var_all',
+			val:tirage,
+			key:id_size,
+			dop:dop,
+			id: var_id
+		}, function(data, textStatus, xhr) {
+			// console.log(data);
+			standard_response_handler(data);
+		},'json');
+	}
 }
 
 // расчитывает размер с наибольшим свободным местом
@@ -1427,6 +1458,11 @@ function recalculate_services(){
 	// recalculate_table_price_Itogo();
 }
 
+$(document).on('keyup', '.val_tirage_dop', function(event) {
+	event.preventDefault();
+	save_all_table_size();
+});
+
 /**
  *	обработчик ответа на запрос на изменение тиража в РТ
  *  изменяет данные в расчётной таблице
@@ -1436,6 +1472,7 @@ function recalculate_services(){
  */
 function response_rtCalculator_makeQuantityCalculations(cell,row_id,response_obj){
 	console.log(response_obj);
+	
 	// при отрицательном отклике - выкидываем оповещение
 	if(response_obj['extra']['result'] != 'ok' || response_obj['print']['result'] != 'ok'){
 		echo_message_js('УПС... ;(','system_message',2500);

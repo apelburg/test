@@ -112,15 +112,24 @@
 				# code...
 				break;
 		}
+
+		$tirage_json = json_decode($variant['tirage_json'], true);
+		// echo '<pre>';
+		// print_r($tirage_json);
+		// echo '</pre>';
+		// echo count($tirage_json);
+		$count_quantity = 0;
+		$count_zapas = 0;
+		foreach ($tirage_json as $key => $size) {
+			$count_quantity += ($size['tir'] > 0)?1:0;
+			$count_zapas += ($size['dop'] > 0)?1:0;
+		}
+		$disabled_input_class = ($count_quantity > 1 || $count_zapas > 1)?' disabled_input':'';
+		$disabled_input_readonly = ($count_quantity > 1 || $count_zapas > 1)?' readonly="readonly"':'';
 		
 		// include 'skins/tpl/client_folder/rt_position/variants_template.tpl';
 		include 'skins/tpl/client_folder/rt_position/calculate_tbl.tpl';
 	}
-
-
-
-
-
 	
 	$variants_content = ob_get_contents();
 	ob_get_clean();

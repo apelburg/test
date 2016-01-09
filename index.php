@@ -1,7 +1,10 @@
 <?php 
 	//
     header('Content-type: text/html; charset=utf-8');
-	ini_set('error_reporting', E_ALL);
+	// ini_set('error_reporting', E_ALL);
+	// при переходе на ановую версию php - вылазят сообщения об устаревших методах mysql
+	// поэтому DEPRECATED пока что отключаем 
+	ini_set('error_reporting', E_ALL ^ E_DEPRECATED);
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 	set_time_limit(0);
