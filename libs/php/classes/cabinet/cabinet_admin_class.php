@@ -7,7 +7,7 @@
 	class Cabinet_admin_class extends Cabinet{
 		// разрешить показ сообщений
 		// private $allow_messages = false;
-
+		// 
 
 		// словарь
 		public $menu_name_arr = array(
