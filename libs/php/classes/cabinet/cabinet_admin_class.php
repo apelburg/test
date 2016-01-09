@@ -9,6 +9,7 @@
 		// private $allow_messages = false;
 		// 
 		// test 
+		// test 2
 
 		// словарь
 		public $menu_name_arr = array(
