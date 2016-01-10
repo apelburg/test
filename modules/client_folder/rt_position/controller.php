@@ -120,9 +120,11 @@
 		// echo count($tirage_json);
 		$count_quantity = 0;
 		$count_zapas = 0;
-		foreach ($tirage_json as $key => $size) {
-			$count_quantity += ($size['tir'] > 0)?1:0;
-			$count_zapas += ($size['dop'] > 0)?1:0;
+		foreach ($tirage_json as $size) {
+			if ($size['tir'] > 0 || $size['dop'] > 0) {
+				$count_quantity++;
+				$count_zapas++;
+			}
 		}
 		$disabled_input_class = ($count_quantity > 1 || $count_zapas > 1)?' disabled_input':'';
 		$disabled_input_readonly = ($count_quantity > 1 || $count_zapas > 1)?' readonly="readonly"':'';

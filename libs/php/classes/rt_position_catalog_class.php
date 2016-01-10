@@ -178,23 +178,7 @@ class Position_catalog{
 	// 	$result = $mysqli->query($query) or die($mysqli->error);
 	// 	exit;
 	// }
-	private function change_status_row_AJAX(){
-		global $mysqli;
-		$id_in = $_POST['id_in'];
-		if(trim($id_in)!=''){
-			$color = $_POST['color'];
-			
-			$query  = "UPDATE `".RT_DOP_DATA."` SET `row_status` = '".$color."' WHERE  `id` IN (".$id_in.");";
-			echo $query;
-			// echo '<pre>';
-			// print_r($_POST);
-			// echo '</pre>';
-			$result = $mysqli->query($query) or die($mysqli->error);	
-		}
-		
-		echo '{"response":"1","text":"test"}';
-		exit;
-	}
+	
 	private function change_archiv_AJAX(){
 		global $mysqli;
 

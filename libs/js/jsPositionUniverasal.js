@@ -318,3 +318,13 @@ function right_carusel(carusel){
       $(carusel).find(".carousel-items").css({"left":"0px"}); 
    }); 
 }
+
+// запрет редактирования варианта
+function variant_edit_lock(data){
+  console.log(data);
+}
+
+// снятие запрета редактирования варианта
+function variant_edit_unlock(data){
+  console.log(data);
+}

@@ -701,7 +701,8 @@ var rtCalculator = {
 	}
 	,
 	cardQuantityCalculationsResponse:function(cell,row_id,response){
-		//alert(2);
+		// сохраняем размерную таблицу
+		save_all_table_size();
 	}
 	,
 	cardQuantityCalculationsResponseFull:function(cell,row_id,response_obj){

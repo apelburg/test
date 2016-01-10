@@ -352,17 +352,37 @@ function edit_variants(anyone, row_status) {
 	// console.log(row_status);
 	var i = 0;
 
+	var data_cont_id = $('#all_variants_menu .variant_name.checked').attr('data-cont_id');
+
 	if(anyone=="one"){
 		id_in[i] = $('#all_variants_menu .variant_name.checked').attr('data-id');
+
+		
 		$('#all_variants_menu .variant_name.checked span').attr('class','variant_status_sv').addClass(row_status);
+		// снимаем / ставим ограничения редактирования
+		if(row_status == 'red' && !$('#'+data_cont_id).hasClass('archiv_opacity')){
+			$('#'+data_cont_id).addClass('archiv_opacity');
+		}else if(row_status != 'red' && $('#'+data_cont_id).hasClass('archiv_opacity')){
+			$('#'+data_cont_id).removeClass('archiv_opacity');
+		}
 	}else{
 		$('#all_variants_menu .variant_name').each(function(index, el) {
-			console.log($(this).hasClass('checked'));
+
+			// console.log($(this).hasClass('checked'));
 			if($(this).hasClass('checked') || $(this).hasClass('show_archive')){
 				return true;
 			}else{
 				id_in[i] = $(this).attr('data-id');i++;
 				$(this).find('span').attr('class','variant_status_sv').addClass(row_status);
+			}
+
+			// alert($(this).attr('data-cont_id'))
+			//снимаем / ставим ограничения редактирования
+			data_cont_id = $(this).attr('data-cont_id');
+			if(row_status == 'red' && !$('#'+data_cont_id).hasClass('archiv_opacity')){
+				$('#'+data_cont_id).addClass('archiv_opacity');
+			}else if(row_status != 'red' && $('#'+data_cont_id).hasClass('archiv_opacity')){
+				$('#'+data_cont_id).removeClass('archiv_opacity');
 			}
 		});
 	}
@@ -378,9 +398,10 @@ function edit_variants(anyone, row_status) {
 
 	}, function(data, textStatus, xhr) {
 		/*optional stuff to do after success */
-		console.log(data);
-		if(row_status == 'red'){window_reload();}
-	});
+		// console.log(data);
+		// if(row_status == 'red'){window_reload();}
+		standard_response_handler(data);
+	},'json');
 }
 // копирование варианта
 function copy_variant(services){
@@ -912,7 +933,7 @@ $(document).on('click', '.disabled_input', function(event) {
 
 // функция сохранения размерной сетки
 function save_all_table_size(){
-	if($('.size_card:visible').length > 0){
+	
 		var id_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
 		var id_size = new Array();
 		var tirage = new Array();
@@ -920,25 +941,27 @@ function save_all_table_size(){
 		var dop = new Array();
 		var i = 0;
 		var b = 0;
-		$(id_variant+' .size_card .val_tirage').each(function(index, el) {
+		$('.size_card:visible .val_tirage').each(function(index, el) {
 			id_size[index] = $(this).attr('data-id_size');
 			tirage[index] = Number($(this).val());
-			if(tirage[index] > 0){
-				i++;
-			}
 			var_id[index] = $(this).attr('data-var_id');
 			dop[index] = Number($(this).parent().parent().find('.val_tirage_dop').val());
-			if(dop[index] > 0){
-				b++;
+
+			if($('.size_card:visible').length > 0){
+				if(tirage[index] > 0 || dop[index] > 0){
+					i++;b++;
+				}
 			}
 		});
 
-		if(b > 1 || i > 1){
-			disabled_general_quantyti_input( 1 );
-		}else{
-			disabled_general_quantyti_input( 0 );
+		if($('.size_card:visible').length > 0){
+			if(b > 1 || i > 1){
+				disabled_general_quantyti_input( 1 );
+			}else{
+				disabled_general_quantyti_input( 0 );
+			}
 		}
-
+		
 		$.post('', {
 			// global_change: 'AJAX',
 			AJAX: 'size_in_var_all',
@@ -950,7 +973,7 @@ function save_all_table_size(){
 			// console.log(data);
 			standard_response_handler(data);
 		},'json');
-	}
+	
 }
 
 // расчитывает размер с наибольшим свободным местом
@@ -1172,7 +1195,7 @@ function calkulate_row_itogo(){
 function chenge_the_general_input(){
 	// получаем id активного блока
 	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
-	
+	console.log(id_active_variant);
 	// считаем тираж до изменения	
 	var old_tirage = 0;
 	$(id_active_variant +' .val_tirage').each(function(index, el) {
@@ -1198,7 +1221,7 @@ function chenge_the_general_input(){
 	
 	// определяем ограничиваем ли тираж и запас по остаткам
 	var reserv =($(id_active_variant+' .size_card .sevrice_button_size_table span[name="reserve"]').hasClass('checked'))?1:0;
-	
+	// reserv = 1;
 
 	//определяем что именно было изменено и в какую сторону +/-
 	var raznost = 0;
@@ -1378,8 +1401,9 @@ function chenge_the_general_input(){
 	}
 
 	// вносим изменения тиража в таблицу
+	// console.log(general_tirage);
 	recalkulate_table(general_tirage);
-
+	
 	
 	// пересчёт таблицы с ценами
 	//calkulate_table_calc();
@@ -1397,7 +1421,8 @@ function recalkulate_table(general_tirage){
 				// console.log($(this).find('td:nth-of-type(2)').html());
 			}
 		}
-		});
+	});
+	// если были внесены изменения
 	if (recalc_itogo) {
 		recalculate_services_and_prints(general_tirage);
 		recalkulate_tovar();
@@ -1547,16 +1572,41 @@ function recalkulate_tovar(){
 }
 
 
-// перенос содержимого общего тиража и запаса в первое поле размерной сетки, остальное трется
+// перенос содержимого общего тиража и запаса в разменую сетку
 function export_gen_input_in_size_tbl(){
 	var id_active_variant = '#'+$('#variants_name .variant_name.checked ').attr('data-cont_id');
 	// определяем значение общего поля тиража
 	var general_tirage = Number($(id_active_variant+ ' .tirage_var').val());
 	// определяем значение общего поля запаса
 	var general_zapas = Number($(id_active_variant+ ' .dop_tirage_var').val());
-	$(id_active_variant+' .size_card .val_tirage,'+id_active_variant+' .size_card .val_tirage_dop').val(0);
-	$(id_active_variant+' .size_card .val_tirage:first').val(general_tirage);
-	$(id_active_variant+' .size_card .val_tirage_dop:first').val(general_zapas);
+	
+
+	//$(id_active_variant+' .size_card .val_tirage,'+id_active_variant+' .size_card .val_tirage_dop').val(0);
+	
+	// проверяем размерную сетку на заполнение
+	
+		// по умолчанию запоминаем первую строку размерной сетки
+		var size_card_quantity_obj = $('.size_card:visible .val_tirage:first');
+		var size_card_zapas_obj = $('.size_card:visible .val_tirage_dop:first');
+
+		//если заполнена не первая
+		$('.size_card:visible .val_tirage').each(function(index, el) {
+			if(Number($(this).val()) > 0){
+				size_card_quantity_obj = $(this);
+				return false;
+			}
+		});
+		$('.size_card:visible .val_tirage_dop').each(function(index, el) {
+			if(Number($(this).val()) > 0){
+				size_card_zapas_obj = $(this);
+				return false;
+			}
+		});
+	// // редактируем значения на странице
+	// var size_card_quantity_obj = $('.size_card:visible .val_tirage:first');
+	// var size_card_zapas_obj = $('.size_card:visible .val_tirage_dop:first');
+	size_card_quantity_obj.val(general_tirage);
+	size_card_zapas_obj.val(general_zapas);
 }
 
 // колькуляция и сохранение изменённых данных от тираже в таблице размеров

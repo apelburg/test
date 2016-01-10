@@ -26,6 +26,14 @@
 <!-- скрипт страницы -->
 <script type="text/javascript" src="./libs/js/jsPositionUniverasal.js"></script>
 
+<?php
+// 	echo '<pre>';
+// 	print_r($POSITION->position['status']);
+// 	echo '</pre>';
+// $POSITION->position['status'];
+// echo '<br>';
+// echo $POSITION->user_access;
+?>
 
 
 <div id="order_art_edit">
@@ -59,7 +67,12 @@
 					echo $POSITION->getImage();
 				?>
 			</div>
-			<div class="cell" id="order_art_edit_centr">
+			<div class="cell<?php
+			// echo $POSITION->user_access.' '.$POSITION->position['status'];
+				if($POSITION->position['status'] != 'in_work' && $POSITION->user_access != 1){
+					echo ' not_edit';
+				}
+			 ?>" id="order_art_edit_centr" >
 				<div id="ja--image-gallety-togle" data-id="<?php echo $POSITION->position['id']; ?>" <?php 
 				if($POSITION->position['show_img'] == 0){
 					echo 'class="hidden"';
