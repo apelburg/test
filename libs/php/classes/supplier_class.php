@@ -1,5 +1,13 @@
 <?php
-// echo "hellow world<br>";
+/**
+  *	Класс для раздела поставщиков
+  * aplStdAJAXMethod расширение стандартного обработчика
+  *
+  *	@param 		
+  *	@return  	
+  *	@author  	Алексей Капитонов
+  *	@version 	
+  */
 class Supplier extends aplStdAJAXMethod{
 	
 	// содержит название и пути к изображениям для каждого типа контактных данных
@@ -39,12 +47,40 @@ class Supplier extends aplStdAJAXMethod{
 		}
 	}
 
+	/**
+	 *	для генерации отвта выделен класс responseClass()
+	 *
+	 *  AJAX методов и преобразовать их ответы в соответствии с новыми правилами
+	 *
+	 *	@param name		method name width prefix _AJAX
+	 *	@return  		string
+	 *	@see 			{"respons","OK"}
+	 *	@author  		Алексей Капитонов
+	 *	@version 		12:16 17.12.2015
+	 */
+	protected function _AJAX_(){
+		$method_AJAX = $_POST['AJAX'].'_AJAX';
+		//echo $method_AJAX;exit;
+		
+		if(method_exists($this, $method_AJAX)){
+			// подключаем файл с набором стандартных утилит 
+			// AJAX, stdApl
+			include_once __DIR__.'/../../../../libs/php/classes/aplStdClass.php';
+			// создаем экземпляр обработчика
+			$this->responseClass = new responseClass();
+			// обращаемся непосредственно 
+			$this->$method_AJAX();				
+			// вывод ответа
+			echo $this->responseClass->getResponse();					
+			exit;
+		}					
+	}
+
 	// собираем объект поставщика
 	private function get_object($id){
-		global $mysqli;		
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".SUPPLIERS_TBL."` WHERE `id` = '".(int)$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$this->info = $row;
@@ -59,10 +95,9 @@ class Supplier extends aplStdAJAXMethod{
 
 	// получаем полный список поставщиков
 	static function get_all_suppliers_Database_Array(){
-		global $mysqli;		
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".SUPPLIERS_TBL."` GROUP BY `nickName` ASC";
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		$arr = array();
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
@@ -75,9 +110,8 @@ class Supplier extends aplStdAJAXMethod{
 	}
 
 	public function get_contact_info($tbl,$parent_id){
-		global $mysqli;
 		$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = '".$tbl."' AND `parent_id` = '".$parent_id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		$contact = array('phone'=>'','other'=>'');//инициализируем массив
 		$contacts = array();		
 		$contact['phone'] = '<table class="table_phone_contact_information"></table>';
@@ -93,6 +127,13 @@ class Supplier extends aplStdAJAXMethod{
 		}
 		return $contact;
 	}
+
+	/**
+	  *	оповещение разработчиков об удалении поставщика
+	  *
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:19 11.01.2016
+	  */
 	static function removal_request($supplier_id,$username){
 		$mail = new Mail();
 		$mail->add_bcc('kapitonoval2012@gmail.com');
@@ -103,32 +144,40 @@ class Supplier extends aplStdAJAXMethod{
 		$out_data = $mail->send($to,$from,$subject,$message);
 		return 1;		
 	}
+
+
 	static function search_name($name){
-		global $mysqli;
 		$query = "SELECT `id` FROM `".SUPPLIERS_TBL."` WHERE `fullName` = '".$name."' OR `nickName` = '".$name."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 
 		$row_cnt = $result->num_rows;
 		return $row_cnt;
 	}
 
+	/**
+	  *	заведение нового поставщика
+	  *
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:20 11.01.2016
+	  */
 	static function create($name,$fullname,$dop_info){
-		global $mysqli;
 		$query ="INSERT INTO `".SUPPLIERS_TBL."` SET
 			`nickName` = '".$name."',
 		    `fullName` = '".$fullname."',
-			`dop_info` = '".$dop_info."'";
-		 
-	    $result = $mysqli->query($query) or die($mysqli->error);
-
-	    
-		return $mysqli->insert_id;
-
+			`dop_info` = '".$dop_info."'";		 
+	    $result = $this->mysqli->query($query) or die($this->mysqli->error);	    
+		return $this->mysqli->insert_id;
 	}
 
-	//выды деятельности
+	/**
+	  *	выды деятельности
+	  *
+	  *	@param 		supplier_id
+	  *	@return  	array()
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:21 11.01.2016
+	  */
 	static function get_activities($supplier_id){
-		global $mysqli;
 		$query = "
 			SELECT  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` . * ,  `".SUPPLIERS_ACTIVITIES_TBL."`.`name` AS  `name` 
 			FROM  `".SUPPLIERS_ACTIVITIES_TBL."` 
@@ -136,22 +185,27 @@ class Supplier extends aplStdAJAXMethod{
 			WHERE  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."`.`supplier_id` =  '".$supplier_id."'
 		";
 		$arr = array();
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$arr[] = $row;
 			}
 		}
-		return $arr;
-		
+		return $arr;		
 	}
 
-	// адреса
+	/**
+	  *	адреса
+	  *
+	  *	@param 		supplier_id
+	  *	@return     array()  	
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:22 11.01.2016
+	  */
 	static function get_addres($id){
-		global $mysqli;
 		$query = "SELECT * FROM  `".CLIENT_ADRES_TBL."` WHERE `parent_id` = '".(int)$id."'";
 		$arr = array();
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$arr[] = $row;
@@ -160,7 +214,13 @@ class Supplier extends aplStdAJAXMethod{
 		return $arr;
 	}
 
-	// контакты
+	/**
+	  *	контакты
+	  *
+	  *	@return  	html	
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:22 11.01.2016
+	  */
 	static function get_contact_row($contact_company, $type,$array_dop_contacts_img){
 		
 		if(isset($type) && $type == "phone"){
@@ -195,12 +255,19 @@ class Supplier extends aplStdAJAXMethod{
 		}			
 	}
 
-	// рейтинг
+	/**
+	  *	рейтинг
+	  *
+	  *	@param 		supplier_id		
+	  *	@return  	html
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:23 11.01.2016
+	  */
 	static function get_reiting($supplier_id){
-		global $mysqli;
+		$html = '';
 		// SUPPLIERS_RATINGS_TBL subject_id
 		$query = "SELECT * FROM `".SUPPLIERS_RATINGS_TBL."` WHERE `subject_id` = '".(int)$supplier_id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		$rate = 0;
 		if($result->num_rows > 0){
 			$sum = 0;
@@ -218,18 +285,24 @@ class Supplier extends aplStdAJAXMethod{
 		$arr[4] = array('5','20');
 		$arr[5] = array('5','25');
 
-		$r = '<div id="rate_1" data-id="'.$supplier_id.'">
+		$html = '<div id="rate_1" data-id="'.$supplier_id.'">
 			<input type="hidden" name="review_count" value="'.$arr[$rate]['0'].'" />
 			<input type="hidden" name="review_rate" value="'.$arr[$rate]['1'].'" />
 		</div>';
-		return $r;
+		return $html;
 	}
 
-	// контактные лица
+	/**
+	  *	контактные лица
+	  *
+	  *	@param 		supplier_id
+	  *	@return  	array()
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:24 11.01.2016
+	  */
 	static function cont_faces($id){
-		global $mysqli;
 		$query = "SELECT * FROM `".SUPPLIERS_CONT_FACES_TBL."` WHERE `supplier_id` = '".(int)$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		$array = array();
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
@@ -245,8 +318,14 @@ class Supplier extends aplStdAJAXMethod{
 		return $array;
 	}
 
+	/**
+	  *	логирование истории (что, когда, где, чего, кто, зачем)
+	  *
+	  *	@return  	true - (1) 
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:26 11.01.2016
+	  */
 	static function history($user_id, $notice, $type, $supplier_id){
-		global $mysqli;
 		$query ="INSERT INTO `".LOG_SUPPLIER."` SET
 		             `user_id` = '".$user_id."',
 		             `supplier_id` = '".$supplier_id."',
@@ -254,16 +333,22 @@ class Supplier extends aplStdAJAXMethod{
 					 `date` = CURRENT_TIMESTAMP,
 					 `type` = '".$type."',
 					 `notice` = '".$notice."'";
-		$result = $mysqli->multi_query($query) or die($mysqli->error);	
+		$result = $this->mysqli->multi_query($query) or die($this->mysqli->error);	
 		return 1;
 	}
-	# запись в лог
-	static function history_edit_type($supplier_id, $user_id, $text ,$type,$tbl,$post,$id_row=0){
-		global $mysqli;
 
+	/**
+	  *	запись в лог отредактированных данных
+	  * сохранение предыдущих значений и новых для возможности их восстановления
+	  *
+	  *	@return  	true - (1)
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:28 11.01.2016
+	  */
+	static function history_edit_type($supplier_id, $user_id, $text ,$type,$tbl,$post,$id_row=0){
 		$query = "SELECT * FROM " . constant($tbl) . " WHERE `id` = '" . $_POST['id'] . "'";
         $i=0;
-        $result = $mysqli->query($query) or die($mysqli->error);
+        $result = $this->mysqli->query($query) or die($this->mysqli->error);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 $arr_adres = $row;
@@ -285,11 +370,18 @@ class Supplier extends aplStdAJAXMethod{
         return 1;
 
 	}
+
+	/**
+	  *	запись в лог удаления каких-либо данных
+	  *
+	  *	@return  	true - (1)
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:30 11.01.2016
+	  */
 	static function history_delete_type($supplier_id, $user_id, $text ,$type,$tbl,$post,$id_row){
-		global $mysqli;
 		$query = "SELECT * FROM " . constant($tbl) . " WHERE `id`= '" . $id_row . "'";
         $i=0;
-        $result = $mysqli->query($query) or die($mysqli->error);
+        $result = $this->mysqli->query($query) or die($this->mysqli->error);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 $arr_adres = $row;
@@ -307,12 +399,19 @@ class Supplier extends aplStdAJAXMethod{
 		return 1;
 	}
 
+	/**
+	  *	получение имени поставщика
+	  *
+	  *	@param 		supplier_id
+	  *	@return  	(str)Name
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:30 11.01.2016
+	  */
 	static function get_supplier_name($id){
-		global $mysqli;		
 		$name = "";
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".SUPPLIERS_TBL."` WHERE `id` = '".(int)$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$name = $row['nickName'];
@@ -321,19 +420,24 @@ class Supplier extends aplStdAJAXMethod{
 		return $name;
 	}
 
-	// запрашивает из базы допуски пользователя
-	// необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
+	/**
+	  *	запрашивает из базы допуски пользователя
+	  * необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
+	  *
+	  *	@param 		user_id
+	  *	@return  	(int)User_access
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:31 11.01.2016
+	  */
 	private function get_user_access_Database_Int($id){
-		global $mysqli;
 		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
-		$result = $mysqli->query($query) or die($mysqli->error);				
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);				
 		$int = 0;
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$int = (int)$row['access'];
 			}
 		}
-		//echo $query;
 		return $int;
 	}
 
