@@ -46,6 +46,7 @@
 		  	}			
 			exit;
 		}
+
 		if ($_POST['AJAX'] == "edit_adress_row") {
 	        $id_row = $_POST['id'];
 	        $tbl = "CLIENT_ADRES_TBL";

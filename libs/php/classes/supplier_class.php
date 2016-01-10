@@ -321,4 +321,21 @@ class Supplier extends aplStdAJAXMethod{
 		return $name;
 	}
 
+	// запрашивает из базы допуски пользователя
+	// необходимо до тех пор, пока при входе в чужой аккаунт меняется только id
+	private function get_user_access_Database_Int($id){
+		global $mysqli;
+		$query = "SELECT `access` FROM `".MANAGERS_TBL."` WHERE id = '".$id."'";
+		$result = $mysqli->query($query) or die($mysqli->error);				
+		$int = 0;
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$int = (int)$row['access'];
+			}
+		}
+		//echo $query;
+		return $int;
+	}
+
+
 }
