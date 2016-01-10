@@ -76,7 +76,13 @@ class Supplier extends aplStdAJAXMethod{
 		}					
 	}
 
-	// собираем объект поставщика
+	/**
+	  *	собираем объект поставщика
+	  *
+	  *	@param 		supplier_id
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:41 11.01.2016
+	  */
 	private function get_object($id){
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".SUPPLIERS_TBL."` WHERE `id` = '".(int)$id."'";
@@ -93,11 +99,17 @@ class Supplier extends aplStdAJAXMethod{
 		$this->cont_company_other = (isset($arr['other']))?$arr['other']:'';
 	}
 
-	// получаем полный список поставщиков
+	/**
+	  *	получаем полный список поставщиков
+	  *
+	  *	@author  	Алексей Капитонов
+	  *	@version 	00:40 11.01.2016
+	  */
 	static function get_all_suppliers_Database_Array(){
+		global $mysqli;
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".SUPPLIERS_TBL."` GROUP BY `nickName` ASC";
-		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$result = $mysqli->query($query) or die($mysqli->error);
 		$arr = array();
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
@@ -147,8 +159,9 @@ class Supplier extends aplStdAJAXMethod{
 
 
 	static function search_name($name){
+		global $mysqli;
 		$query = "SELECT `id` FROM `".SUPPLIERS_TBL."` WHERE `fullName` = '".$name."' OR `nickName` = '".$name."'";
-		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$result = $mysqli->query($query) or die($mysqli->error);
 
 		$row_cnt = $result->num_rows;
 		return $row_cnt;
@@ -161,11 +174,12 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:20 11.01.2016
 	  */
 	static function create($name,$fullname,$dop_info){
+		global $mysqli;
 		$query ="INSERT INTO `".SUPPLIERS_TBL."` SET
 			`nickName` = '".$name."',
 		    `fullName` = '".$fullname."',
 			`dop_info` = '".$dop_info."'";		 
-	    $result = $this->mysqli->query($query) or die($this->mysqli->error);	    
+	    $result = $mysqli->query($query) or die($mysqli->error);	    
 		return $this->mysqli->insert_id;
 	}
 
@@ -178,6 +192,7 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:21 11.01.2016
 	  */
 	static function get_activities($supplier_id){
+		global $mysqli;
 		$query = "
 			SELECT  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` . * ,  `".SUPPLIERS_ACTIVITIES_TBL."`.`name` AS  `name` 
 			FROM  `".SUPPLIERS_ACTIVITIES_TBL."` 
@@ -185,7 +200,7 @@ class Supplier extends aplStdAJAXMethod{
 			WHERE  `".RELATE_SUPPLIERS_ACTIVITIES_TBL."`.`supplier_id` =  '".$supplier_id."'
 		";
 		$arr = array();
-		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$arr[] = $row;
@@ -203,9 +218,10 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:22 11.01.2016
 	  */
 	static function get_addres($id){
+		global $mysqli;
 		$query = "SELECT * FROM  `".CLIENT_ADRES_TBL."` WHERE `parent_id` = '".(int)$id."'";
 		$arr = array();
-		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$arr[] = $row;
@@ -264,10 +280,11 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:23 11.01.2016
 	  */
 	static function get_reiting($supplier_id){
+		global $mysqli;
 		$html = '';
 		// SUPPLIERS_RATINGS_TBL subject_id
 		$query = "SELECT * FROM `".SUPPLIERS_RATINGS_TBL."` WHERE `subject_id` = '".(int)$supplier_id."'";
-		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$result = $mysqli->query($query) or die($mysqli->error);
 		$rate = 0;
 		if($result->num_rows > 0){
 			$sum = 0;
@@ -301,8 +318,9 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:24 11.01.2016
 	  */
 	static function cont_faces($id){
+		global $mysqli;
 		$query = "SELECT * FROM `".SUPPLIERS_CONT_FACES_TBL."` WHERE `supplier_id` = '".(int)$id."'";
-		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$result = $mysqli->query($query) or die($mysqli->error);
 		$array = array();
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
@@ -326,6 +344,7 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:26 11.01.2016
 	  */
 	static function history($user_id, $notice, $type, $supplier_id){
+		global $mysqli;
 		$query ="INSERT INTO `".LOG_SUPPLIER."` SET
 		             `user_id` = '".$user_id."',
 		             `supplier_id` = '".$supplier_id."',
@@ -333,7 +352,7 @@ class Supplier extends aplStdAJAXMethod{
 					 `date` = CURRENT_TIMESTAMP,
 					 `type` = '".$type."',
 					 `notice` = '".$notice."'";
-		$result = $this->mysqli->multi_query($query) or die($this->mysqli->error);	
+		$result = $mysqli->multi_query($query) or die($mysqli->error);	
 		return 1;
 	}
 
@@ -346,9 +365,10 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:28 11.01.2016
 	  */
 	static function history_edit_type($supplier_id, $user_id, $text ,$type,$tbl,$post,$id_row=0){
+		global $mysqli;
 		$query = "SELECT * FROM " . constant($tbl) . " WHERE `id` = '" . $_POST['id'] . "'";
         $i=0;
-        $result = $this->mysqli->query($query) or die($this->mysqli->error);
+        $result = $mysqli->query($query) or die($mysqli->error);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 $arr_adres = $row;
@@ -379,9 +399,10 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:30 11.01.2016
 	  */
 	static function history_delete_type($supplier_id, $user_id, $text ,$type,$tbl,$post,$id_row){
+		global $mysqli;
 		$query = "SELECT * FROM " . constant($tbl) . " WHERE `id`= '" . $id_row . "'";
         $i=0;
-        $result = $this->mysqli->query($query) or die($this->mysqli->error);
+        $result = $mysqli->query($query) or die($mysqli->error);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 $arr_adres = $row;
@@ -408,10 +429,11 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@version 	00:30 11.01.2016
 	  */
 	static function get_supplier_name($id){
+		global $mysqli;
 		$name = "";
 		//получаем данные из основной таблицы
 		$query = "SELECT * FROM `".SUPPLIERS_TBL."` WHERE `id` = '".(int)$id."'";
-		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
 				$name = $row['nickName'];
