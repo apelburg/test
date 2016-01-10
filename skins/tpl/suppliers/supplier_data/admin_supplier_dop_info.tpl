@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <div class="client_table" id="add_contact_face_new_form" style="text-align:center; font-size:12px">
 <span class="button_add_new_row" style="float:none">Добавить контактное лицо</span>
 <div class="border_in_table" style="margin-top:10px;"></div>
@@ -29,3 +30,4 @@
     <div class="border_in_table"></div>
     <div id="client_delete" data-id="<?php echo $supplier_id; ?>">Удалить поставщика</div>
 </div>
+<!-- <?php echo __FILE__; ?> -- END-->

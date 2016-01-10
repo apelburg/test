@@ -1,4 +1,4 @@
-<link href="skins/css/main.css" rel="stylesheet" type="text/css">
+<!-- <?php echo __FILE__; ?> -- START-->
 <div id="content_general_header">
     <table>
         <tr>
@@ -30,3 +30,4 @@
         <?php echo $dialog_windows; ?>
     </div>
 </div>
+<!-- <?php echo __FILE__; ?> -- END-->

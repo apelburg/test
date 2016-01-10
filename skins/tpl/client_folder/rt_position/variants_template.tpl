@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <div id="variant_content_block_<?php echo $key;?>" <?php echo $display_this_block; ?> class="variant_content_block<?php echo $show_archive_class;?>">
 	<div id="variants_dop_info_<?php echo $key; ?>" class="variants_dop_info">
 		<table>
@@ -112,3 +113,4 @@
 		</div>
 	</div>
 </div>
+<!-- <?php echo __FILE__; ?> -- END-->

@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <link href="./skins/css/rt_position.css" rel="stylesheet" type="text/css">
 <link href="./skins/css/position.css" rel="stylesheet" type="text/css">
 <link href="./skins/css/forum.css" rel="stylesheet" type="text/css">
@@ -232,4 +233,4 @@ $(document).ready(function() {
 	</div>
 	<?php echo $forum; ?>
 </div>
-
+<!-- <?php echo __FILE__; ?> -- END-->

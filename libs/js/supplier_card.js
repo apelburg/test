@@ -8,11 +8,9 @@ $(document).on('click', '.ok_bw, .send_bw, .greate_bw, .save_bw', function(event
         $.post('', str, function(data, textStatus, xhr) {
             // console.log(data);
             // console.log(data['response']);
+            standard_response_handler(data);
             if(data['response']=='1' || data['response']=='OK'){
-                if(data['response']=='OK'){
-                    standard_response_handler(data);
-                }
-
+                
                 $(".html_modal_window_body").html(data['text']).delay(1000)
                         .fadeOut('slow',function(){$('#bg_modal_window,.html_modal_window').remove();});                
             }
@@ -65,7 +63,9 @@ $('#create_new_supplier').click(function(event) {
             var link = 'http://'+location.hostname+'/os/?page=suppliers&section=suppliers_data&suppliers_id=';
             // проверяем введена ли дата отсрочки
             $.post('', $('#'+div_id+' form').serialize(), function(data, textStatus, xhr) {
-                if(data['response']=='1'){
+                 standard_response_handler(data);
+
+                if(data['response']=='1' || data['response']=='OK'){
                     window.location.href = link+''+data['id']+'&supplier_edit';  
                 }else{
                     if(data['response']=='0'){
@@ -201,9 +201,7 @@ $(function() {
                         //очищаем форму
                         $('#add_new_phone form').trigger( 'reset' );
                     }else{
-                        //сообщаем, что что-то пошло не так
-                        new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
-
+                        echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
                     }
                 });
                 
@@ -236,15 +234,10 @@ $(function() {
                         AJAX:"delete_dop_cont_row"
 
                     }, function(data, textStatus, xhr) {
-                        if(data=="OK"){
-                            $('.deleting_row').remove();
-                            d_elem.dialog( "close" );                            
-                        }else{
-                            $('.deleting_row').removeClass('deleting_row');
-                            d_elem.dialog( "close" );
-                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
-                        }
-                    });
+                        standard_response_handler(data); 
+                        $('.deleting_row').remove();
+                        d_elem.dialog( "close" ); 
+                    },'json');
                     
                 }
             },
@@ -310,7 +303,7 @@ $(function() {
                                 $('#bg_modal_window,.html_modal_window').remove();
                             }else{
                                 //сообщаем, что что-то пошло не так
-                                new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                                echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
                             }
                         });  
                     }else{
@@ -365,7 +358,7 @@ $(document).on('click', '.button_add_new_row.adres_row', function(event) {
                     $('#bg_modal_window,.html_modal_window').remove();
                 }else{
                     //сообщаем, что что-то пошло не так
-                    new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                    echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
                 }
             });   
         }
@@ -391,14 +384,15 @@ $(function(){
                     var obj_window = $( this );        
                     var serialize = $('#client_dop_information_cont_w form').serialize();
                     $.post('', serialize, function(data, textStatus, xhr) {
-                        if(data['response']=='1'){
+                        standard_response_handler(data);
+                        if(data['response']=='1' || data['response'] == 'OK'){
                             // сохранение выполнено
                             $('#client_dop_information tr:nth-of-type(1) td:nth-of-type(2)').html($('#client_dop_information_cont_w form textarea').val());
                             $('#client_dop_information tr:nth-of-type(2) td:nth-of-type(2)').html('Z:/'+$('#client_dop_information_cont_w form input[name="ftp_folder"]').val());
-                            obj_window.dialog( "close" ); 
+                            obj_window.dialog( "close" );                             
                         }else{
                             obj_window.dialog( "close" ); 
-                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                            echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
                         }   
                     },"json");           
                     // $('.deleting_row').removeClass('deleting_row');
@@ -432,6 +426,7 @@ $(document).on('dblclick', '.edit_adress_row', function(event) {
     
     //получаем контент для редактирования адреса
     $.post('', {AJAX: 'get_adres', id_row: id_row }, function(data, textStatus, xhr) {
+        standard_response_handler(data);
         $('.html_modal_window_body').html(data);  
         $('.html_modal_window form input:nth-of-type(1)').focus();
         $('.html_modal_window').animate({marginTop:$('.html_modal_window').innerHeight()/2*(-1)},200);      
@@ -466,12 +461,14 @@ $(document).on('click', '.edit_general_info #del_text', function(event) {
             AJAX: 'delete_adress_row',
             id_row : id_row ,
             tbl : tbl
-        }, function(data, textStatus, xhr) {            
-            if(data['response']=='1'){
+        }, function(data, textStatus, xhr) {      
+            standard_response_handler(data); 
+
+            if(data['response']=='1' || data['response'] == "OK"){
                 $('#bg_modal_window,.html_modal_window').remove();
                 del_div.parent().parent().remove();
             }else{
-                new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
             }
         }, "json");
     });
@@ -555,11 +552,14 @@ $(document).on('dblclick','.contact_face_tbl_edit',function(){
 
     var id = $(this).attr('data-contface');
     //делаем запрос, получаем в JSON
-    $.post('',{AJAX:"show_cont_face_in_json",id : id},function(data){
+    $.post('',{
+        AJAX:"show_cont_face_in_json",
+        id : id
+    },function(data){
         if(data[0]['id'] != id){
             // если id не соответствуют, значит ошибка
             // сообщаем об ошибке
-            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');  
+            echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
             $('#contact_face_edit_form').dialog('close');
         }else{
             var cont_face = data[0];
@@ -590,7 +590,8 @@ $(function(){
                 click: function() {
                     var str = $('#contact_face_edit_form form').serialize();
                         $.post('', str, function(data, textStatus, xhr) {// отправляем запрос
-                            if(data['response']=='1'){
+                            standard_response_handler(data);
+                            if(data['response']=='1' || data['response'] == "OK"){
                                 // ЗАНОСИМ ДАННЫЕ В html
                                 // заносим имя
                                 $('#contact_face_tbl_edit_enable tr:nth-of-type(1) td:nth-of-type(2)').html("<strong>"+$('#contact_face_edit_form input[name="last_name"]').val()+" "+$('#contact_face_edit_form input[name="name"]').val()+" "+$('#contact_face_edit_form input[name="surname"]').val()+"</strong>");
@@ -606,7 +607,7 @@ $(function(){
                                 // очищаем форму
                                 $('#contact_face_edit_form form').trigger( 'reset' );
                             }else{
-                                new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','Предупреждение об ошибке','','', '', '');
+                                echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
                             }
                         },'json');
                     $('.deleting_row').removeClass('deleting_row');
@@ -644,15 +645,19 @@ $(function(){
             text: 'OK',
                 click: function() {
                     var id = $(this).dialog('option', 'id');
-                    $.post('', {id: id,AJAX:"delete_cont_face_row"}, function(data, textStatus, xhr) {
-                        if(data['response']=='1'){
+                    $.post('', {
+                        id: id,
+                        AJAX:"delete_cont_face_row"
+                    }, function(data, textStatus, xhr) {
+                        standard_response_handler(data);
+                        if(data['response']=='1' || data['response'] == "OK"){
                             // $('.deleting_row').removeClass('deleting_row');
                             $('#delete_cont_f_row'+id).prev().remove();
                             $('#delete_cont_f_row'+id).remove();
                             $( this ).dialog( "close" );
                         }else{
                             $('#delete_cont_f_row'+id).removeAttr('id');
-                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                            echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
                         }
                     }, "json");
                     // $('.deleting_row').removeClass('deleting_row');
@@ -689,7 +694,8 @@ $(function(){
                 click: function() {
                     var serialize = $('#contact_face_new_form form').serialize();
                     $.post('', serialize, function(data, textStatus, xhr) {
-                        if(data['response']=='1'){
+                        standard_response_handler(data);
+                        if(data['response']=='1' || data['response'] == "OK"){
                             // ЗАНОСИМ ДАННЫЕ В html
                                 // заносим имя
                                 $.post('', {AJAX:"get_empty_cont_face"}, function(data, textStatus, xhr) {
@@ -704,7 +710,7 @@ $(function(){
                                 
                         }else{
                             $('#contact_face_tbl_edit_enable').remove();
-                            new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                            echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
                         }
                     }, "json");
                     $( this ).dialog( "close" );
@@ -715,11 +721,10 @@ $(function(){
                 click: function() {
                     $('.deleting_row').removeClass('deleting_row');
                     $( this ).dialog( "close" );
-
                 }
             }
         ]
-        });
+    });
 });
 
 // окно удаления клиента
@@ -739,12 +744,13 @@ $(document).on('click','#client_delete',function(){
                             AJAX:"client_delete",
                             id:$('#client_delete').attr('data-id')
                         }, function(data) {
-                            if(data['response']=='1'){
+                            standard_response_handler(data);
+                            if(data['response']=='1' || data['response'] =="OK"){
                                 // all Okey
                                 window.location = "http://"+location.hostname+"/os/?page=clients&section=clients_list";                    
                             }else{
                                 $('#delete_cont_f_row'+id).removeAttr('id');
-                                new_html_modal_window('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
+                                echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
                              }
                         }, "json");
 
@@ -782,10 +788,12 @@ $(document).on('click','#add_curator',function(){
       });  
       var json = JSON.stringify(id_man);
       // console.log(json);
-      $.post('', {AJAX:'update_profile_list_for_supplier',profile_id: json}, function(data, textStatus, xhr) {
-           console.log(data['response'] + ' '+ data['text']);
-
-            
+      $.post('', {
+        AJAX:'update_profile_list_for_supplier',
+        profile_id: json
+    }, function(data, textStatus, xhr) {
+            standard_response_handler(data);
+           console.log(data['response'] + ' '+ data['text']);            
          },'json'); 
       $('.curator_names').remove();
       $('#'+id+' span.enabled').each(function(index, val) {
@@ -831,8 +839,8 @@ $(document).on('click','.del_curator',function(){
     AJAX: 'remove_curator',
     id:id
   }, function(data, textStatus, xhr) {
-    /*optional stuff to do after success */
-  });
+    standard_response_handler(data);
+  },'json');
 });
 
 //ВЫБОР КУРТОРА... добавление к тегу класса выбора
@@ -842,4 +850,368 @@ $(document).on('click','.chose_curators',function(){
   }else{
     $(this).addClass('enabled');
   }
+});
+
+///////////////////////////////////
+// CODE width supplier_table.tpl
+///////////////////////////////////
+$(document).on('click',' #requisits_button', function(){
+    $('#requesites_form').dialog("open");
+});
+
+$(function() {
+    $('#requesites_form').dialog({
+        width: 'auto',
+        height: 'auto',
+        title: 'Реквизиты',
+        autoOpen : false,
+        buttons: [
+            {
+                text: 'Добавить',
+                click: function() {
+                    $.post('', {AJAX: "create_requesit"}, function(data, textStatus, xhr) {
+                      $('#create_requesit').html(data).dialog('open'); 
+                      // standard_response_handler(data);
+                    },'json');     
+                    
+                    $( this ).dialog( "close" );                  
+                }
+            },
+            {
+                text: 'Закрыть',
+                click: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+
+// показать окно с добавлением новых реквизитов
+
+$(function() {
+    $('#create_requesit').dialog({
+        width: ($(window).width()-2),
+        height: ($(window).height()-2),
+        position: [0,0],
+        autoOpen : false,
+        draggable: false,
+        title: 'Добавить реквизиты',
+        modal:true,
+        buttons: [
+            {
+                text: 'Сохранить',
+                click: function() {      
+                    var post = $("#create_requisits_form").serialize();
+                    //alert(post);
+                    $.post('', post, function(data, textStatus, xhr) {
+                       // new_html_modal_window(data,'данные','','', '', '');
+                       standard_response_handler(data);
+                       if(data['response']=='1' || data['response'] == 'OK'){ 
+                            $('#requesites_form table').append('<tr><td>'+($('#requesites_form table tr').length+1)+'. <a class="show_requesit" href="#" data-id="'+data['id_new_req']+'" title="'+data['company']+'">'+data['company']+'</a></td><td><img title="Редактор реквизитов" class="edit_this_req" data-id="'+data['id_new_req']+'" src="skins/images/img_design/edit.png" ><img title="Редактор реквизитов" class="delete_this_req" data-id="'+data['id_new_req']+'" src="skins/images/img_design/delete.png" ></td></tr>');
+                        }else{
+                          echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
+                        }
+                    },'json');
+                    $('#create_requesit').html('');
+                    $( this ).dialog( "close" );                  
+                }
+            },
+            {
+                text: 'Отмена',
+                click: function() {
+                    $('#create_requesit').html('');
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+
+// 
+// РЕКВИЗИТЫ
+//
+
+// ПОКАЗТЬ РЕКВИЗИТЫ
+$(document).on('click', '#requesites_form a', function(event) {
+    var title = $(this).attr('title');
+    $.post('', {
+        AJAX: "show_requesit",
+        id:$(this).attr('data-id')
+    }, function(data, textStatus, xhr) {
+        $("#show_requesit").html(data);
+        $("#show_requesit").dialog('option', 'title', title);
+        $("#show_requesit").dialog("open");
+    });    
+});
+
+// ИНИЦИАЛИЗАЦИЯ ОКНА ПОКАЗА РЕКВИЗИТОВ
+$(function(){
+    $("#show_requesit").dialog({
+        // width: ($(window).width()-2),
+        width: 800,
+        // height: ($(window).height()-2),
+        // position: [0,0],
+        autoOpen : false,
+        draggable: false,
+        modal:true,
+
+        buttons: [
+            {
+                text: 'Закрыть',
+                click: function() { 
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+function add_new_management_element(container_name){
+      // get container
+      var container = document.getElementById(container_name);
+      
+      var div_arr = get_divs(container);
+
+      var new_element = div_arr[div_arr.length-1].cloneNode(true);
+      clean_fiedls(new_element);
+      
+      if(new_element.getElementsByTagName('delete_btn')[0]) new_element.getElementsByTagName('delete_btn')[0].parentNode.removeChild(new_element.getElementsByTagName('delete_btn')[0]);
+
+      container.appendChild(new_element);
+      
+      return false; 
+       
+      // функция копирования строки контактов из старой ОС
+      function get_divs(div){
+          var nodes_arr = div.childNodes;
+          for(var i=0;i<nodes_arr.length;i++){
+              if((nodes_arr[i].nodeName).toLowerCase()=='div'){
+                  if(!div_arr) var div_arr = [];
+                  div_arr.push(nodes_arr[i]);
+              }
+          }          
+          return div_arr;
+      }     
+      // функция копирования строки контактов из старой ОС 2
+      function clean_fiedls(element){
+          var input_arr = element.getElementsByTagName("input");
+          var select = element.getElementsByTagName("select");
+          for(var i=0;i<select.length;i++){ 
+              select[i].name = (select[i].name).slice(0,(select[i].name).indexOf('][')+2) + (parseInt((select[i].name).slice((select[i].name).indexOf('][')+2))+1) + (select[i].name).slice((select[i].name).lastIndexOf(']['));
+          }
+          for(var i=0;i<input_arr.length;i++){ 
+              input_arr[i].name = (input_arr[i].name).slice(0,(input_arr[i].name).indexOf('][')+2) + (parseInt((input_arr[i].name).slice((input_arr[i].name).indexOf('][')+2))+1) + (input_arr[i].name).slice((input_arr[i].name).lastIndexOf(']['));
+
+
+              if(!input_arr[i].getAttribute("field_type")) input_arr[i].value = ''; 
+              if(input_arr[i].getAttribute("field_type") && input_arr[i].getAttribute("field_type") == 'id') input_arr[i].value = '';
+              if(input_arr[i].getAttribute("field_type") && input_arr[i].getAttribute("field_type") == 'acting'){
+                  input_arr[i].name = 'acting';
+                  input_arr[i].value = '';
+                  input_arr[i].checked = false;
+              }
+          }
+      }
+
+
+
+    function drop_radio_buttons(elem){ 
+       var inputs_arr = document.getElementsByTagName('input');
+       for(var i=0;i<inputs_arr.length;i++){
+           if(inputs_arr[i].type == 'radio'){
+               if(attr)
+               {
+                 if(inputs_arr[i].getAttribute(attr) && inputs_arr[i].getAttribute(attr)==attr_value)  inputs_arr[i].checked=false; 
+               }
+               else inputs_arr[i].checked=false;
+           }
+       }
+       element.checked=true;
+   }
+   }
+$(document).on('click','.radio_acting',function(){
+    $('.acting_check').val('0');
+    $(this).parent().find('.acting_check').val(1);
+});
+// УДАЛЕНИЕ КОНТАКТНОГО ЛИЦА ИЗ РЕКВИЗИТОВ
+$(document).on('click', '.cont_faces_field_delete_btn', function(){
+    var id = $(this).attr('data-id');
+    var e =$(this);
+    var tbl = $(this).attr('data-tbl');
+    // показываем UI confirm
+    $( "#dialog-confirm" ).dialog({
+            resizable: false,
+            height:160,
+            modal: true,
+            buttons: {
+                "Удалить": function() {
+                    e.parent().parent().parent().parent().parent().remove();
+                    $.post('', {AJAX:"delete_cont_requisits_row",id: id,tbl:tbl}, function(data, textStatus, xhr) {
+                        standard_response_handler(data);
+                        if(data['response']!=1 && data['response'] != "OK"){
+                            echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
+                        }
+                    },'json');
+                    $( this ).dialog( "close" );
+                },
+                Отмена: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    
+});
+// УДАЛЕНИЕ РЕКВИЗИТОВ
+$(document).on('click', '#requesites_form table tr td .edit_this_req', function(event) {
+    var title = $(this).attr('title');
+    // присвоим идентификатор для возможности отредактировать название
+    $(this).parent().parent().find('a.show_requesit').attr('id','redaction_requsits_company');
+    $.post('', {
+        AJAX: "edit_requesit",
+        id:$(this).attr('data-id')
+    }, function(data, textStatus, xhr) {
+        $("#edit_requesit").html(data);
+        $("#edit_requesit").dialog('option', 'title', title);
+        $("#edit_requesit").dialog("open");
+    });    
+});
+
+
+// ИНИЦИАЛИЗАЦИЯ ОКНА РЕДАКТОРА РЕКВИЗИТОВ
+$(function(){
+    $("#edit_requesit").dialog({
+        width: ($(window).width()-2),
+        height: ($(window).height()-2),
+        position: [0,0],
+        autoOpen : false,
+        draggable: false,
+        modal:true,
+
+        buttons: [
+            {
+                text: 'Сохранить',
+                click: function() {
+                    var post = $("#requisits_edit_form").serialize();
+                    $('#redaction_requsits_company').text($('#form_data_company').val());
+                    $.post('', post, function(data, textStatus, xhr) {
+                        standard_response_handler(data);
+                      if(data['response']=='1' || data['response'] == "OK"){ 
+                        // обновляем имя компании
+                                                     
+                      }else{
+                        echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
+                      }
+                    },'json');
+                    $("#edit_requesit").html('');
+                    //удаляем более ненужный id
+                    $('#redaction_requsits_company').removeAttr('id');
+                    $( this ).dialog( "close" );
+                }
+            },
+            {
+                text: 'Отменить',
+                click: function() { 
+                    $("#edit_requesit").html('');
+                    //удаляем более ненужный id
+                    $('#redaction_requsits_company').removeAttr('id');
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+//  ОТКРЫВАЕМ ОКНО ПОДТВЕРЖДЕНИЯ ДЛЯ УДАЛЕНИЯ РЕКВИЗИТОВ
+$(document).on('click', '#requesites_form table tr td:nth-of-type(2) img:nth-of-type(2)', function(event) {
+  var id = $(this).attr('data-id');
+  $("#dialog-confirm2").dialog('option', 'id', id);
+  $("#dialog-confirm2").dialog('open');
+});
+
+
+// ИНИЦИАЛИЗАЦИЯ ОКНА УДАЛЕНИЯ РЕКВИЗИТОВ
+$(function(){
+    $("#dialog-confirm2").dialog({
+        width: 600,
+        autoOpen : false,
+        modal:true,
+        buttons: [
+            {
+                text: 'Подтвердить',
+                click: function() {
+                    //alert(post);
+                    var id_row = $(this).dialog('option', 'id');
+                    $.post('', {
+                        AJAX: "delete_requesit_row",
+                        id:id_row
+                    }, function(data, textStatus, xhr) {
+                        standard_response_handler(data);
+                        if(data['response']!='1' && data['response'] !='OK'){ 
+                            echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
+                        }else{
+                          $('#requesites_form table tr td:nth-of-type(2) img:nth-of-type(2)').each(function(index, el) {
+                            if($(this).attr('data-id')==id_row){
+                              $(this).parent().parent().remove();  
+                            }
+                          });
+                          //убрать строку с названием реквизита из окна                          
+                        } 
+                    },'json');
+                    $( this ).dialog( "close" );
+                }
+            },
+            {
+                text: 'Отменить',
+                click: function() { 
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
+});
+
+// ДОБАВЛЕНИЕ ДОЛЖНОСТИ В РЕКВИЗИТЫ
+
+$(document).on('click','.new_person_type_req',function(){
+  $('#new_person_type_req').dialog('open');
+});
+// ОКНО ДОБАВЛЕНИЕ ДОЛЖНОСТИ В РЕКВИЗИТЫ
+$(function(){
+    $('#new_person_type_req').dialog({
+        width: 600,
+        autoOpen : false,
+        modal:true,
+        buttons: [
+            {
+                text: 'Добавить',
+                click: function() {
+                    var position = $('#new_person_type_req form input[name="position"]').val();
+                    var position_in_padeg = $('#new_person_type_req form input[name="position_in_padeg"]').val();
+                    if(position!="" && position_in_padeg !=""){
+                        var post = $('#new_person_type_req form').serialize();
+                        $.post('', post, function(data, textStatus, xhr) {
+                            standard_response_handler(data);
+                            if(data['response']==1 || data['response'] == "OK"){
+                                $('#chief_fields_div select').each(function(index, el) {
+                                    $(el).append('<option value="'+data['id_new_row']+'">'+position+'</option>');                   
+                                });
+                            }else{
+                                echo_message_js('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.','error_message');
+                            }
+                      },'json');
+                      $('#new_person_type_req form').trigger( 'reset' );
+                      $( this ).dialog( "close" );
+                    }else{
+                      new_html_modal_window('Чтобы добавить новую должность поля не должны быть пустыми','Предупреждение об ошибке','','', '', '');
+                    }
+                }
+            },
+            {
+                text: 'Отменить',
+                click: function() { 
+                  $('#new_person_type_req form').trigger( 'reset' );
+                    $( this ).dialog( "close" );
+                }
+            }
+       ]
+    });
 });

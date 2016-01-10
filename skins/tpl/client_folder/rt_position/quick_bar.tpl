@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <table class="quick_bar_tbl  noselect">
     <tr>
         <td class="quick_button">
@@ -43,3 +44,4 @@
         </td>
     </tr> 
 </table>
+<!-- <?php echo __FILE__; ?> -- END-->

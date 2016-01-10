@@ -47,34 +47,119 @@ class Supplier extends aplStdAJAXMethod{
 		}
 	}
 
-	/**
-	 *	для генерации отвта выделен класс responseClass()
-	 *
-	 *  AJAX методов и преобразовать их ответы в соответствии с новыми правилами
-	 *
-	 *	@param name		method name width prefix _AJAX
-	 *	@return  		string
-	 *	@see 			{"respons","OK"}
-	 *	@author  		Алексей Капитонов
-	 *	@version 		12:16 17.12.2015
-	 */
-	protected function _AJAX_(){
-		$method_AJAX = $_POST['AJAX'].'_AJAX';
-		//echo $method_AJAX;exit;
-		
-		if(method_exists($this, $method_AJAX)){
-			// подключаем файл с набором стандартных утилит 
-			// AJAX, stdApl
-			include_once __DIR__.'/../../../../libs/php/classes/aplStdClass.php';
-			// создаем экземпляр обработчика
-			$this->responseClass = new responseClass();
-			// обращаемся непосредственно 
-			$this->$method_AJAX();				
-			// вывод ответа
-			echo $this->responseClass->getResponse();					
+	/////////////////////////////
+	//	AJAX
+	/////////////////////////////
+		/**
+		  *	редактирование дополнительной информации по поставщику
+		  *
+		  *	@author  	Alexey Kapitonov
+		  *	@version 	01:52 11.01.2016
+		  */
+		protected function edit_client_dop_information_AJAX(){
+			$tbl = "SUPPLIERS_TBL";
+			$id_row = $_POST['id'];
+			//-- START -- //  логирование
+			$supplier_id = $_GET['suppliers_id'];
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        $user_n = $this->user_name.' '.$this->user_last_name;
+
+	        $text_history = $user_n.' обновил информацию по поставщику '.$supplier_name_i;
+	       
+	        Supplier::history_edit_type($supplier_id,$this->user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
+			
+			# пока что без папки поставщика
+			/*$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
+			`dop_info` =  '".$_POST['dop_info']."',
+			`ftp_folder` =  '".$_POST['ftp_folder']."' WHERE  `id` ='".$_POST['id']."';";*/
+			$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
+			`dop_info` =  '".$_POST['dop_info']."' WHERE  `id` ='".$_POST['id']."';";
+
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			echo '{
+		       "response":"1",
+		       "text":"Данные успешно обновлены"
+		      }';
 			exit;
-		}					
-	}
+		}
+
+		protected function delete_dop_cont_row_AJAX(){
+			$id_row = $_POST['id'];
+			$tbl = "CONT_FACES_CONTACT_INFO_TBL";
+			//-- START -- //  логирование
+			$supplier_id = $_GET['suppliers_id'];
+			$user_n = $this->user_name.' '.$this->user_last_name;
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        
+	        
+	        $text_history = $user_n.' удалил поле с доп. контактной информацией (email,www, VK)  '.$supplier_name_i;
+	       
+	        Supplier::history_delete_type($supplier_id, $this->user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
+			$query = "DELETE FROM `".constant($tbl)."` WHERE `id` = '".$id_row."'";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			
+			// сообщение
+			$html = 'Данные удалены.';
+			$this->responseClass->addMessage($html,'system_message');
+		}
+
+		/**
+		  *	удаление общей адресной строки 
+		  *
+		  *	@author  	Alexey Kapitonov
+		  *	@version 	02:29 11.01.2016
+		  */
+		protected function delete_adress_row_AJAX(){
+			$supplier_id = $_GET['suppliers_id'];
+			$user_n = $this->user_name.' '.$this->user_last_name;
+			$id_row = $_POST['id_row'];
+			$tbl = $_POST['tbl'];
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        
+	        $text_history = $user_n.' удалил поле адрес у поставщика '.$supplier_name_i;
+	        Supplier::history_delete_type($supplier_id,$this->user_id, $text_history ,'delete_adress_row',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
+			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			
+			// сообщение
+			$html = 'Данные удалены.';
+			$this->responseClass->addMessage($html,'system_message');
+		}
+
+		/**
+		  *	удаление контактного лица
+		  *
+		  *	@author  	Alexey Kapitonov
+		  *	@version 	02:35 11.01.2016
+		  */
+		protected function delete_cont_face_row_AJAX(){
+			$supplier_id = $_GET['suppliers_id'];
+			$user_n = $this->user_name.' '.$this->user_last_name;
+			
+			$id_row = $_POST['id'];
+			$tbl = "SUPPLIERS_CONT_FACES_TBL";
+			//-- START -- //  логирование
+	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	        
+	        $text_history = $user_n.' удалил контактное лицо у поставщика '.$supplier_name_i;
+	        Supplier::history_delete_type($supplier_id,$this->user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	        //-- END -- //
+
+			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			// echo $query;
+			// сообщение
+			$html = 'Контактное лицо удалено.';
+			$this->responseClass->addMessage($html,'system_message');
+		}
+
 
 	/**
 	  *	собираем объект поставщика

@@ -1,4 +1,4 @@
-<!-- <?php echo __DIR__; ?>/show.tpl -- START-->
+<!-- <?php echo __FILE__; ?> -- START-->
 
 <!-- стили -->
 <link href="./skins/css/rt_position.css" rel="stylesheet" type="text/css">
@@ -165,4 +165,4 @@
 	</div>
 	<?php echo $forum; ?>
 </div>
-<!-- <?php echo __DIR__; ?>/show.tpl -- END-->
+<!-- <?php echo __FILE__; ?> -- END-->

@@ -1,4 +1,4 @@
-
+<!-- <?php echo __FILE__; ?> -- START-->
 								<strong>Характеристики изделия:</strong>
 								<div class="table" id="characteristics_art">
 									<div class="row">
@@ -45,4 +45,4 @@
 										</div>
 									</div>
 								</div>								
-							
+<!-- <?php echo __FILE__; ?> -- END-->					

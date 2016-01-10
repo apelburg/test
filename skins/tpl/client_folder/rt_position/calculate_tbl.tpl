@@ -1,4 +1,4 @@
-<!--<?php echo __DIR__; ?>/calculate_tbl.tpl -- START-->
+<!-- <?php echo __FILE__; ?> -- START-->
 <?php 
 	// echo date('d.m.Y H:i',time());
 	// phpinfo();
@@ -163,4 +163,4 @@
 		</div>
 	</div>
 </div>
-<!-- <?php echo __DIR__; ?>/calculate_tbl.tpl -- END
+<!-- <?php echo __FILE__; ?> -- END-->
