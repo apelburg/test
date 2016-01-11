@@ -13,10 +13,6 @@
    		header('Location:'.$_SERVER['HTTP_REFERER']);
       	exit;
     }
-
-
-    save_way_back(array('section=rt_position','section=planner'),'?page=cabinet&client_id='.$client_id);
-	$quick_button_back = get_link_back();
 	
 	$forum = '';
 	
@@ -56,6 +52,11 @@
 	$type_product = $POSITION->position['type'];
 	// если тип продукции не определен
 	//if(!isset($type_product)){echo 'Тип продукции не определён.';exit;}
+    
+	// генерация обратной ссылки (для перехода на другие страницы)
+	save_way_back(array('section=rt_position','section=planner'),'?page=client_folder&client_id='.$client_id.'&query_num='.$POSITION->position['query_num']);
+	$quick_button_back = get_link_back();
+	
 
 	include 'controller.php';
 
