@@ -4,6 +4,16 @@ ini_set('error_reporting', E_ALL ^ E_DEPRECATED);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
+/*
+окончательный импорт завершен!!!!
+пользоваться файлом опасно ввиду возможной потери введённой в новую ОС информации
+*/
+
+exit('окончательный импорт завершен!!!!
+пользоваться файлом опасно ввиду возможной потери введённой в новую ОС информации');
+
+
+
 include_once('./libs/config.php');
 include_once('../libs/mysqli.php');
 // include_once('../libs/mysql.php');
@@ -554,7 +564,7 @@ class Update extends aplStdAJAXMethod
 						if($i>500){$i=0;$r=1;}
 					}
 				}
-				
+
 				if(trim($v['email'])!=""){
 					if($i==0){
 						$q .= ($r==1)?';':'';
