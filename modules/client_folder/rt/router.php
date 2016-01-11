@@ -143,7 +143,7 @@
 		 exit;
 	}
 	if(isset($_GET['deleting'])){
-		 if($_GET['type']== 'rows') echo RT::delete_rows(json_decode($_GET['deleting']));
+		 if($_GET['type']== 'rows') echo RT::delete_rows(json_decode($_GET['deleting']),@$_GET['query_num']);
 		 if($_GET['type']== 'prints' || $_GET['type']== 'uslugi' || $_GET['type']== 'printsAndUslugi' )  echo RT::deletePrintsAndUslugi(json_decode($_GET['deleting']), $_GET['type']);
 		 
 		 exit;

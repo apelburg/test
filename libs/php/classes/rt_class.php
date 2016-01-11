@@ -409,7 +409,10 @@
 			}
 			return '[1]';
 		}*/
-		static function delete_rows($data){
+		static function delete_rows($data,$query_num){
+			
+			if(!isset($query_num)) return '[0,"невозвожно удалить строку, не удалось определить номер заявки"]';
+			
 			
 			global $mysqli;
 	
@@ -417,6 +420,18 @@
 		
 		    foreach ($data as $deletedRowId) {
 			    //удаляем ряд и все связанные с ним ряды в других таблицах
+				
+				
+				// уменьшаем sort на 1 (sort-1) в рамках данной заявки там где sort равно или больше значения sort
+				// удаляемого ряда
+				$query = "SELECT sort FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$deletedRowId."'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				//echo $query."\r\n";
+				$row = $result->fetch_assoc();
+				
+			    $query_reduce = "UPDATE `".RT_MAIN_ROWS."` SET `sort` = `sort` - 1  WHERE `query_num` = '".$query_num."' AND `sort` > '".$row['sort']."'";
+			    //echo $query_reduce."\r\n";
+			    $mysqli->query($query_reduce)or die($mysqli->error);/**/
 				
 				// удаляем ряд в RT_MAIN_ROWS
 			    $query="DELETE FROM `".RT_MAIN_ROWS."` WHERE `id` = '".$deletedRowId."'";
