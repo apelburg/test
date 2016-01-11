@@ -3255,3 +3255,30 @@ $(document).on('click', '#create_new_query', function(event) {
 
 });
 
+function scroll_width_checked_client(){
+	// $("#dialog_gen_window_form").scrollTo("#checked_client", 200);
+	var container = $('#dialog_gen_window_form');
+    var scrollTo = $('#dialog_gen_window_form .checked_client');
+
+	container.scrollTop(
+	    scrollTo.offset().top - container.offset().top + container.scrollTop() - 15
+	);
+
+	// Or you can animate the scrolling:
+	// container.animate({
+	//     scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()-15
+	// },5000);​
+}
+
+
+
+jQuery.fn.scrollTo = function(elem, speed) { 
+	console.log($(this).scrollTop());
+	console.log($(this).offset().top);
+	console.log($(elem).offset().top);
+
+    $(this).animate({
+        scrollTop:  $(this).scrollTop() + $(this).offset().top + $(elem).offset().top 
+    }, speed == undefined ? 1000 : speed); 
+    return this; 
+};

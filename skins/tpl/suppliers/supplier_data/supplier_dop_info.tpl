@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <div class="client_table">
 	<table class="client_table_gen" >
     	<tr>
@@ -20,3 +21,4 @@
    
     <div class="border_in_table"></div>
 </div>
+<!-- <?php echo __FILE__; ?> -- END-->

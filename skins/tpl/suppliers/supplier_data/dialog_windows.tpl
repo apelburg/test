@@ -1,8 +1,4 @@
-
-<style type="text/css">
-#dop_phone_numver{width:50px;float: right}
-#phone_numver{width:200px;}	
-</style>
+<!-- <?php echo __FILE__; ?> -- START-->
 <!-- добавление телефона -->
 <div id="add_new_phone" style="display:none;" title="Добавить номер телефона">
 	<form>
@@ -19,7 +15,7 @@
 				<td><div>доб. <input type="text" name="dop_phone" id="dop_phone_numver"></div></td>
 			</tr>
 		</table>
-		<input type="hidden" name="ajax_standart_window" value="add_new_phone_row">
+		<input type="hidden" name="AJAX" value="add_new_phone_row">
 		<input type="hidden" name="client_id" value="">
 		<input type="hidden" name="parent_tbl" value="">
 	</form>
@@ -98,7 +94,7 @@
 				<td><input type="text" name="note" ></td>
 			</tr>
 		</table>
-		<input type="hidden" name="ajax_standart_window" value="contact_face_edit_form">
+		<input type="hidden" name="AJAX" value="contact_face_edit_form">
 		<input type="hidden" name="id" value="">
 	</form>
 </div>
@@ -127,7 +123,7 @@
                 </td>
             </tr>
         </table>
-		<input type="hidden" name="ajax_standart_window" value="edit_client_dop_information">
+		<input type="hidden" name="AJAX" value="edit_client_dop_information">
 		<input type="hidden" name="id" value="<?php echo $supplier_id; ?>">
 	</form>
 </div>
@@ -174,7 +170,7 @@
 				<td><input type="text" name="note" ></td>
 			</tr>
 		</table>
-		<input type="hidden" name="ajax_standart_window" value="contact_face_new_form">
+		<input type="hidden" name="AJAX" value="contact_face_new_form">
 		<input type="hidden" name="parent_id" value="<?php echo $supplier_id; ?>">
 	</form>
 </div>
@@ -223,7 +219,7 @@
 			<td>Название</td>
 			<td>
 				<input type="text" name="company">
-				<input type="hidden" name="ajax_standart_window" value="create_client">
+				<input type="hidden" name="AJAX" value="create_client">
 				<input type="hidden" name="rate" value="0">
 			</td>
 		</tr>
@@ -239,7 +235,7 @@
 </div>
 <div id="new_person_type_req">
 	<form>
-		<input type="hidden" name="ajax_standart_window" value="new_person_type_req">
+		<input type="hidden" name="AJAX" value="new_person_type_req">
 		<table>
 			<tr>
 				<td>
@@ -260,3 +256,4 @@
 </div>
 <div id="dialog-confirm">Данные об этом контакте будут удалены безвозвратно. Продолжить? </div>
 <div id="dialog-confirm2">Данные реквизиты будут удалены безвозвратно. Продолжить? </div>
+<!-- <?php echo __FILE__; ?> -- END-->

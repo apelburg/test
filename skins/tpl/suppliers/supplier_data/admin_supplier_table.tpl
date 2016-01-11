@@ -1,9 +1,11 @@
-
-<!-- <script type="text/javascript" src="libs/js/client_card_table.js"></script> -->
-<script type="text/javascript" src="libs/js/client_folders.js"></script><!--// для отправки стандартного окна методом POST -->
+<!-- <?php echo __FILE__; ?> -- START-->
+<!-- scripts -->
 <script type="text/javascript" src="libs/js/supplier_card.js"></script>
 <script type="text/javascript" src="libs/js/rate_supplier.js"></script>
-<link href="./skins/css/client_card.css" rel="stylesheet" type="text/css">
+<!-- styles -->
+<link href="skins/css/main.css" rel="stylesheet" type="text/css">
+<link href="skins/css/supplier.css" rel="stylesheet" type="text/css">
+<!-- html -->
 <div class="client_table">
 	<table class="client_table_gen">
     	<tr>            
@@ -64,3 +66,4 @@
     </table>
     <div class="border_in_table"></div>
 </div>
+<!-- <?php echo __FILE__; ?> -- END-->

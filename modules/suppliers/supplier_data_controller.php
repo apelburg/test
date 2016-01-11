@@ -46,6 +46,7 @@
 		  	}			
 			exit;
 		}
+
 		if ($_POST['AJAX'] == "edit_adress_row") {
 	        $id_row = $_POST['id'];
 	        $tbl = "CLIENT_ADRES_TBL";
@@ -99,7 +100,9 @@
 		}
 		
 		if($_POST['AJAX']=="update_reiting_cont_face"){
-			$query = "UPDATE  `".SUPPLIERS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";
+			// необходим перевод на новую структуру .... как в клиенте
+			// или на старую .... так оставлять не дело
+			$query = "UPDATE  `".SUPPLIERS_RATINGS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `subject_id` = '".$_POST['id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo '{
 			       "response":"1",
@@ -177,74 +180,74 @@
 			exit;
 		}
 
-		if($_POST['AJAX']=="delete_cont_face_row"){
+		// if($_POST['AJAX']=="delete_cont_face_row"){
 
-			$id_row = $_POST['id'];
-			$tbl = "SUPPLIERS_CONT_FACES_TBL";
-			//-- START -- //  логирование
-	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
-	        $user_n = $user_name.' '.$user_last_name;
-	        $text_history = $user_n.' удалил контактное лицо у поставщика '.$supplier_name_i;
-	        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
-	        //-- END -- //
+		// 	$id_row = $_POST['id'];
+		// 	$tbl = "SUPPLIERS_CONT_FACES_TBL";
+		// 	//-- START -- //  логирование
+	 //        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	 //        $user_n = $user_name.' '.$user_last_name;
+	 //        $text_history = $user_n.' удалил контактное лицо у поставщика '.$supplier_name_i;
+	 //        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	 //        //-- END -- //
 
-			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			// echo $query;
-			echo '{
-		       "response":"1",
-		       "text":"Данные успешно удалены"
-		      }';
-			exit;
-		}
+		// 	$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
+		// 	$result = $mysqli->query($query) or die($mysqli->error);
+		// 	// echo $query;
+		// 	echo '{
+		//        "response":"1",
+		//        "text":"Данные успешно удалены"
+		//       }';
+		// 	exit;
+		// }
 
-		if($_POST['AJAX']=="edit_client_dop_information"){
-			$tbl = "SUPPLIERS_TBL";
-			$id_row = $_POST['id'];
-			//-- START -- //  логирование
-	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
-	        $user_n = $user_name.' '.$user_last_name;
-	        $text_history = $user_n.' обновил информацию по поставщику '.$supplier_name_i;
-	        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
-	        //-- END -- //
+		// if($_POST['AJAX']=="edit_client_dop_information"){
+		// 	$tbl = "SUPPLIERS_TBL";
+		// 	$id_row = $_POST['id'];
+		// 	//-- START -- //  логирование
+	 //        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	 //        $user_n = $user_name.' '.$user_last_name;
+	 //        $text_history = $user_n.' обновил информацию по поставщику '.$supplier_name_i;
+	 //        Supplier::history_edit_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	 //        //-- END -- //
 
-			global $mysqli;
-			# пока что без папки поставщика
-			/*$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
-			`dop_info` =  '".$_POST['dop_info']."',
-			`ftp_folder` =  '".$_POST['ftp_folder']."' WHERE  `id` ='".$_POST['id']."';";*/
-			$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
-			`dop_info` =  '".$_POST['dop_info']."' WHERE  `id` ='".$_POST['id']."';";
+		// 	global $mysqli;
+		// 	# пока что без папки поставщика
+		// 	/*$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
+		// 	`dop_info` =  '".$_POST['dop_info']."',
+		// 	`ftp_folder` =  '".$_POST['ftp_folder']."' WHERE  `id` ='".$_POST['id']."';";*/
+		// 	$query = "UPDATE  `".SUPPLIERS_TBL."` SET  
+		// 	`dop_info` =  '".$_POST['dop_info']."' WHERE  `id` ='".$_POST['id']."';";
 
-			$result = $mysqli->query($query) or die($mysqli->error);
-			echo '{
-		       "response":"1",
-		       "text":"Данные успешно обновлены"
-		      }';
-			exit;
-		}
+		// 	$result = $mysqli->query($query) or die($mysqli->error);
+		// 	echo '{
+		//        "response":"1",
+		//        "text":"Данные успешно обновлены"
+		//       }';
+		// 	exit;
+		// }
 		if($_POST['AJAX']=="remove_curator"){
 			$query = "DELETE FROM `".RELATE_SUPPLIERS_ACTIVITIES_TBL."` WHERE `supplier_id` = '".$_GET['suppliers_id']."' AND `activity_id` = '".$_POST['id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo "Delete OK";
 			exit;
 		}
-		if($_POST['AJAX']=="delete_dop_cont_row"){
+		// if($_POST['AJAX']=="delete_dop_cont_row"){
 			
-			$id_row = $_POST['id'];
-			$tbl = "CONT_FACES_CONTACT_INFO_TBL";
-			//-- START -- //  логирование
-	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
-	        $user_n = $user_name.' '.$user_last_name;
-	        $text_history = $user_n.' удалил поле с доп. контактной информацией (email,www, VK)  '.$supplier_name_i;
-	        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
-	        //-- END -- //
+		// 	$id_row = $_POST['id'];
+		// 	$tbl = "CONT_FACES_CONTACT_INFO_TBL";
+		// 	//-- START -- //  логирование
+	 //        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	 //        $user_n = $user_name.' '.$user_last_name;
+	 //        $text_history = $user_n.' удалил поле с доп. контактной информацией (email,www, VK)  '.$supplier_name_i;
+	 //        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_supplier_cont_face',$tbl,$_POST,$id_row);
+	 //        //-- END -- //
 
-			$query = "DELETE FROM `".constant($tbl)."` WHERE `id` = '".$id_row."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			echo "OK";
-			exit;
-		}
+		// 	$query = "DELETE FROM `".constant($tbl)."` WHERE `id` = '".$id_row."'";
+		// 	$result = $mysqli->query($query) or die($mysqli->error);
+		// 	echo "OK";
+		// 	exit;
+		// }
 
 		if($_POST['AJAX']=="chenge_name_company"){
 			$id = $_POST['id'];
@@ -438,25 +441,25 @@
 
 
     	}
-		if($_POST['AJAX']=="delete_adress_row"){
+		// if($_POST['AJAX']=="delete_adress_row"){
 			
-			$id_row = $_POST['id_row'];
-			$tbl = $_POST['tbl'];
-			//-- START -- //  логирование
-	        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
-	        $user_n = $user_name.' '.$user_last_name;
-	        $text_history = $user_n.' удалил поле адрес у поставщика '.$supplier_name_i;
-	        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_adress_row',$tbl,$_POST,$id_row);
-	        //-- END -- //
+		// 	$id_row = $_POST['id_row'];
+		// 	$tbl = $_POST['tbl'];
+		// 	//-- START -- //  логирование
+	 //        $supplier_name_i = Supplier::get_supplier_name($supplier_id); // получаем название клиента
+	 //        $user_n = $user_name.' '.$user_last_name;
+	 //        $text_history = $user_n.' удалил поле адрес у поставщика '.$supplier_name_i;
+	 //        Supplier::history_delete_type($supplier_id,$user_id, $text_history ,'delete_adress_row',$tbl,$_POST,$id_row);
+	 //        //-- END -- //
 
-			$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
-			$result = $mysqli->query($query) or die($mysqli->error);
-			echo '{
-		       "response":"1",
-		       "text":"Данные успешно удалены"
-		      }';
-			exit;
-		}
+		// 	$query = "DELETE FROM ".constant($tbl)." WHERE `id`= '".$id_row."'";
+		// 	$result = $mysqli->query($query) or die($mysqli->error);
+		// 	echo '{
+		//        "response":"1",
+		//        "text":"Данные успешно удалены"
+		//       }';
+		// 	exit;
+		// }
 
 
 
@@ -492,7 +495,7 @@
 	################################
 
 	if($supplier==0){
-		//такого клиента не существует
+		//такого поставщика не существует
 		$quick_button = '<div class="quick_button_div"><a href="http://'.$_SERVER['SERVER_NAME'].'/os/?page=suppliers&section=suppliers_list" id="" class="button ">Показать всех</a></div>';
 		include('./skins/tpl/suppliers/supplier_data/default.tpl'); 	
 	}else{

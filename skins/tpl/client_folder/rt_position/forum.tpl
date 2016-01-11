@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <div id="forum_mess">
 	<div id="forum_mess_head">
 		<table>
@@ -86,7 +87,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
-
-	
+	</div>	
 </div>
+<!-- <?php echo __FILE__; ?> -- END-->

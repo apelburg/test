@@ -1271,7 +1271,7 @@ echo $query;
 				$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
 				$html .= '<input type="hidden" name="AJAX" value="add_new_dop_service">';
 				$html .= '</form>';
-				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите услугу"}';
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите услугу","width":"100%","height":"100%"}';
 				
 				// echo '{"response":"show_new_window","title":"Выберите услугу","html":"'.base64_encode($html).'"}';
 			}

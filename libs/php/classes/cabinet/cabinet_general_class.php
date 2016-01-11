@@ -381,7 +381,7 @@
 			// выводит форму со списоком клиентов для прикрепления к запросу 
 			protected function get_a_list_of_clients_to_be_attached_to_the_request_AJAX(){
 				$html = $this->get_form_attach_the_client('attach_client_to_request');
-				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
+				echo '{"response":"show_new_window","function":"scroll_width_checked_client","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
 				exit;
 			}
 
@@ -389,23 +389,26 @@
 				global $mysqli;
 				$html ='';
 				if($this->user_access == 1){
-					$query = "SELECT * FROM `".CLIENTS_TBL."` ";
-				}else{
+					$query = "SELECT * FROM `".CLIENTS_TBL."`  ORDER BY `company` ";
 
-					/*
-						2 запроса оказались быстрее, чем один составной !!!!ЫЫЫЫ
-					*/
-					$query = "SELECT `client_id` FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$this->user_id."'";
-					$result = $mysqli->query($query) or die($mysqli->error);				
+					$html .=$query;
+					// времменно разрешаем видеть менам всех клиентов
+				// }else{
+
+				// 	/*
+				// 		2 запроса оказались быстрее, чем один составной !!!!
+				// 	*/
+				// 	$query = "SELECT `client_id` FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$this->user_id."'";
+				// 	$result = $mysqli->query($query) or die($mysqli->error);				
 					
-					$id_str = "'0'";
-					if($result->num_rows > 0){
-						while($row = $result->fetch_assoc()){
-							$id_str .= ",'".$row['client_id']."'";
-						}
-					}
-					// echo $query;
-					$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` IN (".$id_str.")";
+				// 	$id_str = "'0'";
+				// 	if($result->num_rows > 0){
+				// 		while($row = $result->fetch_assoc()){
+				// 			$id_str .= ",'".$row['client_id']."'";
+				// 		}
+				// 	}
+				// 	// echo $query;
+				// 	$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` IN (".$id_str.")";
 				}
 				
 
@@ -422,42 +425,76 @@
 					}
 				}
 
+				$html .= '<br>'.count($clients);
 				$html .= '<form  id="chose_client_tbl">';
+				// $html .= $this->print_arr($clients);
 				$html .='<table>';
+				$column = 3;
+				$num_client  = count($clients);
+				$num_rows = ceil($num_client / $column);
 
-				$html_row = '';
-				$first_row = ''; 
-				$f_r = 0;
+				$td_count = $num_rows*$column;
 
-				$count = count($clients);
-				for ($i=0; $i <= $count; $i) {
-					$row = '<tr>';
-				    for ($j=1; $j<=3; $j++) {
-				    	if(isset($clients[$i])){
-					    	$checked = ($clients[$i]['id'] == $_POST['client_id'])?'class="checked"':'';
-					    	$row .= '<td '.$checked.' data-id="'.$clients[$i]['id'].'" id="client_'.$clients[$i]['id'].'">'.$clients[$i]['company']."</td>";
+				$clients_array = array();
+				
+				for ($td=0; $td <= $num_rows; $td++) { 
+					for ($col=0; $col < $column; $col++) { 
+						$html .= ($col == 0)?'<tr>':'';
+						// $html .= '<td>';
+						$id = ($col>0)?$td + $num_rows*$col+$col:$td + $num_rows*$col;
+						if(isset($clients[$id])){
+					    	$checked = ($clients[$id]['id'] == $_POST['client_id'])?'class="checked checked_client"':'';
+					    	$html .= '<td '.$checked.' data-id="'.$clients[$id]['id'].'" id="client_'.$clients[$id]['id'].'">'.$clients[$id]['company']."</td>";
 				    		// если присутствует выбранный клиент, ставим флаг
 				    		if($checked!=''){$f_r = 1;}	
 				    	}else{
-				    		$row .= "<td></td>";
-				    	}			    	
-				    	$i++;$this->i = $i;
-				    }
-				    $row .= '</tr>';
-
-				    // если нам попалась строка с выбранным клиентом, запоминаем её и не добавляем в Html...
-				    // добавим её в начало таблицы позже
-				    if($f_r==1){
-				    	$first_row .= $row; $f_r = 0;
-				    }else{
-				    	$html_row .= $row;
-				    }
+				    		$html .= "<td></td>";
+				    	}
+						// $html .= (isset($clients[]))?$clients[($col>0)?$td + $num_rows*$col+$col:$td + $num_rows*$col]['company']:'';
+						// $html .= ($col>0)?$td + $num_rows*$col+$col:$td + $num_rows*$col;
+						// $html .= '</td>';
+						$html .= ($col == $column)?'</tr>':'';
+					}
 				}
+				$this->i = $num_rows;
 
-				// помещаем выбранного клиента в начало таблицы
-				$html .= $first_row.$html_row;
+				
 
-				$html .= '</table>';
+				// $html_row = '';
+				// $first_row = ''; 
+				// $f_r = 0;
+
+				// $count = count($clients);
+				// for ($i=0; $i <= $count; $i) {
+
+				// 	$row = '<tr>';
+				//     for ($j=1; $j<=3; $j++) {
+				//     	if(isset($clients[$i])){
+				// 	    	$checked = ($clients[$i]['id'] == $_POST['client_id'])?'class="checked"':'';
+				// 	    	$row .= '<td '.$checked.' data-id="'.$clients[$i]['id'].'" id="client_'.$clients[$i]['id'].'">'.$clients[$i]['company']."</td>";
+				//     		// если присутствует выбранный клиент, ставим флаг
+				//     		if($checked!=''){$f_r = 1;}	
+				//     	}else{
+				//     		$row .= "<td></td>";
+				//     	}			    	
+				//     	$i++;
+				//     	$this->i = $i;
+				//     }
+				//     $row .= '</tr>';
+
+				//     // если нам попалась строка с выбранным клиентом, запоминаем её и не добавляем в Html...
+				//     // добавим её в начало таблицы позже
+				//     if($f_r==1){
+				//     	$first_row .= $row; $f_r = 0;
+				//     }else{
+				//     	$html_row .= $row;
+				//     }
+				// }
+
+				// // помещаем выбранного клиента в начало таблицы
+				// $html .= $first_row.$html_row;
+
+				// $html .= '</table>';
 				$html .= '<input type="hidden" value="'.$AJAX.'" name="AJAX">';
 				// $html .= '<input type="hidden" value="" name="manager_id">';
 				if(isset($_POST)){

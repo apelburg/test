@@ -137,7 +137,7 @@ function show_dialog_comments(html,title,height){
 	$('#dialog_gen_window_form').html(html);
 	$('#dialog_gen_window_form').dialog({
           width: '1000',
-          height: height_window,
+          // height: height_window,
           modal: true,
           title : title,
           autoOpen : true,

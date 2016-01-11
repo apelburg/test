@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <table id="edit-client-adres">
     <tr>
         <td>Адрес</td>
@@ -47,3 +48,4 @@
     </tr>
 </table>
 <input type="hidden" name="adress_type" value="office">
+<!-- <?php echo __FILE__; ?> -- END-->

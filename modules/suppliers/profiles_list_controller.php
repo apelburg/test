@@ -44,7 +44,7 @@
 		
 	}
 	else{
-	    echo 'клиенты не найдены';
+	    echo 'Поставщики не найдены';
 		$page_navigation = '';
 	}
 	$rows = ob_get_contents();

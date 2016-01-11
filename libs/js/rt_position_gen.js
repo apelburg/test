@@ -70,7 +70,7 @@ $(document).on('click', '.add_usl', function(event) {
 			for_all:for_all
 
 		}, function(data, textStatus, xhr) {
-		show_dialog_and_send_POST_window2(data,'Выберите услугу', 800);		
+		show_dialog_and_send_POST_window2(data,'Выберите услугу', $(window).height());		
 	});
 	
 });
@@ -215,8 +215,8 @@ function show_dialog_and_send_POST_window2(html,title,height){
 	}
 	$('#dialog_gen_window_form').html(html);
 	$('#dialog_gen_window_form').dialog({
-          width: '1000',
-          height: height_window,
+          width: $(window).width(),
+          height: $(window).height(),
           modal: true,
           title : title,
           autoOpen : true,

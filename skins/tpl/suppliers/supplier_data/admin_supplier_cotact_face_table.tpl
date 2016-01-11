@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <div class="delete_contact_face_table">
     <div class="delete_contact_face_table_button" data-contface="<?php echo $this_contact_face['id']; ?>">X</div>
 </div>
@@ -46,3 +47,4 @@
     </table>    
     <div class="border_in_table"></div>
 </div>
+<!-- <?php echo __FILE__; ?> -- END-->

@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
 <link href="./skins/css/client_card.css" rel="stylesheet" type="text/css">
 <div id="content_general_header">
     <table>
@@ -29,3 +30,4 @@
         </div>
     </div>
 </div>
+<!-- <?php echo __FILE__; ?> -- END-->

@@ -1,4 +1,4 @@
-<!-- image block show.tpl -->
+<!-- <?php echo __FILE__; ?> -- START-->
 	<div id="articulusImages" 
         <?php 
             if($this->position['show_img'] == 0){
@@ -33,4 +33,4 @@
    		<!--// загрузка изображения на сервер -->               
         </div>
     </div>
-<!-- // image block show.tpl -->
+<!-- <?php echo __FILE__; ?> -- END-->

@@ -1,3 +1,4 @@
+<!-- <?php echo __FILE__; ?> -- START-->
                     <tr>
                         <td>Адрес <?php echo $adress_name_arr[$adress['adress_type']]; ?></td>
                         <td>                            
@@ -28,3 +29,4 @@
                                 ?></div>
                         </td>
                     </tr>
+<!-- <?php echo __FILE__; ?> -- END-->

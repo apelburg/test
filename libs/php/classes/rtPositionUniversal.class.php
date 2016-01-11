@@ -73,6 +73,33 @@ class rtPositionUniversal extends Position_general_Class
 	//////////////////////////
 	//	AJAX
 	//////////////////////////
+		
+		/**
+		  *	изменение статуса варианта (светофор)
+		  *
+		  *	@param 		$_POST
+		  *	@return  	json
+		  *	@author  	Алексей Капитонов
+		  *	@version 	04:40 10.01.2016
+		  */
+		protected function change_status_row_AJAX(){
+			$id_in = $_POST['id_in'];
+			if(trim($id_in)!=''){
+				$color = $_POST['color'];
+				
+				$query  = "UPDATE `".RT_DOP_DATA."` SET `row_status` = '".$color."' WHERE  `id` IN (".$id_in.");";
+				
+				$result = $this->mysqli->query($query) or die($this->mysqli->error);	
+			}
+			
+			$js_function_name = ($color == 'red')?'variant_edit_lock':'variant_edit_unlock';
+
+			$this->responseClass->addResponseFunction($js_function_name,$_POST);
+			// $this->responseClass->addMessage($html);
+			// echo '{"response":"OK","text":"test"}';
+			// exit;
+		}
+
 		private function save_image_open_close_AJAX(){
 			$query = "UPDATE `".RT_MAIN_ROWS."` SET";
 	        $query .= "`show_img` = '".$_POST['val']."'";
@@ -220,8 +247,8 @@ class rtPositionUniversal extends Position_general_Class
 			$reference_id = (int)$_POST['id'];
 			// собираем запрос, копируем строку в БД
 			$query = "INSERT INTO `".RT_DOP_DATA."` 
-			(row_id, quantity,price_in, price_out,discount,tirage_json,no_cat_json) 
-			(SELECT row_id, quantity,price_in, price_out,discount,tirage_json ,no_cat_json
+			(row_id, quantity,zapas,price_in, price_out,discount,tirage_json,no_cat_json) 
+			(SELECT row_id, quantity,zapas,price_in, price_out,discount,tirage_json ,no_cat_json
 				FROM `".RT_DOP_DATA."` WHERE id = '".$reference_id."')";
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
 			// запоминаем новый id
@@ -1025,7 +1052,7 @@ class Variants extends rtPositionUniversal
 						break;
 				}				
 			}
-			$html .='<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
+			$html .= '<li data-cont_id="variant_content_block_'.$i.'" data-id="'.$variants[$i]['id'].'" class="variant_name '.$checked.'">Вариант '.($i+1).'<span class="variant_status_sv '.$variants[$i]['row_status'].'"></span></li>';
 		}
 		return $html;
 	}

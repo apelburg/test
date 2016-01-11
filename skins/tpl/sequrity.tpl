@@ -1,4 +1,4 @@
-<!-- ./skins/tpl/admin/sequrity.tpl begin --> 
+<!-- <?php echo __FILE__; ?> -- START-->
 <table width='100%' height='100%' border='0' align='center' valign='middle'>
 	<tr>
 		<td align='center' valign='middle'>
@@ -25,4 +25,4 @@
 		</td>
 	</tr>
 </table>
-<!--  ./skins/tpl/admin/sequrity.tpl end -->
+<!-- <?php echo __FILE__; ?> -- END-->

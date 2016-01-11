@@ -3,6 +3,7 @@
  *	библиотека универсальных классов	
  * 		
  */
+
 if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] == 42) {
 	ini_set('error_reporting', E_ALL);
 	ini_set('display_errors', 1);
@@ -199,7 +200,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				//////////////////////////
 					$img_art_arr = $this->getImagesForArt($rt_main_row['art']);
 					$upload_dir = $_SERVER['DOCUMENT_ROOT'].'/img/';
-					$global_link_dir = 'http://'.$_SERVER['HTTP_HOST'].'/img/';
+					$global_link_dir = 'http://www.apelburg.ru/img/';
 					foreach ($img_art_arr as $key => $img_name) {
 						$class_li = '';
 						$path = $global_link_dir.$img_name; // собираем путь
@@ -313,17 +314,18 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 			}
 			// проверка существования папки
 			protected function checkFolderExist($folder){
-				return is_dir('/var/www/admin/data/www/apelburg.ru/os/data/images/'.$folder.'/');
+				return is_dir($_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder.'/');
 			}
 			// создание новой папки
 			protected function greateNewDir($rt_id_row){
 				$dirName_1 = md5(time());
 				
-				$dirName = '/var/www/admin/data/www/apelburg.ru/os/data/images/'.$dirName_1.'/';
+				$dirName = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$dirName_1.'/';
 				
 				if (!is_dir($dirName)) {
 					//если папкb $dirName не существует
-					mkdir($dirName,0777);
+					// $dirName = __DIR__.'/../../../data/images/'.$dirName_1;
+					mkdir($dirName,0777,true);
 					
 					global $mysqli; // пишем её название в базу
 					$query = "UPDATE `".RT_MAIN_ROWS."` SET";
