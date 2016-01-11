@@ -204,11 +204,17 @@ if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']=
 	function get_link_back(){
 	    global $page;
 		global $section;
+		global $POSITION;
 		
 	    if($section){
 		    $href = (isset($_SESSION['go_back'][$page][$section]['link']))? $_SESSION['go_back'][$page][$section]['link']:$_SERVER['HTTP_REFERER'];
 	    }
 		else $href = (isset($_SESSION['go_back'][$page]['link']))? $_SESSION['go_back'][$page]['link']:$_SERVER['HTTP_REFERER'];
+		
+		// исключение - при формировании обратной ссылки с карточки товара, для перехода в РТ, необходимо к сылке добавлять 
+		// ссылку на анкор ввиде #rowНомерРядаВРТ
+		if(isset($POSITION)) $href .= '#row'.$POSITION->position['sort'];
+		
 		return '<a href="'.$href.'"></a>';
 	}
 	
