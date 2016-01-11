@@ -11,8 +11,8 @@
                         <td>Папка</td>
                         
                         <td>
-                            <a target="_blank" href="№">
-                            <?php echo (!empty($client['ftp_folder']))?'Z:/'.$client['ftp_folder']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?></a></td>
+                            
+                            <?php echo (!empty($client['ftp_folder']))?'Z:/'.$client['ftp_folder']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?></td>
                     </tr>
                 </table>
         	<td>

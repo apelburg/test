@@ -5,9 +5,11 @@
         	<td>
             	<table>
                 	<tr>
-                    	<td>Примечание</td>
-                    	<td><?php echo (!empty($client['dop_info']))?$client['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?></td>
-                    </tr>    
+                        <td>Дополнительная информация</td>
+                        <td>
+                            <?php echo (!empty($supplier['dop_info']))?$supplier['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?>
+                        </td>
+                    </tr> 
                 </table>
         	<td>
             	

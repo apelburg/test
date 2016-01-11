@@ -14,7 +14,7 @@
                             <?php echo (!empty($supplier['dop_info']))?$supplier['dop_info']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>'; ?>
                         </td>
                     </tr>
-                	<tr>
+                	<tr style="display:none">
                     	<td>Папка</td>
                     	<td><?php echo (!empty($supplier['ftp_folder']))?'Z:/'.$supplier['ftp_folder']:'<span style="color:rgb(187, 187, 187);">информация отсутствует</span>' ?></td>
                     </tr>

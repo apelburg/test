@@ -1453,7 +1453,8 @@ class Client extends aplStdAJAXMethod{
 	
 	static function get_addres($id){
 		global $mysqli;
-		$query = "SELECT * FROM  `".CLIENT_ADRES_TBL."` WHERE `parent_id` = '".(int)$id."'";
+		$parent_tbl = 'CLIENTS_TBL';
+		$query = "SELECT * FROM  `".CLIENT_ADRES_TBL."` WHERE `parent_id` = '".(int)$id."' AND `table_name` = '".$parent_tbl."'";
 		$arr = array();
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){

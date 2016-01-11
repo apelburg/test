@@ -116,7 +116,7 @@
                 	<textarea placeholder="информация отсутствует" name="dop_info"><?php echo (!empty($supplier['dop_info']))?$supplier['dop_info']:''; ?></textarea>                	
                	</td>
             </tr>
-            <tr>
+            <tr style="display:none">
                 <td>Папка</td>
                 <td>
                 	<input type="text" name="ftp_folder" value="<?php echo (!empty($supplier['ftp_folder']))?$supplier['ftp_folder']:'' ?>" placeholder="информация отсутствует">

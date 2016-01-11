@@ -300,11 +300,12 @@ class Supplier extends aplStdAJAXMethod{
 	  *	@param 		supplier_id
 	  *	@return     array()  	
 	  *	@author  	Алексей Капитонов
-	  *	@version 	00:22 11.01.2016
+	  *	@version 	01:23 12.01.2016
 	  */
 	static function get_addres($id){
 		global $mysqli;
-		$query = "SELECT * FROM  `".CLIENT_ADRES_TBL."` WHERE `parent_id` = '".(int)$id."'";
+		$parent_tbl = "SUPPLIERS_TBL";
+		$query = "SELECT * FROM  `".CLIENT_ADRES_TBL."` WHERE `parent_id` = '".(int)$id."' AND `table_name` = '".$parent_tbl."'";
 		$arr = array();
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
