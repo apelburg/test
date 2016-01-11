@@ -350,8 +350,8 @@
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="glob_counter" class="top bgWhite glob_counter " width="30" oncontextmenu="openCloseMenu(event,\'contextmenuNew\',{\'pos_id\':\''.$key.'\',\'control_num\':\''.'4'.'\'});">'.$glob_counter.'</td>':'';
 			 
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="master_btn" class="top bgWhite master_btn noselect" width="35">   
-											<div class="masterBtnContainer" id="">
-											   <a name="row'.$glob_counter.'"></a>
+											<div class="masterBtnContainer" id=""  style="position:relative;">
+											   <a name="row'.$glob_counter.'" style="position:absolute;top:-11px;"></a>
 											   <input type="checkbox" id="masterBtn'.$key.'" rowIdNum="'.$key.'" name="masterBtn"   onclick="return onClickMasterBtn(this,\'rt_tbl_body\','.$key.');" '.(($row['master_btn'] == 1)? 'checked':'').'/><label for="masterBtn'.$key.'"></label>
 											</div>
 			                              </td>':'';

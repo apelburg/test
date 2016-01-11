@@ -1597,15 +1597,15 @@ var rtCalculator = {
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('deleting='+JSON.stringify(idsArr)+((typeof type !== 'undefined')?'&type='+type:''));
 		rtCalculator.send_ajax(url,callback);
 		function callback(response){ 
-		    /* console.log(response); //  
-			alert(response); */
+		    /* console.log(response); // 
+			alert(response);  */
 
             close_processing_timer(); 
 			closeAllMenuWindows();
 			if(openCloseContextMenuNew.lastElement) openCloseContextMenuNew.lastElement.style.backgroundColor = '#FFFFFF';
 			
 			var data = JSON.parse(response);
-			// alert(data[0]);
+			// alert(data[0],data[1]);
 			if(data[0]==0){
 				alert(data[1]);
 				return;

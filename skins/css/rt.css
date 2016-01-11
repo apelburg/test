@@ -155,6 +155,7 @@ table-layout:fixed;
  font-size:12px; 
  border:#FF0000 solid 0px;
 }
+
 @media screen and (max-width:1920px){
   .rt_tbl_body td.art_name{ width:470px; }
   /*.rt_tbl_body td.quantity{ width:60px; }*/
@@ -181,6 +182,10 @@ table-layout:fixed;
  border-bottom:#FF0000 solid 0px;
  padding-bottom:12px;
 }
+.rt_tbl_body tr:last-of-type td{
+ padding-bottom:60px;
+}
+
 .rt_tbl_body .svetofor_btn{
  margin:-1px 0 0 10px;
 }
