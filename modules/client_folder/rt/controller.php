@@ -351,6 +351,7 @@
 			 
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" type="master_btn" class="top bgWhite master_btn noselect" width="35">   
 											<div class="masterBtnContainer" id="">
+											   <a name="row'.$glob_counter.'"></a>
 											   <input type="checkbox" id="masterBtn'.$key.'" rowIdNum="'.$key.'" name="masterBtn"   onclick="return onClickMasterBtn(this,\'rt_tbl_body\','.$key.');" '.(($row['master_btn'] == 1)? 'checked':'').'/><label for="masterBtn'.$key.'"></label>
 											</div>
 			                              </td>':'';
