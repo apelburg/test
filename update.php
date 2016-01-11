@@ -369,6 +369,219 @@ class Update extends aplStdAJAXMethod
 			}	
 			// echo "<br>";
 		}
+
+		/**
+		  *	Скопировать данные (site, phone, email) из основной таблицы по поставщикам
+		  *
+		  *	@author  	Alexey Kapitonov
+		  *	@version 	00:47 12.01.2016
+		  */
+		protected function copy_supplier_contact_info_AJAX(){
+			//получаем данные из основной таблицы
+			$query = "SELECT * FROM `".SUPPLIERS_TBL."`";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+			/*
+			echo '<pre>';
+			print_r($arr);
+			echo '<pre>';
+			*/
+			$i = 0;
+			$r = 0;
+			$num_str = 0;
+			$query = $query2= $q = "";
+			foreach($arr as $k=>$v){
+				if(trim($v['email'])!=""){
+					if($i==0){
+						$q .= ($r==1)?';':'';
+						$q .= "INSERT INTO `os__contact_information` VALUES ('',".$v['id'].",'SUPPLIERS_TBL','email','','".$v['email']."','')";$i++;$num_str++;
+					}else{
+						$q .= ",('',".$v['id'].",'SUPPLIERS_TBL','email','','".$v['email']."','')";	$i++;$num_str++;
+						if($i>500){$i=0;$r=1;}
+					}
+				}
+				if(trim($v['phone'])!=""){
+					if($i==0){
+						$q .= ($r==1)?';':'';
+						$q .= "INSERT INTO `os__contact_information` VALUES ('',".$v['id'].",'SUPPLIERS_TBL','phone','work','".addslashes($v['phone'])."','')";$i++;$num_str++;
+					}else{
+						$q .= ",('',".$v['id'].",'SUPPLIERS_TBL','phone','work','".addslashes($v['phone'])."','')";	$i++;$num_str++;
+						if($i>500){$i=0;$r=1;}
+					}
+				}
+				if(trim($v['web_site'])!=""){
+					if($i==0){
+						$q .= ($r==1)?';':'';
+						$q .= "INSERT INTO `os__contact_information` VALUES ('',".$v['id'].",'SUPPLIERS_TBL','web_site','','".addslashes($v['web_site'])."','')";$i++;$num_str++;
+					}else{
+						$q .= ",('',".$v['id'].",'SUPPLIERS_TBL','web_site','','".addslashes($v['web_site'])."','')";	$i++;$num_str++;
+						if($i>500){$i=0;$r=1;}
+					}
+				}
+			}
+
+			// sleep(2);
+			//echo $q."<br>";
+			$result = $this->mysqli->multi_query($q);//сохраняем выборку из 1 таблицы
+			
+
+			// $result = $this->mysqli->query($q);
+			
+			if($result){
+				// сообщение
+				$html = "Из общей таблицы добавлено ".$num_str." строк<br>";
+				$this->responseClass->addMessage($html,'system_message');
+			}
+
+			if($this->mysqli->errno){
+				// сообщение
+				$html = 'Данные не скопированы';
+				$html .= '<br>';
+				$html .= ' Error (' . $this->mysqli->errno . ') ' . $this->mysqli->error;
+				$this->responseClass->addMessage($html,'error_message');
+			}
+		}
+
+		/**
+		  *	Скопировать адреса поставщиков в новую структуру
+		  *
+		  *	@author  	Alexey Kapitonov
+		  *	@version 	00:47 12.01.2016
+		  */
+		protected function copy_supplier_addres_AJAX(){
+			//получаем данные из основной таблицы
+			$query = "SELECT `id`,`addres` FROM `".SUPPLIERS_TBL."`";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+			if($result){
+				// сообщение
+				$html = "Данные успешно получены";
+				$this->responseClass->addMessage($html,'system_message');
+			}
+
+			if($this->mysqli->errno){
+				// сообщение
+				$html = ' Error (' . $this->mysqli->errno . ') ' . $this->mysqli->error;
+				$this->responseClass->addMessage($html,'error_message');
+			}
+
+			$i = 0;
+			$query = "";
+			foreach ($arr as $key => $value) {
+				if($i == 0){
+					if(trim($value['addres']) != ''){
+						$query .= "INSERT INTO `os__addres_tbl` VALUES ('','".$value['id']."','SUPPLIERS_TBL','office','','".addslashes($value['addres'])."','','','','','','','')";
+						$i++;	
+					}
+					
+				}else{
+					if(trim($value['addres']) != ''){
+						$query .=",('','".$value['id']."','SUPPLIERS_TBL','office','','".addslashes($value['addres'])."','','','','','','','')";
+						$i++;
+					}
+				}			
+			}
+			$query .= ";";
+
+
+
+			//импортируем
+			// $result = $this->mysqli->query($query);
+			$result = $this->mysqli->multi_query($query);
+			if($result){
+				// сообщение
+				$html = "Копирование завершено";
+				$html .= '<br>';
+				$html .= 'Было скопировано '.$i.' строк';
+				$this->responseClass->addMessage($html,'system_message');
+			}
+
+			if($this->mysqli->errno){
+				// сообщение
+				$html = ' Error (' . $this->mysqli->errno . ') ' . $this->mysqli->error;
+				$this->responseClass->addMessage($html,'error_message');
+			}	
+		}
+
+		/**
+		  *	Скопировать данные (site, phone, email) по контактным лицам поставщиков
+		  *
+		  *	@author  	Alexey Kapitonov
+		  *	@version 	00:47 12.01.2016
+		  */
+		protected function copy_supplier_contact_info_contact_face_AJAX(){
+			//получаем данные из основной таблицы
+			$query = "SELECT * FROM `".SUPPLIERS_CONT_FACES_TBL."`";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[] = $row;
+				}
+			}
+			/*
+			echo '<pre>';
+			print_r($arr);
+			echo '<pre>';
+			*/
+			$i = 0;
+			$r = 0;
+			$num_str = 0;
+			$query = $query2 = $q = "";
+			foreach($arr as $v){
+				if(trim($v['email'])!=""){
+					if($i==0){
+						$q .= ($r==1)?';':'';
+						$q .= "INSERT INTO `os__contact_information` VALUES ('',".$v['id'].",'SUPPLIERS_TBL','email','','".$v['email']."','')";$i++;$num_str++;
+					}else{
+						$q .= ",('',".$v['id'].",'SUPPLIERS_CONT_FACES_TBL','email','','".$v['email']."','')";	$i++;$num_str++;
+						if($i>500){$i=0;$r=1;}
+					}
+				}
+				if(trim($v['phone'])!=""){
+					if($i==0){
+						$q .= ($r==1)?';':'';
+						$q .= "INSERT INTO `os__contact_information` VALUES ('',".$v['id'].",'SUPPLIERS_TBL','phone','work','".addslashes($v['phone'])."','')";$i++;$num_str++;
+					}else{
+						$q .= ",('',".$v['id'].",'SUPPLIERS_CONT_FACES_TBL','phone','work','".addslashes($v['phone'])."','')";	$i++;$num_str++;
+						if($i>500){$i=0;$r=1;}
+					}
+				}
+				
+				if(trim($v['email'])!=""){
+					if($i==0){
+						$q .= ($r==1)?';':'';
+						$q .= "INSERT INTO `os__contact_information` VALUES ('',".$v['id'].",'SUPPLIERS_TBL','skype','','".$v['isq_skype']."','')";$i++;$num_str++;
+					}else{
+						$q .= ",('',".$v['id'].",'SUPPLIERS_CONT_FACES_TBL','email','','".$v['isq_skype']."','')";	$i++;$num_str++;
+						if($i>500){$i=0;$r=1;}
+					}
+				}
+			}
+
+			//echo $q."<br>";
+			$result = $this->mysqli->multi_query($q);//сохраняем выборку из 1 таблицы
+			if($result){
+				// сообщение
+				$html = "Копирование завершено";
+				$html .= '<br>';
+				$html .= "Из таблицы ".CLIENT_CONT_FACES_TBL." добавлено ".$num_str." строк";
+				$this->responseClass->addMessage($html,'system_message');
+			}
+
+			if($this->mysqli->errno){
+				// сообщение
+				$html = ' Error (' . $this->mysqli->errno . ') ' . $this->mysqli->error;
+				$this->responseClass->addMessage($html,'error_message');
+			}	
+		}
 }
 
 // инициализируем класс Update
@@ -437,55 +650,6 @@ function rebuild_rate(){
 			echo "Ребилд таблицы произведён успешно";
 		}
 }
-
-
-
-
-
-// function client_contact_list_update_2(){
-	// global $mysqli;
-	// //получаем данные из основной таблицы
-	// $query = "SELECT * FROM `".CLIENT_CONT_FACES_TBL."`";
-	// $result = $mysqli->query($query) or die($mysqli->error);
-	// if($result->num_rows > 0){
-	// 	while($row = $result->fetch_assoc()){
-	// 		$arr[] = $row;
-	// 	}
-	// }
-	// /*
-	// echo '<pre>';
-	// print_r($arr);
-	// echo '<pre>';
-	// */
-	// $i = 0;
-	// $r = 0;
-	// $query = $query2 = $q = "";
-	// foreach($arr as => $v){
-	// 	if(trim($v['email'])!=""){
-	// 		if($i==0){
-	// 			$q .= ($r==1)?';':'';
-	// 			$q .= "INSERT INTO `os__contact_information` VALUES ('',".$v['id'].",'CLIENTS_TBL','email','','".$v['email']."','')";$i++;$num_str++;
-	// 		}else{
-	// 			$q .= ",('',".$v['id'].",'CLIENT_CONT_FACES_TBL','email','','".$v['email']."','')";	$i++;$num_str++;
-	// 			if($i>500){$i=0;$r=1;}
-	// 		}
-	// 	}
-	// 	if(trim($v['phone'])!=""){
-	// 		if($i==0){
-	// 			$q .= ($r==1)?';':'';
-	// 			$q .= "INSERT INTO `os__contact_information` VALUES ('',".$v['id'].",'CLIENTS_TBL','phone','work','".addslashes($v['phone'])."','')";$i++;$num_str++;
-	// 		}else{
-	// 			$q .= ",('',".$v['id'].",'CLIENT_CONT_FACES_TBL','phone','work','".addslashes($v['phone'])."','')";	$i++;$num_str++;
-	// 			if($i>500){$i=0;$r=1;}
-	// 		}
-	// 	}
-	// }
-
-	// //echo $q."<br>";
-	// $result = $mysqli->multi_query($q) or die($mysqli->error);//сохраняем выборку из 1 таблицы
-	// echo "Из таблицы ".CLIENT_CONT_FACES_TBL." добавлено ".$num_str." строк<br>";
-// }
-
 
 
 ?>
@@ -559,6 +723,28 @@ function rebuild_rate(){
 	<div class="steep_contaner">
 		<div class="command_name">Скопировать данные (site, phone, email) по контактным лицам</div>
 		<button id="copy_client_contact_info_contact_face" value="1">скопировать</button>
+	</div>	
+
+	<div class="steep_contaner">
+		<div class="command_name"><strong>Импорт общей информации по поставщикам</strong></div>		
+	</div>
+
+	<div class="steep_contaner">
+		<div class="command_name">Скопировать данные (site, phone, email) из основной таблицы по поставщикам</div>
+		<button id="copy_supplier_contact_info" value="1">скопировать</button>
+	</div>	
+
+	<div class="steep_contaner">
+		<div class="command_name">Скопировать адреса поставщиков в новую структуру</div>
+		<button id="copy_supplier_addres" value="1">скопировать</button>
+	</div>	
+	<div class="steep_contaner">
+		<div class="command_name"><strong>Импорт информации по контактным лицам поставщиков</strong></div>		
+	</div>
+
+	<div class="steep_contaner">
+		<div class="command_name">Скопировать данные (site, phone, email) по контактным лицам поставщиков</div>
+		<button id="copy_supplier_contact_info_contact_face" value="1">скопировать</button>
 	</div>	
 
 </div>
