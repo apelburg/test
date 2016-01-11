@@ -100,7 +100,9 @@
 		}
 		
 		if($_POST['AJAX']=="update_reiting_cont_face"){
-			$query = "UPDATE  `".SUPPLIERS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `id` = '".$_POST['id']."';";
+			// необходим перевод на новую структуру .... как в клиенте
+			// или на старую .... так оставлять не дело
+			$query = "UPDATE  `".SUPPLIERS_RATINGS_TBL."` SET  `rate` =  '".$_POST['rate']."' WHERE  `subject_id` = '".$_POST['id']."';";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			echo '{
 			       "response":"1",

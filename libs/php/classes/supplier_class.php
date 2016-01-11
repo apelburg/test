@@ -369,6 +369,7 @@ class Supplier extends aplStdAJAXMethod{
 		$html = '';
 		// SUPPLIERS_RATINGS_TBL subject_id
 		$query = "SELECT * FROM `".SUPPLIERS_RATINGS_TBL."` WHERE `subject_id` = '".(int)$supplier_id."'";
+		// $query = "SELECT * FROM `".SUPPLIERS_TBL."` WHERE `id` = '".(int)$supplier_id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$rate = 0;
 		if($result->num_rows > 0){

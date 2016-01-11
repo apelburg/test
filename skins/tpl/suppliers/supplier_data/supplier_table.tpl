@@ -1,6 +1,7 @@
 <!-- <?php echo __FILE__; ?> -- START-->
-<script type="text/javascript" src="libs/js/rate_supplier.js"></script>
-
+<script type="text/javascript" src="libs/js/rate_script.js"></script>
+<link href="skins/css/supplier.css" rel="stylesheet" type="text/css">
+<link href="skins/css/main.css" rel="stylesheet" type="text/css">
 
 <div class="client_table">
 	<table class="client_table_gen">
