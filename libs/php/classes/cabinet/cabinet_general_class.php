@@ -388,7 +388,7 @@
 			private function get_form_attach_the_client($AJAX = 'test'){
 				global $mysqli;
 				$html ='';
-				if($this->user_access == 1){
+				// if($this->user_access == 1){
 					$query = "SELECT * FROM `".CLIENTS_TBL."`  ORDER BY `company` ";
 
 					// $html .=$query;
@@ -409,7 +409,7 @@
 				// 	}
 				// 	// echo $query;
 				// 	$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` IN (".$id_str.")";
-				}
+				// }
 				
 
 				// Запрос с сортировкой почему-то не хочет выводит ь некоторые компании
