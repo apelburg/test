@@ -67,7 +67,25 @@
 		
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}
+	noticeQueryBlocked.counter = 0;
+	function noticeQueryBlocked(){
+		noticeQueryBlocked.counter++;
+		if(noticeQueryBlocked.counter>4){
+			noticeQueryBlocked.counter = 0;
+			return;
+		}
+		if(noticeQueryBlocked.counter>1) return;
 	
+		$('#noticeQueryBlocked').remove();
+		
+		var text = 'Заявку можно редактировать (изменять), только когда она имеет статус "в работе" (находится в разделе "в работе").<br><br>На данный момент вы можете поменять статус заявки в общем списке заявок.<br><br>';
+		var div = $('<div>'+text+'</div>');
+		div.id = 'noticeQueryBlocked';
+		$(div).dialog({width:500});
+		$(div).dialog('open');
+		if(!noticeQueryBlocked.counter) noticeQueryBlocked.counter = 0;
+		noticeQueryBlocked.counter++;
+	}
 	function make_ajax_post_request(url,pairs,call_back){
 		
 		/////////////////////////////////////    AJAX  ///////////////////////////////////////////
