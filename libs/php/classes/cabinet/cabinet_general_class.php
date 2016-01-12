@@ -391,7 +391,7 @@
 				if($this->user_access == 1){
 					$query = "SELECT * FROM `".CLIENTS_TBL."`  ORDER BY `company` ";
 
-					$html .=$query;
+					// $html .=$query;
 					// времменно разрешаем видеть менам всех клиентов
 				// }else{
 
@@ -425,7 +425,7 @@
 					}
 				}
 
-				$html .= '<br>'.count($clients);
+				// $html .= '<br>'.count($clients);
 				$html .= '<form  id="chose_client_tbl">';
 				// $html .= $this->print_arr($clients);
 				$html .='<table>';
