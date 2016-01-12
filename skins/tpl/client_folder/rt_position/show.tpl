@@ -27,6 +27,12 @@
 <script type="text/javascript" src="./libs/js/jsPositionUniverasal.js"></script>
 
 <?php
+// if ($POSITION->user_id == 42) {
+	// echo '<pre>';
+	// print_r($POSITION);
+	// echo '</pre>';
+		
+// }
 // 	echo '<pre>';
 // 	print_r($POSITION->position['status']);
 // 	echo '</pre>';
@@ -42,6 +48,9 @@
 			<li style="opacity:0" id="back_to_string_of_claim"><span href="?page=client_folder&query_num=<?=$POSITION->position['query_num'];?>&client_id=<?php echo $client_id; ?>"></span></li>
 			<li id="claim_number" data-order="<?=$POSITION->position['id'];?>">Запрос № <?=$POSITION->position['query_num'];?></li>
 			<li id="claim_date"><span>от <?=$POSITION->position['date_create'];?></span></li>
+			<li id="status_art_z">
+				<div>Статус <span><?=$POSITION->queryStatus?></span></div>
+			</li>
 			
 			<li id="query_theme_block"><span>Тема:</span> <input id="query_theme_input" class="query_theme" data-id="<?=$POSITION->position['RT_LIST_ID'];?>" type="text" value="<?=$POSITION->position['theme']?>" onclick="fff(this,'Введите тему');"></li>
 			<li style="float:right"><span data-rt_list_query_num="<?=$POSITION->position['query_num'];?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($POSITION->position['query_num']); ?> "></span></li>
@@ -53,7 +62,7 @@
 			<!-- <li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span>Каталог</li> -->
 			<li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span><?=$product_type_RU;?></li>
 			<li title="порядковый номер позиции"><span>Позиция № : </span><?=$POSITION->position['sort'];?></li>
-			<li id="status_art_z"><div>Статус <span>В работе</span></div></li>
+			
 		</ul>
 	</div>
 	<div class="table" id="order_art_edit_content_table" >

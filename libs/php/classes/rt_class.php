@@ -535,33 +535,34 @@
 			
 			RT::add_data_from_basket($client_id,$manager_id_arr,FALSE,$dop_info_arr);
 			
-			$query_status = 'new_query';
-			if(is_array($manager_id_arr)){
-				if(!empty($manager_id_arr)){
-					if(count($manager_id_arr) > 1){
-						// echo 'Hellow world';
-						if(!isset($_SESSION['access']['user_id'])){exit('Не известный юзер!!!');}
+			////////////////////
+			//	определяем вкладку для переадресации подльзователя
+			////////////////////
+				$query_status = 'new_query';
+				
+				if(is_array($manager_id_arr)){
+					if(!empty($manager_id_arr)){
+						if(count($manager_id_arr) > 1){
+							if(!isset($_SESSION['access']['user_id'])){exit('Не известный юзер!!!');}
 
-						$real_user_acces = self::get_user_access_Database_Int($_SESSION['access']['user_id']);
-						if ($real_user_acces == 1
-							|| !in_array($_SESSION['access']['user_id'], $manager_id_arr)){
-							// если данный пользователь не найден среди кураторов данного клиента
-							// или это админ
-							$query_status = 'not_process';	
-						}else if (isset($_SESSION['access']['user_id']) && in_array($_SESSION['access']['user_id'], $manager_id_arr)) {
-							// если данный пользователь является куратором клиента
-							$query_status = 'in_work';	
+							$real_user_acces = self::get_user_access_Database_Int($_SESSION['access']['user_id']);
+							if (isset($_SESSION['access']['user_id']) && !in_array($_SESSION['access']['user_id'], $manager_id_arr)){
+								// если данный пользователь не найден среди кураторов данного клиента
+								$query_status = 'not_process';	
+							}else if (isset($_SESSION['access']['user_id']) && in_array($_SESSION['access']['user_id'], $manager_id_arr)) {
+								// если данный пользователь является куратором клиента
+								$query_status = 'in_work';	
+							}
+							
+						}else{
+							$query_status = 'not_process';
 						}
-						
-					}else{
-						$query_status = 'not_process';
-					}
-				}	
-			}
+					}	
+				}
 
-			$array_request['new_query'] = 'query_wait_the_process';
-			$array_request['not_process'] = 'no_worcked_men';
-			$array_request['in_work'] = 'query_worcked_men';
+				$array_request['new_query'] = 'query_wait_the_process';
+				$array_request['not_process'] = 'no_worcked_men';
+				$array_request['in_work'] = 'query_worcked_men';
 
 
 			$out_put = array(0  , $client_id, $array_request[$query_status] );
@@ -711,6 +712,28 @@
 			return $int;
 		}
 
+		/**
+		 *	получаем информацию по списку менеджеров
+		 *
+		 *	@author  Алексей Капитонов
+		 *	@version 13:45 12.01.2016
+		 */
+		static function get_manager_info_by_id($manager_id){
+			global $mysqli;
+			$query = "SELECT * FROM `".MANAGERS_TBL."` WHERE `id` IN (".$manager_id.")";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$array = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$array[$row['id']] = $row;
+				}
+				//return $array;
+			}
+			return $array;
+		}
+
+
+
 		// создание запроса
 		static function create_new_query($client_id,$manager_arr,$data_arr,$query_status = 'new_query'){
 			global $mysqli;
@@ -727,29 +750,84 @@
 					$query_status = 'new_query';
 				}else{
 
-					if(count($manager_arr) > 1){
+					if(count($manager_arr) > 1){// если кураторов несколько
 						// echo 'Hellow world';
 						if(!isset($_SESSION['access']['user_id'])){exit('Не известный юзер!!!');}
 
-						$real_user_acces = self::get_user_access_Database_Int($_SESSION['access']['user_id']);
-						if ($real_user_acces == 1
-							|| isset($_SESSION['access']['user_id']) && !in_array($_SESSION['access']['user_id'], $manager_arr)){
+						// если пользователь НЕ является куратором данного клиента
+						if (isset($_SESSION['access']['user_id']) && !in_array($_SESSION['access']['user_id'], $manager_arr)){
 							// если данный пользователь не найден среди кураторов данного клиента
 							// И
 							// если кураторов несколько
 							$dop_managers_id = implode(',', $manager_arr);
 							$manager_id = 0;
 							$query_status = 'not_process';	
+
+							//////////////////////////////////
+							// шлем оповещение менеджерам на почту
+							//////////////////////////////////
+								// получаем информацию по клиенту
+							 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+			    				$Client = Client::get_cont_face_details($client_id);
+
+								// получаем информацию по кураторам + пользователю, который добавил запрос
+								$managers = self::get_manager_info_by_id("'".implode("','",$manager_arr)."','".$_SESSION['access']['user_id']."'");
+								
+								include_once ('mail_class.php');
+								$mailClass = new Mail;
+								$message = 'Пользователь '.$managers[$_SESSION['access']['user_id']]['name'].' '.$managers[$_SESSION['access']['user_id']]['last_name'].' добавил для Вас и ещё нескольких пользователей новый запрос';
+								$message += '<br>чтобы посмотреть перейдите по <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men">ссылке</a>';
+								foreach ($managers as $key => $value) {
+									if(trim($value['email']) != ''){
+										$mailClass->send($value['email'],'os@apelburg.ru','Новый запрос для '.$Client['company'],$message);	
+									}else if(trim($value['email_2']) != ''){
+										$mailClass->send($value['email_2'],'os@apelburg.ru','Новый запрос для '.$Client['company'],$message);	
+									}
+								}
+							
+
+						// если пользователь является куратором данного клиента
 						}else if (isset($_SESSION['access']['user_id']) && in_array($_SESSION['access']['user_id'], $manager_arr)) {
 							// если данный пользователь является куратором клиента
 							$manager_id = $_SESSION['access']['user_id'];
 							$query_status = 'in_work';	
+
+							
+							//////////////////////////////////
+							// шлем оповещение менеджерам на почту (всем кроме того у которого заказ в работе)
+							//////////////////////////////////
+								// получаем информацию по клиенту
+							 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+			    				$Client = Client::get_client_informationDatabase($client_id);
+
+			    				// получаем информацию по кураторам + пользователю, который добавил запрос
+								$managers = self::get_manager_info_by_id("'".implode("','",$manager_arr)."','".$_SESSION['access']['user_id']."'");
+								
+								include_once ('mail_class.php');
+								$mailClass = new Mail;
+								$message = 'Пользователь '.$managers[$_SESSION['access']['user_id']]['name'].' '.$managers[$_SESSION['access']['user_id']]['last_name'].' добавил для вашего общего клиента &laquo;'.$Client['company'].'&raquo; новый запрос';
+								// удаляем из адресатов создателя заявки
+								unset($managers[$_SESSION['access']['user_id']]);
+								// $message += '<br>чтобы посмотреть перейдите по <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men">ссылке</a>';
+								foreach ($managers as $key => $value) {
+									if(trim($value['email']) != ''){
+										$mailClass->send($value['email'],'os@apelburg.ru', 'Новый запрос для '.$Client['company'] ,$message);	
+									}else if(trim($value['email_2']) != ''){
+										$mailClass->send($value['email_2'],'os@apelburg.ru', 'Новый запрос для '.$Client['company'] ,$message);	
+									}
+								}
 						}
 
 					}else{
 						// если куратор 1
 						$manager_id = $manager_arr[0];
 						$query_status = 'not_process';
+
+						// если куратор клиента не тот, кто добавил запрос
+						if($manager_id != $_SESSION['access']['user_id']){
+							// шлем оповещение менеджеру на почту
+							// send message
+						}
 					}
 				}	
 			}else{ 

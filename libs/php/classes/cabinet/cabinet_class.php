@@ -88,7 +88,7 @@
 	    	protected $user_access = 0;
 
 	    	// статусы запроса
-			protected $name_cirillic_status = array(
+			public $name_cirillic_status = array(
 				'new_query' => 'новый запрос',
 				'not_process' => 'не обработан менеджером',
 				'taken_into_operation' => 'на рассмотрении',

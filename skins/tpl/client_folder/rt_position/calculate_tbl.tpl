@@ -66,7 +66,7 @@
 						<th class="js--button-out_ptice_for_tirage for_out"><div class="">исходящая<br>(сумма)</div></th>
 						<th>маржа<br>&nbsp;</th>
 						<th class="edit_cell">ТЗ<br>&nbsp;</th>
-						<th class="del_cell">del<br>&nbsp;</th>
+						<th class="del_cell"><br>&nbsp;</th>
 					</tr>
 					<tr class="variant_calc_itogo">
 						<td>строка итого:</td>
