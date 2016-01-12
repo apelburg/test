@@ -493,7 +493,7 @@
 	   if(isset($tbl_rows)){          
 	       $rt.= '<div id="scrolled_part_container" class="scrolled_tbl_movable_part" style="position:relative;">
 	             <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0">'.implode('',$tbl_rows).'</table>'
-				 .(($block_page_elements)?'<div id="blanket" style="position:absolute;top:0px;left:0px;right:0px;bottom:0px;border:#ff0000 solid 0px"></div>':'').'
+				 .(($block_page_elements)?'<div id="blanket" style="position:absolute;top:0px;left:0px;right:0px;bottom:0px;border:#ff0000 solid 0px" onclick="noticeQueryBlocked();"></div>':'').'
 			  </div>';
 	    }
 		else{
