@@ -17,6 +17,9 @@ body {
   color: #fff;
   margin-top: -1px;
 }
+#claim_number a{
+  color: #fff;
+}
 #back_to_string_of_claim a{width: 32px;
   height: 24px;
   cursor: pointer;

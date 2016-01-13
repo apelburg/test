@@ -152,6 +152,7 @@
 				       );
 	// БУХГАЛТЕР						  
 	$ACCESS_SHABLON[2] = array(
+						'agreement'=> array('access'=> true),
 				       'clients'=> array(
 										'access'=> true,
 										'full_clients_delete'=> true,

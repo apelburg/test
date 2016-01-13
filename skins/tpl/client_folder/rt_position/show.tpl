@@ -45,8 +45,9 @@
 <div id="order_art_edit">
 	<div id="info_string_on_query">
 		<ul>
-			<li style="opacity:0" id="back_to_string_of_claim"><span href="?page=client_folder&query_num=<?=$POSITION->position['query_num'];?>&client_id=<?php echo $client_id; ?>"></span></li>
-			<li id="claim_number" data-order="<?=$POSITION->position['id'];?>">Запрос № <?=$POSITION->position['query_num'];?></li>
+			<li style="opacity:0" id="back_to_string_of_claim"></li>
+			<li id="claim_number" data-order="<?=$POSITION->position['id'];?>">
+				<a href="?page=client_folder&query_num=<?=$POSITION->position['query_num'];?>&client_id=<?php echo $client_id; ?>">Запрос</a> № <?=$POSITION->position['query_num'];?></li>
 			<li id="claim_date"><span>от <?=$POSITION->position['date_create'];?></span></li>
 			<li id="status_art_z">
 				<div>Статус <span><?=$POSITION->queryStatus?></span></div>
@@ -57,12 +58,9 @@
 		</ul>
 	</div>
 	<div id="number_position_and_type">
-		<ul><!-- 
-			<li title="порядковый номер позиции в заказе">Позиция № 1</li> -->
-			<!-- <li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span>Каталог</li> -->
+		<ul>
 			<li title="каталог/полиграфия/товар клиента/сувениры под заказ"><span>Тип: </span><?=$product_type_RU;?></li>
-			<li title="порядковый номер позиции"><span>Позиция № : </span><?=$POSITION->position['sort'];?></li>
-			
+			<li title="порядковый номер позиции в запросе"><span>Позиция № : </span><?=$POSITION->position['sort'];?></li>			
 		</ul>
 	</div>
 	<div class="table" id="order_art_edit_content_table" >
