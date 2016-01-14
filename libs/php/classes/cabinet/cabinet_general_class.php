@@ -429,10 +429,10 @@
 				$result = $mysqli->query($query) or die($mysqli->error);				
 				$clients = array();
 				$clients[0]['id'] = 'new_client';
-				$clients[0]['company'] = 'НОВЫЙ КЛИЕНТ';
+				$clients[0]['company'] = '<strong>НОВЫЙ КЛИЕНТ</strong>';
 				if((int)$_POST['client_id'] > 0){
-					$clients[1]['id'] = 'new_client';
-					$clients[1]['company'] = 'НОВЫЙ КЛИЕНТ';
+					$clients[1]['id'] = '0';
+					$clients[1]['company'] = '';
 				}
 
 

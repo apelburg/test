@@ -1094,7 +1094,7 @@ $(document).keydown(function(event) {
 		// если открыто окно поиска клиентов
 		if($('#chose_client_tbl .checked').length>0){
 			
-			$('#chose_client_tbl').parent().next().find('.ui-dialog-buttonset button').click();
+			$('#chose_client_tbl').parent().parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset button').click();
 		}
 	}
 });
@@ -1103,10 +1103,10 @@ $(document).keydown(function(event) {
 
 
 //поиск по клиенту
-$(document).on('keyup', '#js--window_client_sherch_form input', function(event) {
-	event.preventDefault();
-	search_and_show_client_list();
-});
+// $(document).on('keyup', '#js--window_client_sherch_form input', function(event) {
+// 	event.preventDefault();
+// 	search_and_show_client_list();
+// });
 
 
 function search_and_show_client_list(){
