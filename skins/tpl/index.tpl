@@ -99,7 +99,7 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
                             <div class="authentication_menu_container">
                                <div class="authentication_menu_div" id="authentication_menu_div">
                                     <?php echo $authentication_menu_dop_items; ?>
-                                    <div class="cap2"><nobr><a href="?out">выйти из приложения <!--<span class="cross">&#215</span>--></a></nobr></div>
+                                    <div class="cap2" id=""><nobr><a href="#" onclick="autorisation_qute()">выйти из приложения <!--<span class="cross">&#215</span>--></a></nobr></div>
                                   
                                </div>
                             </div>

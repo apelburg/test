@@ -6491,14 +6491,16 @@
 			if(isset($_SESSION['come_back_in_own_profile'])){
 				$user_name_real = Manager::get_snab_name_for_query_String($_SESSION['come_back_in_own_profile']);	
 				$message .= 'Пользователь '.$user_name_real.', находясь под учётной записью: "'.$user_name.'" (ID: '.$this->user_id.', Access: '.$this->user_access.') перешёл по адресу http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].' и наткнулся на ошибку.';
-				$message .= 'Реальный уровень допуска пользователя: '.$this->get_user_access_Database_Int($_SESSION['come_back_in_own_profile']).'<br>';
-				$message .= 'Реальный ID пользователя: '.$_SESSION['come_back_in_own_profile'].'<br>';
-				$message .= isset($_GET)?'ID пользователя: '.$this->user_id.'<br>':'';	
+				$message .= '<br>адрес предыдущей страницы : http://'.$_SERVER['HTTP_REFERER'];
+				$message .= '<br>Реальный уровень допуска пользователя: '.$this->get_user_access_Database_Int($_SESSION['come_back_in_own_profile']).'<br>';
+				$message .= '<br>Реальный ID пользователя: '.$_SESSION['come_back_in_own_profile'];
+				$message .= isset($_GET)?'<br>ID пользователя: '.$this->user_id.'':'';	
 			}else{
 				$message .= 'Пользователь '.$user_name.' перешёл по адресу http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].' и наткнулся на ошибку.';
-				$message .= 'Уровень допуска пользователя: '.$this->user_access.'<br>';
-				$message .= 'ID пользователя: '.$this->user_id.'<br>';
-				// $message .= isset($_GET)?'ID пользователя: '.$this->user_id.'<br>':'';	
+				$message .= '<br>адрес предыдущей страницы : http://'.$_SERVER['HTTP_REFERER'];
+				$message .= '<br>Уровень допуска пользователя: '.$this->user_access.'';
+				$message .= '<br>ID пользователя: '.$this->user_id.'<br>';
+				$message .= isset($_GET)?'ID пользователя: '.$this->user_id.'<br>':'';	
 			}
 			
 			// отправка сообщения

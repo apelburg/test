@@ -2449,3 +2449,25 @@
 	// window.l = 0;
 	// window.onbeforeunload = function () {return ((check_loading_ajax()==false) ? "Измененные данные не сохранены. Закрыть страницу?" : null);}
 	// });
+
+	/**
+	 *	выход
+	 *		
+	 *	@author  	Алексей Капитонов
+	 *	@version 	12:29 14.01.2016
+	 */
+	 function autorisation_qute(){
+	//alert(HOST);
+	event.preventDefault();
+
+		$.post(location.protocol+'//'+location.hostname+'/',
+			{ 
+			out: 1
+			},
+			function(data){
+				//alert(data)
+				if(data=="output_is_performed"){					
+					 window.location.href = location.protocol+'//'+location.hostname+'/';
+				}
+			});	
+	}
