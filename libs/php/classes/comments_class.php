@@ -165,8 +165,8 @@ class Comments_for_query_class{
 					$html .= '<div class="cell comment_text">';
 							$html .= '<textarea name="comment_text"></textarea>';
 							$html .= '<div class="div_for_button">';
-								$html .= '<button class="add_nah">ОК</button>';
-								$html .= '<button class="add_nah">Принял</button>';
+								// $html .= '<button class="add_nah">ОК</button>';
+								// $html .= '<button class="add_nah">Принял</button>';
 								$html .= '<button id="add_new_comment_button">Отправить</button>';
 							$html .= '</div>';
 					$html .= '</div>';
@@ -347,8 +347,8 @@ class Comments_for_order_class extends Comments_for_query_class{
 					$html .= '<div class="cell comment_text">';
 					$html .= '<textarea name="comment_text"></textarea>';
 					$html .= '<div class="div_for_button">';
-						$html .= '<button class="add_nah">ОК</button>';
-						$html .= '<button class="add_nah">Принял</button>';
+						// $html .= '<button class="add_nah">ОК</button>';
+						// $html .= '<button class="add_nah">Принял</button>';
 						$html .= '<button id="add_new_comment_button">Отправить</button>';
 					$html .= '</div>';
 					$html .= '</div>';
@@ -560,8 +560,8 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 					$html .= '<div class="cell comment_text">';
 						$html .= '<textarea name="comment_text"></textarea>';
 						$html .= '<div class="div_for_button">';
-							$html .= '<button class="add_nah">ОК</button>';
-							$html .= '<button class="add_nah">Принял</button>';
+							// $html .= '<button class="add_nah">ОК</button>';
+							// $html .= '<button class="add_nah">Принял</button>';
 							$html .= '<button id="add_new_comment_button">Отправить</button>';
 						$html .= '</div>';
 						$html .= '<input name="name" type="hidden" value="'.$this->user_name .'"></input>';

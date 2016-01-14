@@ -1386,13 +1386,15 @@ class Client extends aplStdAJAXMethod{
         // 
 	}
 
-	// вывод краткой информации о клиенте
-	static function get_client__information($id){
-		// получаем информацию по клиенту
-		global $mysqli;		
-		////////////////////////////////////////
-		//	получаем данные из основной таблицы
-		////////////////////////////////////////
+	/**
+	 *	получаем инвормацию по клиенту из CLIENTS_TBL
+	 *
+	 *	@param 		id
+	 *	@author     Алексей Капитонов
+	 *	@version    14:41
+	 */
+	static function get_client_informationDatabase($id){
+		global $mysqli;	
 		$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$Client_info = array();
@@ -1401,6 +1403,18 @@ class Client extends aplStdAJAXMethod{
 				$Client_info = $row;
 			}
 		}
+		return $Client_info;
+	}
+
+	// вывод краткой информации о клиенте
+	static function get_client__information($id){
+		// получаем информацию по клиенту
+		global $mysqli;		
+		////////////////////////////////////////
+		//	получаем данные из основной таблицы
+		////////////////////////////////////////
+		$Client_info = self::get_client_informationDatabase($id);
+		
 		$company_name = '';
 		
 		if(!empty($Client_info)){

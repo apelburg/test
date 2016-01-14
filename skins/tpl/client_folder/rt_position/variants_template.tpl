@@ -58,7 +58,7 @@
 						<th>$ исход. (Руб)</th>
 						<th>прибыль (Руб)</th>
 						<th class="edit_cell">ТЗ</th>
-						<th class="del_cell">del</th>
+						<th class="del_cell"></th>
 					</tr>
 					<tr class="tirage_and_price_for_one">
 						<td>1 шт.</td>

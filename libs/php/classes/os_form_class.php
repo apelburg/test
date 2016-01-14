@@ -6,7 +6,7 @@ Html, Array, String, Int
 и уже потом Тип возвращаемых данных
 PS было бы неплохо взять взять это за правило 
 */
-    class Forms{
+    class Forms extends aplStdAJAXMethod{
           // id пользователя
 
      public $send_info_enabled = array(
@@ -212,21 +212,21 @@ PS было бы неплохо взять взять это за правило
           //   methods_AJAX  -- start
           //////////////////////////
                ########   вызов AJAX   ########
-               private function _AJAX_($name){
-                    $method_AJAX = $name.'_AJAX';
-                    // если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-                    if(method_exists($this, $method_AJAX)){
-                         $this->$method_AJAX();
-                         exit;
-                    }                        
-               }
+               // private function _AJAX_($name){
+               //      $method_AJAX = $name.'_AJAX';
+               //      // если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+               //      if(method_exists($this, $method_AJAX)){
+               //           $this->$method_AJAX();
+               //           exit;
+               //      }                        
+               // }
                
           /////////////////////////////////////////////////////////////////////////////////////
           //     -----  START  -----  ПРОВЕРЕНО !!!!!  -----  START  -----
           /////////////////////////////////////////////////////////////////////////////////////
                
                // запросчик формы после выбора типа продукции
-               private function get_form_Html_AJAX(){
+               protected function get_form_Html_AJAX(){
                     //////////////////////////
                     //   Для каталожной продукции
                     //////////////////////////
@@ -243,9 +243,10 @@ PS было бы неплохо взять взять это за правило
                     // запрос формы html
                     // echo '{"response":"show_new_window","html":"asdsad"}';
                     echo '{"response":"show_form_moderate_window","html":"'.base64_encode($this->get_product_form_Html($t_p)).'"}';
+                    exit;
                }
                // проверяем наличие артикула на сайте, выводим его описание при нахождении
-               private function check_exists_articul_AJAX(){
+               protected function check_exists_articul_AJAX(){
                     $html = '';
                     if(strlen($_POST['art']) < 4){
                          $html .= '<div class="inform_message red">Количество символов в артикуле должно быть не менее 4 (четырёх) символов.</div>';
@@ -330,9 +331,10 @@ PS было бы неплохо взять взять это за правило
                     }
                     
                     echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+                    exit;
                }
                // добавление каталожного товара в РТ
-               private function insert_in_database_new_catalog_position_AJAX(){
+               protected function insert_in_database_new_catalog_position_AJAX(){
                     global $mysqli; 
                     if(!isset($_POST['chosen_size'])){
                          //////////////////////////
@@ -422,25 +424,28 @@ PS было бы неплохо взять взять это за правило
                     // $main_rows_id = $mysqli->insert_id; 
                     echo '{"response":"OK","function":"window_reload"}';
                     // echo $this->print_arr($_POST);
+                    exit;
                }
                // выводит форму выбора типа товара
-               private function to_chose_the_type_product_form_AJAX(){
+               protected function to_chose_the_type_product_form_AJAX(){
                     // форма выбора типа продукта
                     echo '{"response":"show_new_window","html":"'.base64_encode($this->to_chose_the_type_product_form_Html()).'","title":"Выберите тип продукции"}';
+                    exit;
                }
                //////////////////////////
                // удаление поля
                //////////////////////////
-               private function delete_input_width_form_AJAX(){
+               protected function delete_input_width_form_AJAX(){
                     global $mysqli;
                     $query = "DELETE FROM `".FORM_INPUTS."` WHERE `id`='".(int)$_POST['row_id']."';";
                     $result = $mysqli->query($query) or die($mysqli->error);
                     echo '{"response":"OK","function":"update_form"}';
+                    exit;
                }
                //////////////////////////
                // заведение нового поля ввода в базу
                //////////////////////////
-               private function greate_new_input_AJAX(){
+               protected function greate_new_input_AJAX(){
                     //////////////////////////
                     //     проверка на невведённые данные (если проверка не пройдена - возвращается форма и запись не производится)
                     //////////////////////////
@@ -514,22 +519,24 @@ PS было бы неплохо взять взять это за правило
                     $result = $mysqli->query($query) or die($mysqli->error);
                     echo '{"response":"OK","html":"'.base64_encode($query).'","function":"update_form"}';
                     // echo '{"response":"show_new_window_2","html":"'.base64_encode($this->print_arr($_POST)).'","title":"Проверяем что проиходит"}'; 
+                    exit;
                }
                //////////////////////////
                //  форма редактирования старого поля
                //////////////////////////
-               private function edit_input_width_form_AJAX(){
+               protected function edit_input_width_form_AJAX(){
                     $this->input = $this->get_child_listing_Database_Array((int)$_POST['row_id']);
                     if(isset($this->input[0])){
                          echo '{"response":"show_new_window_2","function":"update_form","html":"'.base64_encode($this->get_form_width_add_input_AJAX()).'","title":"Редактор поля"}'; 
                     }else{
                          echo '{"response":"php_message_alert","message":"поле не найдено"}';
                     }
+                    exit;
                }
                //////////////////////////
                //  форма добавления нового поля
                //////////////////////////
-               private function get_form_width_add_input_AJAX(){
+               protected function get_form_width_add_input_AJAX(){
                     $html = '';
                     $html .= '<div id="get_form_width_add_input">';
                          $html .= '<form>';
@@ -622,6 +629,7 @@ PS было бы неплохо взять взять это за правило
                          return $html;
                     }
                     echo '{"response":"show_new_window_2","html":"'.base64_encode($html).'","title":"Создание поля"}';
+                    exit;
                }
           
           //////////////////////////////////////////////////////////////////////////////////
@@ -631,17 +639,19 @@ PS было бы неплохо взять взять это за правило
           //     -----  START  -----  НЕ ПРОВЕРЕНО  -----  START  -----
           /////////////////////////////////////////////////////////////////////////////////////
                // сохраняет некаталожные варианты
-               private function save_no_cat_variant_AJAX(){
+               protected function save_no_cat_variant_AJAX(){
                     unset($_POST['AJAX']); // уничтожаем переменную, дабы она не попала в массив обработки
                     $this->insert_new_options_in_the_Database();
+                    exit;
                }
                // обрабатывает заполненую форму и генерирует варианты
-               private function general_form_for_create_product_AJAX(){
+               protected function general_form_for_create_product_AJAX(){
                     unset($_POST['AJAX']); // уничтожаем переменную, дабы она не попала в массив обработки
                     
                     $html = '<div style="border-top:1px solid red">'.$this->restructuring_of_the_entry_form().'</div>';
                     // функция не стандартная!!!! отдаём чистый Html
                     echo $html;
+                    exit;
                }
           
           //////////////////////////////////////////////////////////////////////////////////

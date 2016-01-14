@@ -708,7 +708,7 @@ $(document).on('click', '#choose_one_of_several_articles tr td', function(event)
 
 $(document).on('click', '#choose_the_size tr td', function(event) {
 	var size = $(this).parent().find('td').eq(0).html();
-	var price = $(this).parent().find('td').eq(1).html();
+	var price = $(this).parent().find('span').html();
 
 	// подставляем выбранные значения
 

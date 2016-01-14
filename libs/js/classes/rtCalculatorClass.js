@@ -446,7 +446,7 @@ var rtCalculator = {
 	    var result = correctToFloat(cell.innerHTML);
 		
 		//placeCaretAtEnd(cell);
-		if(result != 0) setCaretToPos2(cell,result);
+		//if(result != 0) setCaretToPos2(cell,result);
 		rtCalculator.make_calculations(cell);
 		
 		
@@ -455,8 +455,10 @@ var rtCalculator = {
 		    var wrong_input = false;
 			var pos = 0;
 			// если строка пустая правим на 0.00
-			if(str == ''){ wrong_input = true; str = '0.00';}
-			
+			alert(str);
+			if(str == '' || str == '&nbsp;'){ wrong_input = true; str = '0'; pos = 1;}
+			//if(str == ''){ wrong_input = true; str = '0.00'; pos = 3;}
+			alert(str);
 			// если строка содержит запятую меняем её на точку
 			var pattern = /,/; 
 		    if(str.match(pattern)){ wrong_input = true;  pos =  str.indexOf(','); str =  str.replace(',','.');}
@@ -472,9 +474,10 @@ var rtCalculator = {
 				
 			    
 		    }
-			
+			alert(str);
 			// если строка содержит более одной точки вырезаем оставляем только одну точку
-			var pattern = /\./g; 
+		    /*	
+		    var pattern = /\./g; 
 			var counter = 0;
 			var result;
 			while ((result = pattern.exec(str)) !== null) {
@@ -484,19 +487,25 @@ var rtCalculator = {
 				  pos =  str.indexOf('.');
 			  }
 			 
-			}
+			}*/
+
+			//if(str.length==1){ wrong_input = true;  str += '.00'; pos = 1;}
+			
 			//  если после точки введено менее или более 2 цифр исправляем до 2-х
 			// ЗДЕСЬ НУЖНО РЕШИТЬ ВОПРОС УСТАНОВКИ КУРСОРА В НУЖНОЕ МЕСТО ПОКА ПЕРЕНОСИТСЯ В КОНЕЦ
 			var pattern = /^\d+\.\d{2}$/; 
-		    if(!str.match(pattern)){ wrong_input = true;  str = parseFloat(str).toFixed(2); pos = str.length;}
+		   // if(!str.match(pattern)){ wrong_input = true;  str = parseFloat(str).toFixed(2); pos = str.length;}
 			
 			// если величина числа больше допустимого - обрезаем его
 		    if(str.length>12){ wrong_input = true;  str = '100000000.00'; pos = 12;}
-		
+			
+			// если величина числа больше допустимого - обрезаем его
+		   
+		alert(str);
 			// если был выявлен некорректный ввод исправляем содержимое ячейки 
 			if(wrong_input) cell.innerHTML = str;
 			
-			//alert(str);
+			//alert(pos);
 			return pos; 
 		}
 		
@@ -1524,7 +1533,6 @@ var rtCalculator = {
 	    e = e|| window.event;
 		var cell = e.target || e.srcElement;
 		
-		var control_num = 1;
 		if(cell.getAttribute('pos_id')) var place_id = cell.getAttribute('pos_id');
 		if(rtCalculator.body_tbl.getAttribute('query_num')) query_num =  rtCalculator.body_tbl.getAttribute('query_num');
 		else{

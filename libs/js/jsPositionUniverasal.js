@@ -328,3 +328,28 @@ function variant_edit_lock(data){
 function variant_edit_unlock(data){
   console.log(data);
 }
+
+
+// оповещение подсказка при недоступном редактировании позиции
+$(document).on('click', '#order_art_edit_centr.not_edit', function(event) {
+  event.preventDefault();
+  var message = 'Редактирование информации недоступно';
+  echo_message_js(message,'error_message');
+  message = 'Статус запроса должен быть &laquo;В работе&raquo;';
+  message += '<br><span style="text-transform:lowercase">Для смены статуса перейдите в кабинет и кликните на статус запроса.</span>';
+  echo_message_js(message,'system_message');
+});
+
+// оповещение о запрете редактироввания варианта из истории
+
+$(document).on('click', '.variant_content_block.archiv_opacity', function(event) {
+  event.preventDefault();
+  var message = 'Редактирование информации недоступно';
+  echo_message_js(message,'error_message');
+  message = 'Статус варианта &laquo;история&raquo;';
+  var variant = $('.variant_name.checked').clone()
+  variant.find('span').remove();
+  variant = variant.html();
+  message += '<br><span style="text-transform:lowercase">Чтобы отредактировать данные измените статус варианта расчета кликнув на цветное поле во вкладке &laquo;'+variant+'&raquo;</span>';
+  echo_message_js(message,'system_message');
+});

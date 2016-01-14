@@ -23,11 +23,29 @@ class rtPositionUniversal extends Position_general_Class
 		
 		// получаем позицию
 		$this->getPosition((isset($_GET['id']))?$_GET['id']:'none');
+
+		// получаем кириллическое название статуса
+		$this->queryStatus = $this->get_query_status($this->position['status']);
+
 		// передававться через ключ AJAX
 		if(isset($_POST['AJAX'])){
 			$this->_AJAX_();
 		}			
 	}
+	/**
+	 *	возвращает статуы
+	 *
+	 *	@param 		query_num
+	 *	@author  	Алексей Капитонов
+	 *	@version 	12:09 12.01.2016
+	 */
+	public function get_query_status($query_num){
+		include_once ('cabinet/cabinet_class.php');
+		$Cabinet = new Cabinet();
+
+		return $Cabinet->name_cirillic_status[$query_num];
+	}
+
 	// получаем права и id юзера
 	public function user_access($user_access = 0){
 		$this->user_id = $_SESSION['access']['user_id'];

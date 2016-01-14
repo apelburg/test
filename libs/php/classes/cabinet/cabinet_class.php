@@ -88,7 +88,7 @@
 	    	protected $user_access = 0;
 
 	    	// статусы запроса
-			protected $name_cirillic_status = array(
+			public $name_cirillic_status = array(
 				'new_query' => 'новый запрос',
 				'not_process' => 'не обработан менеджером',
 				'taken_into_operation' => 'на рассмотрении',
@@ -6483,7 +6483,7 @@
 		protected function error_message_for_incorrect_URL(){
 			// получаем имя пользователя
 			include_once './libs/php/classes/manager_class.php';
-			$user_name = Manager::get_snab_name_for_query_String($this->user_access);
+			$user_name = Manager::get_snab_name_for_query_String($this->user_id);
 			
 			$message = '';
 			$message .= date('d-m-Y в H:i:s').'<br>';
@@ -6498,7 +6498,7 @@
 				$message .= 'Пользователь '.$user_name.' перешёл по адресу http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].' и наткнулся на ошибку.';
 				$message .= 'Уровень допуска пользователя: '.$this->user_access.'<br>';
 				$message .= 'ID пользователя: '.$this->user_id.'<br>';
-				$message .= isset($_GET)?'ID пользователя: '.$this->user_id.'<br>':'';	
+				// $message .= isset($_GET)?'ID пользователя: '.$this->user_id.'<br>':'';	
 			}
 			
 			// отправка сообщения
