@@ -225,7 +225,7 @@
 				
 				
 				// выбираем таблицу с расценками 
-				$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' ORDER by id, param_val";
+				$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' AND `level` = 'full' ORDER by id, param_val";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){

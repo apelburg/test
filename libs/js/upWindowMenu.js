@@ -201,7 +201,7 @@
 		a.setAttribute('action','delete');
 		a.href = '#';
 		a.onclick = rtCalculator.copy_rows;
-		a.appendChild(document.createTextNode('Скопировать позиции'));
+		a.appendChild(document.createTextNode('Скопировать строки'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
@@ -211,7 +211,7 @@
 		a.setAttribute('type','rows');
 		a.href = '#';
 		a.onclick = rtCalculator.deleting;
-		a.appendChild(document.createTextNode('Удалить позиции'));
+		a.appendChild(document.createTextNode('Удалить строки'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		
@@ -1146,7 +1146,7 @@
 		a.setAttribute('control_num',control_num);
 		a.setAttribute('pos_id',pos_id);
 		a.onclick = rtCalculator.insert_copied_rows;
-		a.appendChild(document.createTextNode('Вставить строки'));
+		a.appendChild(document.createTextNode('Вставить скопированные строки'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);
 		

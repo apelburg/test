@@ -326,7 +326,7 @@
 		    foreach ($data as $mainCopiedRowId => $dop_data) {
 			    // если у нас есть место в которое мы хотим вставить скопированные ряды
 			    if($place_id){
-				    // echo 'mainCopiedRowId-'.$mainCopiedRowId."\r\n";
+				    //echo 'mainCopiedRowId-'.$mainCopiedRowId."\r\n";
 					// первым шагом "опускаем" сортировку рядов, которые находятся на том и ниже местах куда хотим вставить
 					// скопированные ряды тоесть увеличиваем sort на 1 (sort+1) в рамках данной заявки там где id равно или больше 
 					// $place_id функция возвращает новый sort_id который был у ряда в который мы хотим вставить, чтобы затем 
@@ -371,10 +371,13 @@
 			$query="SELECT MAX(sort) max_sort FROM `".RT_MAIN_ROWS."` WHERE `query_num` = '".$query_num."'";
 			// echo $query."\r\n";
 			$result = $mysqli->query($query)or die($mysqli->error);
-			$row = $result->fetch_assoc();
-			$sort_id = $row['max_sort'];
+			if($result->num_rows>0){
+				$row = $result->fetch_assoc();
+				$sort_id = $row['max_sort'];
+			}
+			else $sort_id = 0;
 			
-			return $sort_id++;
+			return ++$sort_id;
 			
 		}
 		/*static function insert_copied_rows_TO_HOLE_TBL($query_num,$control_num,$place_id){

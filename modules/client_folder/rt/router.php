@@ -149,7 +149,7 @@
 		 exit;
 	}
 	if(isset($_GET['fetch_dop_uslugi_for_row'])){
-		//print_r(json_decode($_GET['grab_calculator_data']));
+
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 		
 		$out_put = rtCalculators::fetch_dop_uslugi_for_row($_GET['fetch_dop_uslugi_for_row']);
@@ -157,7 +157,7 @@
 		exit;
 	}
 	if(isset($_GET['fetch_data_for_dop_uslugi_row'])){
-		//print_r(json_decode($_GET['grab_calculator_data']));
+
 		include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 		
 		$out_put = rtCalculators::fetch_data_for_dop_uslugi_row($_GET['fetch_data_for_dop_uslugi_row']);

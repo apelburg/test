@@ -27,7 +27,7 @@
 		unset($data->tbl_data[count($data->tbl_data)-1]);
 	    echo '<pre>'; print_r($data);echo '</pre>';
 		
-		
+		//exit;
 		
 		if(!empty($_POST['dataBufferForDeleting'])){
 		    $toDeleteArr = explode('|',trim($_POST['dataBufferForDeleting'],'|'));
@@ -48,8 +48,8 @@
 		    $query ="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE id = '".$val[0]."'";
 			
 			$result = $mysqli->query($query)or die($mysqli->error);
-			if($result->num_rows>0){
-		       $query2 ="UPDATE `".BASE__CALCULATORS_PRICE_TABLES_TBL."` SET `print_type_id` = '".$data->print_type_id."', `price_type` = '".$data->price_type."' , `count` = '".$data->count."', `param_val`='".(int)$val[1]."', `param_type`='".cor_data_for_SQL($val[2])."'";
+			if($result->num_rows>0/*false*/){
+		       $query2 ="UPDATE `".BASE__CALCULATORS_PRICE_TABLES_TBL."` SET `print_type_id` = '".$data->print_type_id."', `price_type` = '".$data->price_type."' , `level` = '".$data->level."' , `count` = '".$data->count."', `param_val`='".(int)$val[1]."', `param_type`='".cor_data_for_SQL($val[2])."'";
 			   
 			   for($i=1,$j=3;$i<=20;$i++,$j++){
 				   if(isset($val[$j])) $query2.= ", `".$i."`='".(float)$val[$j]."'";
@@ -57,13 +57,13 @@
 				}
 			   
 			   $query2 .=" WHERE id = '".$val[0]."'";
-			   //echo $query2.'<br>';
+			    //echo $query2.'<br>';//
 			   $mysqli->query($query2)or die($mysqli->error);
 			}
 			else{
 			  
 			    $query2 ="INSERT INTO `".BASE__CALCULATORS_PRICE_TABLES_TBL."` VALUES('',";
-				$query2.= "'".$data->print_type_id."','".$data->price_type."','".$data->count."'";
+				$query2.= "'".$data->print_type_id."','".$data->price_type."','".$data->level."','".$data->count."'";
 				
 				
 				for($i=1;$i<=22;$i++){
@@ -95,20 +95,24 @@
 	
 	// выбираем данные из таблицы содержащей прайсы
 	
-	$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$usluga_id."' ORDER by price_type, id, param_val";
+	$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$usluga_id."' ORDER by level, price_type, id, param_val";
 	//echo $query;
 	$result = $mysqli->query($query)or die($mysqli->error);
 	
 	if($result->num_rows>0){
 		while($row = $result->fetch_assoc()){ 
 		     
+			 //echo '<pre>'; print_r($row);echo '</pre>';
+			 
 		     $price_type=$row['price_type'];
 			 $count=$row['count'];
-		     unset($row['print_type_id'],$row['count'],$row['price_type']);
+			 $level=$row['level'];
+		     unset($row['level'],$row['print_type_id'],$row['count'],$row['price_type']);
 			 
 			 if(!isset($end[$price_type]))$end[$price_type] = false;
 			 // создаем массив содержащий вариации существующих в таблице прайсов
-		     if(!in_array($price_type,$tbl_types)) $tbl_types[$price_type]['count'] = $count;
+			 if(!isset($tbl_types[$level]))$tbl_types[$level] = array();
+		     if(!in_array($price_type,$tbl_types[$level])) $tbl_types[$level][$price_type]['count'] = $count;
 			 
 			 
 			 
@@ -140,8 +144,8 @@
 			 if($row['param_val']==0) array_push($row,'');
 			 else array_push($row,'<span class="deleteElementBtn" onclick="deleteRowFromTable(this,\''.$price_type.$count.'\');">&#215;</span>');
 			 //
-		     $tbl_row[$price_type][$count][] = $tr1.$td1_hidden.implode($td_td,$row).$td2.$tr2;
-			 $tbl_types[$price_type][$count]['cols_num'] = $end[$price_type];
+		     $tbl_row[$level][$price_type][$count][] = $tr1.$td1_hidden.implode($td_td,$row).$td2.$tr2;
+			 $tbl_types[$level][$price_type][$count]['cols_num'] = $end[$price_type];
 			 //print_r($row);
 		}
 	}
@@ -184,30 +188,36 @@
 	}
 
 	//echo '<pre>'; print_r($tbl_types);echo '</pre>';
+	//exit;
 	//echo '<pre>'; print_r($tbl_row);echo '</pre>';
-	foreach($tbl_types as $type => $data){
-           $count = 0;
-	       $dop_row_data = array();
-		   for($i=0;$i<=$tbl_types[$type][$count]['cols_num'];$i++){
-			  if($i<3 || $i==$tbl_types[$type][$count]['cols_num']) $dop_row_data[$i]='<span></span>';
+	//exit;
+	foreach($tbl_types as $level => $levels){
+	    echo '<div>уровень прайса - '.$level.'</div>';
+		echo '<hr>';
+	    foreach($levels as $type => $data){
+            $count = 0;
+	        $dop_row_data = array();
+		    for($i=0;$i<=$levels[$type][$count]['cols_num'];$i++){
+			  if($i<3 || $i==$levels[$type][$count]['cols_num']) $dop_row_data[$i]='<span></span>';
 			  else $dop_row_data[$i]='<span onclick="deleteColFromTable(this);" class="deleteElementBtn">&#215;</span>';
-		   }
-		   // print_r($dop_row_data);
-		   $dop_row = $tr1.$td1_hidden.implode($td_td,$dop_row_data).$td2.$tr2;
-		   echo 'тип прайса: '.$type;
-		   echo '<div>
-				  <span class="pointer" onclick="addRowsToTbl(\''.$type.$count.'\',{\'preLast\':true,\'clearCell\':1});">добавить</span><input size="1" id="rowsNum'.$type.$count.'" value="1">рядов
+		    }
+		    // print_r($dop_row_data);
+		    $dop_row = $tr1.$td1_hidden.implode($td_td,$dop_row_data).$td2.$tr2;
+		    echo 'тип прайса: '.$type;
+		    echo '<div>
+				  <span class="pointer" onclick="addRowsToTbl(\''.$level.$type.$count.'\',{\'preLast\':true,\'clearCell\':1});">добавить</span><input size="1" id="rowsNum'.$level.$type.$count.'" value="1">рядов
 				  &nbsp;&nbsp;
-				  <span class="pointer" onclick="addColsToTbl(\''.$type.'\','.$count.');">добавить</span><input size="1" id="colsNum'.$type.$count.'" value="1">колонок
+				  <span class="pointer" onclick="addColsToTbl(\''.$level.$type.$count.'\');">добавить</span><input size="1" id="colsNum'.$level.$type.$count.'" value="1">колонок
 				 </div>';
-		   echo '<form method="POST">';
-		   echo '<table id="tbl'.$type.$count.'">'.implode('',$tbl_row[$type][$data['count']]).$dop_row.'</table>';
+		    echo '<form method="POST">';
+		    echo '<table id="tbl'.$level.$type.$count.'">'.implode('',$tbl_row[$level][$type][$data['count']]).$dop_row.'</table>';
 		   	
-		   echo '<input type="hidden" name="dataBufferForDeleting" id="dataBufferForDeleting'.$type.$count.'" value="">';
-		   echo '<input type="hidden" name="dataBufferForSavingToBase" id="tblDataBuffer'.$type.$count.'" value="">';
-		   echo '<input type="button"  class="pointer" onclick="priceManagerSendDataToBase(this.form,{\'type\':\'price\',\'bufferId\':\'tblDataBuffer'.$type.$count.'\',\'tblId\':\'tbl'.$type.$count.'\',\'price_type\':\''.$type.'\',\'print_type_id\':\''.$usluga_id.'\',\'count\':\''.$count.'\'});" value="сохранить">';
-		   echo '</form>';
-		   echo '<br><br><br>';
+		    echo '<input type="text" name="dataBufferForDeleting" id="dataBufferForDeleting'.$level.$type.$count.'" value="">';
+		    echo '<input type="text" name="dataBufferForSavingToBase" id="tblDataBuffer'.$level.$type.$count.'" value="">';
+		    echo '<input type="button"  class="pointer" onclick="priceManagerSendDataToBase(this.form,{\'type\':\'price\',\'bufferId\':\'tblDataBuffer'.$level.$type.$count.'\',\'tblId\':\'tbl'.$level.$type.$count.'\',\'level\':\''.$level.'\',\'price_type\':\''.$type.'\',\'print_type_id\':\''.$usluga_id.'\',\'count\':\''.$count.'\'});" value="сохранить">';
+		    echo '</form>';
+		    echo '<br><br><br>';
+		}
 	}
 	
 	$query ="SELECT comment FROM `".BASE__PRICE_COMMENTS_TBL."` WHERE `print_id` = '".$usluga_id."'";

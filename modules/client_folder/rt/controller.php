@@ -497,7 +497,7 @@
 			  </div>';
 	    }
 		else{
-		   $rt.= '<table client_id="'.$client_id.'" query_num="'.$query_num.'" border="0" width="100%" height="400"><tr><td align="center">зявка не содержит данных</td></tr></table>';
+		   $rt.= '<table class="rt_tbl_body" id="rt_tbl_body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0" width="100%" height="400"><tr><td align="center">зявка не содержит данных</td></tr></table>';
 		}
 			  
 			  

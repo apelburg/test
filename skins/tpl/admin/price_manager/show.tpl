@@ -28,13 +28,13 @@ function addSomeRowsToTbl(tbl,num,settings){
    }
 }
 
-function addColsToTbl(type,key){
-   //alert('tbl'+type+key);
-   var tbl = document.getElementById('tbl'+type+key);
-   var colsNum = parseInt(document.getElementById('colsNum'+type+key).value);
+function addColsToTbl(idPart){
+   // alert(idPart);
+   var tbl = document.getElementById('tbl'+idPart);
+   var colsNum = parseInt(document.getElementById('colsNum'+idPart).value);
    colsNum = (colsNum>15)?15:colsNum ;
    addSomeColsToTbl(tbl,colsNum);
-  // alert(lastRow);
+   // alert(lastRow);
 }
 
 function addSomeColsToTbl(tbl,num){
@@ -58,15 +58,17 @@ function addSomeColsToTbl(tbl,num){
 function priceManagerSendDataToBase(form,data_obj){
    //alert(data_obj.type);
    if(data_obj.type=='price'){
+       // console.log(data_obj);
        var tbl = document.getElementById(data_obj.tblId);
 	   var rows = tbl.getElementsByTagName('TR');
 	   var dataForBuffer={};
 	   dataForBuffer.print_type_id = data_obj.print_type_id;
+	   dataForBuffer.level = data_obj.level;
 	   dataForBuffer.price_type = data_obj.price_type;
 	   dataForBuffer.count = data_obj.count;
 	   dataForBuffer.tbl_data = [];
 	   
-       for(var i=0;i<rows.length;i++){
+       for(var i=0;i<rows.length-1;i++){
 	       var cels = rows[i].getElementsByTagName('TD');
 		   var celsData=[];
 		   for(var j=0;j<cels.length-1;j++){
@@ -76,7 +78,7 @@ function priceManagerSendDataToBase(form,data_obj){
 		 
 		   dataForBuffer.tbl_data[i] = celsData;
 	   }
-	   //console.log(dataForBuffer);
+	   // console.log(dataForBuffer);
    }
    else if(data_obj.type=='dop_data'){
        var tbl = document.getElementById(data_obj.tblId);
