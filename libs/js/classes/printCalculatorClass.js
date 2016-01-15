@@ -261,22 +261,15 @@ var printCalculator = {
 	,
 	evoke_calculator:function(){
 		
-		    //printCalculator.levelsRU = {'full':' уровень - "Конечные клиенты"','ra':', уровень - "Рекламные Агенства"'};
-	        // printCalculator.level = (document.getElementById('calcLevelStorage'))? document.getElementById('calcLevelStorage').value:'full';
-
-			//alert(typeof  printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id);
-		
 			// устанавливаем уровень цен      
 			if(typeof printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id  === 'undefined'){
-				alert(1);
 				printCalculator.level = (document.getElementById('calcLevelStorage'))? document.getElementById('calcLevelStorage').value:'full';
 			}
 			else{
-				//alert(2);
-				//if(typeof printCalculator.currentCalculationData[printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id].print_details.level !== 'undefined'){
+				if(typeof printCalculator.currentCalculationData[printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id].print_details.level !== 'undefined'){
 				     printCalculator.level = printCalculator.currentCalculationData[printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id].print_details.level;
-				//}
-				//else printCalculator.level = 'full';
+				}
+				else printCalculator.level = 'full';
 			}
 			
 			printCalculator.levelsRU = {'full':' уровень - "Конечные клиенты"','ra':', уровень - "Рекламные Агенства"'};/**/
