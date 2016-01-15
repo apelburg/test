@@ -76,10 +76,11 @@
 				   else $query2.= ",''";
 				}
 				$query2.= ")";
-			    //echo $query2;
+			    // echo $query2;
 			    $mysqli->query($query2)or die($mysqli->error);//
 			}
 		}
+
 		header('location:'.$_SERVER['HTTP_REFERER']);
 		exit;
 	}
@@ -95,7 +96,7 @@
 	
 	// выбираем данные из таблицы содержащей прайсы
 	
-	$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$usluga_id."' ORDER by level, price_type, id, param_val";
+	$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$usluga_id."' ORDER BY level, price_type, id, param_val";
 	//echo $query;
 	$result = $mysqli->query($query)or die($mysqli->error);
 	
@@ -109,7 +110,7 @@
 			 $level=$row['level'];
 		     unset($row['level'],$row['print_type_id'],$row['count'],$row['price_type']);
 			 
-			 if(!isset($end[$price_type]))$end[$price_type] = false;
+			 if(!isset($end[$level][$price_type])) $end = array($level=>array($price_type=>false));//[$price_type] = false;
 			 // создаем массив содержащий вариации существующих в таблице прайсов
 			 if(!isset($tbl_types[$level]))$tbl_types[$level] = array();
 		     if(!in_array($price_type,$tbl_types[$level])) $tbl_types[$level][$price_type]['count'] = $count;
@@ -125,27 +126,27 @@
 				  foreach($row as $key => $val){
 					  if($key!='param_val' && $key!='param_type'){
 					      //echo $val;
-						  if($val==0 && !$end[$price_type]) $end[$price_type] = $counter;
+						  if($val==0 && !$end[$level][$price_type]) $end = array($level=>array($price_type=>$counter));
 					  } 
 					  $counter++;
 				  }
 			 }
 			 //echo $end;
-			 if($end[$price_type]){
+			 if($end[$level][$price_type]){
 			     $counter = 0;
 				 foreach($row as $key => $val){
 				      
-					  if($counter>=$end[$price_type]){
+					  if($counter>=$end[$level][$price_type]){
 						  unset($row[$key]);
 					  } 
 					  $counter++;
 				  }
 			  }	  /**/
 			 if($row['param_val']==0) array_push($row,'');
-			 else array_push($row,'<span class="deleteElementBtn" onclick="deleteRowFromTable(this,\''.$price_type.$count.'\');">&#215;</span>');
+			 else array_push($row,'<span class="deleteElementBtn" onclick="deleteRowFromTable(this,\''.$level.$price_type.$count.'\');">&#215;</span>');
 			 //
 		     $tbl_row[$level][$price_type][$count][] = $tr1.$td1_hidden.implode($td_td,$row).$td2.$tr2;
-			 $tbl_types[$level][$price_type][$count]['cols_num'] = $end[$price_type];
+			 $tbl_types[$level][$price_type][$count]['cols_num'] = $end[$level][$price_type];
 			 //print_r($row);
 		}
 	}
@@ -166,7 +167,7 @@
 	    $tbl_row[0][] = $tr1.$td1_hidden.implode($td_td,$row).$td2.$tr2;
 		return $tbl_row;
 	}
-	
+	// echo '<pre>'; print_r($tbl_types);echo '</pre>';
 	if(!isset($tbl_row)){
 	    
 	 
@@ -174,18 +175,56 @@
 		                   'in'=>array('count'=>0,array('cols_num'=>5)),
 						   'out'=>array('count'=>0,array('cols_num'=>5))
 						   );
+		$tbl_types = array(
+		                   'full'=>array(
+										   'in'=>array('count'=>0,array('cols_num'=>5)),
+										   'out'=>array('count'=>0,array('cols_num'=>5))
+										   ),
+						   'ra'=>array(
+										   'in'=>array('count'=>0,array('cols_num'=>5)),
+										   'out'=>array('count'=>0,array('cols_num'=>5))
+										   ),
+						   );
 						   
-         $tbl_row['in'] = make_table_tpl('in');
-		 $tbl_row['out'] = make_table_tpl('out');
+         $tbl_row['full']['in'] = make_table_tpl('in');
+		 $tbl_row['full']['out'] = make_table_tpl('out');
+		 $tbl_row['ra']['in'] = make_table_tpl('in');
+		 $tbl_row['ra']['out'] = make_table_tpl('out');
 	}
-	if(isset($tbl_row) && count($tbl_types)==1){
-	 
-		 $type = (isset($tbl_types['out']))? 'in':'out';
-		
-		 $tbl_types[$type]= array('count'=>0,array('cols_num'=>5));	
-		 ksort($tbl_types);			   
-         $tbl_row[$type] = make_table_tpl($type);
+	if(isset($tbl_row)){
+	     
+		/* if(in_array('full',$tbl_row)){
+		    if(!in_array('in',$tbl_row['full'])){
+			   // $tbl_row['full']['in'] = make_table_tpl('in');
+			}
+			//if(!in_array('out',$tbl_row['full'])) $tbl_row['full']['out'] = make_table_tpl('out');
+		 }*/
+		 foreach(array('full','ra') as $level){
+			 if(array_key_exists($level,$tbl_row)){
+				if(!array_key_exists('in',$tbl_row[$level])){
+					 $tbl_row[$level]['in'] = make_table_tpl('in');
+					 $tbl_types[$level]['in'] = array('count'=>0,array('cols_num'=>5));
+				}
+				if(!array_key_exists('out',$tbl_row[$level])){
+					 $tbl_row[$level]['out'] = make_table_tpl('out');
+					 $tbl_types[$level]['out'] = array('count'=>0,array('cols_num'=>5));
+				 }
+			 }
+			 else{
+				 $tbl_row[$level] = array();
+				 $tbl_row[$level]['in'] = make_table_tpl('in');
+				 $tbl_types[$level]['in'] = array('count'=>0,array('cols_num'=>5));
+				
+				 $tbl_row[$level]['out'] = make_table_tpl('out');
+				 $tbl_types[$level]['out'] = array('count'=>0,array('cols_num'=>5));
+			 }
+		 }
 	}
+	// сортируем массив чтобы всегда, сначала шел прайс 'in' а потом 'out', если будут еще уровни ПРАЙСОВ добавить инструкции по ним
+	ksort($tbl_types['full']);
+	ksort($tbl_types['ra']);
+	// сортируем массив чтобы всегда, сначала шел уровень 'full' а потом 'ra', если будет больше уровней нужна будет другая сортировка
+    ksort($tbl_types);
 
 	//echo '<pre>'; print_r($tbl_types);echo '</pre>';
 	//exit;

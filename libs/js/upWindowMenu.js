@@ -32,6 +32,7 @@
 		if(type == 'rtMenu') openCloseRtMenu(e);
 		if(type == 'quickMenu') openCloseQuickMenu(e);
 		if(type == 'clientManagerMenu') openClientManagerMenu(e);
+		if(type == 'calcLevelSwitcher') calcLevelSwitcher(e);
 		if(type == 'rtViewTypeMenu') openCloseRtViewTypeMenu(e);
 		if(type == 'subjectsListViewTypeMenu') openCloseSubjectsListViewTypeMenu(e);
 		if(type == 'subjectsList') subjectsList(e);
@@ -887,7 +888,110 @@
 		e.stopPropagation();
 		
 	}
+
+	function calcLevelSwitcher(e){
+		var target = e.target || e.srcElement;
+
+		function setMenuWindow(e){
+			e.stopPropagation();
+		}
+		
+		if(openCloseMenu.lastElement === target ) return;
+		
+		if(openCloseMenu.lastWindow){
+			openCloseMenu.lastWindow.parentNode.removeChild(openCloseMenu.lastWindow);
+			openCloseMenu.lastWindow = null;
+			openCloseMenu.lastElement.style.backgroundColor = '#FFFFFF'
+		}/**/
+		
+		var relate_container = target.parentNode;
+		relate_container.style.position = 'relative';
+		
+		var container = document.createElement('div');
+		container.className = "contextWindow";
+		container.setAttribute('type','windowContainer');
+		container.style.position = 'absoute';
+		container.style.width = "150px";
+		container.style.top =  "23px";
+		//container.style.bottom =  "20px";
+		//container.style.left = "101px";
+		container.style.right = "0px";
+		container.style.display = "block";
+		
+		var data_arr = [{level:'full',levelRu:'Конечники'},{level:'ra',levelRu:'Рекламщики'}];
+		var ln = data_arr.length;
+		
+		
+		for(var i = 0 ; i < ln ; i++){
 	
+			
+			var innerDiv = document.createElement('div');
+			innerDiv.className = "link1";
+			var a = document.createElement('a');
+			a.style.color = "#000";
+			a.setAttribute('level',data_arr[i].level);
+			a.onclick = set_level;
+			a.appendChild(document.createTextNode(data_arr[i].levelRu));
+			innerDiv.appendChild(a);
+			container.appendChild(innerDiv);		
+		}
+
+		relate_container.appendChild(container);
+		
+		openCloseMenu.lastWindow = container;
+		openCloseMenu.lastElement = target;
+
+		e.stopPropagation();
+		////////////////////////////////////////////////////////////////////////
+		function set_level(e){
+		    e = e || window.event;
+			
+			var target = e.target;
+			
+			//alert(target.innerHTML);
+			//alert(openCloseMenu.lastElement);
+			/*var manager_id = target.getAttribute('manager_id');
+			//alert(target.getAttribute('sourse')+' '+target.getAttribute('row_id'));
+			var row_id = (target.getAttribute('row_id'))? target.getAttribute('row_id') : false;
+			var query_num = (target.getAttribute('query_num'))? target.getAttribute('query_num') : false;*/
+			var level = target.getAttribute('level');
+			
+			openCloseMenu.lastElement.innerHTML = 'Калькулятор: '+target.innerHTML;
+			document.getElementById('calcLevelStorage').value = level;
+			//openCloseMenu.lastElement.innerHTML = 'контакт: ' + target.innerHTML;
+			//document.getElementById('row_' + row_id).setAttribute('client_manager_id',manager_id);
+			
+			//////////////////////////////////////////////////////////////////////////////////////////
+		    /////////////////////////////////////    AJAX  ///////////////////////////////////////////
+		/*
+		    var request = HTTP.newRequest();
+	        //var url = "?page=clients&set_manager_for_order=" + manager_id + "&row_id=" + row_id + "&control_num=" + document.getElementById('calculate_tbl').getAttribute('control_num');
+			if(sourse=='kp')  var url = "?page=client_folder&section=business_offers&set_recipient=" + manager_id + "&row_id=" + row_id;
+	        if(sourse=='rt')  var url = "?page=client_folder&set_cont_face=" + manager_id + "&query_num=" + query_num;
+
+			// производим запрос
+			request.open("GET", url, true);
+			request.send(null);
+	   
+			request.onreadystatechange = function(){ // создаем обработчик события
+			   if(request.readyState == 4){ // проверяем состояние запроса если запрос == 4 значит ответ получен полностью
+				   if(request.status == 200){ // проверяем состояние ответа (код состояния HTTP) если все впорядке продолжаем 
+					   ///////////////////////////////////////////
+					   // обрабатываем ответ сервера
+						
+						var request_response = request.responseText;
+						//alert(request_response);
+						
+						
+
+					}
+					else{
+					  alert("Частота запросов превысила допустимое значение\rдля данного интернет-соединения, попробуйте\rперезагрузить сайт, для этого нажмите F5");
+					}
+				 }
+			 }*/
+		}
+	}
 	function openClientManagerMenu(e){
 		var target = e.target || e.srcElement;
 		
@@ -900,7 +1004,6 @@
 		
 		if(openCloseMenu.lastWindow){
 			openCloseMenu.lastWindow.parentNode.removeChild(openCloseMenu.lastWindow);
-			openCloseMenu.lastWindow = null;
 			openCloseMenu.lastWindow = null;
 			openCloseMenu.lastElement.style.backgroundColor = '#FFFFFF'
 		}

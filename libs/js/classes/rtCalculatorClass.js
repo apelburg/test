@@ -211,6 +211,13 @@ var rtCalculator = {
                                    // устанавливаем текущюю ячейку
 								   rtCalculator.changes_in_process = true;
 								}
+								tds_arr[j].onkeydown = function(e){ 
+								   e = e || window.event;
+								   // устанавливаем текущюю ячейку и сохраняем изначальное значение
+		                           var cur_cell = e.target || e.srcElement;
+								   rtCalculator.previous_val = cur_cell.innerHTML;
+
+								}
 								tds_arr[j].onkeyup = function(e){
 									
 								   //if(!rtCalculator.cur_cell) location.reload();
@@ -446,7 +453,7 @@ var rtCalculator = {
 	    var result = correctToFloat(cell.innerHTML);
 		
 		//placeCaretAtEnd(cell);
-		//if(result != 0) setCaretToPos2(cell,result);
+		if(result != 0) setCaretToPos2(cell,result);
 		rtCalculator.make_calculations(cell);
 		
 		
@@ -454,27 +461,40 @@ var rtCalculator = {
 	    function correctToFloat(str){// корректировка значений вводимых пользователем в поле ввода типа Float
 		    var wrong_input = false;
 			var pos = 0;
-			// если строка пустая правим на 0.00
-			alert(str);
-			if(str == '' || str == '&nbsp;'){ wrong_input = true; str = '0'; pos = 1;}
+
+			//alert(str);
+			if(str == '' || str == '&nbsp;'){ wrong_input = true; str = '0'; pos = 0;}
 			//if(str == ''){ wrong_input = true; str = '0.00'; pos = 3;}
-			alert(str);
+			//alert(str);
 			// если строка содержит запятую меняем её на точку
 			var pattern = /,/; 
-		    if(str.match(pattern)){ wrong_input = true;  pos =  str.indexOf(','); str =  str.replace(',','.');}
+		    if(str.match(pattern)){ wrong_input = true;  pos =  str.indexOf(',')+1; str =  str.replace(',','.');}
 			
-			// если строка содержит что-то кроме цифры или точки вырезаем этот символ
+/*			var pattern = /^[^\d]+$/; 
+			var result = pattern.exec(str);
+		    if(result !== null){ wrong_input = true; str = '0'; pos = 0; }*/
+			
+			// если строка содержит что-то кроме цифры или точки 
 			var pattern = /[^\d\.]+/; 
 			var result = pattern.exec(str);
 		    if(result !== null){ 
 			    wrong_input = true;
-				var substr_arr = str.split(result[0]);
-				pos =  substr_arr[0].length;
-				str =  substr_arr[0] + substr_arr[1];
+				if(str.length==1){ 
+				    // если это единственный символ в строке - заменяем его тем что было до его ввода
+				   wrong_input = true; str =  rtCalculator.previous_val ; pos = 0;
+				}
+				else{
+					// если это не единственный символ в строке - вырезаем его
+					var substr_arr = str.split(result[0]);
+					pos =  substr_arr[0].length;
+					str =  substr_arr[0] + substr_arr[1];
+				}
 				
 			    
 		    }
-			alert(str);
+			
+		
+			//alert(str);
 			// если строка содержит более одной точки вырезаем оставляем только одну точку
 		    /*	
 		    var pattern = /\./g; 
@@ -501,7 +521,7 @@ var rtCalculator = {
 			
 			// если величина числа больше допустимого - обрезаем его
 		   
-		alert(str);
+		//alert(str);
 			// если был выявлен некорректный ввод исправляем содержимое ячейки 
 			if(wrong_input) cell.innerHTML = str;
 			
@@ -850,6 +870,7 @@ var rtCalculator = {
 		var tds_arr = cur_tr.getElementsByTagName('td');
 		for(var j = 0;j < tds_arr.length;j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
+				if(tds_arr[j]==rtCalculator.cur_cell) continue;
 			    var type = tds_arr[j].getAttribute('type');
 				var connected_vals = tds_arr[j].getAttribute('connected_vals');
 				
