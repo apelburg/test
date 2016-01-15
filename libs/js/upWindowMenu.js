@@ -911,11 +911,11 @@
 		container.className = "contextWindow";
 		container.setAttribute('type','windowContainer');
 		container.style.position = 'absoute';
-		container.style.width = "150px";
+		container.style.width = "151px";
 		container.style.top =  "23px";
 		//container.style.bottom =  "20px";
-		//container.style.left = "101px";
-		container.style.right = "0px";
+		container.style.left = "9px";
+		//container.style.right = "0px";
 		container.style.display = "block";
 		
 		var data_arr = [{level:'full',levelRu:'Конечники'},{level:'ra',levelRu:'Рекламщики'}];

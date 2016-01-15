@@ -100,7 +100,7 @@ function timing_save_input(fancName,obj){
             <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=<?php  echo $query_num; ?>&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Коммерческие предложения</a></li>
             <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=agreements&doc_type=agreement&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Договоры</a></li>
             <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=agreements&doc_type=oferta&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Оферты</a></li>
-            <li><div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,'calcLevelSwitcher');">Калькулятор: <?php  echo $calculator_level_ru; ?></div>
+            <li style="margin-left: 329px; color: rgb(255, 255, 255);"><div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,'calcLevelSwitcher');">Калькулятор: <?php  echo $calculator_level_ru; ?></div>
             <input type="hidden" id="calcLevelStorage" value="<?php  echo $calculator_level; ?>"></li>
 		</ul>
 	</div>
