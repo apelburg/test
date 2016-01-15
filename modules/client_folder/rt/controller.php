@@ -281,7 +281,7 @@
 				 
 				 $svetofor_src = $img_design_path.'rt_svetofor_'.$svetofor_stat.'.png';
 				 $svetofor = '<img src="'.$svetofor_src.'" />';
-				 $svetofor .= '<div class="comment_div"></div>';
+				 $svetofor .= '<div class="comment_div" data-href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'" data-id="'.$dop_key.'"></div>';
 				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer center"';
 				 $svetofor_tr_display = ($row['svetofor_display']==1 && $dop_row['row_status']=='red')?'hidden':'';
 				 $currency = 'р';

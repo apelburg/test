@@ -149,8 +149,9 @@ class rtPositionUniversal extends Position_general_Class
 			}
 
 			$html = $this->print_arr($variant);
+			$html .= $this->print_arr($_POST);
 
-			$this->responseClass->addMessage($html);
+			$this->responseClass->addSimpleWindow($html,'Комментарии к варианту',array());
 		}
 
 

@@ -2471,3 +2471,13 @@
 				}
 			});	
 	}
+	$(document).on('click', '.comment_div', function(event) {
+		event.preventDefault();
+		var href = $(this).parent().parent().find('.pos_plank a').attr('href');
+		$.post(href, {
+			href: href,
+			AJAX: 'get_dop_men_text_save'
+		}, function(data, textStatus, xhr) {
+			standard_response_handler(data);
+		},'json');
+	});
