@@ -137,20 +137,26 @@ class rtPositionUniversal extends Position_general_Class
 		 *	@version 	16:11 15.01.2016
 		 */
 		protected function get_dop_men_text_save_AJAX(){
-			$query  = "SELECT * `".RT_DOP_DATA."` WHERE  `id` = '".$_POST['row_id']."';";
+			$html = '';
+			$query  = "SELECT * FROM `".RT_DOP_DATA."` WHERE  `id` = '".$_POST['row_id']."'";
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
 			
 
 			$variant = array();
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
-					$variant[] = $row;
+					$variant = $row;
 				}
 			}
 
-			$html = $this->print_arr($variant);
+			$html .= '<div class="dop_men_text">
+					<span style="color:red"></span>
+					<textarea data-href="'.(isset($_POST['href'])?$_POST['href']:'').'" data-id="'.$variant['id'].'">'.base64_decode($variant['dop_men_text']).'</textarea>
+				</div>';
 
-			$this->responseClass->addMessage($html);
+			$options['width'] = 600;
+			$options['height'] = 290;
+			$this->responseClass->addSimpleWindow($html,'Примечания к варианту',$options);
 		}
 
 

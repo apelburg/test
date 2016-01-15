@@ -355,28 +355,5 @@ $(document).on('click', '.variant_content_block.archiv_opacity', function(event)
 });
 
 
-// сохраняем информацию из поля примечаний с задержкой
-$(document).on('keyup', '.dop_men_text textarea', function(event) {
-   timing_save_input('dop_men_text_save',$(this));
-});
 
-// сохраняем информацию из поля примечаний
-function dop_men_text_save(obj){
-
-  var row_id = obj.attr('data-id');
-  $.post('', {
-      AJAX:'dop_men_text_save',
-      row_id:row_id,
-      value:Base64.encode(obj.val())
-  }, function(data, textStatus, xhr) {
-      standard_response_handler(data);
-      if(data['response']=="OK"){
-          // php возвращает json в виде {"response":"OK"}
-          // если ответ OK - снимаем класс saved
-          obj.removeClass('saved');
-      }else{
-          console.log('Данные не были сохранены.');
-      }
-  },'json');
-}
 
