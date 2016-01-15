@@ -86,6 +86,13 @@
 			$mysqli->query($query)or die($mysqli->error);
 			return 1;
 		}
+		static function setCalcualtorLevel($query_num,$level){
+		    global $mysqli; 
+			
+		    $query = "UPDATE `".RT_LIST."` SET `calculator_level` = '".$level."'  WHERE `query_num` = '".$query_num."'";
+			$mysqli->query($query)or die($mysqli->error);
+			return 1;
+		}
 		static function set_order_deadline($ids,$date,$time){
 		    global $mysqli; 
 			$time = str_replace('.',':',$time).':00';

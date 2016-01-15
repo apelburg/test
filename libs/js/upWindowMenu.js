@@ -947,28 +947,18 @@
 		    e = e || window.event;
 			
 			var target = e.target;
-			
-			//alert(target.innerHTML);
-			//alert(openCloseMenu.lastElement);
-			/*var manager_id = target.getAttribute('manager_id');
-			//alert(target.getAttribute('sourse')+' '+target.getAttribute('row_id'));
-			var row_id = (target.getAttribute('row_id'))? target.getAttribute('row_id') : false;
-			var query_num = (target.getAttribute('query_num'))? target.getAttribute('query_num') : false;*/
 			var level = target.getAttribute('level');
 			
 			openCloseMenu.lastElement.innerHTML = 'Калькулятор: '+target.innerHTML;
 			document.getElementById('calcLevelStorage').value = level;
-			//openCloseMenu.lastElement.innerHTML = 'контакт: ' + target.innerHTML;
-			//document.getElementById('row_' + row_id).setAttribute('client_manager_id',manager_id);
+			
 			
 			//////////////////////////////////////////////////////////////////////////////////////////
 		    /////////////////////////////////////    AJAX  ///////////////////////////////////////////
-		/*
+		
 		    var request = HTTP.newRequest();
-	        //var url = "?page=clients&set_manager_for_order=" + manager_id + "&row_id=" + row_id + "&control_num=" + document.getElementById('calculate_tbl').getAttribute('control_num');
-			if(sourse=='kp')  var url = "?page=client_folder&section=business_offers&set_recipient=" + manager_id + "&row_id=" + row_id;
-	        if(sourse=='rt')  var url = "?page=client_folder&set_cont_face=" + manager_id + "&query_num=" + query_num;
-
+			var url = '?'+addOrReplaceGetOnURL( 'setCalcualtorLevel='+level,'');
+			 
 			// производим запрос
 			request.open("GET", url, true);
 			request.send(null);
@@ -980,7 +970,7 @@
 					   // обрабатываем ответ сервера
 						
 						var request_response = request.responseText;
-						//alert(request_response);
+						alert(request_response);
 						
 						
 
@@ -989,7 +979,7 @@
 					  alert("Частота запросов превысила допустимое значение\rдля данного интернет-соединения, попробуйте\rперезагрузить сайт, для этого нажмите F5");
 					}
 				 }
-			 }*/
+			 }
 		}
 	}
 	function openClientManagerMenu(e){

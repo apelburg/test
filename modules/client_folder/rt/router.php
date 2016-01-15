@@ -55,6 +55,13 @@
     }
 	////////////////////////  AJAX  //////////////////////// 
 	
+	if(isset($_GET['setCalcualtorLevel'])){
+	     // print_r($_GET);
+	     require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+		 echo RT::setCalcualtorLevel($_GET['query_num'],$_GET['setCalcualtorLevel']);
+		 exit;
+	}
+	
 	if(isset($_POST['getSizesForArticle'])){
 	     require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
 		 echo RT::getSizesForArticle($_POST['pos_id']);
