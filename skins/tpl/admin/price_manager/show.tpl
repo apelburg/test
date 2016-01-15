@@ -68,7 +68,7 @@ function priceManagerSendDataToBase(form,data_obj){
 	   dataForBuffer.count = data_obj.count;
 	   dataForBuffer.tbl_data = [];
 	   
-       for(var i=0;i<rows.length-1;i++){
+       for(var i=0;i<rows.length;i++){
 	       var cels = rows[i].getElementsByTagName('TD');
 		   var celsData=[];
 		   for(var j=0;j<cels.length-1;j++){

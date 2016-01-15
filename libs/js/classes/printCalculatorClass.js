@@ -261,12 +261,32 @@ var printCalculator = {
 	,
 	evoke_calculator:function(){
 		
-		// отправляем запрос чтобы получить описание параметров дефолтных параметров калькулятора для данного ариткула
-	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&grab_calculator_data={"art_id":"'+printCalculator.dataObj_toEvokeCalculator.art_id+'","type":"print"}','section');
-		printCalculator.send_ajax(url,callback);
+		    //printCalculator.levelsRU = {'full':' уровень - "Конечные клиенты"','ra':', уровень - "Рекламные Агенства"'};
+	        // printCalculator.level = (document.getElementById('calcLevelStorage'))? document.getElementById('calcLevelStorage').value:'full';
+
+			//alert(typeof  printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id);
 		
+			// устанавливаем уровень цен      
+			if(typeof printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id  === 'undefined'){
+				alert(1);
+				printCalculator.level = (document.getElementById('calcLevelStorage'))? document.getElementById('calcLevelStorage').value:'full';
+			}
+			else{
+				//alert(2);
+				//if(typeof printCalculator.currentCalculationData[printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id].print_details.level !== 'undefined'){
+				     printCalculator.level = printCalculator.currentCalculationData[printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id].print_details.level;
+				//}
+				//else printCalculator.level = 'full';
+			}
+			
+			printCalculator.levelsRU = {'full':' уровень - "Конечные клиенты"','ra':', уровень - "Рекламные Агенства"'};/**/
+			
+		// отправляем запрос чтобы получить описание параметров дефолтных параметров калькулятора для данного ариткула
+	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&grab_calculator_data={"art_id":"'+printCalculator.dataObj_toEvokeCalculator.art_id+'","type":"print","level":"'+printCalculator.level+'"}','section');
+		printCalculator.send_ajax(url,callback);
+		//alert(last_val);
 		function callback(response_calculatorParamsData){
-			 alert(response_calculatorParamsData);
+			 // alert(response_calculatorParamsData);
 			// return;
 			if(typeof printCalculator.calculatorParamsObj !== 'undefined') delete printCalculator.calculatorParamsObj;
 			
@@ -278,10 +298,9 @@ var printCalculator = {
 			
 			// строим калькулятор
 			printCalculator.build_print_calculator();
-			// открываем окно с калькулятором
 			
-				
-			$("#calculatorDialogBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет нанесения логотипа",modal:true,width: 680,close: function() {this.remove();$("#calculatorDialogBox").remove();}});
+			// открываем окно с калькулятором
+			$("#calculatorDialogBox").dialog({autoOpen: false, position:{ at: "top+25%", of: window } ,title: "Расчет нанесения логотипа "+printCalculator.levelsRU[printCalculator.level],modal:true,width: 680,close: function() {this.remove();$("#calculatorDialogBox").remove();}});
 			$("#calculatorDialogBox").dialog("open");
 		}
 	}
@@ -1740,7 +1759,7 @@ var printCalculator = {
 		
 		printCalculator.currentCalculationData.print_details.place_type =  printCalculator.calculatorParamsObj.places[printCalculator.currentCalculationData.print_details.place_id].name;
 		printCalculator.currentCalculationData.print_details.print_type =  printCalculator.calculatorParamsObj.places[printCalculator.currentCalculationData.print_details.place_id].prints[printCalculator.currentCalculationData.print_details.print_id];
-		
+		printCalculator.currentCalculationData.print_details.level = printCalculator.level;
 		
 		if(typeof printCalculator.currentCalculationData.glob_type !== 'undefined') delete printCalculator.currentCalculationData.glob_type;
 		if(typeof printCalculator.currentCalculationData.dop_row_id !== 'undefined') delete printCalculator.currentCalculationData.dop_row_id;

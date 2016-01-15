@@ -101,7 +101,8 @@
 			}
 			
 			// получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
-            $out_put = self::get_print_types_related_data($out_put/*,$all_sizes_in_one_place*/);
+			$level = (isset($data->level))?$data->level:'full';
+            $out_put = self::get_print_types_related_data($out_put,$level/*,$all_sizes_in_one_place*/);
 			
 			//print_r($out_put);
 			echo json_encode($out_put);
@@ -205,7 +206,7 @@
 			}	
 			return $out_put;		
 		}
-		static function get_print_types_related_data($out_put/*,$all_sizes_in_one_place*/){
+		static function get_print_types_related_data($out_put,$level/*,$all_sizes_in_one_place*/){
 		    global $mysqli;  
 			
 			//$print_types = $out_put['print_types'];
@@ -225,7 +226,7 @@
 				
 				
 				// выбираем таблицу с расценками 
-				$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' AND `level` = 'full' ORDER by id, param_val";
+				$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_id."' AND `level` = '".$level."' ORDER by id, param_val";
 				//echo $query;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
 				if($result->num_rows>0){
