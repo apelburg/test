@@ -260,12 +260,13 @@ var printCalculator = {
 	}
 	,
 	evoke_calculator:function(){
+		
 		// отправляем запрос чтобы получить описание параметров дефолтных параметров калькулятора для данного ариткула
 	    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&grab_calculator_data={"art_id":"'+printCalculator.dataObj_toEvokeCalculator.art_id+'","type":"print"}','section');
 		printCalculator.send_ajax(url,callback);
-		//alert(last_val);
+		
 		function callback(response_calculatorParamsData){
-			 // alert(response_calculatorParamsData);
+			 alert(response_calculatorParamsData);
 			// return;
 			if(typeof printCalculator.calculatorParamsObj !== 'undefined') delete printCalculator.calculatorParamsObj;
 			

@@ -1434,10 +1434,7 @@ class Client extends aplStdAJAXMethod{
 				$contacts[] = $row;
 			}
 		}
-		// echo '<pre>';
-		// print_r($contacts);
-		// echo '</pre>';			
-
+		
 		$get_str = '';
 		$n = 0;
 		foreach ($_GET as $key => $value) {

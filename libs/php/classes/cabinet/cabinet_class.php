@@ -931,7 +931,6 @@
 					return $str;
 				}
 
-
 				// запрос на все услуги
 				protected function get_all_services_Database(){
 					global $mysqli;
@@ -1518,8 +1517,11 @@
 			protected function chenge_query_status_for_id_row($id,$new_status){
 				// устанавливаем статус запроса на history
 				global $mysqli;
-                $query = "UPDATE `".RT_LIST."` SET `status`= '".$new_status."' 
-                WHERE  `id` = '".$id."';";
+                $query = "UPDATE `".RT_LIST."` SET `status`= '".$new_status."'"; 
+                if($new_status=="in_work"){
+
+                }
+                $query .= " WHERE  `id` = '".$id."';";
                 $result = $mysqli->query($query) or die($mysqli->error);
                 return true;
 			}
@@ -2803,12 +2805,61 @@
 
 				$html .= '</form>';
 
+				
 				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
 				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 				// echo 'base';
 			}
 
+			/**
+			  *	проверка запроса на принадлежность кому-либо
+			  * проще говоря взял его кто-то обработать или ещё нет
+			  *
+			  *	@return  	user_id хозяина
+			  *	@author  	Alexey Kapitonov
+			  *	@version 	23:32 14.01.2016
+			  */
+			protected function check_the_empty_query(){
+				global $mysqli;
+				
+				$query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['row_id']."';";
+				$Query = array();
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$Query = $row;
+					}
+				}
+				if(!isset($Query['manager_id'])){
+					return 0;
+				}
+				return $Query['manager_id'];
+			}
+
+			/**
+			  *	присваиваем запросу новый статус
+			  *
+			  *	@author  	Alexey Kapitonov
+			  *	@version	23:30 14.01.2016 	
+			  */
 			protected function command_for_change_status_query_AJAX(){
+				// если статус меняет не админ
+				if( $this->user_access != 1 ){
+					// проверяем не принадлежит ли данный запрос другому менеджеру
+					$master = $this->check_the_empty_query( $this->user_id );
+					if($master > 0 && $master != $this->user_id){
+						$user_name_arr = $this->get_manager_name_Database_Array($master);
+						$user_name = (!empty($user_name_arr))?$user_name_arr['last_name'].' '.$user_name_arr['name']:'';
+						
+						$message = "Извините, но с данным запросом уже работает: <strong>$user_name</strong>";
+						echo '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'","function2":"reload_order_tbl"}';	
+						exit;
+					}
+				}else{
+
+				}
+
 				if($this->chenge_query_status_for_id_row($_POST['row_id'], $_POST['query_status'])){
 					echo '{"response":"OK","function":"reload_order_tbl"}';
 				}else{
@@ -2927,6 +2978,7 @@
 				// echo 'base';
 			}	
 
+			// статусы заказов
 			protected function command_for_change_status_order_AJAX(){
 				global $mysqli;
 				$json_answer = '{"response":"OK"}';

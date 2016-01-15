@@ -372,8 +372,10 @@
 			// echo $query."\r\n";
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
-			$row = $result->fetch_assoc();
-			$sort_id = $row['max_sort'];
+			
+				$row = $result->fetch_assoc();
+				$sort_id = $row['max_sort'];
+
 			}
 			else $sort_id = 0;
 			
