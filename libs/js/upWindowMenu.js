@@ -970,7 +970,7 @@
 					   // обрабатываем ответ сервера
 						
 						var request_response = request.responseText;
-						alert(request_response);
+						// alert(request_response);
 						
 						
 
