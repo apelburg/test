@@ -55,6 +55,13 @@
     }
 	////////////////////////  AJAX  //////////////////////// 
 	
+	if(isset($_GET['setCalcualtorLevel'])){
+	     // print_r($_GET);
+	     require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+		 echo RT::setCalcualtorLevel($_GET['query_num'],$_GET['setCalcualtorLevel']);
+		 exit;
+	}
+	
 	if(isset($_POST['getSizesForArticle'])){
 	     require_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
 		 echo RT::getSizesForArticle($_POST['pos_id']);
@@ -242,6 +249,9 @@
 	$query_related_data = RT::fetch_query_related_data($query_num);
 	$theme = $query_related_data['theme'];
 	$query_status = $query_related_data['status'];
+	$calculator_level = ($query_related_data['calculator_level']!='')?$query_related_data['calculator_level']:'full';
+	$CALCULATOR_LEVELS = array('full'=>"Конечники",'ra'=>"Рекламщики");
+	$calculator_level_ru = $CALCULATOR_LEVELS[$calculator_level];
 	$block_page_elements = ($_SESSION['access']['access']!= 1 && $query_status!='in_work')?true:false;
 	$theme_block = '<input id="query_theme_input" class="query_theme" query_num="'.$query_num.'" type="text" value="'.(($theme=='')?'Введите тему':htmlspecialchars($theme,ENT_QUOTES)).'" onclick="fff(this,\'Введите тему\');">';	
 

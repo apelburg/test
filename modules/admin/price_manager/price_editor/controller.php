@@ -251,8 +251,8 @@
 		    echo '<form method="POST">';
 		    echo '<table id="tbl'.$level.$type.$count.'">'.implode('',$tbl_row[$level][$type][$data['count']]).$dop_row.'</table>';
 		   	
-		    echo '<input type="text" name="dataBufferForDeleting" id="dataBufferForDeleting'.$level.$type.$count.'" value="">';
-		    echo '<input type="text" name="dataBufferForSavingToBase" id="tblDataBuffer'.$level.$type.$count.'" value="">';
+		    echo '<input type="hidden" name="dataBufferForDeleting" id="dataBufferForDeleting'.$level.$type.$count.'" value="">';
+		    echo '<input type="hidden" name="dataBufferForSavingToBase" id="tblDataBuffer'.$level.$type.$count.'" value="">';
 		    echo '<input type="button"  class="pointer" onclick="priceManagerSendDataToBase(this.form,{\'type\':\'price\',\'bufferId\':\'tblDataBuffer'.$level.$type.$count.'\',\'tblId\':\'tbl'.$level.$type.$count.'\',\'level\':\''.$level.'\',\'price_type\':\''.$type.'\',\'print_type_id\':\''.$usluga_id.'\',\'count\':\''.$count.'\'});" value="сохранить">';
 		    echo '</form>';
 		    echo '<br><br><br>';
