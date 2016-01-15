@@ -939,7 +939,7 @@ class Client extends aplStdAJAXMethod{
 			exit;
 		}else{ // если мы находимся вне клиента
 			$html = $this->get_form_attach_the_client('attach_client_for_new_query');
-			echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
+			echo '{"response":"'.(isset($_POST['client_name_search'])?"OK":"show_new_window").'","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
 			exit;
 		}
 		
@@ -955,96 +955,124 @@ class Client extends aplStdAJAXMethod{
 	// в cabinet_class.php		
 	// }
 
+	// возвращает строку поиска по клиентам
+	protected function get_client_sherch_form(){
+		$html = '';
+		// if(isset($_POST['AJAX'])){unset($_POST['AJAX']);}
+		$html .= '<form id="js--window_client_sherch_form">';
+		// foreach ($_POST as $key => $value) {
+		// 	$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+		// }
+		$html .= '<div class="quick_bar_tbl"><div class="search_div">
+                <div class="search_cap">Поиск:</div>
+                <div class="search_field">                    
+                    <input id="client_name_search" name="client_name_search" placeholder="поиск по клиентам" type="text" onclick="" value=""><div class="undo_btn"><a href="#" onclick="$(this).parent().prev().val(\'\');return false;">×</a></div></div>
+                <div class="search_button" onclick="search_and_show_client_list();">&nbsp;</div>
+                <div class="clear_div"></div>
+            </div></div>';
+		// $html .= '<input type="text" name="client_name_search">';
+		$html .= '<input type="hidden" name="AJAX" value="create_new_query">';
+		// $html .= '<input type="hidden" name="client_id" value="'.$_POST['client_id'].'">';
+		$html .= '</form>';
+		//echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Поиск клиента","height":"300","width":"1000"}';
+		return $html;
+	}
+
 	// форма выбора клиента 
 	private function get_form_attach_the_client($AJAX = 'test'){
-				global $mysqli;
-				$html ='';
-				if($this->user_access == 1){
-					$query = "SELECT * FROM `".CLIENTS_TBL."` ";
-				}else{
+		global $mysqli;
+		$html ='';
+		$clients = array();
+		$clients[0]['id'] = 'new_client';
+		$clients[0]['company'] = 'НОВЫЙ КЛИЕНТ';
 
-					/*
-						2 запроса оказались быстрее, чем один составной !!!!ЫЫЫЫ
-					*/
-					$query = "SELECT `client_id` FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$this->user_id."'";
-					$result = $mysqli->query($query) or die($mysqli->error);				
+		if(isset($_POST['client_name_search'])){
+			if($this->user_access == 1){
 					
-					$id_str = "'0'";
-					if($result->num_rows > 0){
-						while($row = $result->fetch_assoc()){
-							$id_str .= ",'".$row['client_id']."'";
-						}
-					}
-					// echo $query;
-					$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` IN (".$id_str.")";
+				$query = "SELECT * FROM `".CLIENTS_TBL."` ";
+				// $query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id`= '".(int)$_POST['client_id']."' ";
+				if($_POST['client_name_search'] != 'all' && $_POST['client_name_search'] != 'все'){
+					$query .= " AND `company` LIKE '%".trim($_POST['client_name_search'])."%'";	
 				}
-				
-
-				// Запрос с сортировкой почему-то не хочет выводит ь некоторые компании
-				// к примеру не выводит компанию *Морской салон ЗАО  - id = 18
-				// $query = "SELECT * FROM `".CLIENTS_TBL."`  order by company ASC;";
+					
+			}else{				
+				$query = "SELECT `client_id` FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$this->user_id."'";
+					
 				$result = $mysqli->query($query) or die($mysqli->error);				
-				$clients = array();
-				$clients[0]['id'] = 'new_client';
-				$clients[0]['company'] = 'НОВЫЙ КЛИЕНТ';
+				$id_str = "'0'";
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
-						$clients[] = $row;
+						$id_str .= ",'".$row['client_id']."'";
 					}
 				}
-
-				$html .= '<form  id="chose_client_tbl">';
-				$html .='<table>';
-
-				$html_row = '';
-				$first_row = ''; 
-				$f_r = 0;
-
-				$count = count($clients);
-				for ($i=0; $i <= $count; $i) {
-					$row = '<tr>';
-				    for ($j=1; $j<=3; $j++) {
-				    	if(isset($clients[$i])){
-					    	$checked = (isset($_POST['client_id']) && $clients[$i]['id'] == $_POST['client_id'])?'class="checked"':'';
-					    	$row .= '<td '.$checked.' data-id="'.$clients[$i]['id'].'" id="client_'.$clients[$i]['id'].'">'.$clients[$i]['company']."</td>";
-				    		// если присутствует выбранный клиент, ставим флаг
-				    		if($checked!=''){$f_r = 1;}	
-				    	}else{
-				    		$row .= "<td></td>";
-				    	}			    	
-				    	$i++;
-				    	$this->i = $i;
-				    }
-				    $row .= '</tr>';
-
-				    // если нам попалась строка с выбранным клиентом, запоминаем её и не добавляем в Html...
-				    // добавим её в начало таблицы позже
-				    if($f_r==1){
-				    	$first_row .= $row; $f_r = 0;
-				    }else{
-				    	$html_row .= $row;
-				    }
-				}
-
-				// помещаем выбранного клиента в начало таблицы
-				$html .= $first_row.$html_row;
-
-				$html .= '</table>';
-				$html .= '<input type="hidden" value="'.$AJAX.'" name="AJAX">';
-				// $html .= '<input type="hidden" value="" name="manager_id">';
-				if(isset($_POST)){
-					unset($_POST['AJAX']);
-					foreach ($_POST as $key => $value) {
-						$html .= '<input type="hidden" value="'.$value.'" name="'.$key.'">';	
-					}	
-				}
-
-				if(!isset($_POST['client_id'])){
-					$html .= '<input type="hidden" value="" name="client_id">';
+				// echo $query;					
+				
+				$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` IN (".$id_str.")";
+				if($_POST['client_name_search'] != 'all' && $_POST['client_name_search'] != 'все'){
+					$query .= " AND `company` LIKE '%".trim($_POST['client_name_search'])."%'";	
 				}
 				
-				$html .= '<form>';
-				return $html;
+				
+			}		
+			$query .= "  ORDER BY `company`";			
+			// $html .= $query;		
+			// Запрос с сортировкой почему-то не хочет выводит ь некоторые компании
+			// к примеру не выводит компанию *Морской салон ЗАО  - id = 18
+			// $query = "SELECT * FROM `".CLIENTS_TBL."`  order by company ASC;";
+			$result = $mysqli->query($query) or die($mysqli->error);				
+			
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$clients[] = $row;
+				}
+			}
+		}
+		$html .= isset($_POST['client_name_search'])?'':$this->get_client_sherch_form();
+
+		$html .= '<form  id="chose_client_tbl">';
+
+		$html .='<table>';
+		$column = 3;
+		$num_client  = count($clients);
+		$num_rows = ceil($num_client / $column);
+		$td_count = $num_rows*$column;
+		$clients_array = array();
+				
+		for ($td=0; $td <= $num_rows; $td++) { 
+			for ($col=0; $col < $column; $col++) { 
+				$html .= ($col == 0)?'<tr>':'';
+				// $html .= '<td>';
+				$id = ($col>0)?$td + $num_rows*$col+$col:$td + $num_rows*$col;
+				if(isset($clients[$id])){
+					$checked = '';
+			    	// $checked = ($clients[$id]['id'] == $_POST['client_id'])?'class="checked checked_client"':'';
+			    	$html .= '<td '.$checked.' data-id="'.$clients[$id]['id'].'" id="client_'.$clients[$id]['id'].'">'.$clients[$id]['company']."</td>";
+		    		// если присутствует выбранный клиент, ставим флаг
+		    		if($checked!=''){$f_r = 1;}	
+		    	}else{
+		    		$html .= "<td></td>";
+		    	}
+				$html .= ($col == $column)?'</tr>':'';
+			}
+		}
+		$this->i = $num_rows;
+
+		$html .= '</table>';
+		$html .= '<input type="hidden" value="'.$AJAX.'" name="AJAX">';
+		// $html .= '<input type="hidden" value="" name="manager_id">';
+		if(isset($_POST)){
+			unset($_POST['AJAX']);
+			foreach ($_POST as $key => $value) {
+				$html .= '<input type="hidden" value="'.$value.'" name="'.$key.'">';	
+			}	
+		}
+
+		if(!isset($_POST['client_id'])){
+			$html .= '<input type="hidden" value="" name="client_id">';
+		}
+				
+		$html .= '<form>';
+		return $html;
 	}
 
 	// заведение нового клиента при создании запроса

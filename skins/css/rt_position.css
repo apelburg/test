@@ -1124,3 +1124,14 @@ table.calkulate_table span {
 .sevrice_button_size_table{
   display: none;
 }
+
+.dop_men_text{
+  padding-top: 15px;
+}
+.dop_men_text textarea{
+  width: 97.5%;
+  height: 116px;
+  padding: 1%;
+  border: 1px solid #f1f1f1;
+  outline: none;
+}

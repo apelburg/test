@@ -50,8 +50,27 @@
   .rt_tbl_head td.delta{ width:80px; }
   .rt_tbl_head td.margin{ width:80px; }
 }
+#scrolled_part_container td.quantity.right.r_border {
+    position: relative;
+}
+#scrolled_part_container td.svetofor .comment_div {
+    background: url(../../skins/images/img_design/rt_comment_icon.png);
+        z-index: 4;
+    position: absolute;
+    width: 21px;
+    height: 19px;
+    left: 0;
+    top: 7px;
+    left: 33px;
+    background-repeat: no-repeat;
+    background-position-y: 2px;
+    cursor: pointer;
+    border: 1px solid #f1f1f1;
+}
 
-
+.svetofor_plank{
+  z-index: 5;
+}
 .rt_tbl_head .bottom_border td{ border-bottom: #999 solid 2px;}
 .rt_tbl_head span.small{ 
  font-size:9px;

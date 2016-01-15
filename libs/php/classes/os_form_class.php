@@ -348,7 +348,25 @@ PS было бы неплохо взять взять это за правило
                                    $size_arr[] = $row;
                               }
                          }
-                         if(count($size_arr) > 1){ // если размеров более одного выводим новую форму с выбором размера
+
+                         // проверяем, есть ли в ценах размеров различия
+                         $size_price = 0;
+                         $price_differ = 0;
+                         foreach ($size_arr as $key => $size) {
+                              if($key == 0){
+                                   $$size_price = $size['price'];
+                              }else{
+                                   if($$size_price != $size['price']){
+                                        $price_differ++;
+                                   }
+                              }
+
+                         }
+
+
+                         // если размеров более одного выводим новую форму с выбором размера
+                         // и у них разные цены
+                         if(count($size_arr) > 1 && $price_differ > 0){ 
                               $html = '';
                               $html .= '<form>';
                               // выводим таблицу размеров

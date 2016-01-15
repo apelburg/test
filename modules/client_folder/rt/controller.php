@@ -281,6 +281,7 @@
 				 
 				 $svetofor_src = $img_design_path.'rt_svetofor_'.$svetofor_stat.'.png';
 				 $svetofor = '<img src="'.$svetofor_src.'" />';
+				 $svetofor .= '<div class="comment_div"></div>';
 				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer center"';
 				 $svetofor_tr_display = ($row['svetofor_display']==1 && $dop_row['row_status']=='red')?'hidden':'';
 				 $currency = 'р';

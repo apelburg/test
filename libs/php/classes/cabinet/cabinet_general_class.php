@@ -401,7 +401,7 @@
 				$html .= '<div class="quick_bar_tbl"><div class="search_div">
                     <div class="search_cap">Поиск:</div>
                     <div class="search_field">                    
-                        <input id="client_name_search" name="client_name_search" placeholder="поиск по клиенту" type="text" onclick="" value=""><div class="undo_btn"><a href="#" onclick="$(this).parent().prev().val(\'\');return false;">×</a></div></div>
+                        <input id="client_name_search" name="client_name_search" placeholder="поиск по клиентам" type="text" onclick="" value=""><div class="undo_btn"><a href="#" onclick="$(this).parent().prev().val(\'\');return false;">×</a></div></div>
                     <div class="search_button" onclick="search_and_show_client_list();">&nbsp;</div>
                     <div class="clear_div"></div>
                 </div></div>';
@@ -419,7 +419,7 @@
 				$html ='';
 				
 				$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id`= '".(int)$_POST['client_id']."' ";
-				if(strlen(trim($_POST['client_name_search'])) > 3){
+				if(isset($_POST['client_name_search'])){
 					$query .= " OR `company` LIKE '%".trim($_POST['client_name_search'])."%' ORDER BY `company`";
 				}
 

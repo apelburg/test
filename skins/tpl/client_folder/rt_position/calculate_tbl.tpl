@@ -150,6 +150,14 @@
 							
 					</tr>				
 				</table>
+				<div class="dop_men_text">
+					<span style=""></span>
+					<textarea name="" data-id="<?=$variant['id'];?>"><?php
+							if(trim($variant['dop_men_text']) != ''){
+								echo trim(base64_decode($variant['dop_men_text']));
+							}							
+						?></textarea>
+				</div>
 			</div>
 			<div class="cell <?php echo ($POSITION->position['type'] == 'cat')?'size_card':'variant_characteristics_and_delivery';?>">
 				<?php 
