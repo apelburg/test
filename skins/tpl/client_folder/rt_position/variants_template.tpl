@@ -106,6 +106,10 @@
 						<td></td>
 					</tr>
 				</table>
+				<div class="dop_men_text">
+					<span style="color:red">В РАЗРАБОТКЕ</span>
+					<textarea name="" ></textarea>
+				</div>
 			</div>
 			<div class="cell size_card">
 				<?php echo $get_size_table; ?>								

@@ -1110,7 +1110,8 @@ $(document).keydown(function(event) {
 
 
 function search_and_show_client_list(){
-	if($('#js--window_client_sherch_form input[name="client_name_search"]').val().length > 3 || ($('#js--window_client_sherch_form input[name="client_id"]').length > 0 && Number($('#js--window_client_sherch_form input[name="client_id"]').val()) > 0 )){
+	var search_name = $('#js--window_client_sherch_form input[name="client_name_search"]').val();
+	// if(search_name == 'all' || search_name == 'все' || ($('#js--window_client_sherch_form input[name="client_id"]').length > 0 && Number($('#js--window_client_sherch_form input[name="client_id"]').val()) > 0 )){
 		var serialize = $('#js--window_client_sherch_form').serialize();
 		$.post('', serialize
 			//{
@@ -1122,16 +1123,20 @@ function search_and_show_client_list(){
 			if(data['response'] == 'OK'){
 				if($('#chose_client_tbl').length > 0){
 					$('#chose_client_tbl').replaceWith(Base64.decode(data['html']));
+					console.log(Base64.decode(data['html']));
 				}else{
+					console.log('654654654qqqqq');
 					$('#js--window_client_sherch_form').after(Base64.decode(data['html']))
 				}
 				
 			}				    		
 			standard_response_handler(data);
 		},'json');		
-	}
+	// }
 }
-
+each(function(index, el) {
+	
+});
 // отработка клика по таблице выбора менеджера для прикрепления к запросу
 $(document).on('click', '#chose_manager_tbl table tr td', function(event) {
 	if($(this).html()!=''){

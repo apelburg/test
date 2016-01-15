@@ -117,6 +117,42 @@ class rtPositionUniversal extends Position_general_Class
 			// echo '{"response":"OK","text":"test"}';
 			// exit;
 		}
+		/**
+		 *	сохраняем примечания к вариантам
+		 *
+		 *	@author  	Алексей Капитонов
+		 *	@version 	16:11 15.01.2016
+		 */
+		protected function dop_men_text_save_AJAX(){
+			$query  = "UPDATE `".RT_DOP_DATA."` SET `dop_men_text` = '".$_POST['value']."' WHERE  `id` = '".$_POST['row_id']."';";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+
+
+			// $this->responseClass->addMessage($query);
+		}
+		/**
+		 *	получаем окно примечания к вариантам
+		 *
+		 *	@author  	Алексей Капитонов
+		 *	@version 	16:11 15.01.2016
+		 */
+		protected function get_dop_men_text_save_AJAX(){
+			$query  = "SELECT * `".RT_DOP_DATA."` WHERE  `id` = '".$_POST['row_id']."';";
+			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+			
+
+			$variant = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$variant[] = $row;
+				}
+			}
+
+			$html = $this->print_arr($variant);
+
+			$this->responseClass->addMessage($html);
+		}
+
 
 		private function save_image_open_close_AJAX(){
 			$query = "UPDATE `".RT_MAIN_ROWS."` SET";

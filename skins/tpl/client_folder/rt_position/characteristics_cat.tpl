@@ -5,7 +5,7 @@
 										<div class="cell">
 											<div class="table">
 												<div class="row">
-													<div class="cell"><a target="_blank" href="<?php echo identify_supplier_href($articul['art']);  ?>">Артикул</a> <?=$link_of_the_site;?></div>
+													<div class="cell"><a target="_blank" href="<?php echo identify_supplier_href($this->position['art']);  ?>">Артикул</a> <?=$link_of_the_site;?></div>
 													<div class="cell"><?php echo $this->position['art']; ?></div>
 												</div>
 												<div class="row">
