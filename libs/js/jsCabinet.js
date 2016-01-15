@@ -1062,7 +1062,8 @@ $(document).on('click', '.attach_the_client', function(event) {
 	var rt_list_id = Number($(this).parent().attr('data-id'));
 	var obj = $(this).parent();
 	$.post('', {
-		AJAX:'get_a_list_of_clients_to_be_attached_to_the_request',
+		// AJAX:'get_a_list_of_clients_to_be_attached_to_the_request',
+		AJAX:'get_client_sherch_form',
 		client_id:client_id,
 		manager_id:manager_id,
 		rt_list_id:rt_list_id
@@ -1074,6 +1075,62 @@ $(document).on('click', '.attach_the_client', function(event) {
 	},'json');
 });
 
+
+
+// $(document).on('keydown','#js--window_client_sherch_form',function(event){
+//     if(event.keyCode == 13) {
+        
+//     }
+// });
+
+$(document).keydown(function(event) {
+	if(event.keyCode == 13) {
+		if( $("#js--window_client_sherch_form input").is(":focus") ){
+			event.preventDefault();
+	        search_and_show_client_list();
+	        return false;
+		}
+
+		// если открыто окно поиска клиентов
+		if($('#chose_client_tbl .checked').length>0){
+			
+			$('#chose_client_tbl').parent().parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset button').click();
+		}
+	}
+});
+
+
+
+
+//поиск по клиенту
+// $(document).on('keyup', '#js--window_client_sherch_form input', function(event) {
+// 	event.preventDefault();
+// 	search_and_show_client_list();
+// });
+
+
+function search_and_show_client_list(){
+	if($('#js--window_client_sherch_form input[name="client_name_search"]').val().length > 3 || ($('#js--window_client_sherch_form input[name="client_id"]').length > 0 && Number($('#js--window_client_sherch_form input[name="client_id"]').val()) > 0 )){
+		var serialize = $('#js--window_client_sherch_form').serialize();
+		$.post('', serialize
+			//{
+			// AJAX:$('#js--window_client_sherch_form input[name="AJAX"]').val(),
+			// client_id:$('#js--window_client_sherch_form input[name="client_id"]').val(),
+			// client_name_search:$(this).val()
+		//}
+		, function(data, textStatus, xhr) {
+			if(data['response'] == 'OK'){
+				if($('#chose_client_tbl').length > 0){
+					$('#chose_client_tbl').replaceWith(Base64.decode(data['html']));
+				}else{
+					$('#js--window_client_sherch_form').after(Base64.decode(data['html']))
+				}
+				
+			}				    		
+			standard_response_handler(data);
+		},'json');		
+	}
+}
 
 // отработка клика по таблице выбора менеджера для прикрепления к запросу
 $(document).on('click', '#chose_manager_tbl table tr td', function(event) {

@@ -380,37 +380,48 @@
 
 			// выводит форму со списоком клиентов для прикрепления к запросу 
 			protected function get_a_list_of_clients_to_be_attached_to_the_request_AJAX(){
+				// if( !isset($_POST['client_name_search']) || strlen($_POST['client_name_search']) < 3 ){
+				// 	get_client_sherch_form();
+				// }
 				$html = $this->get_form_attach_the_client('attach_client_to_request');
-				echo '{"response":"show_new_window","function":"scroll_width_checked_client","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
+				//echo '{"response":"show_new_window","function":"scroll_width_checked_client","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
+				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 				exit;
 			}
 
+			// возвращает строку поиска по клиентам
+			protected function get_client_sherch_form_AJAX(){
+				$html = '';
+				if(isset($_POST['AJAX'])){unset($_POST['AJAX']);}
+
+				$html .= '<form id="js--window_client_sherch_form">';
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
+				$html .= '<div class="quick_bar_tbl"><div class="search_div">
+                    <div class="search_cap">Поиск:</div>
+                    <div class="search_field">                    
+                        <input id="client_name_search" name="client_name_search" placeholder="поиск по клиенту" type="text" onclick="" value=""><div class="undo_btn"><a href="#" onclick="$(this).parent().prev().val(\'\');return false;">×</a></div></div>
+                    <div class="search_button" onclick="search_and_show_client_list();">&nbsp;</div>
+                    <div class="clear_div"></div>
+                </div></div>';
+				// $html .= '<input type="text" name="client_name_search">';
+				$html .= '<input type="hidden" name="AJAX" value="get_a_list_of_clients_to_be_attached_to_the_request">';
+				$html .= '<input type="hidden" name="client_id" value="'.$_POST['client_id'].'">';
+				$html .= '</form>';
+				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Поиск клиента","height":"300","width":"1000"}';
+				exit;
+			}
+
+			// возвращает список клиентов
 			private function get_form_attach_the_client($AJAX = 'test'){
 				global $mysqli;
 				$html ='';
-				// if($this->user_access == 1){
-					$query = "SELECT * FROM `".CLIENTS_TBL."`  ORDER BY `company` ";
-
-					// $html .=$query;
-					// времменно разрешаем видеть менам всех клиентов
-				// }else{
-
-				// 	/*
-				// 		2 запроса оказались быстрее, чем один составной !!!!
-				// 	*/
-				// 	$query = "SELECT `client_id` FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".$this->user_id."'";
-				// 	$result = $mysqli->query($query) or die($mysqli->error);				
-					
-				// 	$id_str = "'0'";
-				// 	if($result->num_rows > 0){
-				// 		while($row = $result->fetch_assoc()){
-				// 			$id_str .= ",'".$row['client_id']."'";
-				// 		}
-				// 	}
-				// 	// echo $query;
-				// 	$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id` IN (".$id_str.")";
-				// }
 				
+				$query = "SELECT * FROM `".CLIENTS_TBL."` WHERE `id`= '".(int)$_POST['client_id']."' ";
+				if(strlen(trim($_POST['client_name_search'])) > 3){
+					$query .= " OR `company` LIKE '%".trim($_POST['client_name_search'])."%' ORDER BY `company`";
+				}
 
 				// Запрос с сортировкой почему-то не хочет выводит ь некоторые компании
 				// к примеру не выводит компанию *Морской салон ЗАО  - id = 18
@@ -418,16 +429,30 @@
 				$result = $mysqli->query($query) or die($mysqli->error);				
 				$clients = array();
 				$clients[0]['id'] = 'new_client';
-				$clients[0]['company'] = 'НОВЫЙ КЛИЕНТ';
+				$clients[0]['company'] = '<strong>НОВЫЙ КЛИЕНТ</strong>';
+				if((int)$_POST['client_id'] > 0){
+					$clients[1]['id'] = '0';
+					$clients[1]['company'] = '';
+				}
+
+
 				if($result->num_rows > 0){
 					while($row = $result->fetch_assoc()){
-						$clients[] = $row;
+						
+						if($_POST['client_id'] != $row['id']){
+							$clients[] = $row;
+						}else{
+							$clients[1] = $row;
+						}
 					}
 				}
 
+
+
+
 				// $html .= '<br>'.count($clients);
 				$html .= '<form  id="chose_client_tbl">';
-				// $html .= $this->print_arr($clients);
+				
 				$html .='<table>';
 				$column = 3;
 				$num_client  = count($clients);
@@ -460,41 +485,7 @@
 
 				
 
-				// $html_row = '';
-				// $first_row = ''; 
-				// $f_r = 0;
-
-				// $count = count($clients);
-				// for ($i=0; $i <= $count; $i) {
-
-				// 	$row = '<tr>';
-				//     for ($j=1; $j<=3; $j++) {
-				//     	if(isset($clients[$i])){
-				// 	    	$checked = ($clients[$i]['id'] == $_POST['client_id'])?'class="checked"':'';
-				// 	    	$row .= '<td '.$checked.' data-id="'.$clients[$i]['id'].'" id="client_'.$clients[$i]['id'].'">'.$clients[$i]['company']."</td>";
-				//     		// если присутствует выбранный клиент, ставим флаг
-				//     		if($checked!=''){$f_r = 1;}	
-				//     	}else{
-				//     		$row .= "<td></td>";
-				//     	}			    	
-				//     	$i++;
-				//     	$this->i = $i;
-				//     }
-				//     $row .= '</tr>';
-
-				//     // если нам попалась строка с выбранным клиентом, запоминаем её и не добавляем в Html...
-				//     // добавим её в начало таблицы позже
-				//     if($f_r==1){
-				//     	$first_row .= $row; $f_r = 0;
-				//     }else{
-				//     	$html_row .= $row;
-				//     }
-				// }
-
-				// // помещаем выбранного клиента в начало таблицы
-				// $html .= $first_row.$html_row;
-
-				// $html .= '</table>';
+				$html .= '</table>';
 				$html .= '<input type="hidden" value="'.$AJAX.'" name="AJAX">';
 				// $html .= '<input type="hidden" value="" name="manager_id">';
 				if(isset($_POST)){
