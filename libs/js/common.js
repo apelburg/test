@@ -2471,13 +2471,45 @@
 				}
 			});	
 	}
+	// окно примечания к варианту
 	$(document).on('click', '.comment_div', function(event) {
 		event.preventDefault();
-		var href = $(this).parent().parent().find('.pos_plank a').attr('href');
+		var href = $(this).attr('data-href');
+
 		$.post(href, {
 			href: href,
-			AJAX: 'get_dop_men_text_save'
+			AJAX: 'get_dop_men_text_save',
+			row_id: $(this).attr('data-id')
 		}, function(data, textStatus, xhr) {
 			standard_response_handler(data);
 		},'json');
 	});
+
+	// сохраняем информацию из поля примечаний с задержкой
+	$(document).on('keyup', '.dop_men_text textarea,#dop_men_text textarea', function(event) {
+	   timing_save_input('dop_men_text_save',$(this));
+	});
+
+	// сохраняем информацию из поля примечаний
+	function dop_men_text_save(obj){
+
+	  var row_id = obj.attr('data-id');
+	  var href = '';
+	  if(obj.attr('data-href') != ''){
+	  	href = obj.attr('data-href');
+	  }
+	  $.post(href, {
+	      AJAX:'dop_men_text_save',
+	      row_id:row_id,
+	      value:Base64.encode(obj.val())
+	  }, function(data, textStatus, xhr) {
+	      standard_response_handler(data);
+	      if(data['response']=="OK"){
+	          // php возвращает json в виде {"response":"OK"}
+	          // если ответ OK - снимаем класс saved
+	          obj.removeClass('saved');
+	      }else{
+	          console.log('Данные не были сохранены.');
+	      }
+	  },'json');
+	}

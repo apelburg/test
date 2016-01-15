@@ -60,13 +60,17 @@
     width: 21px;
     height: 19px;
     left: 0;
-    top: 7px;
+    top: 9px;
     left: 33px;
     background-repeat: no-repeat;
     background-position-y: 2px;
     cursor: pointer;
     border: 1px solid #f1f1f1;
 }
+#scrolled_part_container .lowest_row_in_pos td.svetofor .comment_div{
+  top: 7px;
+}
+
 
 .svetofor_plank{
   z-index: 5;
