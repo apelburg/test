@@ -41,7 +41,6 @@
 // echo $POSITION->user_access;
 ?>
 
-
 <div id="order_art_edit">
 	<div id="info_string_on_query">
 		<ul>
@@ -51,6 +50,8 @@
 			<li id="claim_date"><span>от <?=$POSITION->position['date_create'];?></span></li>
 			<li id="status_art_z">
 				<div>Статус <span><?=$POSITION->queryStatus?></span></div>
+                <!-- скрытое поле содержащее данные о уровне цен в калькуляторе -->
+                <input type="hidden" id="calcLevelStorage" value="<?php  echo ($POSITION->position['calculator_level'] !='')?$POSITION->position['calculator_level']:'full'; ?>">
 			</li>
 			
 			<li id="query_theme_block"><span>Тема:</span> <input id="query_theme_input" class="query_theme" data-id="<?=$POSITION->position['RT_LIST_ID'];?>" type="text" value="<?=$POSITION->position['theme']?>" onclick="fff(this,'Введите тему');"></li>
