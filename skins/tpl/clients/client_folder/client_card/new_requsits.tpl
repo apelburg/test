@@ -97,7 +97,7 @@ input:hover,textarea:hover,textarea:focus, input:focus{
     <td width="10%"></td>
     <td width="23%">
        <input id="form_data_company" type="text" name="company" placeholder="название компании" value="">
-       <input id="form_data_company" type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+       <input id="form_data_company" type="hidden" name="client_id" value="<?=$_GET['client_id']?>">
        <input type="hidden" name="requesit_id" value="">
        <input type="hidden" name="form_data[phone2]" value="">
        <input type="hidden" name="form_data[phone1]" value="">

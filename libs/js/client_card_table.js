@@ -655,6 +655,7 @@ $(document).on('click','#client_delete',function(){
     $('#client_delete_div').dialog('option','id',$(this).attr('data-id'));
     $('#client_delete_div').dialog('open');
 });
+
 $(function(){
     $('#client_delete_div').dialog({
         width: 500,
@@ -665,23 +666,17 @@ $(function(){
             {
             text: 'Продолжить',
                 click: function() {
-                    if($('#client_delete_div textarea').val().length>15){
-                    var send = $('#client_delete_div form').serialize();
-                    var id = $(this).dialog('option', 'id')
-                    $.post('', send, function(data, textStatus, xhr) {
-                        if(data['response']=='1'){
-                            // all Okey
-                            window.location = "http://"+location.hostname+"/os/?page=clients&section=clients_list";                    
-                        }else{
-                            $('#delete_cont_f_row'+id).removeAttr('id');
-                            new_html_modal_window_new('Что-то пошло не так, запомните свои действия и опишите их в письме к разработчикам.<br>'+ data,'Предупреждение об ошибке','','', '', '');
-                         }
-                    }, "json");
+                    //if($('#client_delete_div textarea').val().length>15){
+                        var send = $('#client_delete_div form').serialize();
+                        var id = $(this).dialog('option', 'id')
+                        $.post('', send, function(data, textStatus, xhr) {
+                            standard_response_handler(data);
+                        }, "json");
 
-                    $( this ).dialog( "close" );
-                }else{
-                    alert("Пожалуйста напишите хотя бы несколько строк о причине вашего отказа от данного клиента");
-                }
+                        $( this ).dialog( "close" );
+                    // }else{
+                    //     alert("Пожалуйста напишите хотя бы несколько строк о причине вашего отказа от данного клиента");
+                    // }
                 }
             },
             {

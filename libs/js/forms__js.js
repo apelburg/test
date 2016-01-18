@@ -159,8 +159,9 @@
 			    text: 'Закрыть',
 			    click: function() {
 					// подчищаем за собой
-					$('#dialog_gen_window_form_'+window_num+'').html('');
-					$('#dialog_gen_window_form_'+window_num+'').dialog( "destroy" );
+					$( this ).dialog( "close" ).dialog( "destroy" );
+					$('#dialog_gen_window_form_'+window_num+'').remove();
+					// $('#dialog_gen_window_form_'+window_num+'').dialog( "destroy" );
 			    }
 			});			
 

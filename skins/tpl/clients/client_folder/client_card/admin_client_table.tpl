@@ -1,10 +1,23 @@
 <script type="text/javascript" src="libs/js/client_card_table.js"></script>
 <script type="text/javascript" src="libs/js/rate_client.js"></script>
 <link href="./skins/css/client_card.css" rel="stylesheet" type="text/css">
+<style type="text/css"
+>#requisits_button {
+    display: block;
+    float: right;
+    padding: 3px 10px 2px 10px;
+    background-color: #F3F5F5;
+    border: 1px solid #D0D7D8;
+    position: absolute;
+    right: 50%;
+    margin-right: 20px;
+    cursor: default;
+}</style>
 <div class="client_table">
 	<table class="client_table_gen">
     	<tr>            
         	<td>
+                <div id="requisits_button">Реквизиты</div>
             	<table class="edit_general_info" id="edit_general_info">
                 	<tr>
                     	<td>Название</td>
