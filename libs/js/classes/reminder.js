@@ -158,7 +158,15 @@ $(document).on('click', '.leter_div', function(event) {
 
 var warning_messages;
 function get_ui_window(){
-  if($('#num_window_yet').length==0){$('body').append('<div id="num_window_yet" data-window_num="1" style="position: fixed;bottom: 0px;right: 35px;color: red;background: #fff;padding: 6px 6px 6px 6px;border: 1px solid;border-color: #D3BABA;"></div>')}
+  // убиваем старые окна
+  if($('.reminder_win').length){
+    $('.reminder_win').remove();
+    $('.dialog_window_minimized ').remove();
+    $('.dialog_window').remove();
+  }
+  if($('#num_window_yet').length==0){
+    $('body').append('<div id="num_window_yet" data-window_num="1" style="position: fixed;bottom: 0px;right: 35px;color: red;background: #fff;padding: 6px 6px 6px 6px;border: 1px solid;border-color: #D3BABA;"></div>');
+  }
   
   var col1 = 0;
   var col = 0;

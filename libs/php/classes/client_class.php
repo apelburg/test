@@ -612,21 +612,76 @@ class Client extends aplStdAJAXMethod{
 			$outer = Client::delete_for_manager($_POST['id'], $this->user_id);
 			if ($outer == '1') {
 				$client_id = $_GET['client_id'];
-			    $client_name_i = Client::get_client_name($client_id); // получаем название клиента
-			    $text = (isset($_POST['text']))?'Куратор '.$this->user_name.' '. $this->user_last_name.' отказался от клиента '.$client_name_i.'. Причина: '.$_POST['text']:'Куратор '.$this->user_name.' '. $this->user_last_name.' отказался от клиента не указав причину.';
+
+				$Client = Client::get_client_informationDatabase($client_id);
+
+			    $client_name_i = $Client['company']; // получаем название клиента
+			    
+			    // сообщение об отказе от клиента
+			    $text = '';
+			    $clien_href = '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=clients&section=client_folder&subsection=client_card_table&client_id='.$Client['id'].'">'.$client_name_i.'</a>';
+			    if(isset($_POST['text'])){
+			    	$text .= 'Куратор '.$this->user_name.' '. $this->user_last_name.' отказался от клиента '.$clien_href.'. ';
+			    	$text .= '<br>Причина: '.$_POST['text']; 
+			    }else{
+			    	$text .= 'Куратор '.$this->user_name.' '. $this->user_last_name.' отказался от клиента '.$clien_href.' не указав причину.';
+			    }
+
 			    Client::history($this->user_id, $text ,'rejection_of_the_client',$_GET['client_id']);
-			    echo '{
-			       "response":"1",
-			       "text":"Данные успешно удалены"
-			      	}';
+			    
+
+			    // сообщение
+		        $message = 'Вы успешно откреплены от клиента. Спасибо.<br>';
+		        $message .= $outer;
+				$this->responseClass->addMessage($message,'successful_message');	
+
+				// echo "test";
+				// JS function
+				$options['href'] = '?page=clients&section=clients_list';
+				$this->responseClass->addResponseFunction('location_href',$options);
+			    
+			    include_once('mail_class.php');
+			    $mailClass = new Mail;
+			    // $mailClass->add_bcc('kapitonoval2012@gmail.com');
+				// $mailClass->send('kapitonoval2012@gmail.com','os@apelburg.ru','Отказ от клиента',$text);		
+				$mailClass->send('ab@apelburg.ru','os@apelburg.ru','Отказ от клиента',$text);		
 			} 
 			else {
-			    echo '{
-			       "response":"0",
-			       "text":"Что-то пошло не так."
-			      	}';
+			   	// сообщение
+		        $message = 'Нет смысла отказываться от клиента, куратором которого вы не являетесь.';
+				$this->responseClass->addMessage($message,'error_message');
+
 			}
-			exit;
+			
+		}
+
+		// открепление от клиента
+		static function delete_for_manager($client_id,$manager_id){
+			global $mysqli;
+			$query = "SELECT * FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".(int)$client_id."'";
+			// echo $query;
+			$result = $mysqli->query($query) or die($mysqli->error);
+			$relate_managers = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$relate_managers[$row['manager_id']] = $row;
+				}
+			}
+				
+			// если менеджер не прикреплён
+			if(!isset($relate_managers[$manager_id])){
+				return 0;
+			}
+
+			// если прикреплён ещё кто-то
+			if(count($relate_managers) > 1){
+				$query = "DELETE FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `manager_id` = '".(int)$manager_id."';";
+			}else{
+				// открепить менеджера от клиента в пользу юзера для раздачи	
+				$query ="UPDATE  `".RELATE_CLIENT_MANAGER_TBL."` SET  `manager_id` =  '61' WHERE `client_id` = '".(int)$client_id."' AND `manager_id` = '".(int)$manager_id."';";	
+			}		
+			$result = $mysqli->multi_query($query) or die($mysqli->error);	
+			return 1;
 		}
 			    
 		protected function update_requisites_AJAX() {
@@ -1927,13 +1982,7 @@ class Client extends aplStdAJAXMethod{
 		return $name;
 	}
 
-	static function delete_for_manager($client_id,$manager_id){
-		global $mysqli;
-		// открепить менеджера от клиента в пользу юзера для раздачи	
-		$query ="UPDATE  `".RELATE_CLIENT_MANAGER_TBL."` SET  `manager_id` =  '61' WHERE `client_id` = '".(int)$client_id."' AND `manager_id` = '".(int)$manager_id."';";	
-		$result = $mysqli->multi_query($query) or die($mysqli->error);	
-		return 1;
-	}
+	
 
 	static function remove_curator($client_id,$manager_id){
 		global $mysqli;
