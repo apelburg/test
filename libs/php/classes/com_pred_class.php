@@ -920,18 +920,44 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 						$counter2 = 0;
 						
 						foreach($r_level['dop_uslugi']['print'] as $u_key => $u_level){
-						    // echo  '<pre>'; print_r($u_level); echo '</pre>';  //
+						   
+							
 						    if($u_level['print_details']=='') continue;
 							$print_details_obj = json_decode($u_level['print_details']);
 							if($print_details_obj == NULL) continue;
 							$print_details_arr = json_decode($u_level['print_details'],TRUE);
+							
+							if(isset($print_details_arr['dop_params']['sizes'])){
+							    if($print_details_arr['dop_params']['sizes'][0]['type'] == 'coeff'){
+								    $size_coeff = (isset($print_details_arr['dop_params']['sizes'][0]['val']) && $print_details_arr['dop_params']['sizes'][0]['val']!=0)?$print_details_arr['dop_params']['sizes'][0]['val']: 1 ;
+								}
+								if($print_details_arr['dop_params']['sizes'][0]['type'] == 'addition'){
+								    $size_coeff = (isset($print_details_arr['dop_params']['sizes'][0]['val']))?$print_details_arr['dop_params']['sizes'][0]['val']: 0 ;
+									$size_coeff =($print_details_arr['dop_params']['sizes'][0]['target']=='summ')?round($size_coeff/$quantity,2):$size_coeff;
+								}
+							}
+							else $size_coeff = false;
+
+							
+							
+							if(@$_SESSION['access']['user_id']==18){ 
+							   // echo  '<pre>'; print_r($u_level); echo '</pre>'; 
+								echo  '<pre>'; print_r($print_details_arr); echo '</pre>'; 
+								//echo '<hr>';
+							} 
+							
+							
+							
 							$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
 							// расчет стоимости нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 							$new_price_arr = rtCalculators::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 							// echo  '<pre>'; print_r($new_price_arr); echo '</pre>';  //
-
+                            if(@$_SESSION['access']['user_id']==18){ 
+							    echo  '<pre>'; print_r($calculations); echo '</pre>';
+								echo '<hr>';
+							}
 							// наименование нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 							$print_data = printCalculator::convert_print_details_for_kp($u_level['print_details']);
@@ -952,25 +978,31 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 							}
 							if(isset($print_data['block1']['print_size'])){
 							     $print_block[] = '<tr><td valign="top">Площадь печати: </td><td>'.$print_data['block1']['print_size'].'</td></tr>'; 
-								
-							    $size_coeff = (isset( $print_details_arr['dop_params']['sizes']))?((isset($print_details_arr['dop_params']['sizes'][0]['val']) && $print_details_arr['dop_params']['sizes'][0]['val']!=0)?$print_details_arr['dop_params']['sizes'][0]['val']: 1 ):1;
 								//echo  '<pre>--2--'; print_r($print_details_arr['dop_params']); echo '</pre>';
 							}
 							$print_block[] = '</table>';
 							
 							
 							if($display_setting_2==0){ // вариант 1
-							   
-							    // нужно умножить цену на коэфф печати 
-								$size_coeff = (isset($size_coeff))?$size_coeff:1;
-								$print_block_price = $new_price_arr['price_out']*$size_coeff;
+							    // коэффициент площади
+								if($size_coeff!==false){
+									if($print_details_arr['dop_params']['sizes'][0]['type'] == 'coeff'){
+									    
+										$print_block_price = $new_price_arr['price_out']*$size_coeff;
+									}
+									if($print_details_arr['dop_params']['sizes'][0]['type'] == 'addition'){
+										$print_block_price = $new_price_arr['price_out']+$size_coeff;
+										 
+									}
+								}
+								
 								// добавить коэфф цвета если есть
 								if(isset($y_params_count) && $y_params_count>0){
 								    $y_params_coeff = (isset($y_params_coeff))?$y_params_coeff:1;
 								    $print_block_price += ($new_price_arr['price_out']/$y_params_count)*$y_params_coeff;
 								}
 								$print_block_summ = $quantity*$print_block_price;
-								
+								 if(@$_SESSION['access']['user_id']==18){ echo $new_price_arr['price_out'].'<br>'; echo $size_coeff.'<br>'; echo $print_block_summ.'<br>'; echo $quantity.'<br>'; echo $print_block_price.'<br>';echo $quantity*$print_block_price.'<br>';}
 								
 								$all_print_summ+=$calculations['new_summs']['summ_out'];
 							    $itogo_print_uslugi += $print_block_summ;
@@ -998,9 +1030,20 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 							
 							//////////////////////////////////////////////////////////////////////////////
 					        //////////////////////////////////////////////////////////////////////////////
-							// нужно умножить цену на коэфф печати 
-							$size_coeff = (isset($size_coeff))?$size_coeff:1;
-							$print_block_price1 = $new_price_arr['price_out']*$size_coeff;
+							// коэффициент площади
+							if($size_coeff!==false){
+								if($print_details_arr['dop_params']['sizes'][0]['type'] == 'coeff'){
+									$print_block_price1 = $new_price_arr['price_out']*$size_coeff;
+								}
+								if($print_details_arr['dop_params']['sizes'][0]['type'] == 'addition'){
+									$print_block_price1 = $new_price_arr['price_out']+$size_coeff;
+									 
+								}
+							}
+								
+							//$size_coeff = (isset($size_coeff))?$size_coeff:1;
+							//$print_block_price1 = $new_price_arr['price_out']*$size_coeff;
+							
 							// добавить коэфф цвета если есть
 							if(isset($y_params_count) && $y_params_count>0){
 								$y_params_coeff = (isset($y_params_coeff))?$y_params_coeff:1;

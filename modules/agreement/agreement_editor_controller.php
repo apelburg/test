@@ -2,10 +2,16 @@
 
     //print_r($_GET); // exit;
 	
+	/*if(@$_SESSION['access']['user_id']==18){ 
+		echo  '111'; 
+	} */
+	
 	// ПРЕДПОЛАГАЕМ ЧТО ЕСЛИ НЕ БЫЛ ПЕРЕДАН ПАРАМЕТР  $_GET['dateDataObj'] ТО ЭТО ССЫЛКА НА СПЕЦИФИКАЦИЮ
 	// НАДО ПЕРЕДЕЛАТЬ ССЫЛКИ В СПИСКЕ
 	if(isset($_GET['dateDataObj'])) $dateDataObj = json_decode($_GET['dateDataObj']);
-	else $dateDataObj->doc_type = 'spec';
+	else  $dateDataObj = json_decode('{"doc_type":"spec"}');
+
+
 
     include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
@@ -167,6 +173,7 @@
             print_r($specifications_arr);
 			echo '</pre>';
 			*/
+			
 			$specifications = '';
 
 			// строим вывод спецификации(ий)
@@ -176,7 +183,7 @@
 				// echo '<pre>';print_r($val);echo '</pre>';
 				
 				$table_data = Agreement::build_specification_tbl($dateDataObj->doc_type,$val);
-				
+						
 				$date_arr = explode('-',$val[0]['date']);
 				$specification_date =$date_arr[2].' '.$month_day_name_arr[(int)$date_arr[1]].' '.$date_arr[0] .' г.';	
 
