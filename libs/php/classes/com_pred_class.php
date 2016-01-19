@@ -1,5 +1,9 @@
 <?php 
 
+  /*if(@$_SESSION['access']['user_id']==18){ 
+		echo  '111'; 
+  } */
+
  class Com_pred{
         static function save_to_tbl($json){
 		   global $mysqli;
@@ -159,6 +163,7 @@
 									   `price_out` = '".$row3['price_out']."',
 									   `discount` = '".$row3['discount']."',
 									   `details` = '".$details."',
+									   `dop_men_text_details` = '".$row['id']."|".$dop_key."',
 									   `tirage_str` = '".Com_pred::convertTirageJSON($row3['tirage_json'])."' 
 									  ";
 		 			       $result4 = $mysqli->query($query4)or die($mysqli->error);
@@ -312,7 +317,7 @@
 		   $query = "SELECT list_tbl.recipient_id AS recipient_id ,list_tbl.display_setting AS display_setting ,list_tbl.display_setting_2 AS display_setting_2, main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.characteristics AS characteristics, main_tbl.description AS description, main_tbl.img_folder AS img_folder, main_tbl.img AS img,	
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
-dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, 		  
+dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data_tbl.dop_men_text_details AS dop_men_text_details,		  
 						  dop_uslugi_tbl.id AS uslugi_id ,dop_uslugi_tbl.uslugi_id AS dop_usluga_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.for_how AS for_how, dop_uslugi_tbl.print_details AS print_details
 		          FROM
@@ -354,6 +359,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 																	'shipping_time' => $row['shipping_time'],
 																	'tirage_str' => $row['tirage_str'],
 																	'details' => $row['details'],
+																	'dop_men_text_details' => $row['dop_men_text_details'],
 																	'quantity' => $row['dop_t_quantity'],
 																	'discount' => $row['dop_t_discount'],
 																	'price_in' => $row['dop_t_price_in'],
@@ -472,6 +478,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 	   }
 	   static function open_in_tbl($kp_id){
 	       $arr=self::fetch_kp_rows($kp_id);
+		  
            //echo '<pre>';print_r($arr);echo '</pre>';
 		   //exit;	
 
@@ -591,6 +598,8 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 					 $expel_class_main = ($expel['main']=='1')?' red_cell':'';
 					 $expel_class_print = ($expel['print']=='1')?' red_cell':'';
 					 $expel_class_dop = ($expel['dop']=='1')?' red_cell':'';
+					 
+					 $men_text_details_arr  = explode('|',$dop_row['dop_men_text_details']); 
 					
 				}
 				else{
@@ -617,18 +626,13 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 								 </div>
 								 <div>'.$row['name'].'</div>';
 			 }
-			 if($row['row_type'] == 'ext'){
-				 $extra_panel = '<div class="pos_plank ext">
-								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
-								 </div>';
-			 }
-			 if($row['row_type'] == 'pol'){
-				 $extra_panel = '<div class="pos_plank pol">
+			 else{
+			     $extra_panel = '<div class="pos_plank pol">
 								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['name'].'</a>
 								 </div>';
 			 }
 				 
-				 
+			 
 				 
 			 $cur_row  =  '';
 		     $cur_row .=  '<tr '.(($counter==0)?'pos_id="'.$key.'" type="'.$row['row_type'].'"':'').' row_id="'.$dop_key.'" art_id="'.$row['art_id'].'" class="'.(($key>1 && $counter==0)?'pos_edge ':'').(((count($row['dop_data'])-1)==$counter)?'lowest_row_in_pos ':'').'">';
@@ -637,7 +641,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$dop_key.'</td>':'';
 		     $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" class="hidden">'.$row['row_type'].'</td>':'';
 			 $cur_row .=  ($counter==0)? '<td rowspan="'.$row_span.'" width="270" type="name" class="top">'.$extra_panel.'</td>':'';
-			 $cur_row .=  '<td class="hidden"></td>
+			 $cur_row .=  '<td width="30" style="position:relative;"><div class="comment_div" data-href="?page=client_folder&section=rt_position&id='.$men_text_details_arr[0].'&client_id='.$_GET['client_id'].'" data-id="'.$men_text_details_arr[1].'"></div></td>
 			               <td width="60" class="right">'.$dop_row['quantity'].'</td>
 						   <td width="20" class="r_border left quantity_dim">'.$quantity_dim.'</td>
 						   <td width="90" type="price_in" connected_vals="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
@@ -683,7 +687,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
 				  <td width="270" class="right"></td>
-				  <td class="hidden">draft</td>
+				  <td width="30"></td>
 				  <td width="60" class="right">тираж</td>
 				  <td width="20" class="r_border"></td>
 				  <td width="90" connected_vals="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br /><span class="small">входящая штука</span></td>
@@ -718,6 +722,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 	              <td class="hidden"></td>
 				  <td class="hidden"></td>
 				  <td class="hidden"></td>
+				  <td></td>
 				  <td class="right"></td>
 				  <td></td>
 				  <td width="20" class="r_border"></td>
@@ -937,14 +942,6 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 								}
 							}
 							else $size_coeff = false;
-
-							
-							
-							if(@$_SESSION['access']['user_id']==18){ 
-							   // echo  '<pre>'; print_r($u_level); echo '</pre>'; 
-								echo  '<pre>'; print_r($print_details_arr); echo '</pre>'; 
-								//echo '<hr>';
-							} 
 							
 							
 							
@@ -954,10 +951,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 							$new_price_arr = rtCalculators::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 							// echo  '<pre>'; print_r($new_price_arr); echo '</pre>';  //
-                            if(@$_SESSION['access']['user_id']==18){ 
-							    echo  '<pre>'; print_r($calculations); echo '</pre>';
-								echo '<hr>';
-							}
+                          
 							// наименование нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 							$print_data = printCalculator::convert_print_details_for_kp($u_level['print_details']);
@@ -1002,8 +996,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str,
 								    $print_block_price += ($new_price_arr['price_out']/$y_params_count)*$y_params_coeff;
 								}
 								$print_block_summ = $quantity*$print_block_price;
-								 if(@$_SESSION['access']['user_id']==18){ echo $new_price_arr['price_out'].'<br>'; echo $size_coeff.'<br>'; echo $print_block_summ.'<br>'; echo $quantity.'<br>'; echo $print_block_price.'<br>';echo $quantity*$print_block_price.'<br>';}
-								
+								 
 								$all_print_summ+=$calculations['new_summs']['summ_out'];
 							    $itogo_print_uslugi += $print_block_summ;
 								$itogo_extra_uslugi += $calculations['new_summs']['summ_out'] - $print_block_summ;

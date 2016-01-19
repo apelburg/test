@@ -1,5 +1,6 @@
 <!-- begin skins/tpl/admin/price_manager/show.tpl --> 
 <script>
+
 function addRowsToTbl(idPart,settings){
    // если нужно вствить копию предпоследнего ряда
    //alert(idPart);
@@ -9,7 +10,6 @@ function addRowsToTbl(idPart,settings){
    addSomeRowsToTbl(tbl,rowsNum,settings);
   // alert(lastRow);
 }
-
 function addSomeRowsToTbl(tbl,num,settings){
    var rows = tbl.getElementsByTagName('TR');
    var preLastRow = rows[rows.length-2];
