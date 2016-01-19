@@ -17,8 +17,15 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 	 *	@version 	07.12.2015 13:45
 	 */
  	class rtKpGallery extends aplStdAJAXMethod{
+ 		private $user_access = 0;
+
  		function __construct(){
 			parent::__construct();
+			
+			if(isset($_SESSION['access']['access']) && $_SESSION['access']['access'] > 0 ){
+				$this->user_access = $_SESSION['access']['access'];
+			}
+
 			// подключаемся к базе
 			$this->db();
  		}
@@ -47,15 +54,36 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 						$this->responseClass->addMessage($html,'error_message');
 	 					return;
 	 				}
+
+	 			// удаление загруженных файлов
 	 			if(isset($_POST['data']['delete_img']) && trim($_POST['data']['delete_img']) != ''){
-	 			// 	$html = 'Присутствуют изображения на удаление';	
+	 				// 	$html = 'Присутствуют изображения на удаление';	
 					// $this->responseClass->addMessage($html,'error_message');
 	 				$img_arr = explode(",", $_POST['data']['delete_img']);
 	 				foreach ($img_arr as $key => $value) {
-	 					$file = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$_POST['data']['delete_img_width_folder'].'/'.$value;
-	 					unlink($file);
+	 					$dir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$_POST['data']['delete_img_width_folder'].'/';
+	 					// полный путь к файлу 
+	 					$filename = $dir.''.$value;
+	 					
+	 					// если файл существует
+						if (file_exists($filename)) {
+							// удаляем файл
+							   unlink($filename);
+						}	 					
 	 				}
-					// $this->deleteImages($_POST['data']['delete_img_width_folder'], $_POST['data']['delete_img']);
+					
+					// если папка пуста - удаляем её
+					// if(rmdir($dir)){
+					// 	if($this->user_access){
+					// 		$html = 'Т.к. изображений во временной папке не осталось, папка была удалена.';	
+					// 		$this->responseClass->addMessage($html,'error_message');	
+					// 	}	
+						// // на всякий случай сохраняем папку
+						// if($_POST['data']['folder_name'] != 'img' && trim($_POST['data']['folder_name']) != ''){
+						// 	$_POST['data']['folder_name'] = 'img';					
+						// }	
+						// $_POST['data']['folder_name'] = 'img';					
+					// }
 	 			}
  				
  				// сохраняем значение в базе
@@ -69,7 +97,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				$result = $this->mysqli->query($query) or die($this->mysqli->error);
 				$html = 'OK';	
 				$this->responseClass->addMessage($html,'successful_message','25000');
-				$this->responseClass->addResponseFunction('window_reload');
+				// $this->responseClass->addResponseFunction('window_reload');
 				return;
  			}
  			// НА УДАЛЕНИЕ 16:05 22.12.2015
@@ -200,7 +228,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				//////////////////////////
 					$img_art_arr = $this->getImagesForArt($rt_main_row['art']);
 					$upload_dir = $_SERVER['DOCUMENT_ROOT'].'/img/';
-					$global_link_dir = 'http://www.apelburg.ru/img/';
+					$global_link_dir = 'http://'.$_SERVER['HTTP_HOST'].'/img/';
 					foreach ($img_art_arr as $key => $img_name) {
 						$class_li = '';
 						$path = $global_link_dir.$img_name; // собираем путь
@@ -317,7 +345,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				return is_dir($_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder.'/');
 			}
 			// создание новой папки
-			protected function greateNewDir($rt_id_row){
+			protected function greateNewDir($rt_main_row_id){
 				$dirName_1 = md5(time());
 				
 				$dirName = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$dirName_1.'/';
@@ -330,7 +358,7 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 					global $mysqli; // пишем её название в базу
 					$query = "UPDATE `".RT_MAIN_ROWS."` SET";
 					$query .=" img_folder = '".$dirName_1."'";
-					$query .=" WHERE `id` = ".$rt_id_row.";";
+					$query .=" WHERE `id` = ".$rt_main_row_id.";";
 					$result = $mysqli->query($query) or die($mysqli->error);
 				}
 				return $dirName_1;
@@ -361,9 +389,12 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				if($folder_name == '' || !$this->checkFolderExist($folder_name)){
 					// создаем новую папку
 					$folder_name = $this->greateNewDir($_POST['id']);
-					$html = 'Создана новая папка';
-					$this->responseClass->addMessage($html,'system_message',25000);
+					if( $this->user_access ){
+						$html = 'Создана новая папка';
+						$this->responseClass->addMessage($html,'system_message',25000);
+					}					
 				}
+
 				$win_DIV_ID = 'rt-gallery-DIV_'.$folder_name;
 				$id = 'file_upload_'.md5(time());
 				$html = '';

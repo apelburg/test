@@ -118,7 +118,7 @@
 							   `name` = '".$row['name']."',
 							   `description` = '".$row['description']."',
 							   `characteristics` = '".mysql_real_escape_string($characteristics)."',
-							   `img_folder` = '".$row['img_folder']."',
+							   `img_folder` = '".(($row['img_type'] == 'g_std')?'img':$row['img_folder'])."',
 							   `img` = '".$row['img_folder_choosen_img']."' 
 							  ";
 				   $result2 = $mysqli->query($query2)or die($mysqli->error);

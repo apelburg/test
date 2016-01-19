@@ -123,8 +123,10 @@
 			if(method_exists($this, $method_template)){
 				$this->$method_template();				
 			}else{
-				// обработка ответа о неправильном адресе
-				$this->response_to_the_wrong_address($method_template);	
+				header( 'Location: http://'.$_SERVER['HTTP_HOST'].'/'.get_worked_link_href_for_cabinet());
+				// exit;
+				// // обработка ответа о неправильном адресе
+				// $this->response_to_the_wrong_address($method_template);	
 			}
 		}
 

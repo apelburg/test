@@ -14,7 +14,7 @@
                 }
             ?>
             <div class="container">
-                <a href="?page=clients&amp;section=client_folder&amp;subsection=client_card_table&amp;client_id=<?php echo $_GET['client_id']; ?>" target="_blank">  
+                <a href="?page=clients&amp;section=client_folder&amp;subsection=client_card_table&amp;client_id=<?php echo $_GET['client_id']; ?>">  
                         <?php echo $company_name; ?></a>
             </div>
         </td>
