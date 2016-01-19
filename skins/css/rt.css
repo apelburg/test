@@ -53,7 +53,7 @@
 #scrolled_part_container td.quantity.right.r_border {
     position: relative;
 }
-#scrolled_part_container td.svetofor .comment_div {
+.rt_tbl_body .comment_div {
     background: url(../../skins/images/img_design/rt_comment_icon.png);
         z-index: 4;
     position: absolute;
@@ -67,7 +67,7 @@
     cursor: pointer;
     border: 1px solid #f1f1f1;
 }
-#scrolled_part_container .lowest_row_in_pos td.svetofor .comment_div{
+.rt_tbl_body .comment_div{
   top: 7px;
 }
 
