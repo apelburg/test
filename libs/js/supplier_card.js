@@ -1215,3 +1215,13 @@ $(function(){
        ]
     });
 });
+    // поиск клиентов по клику на enter
+    $(document).keydown(function(event) {
+        if(event.keyCode == 13) {
+            if( $("#search_query").is(":focus") ){
+                event.preventDefault();
+                $("#search_query").parent().next().click();
+                return false;
+            }           
+        }
+    });

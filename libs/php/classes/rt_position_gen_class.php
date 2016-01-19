@@ -2,22 +2,22 @@
 
 class Position_general_Class{
 	// тип продукта
-	private $type_product;
+	protected $type_product;
 
 	// id юзера
-	private $user_id;
+	protected $user_id;
 
 	// допуски пользователя
-	private $user_access;
+	protected $user_access;
 
 	// права на редактирование поля определяются внутри 
 	// некоторых функций 
-	private $edit_admin;
-	private $edit_men;
-	private $edit_snab;
+	protected $edit_admin;
+	protected $edit_men;
+	protected $edit_snab;
 
 	// id позиции
-	private $id_position;
+	protected $id_position;
 
 	// экземпляр класса форм
 	public $FORM;
@@ -29,7 +29,7 @@ class Position_general_Class{
 	
 	function __construct(){
 		$this->user_id = $_SESSION['access']['user_id'];
-
+		
 		$this->user_access = $this->get_user_access_Database_Int($this->user_id);
 
 		$this->id_position = isset($_GET['id'])?$_GET['id']:0;
@@ -45,6 +45,7 @@ class Position_general_Class{
 
 		// обработчик AJAX через ключ AJAX
 		if(isset($_POST['AJAX'])){
+			echo 'testovaya zapis - '.$this->user_id.' - ';
 			$this->_AJAX_();
 		}
 	}
@@ -201,14 +202,17 @@ class Position_general_Class{
 		$options['name'] = 'add_uslugu'.$dop;
 		$options['parent_id'] = $usluga['parent_id'];
 		$options['html'] = $html;
+
+		// $message = $this->user_id;
+		// $this->responseClass->addMessage($message);
 		// AJAX options prepare
 		$this->responseClass->addResponseFunction('window_reload',$options);
-		echo '{"response":"close_window",
-		"function":"window_reload",
-		"name":"add_uslugu'.$dop.'",
-		"parent_id":"'.$usluga['parent_id'].'",
-		"html":"'.base64_encode($html).'"}';
-		exit;
+		// echo '{"response":"close_window",
+		// "function":"window_reload",
+		// "name":"add_uslugu'.$dop.'",
+		// "parent_id":"'.$usluga['parent_id'].'",
+		// "html":"'.base64_encode($html).'"}';
+		// exit;
 	}
 
 	// сохранение информации по резерву
@@ -228,7 +232,6 @@ class Position_general_Class{
 
 	protected function get_uslugi_list_Database_Html_AJAX(){
 		// получение формы выбора услуги
-		if($_POST['AJAX']=="get_uslugi_list_Database_Html"){
 			$html = '<form>';
 			$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
 			$html .= $this->get_uslugi_list_Database_Html();
@@ -240,8 +243,10 @@ class Position_general_Class{
 			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
 			$html .= '</form>';
 			
-			echo $html;
-		}
+			$options['width'] = '100%';
+			$options['height'] = '100%';
+			$this->responseClass->addPostWindow($html,"Выберите услугу",$options);
+		
 	}
 
 

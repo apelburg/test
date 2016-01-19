@@ -1297,7 +1297,7 @@ class Services extends Variants
 						
 						// входящая штука
 						$html .= '<td class="row_tirage_in_gen uslugi_class price_in">';
-							if(@$services_arr[$service_attach['uslugi_id']]['edit_pr_in'] != 0){
+							if(@$services_arr[$service_attach['uslugi_id']]['edit_pr_in'] != 0 || $this->user_id == 31 || $this->user_access == 1){
 								$html .= '<input type="text" value="'.$this->round_money($price_in).'">';
 							}else{
 								$html .= '<span>'.$this->round_money($price_in).'</span>';
@@ -1339,7 +1339,7 @@ class Services extends Variants
 						// кнопка ТЗ
 						$html .= '<td class="usl_tz">'.$buttons_tz.'<span class="tz_text">'.base64_decode($service_attach['tz']).'</span><span class="tz_text_shablon">'.@$services_arr[$service_attach['uslugi_id']]['tz'].'</span></td>';
 						// кнопка удаления услуги (только для автора услуги)
-						$html .= ($this->user_id == $service_attach['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'';
+						$html .= ($this->user_id == $service_attach['creator_id'] || $this->user_access == 1 )?'<td class="usl_del"><span class="del_row_variants"></span></td>':'<td></td>';
 					$html .='</tr>';
 				// }
 			}

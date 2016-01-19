@@ -1171,3 +1171,16 @@ $(function(){
     $(document).on('click', '.html_modal_window_head_close,.cancel_bw', function(event) {
         $('#bg_modal_window,.html_modal_window').remove();
     });
+
+
+
+    // поиск клиентов по клику на enter
+    $(document).keydown(function(event) {
+        if(event.keyCode == 13) {
+            if( $("#search_query").is(":focus") ){
+                event.preventDefault();
+                $("#search_query").parent().next().click();
+                return false;
+            }           
+        }
+    });

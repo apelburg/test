@@ -212,7 +212,7 @@
 		}
 		
 		$notice_window =  '<div class="notice_window_box"><div class="window">';
-		$notice_window .=  '<h3>клиенты не найдены</h3>';
+		$notice_window .=  '<h3>Поставщики не найдены</h3>';
 		if(count($activeFilters)>0){
 		    $notice_window .=  '<h4>На странице применены фильтры:</h4>';
 		    $notice_window .=  '<div class="row">'.implode('</div><div class="row">',$activeFilters).'</div>';
