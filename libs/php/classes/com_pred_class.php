@@ -961,12 +961,14 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 							// echo  '<pre>'; print_r($new_price_arr); echo '</pre>';  //
                             /*if(@$_SESSION['access']['user_id']==18){ 
-									echo '<pre>';print_r($new_price_arr);echo '</pre>';
+									echo '<pre>';print_r($calculations);echo '</pre>';
 							} */
 							// наименование нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 							$print_data = printCalculator::convert_print_details_for_kp($u_level['print_details']);
-
+                            /*if(@$_SESSION['access']['user_id']==18){ 
+									echo '<pre>';print_r($print_data);echo '</pre>';
+							} */
 							// Собираем данные для print_block (Печать логотипа)
 							$print_block[] = '<table border="0" style="font-family:arial;font-size:13px;right;margin:15px 0 0 11px;width:100%;border-collapse:collapse;width:350px;table-layout:fixed;">';
 							$print_block[] = '<tr><td valign="top" style="width:90px;">метод '.(($show_count)?(++$counter2).': ':'').' </td><td style="width:170px;">'.$print_data['block1']['print_type'].'</td></tr>';
@@ -985,6 +987,11 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							     $print_block[] = '<tr><td valign="top">Площадь печати: </td><td>'.$print_data['block1']['print_size'].'</td></tr>'; 
 								//echo  '<pre>--2--'; print_r($print_details_arr['dop_params']); echo '</pre>';
 							}
+							if(isset($print_data['block2']['data'])){
+							    foreach($print_data['block2']['data'] as $block2_data){
+								     $print_block[] = '<tr><td valign="top" colspan="2">'.$block2_data['name'].'</td></tr>'; 
+								}
+							}
 							$print_block[] = '</table>';
 							
 							$print_block_price = $new_price_arr['price_out'];
@@ -993,7 +1000,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							if($display_setting_2==0){ // вариант 1
 							    
 							    // коэффициент площади
-								if($size_coeff!==false){
+								/*if($size_coeff!==false){
 									if($print_details_arr['dop_params']['sizes'][0]['type'] == 'coeff'){
 									    
 										$print_block_price = $new_price_arr['price_out']*$size_coeff;
@@ -1008,12 +1015,12 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 								if(isset($y_params_count) && $y_params_count>0){
 								    $y_params_coeff = (isset($y_params_coeff))?$y_params_coeff:1;
 								    $print_block_price += ($new_price_arr['price_out']/$y_params_count)*$y_params_coeff;
-								}
+								}*/
 								$print_block_summ = $quantity*$print_block_price;
 								 
-								$all_print_summ+=$calculations['new_summs']['summ_out'];
+								$all_print_summ+= $quantity*$new_price_arr['price_out'];
 							    $itogo_print_uslugi += $print_block_summ;
-								$itogo_extra_uslugi += $calculations['new_summs']['summ_out'] - $print_block_summ;
+								//$itogo_extra_uslugi += $calculations['new_summs']['summ_out'] - $print_block_summ;
 
 							}
 							else if($display_setting_2==1){ // вариант 2
@@ -1022,7 +1029,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 								
 								$all_print_summ+=$calculations['new_summs']['summ_out'];
 							    $itogo_print_uslugi += $print_block_summ;
-								$itogo_extra_uslugi += $calculations['new_summs']['summ_out'] - $print_block_summ;
+								//$itogo_extra_uslugi += $calculations['new_summs']['summ_out'] - $print_block_summ;
 								
 							    
 							}
@@ -1038,7 +1045,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							//////////////////////////////////////////////////////////////////////////////
 					        //////////////////////////////////////////////////////////////////////////////
 							// коэффициент площади
-							if($size_coeff!==false){
+							/*if($size_coeff!==false){
 								if($print_details_arr['dop_params']['sizes'][0]['type'] == 'coeff'){
 									$print_block_price1 = $new_price_arr['price_out']*$size_coeff;
 								}
@@ -1055,21 +1062,21 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							if(isset($y_params_count) && $y_params_count>0){
 								$y_params_coeff = (isset($y_params_coeff))?$y_params_coeff:1;
 								$print_block_price1 += ($new_price_arr['price_out']/$y_params_count)*$y_params_coeff;
-							}
+							}*/
 							$print_block_summ1 = $quantity*$print_block_price1;
 							$itogo_print_uslugi1 += $quantity*$print_block_price1;
-							$itogo_extra_uslugi1 += $calculations['new_summs']['summ_out'] - $print_block_summ1;
+							//$itogo_extra_uslugi1 += $calculations['new_summs']['summ_out'] - $print_block_summ1;
 							
 							
 						    $print_block_price2 = $new_price_arr['price_out'];
 							$print_block_summ2 = $quantity*$new_price_arr['price_out'];
 							$itogo_print_uslugi2 += $quantity*$new_price_arr['price_out'];
-	                        $itogo_extra_uslugi2 += $calculations['new_summs']['summ_out'] - $quantity*$new_price_arr['price_out'];
+	                       // $itogo_extra_uslugi2 += $calculations['new_summs']['summ_out'] - $quantity*$new_price_arr['price_out'];
 							
 							
 							$print_block_price3= $new_price_arr['price_out'];
 							$print_block_summ3 = $quantity*$new_price_arr['price_out'];
-							$itogo_print_uslugi3 += $calculations['new_summs']['summ_out'];
+							//$itogo_print_uslugi3 += $calculations['new_summs']['summ_out'];
 						    //////////////////////////////////////////////////////////////////////////////
 							//////////////////////////////////////////////////////////////////////////////
 							
@@ -1193,8 +1200,8 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							}
 							
 							if(isset($rows_2)){
-							     $details_block11[$counter]['cap'] = 'для метода печати '.(($show_count)? $counter2.': ':'');
-								 $details_block11[$counter]['data'] = $rows_2;
+							     //$details_block11[$counter]['cap'] = 'для метода печати '.(($show_count)? $counter2.': ':'');
+								 //$details_block11[$counter]['data'] = $rows_2;
 							}
 						
 							$counter++;
@@ -1243,7 +1250,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 						$description_cell .= '<managedDisplay name="dop_uslugi" style="display:'.(isset($dispSetObj->dop_uslugi)?'none':'block').'"><hr style="border:none;border-top:#888 solid 1px;"><div><b>Дополнительные услуги:</b></div>';
 						$description_cell .=  '<table style="margin-top:5px;border-collapse:collapse; font-family:arial;font-size:13px;" border="0">';
 						foreach($details_block11 as $key => $rows){
-						   $description_cell .=  '<tr><td align="left" height="25" colspan="3" style="padding:0 5px 0 15px;color:#888">'.$rows['cap'].'</td>';
+						   //$description_cell .=  '<tr><td align="left" height="25" colspan="3" style="padding:0 5px 0 15px;color:#888">'.$rows['cap'].'</td>';
 						   $description_cell .= implode('',$rows['data']);
 						} 
 						$description_cell .=  '</table></managedDisplay>';
@@ -1253,6 +1260,9 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 				
 					
 					$description_cell .= '<table style="margin:5px 0 10px 0;border-collapse:collapse;" border="0"><tr><td align="left" style="width:220px;"><b>Итого</b></td>';
+					  /*if(@$_SESSION['access']['user_id']==18){ 
+									echo '---'.$summ.'--'.$all_print_summ.'--'.$all_extra_summ.'---';
+							} */
 				    $description_cell .= '<td align="right" style="width:100px;"><b>'.number_format(($summ+$all_print_summ+$all_extra_summ),2,'.',' ').'</b></td>';
 					$description_cell .= '<td align="left" style="width:30px;"><b>руб.</b></td></tr></table>';
 					
