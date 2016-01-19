@@ -70,8 +70,11 @@ $(document).on('click', '.add_usl', function(event) {
 			for_all:for_all
 
 		}, function(data, textStatus, xhr) {
-		show_dialog_and_send_POST_window2(data,'Выберите услугу', $(window).height());		
-	});
+			standard_response_handler(data);
+		// if(data['response']){
+			// show_dialog_and_send_POST_window2(data,'Выберите услугу', $(window).height());
+		// }		
+	},'json');
 	
 });
 

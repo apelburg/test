@@ -22,7 +22,7 @@
 <script type="text/javascript" src="./libs/js/rt_position_gen.js"></script>
 
 <!-- стандартный обработчик -->
-<script type="text/javascript" src="../libs/js/standard_response_handler.js"></script>
+<!-- <script type="text/javascript" src="../libs/js/standard_response_handler.js"></script> -->
 <!-- скрипт страницы -->
 <script type="text/javascript" src="./libs/js/jsPositionUniverasal.js"></script>
 

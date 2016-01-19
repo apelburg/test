@@ -63,8 +63,11 @@
 	if(isset($_GET['filter_by_rating']) && $_GET['filter_by_rating']) $filters[] = array ('type' =>'by_rating','col' =>'rate','val' => $_GET['filter_by_rating']);
 	if(isset($_GET['filter_by_letter']) && $_GET['filter_by_letter']) $filters[] = array ('type' =>'by_letter','col' =>'company','val' => $_GET['filter_by_letter']);
 	
-	if($user_status == 1) $range = false;
-	else $range = array('by'=>'manager_id','id'=> $user_id);
+	// if($user_status == 1) {
+		$range = false;
+	// }else{
+	// 	$range = array('by'=>'manager_id','id'=> $user_id);
+	// }
 	
 	if(isset($_GET['filter_by_range'])) $range = array ('by' =>'manager_id','id' => $_GET['filter_by_range']);
 	

@@ -54,6 +54,9 @@
 		// показать окно № 1
 		function show_dialog_and_send_POST_window(html,title,height,width){
 			height_window = height || 'auto';
+			if(height_window == '100%'){
+				height_window = $(window).height();
+			}
 			width = width || '1000';
 			title = title || '*** Название окна ***';
 			var buttons = new Array();
