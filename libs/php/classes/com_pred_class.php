@@ -950,20 +950,16 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							}
 							else $size_coeff = false;
 							
+	
 							
-							
-							$YPriceParam = (isset($print_details_obj->dop_params->YPriceParam))? count($print_details_obj->dop_params->YPriceParam):1;
-							// расчет стоимости нанесения
-							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
-							$new_price_arr = rtCalculators::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
-							//$new_price_arr['price_out'] = $u_level['price_out'];
+							$new_price_arr['price_in'] = $u_level['price_in'];
+							$new_price_arr['price_out'] = $u_level['price_out'];
 							
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 							// echo  '<pre>'; print_r($new_price_arr); echo '</pre>';  //
-                             /* if(@$_SESSION['access']['user_id']==18){ 
-						           echo $YPriceParam. '<br>';
+                            if(@$_SESSION['access']['user_id']==18){ 
 									echo '<pre>';print_r($new_price_arr);echo '</pre>';
-							 } */
+							} /**/
 							// наименование нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 							$print_data = printCalculator::convert_print_details_for_kp($u_level['print_details']);
@@ -988,8 +984,11 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							}
 							$print_block[] = '</table>';
 							
+							$print_block_price = $new_price_arr['price_out'];
+							$print_block_price1= $new_price_arr['price_out'];
 							
 							if($display_setting_2==0){ // вариант 1
+							    
 							    // коэффициент площади
 								if($size_coeff!==false){
 									if($print_details_arr['dop_params']['sizes'][0]['type'] == 'coeff'){
