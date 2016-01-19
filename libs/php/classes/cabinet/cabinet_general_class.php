@@ -349,6 +349,7 @@
 				// добавляем окно
 				$this->responseClass->addPostWindow($html,'Назначить менеджера');	
 			}
+			// attach_manager_to_request
 
 			protected function attach_manager_to_request_AJAX(){
 				$this->db();
@@ -528,19 +529,19 @@
 
 			// прикрепляет клиента к запросу
 			protected function attach_client_to_request_AJAX(){
+				include_once ('./libs/php/classes/client_class.php');
 
 				if($_POST['client_id'] == 'new_client'){
 
 					$_POST['AJAX'] = 'insert_new_client';
-					include_once ('./libs/php/classes/client_class.php');
-
+					
 					new Client;
-					echo '321321321sdsad';
+					// echo '321321321sdsad';
 					// exit;
 				}else {
 					// получаем кураторов по выбранному клиенту
 					// подключаем класс клиента
-					include_once ('./libs/php/classes/client_class.php');
+					
 					$managers_arr = Client::get_relate_managers($_POST['client_id']);
 								
 
@@ -566,14 +567,19 @@
 							$query .= ",`client_id` =  '".(int)$_POST['client_id']."'";
 						
 							if($this->user_id != $managers_arr[0]['id']){
+								$message = 'Запрос был перенаправлен менеджеру '.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'';
 								$query .= ",`time_attach_manager` = NOW()";
 								$query .= ",`status` = 'not_process' ";
+							}else{
+								$message = 'Запрос был переведён в работу';
+								$query .= ",`time_attach_manager` = NOW()";
+								$query .= ",`status` = 'in_work' ";
 							}
 							
 							$query .= " WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 							$result = $mysqli->query($query) or die($mysqli->error);	
 
-							$message = 'Запрос был перенаправлен менеджеру '.$managers_arr[0]['name'].' '.$managers_arr[0]['last_name'].'';
+							
 							// if($this->user_access != 5){
 							// 	echo '{"response":"OK","function2":"change_attache_manager","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
 							// }else{
