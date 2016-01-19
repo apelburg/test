@@ -426,7 +426,7 @@
 
 			$html .= '<td><a '.$the_client_is_not_attached.' href="'.$href_RT.'">'.$this->Query['query_num'].'</a> </td>';
 			
-			$no_edit = (($_GET['subsection'] == 'query_taken_into_operation' && $this->user_access == 5 || $this->user_access == 1)?0:1);
+			$no_edit = (($_GET['subsection'] == 'query_taken_into_operation' && $this->user_access == 5 || $this->user_access == 1 || $this->Query['manager_id'] == $this->user_id)?0:1);
 			if($_GET['subsection'] == 'query_history'){
 				$no_edit = 1;
 			}
@@ -481,11 +481,12 @@
 			// маркер не прикрепленного клиента
 			$js_message = 'Чтобы перейти в карточку артикула необходимо прикрепить клиента!!!';
 			$the_client_is_not_attached = 'style="cursor:pointer" onClick="echo_message_js(\''.$js_message.'\',\'system_message\');"';
-			$href_art_card = '<div '.$the_client_is_not_attached.'>'.$position['name'].' <span class="greyText"> вар '.$this->name_count++.'</span></div>';
+			$href_art_card = '<div '.$the_client_is_not_attached.'>'.$position['name'].' <span class="greyText"> вар '.$this->name_count.'</span></div>';
 			if ($this->Query['client_id'] > 0) {
 				$the_client_is_not_attached = '';
-				$href_art_card = '<a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Query['client_id'].'&section=rt_position&id='.$position['id'].'&varID_checked='.$position['id_dop_data'].'">'.$position['name'].'</a> <span class="greyText"> вар '.$this->name_count++.'</span>';
+				$href_art_card = '<a class="go_to_position_card_link" target="_blank" href="./?page=client_folder&client_id='.$this->Query['client_id'].'&section=rt_position&id='.$position['id'].'&varID_checked='.$position['id_dop_data'].'">'.$position['name'].'</a> <span class="greyText"> вар '.$this->name_count.'</span>';
 			}
+			$this->name_count++;
 
 			$html = '<tr data-id_dop_data="'.$position['id_dop_data'].'" class="'.$position['type'].'_1 query_detail '.$grey_row_style.'" '.$this->open_close_tr_style.'">';
 				// $html .= '<td>'.$position['id_dop_data'].$this->print_arr($Query).'</td>';
