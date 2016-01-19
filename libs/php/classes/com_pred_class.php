@@ -536,8 +536,9 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 					 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
 						 $summ_in = $summ_out = array();
 						 foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
-							 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
-							 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
+						 
+							 $summ_in[] = ($extra_data['for_how']=='for_all')? $extra_data['price_in']:$extra_data['quantity']*$extra_data['price_in'];
+						     $summ_out[] = ($extra_data['for_how']=='for_all')? $extra_data['price_out']:$extra_data['quantity']*$extra_data['price_out'];
 						 }
 						 $dop_uslugi_btn =  '<span>'.count($dop_row['dop_uslugi']['extra']).'</span>';
 						 $dop_uslugi_in_summ = array_sum($summ_in);
@@ -548,16 +549,17 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 						 $dop_uslugi_in_summ = 0;
 						 $dop_uslugi_out_summ = 0;
 					 }
-					
+					 
 					 // подсчет сумм в ряду
 				     $price_out = ($dop_row['discount'] != 0 )? (($dop_row['price_out']/100)*(100 + $dop_row['discount'])) : $dop_row['price_out'] ;
+						 
 					 // 1. подсчитываем входящую сумму
 					 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
 					 $in_summ = $price_in_summ;
 					 if(!(!!$expel["print"]))$in_summ += $print_in_summ;
 					 if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
 					 // 2. подсчитываем исходящую сумму 
-					 $price_out_summ =  $dop_row['quantity']*$dop_row['price_out'];
+					 $price_out_summ =  $dop_row['quantity']*$price_out;
 					 $out_summ =  $price_out_summ;
 					 if(!(!!$expel["print"]))$out_summ += $print_out_summ;
 					 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
@@ -598,8 +600,6 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 					 $expel_class_main = ($expel['main']=='1')?' red_cell':'';
 					 $expel_class_print = ($expel['print']=='1')?' red_cell':'';
 					 $expel_class_dop = ($expel['dop']=='1')?' red_cell':'';
-					 
-					 $men_text_details_arr  =($dop_row['dop_men_text_details']!='')? explode('|',$dop_row['dop_men_text_details']):array(0,0); 
 					
 				}
 				else{
@@ -611,6 +611,8 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 				 
 				  
 			   }
+			   
+			   $men_text_details_arr  = (isset($dop_row['dop_men_text_details']) && $dop_row['dop_men_text_details']!='')? explode('|',$dop_row['dop_men_text_details']):array(0,0); 
 				 
 		  if($row['row_type'] == 'cat'){ 
 				 $extra_panel = '<div class="pos_plank cat">
@@ -955,11 +957,12 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							$new_price_arr['price_in'] = $u_level['price_in'];
 							$new_price_arr['price_out'] = $u_level['price_out'];
 							
+							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 							// echo  '<pre>'; print_r($new_price_arr); echo '</pre>';  //
-                            if(@$_SESSION['access']['user_id']==18){ 
+                            /*if(@$_SESSION['access']['user_id']==18){ 
 									echo '<pre>';print_r($new_price_arr);echo '</pre>';
-							} /**/
+							} */
 							// наименование нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 							$print_data = printCalculator::convert_print_details_for_kp($u_level['print_details']);
