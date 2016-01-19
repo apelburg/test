@@ -775,7 +775,7 @@
 		static function change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam){
 		    global $mysqli;  
 			
-			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_details_obj->print_id."' ORDER by id, param_val";
+			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_details_obj->print_id."' AND `level` = '".$print_details_obj->level."'  ORDER by id, param_val";
 				//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);/**/
 			if($result->num_rows>0){

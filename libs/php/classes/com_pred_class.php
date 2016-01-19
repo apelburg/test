@@ -599,7 +599,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 					 $expel_class_print = ($expel['print']=='1')?' red_cell':'';
 					 $expel_class_dop = ($expel['dop']=='1')?' red_cell':'';
 					 
-					 $men_text_details_arr  =($dop_row['dop_men_text_details']!='')? explode('|',$dop_row['dop_men_text_details']):'0|0'; 
+					 $men_text_details_arr  =($dop_row['dop_men_text_details']!='')? explode('|',$dop_row['dop_men_text_details']):array(0,0); 
 					
 				}
 				else{
@@ -771,6 +771,9 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 			// Данные из РТ 
 			$multi_dim_arr=self::fetch_kp_rows($kp_id);
 			// echo '<pre>';print_r($multi_dim_arr);echo '</pre>';//exit;
+			  /*if(@$_SESSION['access']['user_id']==18){ 
+			 		echo '<pre>';print_r($multi_dim_arr);echo '</pre>';
+			  } */
 			
 			// Настройки отображения состовляющих КП
 			$display_setting = $multi_dim_arr[key($multi_dim_arr)]['display_setting'];
@@ -932,6 +935,10 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							if($print_details_obj == NULL) continue;
 							$print_details_arr = json_decode($u_level['print_details'],TRUE);
 							
+							  /*if(@$_SESSION['access']['user_id']==18){ 
+									echo '<pre>';print_r($print_details_arr);echo '</pre>';
+							  } */
+							
 							if(isset($print_details_arr['dop_params']['sizes'])){
 							    if($print_details_arr['dop_params']['sizes'][0]['type'] == 'coeff'){
 								    $size_coeff = (isset($print_details_arr['dop_params']['sizes'][0]['val']) && $print_details_arr['dop_params']['sizes'][0]['val']!=0)?$print_details_arr['dop_params']['sizes'][0]['val']: 1 ;
@@ -949,9 +956,14 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							// расчет стоимости нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
 							$new_price_arr = rtCalculators::change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam);
+							//$new_price_arr['price_out'] = $u_level['price_out'];
+							
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 							// echo  '<pre>'; print_r($new_price_arr); echo '</pre>';  //
-                          
+                             /* if(@$_SESSION['access']['user_id']==18){ 
+						           echo $YPriceParam. '<br>';
+									echo '<pre>';print_r($new_price_arr);echo '</pre>';
+							 } */
 							// наименование нанесения
 							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 							$print_data = printCalculator::convert_print_details_for_kp($u_level['print_details']);
