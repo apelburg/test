@@ -599,7 +599,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 					 $expel_class_print = ($expel['print']=='1')?' red_cell':'';
 					 $expel_class_dop = ($expel['dop']=='1')?' red_cell':'';
 					 
-					 $men_text_details_arr  = explode('|',$dop_row['dop_men_text_details']); 
+					 $men_text_details_arr  =($dop_row['dop_men_text_details']!='')? explode('|',$dop_row['dop_men_text_details']):'0|0'; 
 					
 				}
 				else{
