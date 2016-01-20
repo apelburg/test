@@ -1297,7 +1297,7 @@ class Services extends Variants
 						
 						// входящая штука
 						$html .= '<td class="row_tirage_in_gen uslugi_class price_in">';
-							if(@$services_arr[$service_attach['uslugi_id']]['edit_pr_in'] != 0 || $this->user_id == 31 || $this->user_access == 1){
+							if(@$services_arr[$service_attach['uslugi_id']]['edit_pr_in'] != 0 || (isset($services_arr[$service_attach['uslugi_id']]['parent_id']) && $services_arr[$service_attach['uslugi_id']]['parent_id'] != 6 && ($this->user_id == 31 || $this->user_access == 1))){
 								$html .= '<input type="text" value="'.$this->round_money($price_in).'">';
 							}else{
 								$html .= '<span>'.$this->round_money($price_in).'</span>';
