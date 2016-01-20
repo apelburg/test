@@ -398,6 +398,7 @@
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = '".$details_obj->price_in."',
 									   `price_out` ='".$details_obj->price_out."',
+									   `discount` ='".$details_obj->discount."',
 									   `print_details` ='".cor_data_for_SQL($print_details)."'"; 
 				//echo $query;
 				$mysqli->query($query)or die($mysqli->error);

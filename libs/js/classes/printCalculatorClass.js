@@ -53,6 +53,10 @@ var printCalculator = {
 		// id - родительского ряда (ряда рассчета) (ряда в таблице os__rt_dop_data)
 		var dop_data_row_id = trTag.getAttribute('row_id');
 		
+		// скидка 
+		printCalculator.discount = ($(trTag).find( "td[discount_fieid]" ).text()).slice(0,-1);
+		//console.log(printCalculator.discount);
+
 		// определяем количество товара (берем данные из ячейки quantity данного ряда)
 		var tdsArr = trTag.getElementsByTagName('TD');
 		//alert(tdsArr);
@@ -188,15 +192,33 @@ var printCalculator = {
 			tr.appendChild(td);
 			
 			// сумма
+			var summ = printCalculator.currentCalculationData[i].price_out*printCalculator.currentCalculationData[i].quantity;
 			var td =  td.cloneNode(false);
 			td.style.width = '100px';
-			td.innerHTML = (Math.round(printCalculator.currentCalculationData[i].price_out*printCalculator.currentCalculationData[i].quantity * 100) / 100 ).toFixed(2) +' р.';
+			td.style.textAlign = 'right';
+			td.innerHTML = (Math.round(summ * 100) / 100).toFixed(2) +' р.';
+			tr.appendChild(td);
+			
+			// скидка
+			var discount = printCalculator.currentCalculationData[i].discount;
+			var td =  td.cloneNode(false);
+			td.style.width = '34px';
+			td.innerHTML = discount +'%';
+			tr.appendChild(td);
+			
+			// сумма со скидкой
+			var itogo = (discount != 0 )? (summ/100)*(100 + parseInt(discount)) : summ;
+			var td =  td.cloneNode(false);
+			td.style.width = '100px';
+			td.style.textAlign = 'right';
+			td.innerHTML = (Math.round(itogo * 100) / 100 ).toFixed(2) +' р.';
 			tr.appendChild(td);
 			
 			var td =  td.cloneNode(false);
 			td.style.width = '100px';
 			td.innerHTML = 'Удалить нанесение';
 			td.style.textDecoration = 'underline';
+			td.style.textAlign = 'left';
 			td.style.cursor = 'pointer';
 			td.setAttribute('usluga_id',data_AboutPrintsArr[i].dop_uslugi_id);
 			td.onclick = function(){ 
@@ -255,12 +277,12 @@ var printCalculator = {
 		
 		document.body.appendChild(box);
 		// открываем панель
-		$("#calculatorDopUslugiBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Печать для этой позиции",modal:true,width: 600,close: function() {this.remove();$("#calculatorDopUslugiBox").remove();}});
+		$("#calculatorDopUslugiBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Печать для этой позиции",modal:true,width: 730,close: function() {this.remove();$("#calculatorDopUslugiBox").remove();}});
 		$("#calculatorDopUslugiBox").dialog("open");
 	}
 	,
 	evoke_calculator:function(){
-		
+		   
 			// устанавливаем уровень цен      
 			if(typeof printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id  === 'undefined'){
 				printCalculator.level = (document.getElementById('calcLevelStorage'))? document.getElementById('calcLevelStorage').value:'full';
@@ -572,6 +594,14 @@ var printCalculator = {
 		    printCalculator.currentCalculationData.dop_data_row_id = printCalculator.dataObj_toEvokeCalculator.dop_data_row_id;
 			printCalculator.currentCalculationData.print_details = {};
 			printCalculator.currentCalculationData.print_details.dop_params = {};
+			
+			//rt_discount_marker = $('*[discount_fieid]');
+			if(typeof printCalculator.discount !== 'undefined'){
+				alert(printCalculator.discount);
+				printCalculator.currentCalculationData.discount = printCalculator.discount;
+				
+			}
+			else printCalculator.currentCalculationData.discount = 0;
 		}
 		
 	    console.log('>>> ДАННЫЕ КОНКРЕТНОГО ТЕКУЩЕГО РАСЧЕТА (если это новый расчет то это просто подготовленный для заполнения праметрами скелет, если это открыт существующий расчет то тогда он содержит его праметры)');
@@ -1599,6 +1629,15 @@ var printCalculator = {
 			tdClone = td.cloneNode(true);
 			tdClone.innerHTML = 'тираж';
 			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			tdClone.innerHTML = 'сидка';
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			tdClone.innerHTML = '';
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			tdClone.innerHTML = 'итого';
+			TRclone.appendChild(tdClone);
 			total_tbl.appendChild(TRclone);
 			
 			
@@ -1612,6 +1651,16 @@ var printCalculator = {
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
 			tdClone.innerHTML = ((total_price_in).toFixed(2)).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")+'р';
+			// под сидки первый ряд
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			//tdClone.innerHTML = '-';
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			//tdClone.innerHTML = '-';
+			TRclone.appendChild(tdClone);
+			total_tbl.appendChild(TRclone);
+			//tdClone.innerHTML = '-';
 			TRclone.appendChild(tdClone);
 			total_tbl.appendChild(TRclone);
 	//alert("1231231.23".replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 "));		
@@ -1626,6 +1675,18 @@ var printCalculator = {
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
 			tdClone.innerHTML = ((total_price_out).toFixed(2)).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")+'р';
+			TRclone.appendChild(tdClone);
+			// под сидки второй ряд
+			tdClone = td.cloneNode(true);
+			tdClone.innerHTML = printCalculator.currentCalculationData.discount+'%';
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			var discount_price_out =(printCalculator.currentCalculationData.discount != 0 )? (printCalculator.currentCalculationData.price_out/100)*(100 + parseInt(printCalculator.currentCalculationData.discount)) : printCalculator.currentCalculationData.price_out;
+			tdClone.innerHTML = ((discount_price_out).toFixed(2)).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")+'р';
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			var discount_itog =(printCalculator.currentCalculationData.discount != 0 )? (total_price_out/100)*(100 + parseInt(printCalculator.currentCalculationData.discount)) : total_price_out;
+			tdClone.innerHTML = ((discount_itog).toFixed(2)).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1 ")+'р';
 			TRclone.appendChild(tdClone);
 			total_tbl.appendChild(TRclone);
 	
@@ -1753,6 +1814,7 @@ var printCalculator = {
 		printCalculator.currentCalculationData.print_details.place_type =  printCalculator.calculatorParamsObj.places[printCalculator.currentCalculationData.print_details.place_id].name;
 		printCalculator.currentCalculationData.print_details.print_type =  printCalculator.calculatorParamsObj.places[printCalculator.currentCalculationData.print_details.place_id].prints[printCalculator.currentCalculationData.print_details.print_id];
 		printCalculator.currentCalculationData.print_details.level = printCalculator.level;
+		printCalculator.currentCalculationData.print_details.discount = printCalculator.currentCalculationData.discount;
 		
 		if(typeof printCalculator.currentCalculationData.glob_type !== 'undefined') delete printCalculator.currentCalculationData.glob_type;
 		if(typeof printCalculator.currentCalculationData.dop_row_id !== 'undefined') delete printCalculator.currentCalculationData.dop_row_id;

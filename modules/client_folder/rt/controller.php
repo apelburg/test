@@ -32,7 +32,7 @@
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel, dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_type AS shipping_type, dop_data_tbl.shipping_time AS shipping_time, dop_data_tbl.status_snab AS status_snab,
 						  
 						  dop_uslugi_tbl.id AS uslgi_t_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
-		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.for_how AS uslugi_t_for_how
+		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.discount AS uslugi_t_discount , dop_uslugi_tbl.for_how AS uslugi_t_for_how
 		          FROM 
 		          `".RT_MAIN_ROWS."`  main_tbl 
 				  LEFT JOIN 
@@ -75,13 +75,14 @@
 		    }
 			if(isset($multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]) && !empty($row['uslgi_t_id'])){
 			    $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['dop_uslugi'][$row['uslugi_t_glob_type']][$row['uslgi_t_id']] = array(
-																									'type' => $row['uslugi_t_type'],
-																									'id' => $row['uslgi_t_id'],
-																									'quantity' => $row['uslugi_t_quantity'],
-																									'price_in' => $row['uslugi_t_price_in'],
-																									'price_out' => $row['uslugi_t_price_out'],
-																									'for_how' => $row['uslugi_t_for_how']	
-																									);
+						'type' => $row['uslugi_t_type'],
+						'id' => $row['uslgi_t_id'],
+						'quantity' => $row['uslugi_t_quantity'],
+						'price_in' => $row['uslugi_t_price_in'],
+						'price_out' => $row['uslugi_t_price_out'],
+						'discount' => $row['uslugi_t_discount'],
+						'for_how' => $row['uslugi_t_for_how']	
+						);
 			}
 			
 			//print_r( $multi_dim_arr[$row['main_id']]['dop_data'][$row['dop_data_id']]['print_data']); echo "<br>";
@@ -154,7 +155,11 @@
 		 // echo '<pre>'; print_r($row['dop_data']); echo '</pre>---';
 		 // Проходим в цикле по второму уровню массива($row['dop_data']) на основе которого строится основной шаблон таблицы
 	     foreach($row['dop_data'] as $dop_key => $dop_row){
-		    // если $dop_key==0 это значит что это вспомогательный ряд (отображается пустым без функционала)
+		 
+			/*if(@$_SESSION['access']['user_id']==18){ 
+			     echo '<pre>'; print_r($dop_row); echo '</pre>';
+	        }  */
+				// если $dop_key==0 это значит что это вспомогательный ряд (отображается пустым без функционала)
 			// если ряд $dop_key!=0 не вспомогательный работаем с ним в обычном порядке
 		    if($dop_key!=0){
 				 // определяем какие расчеты будут учитываться в конечных суммах а какие нет и их отображение в таблице
@@ -192,6 +197,7 @@
 							 
 	
 						 } /**/
+						 $extra_data['price_out'] = ($extra_data['discount'] != 0 )? (($extra_data['price_out']/100)*(100 + $extra_data['discount'])) : $extra_data['price_out'];
 						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
 						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 					 }
@@ -219,6 +225,7 @@
 						     $mysqli->query($query)or die($mysqli->error);
 							 $extra_data['quantity']=$dop_row['quantity'];
 					     }
+						 $extra_data['price_out'] = ($extra_data['discount'] != 0 )? (($extra_data['price_out']/100)*(100 + $extra_data['discount'])) : $extra_data['price_out'];
 						 $summ_in[] = ($extra_data['for_how']=='for_all')? $extra_data['price_in']:$extra_data['quantity']*$extra_data['price_in'];
 						 $summ_out[] = ($extra_data['for_how']=='for_all')? $extra_data['price_out']:$extra_data['quantity']*$extra_data['price_out'];
 					 }
