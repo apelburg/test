@@ -1134,9 +1134,7 @@ function search_and_show_client_list(){
 		},'json');		
 	// }
 }
-each(function(index, el) {
-	
-});
+
 // отработка клика по таблице выбора менеджера для прикрепления к запросу
 $(document).on('click', '#chose_manager_tbl table tr td', function(event) {
 	if($(this).html()!=''){
