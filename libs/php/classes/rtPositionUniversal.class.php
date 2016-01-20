@@ -1241,11 +1241,13 @@ class Services extends Variants
 				// if($service_attach['uslugi_id']==$key){
 					$quantity = ($service_attach['for_how']=="for_all")?1:$service_attach['quantity'];
 					// цена за штуку
+
 					$price_in = $service_attach['price_in'];
 					$price_out = $service_attach['price_out'];
+					$price_out = $this->round_money(($service_attach['discount'] != 0 )? (($price_out/100)*(100 + $service_attach['discount'])) : $price_out );
 					// цена за тираж
 					$tir_price_in = $service_attach['price_in'] * $quantity;
-					$tir_price_out = $service_attach['price_out'] * $quantity;
+					$tir_price_out = $price_out * $quantity;
 					
 					// прибыль за тираж
 					$tir_pribl = $tir_price_out - $tir_price_in;
@@ -1265,6 +1267,8 @@ class Services extends Variants
 						$td_calculator_price_out = ' onclick="edit_calcPriceOut_readoly()" ';
 						$input_style = 'style="border: 1px solid#fff;"';
 					}
+
+
 					
 					// ТЗ кнопки
 					$buttons_tz = (trim($service_attach['tz'])=='')?'<span class="tz_text_new"></span>':'<span class="tz_text_edit"></span>';
@@ -1305,8 +1309,10 @@ class Services extends Variants
 						$html .= '</td>';
 						
 						// процент
-						$html .= '<td class="row_tirage_in_gen uslugi_class percent_usl">';
-							$html .= '<span></span>';
+						$html .= '<td  data-val="'.$service_attach['discount'].'"  data-id="'.$service_attach['id'].'" class="row_tirage_in_gen uslugi_class percent_usl">';
+							$html .= '<span>';
+								$html .= $service_attach['discount'];
+							$html .= '%</span>';
 						$html .= '</td>';
 						
 						// исходящая (штука)
@@ -1318,6 +1324,7 @@ class Services extends Variants
 						// исходащая / входящая (сумма)
 						// $html .= '<td>';
 							// сумма исх / вход
+
 							$price_out_summ_out = $this->round_money($quantity * $price_out);
 							$price_out_summ_in = $this->round_money($quantity * $price_in);
 						
