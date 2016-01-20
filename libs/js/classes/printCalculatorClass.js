@@ -54,8 +54,8 @@ var printCalculator = {
 		var dop_data_row_id = trTag.getAttribute('row_id');
 		
 		// скидка 
+		//printCalculator.discount = ($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1);
 		printCalculator.discount = ($(trTag).find( "td[discount_fieid]" ).text()).slice(0,-1);
-		//console.log(printCalculator.discount);
 
 		// определяем количество товара (берем данные из ячейки quantity данного ряда)
 		var tdsArr = trTag.getElementsByTagName('TD');
@@ -595,11 +595,8 @@ var printCalculator = {
 			printCalculator.currentCalculationData.print_details = {};
 			printCalculator.currentCalculationData.print_details.dop_params = {};
 			
-			//rt_discount_marker = $('*[discount_fieid]');
 			if(typeof printCalculator.discount !== 'undefined'){
-				alert(printCalculator.discount);
 				printCalculator.currentCalculationData.discount = printCalculator.discount;
-				
 			}
 			else printCalculator.currentCalculationData.discount = 0;
 		}
@@ -1633,10 +1630,10 @@ var printCalculator = {
 			tdClone.innerHTML = 'сидка';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = '';
+			tdClone.innerHTML = 'штука';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = 'итого';
+			tdClone.innerHTML = 'штука';
 			TRclone.appendChild(tdClone);
 			total_tbl.appendChild(TRclone);
 			

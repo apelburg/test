@@ -14,9 +14,9 @@
 
 
 <!-- старые скрипты -->
-<script type="text/javascript" src="http://www.apelburg.ru/os/libs/js/classes/printCalculatorClass.js"></script>
-<script type="text/javascript" src="http://www.apelburg.ru/os/libs/js/up_window_consructor.js"></script>
-<script type="text/javascript" src="http://www.apelburg.ru/os/libs/js/classes/rtCalculatorClass.js"></script>
+<script type="text/javascript" src="./libs/js/classes/printCalculatorClass.js"></script>
+<script type="text/javascript" src="./os/libs/js/up_window_consructor.js"></script>
+<script type="text/javascript" src="./libs/js/classes/rtCalculatorClass.js"></script>
 
 <script type="text/javascript" src="libs/js/rt_position.js"></script>
 <script type="text/javascript" src="./libs/js/rt_position_gen.js"></script>
