@@ -5370,10 +5370,15 @@
 				// выборка только массива стоимости доп услуг
 				$dop_usl_no_print = $this-> get_dop_uslugi_no_print_type($dop_usl);
 
-
+				
 				// стоимость товара
+				// проверка на наличе скидки
+				$price_out = $position['price_out'];
+				if($position['discount'] <> 0){
+					$price_out = (($price_out/100)*(100 + $position['discount']));
+				}
 				// echo $price_for_the_goods.'<br>';
-				$price_for_the_goods = $position['price_out'] * ($position['quantity'] + $position['zapas']);
+				$price_for_the_goods = $price_out * ($position['quantity'] + $position['zapas']);
 				
 				$this->Price_for_the_goods = $this->money_format( $price_for_the_goods );
 				
@@ -5446,16 +5451,20 @@
 		// или get_dop_uslugi_no_print_type
 		public function calc_summ_dop_uslug($arr,$tir=0){ // 
 			$summ = 0;
-						
+			
 			// перебираем массив услуг
 			foreach ($arr as $key => $value) {
 				// если услуга не была добавлена кем либо в заказ, при добавлении добавляется id автора
 				if(!isset($value['author_id_added_services']) || $value['author_id_added_services'] <= 0){
+					$price_out = $value['price_out'];
+					if($value['discount'] <> 0){
+						$price_out = (($price_out/100)*(100 + $value['discount']));
+					}
 					// суммируем её к общей сумме позиции
 					if($value['for_how']=="for_one"){
-						$summ += ($value['price_out']*$value['quantity']);					
+						$summ += ($price_out*$value['quantity']);					
 					}else{
-						$summ += $value['price_out'];					
+						$summ += $price_out;					
 					}
 				}
 			}

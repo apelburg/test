@@ -6,6 +6,7 @@ div.dialog_window  {font-size:12px;font-family: Gotham, "Helvetica Neue", Helvet
   position: fixed;
   bottom: 0px;
   left: 0px;
+  z-index: 5;
 }
 .ui-icon {
   display: block;

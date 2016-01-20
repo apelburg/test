@@ -556,7 +556,8 @@
 					`".RT_DOP_DATA."`.`row_status`,
 					`".RT_DOP_DATA."`.`expel`,		
 					`".RT_DOP_DATA."`.`print_z`,	
-					`".RT_DOP_DATA."`.`zapas`,	
+					`".RT_DOP_DATA."`.`zapas`,
+					`".RT_DOP_DATA."`.`discount`,	
 					`".RT_DOP_DATA."`.`status_snab`,	
 					`".RT_MAIN_ROWS."`.*,
 					DATE_FORMAT(`".RT_MAIN_ROWS."`.`date_create`,'%d.%m.%Y %H:%i:%s')  AS `gen_create_date`
