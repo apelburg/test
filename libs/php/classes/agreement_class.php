@@ -289,7 +289,7 @@
 									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
 									 // записываем ряд
-									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],0);
+									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$uslugi_data['discount']);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
 									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
@@ -298,7 +298,7 @@
 									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
 									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
 									 // записываем ряд
-									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],0);
+									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$uslugi_data['discount']);
 								 }/**/
 								 
 								  
@@ -631,7 +631,7 @@
 					$price = ($discount != 0)? (($data[$key2]['price']/100)*(100 + $discount)) : $data[$key2]['price'] ;
 					$summ = ($discount !=0)? (($data[$key2]['summ']/100)*(100 + $discount)) : $data[$key2]['summ'] ;
 				   
-				    $table .= '<tr><td class="num">'.($key2+1).'</td><td class="name">'.$data[$key2]['name'].'</td><td class="quantity">'.$data[$key2]['quantity'].'</td><td class="price">'.$price.'</td><td class="currensy">р.</td><td class="price">'.$summ.'</td><td class="currensy">р.</td></tr>';
+				    $table .= '<tr><td class="num">'.($key2+1).'</td><td class="name">'.$data[$key2]['name'].'</td><td class="quantity">'.$data[$key2]['quantity'].'</td><td class="price">'.number_format($price,"2",".",'').'</td><td class="currensy">р.</td><td class="price">'.number_format($summ,"2",".",'').'</td><td class="currensy">р.</td></tr>';
 					$itogo += (float)$summ;
 					$nds += round(($summ/118*18), 2);
 					$items_num++;
@@ -828,7 +828,7 @@
 									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
 								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
 									 // записываем ряд
-									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],0,$date,$dateDataObj,$dates_data);
+									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$uslugi_data['discount'],$date,$dateDataObj,$dates_data);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
 									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
@@ -837,7 +837,7 @@
 									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
 									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
 									 // записываем ряд
-									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],0,$date,$dateDataObj,$dates_data);
+									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$uslugi_data['discount'],$date,$dateDataObj,$dates_data);
 								 }/**/
 								 
 								  
