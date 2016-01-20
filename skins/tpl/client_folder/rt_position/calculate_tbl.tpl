@@ -100,8 +100,18 @@
 								}
 							?>
 						</td>
-						<td  class="row_price_out_one price_out">	
-							<input type="text" value="<?php echo $price_out ?>">							
+						<?php
+								// запрет редактирования исходящей стоимости за 1 шт
+								$discount_disabled_edit = $discount_disabled_edit_class = '';
+								if($variant['discount'] != '' && (int)$variant['discount'] <> 0){
+									$discount_disabled_edit = 'readonly';
+									$discount_disabled_edit_class = "no_edit_class_disc";
+								}
+
+							?>
+						<td  class="row_price_out_one price_out <?=$discount_disabled_edit_class;?>">	
+
+							<input type="text" value="<?=$price_out;?>" <?=$discount_disabled_edit;?>>							
 						</td>
 
 							

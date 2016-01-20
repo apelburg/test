@@ -112,13 +112,15 @@ var printCalculator = {
 			 *  @author  Алексей	
 			 *	@versoin 18:44 МСК 27.09.2015 		
 			 */
+			 var discount =  ($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1);
 			$.post(location.href+'&id='+cell.parentNode.getAttribute("data-id"), 
 				{
 					AJAX:"get_uslugi_list_Database_Html",
 					quantity:quantity,
 					dop_row_id:dop_data_row_id,
 					art_id:art_id,
-					for_all:1
+					for_all:1,
+					discount:discount
 
 				}, function(data, textStatus, xhr) {
 					standard_response_handler(data);			

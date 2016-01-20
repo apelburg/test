@@ -355,5 +355,11 @@ $(document).on('click', '.variant_content_block.archiv_opacity', function(event)
 });
 
 
+$(document).on('click', '.no_edit_class_disc', function(event) {
+  event.preventDefault();
+  var message = '<span style="text-transform:lowercase">Для редактирования исходящей стоимости обнулите скидку/наценку</span>';
+  echo_message_js(message,'system_message');
+});
+
 
 

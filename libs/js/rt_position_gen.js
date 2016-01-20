@@ -61,13 +61,17 @@ function timing_save_input(fancName,obj){
 
 
 $(document).on('click', '.add_usl', function(event) {
+	// полечаем скидку
+	var discount = Number($('.percent_nacenki.js--calculate_tbl-edit_percent:visible').attr('data-val'));
+
 	var for_all = ($(this).hasClass('all'))?1:0;
 	$.post('', 
 		{
 			AJAX:"get_uslugi_list_Database_Html",
 			client_id:$(this).attr('data-client_id'),
 			query_num:$(this).attr('data-query_num'),
-			for_all:for_all
+			for_all:for_all,
+			discount:discount
 
 		}, function(data, textStatus, xhr) {
 			standard_response_handler(data);

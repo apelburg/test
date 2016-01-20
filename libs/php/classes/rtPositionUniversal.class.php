@@ -1194,6 +1194,7 @@ class Services extends Variants
 			$this->edit_admin = '';
 			$pause = 1;
 		}
+
 		$html ='';
 		// если массив услуг пуст возвращаем пустое значение 
 		if(!count($arr)){return $html;}
@@ -1244,7 +1245,12 @@ class Services extends Variants
 
 					$price_in = $service_attach['price_in'];
 					$price_out = $service_attach['price_out'];
-					$price_out = $this->round_money(($service_attach['discount'] != 0 )? (($price_out/100)*(100 + $service_attach['discount'])) : $price_out );
+					if ($service_attach['discount'] != 0) {
+						$price_out = $this->round_money((($price_out/100)*(100 + $service_attach['discount'])));
+					}else{
+						$price_out = $this->round_money( $price_out );
+					}
+					
 					// цена за тираж
 					$tir_price_in = $service_attach['price_in'] * $quantity;
 					$tir_price_out = $price_out * $quantity;
@@ -1253,6 +1259,13 @@ class Services extends Variants
 					$tir_pribl = $tir_price_out - $tir_price_in;
 					
 					$dop_inf = '';
+
+					// запрет редактирования исходящей стоимости за 1 шт
+					$discount_disabled_edit = $discount_disabled_edit_class = '';
+					if((int)$service_attach['discount'] <> 0){
+						$discount_disabled_edit = 'readonly';
+						$discount_disabled_edit_class = "no_edit_class_disc";
+					}
 					
 					// информация из калькулятора
 					$calc_info = '';$calc_class= '';$calc_button='';$calculator_price_out='';
@@ -1266,6 +1279,8 @@ class Services extends Variants
 						$calculator_price_out = 'readonly';
 						$td_calculator_price_out = ' onclick="edit_calcPriceOut_readoly()" ';
 						$input_style = 'style="border: 1px solid#fff;"';
+
+						$discount_disabled_edit = $discount_disabled_edit_class = '';
 					}
 
 
@@ -1313,12 +1328,15 @@ class Services extends Variants
 							$html .= '<span>';
 								$html .= $service_attach['discount'];
 							$html .= '%</span>';
+							if($discount_disabled_edit!=''){
+								$html .= '<span class="greyText">'.$this->round_money($service_attach['price_out']).'</span>';
+							}
 						$html .= '</td>';
 						
 						// исходящая (штука)
-						$html .= '<td '.$td_calculator_price_out.' class="row_price_out_gen uslugi_class price_out_men">';
+						$html .= '<td '.$td_calculator_price_out.' class="row_price_out_gen uslugi_class price_out_men '.$discount_disabled_edit_class.'" >';
 							
-							$html .= '<input '.$input_style.' type="text" '.$calculator_price_out.' value="'.$this->round_money($price_out).'">';
+							$html .= '<input '.$input_style.' type="text" '.$calculator_price_out.' value="'.$this->round_money($price_out).'" '.$discount_disabled_edit.'>';
 						$html .= '</td>';
 						
 						// исходащая / входящая (сумма)

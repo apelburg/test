@@ -1372,6 +1372,7 @@ echo $query;
 				$html.= '<div class="lili lili_head"><span class="name_text">Название услуги</span><div class="echo_price_uslug"><span>$ вход.</span><span>$ исх.</span><span>за сколько</span></div></div>';
 				$html .= $this->get_uslugi_list_Database_Html();
 				$html .= '<input type="hidden" name="for_all" value="'.$_POST['for_all'].'">';
+				$html .= '<input type="hidden" name="discount" value="'.$_POST['discount'].'">';
 				$html .= '<input type="hidden" name="id_uslugi" value="">';
 				$html .= '<input type="hidden" name="dop_row_id" value="'.(isset($_POST['dop_row_id'])?$_POST['dop_row_id']:'').'">';
 				$html .= '<input type="hidden" name="quantity" value="'.(isset($_POST['quantity'])?$_POST['quantity']:'').'">';
@@ -1409,7 +1410,8 @@ echo $query;
 	
 			// если массив услуг пуст
 			if(empty($usluga)){return 'такой услуги не существует';}
-	
+		
+			$discount = isset($_POST['discount'])?$_POST['discount']:0;
 			// вставляем новую услугу в базу
 			$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
 						 `dop_row_id` = '".$dop_row_id."',
@@ -1421,6 +1423,7 @@ echo $query;
 						 `price_out_snab` = '".$usluga['price_out']."',
 						 `for_how` = '".$usluga['for_how']."',
 						 `creator_id` = '". $_SESSION['access']['user_id']."',
+						 `discount` = '".$discount."',
 						 `quantity` = '".$quantity."'";
 			$result = $mysqli->multi_query($query) or die($mysqli->error);
 			echo '{"response":"OK","function":"window_reload"}';
