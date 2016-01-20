@@ -780,8 +780,8 @@
 							//////////////////////////////////
 								// получаем информацию по клиенту
 							 	include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
-			    				$Client = Client::get_cont_face_details($client_id);
-
+			    				$Client = Client::get_client_informationDatabase($client_id);
+			    					
 								// получаем информацию по кураторам + пользователю, который добавил запрос
 								$managers = self::get_manager_info_by_id("'".implode("','",$manager_arr)."','".$_SESSION['access']['user_id']."'");
 								
