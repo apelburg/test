@@ -2672,18 +2672,24 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 			if(isset($drop_discont) && $drop_discont == 'on'){
 				$query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '0' WHERE `id` = '$id'";
 				$result = $mysqli->query($query)or die($mysqli->error);
+				
+				$query = "UPDATE `".RT_DOP_USLUGI."` SET `discount` = '0' WHERE `dop_row_id` = '$id'";
+				$result = $mysqli->query($query)or die($mysqli->error);
 			}
-			else if(isset($new_price) && floatval($new_price) != 0){
+			/*else if(isset($new_price) && floatval($new_price) != 0){
 				$percentage = $new_price*100/$row['price_out'];
 				$discount = $percentage - 100; 
 				
 				$query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '$discount' WHERE `id` = '$id'";
 				$result = $mysqli->query($query)or die($mysqli->error);
-			}
+			}*/
 			else if(isset($type_action) && isset($percent) && floatval($percent) != 0){
 				$discount = ($type_action == 'discount')? -$percent : $percent ;
 				
 				$query = "UPDATE `".RT_DOP_DATA."` SET `discount` = '$discount' WHERE `id` = '$id'";
+				$result = $mysqli->query($query)or die($mysqli->error);
+				
+				$query = "UPDATE `".RT_DOP_USLUGI."` SET `discount` = '$discount' WHERE `dop_row_id` = '$id'";
 				$result = $mysqli->query($query)or die($mysqli->error);
 			}
 		}
