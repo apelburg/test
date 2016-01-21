@@ -203,6 +203,18 @@ var rtCalculator = {
 						if(tds_arr[j].getAttribute){
 							if(tds_arr[j].getAttribute('editable') && !block){
 								//tds_arr[j].onkeyup = this.make_calculations;
+								tds_arr[j].onclick = function(e){ 
+								   e = e || window.event;
+								   // устанавливаем текущюю ячейку и сохраняем изначальное значение
+		                           var cell = e.target || e.srcElement;
+								   // проверяем есть ли скидка в ячейке
+								   if(parseInt(($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1)) != 0){
+									   
+                                         echo_message_js('<span style="text-transform:lowercase">Для редактирования исходящей стоимости обнулите скидку/наценку</span>','system_message'); 
+										  
+										
+									}
+								}
 								tds_arr[j].onfocus = function(e){ 
 								   e = e || window.event;
 								   // устанавливаем текущюю ячейку и сохраняем изначальное значение
@@ -226,6 +238,7 @@ var rtCalculator = {
 									   rtCalculator.checkQuantity();
 								   }
 								   else{
+	
 									   // alert(2);
 									   rtCalculator.check();
 									   // запускаем таймер по истечению которого вызываем функцию rtCalculator.complite_input
@@ -242,7 +255,7 @@ var rtCalculator = {
 									   rtCalculator.complite_input();
 								   } 
 								}
-								tds_arr[j].setAttribute("contenteditable",true);
+								if(tds_arr[j].getAttribute('editable') =='true') tds_arr[j].setAttribute("contenteditable",true);
 								tds_arr[j].style.outline="none";
 							}
 							if(tds_arr[j].getAttribute('discount_fieid') && !block){

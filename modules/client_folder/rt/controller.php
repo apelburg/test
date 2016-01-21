@@ -293,7 +293,8 @@
 				 $svetofor_tr_display = ($row['svetofor_display']==1 && $dop_row['row_status']=='red')?'hidden':'';
 				 $currency = 'р';
 				 //$quantity_dim = 'шт';<td width="20" class=" left quantity_dim">'.$quantity_dim.'</td>
-				 $discount = $dop_row['discount'].'%';
+				 $discount = $dop_row['discount'];
+				 $discount_str = $discount .'%';
 				 //$srock_sdachi = implode('.',array_reverse(explode('-',$dop_row['shipping_date'])));
 				  $srock_sdachi = ($dop_row['shipping_type']=='date')? implode('.',array_reverse(explode('-',$dop_row['shipping_date']))):'';
 				 if($srock_sdachi=='00.00.0000') $srock_sdachi='';
@@ -312,7 +313,7 @@
 				 $currency = $print_btn = $dop_uslugi_btn = '';
 				 $price_out = $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
-				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $srock_sdachi = $print_exists_flag = $extra_exists_flag = $margin_currency = '';
+				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $discount_str = $srock_sdachi = $print_exists_flag = $extra_exists_flag = $margin_currency = '';
 				 
 				  
 			 }
@@ -377,8 +378,8 @@
 						   <td width="90" type="price_in_summ" swiched_cols="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
 						  
 						   <td width="15" swiched_cols="art_price" c_stat="0" class="currency left hidden">'.$currency.'</td>
-						   <td width="45" class="center" type="discount" its_rt="true" discount_fieid="1">'.$discount.'</td>
-						   <td width="90" type="price_out" editable="true" swiched_cols="art_price" c_stat="1" class="out right">'.$price_out.'</td>
+						   <td width="45" class="center" type="discount" its_rt="true" discount_fieid="1">'.$discount_str.'</td>
+						   <td width="90" type="price_out" editable="'.(($discount!=0)?'false':'true').'" swiched_cols="art_price" c_stat="1" class="out right">'.$price_out.'</td>
 						   <td width="15" class="currency left r_border" swiched_cols="art_price" c_stat="1" >'.$currency.'</td>
 						   <td width="90" type="price_out_summ"  swiched_cols="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
 						   <td width="15" swiched_cols="art_price" c_stat="0" class="currency left r_border hidden">'.$currency.'</td>

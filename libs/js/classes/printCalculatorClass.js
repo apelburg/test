@@ -1,6 +1,9 @@
 var printCalculator = {
 	evoke_calculator_directly: function(data){
 	    //console.log(data);
+		printCalculator.discount = Number($('.percent_nacenki.js--calculate_tbl-edit_percent:visible').attr('data-val'));
+		//alert(rr);
+		
 		if(data.dop_uslugi_id){
 			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_data_for_dop_uslugi_row='+data.dop_uslugi_id,'section');
 			printCalculator.send_ajax(url,callback);
@@ -56,7 +59,7 @@ var printCalculator = {
 		// скидка 
 		//printCalculator.discount = ($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1);
 		printCalculator.discount = ($(trTag).find( "td[discount_fieid]" ).text()).slice(0,-1);
-
+		
 		// определяем количество товара (берем данные из ячейки quantity данного ряда)
 		var tdsArr = trTag.getElementsByTagName('TD');
 		//alert(tdsArr);
