@@ -207,13 +207,16 @@ var rtCalculator = {
 								   e = e || window.event;
 								   // устанавливаем текущюю ячейку и сохраняем изначальное значение
 		                           var cell = e.target || e.srcElement;
-								   // проверяем есть ли скидка в ячейке
-								   if(parseInt(($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1)) != 0){
-									   
-                                         echo_message_js('<span style="text-transform:lowercase">Для редактирования исходящей стоимости обнулите скидку/наценку</span>','system_message'); 
-										  
-										
-									}
+								   
+								   if(cell.hasAttribute('type') && cell.getAttribute('type')=="price_out"){
+									   // проверяем есть ли скидка в ячейке
+									   if(parseInt(($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1)) != 0){
+										   
+											 echo_message_js('<span style="text-transform:lowercase">Для редактирования исходящей стоимости обнулите скидку/наценку</span>','system_message'); 
+											  
+											
+										}
+								   }
 								}
 								tds_arr[j].onfocus = function(e){ 
 								   e = e || window.event;

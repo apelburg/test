@@ -575,7 +575,7 @@
 			if($print == 'true'){
 			    $itog_sums = array("summ_in"=>0,"summ_out"=>0);
 				// делаем запрос чтобы получить данные о всех расчетах нанесений привязанных к данному ряду
-				$query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
+				$query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id, uslugi.discount discount FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
 									`".RT_DOP_DATA."` dop_data
 									  ON dop_data.`id` =  uslugi.`dop_row_id`
 									  WHERE uslugi.glob_type ='print' AND dop_data.`id` = '".$dop_data_id."'";
@@ -593,7 +593,7 @@
 							//print_r($new_price_arr);echo "\r\n";//
 						
 							// сохраняем полученные данные в промежуточный массив
-							$dataArr[]= array('new_price_arr' => $new_price_arr,'print_details_obj' => $print_details_obj,'uslugi_row_id' => $row['uslugi_row_id']);
+							$dataArr[]= array('new_price_arr' => $new_price_arr,'print_details_obj' => $print_details_obj,'uslugi_row_id' => $row['uslugi_row_id'],'discount' => $row['discount']);
 						 }
 						 else $dataArr[]= array('uslugi_row_id' => $row['uslugi_row_id']);
 					}
@@ -608,6 +608,8 @@
 								$new_data["new_price_arr"] = array("price_in"=>0,"price_out"=>0);
 								$new_data["new_summs"] = array("summ_in"=>0,"summ_out"=>0); 
 							}
+							// print_r($new_data)."\r";
+							// echo $dataVal['discount']."\r";//
 							
 							// перезаписываем новые значения прайсов и X индекса обратно в базу данных
 							$query="UPDATE `".RT_DOP_USLUGI."` 
@@ -618,6 +620,10 @@
 										  WHERE id = '".$dataVal['uslugi_row_id']."'";
 							$mysqli->query($query)or die($mysqli->error);
 							
+							$new_data["new_price_arr"]["price_out"] = ($dataVal['discount'] != 0 )? (($new_data["new_price_arr"]["price_out"]/100)*(100 + $dataVal['discount'])) : $new_data["new_price_arr"]["price_out"];
+							$new_data["new_summs"]["summ_out"] = ($dataVal['discount'] != 0 )? (($new_data["new_summs"]["summ_out"]/100)*(100 + $dataVal['discount'])) : $new_data["new_summs"]["summ_out"];
+							
+							// print_r($new_data)."\r";
 							if($source=='rt'){
 							    $itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
 							    $itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
@@ -651,9 +657,11 @@
 				$result = $mysqli->query($query)or die($mysqli->error);
 				if($result->num_rows>0){
 					while($row = $result->fetch_assoc()){
+					     $row['price_out'] = ($row['discount'] != 0 )? (($row['price_out']/100)*(100 + $row['discount'])) : $row['price_out'];
 					     if($source=='rt'){
 						     $out_put['extra']['new_sums']['summ_in'] += ($row['for_how']=='for_all')? $row['price_in']:$quantity*$row['price_in'];
 						     $out_put['extra']['new_sums']['summ_out'] +=($row['for_how']=='for_all')? $row['price_out']:$quantity*$row['price_out'];
+							
 						 }
 						 if($source=='card'){
 						     $out_put['new_sums_details'][$row['id']] = array('for_how' => $row['for_how'],'price_in' => $row['price_in'],'price_out' => $row['price_out']);
