@@ -1082,6 +1082,21 @@ $(document).on('click', '.attach_the_client', function(event) {
         
 //     }
 // });
+				$(document).keydown(function(event) {
+					if(event.keyCode == 13) {
+						if( $("#js--window_client_sherch_form input").is(":focus") ){
+							event.preventDefault();
+					        search_and_show_client_list();
+					        return false;
+						}
+
+						// если открыто окно поиска клиентов
+						if($('#chose_client_tbl .checked').length>0){
+							
+							$('#chose_client_tbl').parent().parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset button').click();
+						}
+					}
+				});
 
 
 
@@ -3329,52 +3344,6 @@ jQuery.fn.scrollTo = function(elem, speed) {
     return this; 
 };
 
-// #search_query
- $(function() {
-	
 
-	$('#search_query').autocomplete({
-    	source: function(request, response){
-    		console.log(request)
-        $.ajax({
-        	type: "POST",
-        	dataType: "json",
-            data:{
-                AJAX: 'shearch_client_autocomlete', // показать первые 12 результатов
-                search: request.term // поисковая фраза
-            },
-	        success: function( data ) {
-	        	response( data );
-	        	// console.log(data);
-	        	// $('#search_query').parent().next().click();
 
-	        }
-        });
-        // console.log(response);
-    }
-    // select: function( event, ui ) {
-    //     // по выбору - перейти на страницу товара
-    //     // Вы можете делать вывод результата на экран
-    //     location.href = ui.item.plink;
-    //     return fal
-      
-	});
-	$( "#search_query" ).data( "ui-autocomplete" )._renderItem = function( ul, item ) { // для jquery-ui 1.10+
-		return $("<li></li>")
-		.data("ui-autocomplete-item", item) // для jquery-ui 1.10+
-		//.append( "<a>" + item.label + "<span> (" + item.desc + ")</span></a>" )
-		.append( item.label )
-		.appendTo(ul);
-	};
 
-})
-
-$(document).keydown(function(e) {	
-	if(e.keyCode == 13){//enter
-		if($('#search_query').is(':focus')){
-			$('#search_query').parent().next().click();
-		}//отправка поиска на enter
-		
-		
-	}
-});

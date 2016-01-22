@@ -234,41 +234,21 @@
 			//////////////////////////
 			//	paperwork START
 			//////////////////////////
-				// private function replace_search_query_on_client_id(){
-				// 	global $mysqli;
-				// 	$query="SELECT * FROM `".CLIENTS_TBL."`  WHERE `company` = '".$_GET['search']."'";
-				// 	$result = $mysqli->query($query)or die($mysqli->error);
+				private function replace_search_query_on_client_id(){
+					global $mysqli;
+					$query="SELECT * FROM `".CLIENTS_TBL."`  WHERE `company` = '".$_GET['search']."'";
+					$result = $mysqli->query($query)or die($mysqli->error);
 					
-				// 	if($result->num_rows > 0){
-				// 		while($row = $result->fetch_assoc()){
-				// 			unset($_GET['search']);
-				// 			$_GET['client_id'] = $row['id'];
-				// 		}
-				// 	}
-				// 	// exit;
-				// }
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							unset($_GET['search']);
+							$_GET['client_id'] = $row['id'];
+						}
+					}
+					// exit;
+				}
 				
-				// protected function shearch_client_autocomlete_AJAX(){
-				// 	global $mysqli;
-				// 	$query="SELECT * FROM `".CLIENTS_TBL."`  WHERE `company` LIKE '%".$_POST['search']."%'";
-				// 	$result = $mysqli->query($query)or die($mysqli->error);
-				// 	$response = array(); 
-
-				// 	$i=0;
-				// 	if($result->num_rows > 0){
-				// 		while($row = $result->fetch_assoc()){
-				// 			// $response[] = $row['company'];
-				// 			$response[$i]['label'] = $row['company'];
-				// 			$response[$i]['value'] = $row['company'];
-				// 			$response[$i]['href'] = $_SERVER['REQUEST_URI'].'&client_id='.$row['id'];
-				// 			$response[$i++]['desc'] = $row['id'];
-				// 		}
-				// 	}
-
-					
-				// 	echo json_encode($response);
-				// 	exit;
-				// }
+				
 
 
 				protected function change_payment_date_AJAX(){
