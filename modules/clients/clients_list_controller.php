@@ -152,6 +152,12 @@
 		//////////////////////////////////////////////////////////////
 		
         if($curViewType == 'ordinary' || $curViewType == 'short'){
+
+        	foreach($clients_data['data'] as $item) $ids[$item['id']] = $item['id'];
+        	$client_expanded_data = get_expanded_data_for_client_list($ids,$user_id);
+
+
+        	$no_use_for_client_href = '';
 	     	$main_tbl_class = 'main_tbl_ordinary';
 			$num_items_on_page = count($clients_data['data']);
 			if($curViewType == 'ordinary') $num_cols = 3;
@@ -160,6 +166,12 @@
 			$counter = 0;
 			echo "<tr><td>";
 			foreach($clients_data['data'] as $item){
+				// проверка прав
+				$no_use_for_client_href = '';
+				if($user_status != 1 && @!in_array($user_id,$client_expanded_data[$item['id']]['curators_id'])){
+					$no_use_for_client_href = ' onclick="echo_message_js(\'Вы не можете просматривать в чужого клиента.\');return false;" ';
+				}
+
 			    //$width = $item['rate']*12;
 				eval('?>'.$tpl.'<?php '); 
 				if(++$counter%$items_in_col == 0 && $counter/$items_in_col < $num_cols) echo "</td><td>";
@@ -189,11 +201,13 @@
 			// print_r($client_expanded_data);
 			// echo '</pre>';
 		    foreach($clients_data['data'] as $item){
+			    $no_use_for_client_href = '';
 			    $str = 'нет данных';
 			    if($curViewType == 'wide'){
 			    	
 					$curators=isset($client_expanded_data[$item['id']]['curators'])?$client_expanded_data[$item['id']]['curators'][0]:$str;
 
+					
 					// не выводим информацию по чужим клиентам для всех кроме администратора
 					$phones = $emails = $contacts = $str;
 					if($user_status == 1 ){
@@ -205,6 +219,8 @@
 							$phones = (isset($client_expanded_data[$item['id']]['phones']) )? $client_expanded_data[$item['id']]['phones'][0]:$str;
 							$emails = (isset($client_expanded_data[$item['id']]['emails']) )? $client_expanded_data[$item['id']]['emails'][0]:$str;
 							$contacts = (isset($client_expanded_data[$item['id']]['contacts']) )?$client_expanded_data[$item['id']]['contacts'][0]:$str;
+						}else{
+							$no_use_for_client_href = ' onclick="echo_message_js(\'Вы не можете просматривать в чужого клиента.\');return false;" ';
 						}
 						
 					}
@@ -247,6 +263,8 @@
 							$contacts=isset($client_expanded_data[$item['id']]['contacts'])?make_inner_cell_list(@$client_expanded_data[$item['id']]['contacts'],'inner_row'):$str;
 							$phones = isset($client_expanded_data[$item['id']]['phones'])? make_inner_cell_list(@$client_expanded_data[$item['id']]['phones'],'inner_row'):$str;
 							$emails = isset($client_expanded_data[$item['id']]['emails'])? make_inner_cell_list(@$client_expanded_data[$item['id']]['emails'],'inner_row'):$str;
+						}else{
+							$no_use_for_client_href = ' onclick="echo_message_js(\'Вы не можете просматривать в чужого клиента.\');return false;" ';
 						}
 						
 					}
