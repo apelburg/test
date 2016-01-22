@@ -721,20 +721,26 @@ if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']=
 	}
 	
 	
-	function get_expanded_data_for_client_list($ids){
+	function get_expanded_data_for_client_list($ids,$user_id){
 	    global $db;
 		
 		$ids_string = implode(',',$ids);
 		//echo $ids_string;
 		
-		$query = "SELECT  relate_tbl.client_id client_id, mngs_tbl.name name, mngs_tbl.last_name last_name FROM `".RELATE_CLIENT_MANAGER_TBL."` relate_tbl 
+		$query = "SELECT  relate_tbl.client_id client_id, mngs_tbl.id as manager_ids, mngs_tbl.name name, mngs_tbl.last_name last_name FROM `".RELATE_CLIENT_MANAGER_TBL."` relate_tbl 
 		          INNER JOIN `".MANAGERS_TBL."` mngs_tbl
 				  ON relate_tbl.manager_id = mngs_tbl.id
 				  WHERE relate_tbl.client_id IN (".$ids_string.")";
+		// $query = "  AND relate_tbl.manager_id = '".$user_id."'"		  ;
+
 		$result = mysql_query($query,$db);
+		$managers = array();
+
 		if(mysql_num_rows($result)>0){
 			while($item = mysql_fetch_assoc($result)){
+				// $managers[$item['manager_ids']] = 1;
 			    $arr[$item['client_id']]['curators'][] =  $item['name'].' '.$item['last_name'];
+			    $arr[$item['client_id']]['curators_id'][$item['manager_ids']] =  $item['manager_ids'];
 			}
 		}
 		
@@ -751,10 +757,18 @@ if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']=
 			}
 		}
 		###################################################
+		// не запрашиваем данные для не кураторов 
+		// echo '<pre>';
+		// print_r($managers);
+		// echo '</pre>';
+		// if(!array_key_exists((string)$user_id,$managers)){
+		// 	return $arr;
+		// }
 		$query = "SELECT client_tbl.id client_id, client_tbl.phone phone, client_tbl.email email, cont_faces_tbl.name name , cont_faces_tbl.phone phone2 , cont_faces_tbl.email email2 FROM `".CLIENTS_TBL."` client_tbl 
 		          INNER JOIN `".CLIENT_CONT_FACES_TBL."` cont_faces_tbl
 				  ON client_tbl.id = cont_faces_tbl.client_id
 				  WHERE client_tbl.id IN (".$ids_string.")";
+		
 		$result = mysql_query($query,$db) or die(mysql_error());
 		if(mysql_num_rows($result)>0){
 			while($item = mysql_fetch_assoc($result)){

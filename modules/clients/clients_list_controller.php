@@ -63,10 +63,13 @@
 	if(isset($_GET['filter_by_rating']) && $_GET['filter_by_rating']) $filters[] = array ('type' =>'by_rating','col' =>'rate','val' => $_GET['filter_by_rating']);
 	if(isset($_GET['filter_by_letter']) && $_GET['filter_by_letter']) $filters[] = array ('type' =>'by_letter','col' =>'company','val' => $_GET['filter_by_letter']);
 	
+	// echo $user_status;
 	if($user_status == 1 || isset($_GET['search'])) { // при поиске разрешаем видеть всех клиентов
 		$range = false;
+		$_GET['view'] = 'wide';
 	}else{
 		$range = array('by'=>'manager_id','id'=> $user_id);
+		$_GET['view'] = 'wide';
 	}
 	
 	if(isset($_GET['filter_by_range'])) $range = array ('by' =>'manager_id','id' => $_GET['filter_by_range']);
@@ -134,7 +137,7 @@
 	$clients_data = get_clients_list($range,$order,$filters,$search,$limit_str);
 	
 	
-	/* echo '<pre>';print_r($clients_data);echo '</pre>'; */
+	 // echo '<pre>';print_r($clients_data);echo '</pre>'; 
 	if(is_array($clients_data)){
 	
 		///////////////////        page nav        ///////////////////
@@ -169,23 +172,56 @@
 		else if($curViewType == 'wide' || $curViewType == 'expanded'){
 
 		    foreach($clients_data['data'] as $item) $ids[$item['id']] = $item['id'];
-			$client_expanded_data = get_expanded_data_for_client_list($ids);
+			
+			// echo $user_id;
+		    // echo '<pre>';
+		    // print_r($ids);
+		    // echo '</pre>';
+
+			$client_expanded_data = get_expanded_data_for_client_list($ids,$user_id);
 			/*echo '<pre>';print_r($client_expanded_data);echo '</pre>';*/
 			$main_tbl_class = 'main_tbl_wide';
 			
+			// echo '<pre>';
+			// print_r($clients_data['data']);
+			// echo '</pre>';
+			// echo '<pre>';
+			// print_r($client_expanded_data);
+			// echo '</pre>';
 		    foreach($clients_data['data'] as $item){
 			    $str = 'нет данных';
 			    if($curViewType == 'wide'){
-			    
+			    	
 					$curators=isset($client_expanded_data[$item['id']]['curators'])?$client_expanded_data[$item['id']]['curators'][0]:$str;
-					$phones = isset($client_expanded_data[$item['id']]['phones'])? $client_expanded_data[$item['id']]['phones'][0]:$str;
-					$emails = isset($client_expanded_data[$item['id']]['emails'])? $client_expanded_data[$item['id']]['emails'][0]:$str;
-					$contacts=isset($client_expanded_data[$item['id']]['contacts'])?$client_expanded_data[$item['id']]['contacts'][0]:$str;
+
+					// не выводим информацию по чужим клиентам для всех кроме администратора
+					$phones = $emails = $contacts = $str;
+					if($user_status == 1 ){
+						$phones = (isset($client_expanded_data[$item['id']]['phones']) )? $client_expanded_data[$item['id']]['phones'][0]:$str;
+						$emails = (isset($client_expanded_data[$item['id']]['emails']) )? $client_expanded_data[$item['id']]['emails'][0]:$str;
+						$contacts = (isset($client_expanded_data[$item['id']]['contacts']) )?$client_expanded_data[$item['id']]['contacts'][0]:$str;
+					}else{
+						if(isset($client_expanded_data[$item['id']]['curators_id']) && (in_array($user_id,$client_expanded_data[$item['id']]['curators_id']))){
+							$phones = (isset($client_expanded_data[$item['id']]['phones']) )? $client_expanded_data[$item['id']]['phones'][0]:$str;
+							$emails = (isset($client_expanded_data[$item['id']]['emails']) )? $client_expanded_data[$item['id']]['emails'][0]:$str;
+							$contacts = (isset($client_expanded_data[$item['id']]['contacts']) )?$client_expanded_data[$item['id']]['contacts'][0]:$str;
+						}
+						
+					}
+					// $phones = (isset($client_expanded_data[$item['id']]['phones']))? $client_expanded_data[$item['id']]['phones'][0]:$str;
+					// $emails = (isset($client_expanded_data[$item['id']]['emails']))? $client_expanded_data[$item['id']]['emails'][0]:$str;
+					// $contacts=(isset($client_expanded_data[$item['id']]['contacts']))?$client_expanded_data[$item['id']]['contacts'][0]:$str;
 					
 					$curators_full_list = make_drop_down_list(@$client_expanded_data[$item['id']]['curators']);
-					$contacts_full_list = make_drop_down_list(@$client_expanded_data[$item['id']]['contacts']);
-					$phones_full_list = make_drop_down_list(@$client_expanded_data[$item['id']]['phones']);
-					$emails_full_list = make_drop_down_list(@$client_expanded_data[$item['id']]['emails']);
+					$contacts_full_list = '';
+					$phones_full_list = '';
+					$emails_full_list = '';
+					if($user_status != 1 && isset($client_expanded_data[$item['id']]['curators_id']) && (in_array($user_id,$client_expanded_data[$item['id']]['curators_id']))){
+						$contacts_full_list = make_drop_down_list(@$client_expanded_data[$item['id']]['contacts']);
+						$phones_full_list = make_drop_down_list(@$client_expanded_data[$item['id']]['phones']);
+						$emails_full_list = make_drop_down_list(@$client_expanded_data[$item['id']]['emails']);	
+					}
+					
 					
 					$curators_class = ($curators_full_list != '')?'roll':'';
 					$contacts_class = ($contacts_full_list != '')?'roll':'';
@@ -200,9 +236,21 @@
 				if($curViewType == 'expanded'){
 					
 					$curators=isset($client_expanded_data[$item['id']]['curators'])?make_inner_cell_list(@$client_expanded_data[$item['id']]['curators'],'inner_row'):$str;
-					$contacts=isset($client_expanded_data[$item['id']]['contacts'])?make_inner_cell_list(@$client_expanded_data[$item['id']]['contacts'],'inner_row'):$str;
-					$phones = isset($client_expanded_data[$item['id']]['phones'])? make_inner_cell_list(@$client_expanded_data[$item['id']]['phones'],'inner_row'):$str;
-					$emails = isset($client_expanded_data[$item['id']]['emails'])? make_inner_cell_list(@$client_expanded_data[$item['id']]['emails'],'inner_row'):$str;
+					
+					$phones = $emails = $contacts = $str;
+					if($user_status == 1 ){
+						$contacts=isset($client_expanded_data[$item['id']]['contacts'])?make_inner_cell_list(@$client_expanded_data[$item['id']]['contacts'],'inner_row'):$str;
+						$phones = isset($client_expanded_data[$item['id']]['phones'])? make_inner_cell_list(@$client_expanded_data[$item['id']]['phones'],'inner_row'):$str;
+						$emails = isset($client_expanded_data[$item['id']]['emails'])? make_inner_cell_list(@$client_expanded_data[$item['id']]['emails'],'inner_row'):$str;
+					}else{
+						if(isset($client_expanded_data[$item['id']]['curators_id']) && (in_array($user_id,$client_expanded_data[$item['id']]['curators_id']))){
+							$contacts=isset($client_expanded_data[$item['id']]['contacts'])?make_inner_cell_list(@$client_expanded_data[$item['id']]['contacts'],'inner_row'):$str;
+							$phones = isset($client_expanded_data[$item['id']]['phones'])? make_inner_cell_list(@$client_expanded_data[$item['id']]['phones'],'inner_row'):$str;
+							$emails = isset($client_expanded_data[$item['id']]['emails'])? make_inner_cell_list(@$client_expanded_data[$item['id']]['emails'],'inner_row'):$str;
+						}
+						
+					}
+					
 				 }
 				
 				eval('?>'.$tpl.'<?php '); 
