@@ -10,7 +10,7 @@
 					});
 
 					// #search_query
-					 $(function() {
+					$(function() {
 						$('#search_query').autocomplete({
 					    	source: function(request, response){
 					    		console.log(request)
@@ -18,28 +18,22 @@
 						        	type: "POST",
 						        	dataType: "json",
 						            data:{
-						                AJAX: 'shearch_client_autocomlete', // показать первые 12 результатов
+						                AJAX: 'shearch_client_autocomlete', // показать 
 						                search: request.term // поисковая фраза
 						            },
 							        success: function( data ) {
 							        	response( data );
-							        	// console.log(data);
-							        	// $('#search_query').parent().next().click();
 
 							        }
 						        });
-					        // console.log(response);
 					    	},
 
 					    	select: function( event, ui ) {
-					    //     // по выбору - перейти на страницу товара
-					    //     // Вы можете делать вывод результата на экран
-					    //     location.href = ui.item.plink;
-					    //     return fal
 					    		$( "#search_query" ).val(ui.item.value);
 					    		$('#search_query').parent().parent().submit();
 					    	} 	 
 						});
+
 						$( "#search_query" ).data( "ui-autocomplete" )._renderItem = function( ul, item ) { // для jquery-ui 1.10+
 							return $("<li></li>")
 							.data("ui-autocomplete-item", item) // для jquery-ui 1.10+
