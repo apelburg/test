@@ -1082,22 +1082,23 @@ $(document).on('click', '.attach_the_client', function(event) {
         
 //     }
 // });
+				$(document).keydown(function(event) {
+					if(event.keyCode == 13) {
+						if( $("#js--window_client_sherch_form input").is(":focus") ){
+							event.preventDefault();
+					        search_and_show_client_list();
+					        return false;
+						}
 
-$(document).keydown(function(event) {
-	if(event.keyCode == 13) {
-		if( $("#js--window_client_sherch_form input").is(":focus") ){
-			event.preventDefault();
-	        search_and_show_client_list();
-	        return false;
-		}
+						// если открыто окно поиска клиентов
+						if($('#chose_client_tbl .checked').length>0){
+							
+							$('#chose_client_tbl').parent().parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset button').click();
+						}
+					}
+				});
 
-		// если открыто окно поиска клиентов
-		if($('#chose_client_tbl .checked').length>0){
-			
-			$('#chose_client_tbl').parent().parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset button').click();
-		}
-	}
-});
+
 
 
 
@@ -3342,3 +3343,7 @@ jQuery.fn.scrollTo = function(elem, speed) {
     }, speed == undefined ? 1000 : speed); 
     return this; 
 };
+
+
+
+

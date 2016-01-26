@@ -200,7 +200,7 @@
 										   'четыре миллиардов'=>'четыре  миллиарда');
 									
 	//print_r($m_arr);
-	include_once('mysql.php');
+	// include_once('mysql.php');
 	if(isset($_GET['page']) && $_GET['page']=="samples"){
 	$img_catalog = "../img/";
 	$query = "SELECT * FROM `base_images`";

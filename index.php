@@ -18,8 +18,11 @@
 
 	// aplStdClass
 	include_once ROOT.'/../libs/php/classes/aplStdClass.php';
-
+	include_once('libs/php/classes/clientSearchClass.php');
+	new clientSearch;
 	include_once('libs/access_installer.php');
+
+
 	include_once('libs/php/classes/mail_class.php');
 	include_once('libs/php/common.php');
     
