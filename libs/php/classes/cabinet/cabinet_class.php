@@ -2906,20 +2906,26 @@
 					
 					$link = '?';
 					$i = 0;
-					foreach ($_GET as $key => $value) {
-						if($i > 0){$link .= '&';}
-						if($key == 'subsection' && isset($section_locate[$_POST['query_status']])){
-							$link .= $key.'='.$section_locate[$_POST['query_status']];
-						}else{
-							$link .= $key.'='.$value;	
-						}
-						$i++;
+					if($_POST['query_status'] != 'in_work'){
+						foreach ($_GET as $key => $value) {
+							if($i > 0){$link .= '&';}
+							if($key == 'subsection' && isset($section_locate[$_POST['query_status']])){
+								$link .= $key.'='.$section_locate[$_POST['query_status']];
+							}else{
+								$link .= $key.'='.$value;	
+							}
+							$i++;
+						}	
+					}else{
+						// ?page=client_folder&client_id=209&query_num=10008
+						$link = '?page=client_folder&client_id='.$_POST['client_id'].'&query_num='.$_POST['query_num'];
 					}
+					
 
 
 					// переадресация на другую вкладку
 					$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/'.$link;
-					$option['timeout'] = '1000';
+					$option['timeout'] = '2000';
 					$this->responseClass->addResponseFunction('location_href',$option);
 					$message = 'Статус успешно изменён. Вы будете перенаправлены на другую вкладку.';
 					$this->responseClass->addMessage($message,'successful_message');	

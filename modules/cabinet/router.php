@@ -47,6 +47,7 @@
 	//////////////////////////
 	//	Cabinet template
 	//////////////////////////
+	// echo $CABINET->get_menu_top_center_Html();
 	include'./skins/tpl/cabinet/show.tpl';
 	
 	unset($content);
