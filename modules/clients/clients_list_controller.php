@@ -65,6 +65,7 @@
 	
 	if($user_status == 1 || isset($_GET['search'])) { // при поиске разрешаем видеть всех клиентов
 		$range = false;
+		$_GET['view'] = 'wide';
 	}else{
 		$range = array('by'=>'manager_id','id'=> $user_id);
 	}
