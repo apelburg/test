@@ -55,7 +55,7 @@
                     <li <?php 
                     if(!isset($_GET['section']) || isset($_GET['section']) && ($_GET['section'] == 'requests' || $_GET['section'] =='rt_position')){echo 'class="selected"';} 
                     ?>>
-                        <a href="<?php echo HOST; ?>/?page=cabinet<?php
+                        <a href="<?php echo HOST; ?>/?page=cabinet&section=requests&subsection=query_worcked_men<?php
                             if(isset($_GET['client_id'])){
                                 echo '&client_id='.$_GET['client_id'];
                             }
@@ -66,7 +66,14 @@
                     <li <?php 
                     if(isset($_GET['section']) && $_GET['section'] == 'business_offers'){echo 'class="selected"';} 
                     ?>>
-                        <a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=&client_id=<?php  echo $_GET['client_id']; ?>" style="color:#FFFFFF;">
+                        <a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=<?php
+                            if(isset($_GET['client_id'])){
+                                echo '&client_id='.$_GET['client_id'];
+                            }
+                            if(isset($_GET['query_num'])){
+                                echo '&query_num='.$_GET['query_num'];
+                            }
+                         ?>" style="color:#FFFFFF;">
                             <div class="border">Коммерческие предложения</div>
                         </a>
                     </li>

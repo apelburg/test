@@ -249,6 +249,7 @@
 	$query_related_data = RT::fetch_query_related_data($query_num);
 	$theme = $query_related_data['theme'];
 	$query_status = $query_related_data['status'];
+	$manager_id = $query_related_data['manager_id'];
 	$calculator_level = ($query_related_data['calculator_level']!='')?$query_related_data['calculator_level']:'full';
 	$CALCULATOR_LEVELS = array('full'=>"Конечники",'ra'=>"Рекламщики");
 	$calculator_level_ru = $CALCULATOR_LEVELS[$calculator_level];
