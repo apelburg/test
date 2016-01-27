@@ -7,14 +7,14 @@ body {
 #order_art_edit{font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px}
 
 
-#info_string_on_query{ background-color: #5a5c61; color: #fff;}
+#info_string_on_query{ background-color: #c7c8ca; color: #fff;}
 
 #info_string_on_query ul{ padding: 0; list-style: none; margin: 0}
 #info_string_on_query ul li{
   display: inline-block;
   padding: 5px 10px;
   text-align: left;
-  color: #fff;
+  color: #5a5c61;
   margin-top: -1px;
 }
 #claim_number a{
@@ -32,13 +32,14 @@ body {
   background-position-x: 3px;}
 
 #info_string_on_query ul li:nth-of-type(1){width: 32px;padding: 5px 0;  height: 6px;}
-#info_string_on_query span{color:#a3a3a3;}
+#info_string_on_query span{/*color:#a3a3a3;*/}
 
 #button_standart_001{cursor: default; border-left: 1px solid #84868B; border-right: 1px solid #84868B;}
 #button_standart_001:hover{ background-color:  #84868B; }
 #button_standart_001:hover span{ color: #fff}
 
-#number_position_and_type{ background-color: #c7c8ca; padding: 0 32px;}
+#number_position_and_type{ background-color: #fff; padding: 0 32px;
+    border-bottom: 1px solid #d7d7d7;}
 #number_position_and_type ul{padding: 0; margin: 0; list-style: none}
 #number_position_and_type ul li{ display: inline-block; padding: 5px 10px}
 #number_position_and_type span{ color: #5a5c61; font-size: 10px}

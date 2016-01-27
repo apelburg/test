@@ -990,7 +990,8 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 								}
 							}
 							if(isset($print_data['block1']['print_size'])){
-							     $print_block[] = '<tr><td valign="top">Площадь печати: </td><td>'.$print_data['block1']['print_size'].'</td></tr>'; 
+							    // если тип нанесения Тампопечать ( id =18 ) - то тогда не отображаем площать печати
+							    if($u_level['usluga_id'] != 18) $print_block[] = '<tr><td valign="top">Площадь печати: </td><td>'.$print_data['block1']['print_size'].'</td></tr>'; 
 								//echo  '<pre>--2--'; print_r($print_details_arr['dop_params']); echo '</pre>';
 							}
 							if(isset($print_data['block2']['data'])){
@@ -1694,18 +1695,19 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 			// выборка конкретного КП производится на id основании конкретного КП для КП нового типа
 			// и на основании имени файла для старого КП
 
-		    $rows = '';
+		    $rows = '';//."*****".(($query_num=="")?'null':$query_num)."*****";
 			if(!$certain_kp){// если не указан конкретный КП создаем полный список
 				$rows .= self::create_list_new_version($query_num);
 				$rows .= "<tr><td class='flank_cell'>&nbsp;</td><td colspan='7'>КП старого типа</td><td class='flank_cell'>&nbsp;</td></tr>";
 				$rows .= self::create_list_old_version($client_id);
             }
-			else{
+			else{//echo "*****$query_num*****";
 			    if($certain_kp['type'] == 'new') $rows .= self::create_list_new_version($query_num,$certain_kp['kp']);
 				if($certain_kp['type'] == 'old')  $rows .= self::create_list_old_version($client_id,substr($certain_kp['kp'],strpos($certain_kp['kp'],"/")+1));
 			}
 			return (!empty($rows))?$rows:"<tr><td class='flank_cell'>&nbsp;</td><td colspan='8'>для данного клиента пока небыло создано коммерческих предложений</td><td class='flank_cell'>&nbsp;</td></tr>";
 		}
+
 		static function create_list_new_version($query_num,$certain_kp_id = FALSE){
 		   global $mysqli;
 		   global $user_id;
@@ -1717,10 +1719,14 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 		   
 		   // echo $query_num;
 		   
-		   $rows = '';
+		   $rows = '';	   
 		   
+		   if((int)$query_num > 0 ){
+		   		$query="SELECT*FROM `".KP_LIST."` WHERE `query_num` = '".$query_num."'";	
+		   }else if(isset($_GET['client_id'])){
+		   		$query="SELECT*FROM `".KP_LIST."` WHERE `client_id` = '".$_GET['client_id']."'";	
+		   }
 		   
-		   $query="SELECT*FROM `".KP_LIST."` WHERE `query_num` = '".$query_num."'";
 		   if($certain_kp_id)$query.= " AND id = '".$certain_kp_id."'";
 		   $query.= " ORDER BY id DESC";
 		   $result = $mysqli->query($query)or die($mysqli->error);

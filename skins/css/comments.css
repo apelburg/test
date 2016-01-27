@@ -4,29 +4,32 @@
 
 .icon_comment_show,
 .icon_comment_order_show{
-	height: 34px;
-	width: 43px;
-	float: left;
-	padding: 2px;
-	cursor: default;
-	border:1px solid transparent;
-	background-image: url('../../skins/images/img_design/comment_icons.png');
-	background-repeat: no-repeat;
-	background-position-y: 5px;
-	background-position-x: 5px;
+	cursor: pointer;
+	    height: 25px;
+    width: 34px;
+    float: left;
+    padding: 2px;
+    cursor: default;
+    border: 1px solid transparent;
+    background-image: url('../../skins/images/img_design/comment_icons.png');
+    background-repeat: no-repeat;
+    /* background-position-y: 5px; */
+    /* background-position-x: 5px; */
+    /*background-color: red;*/
+        margin-top: -4px;
 }
 .icon_comment_show:hover,
 .icon_comment_order_show:hover{
-	border:1px dashed #8b8a89;
+	/*border:1px dashed #8b8a89;*/
 }
 .icon_comment_show.no_empty,
 .icon_comment_order_show.no_empty{
-	background-position-x: -50px;
+	background-position-x: -54px;
 }
 
 .icon_comment_show.white,
 .icon_comment_order_show.white{
-	background-position-y: 5px;
+	/*background-position-y: 5px;*/
 }
 .history_query {
 	background-color: #f1f1f1;

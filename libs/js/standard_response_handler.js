@@ -221,7 +221,7 @@
 			if( data.timeout === undefined ){
 				window.location.href = data.href;
 			}else{
-				setTimeout(function)({
+				setTimeout(function(){
 					window.location.href = data.href;
 				}, data.timeout)
 
