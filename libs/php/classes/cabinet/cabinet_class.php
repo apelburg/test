@@ -1,5 +1,5 @@
 <?php
-    class Cabinet{
+    class Cabinet extends aplStdAJAXMethod{
     	///////////////////////////////
     	// дополнения к запросам в базе
     	///////////////////////////////
@@ -41,6 +41,7 @@
     	// содержит массив всех существующих услуг содержащихся в OUR_USLUGI_LIST (все предоставляемые услуги)
     	protected $Services_list_arr; // array();
 
+    	
     	// список станков
     	protected $machine_list = array(   
 			'poluavtomat' => 'Полуавтомат', 
@@ -1039,14 +1040,14 @@
 		//	-----  START  -----  МЕТОДЫ AJAX  -----  START  -----  //
 		/////////////////////////////////////////////////////////////
 			########   вызов AJAX   ########
-			protected function _AJAX_($name){
-				$method_AJAX = $name.'_AJAX';
-				// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
-				if(method_exists($this, $method_AJAX)){
-					$this->$method_AJAX();
-					exit;
-				}					
-			}
+			// protected function _AJAX_($name){
+			// 	$method_AJAX = $name.'_AJAX';
+			// 	// если в этом классе существует искомый метод для AJAX - выполняем его и выходим
+			// 	if(method_exists($this, $method_AJAX)){
+			// 		$this->$method_AJAX();
+			// 		exit;
+			// 	}					
+			// }
 
 			//buh_uchet
 
@@ -1211,13 +1212,14 @@
 					//$this->get_window_buh_uchet_AJAX();
 					// echo '{"response":"show_new_window_simple", "html":"'.base64_encode($this->get_window_buh_uchet()).'","title":"Бухгалтерский учёт:","width":"1100"}';				
 				}
+				exit;
 			}
 
 			// редактирование входящей стоимости услуги из окна фин. инфо
 			protected function edit_price_in_for_postfactum_service_AJAX(){
 				$this->db_edit_one_val(CAB_DOP_USLUGI,'quantity',(int)$_POST['row_id'],(int)$_POST['value']);
 				echo '{"response":"OK"}';
-
+				exit;
 				// echo '{"response":"show_new_window_simple","title":"test","html":"'.base64_encode($this->print_arr($_POST)).'"}';
 			}
 
@@ -1230,6 +1232,7 @@
 				$this->db_edit_one_val(CAB_DOP_USLUGI,'price_in',(int)$_POST['row_id'],(int)$_POST['value']);
 				echo '{"response":"OK"}';
 				// echo '{"response":"show_new_window_simple","title":"test","html":"'.base64_encode($this->print_arr($_POST)).'"}';
+				exit;
 			}
 
 			// смена даты подписи спецификации
@@ -1245,7 +1248,7 @@
 					WHERE  `id` ='".(int)$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
-
+				exit;
 				//echo '{"response":"show_new_window_simple", "html":"'.base64_encode($html).'","title":"Разработчику!!!"}';
 			}
 
@@ -1258,6 +1261,7 @@
 					WHERE  `id` ='".(int)$_POST['id_row']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 			// смена даты выставления счёта-оферты
 			protected function change_date_create_the_bill_oferta_AJAX(){
@@ -1274,6 +1278,7 @@
 					WHERE  `id` ='".(int)$_POST['doc_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// смена даты возврата подписанной спецификации
@@ -1290,6 +1295,7 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
 				//echo '{"response":"show_new_window_simple", "html":"'.base64_encode("Запрос нужно делать").'","title":"Разработчику!!!"}';
+				exit;
 			}
 
 			// сохранение номера счёта
@@ -1300,6 +1306,7 @@
 					WHERE  `id` ='".(int)$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 			// сохранение номера счёта-оферты
 			protected function change_number_the_bill_offerta_AJAX(){
@@ -1317,6 +1324,7 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// сохранение суммы счёта
@@ -1327,6 +1335,7 @@
 					WHERE  `id` ='".(int)$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// нажатие на кнопку счёт выставлен
@@ -1337,6 +1346,7 @@
 					WHERE  `id` ='".(int)$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK","function":"reload_order_tbl"}';
+				exit;
 			}
 
 
@@ -1418,7 +1428,7 @@
 				$html .= '</form>';
 
 				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Прикрепить к заказу"}';
-
+				exit;
 			}
 
 
@@ -1456,7 +1466,7 @@
 					$this->attach_the_specification_for_other_order_Database($order_arr[$order_num]['order_id'],$order_arr[$order_num]['order_num'],$_POST['checked_spec_id']);
 					echo '{"response":"OK","function":"reload_order_tbl"}';
 				}
-				
+				exit;
 			}
 
 			// создание заказа
@@ -1491,6 +1501,7 @@
 				$this->attach_the_specification_for_other_order_Database($order_id,$order_num_NEW,$_POST['checked_spec_id']);
 
 				echo '{"response":"OK","function":"location_href","href":"?page=cabinet&section=paperwork&subsection=the_order_is_create"}';
+				exit;
 			}
 
 			protected function attach_the_specification_for_other_order_Database($order_id,$order_num_NEW,$id_string){
@@ -1703,6 +1714,7 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
+						exit;
 					}
 
 					// редактирование даты
@@ -1721,6 +1733,7 @@
 						// $result = $mysqli->query($query) or die($mysqli->error);
 
 						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode('Дата оплаты по счёту успешно изменена на '.$_POST['value']).'"}';
+						exit;
 					}
 					// редактирование суммы
 					protected function pp_edit_payment_summ_AJAX(){
@@ -1733,6 +1746,7 @@
 						
 						$this->calculate_the_pyment_price((int)$_POST['specification_id']);
 						echo '{"response":"OK"}';
+						exit;
 					}
 					// редактирование комментариев
 					protected function pp_edit_comments_AJAX(){
@@ -1743,6 +1757,7 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
+						exit;
 					}
 
 				// создание ПП
@@ -1753,6 +1768,7 @@
 					$result = $mysqli->query($query) or die($mysqli->error);			
 
 					echo '{"response":"OK","function":"show_new_row_pp","id":"'.$mysqli->insert_id.'"}';
+					exit;
 				}
 				// удалить ПП
 				protected function delete_PP_AJAX(){
@@ -1760,6 +1776,7 @@
 					$query = "DELETE FROM `".CAB_PYMENT_ORDER."` WHERE `id`='".(int)$_POST['row_id']."'";
 					$result = $mysqli->query($query) or die($mysqli->error);
 					echo '{"response":"OK"}';
+					exit;
 				}
 
 
@@ -1839,6 +1856,7 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
+						exit;
 					}
 					// редактирование даты
 					protected function pko_edit_date_AJAX(){
@@ -1857,6 +1875,7 @@
 						$result = $mysqli->query($query) or die($mysqli->error);
 
 						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode('Дата оплаты по счёту успешно изменена на '.$_POST['value']).'"}';
+						exit;
 					}
 					// редактирование суммы
 					protected function pko_edit_payment_summ_AJAX(){
@@ -1868,6 +1887,7 @@
 						$result = $mysqli->query($query) or die($mysqli->error);
 						$this->calculate_the_pyment_price((int)$_POST['specification_id']);
 						echo '{"response":"OK"}';
+						exit;
 					}
 					// редактирование комментариев
 					protected function pko_edit_comments_AJAX(){
@@ -1878,6 +1898,7 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
+						exit;
 					}
 				// создание ПКО
 				protected function create_row_pko_AJAX(){
@@ -1887,6 +1908,7 @@
 					$result = $mysqli->query($query) or die($mysqli->error);			
 
 					echo '{"response":"OK","function":"show_new_row_pko","id":"'.$mysqli->insert_id.'"}';
+					exit;
 				}
 
 				// удалить ПКО
@@ -1895,6 +1917,7 @@
 					$query = "DELETE FROM `".CAB_PYMENT_PKO."` WHERE `id`='".(int)$_POST['row_id']."'";
 					$result = $mysqli->query($query) or die($mysqli->error);
 					echo '{"response":"OK"}';
+					exit;
 				}
 
 
@@ -1973,6 +1996,7 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
+						exit;
 					}
 					// редактирование даты
 					protected function ttn_edit_date_AJAX(){
@@ -2009,6 +2033,7 @@
 							// echo $query;
 							$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
+						exit;
 					}
 					// редактирование даты возврата
 					protected function ttn_edit_date_return_AJAX(){
@@ -2019,6 +2044,7 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
+						exit;
 					}
 					// редактирование комментариев
 					protected function ttn_edit_comments_AJAX(){
@@ -2029,6 +2055,7 @@
 						// echo $query;
 						$result = $mysqli->query($query) or die($mysqli->error);
 						echo '{"response":"OK"}';
+						exit;
 					}
 				// создание ТТН
 				protected function create_row_ttn_AJAX(){
@@ -2038,6 +2065,7 @@
 					$result = $mysqli->query($query) or die($mysqli->error);			
 
 					echo '{"response":"OK","function":"show_new_row_ttn","id":"'.$mysqli->insert_id.'"}';
+					exit;
 				}
 				// удалить ТТН
 				protected function delete_TTN_AJAX(){
@@ -2045,6 +2073,7 @@
 					$query = "DELETE FROM `".CAB_TTN."` WHERE `id`='".(int)$_POST['row_id']."'";
 					$result = $mysqli->query($query) or die($mysqli->error);
 					echo '{"response":"OK"}';
+					exit;
 				}
 				// получаем ТТН 
 				protected function get_ttn_list_for_document_Database($id){
@@ -2555,6 +2584,7 @@
 				// echo $query;
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK","function":"reload_order_tbl"}';
+				exit;
 			}
 
 			// запрос из кнопки выставить счёт
@@ -2600,11 +2630,11 @@
 				}else{
 					$message = "Что-то пошло не так в методе: get_listing_type_the_bill_AJAX()";
 						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-						exit;
+						// exit;
 				}
 
 
-
+				exit;
 				// $html = '';
 				// $html .= '<form>';
 				// $html .= '<ul id="get_listing_type_the_bill" class="check_one_li_tag">';
@@ -2700,6 +2730,7 @@
 				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:","height":"450"}';
 				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 				// echo 'base';
+				exit;
 			}	
 
 			// вывод меню комманд по запросу
@@ -2809,6 +2840,7 @@
 				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
 				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 				// echo 'base';
+				exit;
 			}
 
 			/**
@@ -2853,19 +2885,56 @@
 						$user_name = (!empty($user_name_arr))?$user_name_arr['last_name'].' '.$user_name_arr['name']:'';
 						
 						$message = "Извините, но с данным запросом уже работает: <strong>$user_name</strong>";
-						echo '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'","function2":"reload_order_tbl"}';	
-						exit;
+						// $message = 'Для выбранного клиента доступны следующие кураторы:';
+						$this->responseClass->addMessage($message,'error_message');
+						// обновление данных в таблице
+						$this->responseClass->addResponseFunction('reload_order_tbl');
+						// echo '{"response":"OK","function":"echo_message","message_type":"","message":
+						// "'.base64_encode($message).'","function2":"reload_order_tbl"}';	
+						// exit;
 					}
-				}else{
-
 				}
 
 				if($this->chenge_query_status_for_id_row($_POST['row_id'], $_POST['query_status'])){
-					echo '{"response":"OK","function":"reload_order_tbl"}';
+					$section_locate= array(
+						'not_process' => 'no_worcked_men',
+						'taken_into_operation' => 'query_taken_into_operation',
+						'in_work' => 'query_worcked_men',
+						'history' => 'query_history'
+						);
+
+					
+					$link = '?';
+					$i = 0;
+					if($_POST['query_status'] != 'in_work'){
+						foreach ($_GET as $key => $value) {
+							if($i > 0){$link .= '&';}
+							if($key == 'subsection' && isset($section_locate[$_POST['query_status']])){
+								$link .= $key.'='.$section_locate[$_POST['query_status']];
+							}else{
+								$link .= $key.'='.$value;	
+							}
+							$i++;
+						}	
+					}else{
+						// ?page=client_folder&client_id=209&query_num=10008
+						$link = '?page=client_folder&client_id='.$_POST['client_id'].'&query_num='.$_POST['query_num'];
+					}
+					
+
+
+					// переадресация на другую вкладку
+					$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/'.$link;
+					$option['timeout'] = '2000';
+					$this->responseClass->addResponseFunction('location_href',$option);
+					$message = 'Статус успешно изменён. Вы будете перенаправлены на другую вкладку.';
+					$this->responseClass->addMessage($message,'successful_message');	
+					// $this->responseClass->addResponseFunction('reload_order_tbl');
 				}else{
 					$message = "Что-то пошло не так.";
-					echo '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';	
+					$this->responseClass->addMessage($message,'error_message');					
 				}
+				// exit;
 			}
 
 			// вывод меню комманд по заказу
@@ -2976,6 +3045,7 @@
 				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
 				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 				// echo 'base';
+				exit;
 			}	
 
 			// статусы заказов
@@ -3053,6 +3123,7 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				// echo '{"response":"OK", "function":"window_reload"}';
 				echo $json_answer;
+				exit;
 				
 			}
 			// проверка оплаты по заказу
@@ -3089,6 +3160,7 @@
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// правим дату сдачи по спецификации
@@ -3100,6 +3172,7 @@
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode('Данные успешно обновлены.').'"}';
+				exit;
 			}
 
 			// правим дату утверждения макета
@@ -3148,6 +3221,7 @@
 				////////////////////////////////////////////////
 				
 				echo '{"response":"OK","function":"reload_order_tbl"}';
+				exit;
 				//echo 'необходимо доделать функцию. ищем \'being_prepared\' меняем на in_processed';
 			}
 			// меняем дату утверждения
@@ -3227,6 +3301,7 @@
 				$html .= '</form>';
 
 				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
+				exit;
 			}
 			// меню выбора комманды для ДИЗА по макету
 			protected function get_modal_menu_maket_what_AJAX(){
@@ -3255,6 +3330,7 @@
 				$html .= '</form>';
 
 				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
+				exit;
 			}
 
 			// смена статуса услуги дизайна или макета менеджером
@@ -3364,6 +3440,7 @@
 						echo '{"response":"OK"}';
 					}
 				}
+				exit;
 			}
 
 			// правим срок по дс
@@ -3374,6 +3451,7 @@
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 			// детализация позиции по прикреплённым услугам
 			protected function get_a_detailed_article_on_the_price_of_positions_AJAX(){
@@ -3389,6 +3467,7 @@
 				$html .= $this->get_a_detailed_article_on_the_price_of_positions_Html();
 				$title = 'Заказ № '.$_POST['order_num_user'].' - финансовые расчёты';
 				echo '{"response":"show_new_window_simple","title":"'.$title.'","html":"'.base64_encode($html).'"}';
+				exit;
 			}
 
 			// присваиваем значение поля логотип (в окне доп. тех. инфо) ко всем услугам по текущей позиции
@@ -3449,6 +3528,7 @@
 				}
 
 				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"echo_message","message_type":"system_message"}';
+				exit;
 			}
 
 			// присваиваем значение поля логотип (в окне доп. тех. инфо) ко всем услугам по текущему заказу
@@ -3549,6 +3629,7 @@
 				}
 
 				echo '{"response":"OK","message":"'.base64_encode($Message).'", "function":"echo_message","message_type":"system_message"}';
+				exit;
 			}
 
 			// сохранение пути к макету
@@ -3560,6 +3641,7 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				// echo $query;
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// сохранение % готовности (функция с таймингом в JS)
@@ -3570,6 +3652,7 @@
 				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}'; 	
+				exit;
 			}
 
 			// присваиваем пользователя исполнителя услуги к услуге (взять услугу в работу)
@@ -3595,6 +3678,7 @@
 						echo '{"response":"OK"}'; 	
 						break;
 				}
+				exit;
 				
 			}
 
@@ -3614,6 +3698,7 @@
 				
 				// echo $query;
 				echo '{"response":"OK"}'; 	
+				exit;
 			}	
 
 			// редактирование даты и времени окончания работы над услугой	
@@ -3631,7 +3716,8 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				
 				// echo $query;
-				echo '{"response":"OK"}'; 	
+				echo '{"response":"OK"}'; 
+				exit;	
 			}
 
 
@@ -3646,6 +3732,7 @@
 				
 				// echo $query;
 				echo '{"response":"OK"}'; 	
+				exit;
 			}
 
 			// запуск услуг в работу
@@ -3711,6 +3798,7 @@
 						что тогда???? выходит придётся дать такую превилегию снабженцам???? 
 
 					*/
+						exit;
 
 			}
 
@@ -3900,6 +3988,7 @@
 				$result = $mysqli->query($query) or die($mysqli->error);
 				
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// ТЗ для производства
@@ -4005,6 +4094,7 @@
 				$html .= '</div>';
 
 				echo '{"response":"OK","html":"'.base64_encode($html).'","title":"ТЗ"}';
+				exit;
 			}
 
 			// смена статуса плёнок по услуге
@@ -4014,6 +4104,7 @@
 				$query .= "WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// сохраняет комментарий по позиции
@@ -4162,7 +4253,7 @@
 
 				echo $json_answer;
 				
-					
+				exit;
 			}
 
 			// смена глобального статуса ЗАКАЗА
@@ -4181,6 +4272,7 @@
 				$message = "Статус заказа изменён на \"".$status."\"";
 
 				echo '{"response":"OK","function":"reload_order_tbl","function2":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';
+				exit;
 			}
 			// смена статуса заказа
 			protected function chenge_order_status($status,$row_id){
@@ -4237,6 +4329,7 @@
 
 					$message = "Статус бухгалтерии по СПФ / ОФ изменён на \"".$status."\"";
 					echo '{"response":"OK","function":"reload_order_tbl","function2":"reload_order_tbl","function3":"echo_message","message_type":"successful_message","message":"'.base64_encode($message).'"}';
+					exit;
 				}
 
 
@@ -4331,6 +4424,7 @@
 				}
 
 				echo $json_answer;
+				exit;
 			}
 
 			// редактирование ожидаемой даты поставки товара на склад
@@ -4341,6 +4435,7 @@
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// смена статуса снабжения
@@ -4394,6 +4489,7 @@
 				}
 
 				echo $json_answer;
+				exit;
 			}
 			
 
@@ -4426,6 +4522,7 @@
 				$html .= '<input type="hidden" name="AJAX" value="add_new_usluga_form_steep_2">';
 				$html .= '</form>';
 				echo $html;
+				exit;
 			}
 			// вывод формы дополнительных фопросов по добавляемой услуге
 			// ШАГ 2: заполняем тираж, и доп поля (если назначены)
@@ -4464,6 +4561,7 @@
 				$html .= '<input type="hidden" name="author_id_added_services" value="'.$_SESSION['access']['user_id'].'">';
 				$html .= '</form>';
 				echo '{"response":"show_new_window","title":"Шаг 2: Заполните необходимые поля", "html":"'.base64_encode($html).'"}';
+				exit;
 			}
 
 			// ШАГ 3: проверка данных, коррекция цены
@@ -4538,6 +4636,7 @@
 				$html .= '</form>';
 
 				echo '{"response":"show_new_window","title":"Шаг 3: Проверка введённых данных","html":"'.base64_encode($html).'"}';
+				exit;
 				
 			}
 			// ОБРАБОТКА ДАННЫХ ИЗ ШАГ 3
@@ -4597,6 +4696,7 @@
 						<td class="postfaktum"><span data-id="'.$insert_id.'" class="on_of">+</span></td><td></td></tr>';
 				
 				echo '{"response":"OK","function":"add_new_usluga_end","html":"'.base64_encode($html).'","function2":"reload_order_tbl"}';
+				exit;
 			}
 
 			////////////////////////////////
@@ -4704,6 +4804,7 @@
 				$html .= $this->get_size_table_read($position[0]);
 
 				echo '{"response":"replace_width" ,"html": "'.base64_encode($html).'"}';
+				exit;
 
 			}
 
@@ -4786,6 +4887,7 @@
 
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 			// сохранить ПЗ / НПЗ
 			protected function save_edit_size_dop_tex_info_AJAX(){
@@ -4798,6 +4900,7 @@
 
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// контент для окна доп/тех инфо
@@ -4926,10 +5029,12 @@
 
 				// Вывод
 				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+				exit;
 			}	
 
 			protected function to_closed_this_window_AJAX(){
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// включение отключение услуги
@@ -4940,6 +5045,7 @@
 					WHERE  `id` ='".$_POST['id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK","function":"reload_order_tbl"}';
+				exit;
 			}
 
 			// редактирование поля ТЗ к услуге
@@ -4950,6 +5056,7 @@
 					WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// редактирование поля логотип к услуге
@@ -4960,6 +5067,7 @@
 					WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// сохранение dop_inputs, поля хранятся в json 
@@ -4970,6 +5078,7 @@
 					WHERE  `id` ='".$_POST['cab_dop_usluga_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			// сохранение поля резерв
@@ -4981,6 +5090,7 @@
 					WHERE  `id` ='".$_POST['row_id']."';";
 				$result = $mysqli->query($query) or die($mysqli->error);
 				echo '{"response":"OK"}';
+				exit;
 			}
 
 			protected function get_dop_inputs_for_services_AJAX(){
@@ -4991,6 +5101,7 @@
 					return 'Укажите id услуги';
 				}
 				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+				exit;
 			}
 
 			// ролучаем dop_inputs
@@ -5806,6 +5917,7 @@
 				"function2":"echo_message",
 				"message_type":"successful_message",
 				"message":"'.base64_encode($message).'","time":"10000"}';
+				exit;
     	}
 
 		// получаем информацию о менеджере 
@@ -7045,6 +7157,7 @@
 					$html .= $this->decode_json_no_cat_to_html($position[0]);
 
 					echo '{"response":"replace_width","html":"'.base64_encode($html).'"}';
+					exit;
 				}
 				protected function get_a_detailed_specifications_edit_true_AJAX(){
 					// получаем информацию по позиции
@@ -7058,6 +7171,7 @@
 					$html .= '<input type="hidden" name="position_id" value="'.$_POST['position_id'].'">';
 					$html .= '</form>';
 					echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Редактор ТЗ не каталог","width":"800px"}';
+					exit;
 				}
 
 				// сохраняем отредактированное снабжением ТЗ для не каталожки
@@ -7084,6 +7198,7 @@
 					
 					// echo '{"response":"show_new_window","html":"'.base64_encode($query).'"}';
 					echo '{"response":"OK"}';
+					exit;
 				}
 
 				protected function command_for_edit_tz_for_no_cat_AJAX(){
@@ -7096,6 +7211,7 @@
 					
 					// echo '{"response":"show_new_window","html":"'.base64_encode($query).'"}';
 					echo '{"response":"OK"}';
+					exit;
 				}
 
 
@@ -7331,6 +7447,7 @@
 		private function show_post_arr_in_new_window_ajax(){
 			$html = $this->print_arr($_POST);
 			echo '{"response":"show_new_window_simple", "html":"'.base64_encode($html).'","title":"метод '.$_POST['AJAX'].'_AJAX()","width":"600"}';
+
 		}
 		
 		/**

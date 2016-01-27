@@ -539,7 +539,7 @@ function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_wind
 
         buttons.push({
           text: 'ОК',
-          css:{'width':'100px','float':'right'},
+          css:{'float':'right'},
           click: function() {    
             // проверяем введена ли дата отсрочки
             var time_reminder = $('#'+div_id+' form input[name="time"]').val();
@@ -597,7 +597,8 @@ function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_wind
     }
     buttons.push({
     text: '   ОК   ',
-    css:{'width':'100px','float':'right'},
+    // css:{'width':'100px','float':'right'},
+    css:{'float':'right'},
     dialogClass: "alert",
     "class": 'okButtonClass',
     click: function() {
@@ -680,7 +681,8 @@ function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_wind
 
           buttons.push({
             text: 'ОК',
-            css:{'width':'100px','float':'right'},
+            // css:{'width':'100px','float':'right'},
+            css:{'float':'right'},
             click: function() {    
               // проверяем введена ли дата отсрочки
               var time_reminder = $('#'+div_id+' form input[name="time"]').val();
@@ -782,7 +784,8 @@ function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_wind
 
           buttons.push({
             text: 'ОК',
-            css:{'width':'100px','float':'right'},
+            // css:{'width':'100px','float':'right'},
+            css:{'float':'right'},
             click: function() {    
               // проверяем введена ли дата отсрочки
                 $.post('', $('#'+div_id+' form').serialize(), function(data, textStatus, xhr) {
@@ -879,7 +882,8 @@ function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_wind
 
           buttons.push({
             text: 'ОК',
-            css:{'width':'100px','float':'right'},
+            // css:{'width':'100px','float':'right'},
+            css:{'float':'right'},
             click: function() {    
               // проверяем введена ли дата отсрочки
                 $.post('', $('#'+div_id+' form').serialize(), function(data, textStatus, xhr) {
@@ -959,7 +963,7 @@ function add_new_window(cont,title,class_d,client_id,manager_id,type_w,type_wind
       $('.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset').css({'width':'98%'});
           //window.open('http://www.apelburg.ru/admin/order_manager/?page=clients&razdel=show_client_folder&sub_razdel=planner&client_id='+client_id+'&subsub_razdel=history','_blank')
       var href = 'http://www.apelburg.ru/admin/order_manager/?page=clients&razdel=show_client_folder&sub_razdel=planner&client_id='+client_id+'&subsub_razdel=history';
-      $(this).parents(".ui-dialog:first").find('.okButtonClass').replaceWith('<a data-id="" onclick=\'delete_this_win("'+div_id+'","'+client_id+'","'+event_type+'","'+manager_id+'","'+type_w+'")\' type="button" target="_blank" href="'+href+'" dialogclass="alert" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" style="width: 100px; float: right;margin: 7px 0;"><span class="ui-button-text">   ОК   </span></a>');
+      $(this).parents(".ui-dialog:first").find('.okButtonClass').replaceWith('<a data-id="" onclick=\'delete_this_win("'+div_id+'","'+client_id+'","'+event_type+'","'+manager_id+'","'+type_w+'")\' type="button" target="_blank" href="'+href+'" dialogclass="alert" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" style=" float: right;margin: 7px 0;"><span class="ui-button-text">   ОК   </span></a>');
     }
   });
     // console.log(win_minimized);
@@ -1009,7 +1013,8 @@ function add_info_window(){
     var buttons = new Array();
     buttons.push({
       text: '   ОК   ',
-      css:{'width':'100px','float':'right'},
+      // css:{'width':'100px','float':'right'},
+      css:{'float':'right'},
       dialogClass: "alert",
       click: function() {
         $(this).dialog('close');

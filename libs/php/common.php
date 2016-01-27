@@ -2812,13 +2812,18 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 			}
 			 
 			//$subsection = key($ACCESS_SHABLON[$user_id]['cabinet']['section'][0]['subsection'][0]);
-			return '<a href="?page=cabinet&section='.$section.'&subsection='.$subsection.'" class="'.((isset($_GET['page']) && $_GET['page'] =='cabinet')?'selected':'').'">Кабинет</a>';
+			return '<a href="?page=cabinet&section='.$section.'&subsection='.$subsection.'" class="'.((isset($_GET['page']) && $_GET['page'] =='cabinet')?'selected':'').'">Запросы</a>';
 		}
 	}
 
 	// возвращает ссылку на кабинет
 	function get_worked_link_href_for_cabinet(){
 		global $ACCESS_SHABLON;
+
+		$client = '';
+		if(isset($_GET['client_id'])){
+			$client = '&client_id='.$_GET['client_id'];
+		}
 			
 		$user_id = get_real_user_access($_SESSION['access']['user_id']);
 
@@ -2846,7 +2851,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 			}
 			 
 			//$subsection = key($ACCESS_SHABLON[$user_access]['cabinet']['section'][0]['subsection'][0]);
-			return 'os/?page=cabinet&section='.$section.'&subsection='.$subsection;
+			return 'os/?page=cabinet&section='.$section.'&subsection='.$subsection.$client;
 		}
 	}
 ?>

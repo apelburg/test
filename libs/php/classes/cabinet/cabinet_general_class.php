@@ -828,9 +828,10 @@
 		}
 
 		// получает контент верхнего меню фильтров
-		private function get_menu_top_center_Html(){
+		public function get_menu_top_center_Html($section = 'requests'){
 			// ЦЕНТРАЛЬНОЕ МЕНЮ СВЕРХУ
-			$menu = "";
+			$menu = '<div class="cabinet_top_menu">';
+			$menu .= '<ul class="central_menu">';
 				
 			$menu_central_arr = (array_key_exists($_GET["section"], $this->ACCESS['cabinet']['section']))?$this->ACCESS['cabinet']['section'][$_GET["section"]]['subsection']:array();
 			
@@ -847,10 +848,14 @@
 			foreach ($menu_central_arr as $key2 => $value2) {
 				$menu .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'>';
 					$menu .= '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.$filters.'">';
-						$menu .= $this->CLASS->menu_name_arr[$key2];
+						$menu .= '<div class="border">';
+							$menu .= $this->CLASS->menu_name_arr[$key2];
+						$menu .= '</div>';
 					$menu .= '</a>';
 				$menu .= '<li>';
 			}
+			$menu .= '</ul>';
+			$menu .= '</div>';
 			// return 654654;
 			return $menu;
 		}

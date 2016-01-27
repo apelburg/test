@@ -86,24 +86,25 @@ function timing_save_input(fancName,obj){
 			<li id="claim_date"><span>от <?php echo $create_time; ?></span></li>
 			<!--<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	-->
 			<li id="query_theme_block"><span>Тема:</span> <?php echo $theme_block; ?></li>
-            <li style="float:right"><span data-rt_list_query_num="<?php  echo $query_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($query_num); ?> "></span></li>
-            <li style="float:right"><?php  echo $cont_face; ?></li>
+      <li style="float:right"><span data-rt_list_query_num="<?php  echo $query_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($query_num); ?> "></span></li>
+      <li style="float:right"><?php  echo $cont_face; ?></li>
+      <li style="margin-left: 329px;"><div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,'calcLevelSwitcher');">Калькулятор: <?php  echo $calculator_level_ru; ?></div>
+      <input type="hidden" id="calcLevelStorage" value="<?php  echo $calculator_level; ?>"></li>
 		</ul>
 	</div>
-	<div id="options_bar" style="background-color:#92b73e;">
+<!-- 	<div id="options_bar" style="background-color:#92b73e;">
 		<ul>
 			<!--<li>Позиции № 1</li>
 			<li>В работе select</li>
 			<li>Каталожные</li>
             <li>Не принятые</li>
             <li>2 п</li>-->
-            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=<?php  echo $query_num; ?>&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Коммерческие предложения</a></li>
+            <!-- <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=business_offers&query_num=<?php  echo $query_num; ?>&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Коммерческие предложения</a></li>
             <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=agreements&doc_type=agreement&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Договоры</a></li>
-            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=agreements&doc_type=oferta&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Оферты</a></li>
-            <li style="margin-left: 329px; color: rgb(255, 255, 255);"><div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,'calcLevelSwitcher');">Калькулятор: <?php  echo $calculator_level_ru; ?></div>
-            <input type="hidden" id="calcLevelStorage" value="<?php  echo $calculator_level; ?>"></li>
-		</ul>
-	</div>
+            <li><a href="<?php  echo HOST; ?>/?page=client_folder&section=agreements&doc_type=oferta&client_id=<?php  echo $client_id; ?>" style="color:#FFFFFF;">Оферты</a></li> -->
+            
+		<!--</ul>
+	</div> -->
  </div>    
 <!-- end skins/tpl/clients/client_details_field_general.tpl -->
  

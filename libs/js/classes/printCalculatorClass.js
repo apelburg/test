@@ -306,7 +306,7 @@ var printCalculator = {
 		printCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){
-			 // alert(response_calculatorParamsData);
+			// alert(response_calculatorParamsData);
 			// return;
 			if(typeof printCalculator.calculatorParamsObj !== 'undefined') delete printCalculator.calculatorParamsObj;
 			
@@ -728,7 +728,7 @@ var printCalculator = {
 		
 		// создаем блок block_A который будет содеражать в себе select выбора типа нанесения
 		// и блок block_B содержащий в себе все остальные элементы интерфейса
-		if(printCalculator.currentCalculationData.print_details.place_id){
+		if(typeof printCalculator.currentCalculationData.print_details.place_id !== 'undefined' ){
 			// если остался print_id от предыдущего запуска калькулятора удаляем его
 	        var block_A = printCalculator.buildBlockA();
 		    box.appendChild(block_A);
@@ -1621,6 +1621,25 @@ var printCalculator = {
 			var td = document.createElement('TD');
 			
 			TRclone = tr.cloneNode(true);
+			TRclone.className = 'attic';
+			tdClone = td.cloneNode(true);
+			// tdClone.innerHTML = '';
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			tdClone.setAttribute("colspan","2");
+			tdClone.innerHTML = 'без скидки';
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			tdClone.innerHTML = '';
+			TRclone.appendChild(tdClone);
+			tdClone = td.cloneNode(true);
+			tdClone.setAttribute("colspan","2");
+			tdClone.innerHTML = 'со скидкой';
+			TRclone.appendChild(tdClone);
+			total_tbl.appendChild(TRclone);
+			
+			
+			TRclone = tr.cloneNode(true);
 			TRclone.className = 'head';
 			tdClone = td.cloneNode(true);
 			// tdClone.innerHTML = '';
@@ -1632,13 +1651,13 @@ var printCalculator = {
 			tdClone.innerHTML = 'тираж';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = 'сидка';
+			tdClone.innerHTML = 'скидка';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
 			tdClone.innerHTML = 'штука';
 			TRclone.appendChild(tdClone);
 			tdClone = td.cloneNode(true);
-			tdClone.innerHTML = 'штука';
+			tdClone.innerHTML = 'тираж';
 			TRclone.appendChild(tdClone);
 			total_tbl.appendChild(TRclone);
 			
