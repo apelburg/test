@@ -207,15 +207,22 @@ var rtCalculator = {
 								   e = e || window.event;
 								   // устанавливаем текущюю ячейку и сохраняем изначальное значение
 		                           var cell = e.target || e.srcElement;
+
+								   var val = parseFloat(cell.innerHTML);
+								   if(val == 0) cell.innerHTML ='';
+								
 								   
-								   if(cell.hasAttribute('type') && cell.getAttribute('type')=="price_out"){
-									   // проверяем есть ли скидка в ячейке
-									   if(parseInt(($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1)) != 0){
-										   
-											 echo_message_js('<span style="text-transform:lowercase">Для редактирования исходящей стоимости обнулите скидку/наценку</span>','system_message'); 
-											  
-											
-										}
+								   if(cell.hasAttribute('type')){
+									   if(cell.getAttribute('type')=="price_out"){
+										   if(cell.innerHTML == '0.00') cell.innerHTML ='';
+										   // проверяем есть ли скидка в ячейке
+										   if(parseInt(($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1)) != 0){
+											   
+												 echo_message_js('<span style="text-transform:lowercase">Для редактирования исходящей стоимости обнулите скидку/наценку</span>','system_message'); 
+												  
+												
+											}
+									   }
 								   }
 								}
 								tds_arr[j].onfocus = function(e){ 
@@ -251,11 +258,24 @@ var rtCalculator = {
 								   }
 								   
 								}
-								tds_arr[j].onblur = function(){
+								tds_arr[j].onblur = function(e){ 
+								   e = e || window.event;
+								   // устанавливаем текущюю
+		                           var cell = e.target || e.srcElement;
+									
+								 
 								   // если это не ячейка количества, вызываем complite_input() потому что такие ячейки обрабатываются
 								   // по таймеру, для ячейки количества это не нужно потому что она обрабатывается при каждом keyup
-								   if(rtCalculator.cur_cell.getAttribute('type') && rtCalculator.cur_cell.getAttribute('type')!= 'quantity'){
-									   rtCalculator.complite_input();
+								   if(rtCalculator.cur_cell.getAttribute('type')){ 
+									   if(rtCalculator.cur_cell.getAttribute('type')!= 'quantity'){
+										   var val = parseFloat(rtCalculator.cur_cell.innerHTML);
+										   if(isNaN(val) || val==0) rtCalculator.cur_cell.innerHTML = '0.00';
+										   rtCalculator.complite_input();
+									   }
+									   else{
+										   var val = parseInt(rtCalculator.cur_cell.innerHTML);
+										   if(isNaN(val) || val==0) rtCalculator.cur_cell.innerHTML = '0';
+									   }
 								   } 
 								}
 								if(tds_arr[j].getAttribute('editable') =='true') tds_arr[j].setAttribute("contenteditable",true);
@@ -415,11 +435,13 @@ var rtCalculator = {
 	checkQuantity:function(){// корректировка значений вводимых пользователем
 
 		var cell = rtCalculator.cur_cell;
-		//alert(cell.innerHTML);
-		//alert(floatLengthToFixed (cell.innerHTML));
-		var result = correctToInt(cell.innerHTML);
-
-		if(result != 0) setCaretToPos2(cell,result);
+		
+		var val = cell.innerHTML;
+		if(val != '' && val != '&nbsp;'){ 
+		    var result = correctToInt(val);
+		    if(result != 0) setCaretToPos2(cell,result);
+		}
+		
 		rtCalculator.makeQuantityCalculationsPreparing(cell);
 		
 		
@@ -427,9 +449,6 @@ var rtCalculator = {
 		function correctToInt(str){// корректировка значений вводимых пользователем в поле ввода типа Integer
 		    var wrong_input = false;
             var pos = 0;
-			
-			// если строка пустая правим на 0
-			if(str == ''){ wrong_input = true; str = '0'; pos = 1;}
 			
 			// если строка содержит что-то кроме цифры или точки вырезаем этот символ
 			var pattern = /[^\d]+/; 
@@ -466,27 +485,26 @@ var rtCalculator = {
 
 		var cell = rtCalculator.cur_cell;
 		
-	    var result = correctToFloat(cell.innerHTML);
+		var val = cell.innerHTML;
+		if(val != '' && val != '&nbsp;'){ 
+		    var result = correctToFloat(val);
+		    if(result != 0) setCaretToPos2(cell,result);
+		}
 		
-		//placeCaretAtEnd(cell);
-		if(result != 0) setCaretToPos2(cell,result);
 		rtCalculator.make_calculations(cell);
 		
-		
+		//if(cell.innerHTML !='') var result = correctToInt(cell.innerHTML);
 		
 	    function correctToFloat(str){// корректировка значений вводимых пользователем в поле ввода типа Float
 		    var wrong_input = false;
 			var pos = 0;
 
-			//alert(str);
-			if(str == '' || str == '&nbsp;'){ wrong_input = true; str = '0'; pos = 0;}
-			//if(str == ''){ wrong_input = true; str = '0.00'; pos = 3;}
-			//alert(str);
 			// если строка содержит запятую меняем её на точку
 			var pattern = /,/; 
 		    if(str.match(pattern)){ wrong_input = true;  pos =  str.indexOf(',')+1; str =  str.replace(',','.');}
 			
-/*			var pattern = /^[^\d]+$/; 
+            /*			
+			var pattern = /^[^\d]+$/; 
 			var result = pattern.exec(str);
 		    if(result !== null){ wrong_input = true; str = '0'; pos = 0; }*/
 			
@@ -580,7 +598,9 @@ var rtCalculator = {
 		
 		// вносим изменённое значение в соответствующую ячейку this.tbl_model
 		var type = cell.getAttribute('type');
-		rtCalculator.tbl_model[row_id][type] = (type=='quantity')? parseInt(cell.innerHTML):parseFloat(cell.innerHTML);
+		var value = cell.innerHTML;
+		value = (value == '' || value == '&nbsp;')?0:value;
+		rtCalculator.tbl_model[row_id][type] = (type=='quantity')? parseInt(value):parseFloat(value);
 		
 		// производим пересчет ряда
 		rtCalculator.calculate_row(row_id,type);
