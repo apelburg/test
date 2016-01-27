@@ -32,11 +32,9 @@
 					echo '</ul></div>';
 				}
 			?>
-			<div id="cabinet_top_menu">
-				<ul id="central_menu">
-					<?php echo $CABINET->menu_top_center_Html; ?>
-				</ul>
-			</div>
+			
+			<?php echo $CABINET->menu_top_center_Html; ?>
+				
 			<div id="cabinet_general_content">				
 				<?php echo $content; ?> 				
 				</table>

@@ -1082,22 +1082,23 @@ $(document).on('click', '.attach_the_client', function(event) {
         
 //     }
 // });
+				$(document).keydown(function(event) {
+					if(event.keyCode == 13) {
+						if( $("#js--window_client_sherch_form input").is(":focus") ){
+							event.preventDefault();
+					        search_and_show_client_list();
+					        return false;
+						}
 
-$(document).keydown(function(event) {
-	if(event.keyCode == 13) {
-		if( $("#js--window_client_sherch_form input").is(":focus") ){
-			event.preventDefault();
-	        search_and_show_client_list();
-	        return false;
-		}
+						// если открыто окно поиска клиентов
+						if($('#chose_client_tbl .checked').length>0){
+							
+							$('#chose_client_tbl').parent().parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset button').click();
+						}
+					}
+				});
 
-		// если открыто окно поиска клиентов
-		if($('#chose_client_tbl .checked').length>0){
-			
-			$('#chose_client_tbl').parent().parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset button').click();
-		}
-	}
-});
+
 
 
 
@@ -3286,9 +3287,13 @@ $(document).on('click', '.order_status_chenge', function(event) {
 $(document).on('click', '.query_status', function(event) {
 	event.preventDefault();
 	var row_id = $(this).parent().attr('data-id');
+	var client_id = $(this).prev().prev().prev().prev().prev().prev().attr('data-id');
+	var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().find('a').html());
 	$.post('', {
 		AJAX: 'get_command_for_change_status_query',
-		row_id:row_id
+		row_id:row_id,
+		client_id:client_id,
+		query_num:query_num
 	}, function(data, textStatus, xhr) {
 		standard_response_handler(data);
 	},'json');
@@ -3342,3 +3347,7 @@ jQuery.fn.scrollTo = function(elem, speed) {
     }, speed == undefined ? 1000 : speed); 
     return this; 
 };
+
+
+
+

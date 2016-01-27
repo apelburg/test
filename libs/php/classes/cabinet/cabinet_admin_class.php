@@ -1,9 +1,5 @@
 <?php
 	//test commit 
-
-
-
-
 	class Cabinet_admin_class extends Cabinet{
 		// разрешить показ сообщений
 		// private $allow_messages = false;

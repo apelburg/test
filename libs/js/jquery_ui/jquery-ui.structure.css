@@ -249,7 +249,8 @@ button.ui-button-icons-only {
 	line-height: normal;
 }
 .ui-button-text-only .ui-button-text {
-	padding: .4em 1em;
+	/*padding: .4em 1em;*/
+	padding: 0.9em 6em;
 }
 .ui-button-icon-only .ui-button-text,
 .ui-button-icons-only .ui-button-text {
@@ -521,7 +522,8 @@ button.ui-button::-moz-focus-inner {
 	border-width: 1px 0 0 0;
 	background-image: none;
 	margin-top: .5em;
-	padding: .3em 1em .5em .4em;
+	/*padding: .3em 1em .5em .4em;*/
+	padding: .3em 1em .5em 1.5em;
 }
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
 	float: right;

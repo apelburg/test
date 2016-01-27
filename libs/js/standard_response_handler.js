@@ -218,7 +218,15 @@
 		}
 		// переадресация из php
 		function location_href(data){
-			window.location.href = data.href;
+			if( data.timeout === undefined ){
+				window.location.href = data.href;
+			}else{
+				setTimeout(function)({
+					window.location.href = data.href;
+				}, data.timeout)
+
+			}
+			
 		}
 
 		$(document).keydown(function(e) {	

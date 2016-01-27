@@ -5,6 +5,8 @@
 	// если нет $ACCESS['название раздела']['access'] или она равна FALSE прерываем работу скирпта 
 	if(!@$ACCESS['cabinet']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
+	
+	// $searchPlaceholder = 'по клиенту';
 
 	save_way_back(array('page=cabinet'),'?page=cabinet&client_id='.$client_id);
 	$quick_button_back = get_link_back();
@@ -45,6 +47,7 @@
 	//////////////////////////
 	//	Cabinet template
 	//////////////////////////
+	// echo $CABINET->get_menu_top_center_Html();
 	include'./skins/tpl/cabinet/show.tpl';
 	
 	unset($content);
