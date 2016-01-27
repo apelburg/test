@@ -7,13 +7,14 @@
 	 // также выводим кнопку "переход" для создания договоров, если договоров еще не было выводим только её
 	 $long_term_agreements = fetch_client_agreements_by_type('long_term',$client_id);
 	 
-	 
+	 $spec_num = 0;
 	 if($long_term_agreements['results_num'] > 0)
 	 {
 		 $specification_section ='<div class="subsection">спецификацию для:</div>';
 		 while($row =mysql_fetch_assoc($long_term_agreements['result']))
 		 {
 			 //echo '<pre>'; print_r($row); echo '</pre>';
+			 $spec_num++;
 			 
 			 $basic = ($row['basic'])? 'border-left:3px solid #14AC40;' :'';
 			 $checked = ($row['basic'])? 'checked' :'';

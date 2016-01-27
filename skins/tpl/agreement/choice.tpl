@@ -1,8 +1,12 @@
 <script type="text/javascript" src="libs/js/calendar.js"></script>
 <script type="text/javascript">
     function checkRadioBtns(btn){
-	    console.log($(':radio[name=agreement_id]:checked'));
-		if($(':radio[name=agreement_id]:checked').length>0){
+	    console.log($(':radio[name=agreement_type]:checked'));
+		
+		if($(':radio[name=agreement_type]:checked').length>0){
+		   btn.form.submit();
+		}
+		else if($(':radio[name=agreement_id]:checked').length>0){
 		   btn.form.submit();
 		}
 		else{
@@ -11,7 +15,7 @@
 		  $('body').append(dialog);
 		  $(dialog).dialog({ modal: true, autoOpen: false ,width: 500, buttons: [{ text: "Ok", click: function() {$( this ).dialog( "close" );}}]});
 		  $(dialog).dialog( "open" );
-		}
+		}/**/
 	}
 </script>
 <style>
@@ -141,7 +145,7 @@
         <?php echo $specification_section; ?>
         <div class="subsection" style="color:#777;">новый договор:</div>
         <!-- <div class="row"><label class="areement_set_label"><input type="radio" name="agreement_type" onclick="drop_radio_buttons(this);" value="short_term">Краткосрочный</label></div> -->
-        <div class="row"  style="color:#777;"><label class="areement_set_label"><input type="radio" name="agreement_type" onclick="drop_radio_buttons(this);" value="long_term">Долгосрочный</label></div>
+        <div class="row"  style="color:#777;"><label class="areement_set_label"><input type="radio" name="agreement_type" onclick="drop_radio_buttons(this);" value="long_term" <?php if($spec_num == 0) echo 'checked'; ?>>Долгосрочный</label></div>
         
         <br />
         <hr>
