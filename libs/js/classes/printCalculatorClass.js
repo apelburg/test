@@ -306,7 +306,7 @@ var printCalculator = {
 		printCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){
-			// alert(response_calculatorParamsData);
+			//alert(response_calculatorParamsData);
 			// return;
 			if(typeof printCalculator.calculatorParamsObj !== 'undefined') delete printCalculator.calculatorParamsObj;
 			
@@ -495,11 +495,27 @@ var printCalculator = {
 						   // сначала вложенности указывающей конкретное place_id 
 						   // потом  вложенности указывающей конкретное print_id 
 						   // если все сошлось значит такое нанесение на таком месте к этой позиции можно применить 
-						   // причем сначала надо проверить первую вложенность а затем только вторую иначе может вылезти ошибка если 
+						   // причем сначала надо проверить первую вложенность а затем только вторую иначе может вылезти ошибка если  
+						   console.log('XXXXXXXXXX createDistributionDataTbl XXXXXXXXXX');
+						   console.log(dop_details_obj.allowed_prints);
+						   console.log('place_id',printCalculator.currentCalculationData.print_details.place_id);
+						   //console.log(typeof printCalculator.currentCalculationData.print_details.place_id);
+						   
 						   // первая вложенность с таким данными будет отсутсвовать
-						   if(typeof dop_details_obj.allowed_prints !=='undefined'){
-							   if(typeof dop_details_obj.allowed_prints[printCalculator.currentCalculationData.print_details.place_id] ==='undefined') continue outerloop;
-							   if(typeof dop_details_obj.allowed_prints[printCalculator.currentCalculationData.print_details.place_id][printCalculator.currentCalculationData.print_details.print_id] ==='undefined') continue outerloop;
+						   if((typeof dop_details_obj.allowed_prints !=='undefined')){
+							   if(!(printCalculator.currentCalculationData.print_details.place_id =='0' || printCalculator.currentCalculationData.print_details.place_id =='-1' )){
+
+								  if(typeof dop_details_obj.allowed_prints[printCalculator.currentCalculationData.print_details.place_id] ==='undefined') continue outerloop;
+							   }
+
+							   console.log('print_id',printCalculator.currentCalculationData.print_details.print_id);
+							  
+							   var flag = true;
+							   for(var place_id in dop_details_obj.allowed_prints){
+								   if(typeof dop_details_obj.allowed_prints[place_id][printCalculator.currentCalculationData.print_details.print_id] !=='undefined')  flag = false;
+							   }
+							   if(flag) continue outerloop;
+
 						   }
 						   
 						}
@@ -560,8 +576,8 @@ var printCalculator = {
 			table.id ="calculatorDistributionTbl";
 			
 		    for(var i =0; i < dataArr.length; i++){
-				console.log(dataArr[i]);
-				console.log(dataArr[i].tr.children[0]);
+				//console.log(dataArr[i]);
+				//console.log(dataArr[i].tr.children[0]);
                /* if(i ==0 ){
 				    var tr = document.createElement('tr');
 				    tr.innerHTML(dataArr[i].tr.innerHTML);
@@ -1560,8 +1576,8 @@ var printCalculator = {
 		//// console.log(summ_addition);
 		//// console.log(summ_additions_list);
 		
-		console.log('price additions');
-		console.log(printCalculator.currentCalculationData);
+		//console.log('price additions');
+		//console.log(printCalculator.currentCalculationData);
 
 		
 		

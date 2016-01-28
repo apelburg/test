@@ -2114,14 +2114,11 @@ class Client extends aplStdAJAXMethod{
 	}
 	static function requisites_acting_manegement_face_details($requisite_id){
 		global $mysqli;
-
-		$query ="SELECT
-				    mng.*
-					FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` AS req
-					INNER JOIN
-					`".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` AS mng
-					ON req.id = mng.requisites_id
-					WHERE req.id = '".$requisite_id."'";
+					
+		$query ="SELECT * FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."`
+					WHERE requisites_id = '".$requisite_id."' AND acting = '1'";
+					
+				
 
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
