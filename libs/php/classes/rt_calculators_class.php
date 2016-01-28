@@ -14,7 +14,9 @@
 			
 			// ветвим
 			// если расчитываем нанесение
-            if($data->type=='print') self::grab_data_for_print($data);
+            if($data->type=='print'){
+			    self::grab_data_for_print($data);
+			}
 	
 		}
 		static function fetch_dop_uslugi_for_row($dop_data_row_id){
@@ -55,6 +57,52 @@
 		    // global $mysqli;   
 			// print_r($data);
 			
+			
+			// в результате действия метода будет получен массив всех данных для артикула необходимых для совершения
+			// расчетов в калькуляторе JavaScript метод вызывающий данную функцию называется evoke_calculator()
+			// массив 
+			// 
+            //  Array  (
+            //            [places] => масссив мест нанесений (каждое из которых содержит массив типов нанесений связанных с местом)
+            //            [print_types] => масссив всех типов нанесений,                        
+			//                             каждый отдельный элемент массива соответсвует отдельному нанесению и содержит информацию
+			//                             о цветах применяемых при печате, размерах печати и таблицы - прайсы с расценками 
+			//                             нанесения.
+			//          )
+           
+			
+			// нам надо сделать чтобы первым в массиве [places] по умолчанию, всегда, шло место нанесения "не определено", затем все остальные прикрепленные к артикулу, ЕЩЕ ЕСТЬ случай когда нанесения прикреплены к артикулу напрямую не через места, их надо выводить отдельным ЭЛЕМЕНТОМ
+			// в итоге на первом этапе в [places] создаем лемент "не определено", а в [print_types]  забрасывем абсолютно все типы нанесения (раньше забрасывали те которые могли понадобиться), а затем а [places] добавляем прикрепленные к артикулу места нанесения
+			
+			
+			
+			$out_put = self::get_all_print_types(); 
+			//print_r($out_put);
+			// получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
+			$level = (isset($data->level))?$data->level:'full'; // тип прайса - рекламщики, конечники
+            $out_put = self::get_print_types_related_data($out_put,$level/*,$all_sizes_in_one_place*/);
+			
+			// если id артикула передано и не равно 0 
+			if(isset($data->art_id) && (int)$data->art_id!=0){ 
+				$print_places = self::get_related_print_places($data->art_id);
+				if($print_places) $out_put['places'] = array_merge ($out_put['places'],$print_places['out_put']['places']);
+			}
+			
+			// ищем типы нанесения присвоенные данному артикулу на прямую
+			// места нанесения и добавляем их в $out_put внутри "стандартно"
+			/* раньше еще делал это
+			   // проверяем на совпадение с уже ранее добавленными в $out_put типами нанесения 
+			   // если есть совпадение то пропускаем такой тип нанесения
+			   // если были найдены какието оригинальные типы нанесения то добавляем их в $out_put внутри "Стандартно"*/
+			$out_put = self::get_related_art_and_print_types($out_put,$data->art_id,false);
+			
+			//print_r($out_put);
+			echo json_encode($out_put);
+		
+		}
+		static function grab_data_for_print_old($data){
+		    // global $mysqli;   
+			// print_r($data);
 			
 			// в результате действия метода будет получен массив всех данных для артикула необходимых для совершения
 			// расчетов в калькуляторе JavaScript метод вызывающий данную функцию называется evoke_calculator()
@@ -126,7 +174,8 @@
 				$print_types = array();
 				
 			    while($row = $result->fetch_assoc()){
-				    if($row['print_id']!=0 && !in_array($row['print_id'],$print_types_ids)){
+				    //if($row['print_id']!=0 && is_array($print_types_ids) && !in_array($row['print_id'],$print_types_ids)){
+					if($row['print_id']!=0){
 					
 					    // создаем элемент (массив) с ключом равным id типа нанесения, дальше в этот массив будет добавленна подробная 
 						// информация об этом нанесении с помощью функции get_print_types_related_data()
@@ -138,8 +187,10 @@
                 // добавляем результат в итоговый массив ключем устанавливаем 0 (чтобы данное место нанесения выводилось первым)
 				// в остальных случаях используется id места нанесения (оно не может быть 0 поэтому не будет конфликта)
 				if(count($print_types)>0){
-				    $out_put['places'][0]['name'] = 'Стандартно';
-					$out_put['places'][0]['prints'] = $print_types;	
+				    //$index = count($out_put['places']);
+					$index = -1;
+				    $out_put['places'][$index]['name'] = 'стандартно';
+					$out_put['places'][$index]['prints'] = $print_types;	
 				}
 			}
 			return $out_put;
@@ -182,14 +233,14 @@
 				}
 			}
 			
-			return array('out_put'=>$out_put,'print_types_ids'=>$print_types_ids);
+			return (count($out_put)>0)? array('out_put'=>$out_put,'print_types_ids'=>$print_types_ids):false;
 		}
 		static function get_all_print_types(){
 		    global $mysqli; 
 			
 			$out_put = array();
 
-			$out_put['places'][0]['name'] = 'Стандартно';
+			$out_put['places'][0]['name'] = 'не определено';
 			// получаем данные всех возможных типах нанесений
 			$query="SELECT * FROM `".OUR_USLUGI_LIST."` WHERE `parent_id` = '6' ORDER BY id";
 			
