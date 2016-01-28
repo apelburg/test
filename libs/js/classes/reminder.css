@@ -162,3 +162,6 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#87e0fd', end
 #main_container textarea.saved,
 #main_container textarea.submit_and_change_data_in_textarea_std,
 #main_container textarea.stay_not_save{ background-color:#A9A9A9;}
+.reminder_win .ui-button-text-only .ui-button-text{
+       padding: .4em 1em; 
+}

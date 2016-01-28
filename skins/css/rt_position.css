@@ -883,10 +883,10 @@ span.snab_comment {
 .shine_edit_blocks span.add_input_in_form.redactor_buttons {
     margin-left: 15px;
 }
-#general_form_for_create_product strong.small_header{
+#general_form_for_create_product strong.big_header{
   font-size: 14px;
 }
-#general_form_for_create_product strong.big_header{
+#general_form_for_create_product strong.small_header{
   font-size: 18px;
   color: #33823F;
 }

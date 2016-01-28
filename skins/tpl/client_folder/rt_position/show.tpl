@@ -39,6 +39,40 @@
 	$calculator_level = ($POSITION->position['calculator_level']!='')?$POSITION->position['calculator_level']:'full';
 	$calculator_level_ru = $CALCULATOR_LEVELS[ $calculator_level ];
 ?>
+<div class="cabinet_top_menu">
+  <ul class="central_menu" style="height: 27px;">
+    <li <?php if($POSITION->position['manager_id'] == '24' ){echo 'class="selected"';}?> >
+      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_wait_the_process&client_id=<?=$_GET['client_id'];?>">
+        <div class="border">Ожидают распределения</div>
+      </a>
+    </li>
+    <li <?php if($POSITION->position['status'] == 'not_process' ){echo 'class="selected"';}?>>
+      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&client_id=<?=$_GET['client_id'];?>">
+        <div class="border">Не обработанные МЕН</div>
+      </a>
+    </li>
+    <li <?php if($POSITION->position['status'] == 'taken_into_operation' ){echo 'class="selected"';}?>>
+      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_taken_into_operation&client_id=<?=$_GET['client_id'];?>">
+        <div class="border">На рассмотрении</div>
+      </a>
+    </li>
+    <li <?php if($POSITION->position['status'] == 'in_work' ){echo 'class="selected"';}?>>
+      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_worcked_men&client_id=<?=$_GET['client_id'];?>">
+        <div class="border">В работе Sales</div>
+      </a>
+    </li>
+    <li <?php if($POSITION->position['status'] == 'history' ){echo 'class="selected"';}?>>
+      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_history&client_id=<?=$_GET['client_id'];?>">
+        <div class="border">История </div>
+      </a>
+    </li>
+    <li>
+      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_all&client_id=888">
+        <div class="border">Все</div>
+      </a>
+    </li>
+  </ul>
+</div>
 
 <div id="order_art_edit">
 	<div id="info_string_on_query">
@@ -51,7 +85,7 @@
 			<li id="query_theme_block"><span>Тема:</span> <input id="query_theme_input" class="query_theme" data-id="<?=$POSITION->position['RT_LIST_ID'];?>" type="text" value="<?=$POSITION->position['theme']?>" onclick="fff(this,'Введите тему');"></li>
 			<li style="float:right"><span data-rt_list_query_num="<?=$POSITION->position['query_num'];?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($POSITION->position['query_num']); ?> "></span></li>
 			<li style="float:right"><?php  echo $cont_face; ?></li>
-	      <li style="margin-left: 329px;"><div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,'calcLevelSwitcher');">Калькулятор: <?php  echo $calculator_level_ru; ?></div>
+	    	<li style=""><div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,'calcLevelSwitcher');">Калькулятор: <?php  echo $calculator_level_ru; ?></div>
 	      <input type="hidden" id="calcLevelStorage" value="<?php  echo $calculator_level; ?>"></li>
 		</ul>
 	</div>
