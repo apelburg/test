@@ -12,6 +12,7 @@
 					// #search_query
 					$(function() {
 						$('#search_query').autocomplete({
+							minLength: 2,
 					    	source: function(request, response){
 					    		console.log(request)
 						        $.ajax({

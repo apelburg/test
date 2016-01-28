@@ -113,7 +113,7 @@
 		static function fetch_query_related_data($query_num){
 		    global $mysqli; 
 			
-			$query = "SELECT theme, calculator_level, status FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
+			$query = "SELECT theme, calculator_level, status, manager_id FROM `".RT_LIST."` WHERE query_num ='".$query_num."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$row = $result->fetch_assoc();
 			return $row;
