@@ -1697,12 +1697,18 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 
 		    $rows = '';//."*****".(($query_num=="")?'null':$query_num)."*****";
 			if(!$certain_kp){// если не указан конкретный КП создаем полный список
-				$rows .= self::create_list_new_version($query_num);
-				$rows .= "<tr><td class='flank_cell'>&nbsp;</td><td colspan='7'>КП старого типа</td><td class='flank_cell'>&nbsp;</td></tr>";
-				$rows .= self::create_list_old_version($client_id);
+				
+				if(isset($_GET['show_all'])){
+					$rows .= self::create_list_new_version('');
+					$rows .= "<tr><td class='flank_cell'>&nbsp;</td><td colspan='7'>КП старого типа</td><td class='flank_cell'>&nbsp;</td></tr>";
+					$rows .= self::create_list_old_version($client_id);	
+				}else{
+					$rows .= self::create_list_new_version($query_num);
+				}				
             }
 			else{//echo "*****$query_num*****";
 			    if($certain_kp['type'] == 'new') $rows .= self::create_list_new_version($query_num,$certain_kp['kp']);
+				
 				if($certain_kp['type'] == 'old')  $rows .= self::create_list_old_version($client_id,substr($certain_kp['kp'],strpos($certain_kp['kp'],"/")+1));
 			}
 			return (!empty($rows))?$rows:"<tr><td class='flank_cell'>&nbsp;</td><td colspan='8'>для данного клиента пока небыло создано коммерческих предложений</td><td class='flank_cell'>&nbsp;</td></tr>";

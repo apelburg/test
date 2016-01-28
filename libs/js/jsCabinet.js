@@ -3288,7 +3288,7 @@ $(document).on('click', '.query_status', function(event) {
 	event.preventDefault();
 	var row_id = $(this).parent().attr('data-id');
 	var client_id = $(this).prev().prev().prev().prev().prev().prev().attr('data-id');
-	var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().find('a').html());
+	var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().prev().find('a').html());
 	$.post('', {
 		AJAX: 'get_command_for_change_status_query',
 		row_id:row_id,
