@@ -1700,7 +1700,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 				
 				if(isset($_GET['show_all'])){
 					$rows .= self::create_list_new_version('');
-					$rows .= "<tr><td class='flank_cell'>&nbsp;</td><td colspan='7'>КП старого типа</td><td class='flank_cell'>&nbsp;</td></tr>";
+					$rows .= "<tr><td class='flank_cell'>&nbsp;</td><td colspan='8'>КП старого типа</td><td class='flank_cell'>&nbsp;</td></tr>";
 					$rows .= self::create_list_old_version($client_id);	
 				}else{
 					$rows .= self::create_list_new_version($query_num);
