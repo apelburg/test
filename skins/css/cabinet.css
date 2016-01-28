@@ -1454,3 +1454,9 @@ input.get_a_detailed_specifications {
 table#general_panel_orders_tbl {
     border-bottom: 1px solid #E2E2E2;
 }
+.rt_href_click{
+	cursor: pointer;
+}
+#cabinet_general_content .rt_href_click:hover{
+	background: #BAD08B;
+}

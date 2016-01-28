@@ -3349,5 +3349,17 @@ jQuery.fn.scrollTo = function(elem, speed) {
 };
 
 
+$(document).on('click', '#general_panel_orders_tbl tr td.rt_href_click', function(event) {
+	event.preventDefault();
+	var a = $(this).find('a');
+	if (a.attr('onclick')) {
+		var js_message = 'Чтобы перейти в РТ необходимо прикрепить клиента!!!';
+		echo_message_js(js_message,'system_message');
+	}else{
+		window.location.href = $(this).find('a').attr('href');
+	}
+	
+});
+
 
 
