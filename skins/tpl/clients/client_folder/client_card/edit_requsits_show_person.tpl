@@ -1,5 +1,5 @@
 <!-- КОНТАКТНЫЕ ДАННЫЕ ДЛЯ РЕКВИЗИТОВ -->
-  <div>    
+  <div  data-id="<?=$contact['id'];?>">    
   <table class="client_form_table" id="chief_fields_tbl">      
     <tr>
     </tr>

@@ -2849,6 +2849,12 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 				}
 				$n++;
 			}
+
+			// сказано сделать стартовой
+			// if($_SESSION['access']['access'] == 5 || $_SESSION['access']['access'] == 1 ){
+			// 	$subsection = 'in_work';
+			// }
+			
 			 
 			//$subsection = key($ACCESS_SHABLON[$user_access]['cabinet']['section'][0]['subsection'][0]);
 			return 'os/?page=cabinet&section='.$section.'&subsection='.$subsection.$client;

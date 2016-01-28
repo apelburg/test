@@ -124,6 +124,17 @@ class Client extends aplStdAJAXMethod{
 			$this->_AJAX_($_POST['AJAX']);
 		}
 
+		## данные POST
+		if(isset($_GET['AJAX'])){
+			// получаем данные пользователя
+			$User = $this->getUserDatabase($this->user_id);
+			
+			$this->user_last_name = $User['last_name'];
+			$this->user_name = $User['name'];
+
+			$this->_AJAX_($_GET['AJAX']);
+		}
+
 
 		if($id > 0){
 			$this->get_object($id);
@@ -149,6 +160,52 @@ class Client extends aplStdAJAXMethod{
 			ВНИМАНИЕ !!!!
 			если в конце _AJAX метода стоит exit, то метод не работает со стандартным ответчиком
 			и для того чтобы туда передать какие-либо доп. функции JS нужно переписывать JS приёмник
+		*/
+
+		/**
+		 *	апдейт должностей в реквизитах
+		 *
+		 *	@author  	Алексей Капитонов
+		 *	@version 	12:23 28.01.2016
+		 */
+		/*
+		protected function update_requisits_tbl_AJAX(){
+			// скрипт отработан и более не нужен
+			exit;
+
+			global $mysqli;
+			$query = "SELECT * FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."`";
+			$requesit = array();
+	        
+	        $result = $this->mysqli->query($query) or die($this->mysqli->error);
+	        if ($result->num_rows > 0) {
+	            while ($row = $result->fetch_assoc()) {
+	                $requesit[$row['id']] = $row;
+	            }
+	        }
+
+	        $get__clients_persons_arr = $this->get__clients_persons();
+
+	        $query = ''; $i = 0;
+	        foreach ($requesit as $key => $value) {
+	        	if($i >= 20){
+	        		$result = $mysqli->multi_query($query) or die($mysqli->error);	
+	        		
+	        		echo "Скопировано $i строк<br>";
+	        		$query = ''; $i = 0;
+	        	}
+
+	        	if(isset($get__clients_persons_arr[$value['post_id']])){
+		        	$query = "UPDATE `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  ";
+		        	$query.= "`position` =  '" . $get__clients_persons_arr[$value['post_id']]['position'] . "',";	
+					$query.= "`position_in_padeg` =  '" . $get__clients_persons_arr[$value['post_id']]['position_in_padeg'] . "'";
+					$query.= " WHERE id = '".$key."'; ";
+					//$i++;
+					$result = $mysqli->query($query) or die($query.'<br>'.$mysqli->error);	
+				}
+	        }
+	        echo "<strong>Скрипт завершён!!!</strong>";
+		}
 		*/
 
 		// окно просмотра реквизитов
@@ -703,26 +760,32 @@ class Client extends aplStdAJAXMethod{
 				`okpo`='" . $_POST['form_data']['okpo'] . "', 
 				`dop_info`='" . $_POST['form_data']['dop_info'] . "' WHERE id = '" . $_POST['requesit_id'] . "';";
 			
+
+			$get__clients_persons_arr = $this->get__clients_persons();
 			foreach ($_POST['form_data']['managment1'] as $key => $val) {
 			    if (trim($val['id']) != "") {
-			        $query.= "UPDATE  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  
-						`requisites_id` =  '" . $val['requisites_id'] . "',
-						`type` =  '" . $val['type'] . "',
-						`post_id` =  '" . $val['post_id'] . "',
-						`basic_doc` =  '" . $val['basic_doc'] . "',
-						`name` =  '" . $val['name'] . "',
-						`name_in_padeg` =  '" . $val['name_in_padeg'] . "',
-						`acting` =  '" . $val['acting'] . "'
-						WHERE  `id` ='" . $val['id'] . "'; ";
-			    }else {
-			        $query.= "INSERT INTO  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  
-						`requisites_id` =  '" . $val['requisites_id'] . "',
-						`type` =  '" . $val['type'] . "',
-						`post_id` =  '" . $val['post_id'] . "',
-						`basic_doc` =  '" . $val['basic_doc'] . "',
-						`name` =  '" . $val['name'] . "',
-						`name_in_padeg` =  '" . $val['name_in_padeg'] . "',
-						`acting` =  '" . $val['acting'] . "';";
+			        $query.= "UPDATE  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  ";
+					$query.= "`requisites_id` =  '" . $val['requisites_id'] . "',";
+					$query.= "`type` =  '" . $val['type'] . "',";
+					$query.= "`post_id` =  '" . $val['post_id'] . "',";
+					if(isset($get__clients_persons_arr[$val['post_id']])){
+						$query.= "`position` =  '" . $get__clients_persons_arr[$val['post_id']]['position'] . "',";	
+						$query.= "`position_in_padeg` =  '" . $get__clients_persons_arr[$val['post_id']]['position_in_padeg'] . "',";
+					}
+					$query.= "`basic_doc` =  '" . $val['basic_doc'] . "',";
+					$query.= "`name` =  '" . $val['name'] . "',";
+					$query.= "`name_in_padeg` =  '" . $val['name_in_padeg'] . "',";
+					$query.= "`acting` =  '" . $val['acting'] . "'";
+					$query.= " WHERE  `id` ='" . $val['id'] . "'; ";
+			    //}else {
+			   //      $query.= "INSERT INTO  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  
+						// `requisites_id` =  '" . $val['requisites_id'] . "',
+						// `type` =  '" . $val['type'] . "',
+						// `post_id` =  '" . $val['post_id'] . "',
+						// `basic_doc` =  '" . $val['basic_doc'] . "',
+						// `name` =  '" . $val['name'] . "',
+						// `name_in_padeg` =  '" . $val['name_in_padeg'] . "',
+						// `acting` =  '" . $val['acting'] . "';";
 			    }
 			}
 			$result = $this->mysqli->multi_query($query) or die($this->mysqli->error);
@@ -733,6 +796,19 @@ class Client extends aplStdAJAXMethod{
 			
 			exit;
 		}
+
+		protected function get__clients_persons(){
+			global $mysqli;
+			$query = "SELECT * FROM `".CLIENT_PERSON_REQ_TBL."`";
+			$arr = array();
+			$result = $mysqli->query($query) or die($mysqli->error);				
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[$row['id']] = $row;
+				}
+			}
+			return $arr;
+		} 
 			    
 		protected function create_new_requisites_AJAX() {
 			$query = "
@@ -1618,6 +1694,10 @@ class Client extends aplStdAJAXMethod{
 		return $arr;
 	}
 	static function edit_requsits_show_person_all($arr,$client_id){
+		// echo '<pre>';
+		// print_r($arr);
+		// echo '</pre>';
+			
 		foreach ($arr as $key => $contact) {
 			$get__clients_persons_for_requisites = Client::get__clients_persons_for_requisites($contact['post_id']);
 			include('./skins/tpl/clients/client_folder/client_card/edit_requsits_show_person.tpl');
@@ -2114,14 +2194,11 @@ class Client extends aplStdAJAXMethod{
 	}
 	static function requisites_acting_manegement_face_details($requisite_id){
 		global $mysqli;
-
-		$query ="SELECT
-				    mng.*
-					FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` AS req
-					INNER JOIN
-					`".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."` AS mng
-					ON req.id = mng.requisites_id
-					WHERE req.id = '".$requisite_id."'";
+					
+		$query ="SELECT * FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."`
+					WHERE requisites_id = '".$requisite_id."' AND acting = '1'";
+					
+				
 
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){

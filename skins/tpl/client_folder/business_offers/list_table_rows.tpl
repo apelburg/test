@@ -1,7 +1,8 @@
 <tr>
      <td class="flank_cell">&nbsp;</td>
      <td class="center without_padding"><?php  echo $date; ?></td>
-     <td class="center without_padding"><?php  echo $query_num; ?></td>
+     <td class="center without_padding"><a href="http://www.apelburg.ru/os/?page=client_folder&amp;client_id=<?=$_GET['client_id'];?>&amp;query_num=<?=$query_num;?>" style="text-decoration: underline;"><?php  echo $query_num; ?></a></td>
+     <td class="left "><?php  echo $row['theme']; ?></td>
      <!--<td class="left"><?php  //echo $com_pred_data['description']; ?></td>-->
      <td class="left">
          <?php  echo $recipient; ?>

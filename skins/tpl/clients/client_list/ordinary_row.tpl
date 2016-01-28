@@ -1,6 +1,6 @@
 <table class="row_tbl">
   <tr>
-    <td class="name"><div><a <?=$no_use_for_client_href;?> href="?page=cabinet&section=requests&subsection=no_worcked_men&client_id=<?php echo $item['id']; ?>" ><?php echo $item['company']; ?></a></div></td>
+    <td class="name"><div><a <?=$no_use_for_client_href;?> href="?page=cabinet&section=requests&subsection=query_worcked_men&client_id=<?php echo $item['id']; ?>" ><?php echo $item['company']; ?></a></div></td>
     <td class="rating">
         <div style="position:relative;width:50px;">
           <div class="lower_plank" style="position:absolute;top:0px;left:0px;">

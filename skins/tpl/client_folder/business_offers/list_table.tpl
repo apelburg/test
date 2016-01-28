@@ -160,6 +160,7 @@ if (isset($_GET['query_num']) && (int)$_GET['query_num']) {
         <td style="width:90px;border-left:none;">Дата созадания</td>
         <td style="width:90px;">№ запроса</td>
         <!-- <td style="width:300px;">Краткое описание</td>-->
+        <td style="width:300px;">Тема</td>
         <td style="width:350px;">Для контактного лица:</td>
         <td style="width:250px;">Действия</td>
         <td style="width:auto;">Комментарии</td>

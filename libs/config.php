@@ -43,6 +43,7 @@
     define("CLIENT_PERSON_REQ_TBL","os__clients_persons_for_requisites"); // список должностей для лиц емеющих право подписи
 	define("CLIENT_REQUISITES_TBL","os__clients_requisites"); // таблица реквизитов клиентов
 	define("CLIENT_REQUISITES_MANAGMENT_FACES_TBL","os__clients_requisites_management");// таблица лиц (контрагентов) имеющих право подписи 
+													
 	define("CLIENT_CONT_FACES_TBL","os__client_cont_faces_relation"); // таблица контактных лиц клиентов  
 	define("CONT_FACES_CONTACT_INFO_TBL", 'os__contact_information'); // таблица контактной информации для контактных лиц (ВСЕХ КОНТАКТНЫХ ЛИЦ ИЗ ОС) и их компаний
 	

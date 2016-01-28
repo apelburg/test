@@ -1728,9 +1728,11 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 		   $rows = '';	   
 		   
 		   if((int)$query_num > 0 ){
-		   		$query="SELECT*FROM `".KP_LIST."` WHERE `query_num` = '".$query_num."'";	
+		   		// $query="SELECT*FROM `".KP_LIST."` WHERE `query_num` = '".$query_num."'";	
+		   		$query = "SELECT `".KP_LIST."`.*,`".RT_LIST."`.`theme` FROM `".KP_LIST."` INNER JOIN `".RT_LIST."` ON `".RT_LIST."`.`query_num` = `".KP_LIST."`.`query_num` WHERE `".KP_LIST."`.`query_num` = '".$_GET['query_num']."'";
 		   }else if(isset($_GET['client_id'])){
-		   		$query="SELECT*FROM `".KP_LIST."` WHERE `client_id` = '".$_GET['client_id']."'";	
+		   		// $query = "SELECT*FROM `".KP_LIST."` WHERE `client_id` = '".$_GET['client_id']."'";	
+		   		$query = "SELECT `".KP_LIST."`.*,`".RT_LIST."`.`theme` FROM `".KP_LIST."` INNER JOIN `".RT_LIST."` ON `".RT_LIST."`.`query_num` = `".KP_LIST."`.`query_num` WHERE `".KP_LIST."`.`client_id` = '".$_GET['client_id']."'";
 		   }
 		   
 		   if($certain_kp_id)$query.= " AND id = '".$certain_kp_id."'";

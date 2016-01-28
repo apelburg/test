@@ -361,5 +361,17 @@ $(document).on('click', '.no_edit_class_disc', function(event) {
   echo_message_js(message,'system_message');
 });
 
-
-
+$(document).on('focus', '#edit_variants_content input', function(event) {
+  event.preventDefault();
+  if(Number($(this).val()) == 0){
+    $(this).attr('old_val',$(this).val());
+    $(this).val('');
+  }
+});
+$(document).on('blur', '#edit_variants_content input', function(event) {
+  event.preventDefault();
+  if( $(this).attr('old_val').length > 0 ){
+    
+    $(this).val($(this).attr('old_val'));
+  }
+});
