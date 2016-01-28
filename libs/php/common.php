@@ -855,7 +855,8 @@ if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']=
 	function get_activities_list($search){
 	    global $db;
 		
-	    $query = "SELECT*FROM`".SUPPLIERS_ACTIVITIES_TBL."`";
+	    $query = "SELECT*FROM`".SUPPLIERS_ACTIVITIES_TBL."` ORDER BY `name`";
+	    // echo $query;
 		if($search) $query .= " WHERE name LIKE '%".$search."%'";
 		$result = mysql_query($query,$db) or die(mysql_error());
 		if(mysql_num_rows($result)>0){

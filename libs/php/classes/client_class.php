@@ -777,15 +777,22 @@ class Client extends aplStdAJAXMethod{
 					$query.= "`name_in_padeg` =  '" . $val['name_in_padeg'] . "',";
 					$query.= "`acting` =  '" . $val['acting'] . "'";
 					$query.= " WHERE  `id` ='" . $val['id'] . "'; ";
-			    //}else {
-			   //      $query.= "INSERT INTO  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  
-						// `requisites_id` =  '" . $val['requisites_id'] . "',
-						// `type` =  '" . $val['type'] . "',
-						// `post_id` =  '" . $val['post_id'] . "',
-						// `basic_doc` =  '" . $val['basic_doc'] . "',
-						// `name` =  '" . $val['name'] . "',
-						// `name_in_padeg` =  '" . $val['name_in_padeg'] . "',
-						// `acting` =  '" . $val['acting'] . "';";
+			    }else {
+			        
+						if($val['acting'] == 1){
+							 $query.= "UPDATE  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  ";
+							 $query.= "`acting` =  '0'";
+							$query.= " WHERE  `requisites_id` ='" . $val['requisites_id'] . "'; ";
+						}
+
+						$query.= "INSERT INTO  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  
+						`requisites_id` =  '" . $val['requisites_id'] . "',
+						`type` =  '" . $val['type'] . "',
+						`post_id` =  '" . $val['post_id'] . "',
+						`basic_doc` =  '" . $val['basic_doc'] . "',
+						`name` =  '" . $val['name'] . "',
+						`name_in_padeg` =  '" . $val['name_in_padeg'] . "',
+						`acting` =  '" . $val['acting'] . "';";
 			    }
 			}
 			$result = $this->mysqli->multi_query($query) or die($this->mysqli->error);
@@ -2167,7 +2174,7 @@ class Client extends aplStdAJAXMethod{
 		$manager_info = $this->get_manager_info_by_id($user_id);		
 		$message = 'В базу добавлен новый клиент:<br><b>'.$company.'</b><br>
 				   поставщика добавил пользователь: '.$manager_info['nickname'].' / '.$manager_info['name'].' '.$manager_info['last_name'].'<br><br>
-				   <a href="http://apelburg.ru/admin/order_manager/?page=clients&client_id='.$client_id.'&razdel=show_client_data">ссылка на карточку клиента</a>';
+				   <a href="http://apelburg.ru/os/?page=clients&section=client_folder&subsection=client_card_table&client_id='.$client_id.'&razdel=show_client_data">ссылка на карточку клиента</a>';
 		/**/
 		//$mail->sendMail(2,'apelburg.m7@gmail.com','Новый клиент',$message,$headers);		
 		$mailClass->send('kapitonoval2012@gmail.com','os@apelburg.ru','Новый клиент',$message);		
@@ -2194,15 +2201,16 @@ class Client extends aplStdAJAXMethod{
 	}
 	static function requisites_acting_manegement_face_details($requisite_id){
 		global $mysqli;
+
 					
 		$query ="SELECT * FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."`
 					WHERE requisites_id = '".$requisite_id."' AND acting = '1'";
 					
-				
 
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($item = $result->fetch_assoc()){
+			
 		    return array('position' => $item['position'],'position_in_padeg' => $item['position_in_padeg'],'name' => $item['name'],'name_in_padeg' => $item['name_in_padeg'],'basic_doc' => $item['basic_doc']);
 		    }
 		}

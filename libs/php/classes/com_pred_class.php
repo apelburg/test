@@ -1706,9 +1706,9 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 					$rows .= self::create_list_new_version($query_num);
 				}				
             }
-			else{//echo "*****$query_num*****";
+			else{
+				echo "*****$query_num*****";
 			    if($certain_kp['type'] == 'new') $rows .= self::create_list_new_version($query_num,$certain_kp['kp']);
-				
 				if($certain_kp['type'] == 'old')  $rows .= self::create_list_old_version($client_id,substr($certain_kp['kp'],strpos($certain_kp['kp'],"/")+1));
 			}
 			return (!empty($rows))?$rows:"<tr><td class='flank_cell'>&nbsp;</td><td colspan='8'>для данного клиента пока небыло создано коммерческих предложений</td><td class='flank_cell'>&nbsp;</td></tr>";
@@ -1735,7 +1735,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 		   		$query = "SELECT `".KP_LIST."`.*,`".RT_LIST."`.`theme` FROM `".KP_LIST."` INNER JOIN `".RT_LIST."` ON `".RT_LIST."`.`query_num` = `".KP_LIST."`.`query_num` WHERE `".KP_LIST."`.`client_id` = '".$_GET['client_id']."'";
 		   }
 		   
-		   if($certain_kp_id)$query.= " AND id = '".$certain_kp_id."'";
+		   if($certain_kp_id)$query.= " AND `".KP_LIST."`.`id` = '".$certain_kp_id."'";
 		   $query.= " ORDER BY id DESC";
 		   $result = $mysqli->query($query)or die($mysqli->error);
 		   if($result->num_rows>0){

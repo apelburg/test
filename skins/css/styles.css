@@ -619,7 +619,9 @@ button.CommonRightBtn{
   padding:0px;
   border-right:#969699  dashed 1px;
 }
-.subjects_list .main_tbl_ordinary .row_tbl .name a{
+.subjects_list .main_tbl_ordinary .row_tbl .name a,
+.subjects_list .main_tbl_ordinary .row_tbl .name label{
+  cursor: pointer;
   padding:7px 4px 7px 2px;
   /*font-weight:bold;*/
   overflow:hidden;
@@ -629,7 +631,8 @@ button.CommonRightBtn{
   display:block;
   color:#000000;   
 }
-.subjects_list .main_tbl_ordinary .row_tbl .name a:hover{
+.subjects_list .main_tbl_ordinary .row_tbl .name a:hover,
+.subjects_list .main_tbl_ordinary .row_tbl .name label:hover{
   /* color:#FF0000;*/
   font-weight:bold;
   background-color:#EEE;
