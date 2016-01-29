@@ -183,7 +183,7 @@
 
 		// вывод системного сообщения 
 		function echo_message(data){
-
+			var time = (data['time'] !== undefined)?data['time']:'7000';
 			$("<li/>", {
 			      "class": data.message_type,
 			      "css":{"opacity":1,"top":0},
@@ -198,7 +198,7 @@
 		                    function(){
 		                        jQuery(this).remove();
 		                    });
-		            }, 7000);
+		            }, time);
 		    });
 
 		}	

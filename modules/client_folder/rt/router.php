@@ -22,9 +22,7 @@
 	include './libs/php/classes/os_form_class.php';
 
 
-	// класс комментов к запросу
-	include './libs/php/classes/comments_class.php';
-	$comments = new Comments_for_query_class;
+	
 
 	/*
 	вызов формы планируется из РТ

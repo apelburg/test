@@ -1873,8 +1873,9 @@
 					  //console.log(responseObj);
 					  if(responseObj[0] == 0){
 							location = HOST+ '/os/?page=cabinet&section=requests&subsection='+responseObj[2]+'&client_id=' + responseObj[1];
-					  }
-					  else alert(responseObj[1]); /**/
+					  }else if(responseObj['response'].length > 0){
+					  	standard_response_handler(responseObj);
+					  }else alert(responseObj[1]); /**/
 					 
 				   }
 				   else{

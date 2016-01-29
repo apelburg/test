@@ -444,11 +444,12 @@ button.CommonRightBtn{
 }
 
 #query_theme_block .query_theme{
-  width:500px;
-  border: none;
-  background:none;
-  color:#a3a3a3;
-  padding:0px 0px 0px 4px; 
+    width: 500px;
+    border: none;
+    background: none;
+    color: #5a5c61;
+    padding: 0px 0px 0px 4px;
+    text-decoration: underline;
 }
 
 #query_theme_block .saved{

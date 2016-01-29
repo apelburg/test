@@ -2,14 +2,15 @@
 		комментарии к запросам		
 *****************************************/
 
-.icon_comment_show,
-.icon_comment_order_show{
-	cursor: pointer;
-	    height: 25px;
-    width: 34px;
+
+.icon_comment_show::before,
+.icon_comment_order_show::before{
+    content: "";
+    cursor: pointer;
+        height: 30px;
+    width: 40px;
     float: left;
     padding: 2px;
-    cursor: default;
     border: 1px solid transparent;
     background-image: url('../../skins/images/img_design/comment_icons.png');
     background-repeat: no-repeat;
@@ -17,14 +18,16 @@
     /* background-position-x: 5px; */
     /*background-color: red;*/
         margin-top: -4px;
+        position: absolute;
 }
-.icon_comment_show:hover,
-.icon_comment_order_show:hover{
+.icon_comment_show,
+.icon_comment_order_show{
 	/*border:1px dashed #8b8a89;*/
 }
-.icon_comment_show.no_empty,
-.icon_comment_order_show.no_empty{
+.icon_comment_show.no_empty::before,
+.icon_comment_order_show.no_empty::before{
 	background-position-x: -54px;
+    cursor: pointer;
 }
 
 .icon_comment_show.white,
