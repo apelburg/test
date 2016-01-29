@@ -337,9 +337,14 @@
 					    $place_id = $row['place_id'];
 						$row['item_id'] = $row['id'];
 					    unset($row['id'],$row['place_id'],$row['default']);
+						
+						
 						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения и id места нанесения
 					    if(!$default_sizes) $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
-						else  $out_put['print_types'][$print_id]['sizes'][0][] = $row; 
+						else  $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
+						// а также сбрасываем все места нанесения в один общий элемент для типов "не определено" и "стандартно"
+						$out_put['print_types'][$print_id]['sizes'][0][] = $row; 
+						
 				    }
 				}
 				
@@ -828,14 +833,17 @@
 					if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
 					$json_str .=  '}';
 					// используется в том числе при перерасчете нанесения при загрузке старницы в РТ
-					return $json_str;
+					return $json_str; 
 				}
 			}
 		}
 		static function change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam){
 		    global $mysqli;  
 			
-			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_details_obj->print_id."' AND `level` = '".$print_details_obj->level."'  ORDER by id, param_val";
+			$level = (isset($print_details_obj->level))? $print_details_obj->level:'full';
+			
+			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_details_obj->print_id."' AND `level` = '".$level."'  ORDER by id, param_val";
+			
 				//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);/**/
 			if($result->num_rows>0){

@@ -493,6 +493,8 @@ var printCalculator = {
 						   // тоесть к нему можно все применять - так как не указано ничего конкретно
 						   // но если dop_details_obj.allowed_prints есть, то мы начинаем проверять на наличие в ней:
 						   // сначала вложенности указывающей конкретное place_id 
+						   // при этом если place_id =='0' || place_id =='-1' то мы ни чего не проверяем потомучто таких place_id в
+						   // dop_details_obj.allowed_prints не может быть из-за того что то исскуственно созданые для калькулятора
 						   // потом  вложенности указывающей конкретное print_id 
 						   // если все сошлось значит такое нанесение на таком месте к этой позиции можно применить 
 						   // причем сначала надо проверить первую вложенность а затем только вторую иначе может вылезти ошибка если  
@@ -510,11 +512,18 @@ var printCalculator = {
 
 							   console.log('print_id',printCalculator.currentCalculationData.print_details.print_id);
 							  
-							   var flag = true;
-							   for(var place_id in dop_details_obj.allowed_prints){
-								   if(typeof dop_details_obj.allowed_prints[place_id][printCalculator.currentCalculationData.print_details.print_id] !=='undefined')  flag = false;
-							   }
-							   if(flag) continue outerloop;
+							  
+							  if(printCalculator.currentCalculationData.print_details.place_id =='0' || printCalculator.currentCalculationData.print_details.place_id =='-1'){
+
+								   var flag = true;
+								   for(var place_id in dop_details_obj.allowed_prints){
+									   if(typeof dop_details_obj.allowed_prints[place_id][printCalculator.currentCalculationData.print_details.print_id] !=='undefined')  flag = false;
+								   }
+								   if(flag) continue outerloop;
+							  }
+							  else{
+								  if(typeof dop_details_obj.allowed_prints[printCalculator.currentCalculationData.print_details.place_id][printCalculator.currentCalculationData.print_details.print_id] ==='undefined') continue outerloop;
+							  }
 
 						   }
 						   
@@ -1079,7 +1088,14 @@ var printCalculator = {
 			
 		}
 		
-		if(CurrPrintTypeData['sizes'] && CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id]){
+		
+		console.log('wwwwwwwwwwwwwwwwwwwwwww');
+		console.log('place_id',printCalculator.currentCalculationData.print_details.place_id);
+		console.log(CurrPrintTypeData);
+		
+		var place_id_for_sizes = (printCalculator.currentCalculationData.print_details.place_id =='-1')?0:printCalculator.currentCalculationData.print_details.place_id;
+		
+		if(CurrPrintTypeData['sizes'] && CurrPrintTypeData['sizes'][place_id_for_sizes]){
 			// собираем данные для расчета
 			// площади нанесения
 			// if(typeof printCalculator.dataForProcessing['coefficients'] === 'undefined') printCalculator.dataForProcessing['coefficients']={};
@@ -1098,29 +1114,29 @@ var printCalculator = {
 				
 				printCalculator.makeProcessing();
 			}
-			for(var id in CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id]){
+			for(var id in CurrPrintTypeData['sizes'][place_id_for_sizes]){
 				if(typeof printCalculator.currentCalculationData.print_details.dop_params.sizes === 'undefined'){
 					printCalculator.currentCalculationData.print_details.dop_params.sizes = [];
-					printCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id'],'coeff':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['percentage'],'val':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['val'],'type':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['type'],'target':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['target']};
+					printCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['item_id'],'coeff':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['percentage'],'val':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['val'],'type':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['type'],'target':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['target']};
 				}
 				
 				
 				var option = document.createElement('OPTION');
 
 
-				option.setAttribute("value",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['percentage']);
+				option.setAttribute("value",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['percentage']);
 				// id значения (размер нанесения) который будет сохранен в базу данных и по нему будет отстроен калькулятор 
 				// в случае вызова по кокретному нанесению
-				option.setAttribute("item_id",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id']);
-				option.setAttribute("val",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['val']);
-				option.setAttribute("type",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['type']);
-				option.setAttribute("target",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['target']);
+				option.setAttribute("item_id",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['item_id']);
+				option.setAttribute("val",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['val']);
+				option.setAttribute("type",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['type']);
+				option.setAttribute("target",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['target']);
 				
 				
-				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['size']));
+				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][place_id_for_sizes][id]['size']));
 				printSizesSelect.appendChild(option);
 				
-				if(printCalculator.currentCalculationData.print_details.dop_params.sizes && printCalculator.currentCalculationData.print_details.dop_params.sizes[0].id == CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id']){
+				if(printCalculator.currentCalculationData.print_details.dop_params.sizes && printCalculator.currentCalculationData.print_details.dop_params.sizes[0].id == CurrPrintTypeData['sizes'][place_id_for_sizes][id]['item_id']){
 					option.setAttribute("selected",true);
 					
 				}

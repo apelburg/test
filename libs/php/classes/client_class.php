@@ -2114,15 +2114,16 @@ class Client extends aplStdAJAXMethod{
 	}
 	static function requisites_acting_manegement_face_details($requisite_id){
 		global $mysqli;
+
 					
 		$query ="SELECT * FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."`
 					WHERE requisites_id = '".$requisite_id."' AND acting = '1'";
 					
-				
 
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($item = $result->fetch_assoc()){
+			
 		    return array('position' => $item['position'],'position_in_padeg' => $item['position_in_padeg'],'name' => $item['name'],'name_in_padeg' => $item['name_in_padeg'],'basic_doc' => $item['basic_doc']);
 		    }
 		}
