@@ -10,7 +10,7 @@
    </div> 
    <div class="block">
       <div class="sub_block">
-        <table class="toggle_bar"><tr><td><a href="#" onclick="return get_checked_ids_and_make_request(this);" style="">показать выбранные</a></td></tr></table></div>
+        <table class="toggle_bar show_choosen"><tr><td><a href="#" onclick="return get_checked_ids_and_make_request(this);" style="">показать выбранные</a></td></tr></table></div>
    </div>
    <div class="block">
       <div class="sub_block">

@@ -48,9 +48,9 @@ else {
     $manager_names_arr = Client::get_relate_managers($client_id);
     $manager_names = '';
     
-    foreach ($manager_names_arr as $k => $v) {
+    foreach ($manager_names_arr as $men_id => $value) {
         $del = (isset($_GET['client_edit']))?'<span class="del_curator">X</span>':'';
-        $manager_names.= '<span class="add_del_curator curator_names" data-id="' . $v['id'] . '"><span>' . $v['name'] . ' ' . $v['last_name'] . '</span>'.$del.'</span>';
+        $manager_names.= '<span class="add_del_curator curator_names" data-id="' . $value['id'] . '"><span>' . $value['name'] . ' ' . $value['last_name'] . '</span>'.$del.'</span>';
     }    
     $manager_names.= (isset($_GET['client_edit']))?'<span class="add_del_curator" id="add_curator"> + </span>':'';
     

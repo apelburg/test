@@ -2,7 +2,7 @@
     
 	 ///////////////////////////////////////////////////   quick_bar   ///////////////////////////////////////////////////
 	
-	$quick_button = '<div class="quick_button_div"><a href="/os/?page=suppliers&section=profile_data" class="button">&nbsp;</a></div>';
+	// $quick_button = '<div class="quick_button_div"><a href="/os/?page=suppliers&section=profile_data" class="button">&nbsp;</a></div>';
 	$view_button  = '<div class="quick_view_button_div"><a href="#" class="button" onclick="openCloseMenu(event,\'subjectsListViewTypeMenu\'); return false;">&nbsp;</a></div>';
     $curViewType = isset($_GET['view']) ? $_GET['view'] : 'ordinary';
 	

@@ -1403,7 +1403,7 @@ input.get_a_detailed_specifications {
 	width: 300px;
 }
 #cabinet_general_content .filter_class{
-	background-image: url('../../skins/images/img_design/filter_class_bg.png');
+	/*background-image: url('../../skins/images/img_design/filter_class_bg.png');*/
 	background-position: top right;
 	background-repeat: no-repeat;
 }

@@ -35,7 +35,7 @@
 	include'./skins/tpl/common/quick_bar.tpl';
 	
 	/////////////////////////////////
-	//	крткая информация по клиенту
+	//	краткая информация по клиенту
 	/////////////////////////////////
 		if(isset($_GET['client_id']) && $_GET['client_id']!=""){
 			include_once './libs/php/classes/client_class.php';

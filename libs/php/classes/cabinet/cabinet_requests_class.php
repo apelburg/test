@@ -427,10 +427,26 @@
 			$html .= '<td class="rt_href_click"><a '.$the_client_is_not_attached.' href="'.$href_RT.'">'.$this->Query['query_num'].'</a> </td>';
 			
 			$no_edit = (($_GET['subsection'] == 'query_taken_into_operation' && $this->user_access == 5 || $this->user_access == 1 || $this->Query['manager_id'] == $this->user_id)?0:1);
+			$no_edit = 1;
+			switch ($this->user_access) {
+				case '1':
+					if ($this->Query['manager_id'] == 24) {
+						$no_edit = 0;	
+					}
+					break;
+				case '5':
+					if ($this->Query['status'] == 'taken_into_operation') {
+						$no_edit = 0;	
+					}
+					break;				
+				default:
+					break;
+			}
 			if($_GET['subsection'] == 'query_history'){
 				$no_edit = 1;
 			}
-			$html .= $this->get_client_name_for_query_Database($this->Query['client_id'],$no_edit);
+			$html .= $this->get_client_name_for_query_Database(
+				$this->Query['client_id'],$no_edit);
 			$html .= '<td>'.$this->Query['theme'].'</td>';
 			$html .= '<td>';
 				$html .= '<div>'.$this->get_all_manager_name_Database_Html($this->Query,$no_edit).'</div>';

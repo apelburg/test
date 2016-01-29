@@ -896,7 +896,11 @@ span.snab_comment {
   color: #33823F;
 }
 
-
+#general_form_for_create_product input[type="radio"] {
+    transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    padding-right: 19px;
+}
 #get_form_width_add_input .block{
   border: 1px solid #f1f1f1;
   padding: 10px;

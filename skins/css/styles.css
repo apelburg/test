@@ -466,6 +466,8 @@ button.CommonRightBtn{
   padding:2px 5px 2px 4px; 
   border:#DDD solid 1px;
 }
+
+
 .toggle_bar td a{
   display:block;
   font-family: Arial, Helvetica, sans-serif;
@@ -643,7 +645,8 @@ button.CommonRightBtn{
   width:62px;
 }
 
-.subjects_list .options_bar{
+.subjects_list .options_bar,
+.js--supplier-top-menu{
   padding:9px 20px 9px 20px;
   border-bottom:#969699 solid 1px;
   background-color:#f3f3f4; 
@@ -652,10 +655,32 @@ button.CommonRightBtn{
   font-size:13px;
 
 }
+.options_bar.noselect.js--supplier-top-menu {
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
 .subjects_list .options_bar a{
   padding:0px 2px 0px 3px;
   color:#000000;
 
+}
+.make-it-slow {
+    color: #FFF;
+    background-color: #92b73e;
+    /*-webkit-box-shadow: 0px 0px 4px 2px #92B73E; 
+    -moz-box-shadow: 0px 0px 4px 2px #D50E0E;
+    box-shadow: 0px 0px 8px 4px #92B73E;
+    -webkit-transition: all 1s linear; 
+    -o-transition: all 1s linear;
+    -moz-transition: all 1s linear;
+    -ms-transition: all 1s linear;
+    -kthtml-transition: all 1s linear;
+    transition: all 1s linear;*/
+}
+.make-it-slow a,
+.subjects_list .options_bar .make-it-slow a{
+  color: #FFF; 
 }
 .subjects_list .options_bar .active_sotring_filter{
   color:#FFF;
@@ -2593,7 +2618,7 @@ ul.central_menu li a:hover{
 
 }
 #get_form_Html_tbl tr td:nth-of-type(1){
-  width: 180px; 
+  width: 200px; 
   vertical-align:top;
 }
 #get_form_Html_tbl tr td:nth-of-type(2){
@@ -2605,8 +2630,17 @@ ul.central_menu li a:hover{
   /*background-color: #f1f1f1;*/
   cursor: pointer;
 }
-
-
+#get_form_Html_tbl label{
+  padding: 5px;
+}
+#get_form_Html_tbl label:hover{
+  background: #f1f1f1;
+}
+#get_form_Html_tbl input[name="type_product"] {
+    transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    padding-right: 19px;
+}
 
 .loader{
   min-height: 100px;
@@ -2666,6 +2700,9 @@ ul.central_menu li a:hover{
     padding: 3px 7px 7px 3px;
     position: absolute;
     left: 0;
+}
+#back_without_client:hover {
+    background-color: #C5C5C5;
 }
 div#apl-notification_center {
     position: fixed;
