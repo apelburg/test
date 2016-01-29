@@ -35,7 +35,7 @@
 			// echo 'привет мир';
 			$method_template = $_GET['section'].'_'.$_GET['subsection'].'_Template';
 			// $method_template = $_GET['section'].'_Template';
-			echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
+			// echo '<div id="fixed_div" style="position:fixed; background-color:#fff;padding:5px; bottom:0; right:0">метод '.$method_template.' </div>';
 			// если в этом классе существует такой метод - выполняем его
 			if(method_exists($this, $method_template)){
 				// echo $this->$method_template;
@@ -416,21 +416,38 @@
 		protected function get_row_query_Html_temp(){
 			$html  = '<td class="show_hide" '.$this->open_close_rowspan.'="'.$this->rowspan.'"><span class="cabinett_row_hide '.$this->open_close_class.'"></span></td>';
 			// маркер не прикрепленного клиента
-			$js_message = 'Чтобы перейти в РТ необходимо прикрепить клиента!!!';
-			$the_client_is_not_attached = 'onClick="echo_message_js(\''.$js_message.'\',\'system_message\');"';
+			// $js_message = 'Чтобы перейти в РТ необходимо прикрепить клиента!!!';
+			$the_client_is_not_attached = 'onClick="return false;"';
 			$href_RT = '#';
 			if ($this->Query['client_id'] > 0) {
 				$the_client_is_not_attached = '';
 				$href_RT = './?page=client_folder&client_id='.$this->Query['client_id'].'&query_num='.$this->Query['query_num'];
 			}
 
-			$html .= '<td><a '.$the_client_is_not_attached.' href="'.$href_RT.'">'.$this->Query['query_num'].'</a> </td>';
+			$html .= '<td class="rt_href_click"><a '.$the_client_is_not_attached.' href="'.$href_RT.'">'.$this->Query['query_num'].'</a> </td>';
 			
 			$no_edit = (($_GET['subsection'] == 'query_taken_into_operation' && $this->user_access == 5 || $this->user_access == 1 || $this->Query['manager_id'] == $this->user_id)?0:1);
+			$no_edit = 1;
+			switch ($this->user_access) {
+				case '1':
+					if ($this->Query['manager_id'] == 24) {
+						$no_edit = 0;	
+					}
+					break;
+				case '5':
+					if ($this->Query['status'] == 'taken_into_operation') {
+						$no_edit = 0;	
+					}
+					break;				
+				default:
+					break;
+			}
 			if($_GET['subsection'] == 'query_history'){
 				$no_edit = 1;
 			}
-			$html .= $this->get_client_name_for_query_Database($this->Query['client_id'],$no_edit);
+			$html .= $this->get_client_name_for_query_Database(
+				$this->Query['client_id'],$no_edit);
+			$html .= '<td>'.$this->Query['theme'].'</td>';
 			$html .= '<td>';
 				$html .= '<div>'.$this->get_all_manager_name_Database_Html($this->Query,$no_edit).'</div>';
 				// если не история - считаем сколько времени назад взяли заказ в работу
@@ -438,6 +455,7 @@
 					$html .= '<div style="padding-top: 5px;"><span class="greyText" data-sec="'.$this->Query['time_attach_manager_sec']*(-1).'" '.$this->overdue.'>'.$this->Query['time_attach_manager'].'</span></div>';
 				}				
 			$html .= '</td>';
+			
 			$html .= '<td>'.$this->Query['create_time'].'</td>';
 			$html .= '<td></td>';
 			$html .= '<td><span data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span></td>';
@@ -454,6 +472,8 @@
 			$html = '<tr class="query_detail cab_position_div" '.$this->open_close_tr_style.'>';
 				$html .= '<th>артикул</th>';
 				$html .= '<th>номенклатура</th>';
+				$display = (isset($_GET['client_id']) && (int)$_GET['client_id'] > 0)?' style="display:none"':'';	
+				$html .= '<th'.$display.'></th>';
 				$html .= '<th>тираж</th>';
 				$html .= '<th>товар</th>';
 				$html .= '<th>печать</th>';
@@ -491,7 +511,9 @@
 			$html = '<tr data-id_dop_data="'.$position['id_dop_data'].'" class="'.$position['type'].'_1 query_detail '.$grey_row_style.'" '.$this->open_close_tr_style.'">';
 				// $html .= '<td>'.$position['id_dop_data'].$this->print_arr($Query).'</td>';
 				$html .= '<td>'.$position['art'].'</td>';
-				$html .= '<td>'.$href_art_card.'</td>';
+				$display = (isset($_GET['client_id']) && (int)$_GET['client_id'] > 0)?' style="display:none"':'';	
+				$html .= '<td>'.$href_art_card.'</td>';				
+				$html .= '<td '.$display.'></td>';
 				$html .= '<td>'.$position['quantity'].'</td>';
 				$html .= '<td>'.$this->Price_for_the_goods.'</td>';
 				$html .= '<td>'.$this->Price_of_printing.'</td>';
@@ -518,7 +540,9 @@
 				$html .= '<tr>';
 					$html .= '<th id="show_allArt"></th>';
 					$html .= '<th>Номер</th>';					
-					$html .= '<th>Компания</th>';
+					$display = (isset($_GET['client_id']) && (int)$_GET['client_id'] > 0)?' style="display:none"':'';	
+					$html .= '<th'.$display.'>Компания</th>';
+					$html .= '<th>Тема</th>';
 					$html .= '<th>Менеджер</th>';
 					$html .= '<th style="width:87px">Дата запроса</th>';
 					$html .= '<th></th>';

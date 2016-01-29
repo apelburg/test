@@ -1,7 +1,6 @@
 <?php
-// echo '<pre>';
-// print_r($_POST);
-// echo '</pre>';
+
+// Client::
     
 ?>
 <div class="client_details_field new_tbl ">
@@ -14,16 +13,16 @@
                 }
             ?>
             <div class="container">
-                <a href="?page=clients&amp;section=client_folder&amp;subsection=client_card_table&amp;client_id=<?php echo $_GET['client_id']; ?>">  
+                <a href="?page=clients&section=client_folder&subsection=client_card_table&client_id=<?php echo $_GET['client_id']; ?>">  
                         <?php echo $company_name; ?></a>
             </div>
         </td>
-       <!--  <td class="cap" style="width:70px;">
+       <td class="cap" style="width:70px;">
             Контакт:
         </td>
         <td class="name">
-            <div class="container"> Вася пупкин</div>
-        </td> -->
+            <div class="container"> <?=$contact_face['name']?></div>
+        </td> 
         <td class="empty">&nbsp;
              
         </td>
@@ -33,7 +32,7 @@
         <td class="phone">
             <div class="container">
             <?php
-                echo $phone;
+                echo $contact_face['phone'];
             ?>
             </div>
         </td>
@@ -43,7 +42,7 @@
         <td class="email">
             <div class="container">
             <?php
-                echo $email;
+                echo $contact_face['email'];
             ?>
             </div>
         </td>

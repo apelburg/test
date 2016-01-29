@@ -125,7 +125,7 @@ input:hover,textarea:hover,textarea:focus, input:focus{
 <!-- разделитель --><div class="div_between_form_rows"></div><!-- // разделитель -->
 
 
-<div id="chief_fields_div">
+<div id="chief_fields_div" data-id="<?=$requesit['id'];?>">
 <?php 
 Client::edit_requsits_show_person_all(Client::edit_requsits_show_person($requesit['id']),$client_id);?>
 </div>

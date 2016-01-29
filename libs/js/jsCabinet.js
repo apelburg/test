@@ -3288,7 +3288,7 @@ $(document).on('click', '.query_status', function(event) {
 	event.preventDefault();
 	var row_id = $(this).parent().attr('data-id');
 	var client_id = $(this).prev().prev().prev().prev().prev().prev().attr('data-id');
-	var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().find('a').html());
+	var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().prev().find('a').html());
 	$.post('', {
 		AJAX: 'get_command_for_change_status_query',
 		row_id:row_id,
@@ -3348,6 +3348,18 @@ jQuery.fn.scrollTo = function(elem, speed) {
     return this; 
 };
 
+
+$(document).on('click', '#general_panel_orders_tbl tr td.rt_href_click', function(event) {
+	event.preventDefault();
+	var a = $(this).find('a');
+	if (a.attr('onclick')) {
+		var js_message = 'Чтобы перейти в РТ необходимо прикрепить клиента!!!';
+		echo_message_js(js_message,'system_message');
+	}else{
+		window.location.href = $(this).find('a').attr('href');
+	}
+	
+});
 
 
 

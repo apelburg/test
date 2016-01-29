@@ -22,7 +22,13 @@ class rtPositionUniversal extends Position_general_Class
 		$this->db();
 		
 		// получаем позицию
-		$this->getPosition((isset($_GET['id']))?$_GET['id']:'none');
+		
+		if (isset($_GET['query_num']) && (int)$_GET['query_num']>0) {
+			$this->getPosition($_GET['query_num'],'query_num');	
+		}else {
+			$this->getPosition((isset($_GET['id']) && (int)$_GET['id']>0)?$_GET['id']:'0','id');
+		}
+		
 
 		// получаем кириллическое название статуса
 		$this->queryStatus = $this->get_query_status($this->position['status']);
@@ -337,9 +343,14 @@ class rtPositionUniversal extends Position_general_Class
 			$this->responseClass->addResponseOptions($options);			
 		}
 	
-	public function getPosition($id = 0){
+	public function getPosition($id = 0,$type = 'id'){
 		if(empty($this->position)){
-			$this->position = $this->getPositionDatabase($id);		
+			if($type == 'id'){
+				$this->position = $this->getPositionDatabase($id);		
+			}else{
+				$this->position = $this->getPositionDatabaseQN($id);		
+			}
+			
 		}
 		return $this->position;
 	}
@@ -605,6 +616,26 @@ class rtPositionUniversal extends Position_general_Class
 		  INNER JOIN `".RT_LIST."`
 		  ON `".RT_LIST."`.`query_num` = `".RT_MAIN_ROWS."`.`query_num`
 		   WHERE `".RT_MAIN_ROWS."`.`id` = '".$id."'";
+		// echo $query;
+		$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		
+		$position = array();
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$position = $row;
+			}
+		}
+		return $position;
+	}
+	// получаем строку РТ(позицию) из базы
+	private function getPositionDatabaseQN($query_num){	
+		// чеерез get параметр id мы получаем id 1 из строк запроса
+		// получаем основные хар-ки артикула из таблицы артикулов входящих в запрос
+		$query = "SELECT `".RT_LIST."`.*,`".RT_LIST."`.`id` AS `RT_LIST_ID`, `".RT_MAIN_ROWS."`.*, DATE_FORMAT(date_create,'%d.%m.%Y %H:%i:%s') as `date_create`
+		  FROM `".RT_MAIN_ROWS."`
+		  INNER JOIN `".RT_LIST."`
+		  ON `".RT_LIST."`.`query_num` = `".RT_MAIN_ROWS."`.`query_num`
+		   WHERE `".RT_MAIN_ROWS."`.`query_num` = '".$query_num."'";
 		// echo $query;
 		$result = $this->mysqli->query($query) or die($this->mysqli->error);
 		

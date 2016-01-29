@@ -323,7 +323,7 @@
 			  //echo $row['row_type'].' = ';
 			 if($row['row_type'] == 'cat'){ 
 				 $extra_panel = '<div class="pos_plank cat">
-								   <a href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'">'.$row['art'].'</a>
+								   <a href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'">654654  '.$row['art'].'</a>
 								   <div class="pos_link_plank">
 									  <div class="catalog">
 										  <a id="" href="/description/'.$row['art_id'].'/" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>

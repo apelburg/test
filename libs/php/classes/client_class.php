@@ -124,6 +124,17 @@ class Client extends aplStdAJAXMethod{
 			$this->_AJAX_($_POST['AJAX']);
 		}
 
+		## данные POST
+		if(isset($_GET['AJAX'])){
+			// получаем данные пользователя
+			$User = $this->getUserDatabase($this->user_id);
+			
+			$this->user_last_name = $User['last_name'];
+			$this->user_name = $User['name'];
+
+			$this->_AJAX_($_GET['AJAX']);
+		}
+
 
 		if($id > 0){
 			$this->get_object($id);
@@ -149,6 +160,52 @@ class Client extends aplStdAJAXMethod{
 			ВНИМАНИЕ !!!!
 			если в конце _AJAX метода стоит exit, то метод не работает со стандартным ответчиком
 			и для того чтобы туда передать какие-либо доп. функции JS нужно переписывать JS приёмник
+		*/
+
+		/**
+		 *	апдейт должностей в реквизитах
+		 *
+		 *	@author  	Алексей Капитонов
+		 *	@version 	12:23 28.01.2016
+		 */
+		/*
+		protected function update_requisits_tbl_AJAX(){
+			// скрипт отработан и более не нужен
+			exit;
+
+			global $mysqli;
+			$query = "SELECT * FROM `".CLIENT_REQUISITES_MANAGMENT_FACES_TBL."`";
+			$requesit = array();
+	        
+	        $result = $this->mysqli->query($query) or die($this->mysqli->error);
+	        if ($result->num_rows > 0) {
+	            while ($row = $result->fetch_assoc()) {
+	                $requesit[$row['id']] = $row;
+	            }
+	        }
+
+	        $get__clients_persons_arr = $this->get__clients_persons();
+
+	        $query = ''; $i = 0;
+	        foreach ($requesit as $key => $value) {
+	        	if($i >= 20){
+	        		$result = $mysqli->multi_query($query) or die($mysqli->error);	
+	        		
+	        		echo "Скопировано $i строк<br>";
+	        		$query = ''; $i = 0;
+	        	}
+
+	        	if(isset($get__clients_persons_arr[$value['post_id']])){
+		        	$query = "UPDATE `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  ";
+		        	$query.= "`position` =  '" . $get__clients_persons_arr[$value['post_id']]['position'] . "',";	
+					$query.= "`position_in_padeg` =  '" . $get__clients_persons_arr[$value['post_id']]['position_in_padeg'] . "'";
+					$query.= " WHERE id = '".$key."'; ";
+					//$i++;
+					$result = $mysqli->query($query) or die($query.'<br>'.$mysqli->error);	
+				}
+	        }
+	        echo "<strong>Скрипт завершён!!!</strong>";
+		}
 		*/
 
 		// окно просмотра реквизитов
@@ -179,6 +236,21 @@ class Client extends aplStdAJAXMethod{
 	        $html = 'Рейтинг успешно обнавлён. Спасибо.';
 			$this->responseClass->addMessage($html,'successful_message');	        
 	    }
+	    protected function check_the_main_contact_face_AJAX(){
+	    	$query  = "UPDATE  `" . RELATE_CLIENT_MANAGER_TBL . "` ";
+	    	$query .= "SET  `cont_faces_relation_id` =  '" . $_POST['contact_face_id'] . "' ";
+	    	$query .= "WHERE  `id` = '" . $_POST['relate_id'] . "';";
+
+	        $result = $this->mysqli->query($query);// or die($this->mysqli->error);
+	        if(!$result){
+	        	$html = 'Ошибка записи';
+				$this->responseClass->addMessage($html,'error_message');		
+	        }else{
+	        	$html = 'Контактное лицо по умолчанию сохранено.';
+				$this->responseClass->addMessage($html,'successful_message');		
+	        }
+	    	
+		}
 
 	    // окно заведения новых реквизитов
 	    protected function create_requesit_AJAX() {        
@@ -703,19 +775,32 @@ class Client extends aplStdAJAXMethod{
 				`okpo`='" . $_POST['form_data']['okpo'] . "', 
 				`dop_info`='" . $_POST['form_data']['dop_info'] . "' WHERE id = '" . $_POST['requesit_id'] . "';";
 			
+
+			$get__clients_persons_arr = $this->get__clients_persons();
 			foreach ($_POST['form_data']['managment1'] as $key => $val) {
 			    if (trim($val['id']) != "") {
-			        $query.= "UPDATE  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  
-						`requisites_id` =  '" . $val['requisites_id'] . "',
-						`type` =  '" . $val['type'] . "',
-						`post_id` =  '" . $val['post_id'] . "',
-						`basic_doc` =  '" . $val['basic_doc'] . "',
-						`name` =  '" . $val['name'] . "',
-						`name_in_padeg` =  '" . $val['name_in_padeg'] . "',
-						`acting` =  '" . $val['acting'] . "'
-						WHERE  `id` ='" . $val['id'] . "'; ";
+			        $query.= "UPDATE  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  ";
+					$query.= "`requisites_id` =  '" . $val['requisites_id'] . "',";
+					$query.= "`type` =  '" . $val['type'] . "',";
+					$query.= "`post_id` =  '" . $val['post_id'] . "',";
+					if(isset($get__clients_persons_arr[$val['post_id']])){
+						$query.= "`position` =  '" . $get__clients_persons_arr[$val['post_id']]['position'] . "',";	
+						$query.= "`position_in_padeg` =  '" . $get__clients_persons_arr[$val['post_id']]['position_in_padeg'] . "',";
+					}
+					$query.= "`basic_doc` =  '" . $val['basic_doc'] . "',";
+					$query.= "`name` =  '" . $val['name'] . "',";
+					$query.= "`name_in_padeg` =  '" . $val['name_in_padeg'] . "',";
+					$query.= "`acting` =  '" . $val['acting'] . "'";
+					$query.= " WHERE  `id` ='" . $val['id'] . "'; ";
 			    }else {
-			        $query.= "INSERT INTO  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  
+			        
+						if($val['acting'] == 1){
+							 $query.= "UPDATE  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  ";
+							 $query.= "`acting` =  '0'";
+							$query.= " WHERE  `requisites_id` ='" . $val['requisites_id'] . "'; ";
+						}
+
+						$query.= "INSERT INTO  `" . CLIENT_REQUISITES_MANAGMENT_FACES_TBL . "` SET  
 						`requisites_id` =  '" . $val['requisites_id'] . "',
 						`type` =  '" . $val['type'] . "',
 						`post_id` =  '" . $val['post_id'] . "',
@@ -733,6 +818,19 @@ class Client extends aplStdAJAXMethod{
 			
 			exit;
 		}
+
+		protected function get__clients_persons(){
+			global $mysqli;
+			$query = "SELECT * FROM `".CLIENT_PERSON_REQ_TBL."`";
+			$arr = array();
+			$result = $mysqli->query($query) or die($mysqli->error);				
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$arr[$row['id']] = $row;
+				}
+			}
+			return $arr;
+		} 
 			    
 		protected function create_new_requisites_AJAX() {
 			$query = "
@@ -1005,6 +1103,8 @@ class Client extends aplStdAJAXMethod{
 		$html = $this->print_arr($_POST);
 		echo '{"response":"show_new_window_simple", "html":"'.base64_encode($html).'","width":"600"}';
 	}
+
+	
 
 	// protected function attach_client_for_new_query_AJAX(){
 	// в cabinet_class.php		
@@ -1493,9 +1593,7 @@ class Client extends aplStdAJAXMethod{
 	static function get_client__information($id){
 		// получаем информацию по клиенту
 		global $mysqli;		
-		////////////////////////////////////////
-		//	получаем данные из основной таблицы
-		////////////////////////////////////////
+
 		$Client_info = self::get_client_informationDatabase($id);
 		
 		$company_name = '';
@@ -1504,19 +1602,87 @@ class Client extends aplStdAJAXMethod{
 			$company_name = $Client_info['company'];
 		}
 
-		//////////////////////////
-		//	получаем телефоны и емейл
-		//////////////////////////
-		// global $mysqli;
-		$contacts = array();
-		$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = 'CLIENTS_TBL' AND `parent_id` = '".(int)$id."'";
-		
+
+		switch ($_SESSION['access']['access']) {
+			case '1':
+				$query = "SELECT * FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".$id."' 
+				AND cont_faces_relation_id <> 0";# code...
+				break;
+			
+			default:
+				$query = "SELECT * FROM `".RELATE_CLIENT_MANAGER_TBL."` WHERE `client_id` = '".$id."' 
+				AND cont_faces_relation_id <> 0 && `manager_id` = '".$_SESSION['access']['user_id']."'";
+				break;
+		}
+		$relate = array();
+		$contact_face['email'] = '';
+		$contact_face['phone'] = '';
+		$contact_face['name'] = '';
+
 		$result = $mysqli->query($query) or die($mysqli->error);
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				$contacts[] = $row;
+				$relate = $row;
 			}
 		}
+
+
+		if(isset($relate['cont_faces_relation_id'])){
+			$query = "SELECT * FROM `".CLIENT_CONT_FACES_TBL."` WHERE id = '".$relate['cont_faces_relation_id']."'";
+			$result = $mysqli->query($query) or die($mysqli->error);
+			
+			$contact_face_arr = array();
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$contact_face_arr = $row;
+					$contact_face['name'] = $row['last_name'] .' '.$row['name'].' '.$row['surname'];
+				}
+			}
+			if(count($contact_face_arr) > 0){
+				$query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = 'CLIENT_CONT_FACES_TBL' AND `parent_id` = '".$contact_face_arr['id']."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+				
+				$contacts = array();
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$contacts[] = $row;
+					}
+				}
+				foreach ($contacts as $contact) {
+					if(isset($contact['type']) && $contact['type'] == 'phone'){
+						$contact_face['phone'] = $contact['contact'];
+					}
+					if(isset($contact['type']) && $contact['type'] == 'email' ){
+						$contact_face['email'] = $contact['contact'];
+					}
+				}
+			}
+		}
+		
+		////////////////////////////////////////
+		//	получаем данные из основной таблицы
+		////////////////////////////////////////
+		// $Client_info = self::get_client_informationDatabase($id);
+		
+		// $company_name = '';
+		
+		// if(!empty($Client_info)){
+		// 	$company_name = $Client_info['company'];
+		// }
+
+		// //////////////////////////
+		// //	получаем телефоны и емейл
+		// //////////////////////////
+		// // global $mysqli;
+		// $contacts = array();
+		// $query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = 'CLIENTS_TBL' AND `parent_id` = '".(int)$id."'";
+		
+		// $result = $mysqli->query($query) or die($mysqli->error);
+		// if($result->num_rows > 0){
+		// 	while($row = $result->fetch_assoc()){
+		// 		$contacts[] = $row;
+		// 	}
+		// }
 		
 		$get_str = '';
 		$n = 0;
@@ -1529,17 +1695,17 @@ class Client extends aplStdAJAXMethod{
 		}
 		$back_without_client = '<a id="back_without_client" href="./'.$get_str.'"></a>';
 
-		$phone = '';
-		$email = '';
+		// $phone = '';
+		// $email = '';
 
-		foreach ($contacts as $contact) {
-			if($contact['type'] == 'phone' && $phone == ''){
-				$phone = $contact['contact'];
-			}
-			if($contact['type'] == 'email' && $email == ''){
-				$email = $contact['contact'];
-			}
-		}
+		// foreach ($contacts as $contact) {
+		// 	if($contact['type'] == 'phone' && $phone == ''){
+		// 		$phone = $contact['contact'];
+		// 	}
+		// 	if($contact['type'] == 'email' && $email == ''){
+		// 		$email = $contact['contact'];
+		// 	}
+		// }
 
 		include './skins/tpl/clients/client_list/condensed_information_on_the_client.tpl';
 		return;
@@ -1618,6 +1784,10 @@ class Client extends aplStdAJAXMethod{
 		return $arr;
 	}
 	static function edit_requsits_show_person_all($arr,$client_id){
+		// echo '<pre>';
+		// print_r($arr);
+		// echo '</pre>';
+			
 		foreach ($arr as $key => $contact) {
 			$get__clients_persons_for_requisites = Client::get__clients_persons_for_requisites($contact['post_id']);
 			include('./skins/tpl/clients/client_folder/client_card/edit_requsits_show_person.tpl');
@@ -1838,12 +2008,22 @@ class Client extends aplStdAJAXMethod{
 	}	
 	static function get_relate_managers($client_id){
 		global $mysqli;
-		$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `id` IN (SELECT `manager_id` FROM  `".RELATE_CLIENT_MANAGER_TBL."`  WHERE `client_id` IN (SELECT `id` FROM `".CLIENTS_TBL."` WHERE `id` = ".$client_id." ));";
+		//$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `id` IN (SELECT `manager_id` FROM  `".RELATE_CLIENT_MANAGER_TBL."`  WHERE `client_id` IN (SELECT `id` FROM `".CLIENTS_TBL."` WHERE `id` = ".$client_id." ));";
+		$query = "SELECT 
+			    `".RELATE_CLIENT_MANAGER_TBL."`.`cont_faces_relation_id`,
+			    `".RELATE_CLIENT_MANAGER_TBL."`.`id` AS `relate_id`,
+			    `".MANAGERS_TBL."`.*
+			FROM
+			    `".RELATE_CLIENT_MANAGER_TBL."`
+			    INNER JOIN `".MANAGERS_TBL."`
+			    ON `".MANAGERS_TBL."`.`id` = `".RELATE_CLIENT_MANAGER_TBL."`.`manager_id`
+			    WHERE `".RELATE_CLIENT_MANAGER_TBL."`.`client_id` = '".$client_id."' 
+    		";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$manager_names = array();			
 		if($result->num_rows > 0){
 			while($row = $result->fetch_assoc()){
-				$manager_names[] = $row;
+				$manager_names[$row['id']] = $row;
 			}
 		}
 		return $manager_names;
@@ -2087,7 +2267,7 @@ class Client extends aplStdAJAXMethod{
 		$manager_info = $this->get_manager_info_by_id($user_id);		
 		$message = 'В базу добавлен новый клиент:<br><b>'.$company.'</b><br>
 				   поставщика добавил пользователь: '.$manager_info['nickname'].' / '.$manager_info['name'].' '.$manager_info['last_name'].'<br><br>
-				   <a href="http://apelburg.ru/admin/order_manager/?page=clients&client_id='.$client_id.'&razdel=show_client_data">ссылка на карточку клиента</a>';
+				   <a href="http://apelburg.ru/os/?page=clients&section=client_folder&subsection=client_card_table&client_id='.$client_id.'&razdel=show_client_data">ссылка на карточку клиента</a>';
 		/**/
 		//$mail->sendMail(2,'apelburg.m7@gmail.com','Новый клиент',$message,$headers);		
 		$mailClass->send('kapitonoval2012@gmail.com','os@apelburg.ru','Новый клиент',$message);		

@@ -62,9 +62,9 @@
 
 	    default: 
 	    include 'client_folder/default_controller.php';
-	    break;
-	
+	    break;	
 	}
+	
 	
 	$content = ob_get_contents();
 	ob_get_clean();

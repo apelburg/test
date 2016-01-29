@@ -855,7 +855,8 @@ if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']=
 	function get_activities_list($search){
 	    global $db;
 		
-	    $query = "SELECT*FROM`".SUPPLIERS_ACTIVITIES_TBL."`";
+	    $query = "SELECT*FROM`".SUPPLIERS_ACTIVITIES_TBL."` ORDER BY `name`";
+	    // echo $query;
 		if($search) $query .= " WHERE name LIKE '%".$search."%'";
 		$result = mysql_query($query,$db) or die(mysql_error());
 		if(mysql_num_rows($result)>0){
@@ -2849,6 +2850,12 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 				}
 				$n++;
 			}
+
+			// сказано сделать стартовой
+			// if($_SESSION['access']['access'] == 5 || $_SESSION['access']['access'] == 1 ){
+			// 	$subsection = 'in_work';
+			// }
+			
 			 
 			//$subsection = key($ACCESS_SHABLON[$user_access]['cabinet']['section'][0]['subsection'][0]);
 			return 'os/?page=cabinet&section='.$section.'&subsection='.$subsection.$client;

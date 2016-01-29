@@ -5742,6 +5742,7 @@
 		// выводит имя клиента для запроса в форме редактирования
 		protected function get_client_name_for_query_Database($id, $no_edit=0){
 			global $mysqli;		
+			$display = (isset($_GET['client_id']) && (int)$_GET['client_id'] > 0)?' style="display:none"':'';	
 			//получаем название клиента
 			$query = "SELECT `company`,`id` FROM `".CLIENTS_TBL."` WHERE `id` = '".(int)$id."'";
 			$result = $mysqli->query($query) or die($mysqli->error);
@@ -5749,10 +5750,10 @@
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$href = './?page='.$_GET['page'].(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$row['id'];
-					$name = '<td'.(($no_edit==0)?' class="attach_the_client"':' class="dop__info filter_class" data-href="'.$href.'"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
+					$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client"':' class="dop__info filter_class" data-href="'.$href.'"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
 				}
 			}else{
-				$name = '<td'.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</td>';
+				$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</td>';
 			}
 			return $name;
 		}

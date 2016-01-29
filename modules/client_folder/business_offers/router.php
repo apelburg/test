@@ -114,6 +114,15 @@
 		 exit;
 	 }
 	
+		if(isset($_POST['AJAX'])){
+				
+		    if($_POST['AJAX']=='edit_query_theme'){
+		        include_once ($_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/rt_class.php');
+		        RT::save_theme($_POST['query_num'],$_POST['theme']);
+				echo '{"response":"OK"}';
+				exit;
+			}
+		}
 	
 	///////////////////////////////////////  END AJAX  /////////////////////////////////////////////////
 	

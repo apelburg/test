@@ -25,7 +25,7 @@
 	   include 'supplier_data_controller.php';
 	   break;
 	   
-	   case 'profiles_list':
+	   case 'profiles_list':	   
 	   include 'profiles_list_controller.php';
 	   break;
 	   

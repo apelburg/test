@@ -18,7 +18,12 @@ body {
   margin-top: -1px;
 }
 #claim_number a{
-  color: #fff;
+  color: #5a5c61;
+  /*text-decoration: none;*/
+}
+#claim_number a:hover{
+  /*color: #5a5c61;*/
+  /*text-decoration: underline;*/
 }
 #back_to_string_of_claim a{width: 32px;
   height: 24px;
@@ -31,7 +36,7 @@ body {
   margin-top: -5px;
   background-position-x: 3px;}
 
-#info_string_on_query ul li:nth-of-type(1){width: 32px;padding: 5px 0;  height: 6px;}
+#info_string_on_query ul li:nth-of-type(1){width: 27px;padding: 5px 0;  height: 6px;}
 #info_string_on_query span{/*color:#a3a3a3;*/}
 
 #button_standart_001{cursor: default; border-left: 1px solid #84868B; border-right: 1px solid #84868B;}
@@ -891,7 +896,11 @@ span.snab_comment {
   color: #33823F;
 }
 
-
+#general_form_for_create_product input[type="radio"] {
+    transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    padding-right: 19px;
+}
 #get_form_width_add_input .block{
   border: 1px solid #f1f1f1;
   padding: 10px;

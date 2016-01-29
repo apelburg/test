@@ -1403,7 +1403,7 @@ input.get_a_detailed_specifications {
 	width: 300px;
 }
 #cabinet_general_content .filter_class{
-	background-image: url('../../skins/images/img_design/filter_class_bg.png');
+	/*background-image: url('../../skins/images/img_design/filter_class_bg.png');*/
 	background-position: top right;
 	background-repeat: no-repeat;
 }
@@ -1453,4 +1453,10 @@ input.get_a_detailed_specifications {
 }
 table#general_panel_orders_tbl {
     border-bottom: 1px solid #E2E2E2;
+}
+.rt_href_click{
+	cursor: pointer;
+}
+#cabinet_general_content .rt_href_click:hover{
+	background: #BAD08B;
 }
