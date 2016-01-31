@@ -9,6 +9,7 @@
 <script type="text/javascript" src="libs/js/jquery.1.10.2.min.js"></script>
 <script type="text/javascript" src="libs/js/jquery_ui/jquery-ui.min.js"></script>
 <script type="text/javascript" src="libs/js/classes/Base64Class.js"></script>
+<script type="text/javascript" src="libs/js/notify.js"></script>
 <link href="libs/js/jquery_ui/jquery-ui.theme.css" rel="stylesheet" type="text/css">
 <link href="libs/js/jquery_ui/jquery-ui.structure.css" rel="stylesheet" type="text/css">
 

@@ -179,26 +179,26 @@
 		}
 
 		// вывод системного сообщения 
-		function echo_message(data){
+		// function echo_message(data){
 
-			$("<li/>", {
-			      "class": data.message_type,
-			      "css":{"opacity":1,"top":0},
-			      click: function(){
-			          $(this).animate({opacity:0},'fast',function(){$(this).remove()});
-			      }
-			}).append(Base64.decode(data.message)).appendTo("#apl-notification_center").fadeIn('slow', 
-		        function(){
-		            var el = jQuery(this);
-		            setTimeout(function(){
-		                el.fadeOut('slow',
-		                    function(){
-		                        jQuery(this).remove();
-		                    });
-		            }, 7000);
-		    });
+		// 	$("<li/>", {
+		// 	      "class": data.message_type,
+		// 	      "css":{"opacity":1,"top":0},
+		// 	      click: function(){
+		// 	          $(this).animate({opacity:0},'fast',function(){$(this).remove()});
+		// 	      }
+		// 	}).append(Base64.decode(data.message)).appendTo("#apl-notification_center").fadeIn('slow', 
+		//         function(){
+		//             var el = jQuery(this);
+		//             setTimeout(function(){
+		//                 el.fadeOut('slow',
+		//                     function(){
+		//                         jQuery(this).remove();
+		//                     });
+		//             }, 7000);
+		//     });
 
-		}	
+		// }	
 
 		function php_message_alert(data){
 			console.log(data);
@@ -3287,7 +3287,7 @@ $(document).on('click', '.order_status_chenge', function(event) {
 $(document).on('click', '.query_status', function(event) {
 	event.preventDefault();
 	var row_id = $(this).parent().attr('data-id');
-	var client_id = $(this).prev().prev().prev().prev().prev().prev().attr('data-id');
+	var client_id = $(this).prev().prev().prev().prev().prev().prev().prev().attr('data-id');
 	var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().prev().find('a').html());
 	$.post('', {
 		AJAX: 'get_command_for_change_status_query',

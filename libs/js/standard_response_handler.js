@@ -184,6 +184,48 @@
 		// вывод системного сообщения 
 		function echo_message(data){
 			var time = (data['time'] !== undefined)?data['time']:'7000';
+			// var data.message_type = (data['message_type'] !== undefined)?data['message_type']:'successful_message';
+			
+			var message_type = 'success';
+			if(data['message_type'] !== undefined){
+				switch(data.message_type) {
+					case 'successful_message':
+						message_type = 'success';
+						break;
+					case 'system_message':
+						message_type = 'warn';
+						break;
+					case 'error_message':
+						message_type = 'error';
+						break;
+					default:
+						message_type = 'info';
+						break;
+				}
+			}
+			$.notify(Base64.decode(data.message),message_type)
+
+
+			// $("<li/>", {
+			//       "class": data.message_type,
+			//       "css":{"opacity":1,"top":0},
+			//       click: function(){
+			//           $(this).animate({opacity:0},'fast',function(){$(this).remove()});
+			//       }
+			// }).append(Base64.decode(data.message)).appendTo("#apl-notification_center").fadeIn('slow', 
+		 //        function(){
+		 //            var el = jQuery(this);
+		 //            setTimeout(function(){
+		 //                el.fadeOut('slow',
+		 //                    function(){
+		 //                        jQuery(this).remove();
+		 //                    });
+		 //            }, time);
+		 //    });
+		}	
+
+		function echo_message_old(data){
+			var time = (data['time'] !== undefined)?data['time']:'7000';
 			$("<li/>", {
 			      "class": data.message_type,
 			      "css":{"opacity":1,"top":0},
@@ -200,7 +242,6 @@
 		                    });
 		            }, time);
 		    });
-
 		}	
 
 		function php_message_alert(data){
@@ -235,9 +276,33 @@
 			}	
 		});
 
-
-	
 	function echo_message_js(text, message_type, timer){
+		timer = timer || 7000;
+		message_type = message_type || 'system_message';
+		// if(data['message_type'] !== undefined){
+			switch(message_type) {
+				case 'successful_message':
+					message_type = 'success';
+					break;
+				case 'system_message':
+					message_type = 'warn';
+					break;
+				case 'error_message':
+					message_type = 'error';
+					break;
+				default:
+					message_type = 'info';
+					break;
+			}
+		// }
+
+		$.notify(text,{
+			className: 		message_type,
+  			clickToHide: 	timer,
+		})
+	}
+	
+	function echo_message_js_OLD(text, message_type, timer){
 		message_type = message_type || 'system_message';
 		timer = timer || 7000;
 		$("<li/>", {
