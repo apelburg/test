@@ -8,7 +8,7 @@
 if (isset($_GET['query_num']) && (int)$_GET['query_num']) {  
     ?>
         <div class="cabinet_top_menu">
-          <ul class="central_menu" style="height: 27px;">
+          <ul class="central_menu" >
             
             <li <?php if(!isset($_GET['show_all'])){echo 'class="selected"';} ?>>
               <a href="http://www.apelburg.ru/os/?page=client_folder&section=business_offers&query_num=<?=$_GET['query_num'];?>&client_id=<?=$_GET['client_id'];?>">
@@ -24,9 +24,12 @@ if (isset($_GET['query_num']) && (int)$_GET['query_num']) {
         </div>
     <?php
     // комментарии
-    include $_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/comments_class.php';
-    $comments = new Comments_for_query_class;
-    
+    // include $_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/comments_class.php';
+    // $comments = new Comments_for_query_class;
+    if(isset($COMMENTS)){
+        $comments = $COMMENTS;
+    }
+
     // класс работы с базой
     include $_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/db_class.php';
     // класс работы с формами

@@ -12,6 +12,7 @@
 <link href="libs/js/jquery_ui/jquery-ui.theme.css" rel="stylesheet" type="text/css">
 <link href="libs/js/jquery_ui/jquery-ui.structure.css" rel="stylesheet" type="text/css">
 
+
 <script type="text/javascript" src="<?=HOST;?>/libs/js/standard_response_handler.js"></script>
 <?php
 // echo phpinfo();
@@ -125,6 +126,7 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
 <?php 
 if(isset($_SESSION['access']['user_id'])){ echo Planner::$warnings_container; }
 ?> 
+
 <!-- / Планнер -->  
 <!--<div style="position:absolute;right:0px;bottom:0px;"><a href="#" onclick="alert(error_report);return false;">ошибки</a></div>-->
 </body>
