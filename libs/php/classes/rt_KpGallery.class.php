@@ -493,8 +493,8 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 							<div id="queue"></div>
 							<input id="'.$token.'" data-folder_name="'.$folder_name.'" name="file_upload" type="file" multiple="true">
 							<input id="data_folder_name" name="data[folder_name]" type="hidden" value="">
-							<textarea id="data_JSON" name="data[json]" type="text" >'.$this->getJsonCheckedImg($rt_id).'</textarea>
-							<textarea id="data_JSON" name="data[json_old]" type="text" >'.$this->getJsonCheckedImg($rt_id).'</textarea>
+							<textarea  style="display:none" id="data_JSON" name="data[json]" type="text" >'.$this->getJsonCheckedImg($rt_id).'</textarea>
+							<textarea style="display:none" id="data_JSON" name="data[json_old]" type="text" >'.$this->getJsonCheckedImg($rt_id).'</textarea>
 							<input id="data_id" name="data[id]" type="hidden" value="">
 							<input id="data_img" name="data[img]" type="hidden" value="">
 							<input id="data_type" name="data[type]" type="hidden" value="">

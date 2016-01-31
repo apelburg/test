@@ -135,8 +135,24 @@
 				   $result7 = $mysqli->query($query7)or die($mysqli->error);
  				
  					// echo $query7.'<br>';
-	 				if($result7->num_rows>0){
-			       			$row7=$result7->fetch_assoc();
+ 					// echo '<pre>';
+ 					// print_r($result7);
+ 					// echo '</pre>';
+				   $choosen_img_arr = array();
+
+	 				if($result7->num_rows > 0){
+						while($row7 = $result7->fetch_assoc()){
+			       			// $row7 = $result7->fetch_assoc();
+							$choosen_img_arr[] = $row7;
+						}
+					}
+
+
+					// echo '<pre>';
+					// print_r($choosen_img_arr);
+					// echo '</pre>';
+
+					foreach ($choosen_img_arr as $key => $row7) {
 							$query8 = "INSERT INTO `".KP_MAIN_ROWS_GALLERY."` 
 							   SET 
 							   `parent_id` = '".$row_id."',
@@ -147,7 +163,6 @@
 							  ";
 							  // echo $query8.'<br>';
 							 $result8 = $mysqli->query($query8) or die($mysqli->error);
-						
 					}
 
 
@@ -833,12 +848,20 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 				$img_src = 'http://www.apelburg.ru/img/no_image.jpg';
 				$img_cell = '<img src="'.$img_src.'" height="180" width="180">';
 				
-				$art_img = new  Art_Img_development($pos_level['img_folder'],$pos_level['img'], $pos_level['art']);
-				$img_src = $art_img->big;
+				$art_img = new  Art_Img_development($pos_key,$pos_level['img_folder'],$pos_level['img'], $pos_level['art']);
+				
+				// $img_src = $art_img->big;
+				// echo '<pre>';
+				// print_r($art_img);
+				// echo '</pre>';
 				// меняем размер изображения
-				$size_arr = transform_img_size($img_src,230,300);
-				// $size_arr = array(230,300);
-				$img_cell = '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
+				$img_cell = '';
+				foreach ($art_img->big as $key => $img_src) {
+					$size_arr = transform_img_size($img_src,230,300);
+					// $size_arr = array(230,300);
+					$img_cell .= '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
+				}
+				
 				// $img_cell .= '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
 
 				// $img_cell .= '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
