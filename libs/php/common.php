@@ -293,13 +293,25 @@ if(isset($_SESSION['access']['user_id'])){ // && ($_SESSION['access']['access']=
 	function identify_supplier_by_prefix($article){// 
 	   global $suppliers_data_by_prefix;					   
 	   $prefix = substr($article,0,2);
-	   
-	   if(isset($suppliers_data_by_prefix[$prefix])){
+	   // if(isset($_SESSION['access']['user_id']) && $_SESSION['access']['user_id'] == 42){
+	   // 	echo '<pre>';
+	   // 	print_r($suppliers_data_by_prefix);
+	   // 	echo '</pre>';
+	   // 	echo '<pre>';
+	   // 	print_r($suppliers_data_by_prefix[$prefix]);
+	   // 	echo '</pre>';
+	   		
+	   		
+	   // }else {
+	   	if(isset($suppliers_data_by_prefix[$prefix])){
 	      $article_orig_name = substr($article,2);
 	      return '<a target="_blank" class="rt_supplier_link" href="'.$suppliers_data_by_prefix[$prefix]['link'].$article_orig_name.'">'.$suppliers_data_by_prefix[$prefix]['name'].'</a>';
 		  
+	   }else{
+			return '';
 	   }
-	   else return '';
+	   // }
+	   
 	}
 
 	function identify_supplier_href($article){// 

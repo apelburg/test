@@ -2029,6 +2029,29 @@ class Client extends aplStdAJAXMethod{
 		return $manager_names;
 	}
 
+	static function get_relate_managers_2($client_id){
+		global $mysqli;
+		//$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `id` IN (SELECT `manager_id` FROM  `".RELATE_CLIENT_MANAGER_TBL."`  WHERE `client_id` IN (SELECT `id` FROM `".CLIENTS_TBL."` WHERE `id` = ".$client_id." ));";
+		$query = "SELECT 
+			    `".RELATE_CLIENT_MANAGER_TBL."`.`cont_faces_relation_id`,
+			    `".RELATE_CLIENT_MANAGER_TBL."`.`id` AS `relate_id`,
+			    `".MANAGERS_TBL."`.*
+			FROM
+			    `".RELATE_CLIENT_MANAGER_TBL."`
+			    INNER JOIN `".MANAGERS_TBL."`
+			    ON `".MANAGERS_TBL."`.`id` = `".RELATE_CLIENT_MANAGER_TBL."`.`manager_id`
+			    WHERE `".RELATE_CLIENT_MANAGER_TBL."`.`client_id` = '".$client_id."' 
+    		";
+		$result = $mysqli->query($query) or die($mysqli->error);
+		$manager_names = array();			
+		if($result->num_rows > 0){
+			while($row = $result->fetch_assoc()){
+				$manager_names[] = $row;
+			}
+		}
+		return $manager_names;
+	}
+
 	static function get_ralate_manager_names($client_id){
 		$men_names = array();
 		$men_arr = self::get_relate_managers($client_id);
