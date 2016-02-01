@@ -558,7 +558,13 @@
 
 	//always include the default bootstrap style
 	addStyle("bootstrap", {
-		html: "<div>\n<span data-notify-html></span>\n</div>",
+		html: 
+			"<div>"+
+				"<span data-notify-html></span>"+
+				"<div class='buttons'>" +
+		        	"<button class='notify-no'>X</button>" +
+		        "</div>" +
+			"</div>",
 		classes: {
 			base: {
 				"font-weight": "bold",
@@ -613,6 +619,12 @@
 	});
 
 }));
+
+// закрытие на rhtcnbr
+$(document).on('click', '.notifyjs-foo-base .notify-no', function() {
+  //programmatically trigger propogating hide event
+  $(this).trigger('notify-hide');
+});
 
 
 
