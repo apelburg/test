@@ -322,10 +322,7 @@ $suppliers_names_by_prefix_for_get_name = array(
 	'e_' =>  'Ебазар',
 	'm_' => 'Макрос',
 	'FF' => 'Апельбург'
-<<<<<<< HEAD
 );
 
 $title = "Онлайн сервис";
-=======
-);
->>>>>>> 79cc6ed6f62ebd0912692be0be166eb56c370aea
+
