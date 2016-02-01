@@ -936,7 +936,7 @@ class Images extends rtPositionUniversal
 		// изображения с сайта
 		foreach ($small_images as $key => $img) {
 			// удаление изображений для админов
-			// $deleting_img = '';
+			$deleting_img = '';
 			if($img != 'no_image.jpg' && isset($_SESSION['access']['access']) && 
 				$_SESSION['access']['access']== 1){
 				$deleting_img = '<div class="catalog_delete_img_link">
