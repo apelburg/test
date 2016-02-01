@@ -3,6 +3,24 @@ window.onload = function(){
    rtCalculator.init_tbl('rt_tbl_head','rt_tbl_body');
 }
 
+
+
+
+
+
+
+///////////////  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   /////////////////////////
+///////////////                       УБРАТЬ РАБОТУ С ЭТИМИ ПОЛЯМИ                      /////////////////////////
+///////////////  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   /////////////////////////
+  
+        //rtCalculator.previos_data['print_in_summ'] = rtCalculator.tbl_model[row_id]['print_in_summ'];
+		//rtCalculator.previos_data['print_out_summ'] = rtCalculator.tbl_model[row_id]['print_out_summ'];
+		//rtCalculator.previos_data['dop_uslugi_in_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_in_summ'];
+		//rtCalculator.previos_data['dop_uslugi_out_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_out_summ'];
+		
+		
+///////////////  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   /////////////////////////
+
 // инициализация
 /*if(window.addEventListener){
 	window.addEventListener('load',tableDataManager.install,false);
@@ -147,12 +165,12 @@ var rtCalculator = {
 						if(type=='out_summ'){
 							this.tbl_model[row_id].dop_data.expel.main=expel;
 						}
-						else if(type=='print_out_summ' || type=='print_in_summ'){
+						/*else if(type=='print_out_summ' || type=='print_in_summ'){
 							this.tbl_model[row_id].dop_data.expel.print=expel;
 						}
 						else if(type=='dop_uslugi_out_summ' || type=='dop_uslugi_in_summ'){
 							this.tbl_model[row_id].dop_data.expel.dop=expel;
-						}
+						}*/
 						
 					}
 					if(tds_arr[j].hasAttribute('svetofor')){
@@ -442,8 +460,8 @@ var rtCalculator = {
 		    if(result != 0) setCaretToPos2(cell,result);
 		}
 		
-		rtCalculator.makeQuantityCalculationsPreparing(cell);
 		
+		rtCalculator.makeQuantityCalculationsPreparing(cell);
 		
 	
 		function correctToInt(str){// корректировка значений вводимых пользователем в поле ввода типа Integer
@@ -623,10 +641,8 @@ var rtCalculator = {
 		//**print_r(rtCalculator.tbl_model[row_id]);
 		
 		// сохраняем итоговые суммы ряда до изменения ячейки
-		rtCalculator.previos_data['print_in_summ'] = rtCalculator.tbl_model[row_id]['print_in_summ'];
-		rtCalculator.previos_data['print_out_summ'] = rtCalculator.tbl_model[row_id]['print_out_summ'];
-		rtCalculator.previos_data['dop_uslugi_in_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_in_summ'];
-		rtCalculator.previos_data['dop_uslugi_out_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_out_summ'];
+		rtCalculator.previos_data['uslugi_in_price'] = rtCalculator.tbl_model[row_id]['uslugi_in_price'];
+		rtCalculator.previos_data['uslugi_out_price'] = rtCalculator.tbl_model[row_id]['uslugi_out_price'];
 		rtCalculator.previos_data['price_in_summ'] = rtCalculator.tbl_model[row_id]['price_in_summ'];
 		rtCalculator.previos_data['price_out_summ'] = rtCalculator.tbl_model[row_id]['price_out_summ'];
 		rtCalculator.previos_data['in_summ'] = rtCalculator.tbl_model[row_id]['in_summ'];
@@ -641,16 +657,12 @@ var rtCalculator = {
 		var extraExists = false;
 		var tds_arr = cur_tr.getElementsByTagName('td');
 		for(var j = 0;j < tds_arr.length;j++){
-			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type') && tds_arr[j].getAttribute('type') == 'print_exists_flag'){
-				// отправляем запрос на сервер
-				if(tds_arr[j].innerHTML == 'yes'){
-					printsExists = true;
-				}
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('print_exists_flag') && tds_arr[j].getAttribute('print_exists_flag') == '1'){
+			    printsExists = true;
 			}
-			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('calc_btn') && tds_arr[j].getAttribute('calc_btn') == 'extra' && tds_arr[j].getAttribute('extra_exists_flag')){
-					extraExists = true;
-			}
-			
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('uslugi_exists_flag') && tds_arr[j].getAttribute('uslugi_exists_flag') == '1'){
+				extraExists = true;
+			}	
 		}
         //////////////////////////////////// card rt
 		rtCalculator.makeQuantityCalculations('rt',cell.innerHTML,row_id,printsExists,extraExists,cell);
@@ -664,11 +676,11 @@ var rtCalculator = {
 		}
 		else{// отправляем запрос на изменение только лишь значения тиража в базе данных 
 		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity=1&quantity='+quantity+'&id='+row_id+'&source='+source,'section');
+			//alert(url);
 		    rtCalculator.send_ajax(url,callbackOnlyQuantity);
 		}
 						
 		function callbackprintsExists(response){
-		    // alert(response);
 			
 			try {  var response_obj = JSON.parse(response); }
 			catch (e) {}
@@ -686,7 +698,8 @@ var rtCalculator = {
 				}
 			}
 		
-		
+		    console.log('-',response_obj);
+			
 			if(response_obj.print && response_obj.print.lackOfQuantity){
 				 var str =''; 
 				 for(var index in response_obj.print.lackOfQuantity){
@@ -775,7 +788,7 @@ var rtCalculator = {
 	}
 	,
 	quantityCalculationsResponseFull:function(cell,row_id,response_obj){
-	        console.log(response_obj);
+	        // console.log(response_obj);
 			
 		    // Вносим изменения в hmlt
 		
@@ -915,9 +928,12 @@ var rtCalculator = {
 				
 				if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type];
 				else if(type=='print_exists_flag') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]; 
-				else if(connected_vals=='print' || connected_vals=='uslugi') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'р'; 
+				else if(connected_vals=='print' || connected_vals=='uslugi') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
 				else if(type=='margin') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'%'; 
 				else if(type=='discount') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]+'%';
+				else if(type=='price_in_summ' || type=='price_out_summ'){
+					$(tds_arr[j]).children('div')[0].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'p';
+				}
 				else tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
 			    /*if(tds_arr[j].getAttribute('type') == 'in_summ') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id]['in_summ'];*/
 			}
