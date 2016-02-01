@@ -84,17 +84,45 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 						// }	
 						// $_POST['data']['folder_name'] = 'img';					
 					// }
-	 			}
- 				
+	 			} 				
+
+	 			// вычищаем предыдущие данные из базы
+	 			if(trim($_POST['data']['json']) != trim($_POST['data']['json_old'])){
+		 			$query = "DELETE FROM `".RT_MAIN_ROWS_GALLERY."` WHERE parent_id = ".(int)$_POST['data']['id'].";";
+		 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+
+		 			$json = json_decode($_POST['data']['json'], true);	 			
+		 							
+		 			
+		 			foreach ($json as $key => $IMG) {
+		 				$query = "INSERT INTO `".RT_MAIN_ROWS_GALLERY."` SET ";
+		 				$query .= "`sort` = '".$key."'";
+		 				$query .= ", `folder` = '".$IMG['folder']."'";
+		 				$query .= ", `img_name` = '".$IMG['img_name']."'";
+		 				$query .= ", `parent_id` = '".$_POST['data']['id']."'";
+		 				$result = $this->mysqli->query($query) or die($this->mysqli->error);
+		 			}
+		 		}
+	 			
+				// $query .=" img_folder = '".$dir."'";
+				// $query .=", img_folder_choosen_img = '".$img."'";
+				// $result = $mysqli->query($query) or die($mysqli->error);
+
+
  				// сохраняем значение в базе
-				$query = "UPDATE `".RT_MAIN_ROWS."` SET";
-				$query .=" img_folder_choosen_img = '".$_POST['data']['img']."'";
-				if( $_POST['data']['folder_name'] != 'img' ){
-					$query .=", img_folder = '".$_POST['data']['folder_name']."'";	
-				}				
-				$query .=", img_type = '".$_POST['data']['type']."'";	
-				$query .=" WHERE `id` = ".(int)$_POST['data']['id'].";";
-				$result = $this->mysqli->query($query) or die($this->mysqli->error);
+ 				if( $_POST['data']['folder_name'] != 'img' ){
+					$query = "UPDATE `".RT_MAIN_ROWS."` SET";
+					// $query .=" img_folder_choosen_img = '".$_POST['data']['img']."'";
+				
+				
+					$query .=" img_folder = '".$_POST['data']['folder_name']."'";	
+					
+
+					// $query .=", img_type = '".$_POST['data']['type']."'";	
+					$query .=" WHERE `id` = ".(int)$_POST['data']['id'].";";
+					
+					$result = $this->mysqli->query($query) or die($this->mysqli->error);
+				}	
 				$html = 'OK';	
 				$this->responseClass->addMessage($html,'successful_message','25000');
 				// $this->responseClass->addResponseFunction('window_reload');
@@ -109,6 +137,46 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				// $result = $this->mysqli->query($query) or die($this->mysqli->error);	
 				// return;
  			// }
+ 			protected function copy_kp_gallery_rows_AJAX(){
+ 				exit;
+				$query = "SELECT * FROM `".KP_MAIN_ROWS."`  ";
+ 				$arr = array();
+ 				$result = $this->mysqli->query($query);// or die($this->mysqli->error);
+ 				if(!$result){
+						$message = $this->mysqli->error;
+						$this->responseClass->addMessage($message,'error_message');
+					}
+
+ 				if($result->num_rows > 0){
+					// echo $result->num_rows;
+					while($row = $result->fetch_assoc()){
+						$arr[] = $row;
+					}
+				}	
+
+				foreach ($arr as $key => $value) {
+					
+					$query = "INSERT INTO `".KP_MAIN_ROWS_GALLERY."` 
+							   SET 
+							   `parent_id` = '".$value['id']."',
+							   `img_name` = '".$value['img']."',
+							   `folder` = '".$value['img_folder']."'
+							  ";
+					$result = $this->mysqli->query($query);// or die();
+					if(!$result){
+						$message = $this->mysqli->error;
+						$this->responseClass->addMessage($message,'error_message');
+					}
+				}
+
+
+
+
+ 				$html = 'OK';	
+				$this->responseClass->addMessage($html,'successful_message','25000');
+ 			}
+
+
  			// запрос позиции
  			private function getPosition($id){
  				// запрос наличия выбранного изображения для данной строки
@@ -208,6 +276,38 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				}
 				return $img;
  			}
+
+ 			// собирает json выбранных изображений
+ 			protected function getJsonCheckedImg($rt_main_row_id){
+ 				if (!isset($this->checked_IMG)) {
+ 					$this->checked_IMG = $this->getCheckedImg($rt_main_row_id);
+ 				}
+
+ 				$json = '[';	
+
+ 				$json = "[";
+ 				foreach ($this->checked_IMG as $key => $value) {
+ 					$json .= (($key > 0)?',':'').'{"folder":"'.$value['folder'].'","img_name":"'.$value['img_name'].'"}';		
+ 				} 				
+ 				$json .= "]";
+ 				return $json;
+
+ 			}
+
+ 			// определяет по имени файлпа выбран он или нет
+ 			protected function copare_and_calculate_checked_files($rt_main_row_id, $file_name){
+ 				if (!isset($this->checked_IMG)) {
+ 					$this->checked_IMG = $this->getCheckedImg($rt_main_row_id);
+ 				}
+
+
+ 				foreach ($this->checked_IMG as $key => $value) {
+ 					if($file_name == $value['img_name']){
+ 						return "checked";
+ 					}
+ 				}
+ 				return "";
+ 			}
  			
  			/**
  			 *	получает изображения для позиции в РТ
@@ -218,6 +318,8 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
  			 *	@version 	22.12.2015
  			 */
 			protected function getImagesForPosition($rt_main_row){
+				
+				$images_compare = '';
 				$folder = $rt_main_row['img_folder'];
 				$checked = false;
 				$html = '';				
@@ -229,14 +331,19 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 					$img_art_arr = $this->getImagesForArt($rt_main_row['art']);
 					$upload_dir = $_SERVER['DOCUMENT_ROOT'].'/img/';
 					$global_link_dir = 'http://'.$_SERVER['HTTP_HOST'].'/img/';
-					foreach ($img_art_arr as $key => $img_name) {
+					foreach ($img_art_arr as $key => $file_name) {
 						$class_li = '';
-						$path = $global_link_dir.$img_name; // собираем путь
-						if($img_name == $rt_main_row['img_folder_choosen_img'] || ($key == 0 && trim($rt_main_row['img_folder_choosen_img']) == '')){
-						   	$class_li = "checked";
-						  	$checked = true;
-						}
-						$html .= $this->getImgLiHtml($path, $img_name, $class_li, 'img','g_std');
+						$path = $global_link_dir.$file_name; // собираем путь
+						
+						// if($file_name == $rt_main_row['img_folder_choosen_img'] || ($key == 0 && trim($rt_main_row['img_folder_choosen_img']) == '')){
+						//   	$class_li = "checked";
+						  	// $checked = true;
+						// }
+						$checked = $this->copare_and_calculate_checked_files($rt_main_row['id'], $file_name);
+						
+						$images_compare .= $file_name.' - '.$checked.'<br> ';
+
+						$html .= $this->getImgLiHtml($path, $file_name, $checked, 'img','g_std');
 					}
 				//////////////////////////
 				//	Загруженные изображения
@@ -254,13 +361,11 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 						    }
 							     
 						    $path = $global_link_dir.$files[$i]; // собираем путь
-						    $class_li = "";
-						    if($files[$i] == $rt_main_row['img_folder_choosen_img']){
-						    	$class_li = "checked";
-						    	$checked = true;
-						    }
+						    $checked = $this->copare_and_calculate_checked_files($rt_main_row['id'], $files[$i]);
 						    
-						    $html .= $this->getImgLiHtml($path, $files[$i], $class_li, $folder, 'g_upload');
+						    $images_compare .= $files[$i].' - '.$checked.'<br> ';
+						    
+						    $html .= $this->getImgLiHtml($path, $files[$i], $checked, $folder, 'g_upload');
 						}
 					}
 				$html .= '</ul>';
@@ -344,8 +449,9 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 			protected function checkFolderExist($folder){
 				return is_dir($_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder.'/');
 			}
+
 			// создание новой папки
-			protected function greateNewDir($rt_main_row_id){
+			protected function createNewDir($rt_main_row_id){
 				$dirName_1 = md5(time());
 				
 				$dirName = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$dirName_1.'/';
@@ -366,6 +472,23 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 			private function warpDopText($text){
 				return '<div class="dop_text">'.$text.'</div>';
 			}
+
+			// собираем загруженные изображения
+			protected function getCheckedImg($rt_main_row_id){
+				$query = "SELECT * FROM `".RT_MAIN_ROWS_GALLERY."` WHERE parent_id = ".(int)$rt_main_row_id.";";
+	 			$arr = array();
+ 				$result = $this->mysqli->query($query) or die($this->mysqli->error);
+ 				
+ 				if($result->num_rows > 0){
+					// echo $result->num_rows;
+					while($row = $result->fetch_assoc()){
+						$arr[] = $row;
+					}
+				}					
+				return $arr;
+			}
+
+
 			// собираем окно галлереи изображений для позиции
 			protected function getStdKpGalleryWindow_AJAX(){
 				if(!isset($_POST['id'])){
@@ -388,11 +511,11 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				// проверка на существование папки
 				if($folder_name == '' || !$this->checkFolderExist($folder_name)){
 					// создаем новую папку
-					$folder_name = $this->greateNewDir($_POST['id']);
-					if( $this->user_access ){
+					$folder_name = $this->createNewDir($_POST['id']);
+					// if( $this->user_access ){
 						$html = 'Создана новая папка';
 						$this->responseClass->addMessage($html,'system_message',25000);
-					}					
+					// }					
 				}
 
 				$win_DIV_ID = 'rt-gallery-DIV_'.$folder_name;
@@ -410,6 +533,8 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 							<div id="queue"></div>
 							<input id="'.$token.'" data-folder_name="'.$folder_name.'" name="file_upload" type="file" multiple="true">
 							<input id="data_folder_name" name="data[folder_name]" type="hidden" value="">
+							<textarea  style="display:none" id="data_JSON" name="data[json]" type="text" >'.$this->getJsonCheckedImg($rt_id).'</textarea>
+							<textarea style="display:none" id="data_JSON" name="data[json_old]" type="text" >'.$this->getJsonCheckedImg($rt_id).'</textarea>
 							<input id="data_id" name="data[id]" type="hidden" value="">
 							<input id="data_img" name="data[img]" type="hidden" value="">
 							<input id="data_type" name="data[type]" type="hidden" value="">
@@ -443,8 +568,9 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				$folder_name = $_POST['folder_name'];
 				$uploadDir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder_name.'/';
 				// echo $uploadDir;
+
 				if (!is_dir($uploadDir)) {
-					$folder_name = $this->greateNewDir($_POST['id']);
+					$folder_name = $this->createNewDir($_POST['id']);
 					$uploadDir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder_name.'/';
 					
 				}

@@ -78,7 +78,7 @@ function timing_save_input(fancName,obj){
 </style>
 
 <div class="cabinet_top_menu">
-  <ul class="central_menu" style="height: 27px;">
+  <ul class="central_menu">
     <li <?php if($manager_id == '24' ){echo 'class="selected"';}?> >
       <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_wait_the_process&client_id=<?=$_GET['client_id'];?>">
         <div class="border">Ожидают распределения</div>
@@ -120,8 +120,8 @@ function timing_save_input(fancName,obj){
 			<li id="claim_date"><span>от <?php echo $create_time; ?></span></li>
 			<!--<li id="button_standart_001" title="кнопка смены тендр/стандарт"><span>стандарт</span></li>	-->
 			<li id="query_theme_block"><span>Тема:</span> <?php echo $theme_block; ?></li>
-      <li style="float:right"><span data-rt_list_query_num="<?php  echo $query_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($query_num); ?> "></span></li>
-      <li style="float:right"><?php  echo $cont_face; ?></li>
+      <li style="float:right;height: 100%;width: 40px;"><span data-rt_list_query_num="<?php  echo $query_num; ?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($query_num); ?> "></span></li>
+      <li style="float:right;"><?php  echo $cont_face; ?></li>
       <li style=""><div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,'calcLevelSwitcher');">Калькулятор: <?php  echo $calculator_level_ru; ?></div>
       <input type="hidden" id="calcLevelStorage" value="<?php  echo $calculator_level; ?>"></li>
 		</ul>

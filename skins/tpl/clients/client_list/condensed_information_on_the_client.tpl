@@ -50,7 +50,7 @@
 </table>
 </div>
 <div class="cabinet_top_menu first_line">
-                <ul class="central_menu" style="padding-left: 19px;height: 27px;">
+                <ul class="central_menu" style="padding-left: 19px;">
                     <li <?php 
                     if(!isset($_GET['section']) || isset($_GET['section']) && ($_GET['section'] == 'requests' || $_GET['section'] =='rt_position')){echo 'class="selected"';} 
                     ?>>

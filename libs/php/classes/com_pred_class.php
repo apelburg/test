@@ -94,6 +94,7 @@
 			   
 			   // Вставляем ряд в таблицу KP_MAIN_ROWS
                $query="SELECT*FROM `".RT_MAIN_ROWS."` WHERE id = '".$key."'";//echo $query;
+               $rt_main_row_id = $key;
 
 		       $result = $mysqli->query($query)or die($mysqli->error);
 			   if($result->num_rows>0){
@@ -122,11 +123,49 @@
 							   `name` = '".$row['name']."',
 							   `description` = '".$row['description']."',
 							   `characteristics` = '".mysql_real_escape_string($characteristics)."',
-							   `img_folder` = '".(($row['img_type'] == 'g_std')?'img':$row['img_folder'])."',
-							   `img` = '".$row['img_folder_choosen_img']."' 
+							   `img_folder` = '".(($row['img_type'] == 'g_std')?'img':$row['img_folder'])."'							   
 							  ";
+
+
 				   $result2 = $mysqli->query($query2)or die($mysqli->error);
 				   $row_id = $mysqli->insert_id;
+				   
+				   // копируем выбранные для КП изображения
+				   $query7 = "SELECT * FROM `".RT_MAIN_ROWS_GALLERY."` WHERE `parent_id` = '".$rt_main_row_id."';";
+				   $result7 = $mysqli->query($query7)or die($mysqli->error);
+ 				
+ 					// echo $query7.'<br>';
+ 					// echo '<pre>';
+ 					// print_r($result7);
+ 					// echo '</pre>';
+				   $choosen_img_arr = array();
+
+	 				if($result7->num_rows > 0){
+						while($row7 = $result7->fetch_assoc()){
+			       			// $row7 = $result7->fetch_assoc();
+							$choosen_img_arr[] = $row7;
+						}
+					}
+
+
+					// echo '<pre>';
+					// print_r($choosen_img_arr);
+					// echo '</pre>';
+
+					foreach ($choosen_img_arr as $key => $row7) {
+							$query8 = "INSERT INTO `".KP_MAIN_ROWS_GALLERY."` 
+							   SET 
+							   `parent_id` = '".$row_id."',
+							   `img_name` = '".$row7['img_name']."',
+							   `folder` = '".$row7['folder']."',
+							   `on` = '".$row7['on']."',
+							   `sort` = '".$row7['sort']."'
+							  ";
+							  // echo $query8.'<br>';
+							 $result8 = $mysqli->query($query8) or die($mysqli->error);
+					}
+
+
 				   // Проходим по второму уровню массива
 				   foreach($dop_data as $dop_key => $dop_val){
 					   //echo $dop_key.',';
@@ -809,12 +848,23 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 				$img_src = 'http://www.apelburg.ru/img/no_image.jpg';
 				$img_cell = '<img src="'.$img_src.'" height="180" width="180">';
 				
-				$art_img = new  Art_Img_development($pos_level['img_folder'],$pos_level['img'], $pos_level['art']);
-				$img_src = $art_img->big;
+				$art_img = new  Art_Img_development($pos_key,$pos_level['img_folder'],$pos_level['img'], $pos_level['art']);
+				
+				// $img_src = $art_img->big;
+				// echo '<pre>';
+				// print_r($art_img);
+				// echo '</pre>';
 				// меняем размер изображения
-				$size_arr = transform_img_size($img_src,230,300);
-				// $size_arr = array(230,300);
-				$img_cell = '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
+				$img_cell = '';
+				foreach ($art_img->big as $key => $img_src) {
+					$size_arr = transform_img_size($img_src,230,300);
+					// $size_arr = array(230,300);
+					$img_cell .= '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
+				}
+				
+				// $img_cell .= '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
+
+				// $img_cell .= '<img src="'.$img_src.'" height="'.$size_arr[0].'" width="'.$size_arr[1].'">';
 				
 
 				
@@ -1707,7 +1757,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 				}				
             }
 			else{
-				echo "*****$query_num*****";
+				//echo "*****$query_num*****";
 			    if($certain_kp['type'] == 'new') $rows .= self::create_list_new_version($query_num,$certain_kp['kp']);
 				if($certain_kp['type'] == 'old')  $rows .= self::create_list_old_version($client_id,substr($certain_kp['kp'],strpos($certain_kp['kp'],"/")+1));
 			}

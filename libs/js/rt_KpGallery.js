@@ -20,7 +20,7 @@
         'width': 250,
         'swf'      	: '../libs/php/uploadify.swf',
         'uploader' 	: '',
-        'multi'     : false,
+        'multi'     : true,
         'onUploadSuccess' : function(file, data) {
             // alert('The file ' + file.name + ' uploaded successfully.');
             // подключаем стандартный обработчик ответа
@@ -65,17 +65,43 @@
   		// block.scrollTop = block.scrollHeight;
 	}
 
+// возвращает JSON выбранных изображений
+function get_json_checked_img() {
+	
+	var json = '[';
+	
+	$('#rt-gallery-images li.checked').each(function(index, el) {
+		json += ((index > 0)?',':'')+'{"folder":"'+$(this).attr('data-folder')+'","img_name":"'+$(this).attr('data-file')+'"}';		
+	});
+	json += ']';
+	return json;
+}
 
-$(document).on('click', '#rt-gallery-images li', function(event) {
+$(document).on('dblclick', '#rt-gallery-images li', function(event) {
 	event.preventDefault();
-	$('#rt-gallery-images li').removeClass('checked');
-	$(this).addClass('checked');
+	if($(this).hasClass('checked')){
+		$(this).removeClass('checked');
+	}else{
+		if($('#rt-gallery-images li.checked').length >= 3){
+			var message = 'В КП не получиться загрузить более трёх изображений';
+
+			echo_message_js(message, 'system_message' ,25000);
+			return false;
+		}
+		$(this).addClass('checked');
+	}
+
 	var id = $(this).parent().parent().parent().parent().find("input[name*='id']").val();
 
 	// выбор изображения
 	var folder_name = $(this).attr('data-folder');
 	var img = $(this).attr('data-file');
+
 	
+
+	$('#data_JSON').val(get_json_checked_img());
+	// $.parseJSON($('#data_JSON').val());
+
 	// chooseKpPreview(img);
 	// $.post('', {
 		// AJAX 		:'chooseImgGallery',
@@ -88,8 +114,8 @@ $(document).on('click', '#rt-gallery-images li', function(event) {
 	// },'json');
 	$('#data_folder_name').val(folder_name);
 	$('#data_id').val(id);
-	$('#data_img').val(img);
-	$('#data_type').val($(this).attr('data-type'));
+	// $('#data_img').val(img);
+	// $('#data_type').val($(this).attr('data-type'));
 });
 
 // выделение изображения избранного в КП в карточке артикула
@@ -108,6 +134,8 @@ function chooseKpPreview(img){
 
 $(document).on('click', 'li.rt-gallery-cont .delete_upload_img', function(event) {
 	event.preventDefault();
+	$(this).parent().removeClass('checked');
+	$('#data_JSON').val(get_json_checked_img());
 	echo_message_js('удалить', 'system_message' ,25000);
 	// удаляем изображение	
 	
@@ -121,5 +149,7 @@ $(document).on('click', 'li.rt-gallery-cont .delete_upload_img', function(event)
 	}
 	$('#data_delete_img_width_folder').val(folder);
 	$(this).parent().hide('fast');
+
+
 	
 });

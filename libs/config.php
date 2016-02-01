@@ -108,6 +108,7 @@
 	define("RT_LIST", "os__rt_list"); // таблица запросов	
 	define("RT_LIST_COMMENTS","os__rt_list_comments"); // 
 	define("RT_MAIN_ROWS","os__rt_main_rows"); // 
+	define("RT_MAIN_ROWS_GALLERY","os__rt_main_rows_gallery"); // 
 	define("RT_DOP_DATA","os__rt_dop_data"); // 
 	define("RT_DOP_USLUGI","os__rt_dop_uslugi"); // 
 	define("RT_ART_SIZE","os__rt_art_sizes"); // 
@@ -129,6 +130,7 @@
 	
 	define("KP_LIST","os__kp_list"); // КП
 	define("KP_MAIN_ROWS","os__kp_main_rows"); // ряды позиций КП
+	define("KP_MAIN_ROWS_GALLERY","os__kp_main_rows_gallery"); // ряды позиций КП
 	define("KP_DOP_DATA","os__kp_dop_data"); // ряды расчетов КП
 	define("KP_DOP_USLUGI","os__kp_dop_uslugi"); // ряды даннх об услугах КП
 	

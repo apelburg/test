@@ -5,6 +5,10 @@
 	if(!@$ACCESS['client_folder']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 
+	// класс комментов к запросу
+	include './libs/php/classes/comments_class.php';
+	$comments = new Comments_for_query_class;
+	
 	// client_details
 	if(!$section || $section=='rt' || $section=='business_offers'  || $section=='agreements' || $section=='planner'){
 		$client_id = (isset($_GET['client_id']) && $_GET['client_id']!='0')? $_GET['client_id'] :((isset($_POST['client_id']) && $_GET['client_id']!='0')? $_POST['client_id']: FALSE) ;

@@ -458,7 +458,11 @@
 			
 			$html .= '<td>'.$this->Query['create_time'].'</td>';
 			$html .= '<td></td>';
-			$html .= '<td><span data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span></td>';
+			$html .= '<td><span style="
+    width: 43px;
+    float: left;
+    height: 53px;
+" data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span></td>';
 			
 			// $rrr = RT::calcualte_query_summ($this->Query['query_num']);
 			$rrr = $this->price_for_the_position_ITOGO;

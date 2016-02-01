@@ -545,7 +545,7 @@
 			$dop_info_arr = json_decode($dop_info,true);
 			$dop_info_arr = (count($dop_info_arr)>0)?$dop_info_arr:false;
 			
-			RT::add_data_from_basket($client_id,$manager_id_arr,FALSE,$dop_info_arr);
+			$query_num = RT::add_data_from_basket($client_id,$manager_id_arr,FALSE,$dop_info_arr);
 			
 			////////////////////
 			//	определяем вкладку для переадресации подльзователя
@@ -575,10 +575,17 @@
 				$array_request['new_query'] = 'query_wait_the_process';
 				$array_request['not_process'] = 'no_worcked_men';
 				$array_request['in_work'] = 'query_worcked_men';
+			// $_SERVER['HTTP_HOST']./os/?page=cabinet&section=requests&subsection='+responseObj[2]+'&client_id=' + responseObj[1]
 
+			if($query_status != 'in_work'){
+				$out_put = array(0  , $client_id, $array_request[$query_status] );
+				return json_encode($out_put);
+			}else{
+				$href = 'http://'.$_SERVER['HTTP_HOST'].'/os/?page=client_folder&query_num='.$query_num.'&subsection='.$array_request[$query_status].'&client_id='.$client_id;
+				return '{"response":"OK","function":[{"function":"location_href","href":"'.$href.'"}]}';
+			}
+			
 
-			$out_put = array(0  , $client_id, $array_request[$query_status] );
-			return json_encode($out_put);
 		
 		}
 		static function add_data_from_basket($client_id,$manager_id_arr,$customer_data=FALSE,$dop_info=FALSE){
@@ -706,6 +713,8 @@
 			
 			// -->   END   <-- //
             }
+
+            return $query_num;
 		}
 		
 		// запрашивает из базы допуски пользователя

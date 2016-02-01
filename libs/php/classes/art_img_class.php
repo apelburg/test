@@ -16,17 +16,45 @@
     	public $big;
 		public $small;
     
-		function __construct($folder, $img, $art){
+		function __construct($main_id, $folder, $img, $art){
 			$this->db();
 
-			$this->big = 	'http://'.$_SERVER['HTTP_HOST'].'/img/no_image.jpg';
-			$this->small = 'http://'.$_SERVER['HTTP_HOST'].'/img/no_image.jpg';
+			$this->big[0] = 	'http://'.$_SERVER['HTTP_HOST'].'/img/no_image.jpg';
+			$this->small[0] = 'http://'.$_SERVER['HTTP_HOST'].'/img/no_image.jpg';
 
-			if(trim($folder) == '' || trim($img) == ''){
-				$this->getImg($art);
+			// if(trim($folder) == '' || trim($img) == ''){
+			// 	$this->getImg($art);
+			// }else{
+			// 	$this->getChoosenUploadImg($folder, $img);
+			// }
+
+			// если юзер выбирал какие-тоизображения намеренно
+			if(count($this->checkChoosenImg($main_id))){
+				foreach ($this->checkChoosenImg as $key => $value) {
+					$this->getChoosenUploadImg($value['folder'], $value['img_name']);
+				}				
 			}else{
-				$this->getChoosenUploadImg($folder, $img);
-			}			
+				$this->getImg($art);
+			}		
+		}
+
+		// проверка наличия намеренно выбранных изображений
+		private  function checkChoosenImg($main_id){
+			$query = "SELECT * FROM `".KP_MAIN_ROWS_GALLERY."` WHERE `parent_id` = '".$main_id."';";
+			$arr = array();
+ 			$this->checkChoosenImg = array();
+
+ 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
+ 				
+ 			if($result->num_rows > 0){
+				// echo $result->num_rows;
+				while($row = $result->fetch_assoc()){
+					$arr[$row['id']] = $row;
+
+					$this->checkChoosenImg[$row['id']] = $row;
+				}
+			}					
+			return $arr;
 		}
 
 		
@@ -45,11 +73,16 @@
 
 			// проверка наличия изображения
 			if($this->checkImgExists($dir.$img)){
-				$this->small = $this->big = $global_dir.$img;
+				if (isset($this->small[0]) && $this->small[0] == 'http://'.$_SERVER['HTTP_HOST'].'/img/no_image.jpg' ) {
+					unset($this->small[0]);
+					unset($this->big[0]);
+				}
+
+				$this->small[] = $this->big[] = $global_dir.$img;
 			}else{
 				// если изображение не было найдено - скорее всего оно было удалено из галлереи
-				$this->big = 	'http://'.$_SERVER['HTTP_HOST'].'/img/image_was_deleted.jpg';
-				$this->small = 'http://'.$_SERVER['HTTP_HOST'].'/img/image_was_deleted.jpg';
+				$this->big[] = 	'http://'.$_SERVER['HTTP_HOST'].'/img/image_was_deleted.jpg';
+				$this->small[] = 'http://'.$_SERVER['HTTP_HOST'].'/img/image_was_deleted.jpg';
 			}
 		}
 
@@ -78,10 +111,10 @@
 			if($result->num_rows>0){
 			    while($row=$result->fetch_assoc()){
 				    if($row['size']=='big') {
-				    	$this->big = $global_dir.(($row['name'] !='')? $row['name']:'no_image.jpg');
+				    	$this->big[0] = $global_dir.(($row['name'] !='')? $row['name']:'no_image.jpg');
 				    }
 					if($row['size']=='small') {
-						$this->small = $global_dir.(($row['name'] !='')? $row['name']:'no_image.jpg');
+						$this->small[0] = $global_dir.(($row['name'] !='')? $row['name']:'no_image.jpg');
 					}
 				}
 			}

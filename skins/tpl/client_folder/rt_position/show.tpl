@@ -40,7 +40,7 @@
 	$calculator_level_ru = $CALCULATOR_LEVELS[ $calculator_level ];
 ?>
 <div class="cabinet_top_menu">
-  <ul class="central_menu" style="height: 27px;">
+  <ul class="central_menu" >
     <li <?php if($POSITION->position['manager_id'] == '24' ){echo 'class="selected"';}?> >
       <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_wait_the_process&client_id=<?=$_GET['client_id'];?>">
         <div class="border">Ожидают распределения</div>
@@ -83,7 +83,7 @@
 			<li id="claim_date"><span>от <?=$POSITION->position['date_create'];?></span></li>
 			
 			<li id="query_theme_block"><span>Тема:</span> <input id="query_theme_input" class="query_theme" data-id="<?=$POSITION->position['RT_LIST_ID'];?>" type="text" value="<?=$POSITION->position['theme']?>" onclick="fff(this,'Введите тему');"></li>
-			<li style="float:right"><span data-rt_list_query_num="<?=$POSITION->position['query_num'];?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($POSITION->position['query_num']); ?> "></span></li>
+			<li style="float:right;height: 100%;width: 40px;"><span data-rt_list_query_num="<?=$POSITION->position['query_num'];?>" class="icon_comment_show white <?php echo Comments_for_query_class::check_the_empty_query_coment_Database($POSITION->position['query_num']); ?> "></span></li>
 			<li style="float:right"><?php  echo $cont_face; ?></li>
 	    	<li style=""><div class="client_faces_select2" sourse="rt" query_num="'.$query_num.'" client_id="'.$client_id.'" onclick="openCloseMenu(event,'calcLevelSwitcher');">Калькулятор: <?php  echo $calculator_level_ru; ?></div>
 	      <input type="hidden" id="calcLevelStorage" value="<?php  echo $calculator_level; ?>"></li>
