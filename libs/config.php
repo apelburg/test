@@ -144,7 +144,9 @@
 	                                   26 => array('name'=>'оазис','link'=>'http://www.oasiscatalog.com/search?q='),
 							           37 => array('name'=>'проект','link'=>'http://www.gifts.ru/search?text='),
 									   59 => array('name'=>'макрос','link'=>'http://cabinet.makroseuro.ru/catalogue/search/?keyword='),
-									  'e_'=> array('name'=>'ебазар','link'=>'http://ebazaar.ru/search/index.php?q=')
+									  'e_'=> array('name'=>'ебазар','link'=>'http://ebazaar.ru/search/index.php?q='),
+									  'm_' => array('Макрос', '','_s','_b'),
+									  'FF' => array('Апельбург', '','_s','_b')
 									   );
 									   
 	//

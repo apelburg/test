@@ -19,6 +19,8 @@ window.onload = function(){
 		//rtCalculator.previos_data['dop_uslugi_out_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_out_summ'];
 		
 		
+		//addToItog 
+		//subtractFromItog
 ///////////////  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   /////////////////////////
 
 // инициализация
@@ -156,13 +158,17 @@ var rtCalculator = {
 					var type = tds_arr[j].getAttribute('type');
 					if(type == 'glob_counter' || type == 'master_btn' || type == 'name') continue;
 					
-					this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
+					if(type == 'item_summ_in' || type == 'item_summ_out' || type == 'uslugi_summ_in' || type == 'uslugi_summ_out' || type == 'total_summ_in' || type == 'total_summ_out'){
+						this.tbl_model[row_id][type] = parseFloat(tds_arr[j].getElementsByTagName('div')[0].innerHTML); 
+						
+					}
+					else this.tbl_model[row_id][type] = parseFloat(tds_arr[j].innerHTML);
 	
 					if(tds_arr[j].getAttribute('expel')){
 						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {};
 						if(!this.tbl_model[row_id].dop_data.expel)this.tbl_model[row_id].dop_data.expel = {};
 						var expel = !!parseInt(tds_arr[j].getAttribute('expel'));
-						if(type=='out_summ'){
+						if(type=='total_summ_out'){
 							this.tbl_model[row_id].dop_data.expel.main=expel;
 						}
 						/*else if(type=='print_out_summ' || type=='print_in_summ'){
@@ -231,7 +237,7 @@ var rtCalculator = {
 								
 								   
 								   if(cell.hasAttribute('type')){
-									   if(cell.getAttribute('type')=="price_out"){
+									   if(cell.getAttribute('type')=="item_price_out"){
 										   if(cell.innerHTML == '0.00') cell.innerHTML ='';
 										   // проверяем есть ли скидка в ячейке
 										   if(parseInt(($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1)) != 0){
@@ -346,7 +352,7 @@ var rtCalculator = {
 		 // console.log('№'+(++rtCalculator.complite_count));
 		 // console.log(1);
 		// получаем значение ячейки
-		var prop = rtCalculator.cur_cell.getAttribute('type');
+		var type = rtCalculator.cur_cell.getAttribute('type');
 		var last_val = rtCalculator.cur_cell.innerHTML;
 		
 		
@@ -362,20 +368,23 @@ var rtCalculator = {
 		var discount = (rtCalculator.tbl_model[row_id].discount)?rtCalculator.tbl_model[row_id].discount:0;
 
 		
-		if(prop == 'price_out' && discount==0){
-		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+row_id+'","discount":"0","prop":"'+prop +'","val":"'+last_val+'"}');
-		}
-		else{
-			if(prop == 'price_out' && discount!=0){
+		if(type == 'item_price_out'){
+			var prop = 'price_out';
+			if(discount!=0){
 				prop = 'discount';
 				last_val = discount;
 			}
+		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+row_id+'","discount":"0","prop":"price_out","val":"'+last_val+'"}');
+		}
+		else if(type == 'item_price_in'){
+			var prop = 'price_in';
 			// формируем url для AJAX запроса
 			var url = OS_HOST+'?' + addOrReplaceGetOnURL('save_rt_changes={"id":"'+row_id+'","prop":"'+prop +'","val":"'+last_val+'"}');
 		}
 		rtCalculator.send_ajax(url,callback);
-		//alert(url);
-		function callback(){ 
+	
+		function callback(request_response){ 
+		    //alert(request_response);
 		    rtCalculator.changes_in_process = false;
 			//echo_message_js('изменения сохранены','system_message',800);
 			
@@ -453,15 +462,37 @@ var rtCalculator = {
 	checkQuantity:function(){// корректировка значений вводимых пользователем
 
 		var cell = rtCalculator.cur_cell;
-		
 		var val = cell.innerHTML;
+		var row_id = cell.parentNode.getAttribute('row_id');
+		var cur_tr = cell.parentNode;
+		var tds_arr = cur_tr.getElementsByTagName('td');
+		var printsExists = false;
+		var extraExists = false;
+		
+		
+		
+		
 		if(val != '' && val != '&nbsp;'){ 
 		    var result = correctToInt(val);
 		    if(result != 0) setCaretToPos2(cell,result);
 		}
 		
+	    
+		// проверяем есть ли в ряду расчеты нанесения
+		for(var j = 0;j < tds_arr.length;j++){
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('print_exists_flag') && tds_arr[j].getAttribute('print_exists_flag') == '1'){
+			    printsExists = true;
+			}
+			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('uslugi_exists_flag') && tds_arr[j].getAttribute('uslugi_exists_flag') == '1'){
+				extraExists = true;
+			}	
+		}
+        //////////////////////////////////// card rt
+		// метод может вызываться также из карточки товара созначением - card
+		rtCalculator.makeQuantityCalculations('rt',cell.innerHTML,row_id,printsExists,extraExists,cell);
 		
-		rtCalculator.makeQuantityCalculationsPreparing(cell);
+		
+		
 		
 	
 		function correctToInt(str){// корректировка значений вводимых пользователем в поле ввода типа Integer
@@ -500,7 +531,7 @@ var rtCalculator = {
     }
 	,
 	check:function(){// корректировка значений вводимых пользователем
-
+        
 		var cell = rtCalculator.cur_cell;
 		
 		var val = cell.innerHTML;
@@ -508,7 +539,8 @@ var rtCalculator = {
 		    var result = correctToFloat(val);
 		    if(result != 0) setCaretToPos2(cell,result);
 		}
-		
+
+		rtCalculator.save_previos_data(cell);
 		rtCalculator.make_calculations(cell);
 		
 		//if(cell.innerHTML !='') var result = correctToInt(cell.innerHTML);
@@ -594,85 +626,11 @@ var rtCalculator = {
 		return true;//parseInt(str);
     }
 	,
-    make_calculations:function(cell){
-	    // Когда в ячейке(поле ввода) в результате каких то действий происходит изменение содержимого нужно вызывать этот метод
-		// метод производит калькуляцию текущих данных, и вычисляет разность текущих данных с теми которые были до изменения 
-
-		// получаем id ряда
-		var row_id = cell.parentNode.getAttribute('row_id');
-		
-		//**print_r(rtCalculator.tbl_model[row_id]);
-		
-		// сохраняем итоговые суммы ряда до изменения ячейки
-		rtCalculator.previos_data['price_out'] = rtCalculator.tbl_model[row_id]['price_out'];
-		rtCalculator.previos_data['price_in_summ'] = rtCalculator.tbl_model[row_id]['price_in_summ'];
-		rtCalculator.previos_data['price_out_summ'] = rtCalculator.tbl_model[row_id]['price_out_summ'];
-		rtCalculator.previos_data['in_summ'] = rtCalculator.tbl_model[row_id]['in_summ'];
-		rtCalculator.previos_data['out_summ'] = rtCalculator.tbl_model[row_id]['out_summ'];
-		rtCalculator.previos_data['discount'] = rtCalculator.tbl_model[row_id]['discount'];
-		rtCalculator.previos_data['delta'] = rtCalculator.tbl_model[row_id]['delta'];
-		rtCalculator.previos_data['margin'] = rtCalculator.tbl_model[row_id]['margin'];
-		
-		
-		// вносим изменённое значение в соответствующую ячейку this.tbl_model
-		var type = cell.getAttribute('type');
-		var value = cell.innerHTML;
-		value = (value == '' || value == '&nbsp;')?0:value;
-		rtCalculator.tbl_model[row_id][type] = (type=='quantity')? parseInt(value):parseFloat(value);
-		
-		// производим пересчет ряда
-		rtCalculator.calculate_row(row_id,type);
-		
-		//**print_r(rtCalculator.tbl_model[row_id]);
-		
-		// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
-		rtCalculator.change_html(row_id);
-
-	}
-	,
-	makeQuantityCalculationsPreparing:function(cell){
-	    // Когда в ячейке(поле ввода) в результате каких то действий происходит изменение содержимого нужно вызывать этот метод
-		// метод производит калькуляцию текущих данных, и вычисляет разность текущих данных с теми которые были до изменения 
-
-		// получаем id ряда
-		var cur_tr = cell.parentNode;
-		var row_id = cell.parentNode.getAttribute('row_id');
-		
-		//**print_r(rtCalculator.tbl_model[row_id]);
-		
-		// сохраняем итоговые суммы ряда до изменения ячейки
-		rtCalculator.previos_data['uslugi_in_price'] = rtCalculator.tbl_model[row_id]['uslugi_in_price'];
-		rtCalculator.previos_data['uslugi_out_price'] = rtCalculator.tbl_model[row_id]['uslugi_out_price'];
-		rtCalculator.previos_data['price_in_summ'] = rtCalculator.tbl_model[row_id]['price_in_summ'];
-		rtCalculator.previos_data['price_out_summ'] = rtCalculator.tbl_model[row_id]['price_out_summ'];
-		rtCalculator.previos_data['in_summ'] = rtCalculator.tbl_model[row_id]['in_summ'];
-		rtCalculator.previos_data['out_summ'] = rtCalculator.tbl_model[row_id]['out_summ'];
-		rtCalculator.previos_data['discount'] = rtCalculator.tbl_model[row_id]['discount'];
-		rtCalculator.previos_data['delta'] = rtCalculator.tbl_model[row_id]['delta'];
-		rtCalculator.previos_data['margin'] = rtCalculator.tbl_model[row_id]['margin'];
-		
-	    
-		// проверяем есть ли в ячейке расчеты нанесения
-		var printsExists = false;
-		var extraExists = false;
-		var tds_arr = cur_tr.getElementsByTagName('td');
-		for(var j = 0;j < tds_arr.length;j++){
-			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('print_exists_flag') && tds_arr[j].getAttribute('print_exists_flag') == '1'){
-			    printsExists = true;
-			}
-			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('uslugi_exists_flag') && tds_arr[j].getAttribute('uslugi_exists_flag') == '1'){
-				extraExists = true;
-			}	
-		}
-        //////////////////////////////////// card rt
-		rtCalculator.makeQuantityCalculations('rt',cell.innerHTML,row_id,printsExists,extraExists,cell);
-	}	
-	,
 	makeQuantityCalculations(source,quantity,row_id,printsExists,extraExists,cell){
 	    if(printsExists || extraExists){// если есть нанесение или доп услуги то нужно отправлять запрос на сервер для обсчета нанесений в соответсвии с новым тиражом
 		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity_and_calculators=1&quantity='+quantity+'&id='+row_id+'&print='+printsExists+'&extra='+extraExists+'&source='+source,'section');
 			//alert(url);
-		    rtCalculator.send_ajax(url,callbackprintsExists);
+		    rtCalculator.send_ajax(url,callbackPrintsExists);
 		}
 		else{// отправляем запрос на изменение только лишь значения тиража в базе данных 
 		    var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&change_quantity=1&quantity='+quantity+'&id='+row_id+'&source='+source,'section');
@@ -680,7 +638,9 @@ var rtCalculator = {
 		    rtCalculator.send_ajax(url,callbackOnlyQuantity);
 		}
 						
-		function callbackprintsExists(response){
+		function callbackPrintsExists(response){
+			
+			//alert(response);
 			
 			try {  var response_obj = JSON.parse(response); }
 			catch (e) {}
@@ -698,21 +658,15 @@ var rtCalculator = {
 				}
 			}
 		
-		    console.log('-',response_obj);
+		    // console.log('-',response_obj);
 			
 			if(response_obj.print && response_obj.print.lackOfQuantity){
 				 var str =''; 
 				 for(var index in response_obj.print.lackOfQuantity){
 					 str += (parseInt(index)+1)+'). '+response_obj.print.lackOfQuantity[index].print_type+', мин тираж - '+response_obj.print.lackOfQuantity[index].minQuantity+"<br>";  
 				 }
-				/* var dialog = $('<div>Тираж  меньше минимального тиража для нанесения(ний):<br>'+str+'стоимость будет пересчитана как для минимального тиража</div>');
-				 $('body').append(dialog);
-				 $(dialog).dialog({modal: true, width: 500,minHeight : 200, buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}]});
-				 $(dialog).dialog('open');*/
+		
 				 var text = 'Тираж меньше минимального тиража для нанесения(ий):<br><br>'+str+'<br>стоимость будет пересчитана как для минимального тиража';
-				 
-				 ///echo_message_js(text,'rt_message',5400);
-				 
 				 
 				 if(rtCalculator.show_warning_window_timer){
 					 clearTimeout(rtCalculator.show_warning_window_timer);
@@ -721,10 +675,7 @@ var rtCalculator = {
 				 }
 				 rtCalculator.show_warning_window_text = text;
 				 rtCalculator.show_warning_window_timer = setTimeout(rtCalculator.show_warning_window,1500);
-				
-				 
-				 
-				 //alert("Тираж  меньше минимального тиража для нанесения(ний):\r"+str+"стоимость будет пересчитана как для минимального тиража");
+
 			}
 			if(response_obj.print && response_obj.print.outOfLimit){
 				 var str ='';  
@@ -737,7 +688,7 @@ var rtCalculator = {
 				 $(dialog).dialog('open');
 				 rtCalculator.changes_in_process=false;
 				 return;
-				 //alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - достигнут лимит тиража :\r"+str+"для этих нанесений требуется индивидуальный расчет");
+				
 			}
 			if(response_obj.print && response_obj.print.needIndividCalculation){ 
 				 var str ='';  
@@ -748,7 +699,7 @@ var rtCalculator = {
 				 $('body').append(dialog);
 				 $(dialog).dialog({modal: true, width: 500,minHeight : 200 , buttons: [{text: "Ok",click: function(){$(this).dialog("close"); }}] });
 				 $(dialog).dialog('open');
-				 // alert("Все перерасчеты отклонены!!!\rПотому что имеются нанесения для которых не возможно расчитать цену - для этих нанесений требуется индивидуальный расчет :\r"+str+"");
+				 
 				
 			}
 			
@@ -765,8 +716,8 @@ var rtCalculator = {
 			
 		}
 		function callbackOnlyQuantity(response){
-			// alert(response);
-		
+			
+		    // alert(response);
 			
 			if(source=='rt')rtCalculator.quantityCalculationsResponse(cell,row_id,response);
 			if(source=='card')rtCalculator.cardQuantityCalculationsResponse(cell,row_id,response);
@@ -788,41 +739,22 @@ var rtCalculator = {
 	}
 	,
 	quantityCalculationsResponseFull:function(cell,row_id,response_obj){
-	        // console.log(response_obj);
+	       console.log(response_obj);
 			
-		    // Вносим изменения в hmlt
-		
+		    
+		    rtCalculator.save_previos_data(cell);
+			// Вносим изменения в hmlt
+			
 			rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
-			//// console.log(response_obj.new_sums);
-			if(response_obj.print.new_sums){ 
-				rtCalculator.tbl_model[row_id]["print_in_summ"] = parseFloat(response_obj.print.new_sums.summ_in);
-				rtCalculator.tbl_model[row_id]["print_out_summ"] = parseFloat(response_obj.print.new_sums.summ_out);
-				if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] && (rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='green' || rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='sgreen')){
-					rtCalculator.tbl_model['total_row']["print_in_summ"]  += rtCalculator.tbl_model[row_id]["print_in_summ"]-rtCalculator.previos_data['print_in_summ'];
-					rtCalculator.tbl_model['total_row']["print_out_summ"] += rtCalculator.tbl_model[row_id]["print_out_summ"]-rtCalculator.previos_data['print_out_summ'];
-				}
-				
+			
+			if(response_obj.itog_values){
+				rtCalculator.tbl_model[row_id]["uslugi_price_in"] = parseFloat(response_obj.itog_values.price_in);
+				rtCalculator.tbl_model[row_id]["uslugi_price_out"] = parseFloat(response_obj.itog_values.price_out);
+				rtCalculator.tbl_model[row_id]["uslugi_summ_in"] = parseFloat(response_obj.itog_values.summ_in);
+				rtCalculator.tbl_model[row_id]["uslugi_summ_out"] = parseFloat(response_obj.itog_values.summ_out);
 			}
-			rtCalculator.tbl_model[row_id]["print_exists_flag"] = 'yes';
-			
-			if(response_obj.extra.new_sums){
-				rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"] = parseFloat(response_obj.extra.new_sums.summ_in);
-				rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"] = parseFloat(response_obj.extra.new_sums.summ_out);
-				if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop'] && (rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='green' || rtCalculator.tbl_model[row_id]['dop_data']['svetofor'] =='sgreen')){
-					rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"]  += rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"]-rtCalculator.previos_data['dop_uslugi_in_summ'];
-					rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"]  += rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"]-rtCalculator.previos_data['dop_uslugi_out_summ'];
-				}
-			}
-
-			
-			
-			// производим пересчет ряда
-			rtCalculator.calculate_row(response_obj.row_id,'quantity');
-			
-			//**print_r(rtCalculator.tbl_model[row_id]);
-			
-			// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
-			rtCalculator.change_html(response_obj.row_id);
+		
+		    rtCalculator.make_calculations(cell);
 			
 			//echo_message_js('изменения сохранены','system_message',800);
 			if(rtCalculator.complite_saving_window_timer){
@@ -848,14 +780,11 @@ var rtCalculator = {
 				return;
 			}
 		}
-		//alert('callbackOnlyQuantity');
-		// вносим изменённое значение в соответствующую ячейку this.tbl_model
-		rtCalculator.tbl_model[row_id]['quantity'] =  parseInt(cell.innerHTML) ;
-		// производим пересчет ряда
-		rtCalculator.calculate_row(row_id,'quantity');
 		
-		// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
-		rtCalculator.change_html(row_id);
+		//alert('callbackOnlyQuantity');
+		
+		rtCalculator.save_previos_data(cell);
+		rtCalculator.make_calculations(cell);
 		
 		//echo_message_js('изменения сохранены','system_message',800);
 		if(rtCalculator.complite_saving_window_timer){
@@ -867,6 +796,40 @@ var rtCalculator = {
 		rtCalculator.changes_in_process = false;
 	}
 	,
+	save_previos_data:function(cell){
+
+		// получаем id ряда
+		var row_id = cell.parentNode.getAttribute('row_id');
+		var type = cell.getAttribute('type');
+
+		// сохраняем текущиме данные до изменения ячеек
+		for(var prop in rtCalculator.tbl_model[row_id]){
+			rtCalculator.previos_data[prop] = rtCalculator.tbl_model[row_id][prop];
+		}
+	}
+	,
+    make_calculations:function(cell){
+
+		// получаем id ряда
+		var row_id = cell.parentNode.getAttribute('row_id');
+		var type = cell.getAttribute('type');
+		var value = cell.innerHTML;
+		
+		//**print_r(rtCalculator.tbl_model[row_id]);
+	
+		
+		// вносим изменённое значение в соответствующую ячейку this.tbl_model
+		value = (value == '' || value == '&nbsp;')?0:value;
+		rtCalculator.tbl_model[row_id][type] = (type=='quantity')? parseInt(value):parseFloat(value);
+		
+		// производим пересчет ряда
+		rtCalculator.calculate_row(row_id,type);
+		
+		// заменяем итоговые ссуммы в таблице HTML для данного ряда и для всей таблицы
+		rtCalculator.change_html(row_id);
+
+	}
+	,
 	calculate_row:function(row_id,type){
 	    // метод который рассчитывает итоговые суммы конкретного ряда таблицы и если ряд не исключен из итоговых расчетов
 		// делает изменения в ряду содержащем абсолютные суммы total_row
@@ -874,31 +837,32 @@ var rtCalculator = {
 		// и рассчитывает его
 		var row = rtCalculator.tbl_model[row_id];
 		
-		row['price_in_summ'] = row['quantity']*row['price_in'];
-		row['price_out_summ'] = row['quantity']*row['price_out'];
+		row['item_summ_in'] = row['quantity']*row['item_price_in'];
+		row['item_summ_out'] = row['quantity']*row['item_price_out'];
 		
-		row['in_summ'] = row['price_in_summ'];
-		if(!row['dop_data']['expel']['print']) row['in_summ'] +=row['print_in_summ'];
-		if(!row['dop_data']['expel']['dop'])   row['in_summ'] +=row['dop_uslugi_in_summ'];
+		row['total_price_in']  = row['item_price_in']  + row['uslugi_price_in'];
+		row['total_price_out'] = row['item_price_out'] + row['uslugi_price_out'];
 		
-		row['out_summ'] = row['price_out_summ'];
-		if(!row['dop_data']['expel']['print']) row['out_summ'] +=row['print_out_summ'];
-		if(!row['dop_data']['expel']['dop'])   row['out_summ'] +=row['dop_uslugi_out_summ'];
+		row['total_summ_in']  = row['item_summ_in']  + row['uslugi_summ_in'];
+		row['total_summ_out'] = row['item_summ_out'] + row['uslugi_summ_out'];
 		
-		if(type=='price_out') rtCalculator.tbl_model[row_id]['discount'] = (row['discount']!=0)? ((row['price_out']!=0)?(Math.round(((row['price_out']*100/(rtCalculator.previos_data['price_out']*100/(100+row['discount'])))-100)* 100) / 100): 0): 0;
-		//alert('('+row['price_out']+'*'+100+'/'+rtCalculator.previos_data['price_out']+')'+'-'+100);
+		//if(type=='item_price_out') rtCalculator.tbl_model[row_id]['discount'] = (row['discount']!=0)? ((row['item_price_out']!=0)?(Math.round(((row['item_price_out']*100/(rtCalculator.previos_data['item_price_out']*100/(100+row['discount'])))-100)* 100) / 100): 0): 0;
+	
+		row['delta'] = row['total_summ_out']-row['total_summ_in'];
+		row['margin'] = (row['total_summ_out']>0 && row['total_summ_in']>0)?((row['total_summ_out']-row['total_summ_in'])/row['total_summ_out'])*100:0;
 		
-		row['delta'] = row['out_summ']-row['in_summ'];
-		row['margin'] = (row['out_summ']>0 && row['in_summ']>0)?((row['out_summ']-row['in_summ'])/row['out_summ'])*100:0;
+		//for(var prop in row){ rtCalculator.tbl_model[row_id][prop] = row[prop]; }
+		console.log('previos_data---',rtCalculator.previos_data);
 
-		// если ряд не исключен из рассчетов расчитываем разницу появивщуюся в результате изменений и помещаем данные 
-	    if(!row['dop_data']['expel']['main'] && (row['dop_data']['svetofor']=='green' || row['dop_data']['svetofor']=='sgreen')){
-			rtCalculator.tbl_model['total_row']['price_in_summ'] += row['price_in_summ'] - rtCalculator.previos_data['price_in_summ'];
-			rtCalculator.tbl_model['total_row']['price_out_summ'] += row['price_out_summ'] - rtCalculator.previos_data['price_out_summ'];
-			rtCalculator.tbl_model['total_row']['in_summ'] += row['in_summ'] - rtCalculator.previos_data['in_summ'];
-			rtCalculator.tbl_model['total_row']['out_summ'] += row['out_summ'] - rtCalculator.previos_data['out_summ'];
+		if(!row['dop_data']['expel']['main'] && (row['dop_data']['svetofor']=='green' || row['dop_data']['svetofor']=='sgreen')){
+			rtCalculator.tbl_model['total_row']['item_summ_in'] += row['item_summ_in'] - rtCalculator.previos_data['item_summ_in'];
+			rtCalculator.tbl_model['total_row']['item_summ_out'] += row['item_summ_out'] - rtCalculator.previos_data['item_summ_out'];
+			rtCalculator.tbl_model['total_row']['uslugi_summ_in']+= row['uslugi_summ_in'] - rtCalculator.previos_data['uslugi_summ_in'];
+			rtCalculator.tbl_model['total_row']['uslugi_summ_out']+=row['uslugi_summ_out']-rtCalculator.previos_data['uslugi_summ_out'];
+			rtCalculator.tbl_model['total_row']['total_summ_in'] += row['total_summ_in'] - rtCalculator.previos_data['total_summ_in'];
+			rtCalculator.tbl_model['total_row']['total_summ_out']+= row['total_summ_out'] - rtCalculator.previos_data['total_summ_out'];
 			rtCalculator.tbl_model['total_row']['delta'] +=  row['delta'] - rtCalculator.previos_data['delta'];
-			//rtCalculator.tbl_model['total_row']['margin'] +=  row['margin'] - rtCalculator.previos_data['margin'];
+			
 		}
 	}
 	,
@@ -913,45 +877,52 @@ var rtCalculator = {
 				if(trs_arr[i].getAttribute('row_id') == row_id) var cur_tr = trs_arr[i];
 			}
 		}
-			
+		 console.log(rtCalculator.tbl_model);	
 			
 		// внесение изменений в затронутый ряд
 		var tds_arr = cur_tr.getElementsByTagName('td');
-		for(var j = 0;j < tds_arr.length;j++){
+		var ln = tds_arr.length;
+		for(var j = 0;j < ln; j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 				if(tds_arr[j]==rtCalculator.cur_cell) continue;
-			    var type = tds_arr[j].getAttribute('type');
-				var connected_vals = tds_arr[j].getAttribute('connected_vals');
+			   var type = tds_arr[j].getAttribute('type');
 				
-				
+				console.log('-',type);
 				if(type == 'glob_counter' || type == 'dop_details' || type == 'master_btn' || type == 'name' || type == 'svetofor') continue;
 				
 				if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type];
 				else if(type=='print_exists_flag') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]; 
-				else if(connected_vals=='print' || connected_vals=='uslugi') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
-				else if(type=='margin') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'%'; 
 				else if(type=='discount') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id][type]+'%';
-				else if(type=='price_in_summ' || type=='price_out_summ'){
-					$(tds_arr[j]).children('div')[0].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'p';
+	            else if(type=='item_price_in' || type=='item_price_out') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
+				else if(type=='item_summ_in' || type=='item_summ_out'){
+					 tds_arr[j].getElementsByTagName('div')[0].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'p';
 				}
-				else tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
-			    /*if(tds_arr[j].getAttribute('type') == 'in_summ') tds_arr[j].innerHTML = rtCalculator.tbl_model[row_id]['in_summ'];*/
+				else if(type=='uslugi_price_in' || type=='uslugi_price_out') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
+				else if(type=='uslugi_summ_in' || type=='uslugi_summ_out'){
+					 tds_arr[j].getElementsByTagName('div')[0].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'p';
+				}
+				else if(type=='total_price_in' || type=='total_price_out') tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2); 
+				else if(type=='total_summ_in' || type=='total_summ_out'){
+					 tds_arr[j].getElementsByTagName('div')[0].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'p';
+				}
+				else if(type=='delta'){
+					 tds_arr[j].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2);
+				}
+				else if(type=='margin'){
+				     tds_arr[j].getElementsByTagName('div')[0].innerHTML = (rtCalculator.tbl_model[row_id][type]).toFixed(2)+'%';
+				}
 			}
 		}
-
+		console.log('total_row',rtCalculator.tbl_model['total_row']);
+       
 		// если ряд не исключен из рассчетов внoсим изменения в итоговый ряд
 	   // if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['main']){
-			var tds_arr =this.tbl_total_row.getElementsByTagName('td');
+			var tds_arr = this.tbl_total_row.getElementsByTagName('td');
 			for(var j = 0;j < tds_arr.length;j++){
 				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 					var type = tds_arr[j].getAttribute('type');
-					var connected_vals = tds_arr[j].getAttribute('connected_vals');
-					//tds_arr[j].innerHTML = rtCalculator.tbl_model['total_row'][tds_arr[j].getAttribute('type')];
-					//tds_arr[j].innerHTML = (type=='quantity')? rtCalculator.tbl_model['total_row'][type]:(rtCalculator.tbl_model['total_row'][type]).toFixed(2); 
 					if(type == 'margin') continue;
-					if(type=='quantity') tds_arr[j].innerHTML = rtCalculator.tbl_model['total_row'][type];
-				    else if(connected_vals=='print' || connected_vals=='uslugi') tds_arr[j].innerHTML = (rtCalculator.tbl_model['total_row'][type]).toFixed(2)+'р'; 
-					else tds_arr[j].innerHTML = (rtCalculator.tbl_model['total_row'][type]).toFixed(2); 
+					tds_arr[j].innerHTML = (rtCalculator.tbl_model['total_row'][type]).toFixed(2); 
 				}
 			}
 		//}
