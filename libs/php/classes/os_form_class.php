@@ -6,7 +6,7 @@ Html, Array, String, Int
 и уже потом Тип возвращаемых данных
 PS было бы неплохо взять взять это за правило 
 */
-class Forms extends aplStdAJAXMethod{
+    class Forms extends aplStdAJAXMethod{
           // id пользователя
 
      public $send_info_enabled = array(
@@ -177,7 +177,7 @@ class Forms extends aplStdAJAXMethod{
                     'type_print',
                     'change_list',
                     'laminat'
-     );
+                    );
      private $user_id;
      private $user_access;
      // тип продукта с которым работает форма
@@ -248,8 +248,8 @@ class Forms extends aplStdAJAXMethod{
                // проверяем наличие артикула на сайте, выводим его описание при нахождении
                protected function check_exists_articul_AJAX(){
                     $html = '';
-                    if(strlen($_POST['art']) < 4){
-                         $html .= '<div class="inform_message red">Количество символов в артикуле должно быть не менее 4 (четырёх) символов.</div>';
+                    if(strlen($_POST['art']) < 2){
+                         $html .= '<div class="inform_message red">Количество символов в артикуле должно быть не менее 2 (четырёх) символов.</div>';
                          echo '{"response":"OK","html":"'.base64_encode($html).'"}';
                          exit;
                     }
@@ -613,9 +613,8 @@ class Forms extends aplStdAJAXMethod{
                                    $html .= '<option value="radio" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="radio")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="radio")?'selected="selected"':'').'>Радио</option>';
                                    $html .= '<option value="text" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="text")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="text")?'selected="selected"':'').'>текстовое поле</option>';
                                    $html .= '<option value="textarea" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="textarea")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="textarea")?'selected="selected"':'').'>большое текстовое поле</option>';
+                                   $html .= '<option value="big_header" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="big_header")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="big_header")?'selected="selected"':'').'>Заголовок большой</option>';                         
                                    $html .= '<option value="small_header" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="small_header")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="small_header")?'selected="selected"':'').'>Заголовок малый</option>';
-                                   $html .= '<option value="big_header" '.((isset($this->input[0]['type']) && $this->input[0]['type']=="big_header")?'selected="selected"':'').((isset($_POST['type']) && $_POST['type']=="big_header")?'selected="selected"':'').'>Подзаголовок</option>';                         
-                                   
                               $html .= '</select><br>';
                          $html .='</div>';
                          $html .='<div class="block">';
@@ -984,7 +983,7 @@ class Forms extends aplStdAJAXMethod{
                                    $html .= '<br>';
                               }
                               $p_name = '';
-                              if($parent_type == 'small_header'  ){
+                              if($parent_type == 'small_header' || $parent_type == 'big_header'){
                                    // если это группа checkbox, то 
                                    // echo $this->form_type[$type_product][$input['parent_name']]['btn_add_var'];
                                    // if($input['type']=='checkbox' && isset($this->form_type[$type_product][$input['parent_name']]['btn_add_var']) && !$this->form_type[$type_product][$input['parent_name']]['btn_add_var']){
@@ -1002,13 +1001,8 @@ class Forms extends aplStdAJAXMethod{
                                    if(!strstr($parent, "[0]")){
                                         $parent = $parent.'[0]';
                                    }
-
-                                   if($row_inputs['type']=='big_header'){
-                                        $p_name = $parent.(($num>1)?'['.$row_inputs['parent_name'].']':'').'';
-                                        // $p_name = $parent.'['.$row_inputs['parent_name'].']'.'[]';
-                                   }else{
-                                        $p_name = $parent.(($num>1)?'['.$row_inputs['parent_name'].']':'').'[]';
-                                   }
+                                   $p_name = $parent.(($num>1)?'['.$row_inputs['parent_name'].']':'').'[]';
+                                   // $p_name = $parent.'['.$row_inputs['parent_name'].']'.'[]';
                                    // $p_name = $parent.''.'[]';
                               }
                               if($this->user_access == 1 && $this->user_id == 425){
@@ -1108,7 +1102,6 @@ class Forms extends aplStdAJAXMethod{
                                              // название 
                                              $html .= '<strong class="'.$row_inputs['type'].'">'.$row_inputs['name_ru'].' '.$moderate.'</strong>'.$redactor_buttons;
                                              // доп описание по полю
-                                             $html .= '<input data-id="'.$row_inputs['id'].'" type="hidden" id="'.$id.'" name="'.$p_name.'" value="'.$row_inputs['val'].'" placeholder="'.$row_inputs['placeholder'].'">';
                                              $html .= ($row_inputs['note']!='')?'<div style="font-size:10px">'.$row_inputs['note'].'</div>':'<br>';
                                           
                                         // $html .= '<strong>'.$row_inputs['name_ru'].'</strong>';
@@ -1143,10 +1136,8 @@ class Forms extends aplStdAJAXMethod{
 
                               if(!empty($row_inputs['child'])){
                                    // $button_var_on = ($row_inputs['btn_add_var'] == 1)?$row_inputs['btn_add_var']:$button_var_on;
-                                   if($row_inputs['type'] == 'small_header' ){
+                                   if($row_inputs['type'] == 'small_header' || $row_inputs['type'] == 'big_header'){
                                         $html .= $this->generate_form_Database_Array($row_inputs['child'],$row_inputs['name_en'],$row_inputs['type'],($num + 1),$row_inputs['name_en'],$row_inputs['btn_add_var']);
-                                   }else if($row_inputs['type'] == 'big_header' ){
-                                        $html .= $this->generate_form_Database_Array($row_inputs['child'],$row_inputs['name_en'],$row_inputs['type'],($num + 1),$p_name,$row_inputs['btn_add_var']);
                                    }else{
                                         $html .= '<div class="pad" '.(($this->user_access == 1)?' style="display: block;"':'').'>';
                                              $html .= $this->generate_form_Database_Array($row_inputs['child'],$row_inputs['name_en'],$row_inputs['type'],($num + 1),$p_name,$row_inputs['btn_add_var']);
@@ -1315,7 +1306,6 @@ class Forms extends aplStdAJAXMethod{
                
                // обработка данных из формы
                public function restructuring_of_the_entry_form(){
-                    $return = '';//$this->print_arr($_POST);
                     //////////////////////////
                     // запоминаем тип продукции
                     //////////////////////////
@@ -1332,7 +1322,7 @@ class Forms extends aplStdAJAXMethod{
                     //////////////////////////
                          $arr = $this->get_cirilic_names_from_Database();
                          foreach ($arr as $key => $value) {
-                              $product_options[$value['parent_name']] = array('name'=>$value['name_ru'],'type'=>$value['type']); 
+                              $product_options[$value['parent_name']] = array('name'=>$value['name_ru']); 
                          }         
                     
                     // return $this->print_arr($data_array_with_form);
@@ -1356,15 +1346,12 @@ class Forms extends aplStdAJAXMethod{
                               // $array_for_table[$header_name_en][]= implode('; ',$this->gg_Array($v,1,$product_options));                              
                          }
                     }
-                    $return .= $this->greate_table_variants_Html($array_for_table,$product_options);
+                    $return = $this->greate_table_variants_Html($array_for_table,$product_options);
                     
                     return $return;
                }
                // всомагательная функция обработки результатов выбора 
                private function gg_Array($arr,$n=0,$product_options){
-                    // echo '<pre>';
-                    // print_r($arr);
-                    // echo '</pre>';
                     $html = array();
                     $i=0;$k=0;
                     $one_zapate = 0;
@@ -1378,40 +1365,30 @@ class Forms extends aplStdAJAXMethod{
                          }else{
                               # если строка, то у предыдущего поля были дети и $val1 - массив
                               # кирилическое название детей хрнаится в базе
-
                               if(isset($product_options[$key1]['name']) && $product_options[$key1]['name']!=''){
-                                   
-                                   if(!isset($html[$i])){$html[$i] = '';}
-                                   // для подзагаловка
-                                   if($product_options[$key1]['type'] == 'big_header'){
-                                        $html[$i] .='<br>';
-                                   }
-
                                    $html[$i] .= $product_options[$key1]['name'].': '.implode(', ',$this->gg_Array($val1,0,$product_options));
                               }else{
                                    //определяем нужен ли тут знак припинания и какой
                                    $zn ='';
-                                   
                                    if($one_zapate==0 && empty($html1)!=''){
                                         if($k!=$i){ //  это значит, что родитель всё ещё предыдйщий и нам нужна запятая
-                                             $zn = (($n>=0 && empty($html1)!='')?', ':'');
-                                        }else{
-                                             switch ($n) {// знаки присваивания для разных уровней вложенности
-                                                  case 1: // уровень первый
-                                                       $zn = (empty($html1)!='')?', ':'';
-                                                       break;
-                                                  case 0: // уровень второй
-                                                       $zn = (empty($html1)!='')?', ':'';
-                                                       break;
-                                                  
-                                                  default: // третий и выше
-                                                       $zn =  (empty($html1)!='')?', ':'';
-                                                       break;
-                                             }
-                                             // $zn .= ' --$n='.$n.'--';
-                                             //$zn = (($n>0)?': ':'');
+                                        $zn = (($n>=0 && empty($html1)!='')?', ':'');
+                                   }else{
+                                        switch ($n) {// знаки присваивания для разных уровней вложенности
+                                             case 1: // уровень первый
+                                                  $zn = (empty($html1)!='')?', ':'';
+                                                  break;
+                                             case 0: // уровень второй
+                                                   $zn = (empty($html1)!='')?', ':'';
+                                                  break;
+                                             
+                                             default: // третий и выше
+                                                  $zn =  (empty($html1)!='')?', ':'';
+                                                  break;
                                         }
-                                   
+                                        // $zn .= ' --$n='.$n.'--';
+                                        //$zn = (($n>0)?': ':'');
+                                   }
                                    }
                                    
                                    

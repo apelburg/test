@@ -81,7 +81,7 @@
 												'subsection'=>array( // 2
 													'query_wait_the_process' =>  array('access'=>true),
 													'no_worcked_men' =>  array('access'=>true),
-													'query_taken_into_operation' =>  array('access'=>true),
+													// 'query_taken_into_operation' =>  array('access'=>true),
 													'query_worcked_men' =>  array('access'=>true),
 													// 'query_worcked_snab' =>  array('access'=>true),
 													'query_history' =>  array('access'=>true),
@@ -229,7 +229,7 @@
 												'access'=>true,
 												'subsection'=>array( // 2
 													'no_worcked_men' => array('access'=>true),
-													'query_taken_into_operation' => array('access'=>true),
+													// 'query_taken_into_operation' => array('access'=>true),
 													'query_worcked_men' => array('access'=>true),
 													//'send_to_snab' => array('access'=>true),
 													//'query_worcked_snab' => array('access'=>true),
@@ -378,7 +378,7 @@
 												'access'=>true,
 												'subsection'=>array( // 2
 													'no_worcked_men' => array('access'=>true),
-													'query_taken_into_operation' => array('access'=>true),
+													// 'query_taken_into_operation' => array('access'=>true),
 													'query_worcked_men' => array('access'=>true),
 													'send_to_snab' => array('access'=>true),
 													'query_worcked_snab' => array('access'=>true),

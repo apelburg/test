@@ -55,7 +55,7 @@
     	// Ожидают распределения (Админ)
     	protected function requests_query_wait_the_process_Template($id_row){
     		$this->filtres_query = " `".RT_LIST."`.`status` = 'not_process'";
-    		$this->filtres_query .= " AND `".RT_LIST."`.`manager_id` = '24'";
+    		$this->filtres_query .= " AND `".RT_LIST."`.`manager_id` IN ('24','0')";
     		$this->standart_request_method($id_row);
     	}
 		
@@ -63,9 +63,10 @@
     	// Ожидают обработки (Мен)/ Не обработанные (Админ)
     	protected function requests_no_worcked_men_Template($id_row){    		
     		$this->filtres_query = "  (
-    			`".RT_LIST."`.`status` = 'not_process' 
+    			`".RT_LIST."`.`status` IN ('not_process','taken_into_operation') 
     			)";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
+
     		$this->standart_request_method($id_row);
     	}
 
@@ -226,9 +227,9 @@
 			if($this->filtres_query_sort != ''){
 				$query .= " ".$this->filtres_query_sort;
 			}
-			// echo $query.'<br>';
+			
 			$result = $mysqli->query($query) or die($mysqli->error);
-
+			// echo $query.'<br>';
 			$this->Query_arr = array();
 
 			$n = 0;
@@ -304,7 +305,6 @@
 
 			
 			$this->query_num = '';
-
 			// итого за запрос
 			$this->price_for_the_position_ITOGO = 0;
 			foreach ($this->Query_arr as $this->Query) {
@@ -426,29 +426,30 @@
 
 			$html .= '<td class="rt_href_click"><a '.$the_client_is_not_attached.' href="'.$href_RT.'">'.$this->Query['query_num'].'</a> </td>';
 			
-			$no_edit = (($_GET['subsection'] == 'query_taken_into_operation' && $this->user_access == 5 || $this->user_access == 1 || $this->Query['manager_id'] == $this->user_id)?0:1);
 			$no_edit = 1;
-			switch ($this->user_access) {
-				case '1':
-					if ($this->Query['manager_id'] == 24) {
-						$no_edit = 0;	
-					}
-					break;
-				case '5':
-					if ($this->Query['status'] == 'taken_into_operation') {
-						$no_edit = 0;	
-					}
-					break;				
-				default:
-					break;
+			if($this->Query['client_id'] == 0){
+				$no_edit = 0;
+				if($this->Query['status'] == 'not_process' && $this->user_access != 1){
+					$no_edit = 1;
+				}				
 			}
-			if($_GET['subsection'] == 'query_history'){
-				$no_edit = 1;
-			}
+
 			$html .= $this->get_client_name_for_query_Database(
 				$this->Query['client_id'],$no_edit);
 			$html .= '<td>'.$this->Query['theme'].'</td>';
 			$html .= '<td>';
+
+			if($this->user_access == 1){
+				$no_edit = 0;	
+			}
+
+			if($this->user_access != 1 && $this->Query['client_id'] == 0){
+				$no_edit = 1;
+			}else{
+				$no_edit = 0;
+			}
+			
+
 				$html .= '<div>'.$this->get_all_manager_name_Database_Html($this->Query,$no_edit).'</div>';
 				// если не история - считаем сколько времени назад взяли заказ в работу
 				if($_GET['subsection'] != 'query_history'){
@@ -500,6 +501,7 @@
 		// шаблон строки варианта позиции
 		protected function position_dop_data_Temp($Query, $position){
 			// подкрашиваем серые строки
+
 			$grey_row_style = ($position['row_status'] == 'grey')?' grey_row_style':'';
 
 			// маркер не прикрепленного клиента
@@ -610,11 +612,12 @@
 			}
 
 
-			// echo '<br><strong>position_query</strong> <br>'.$query.'<br>';
+			
 
 			$main_rows = array();
 			$result = $mysqli->query($query) or die($mysqli->error);
 			$main_rows_id = array();
+			// echo '<br><strong>position_query</strong> <br>'.$query.'<br>';
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$main_rows[$row['query_num']][] = $row;

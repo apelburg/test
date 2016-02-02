@@ -324,5 +324,5 @@ $suppliers_names_by_prefix_for_get_name = array(
 	'FF' => 'Апельбург'
 );
 
-$title = "Онлайн сервис";
+$title = "ОС";
 

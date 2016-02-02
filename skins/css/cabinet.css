@@ -845,6 +845,7 @@ input.calendar_date_ready{
 #dialog_gen_window_form .check_one_li_tag{
 	list-style: none;
 	padding: 0px;
+	margin: 0;
 }
 #dialog_gen_window_form .check_one_li_tag li{
 	padding: 3px 14px;

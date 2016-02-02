@@ -6,6 +6,8 @@
 	if(!@$ACCESS['cabinet']['access']) exit($ACCESS_NOTICE);
 	// ** БЕЗОПАСНОСТЬ **
 	
+	$title = (isset($_GET['client_id']) && (int)$_GET['client_id'] > 0 )?'Карточка клиента':'';
+	$title = (($title!="")?$title.'/':'').'Запросы';
 	// $searchPlaceholder = 'по клиенту';
 
 	save_way_back(array('page=cabinet'),'?page=cabinet&client_id='.$client_id);

@@ -289,7 +289,63 @@
 					$result = $mysqli->query($query) or die($mysqli->error);
 				}
 				
+			// получаем форму выбора кураторов для нового клиента
+			protected function get_choose_curators_form($managers_arr){
+				// получаем список менеджеров
+				// echo '<pre>';
+				// print_r($managers_arr);
+				// echo '</pre>';
 
+
+				$menegers_checked_arr = array();
+				$html = '';
+				$html .= '<form  id="chose_many_curators_tbl">';
+				
+				
+						$html .='<table>';
+
+						$count = count($managers_arr);
+						for ($i=0; $i <= $count; $i) {
+							$html .= '<tr>';
+						    for ($j=1; $j<=3; $j++) {
+						    	if(isset($managers_arr[$i])){
+							    	$checked = '';
+							    	if(isset($_POST['manager_id']) && $managers_arr[$i]['id'] == $_POST['manager_id']){
+							    		$checked = ' class="checked"';
+							    		$menegers_checked_arr[$managers_arr[$i]['id']] = $managers_arr[$i]['id'];
+							    	}
+
+							    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
+							    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
+						    		$i++;
+						    	}else{
+						    		$html .= '<td  date-lll="'.$i.'"></td>';
+						    		$i++;
+						    	}				    	
+						    }				    
+						    $html .= '</tr>';
+						}
+
+						$html .= '</table>';
+				$json_menegers_checked_arr = '{';
+					foreach ($menegers_checked_arr as $key => $value) {
+						$json_menegers_checked_arr .= '"'.$key.'":"'.$value.'"';
+					}
+				$json_menegers_checked_arr .= '}';
+
+				$html .=' <input type="hidden" name="Json_meneger_arr" value=\''.$json_menegers_checked_arr.'\' id="json_manager_arr_val">';
+				$html .=' <div id="json_manager_arr">'.$json_menegers_checked_arr.'</div>';
+				$html .= '<input type="hidden" name="AJAX" value="create_new_client_and_insert_curators">';
+
+				unset($_POST['AJAX']);
+				foreach ($_POST as $key => $value) {
+					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				}
+
+				$html .= '</form>';
+
+				return $html;
+			}
 
 			// выводит форму с выбором менеджеров 
 			public function get_a_list_of_managers_to_be_attached_to_the_request_AJAX(){
@@ -306,11 +362,9 @@
 					# получаем список кураторов
 					// подключаем класс клиента
 					include_once ('./libs/php/classes/client_class.php');
-					$managers_arr = Client::get_relate_managers($_POST['client_id']);
+					$managers_arr = Client::get_relate_managers_2($_POST['client_id']);
 
 					if(count($managers_arr) == 0 ){
-
-
 						$managers_arr = array();
 					    $query="SELECT * FROM `".MANAGERS_TBL."`  WHERE `access` = '5'";
 					    $result = $mysqli->query($query)or die($mysqli->error);
@@ -335,40 +389,50 @@
 						}
 					}
 				}
-				// $html .= $this->print_arr($managers_arr);
-				// echo count($managers_arr);
-				$html .= '<div  id="chose_manager_tbl">';
-				$html .='<table>';
-
-				$count = count($managers_arr);
-				for ($i=0; $i <= $count; $i) {
-					$html .= '<tr>';
-				    for ($j=1; $j<=3; $j++) {
-				    	if(isset($managers_arr[$i])){
-					    	$checked = ($managers_arr[$i]['id'] == $_POST['manager_id'])?'class="checked"':'';
-					    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
-					    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
-				    		$i++;
-				    	}else{
-				    		$html .= '<td  date-lll="'.$i.'"></td>';
-				    		$i++;
-				    	}
-				    	
-				    }
-				    $html .= '</tr>';
+				if(!isset($_POST['row_id']) && isset($_POST['rt_list_id'])){
+					$_POST['row_id'] = $_POST['rt_list_id'];
 				}
+				if($this->user_access == 1){
+					// форма мультивыбора для Админа
+					$html = $this->get_choose_curators_form($managers_arr);
+					echo '{"response":"show_new_window","title":"Выберите менеджера","html":"'.base64_encode($html).'"}';
+							
+					exit;
+				}else{
+					// форма выбора одного менеджера для Мена
+				
+					$html .= '<div  id="chose_manager_tbl">';
+					$html .='<table>';
 
-				$html .= '</table>';
-				$html .= '<input type="hidden" value="attach_manager_to_request" name="AJAX">';
-				$html .= '<input type="hidden" value="'.$_POST['manager_id'].'" name="manager_id">';
-				$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
-				$html .= '<input type="hidden" value="" name="client_id">';
-				$html .= '</div>';
+					$count = count($managers_arr);
+					for ($i=0; $i <= $count; $i) {
+						$html .= '<tr>';
+					    for ($j=1; $j<=3; $j++) {
+					    	if(isset($managers_arr[$i])){
+						    	$checked = ($managers_arr[$i]['id'] == $_POST['manager_id'])?'class="checked"':'';
+						    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
+						    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
+					    		$i++;
+					    	}else{
+					    		$html .= '<td  date-lll="'.$i.'"></td>';
+					    		$i++;
+					    	}
+					    	
+					    }
+					    $html .= '</tr>';
+					}
 
-				// echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Выбрать менеджера"}';
-				// exit;	
-				// добавляем окно
-				$this->responseClass->addPostWindow($html,'Назначить менеджера');	
+					$html .= '</table>';
+					$html .= '<input type="hidden" value="attach_manager_to_request" name="AJAX">';
+					$html .= '<input type="hidden" value="'.$_POST['manager_id'].'" name="manager_id">';
+					$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
+					$html .= '<input type="hidden" value="" name="client_id">';
+					$html .= '</div>';
+					$title = 'Выберите менеджера';
+					
+					$this->responseClass->addPostWindow($html,$title);
+				}
+				
 			}
 			// attach_manager_to_request
 
@@ -405,35 +469,19 @@
 				// if( !isset($_POST['client_name_search']) || strlen($_POST['client_name_search']) < 3 ){
 				// 	get_client_sherch_form();
 				// }
+
+				// if(isset($_GET['query_status']) && $_GET['query_status']!= ''){
+				// 	include_once ('cabinet_class.php');
+				// 	$cabinet = new Cabinet;
+				// 	$cabinet->command_for_change_status_query_AJAX();
+				// }
+
+
 				$html = $this->get_form_attach_the_client('attach_client_to_request');
 				//echo '{"response":"show_new_window","function":"scroll_width_checked_client","html":"'.base64_encode($html).'","title":"Выберите клиента",'.(($this->i>30)?'"height":"600",':'').'"width":"1000"}';
 				echo '{"response":"OK","html":"'.base64_encode($html).'"}';
 				exit;
-			}
-
-			// возвращает строку поиска по клиентам
-			protected function get_client_sherch_form_AJAX(){
-				$html = '';
-				if(isset($_POST['AJAX'])){unset($_POST['AJAX']);}
-
-				$html .= '<form id="js--window_client_sherch_form">';
-				foreach ($_POST as $key => $value) {
-					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-				}
-				$html .= '<div class="quick_bar_tbl"><div class="search_div">
-                    <div class="search_cap">Поиск:</div>
-                    <div class="search_field">                    
-                        <input id="client_name_search" name="client_name_search" placeholder="поиск по клиентам" type="text" onclick="" value=""><div class="undo_btn"><a href="#" onclick="$(this).parent().prev().val(\'\');return false;">×</a></div></div>
-                    <div class="search_button" onclick="search_and_show_client_list();">&nbsp;</div>
-                    <div class="clear_div"></div>
-                </div></div>';
-				// $html .= '<input type="text" name="client_name_search">';
-				$html .= '<input type="hidden" name="AJAX" value="get_a_list_of_clients_to_be_attached_to_the_request">';
-				$html .= '<input type="hidden" name="client_id" value="'.$_POST['client_id'].'">';
-				$html .= '</form>';
-				echo '{"response":"show_new_window","html":"'.base64_encode($html).'","title":"Поиск клиента","height":"300","width":"1000"}';
-				exit;
-			}
+			}			
 
 			// возвращает список клиентов
 			private function get_form_attach_the_client($AJAX = 'test'){
@@ -550,18 +598,31 @@
 
 			// прикрепляет клиента к запросу
 			protected function attach_client_to_request_AJAX(){
+
 				include_once ('./libs/php/classes/client_class.php');
 
 				if($_POST['client_id'] == 'new_client'){
+					// не админ создаёт клиента
+					if($this->user_access != 1){
+						$_POST['AJAX'] = 'insert_new_client';
+						$client = new Client;	
+					}else{
 
-					$_POST['AJAX'] = 'insert_new_client';
+						$_POST['client_id'] = '0';
+						$_POST['manager_id'] = '0';
+						$this->get_a_list_of_managers_to_be_attached_to_the_request_AJAX();
+						return;
+					}
 					
-					new Client;
+					// $client -> get_new_client_form_from_query();
 					// echo '321321321sdsad';
 					// exit;
 				}else {
 					// получаем кураторов по выбранному клиенту
 					// подключаем класс клиента
+					if(isset($_POST['row_id'])){
+						$_POST['rt_list_id'] = $_POST['row_id'];
+					}
 					
 					$managers_arr = Client::get_relate_managers_2($_POST['client_id']);
 								
@@ -671,7 +732,7 @@
 							}
 							$html .= '</table>';
 							$html .= '<input type="hidden" value="attach_manager_to_request" name="AJAX">';
-							$html .= '<input type="hidden" value="'.$_POST['manager_id'].'" name="manager_id">';
+							$html .= '<input type="hidden" value="'.(isset($_POST['manager_id'])?$_POST['manager_id']:'').'" name="manager_id">';
 							$html .= '<input type="hidden" value="'.$_POST['rt_list_id'].'" name="rt_list_id">';
 							$html .= '<input type="hidden" value="" name="client_id">';
 							$html .= '</div>';
