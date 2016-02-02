@@ -563,7 +563,7 @@
 					// получаем кураторов по выбранному клиенту
 					// подключаем класс клиента
 					
-					$managers_arr = Client::get_relate_managers($_POST['client_id']);
+					$managers_arr = Client::get_relate_managers_2($_POST['client_id']);
 								
 
 					switch (count($managers_arr)) {

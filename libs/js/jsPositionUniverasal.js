@@ -364,14 +364,21 @@ $(document).on('click', '.no_edit_class_disc', function(event) {
 $(document).on('focus', '#edit_variants_content input', function(event) {
   event.preventDefault();
   if(Number($(this).val()) == 0){
+    // if()
     $(this).attr('old_val',$(this).val());
     $(this).val('');
   }
 });
 $(document).on('blur', '#edit_variants_content input', function(event) {
-  event.preventDefault();
-  if( $(this).attr('old_val').length > 0 ){
+  // event.preventDefault();
+  // console.log(Number($(this).attr('old_val').length))
+  if( Number($(this).val()) == 0 ){
     
-    $(this).val($(this).attr('old_val'));
+    
+    if($(this).attr('old_val') == ""){
+      $(this).val('0.00');
+    }else{
+      $(this).val($(this).attr('old_val'));  
+    }
   }
 });
