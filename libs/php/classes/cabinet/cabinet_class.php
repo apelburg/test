@@ -3015,7 +3015,7 @@
 				$query .= ", `status` = 'not_process'";
 				
 
-
+				global $mysqli;
 
 				$query .= " WHERE `id` = '".(int)$_POST['row_id']."'";
 				$result = $mysqli->query($query) or die($mysqli->error);
@@ -3031,7 +3031,7 @@
 				$this->responseClass->addMessage($message,'successful_message');	
 				$this->responseClass->addResponseFunction('reload_order_tbl',array('timeout'=>'1000'));
 
-				include_once('mail_class.php');
+				include_once('../mail_class.php');
 
 				$admin_email_arr = $this->get_admin_email(array(4,6));
 

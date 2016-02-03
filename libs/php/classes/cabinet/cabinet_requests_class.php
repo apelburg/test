@@ -65,6 +65,7 @@
     		$this->filtres_query = "  (
     			`".RT_LIST."`.`status` IN ('not_process','taken_into_operation') 
     			)";
+			$this->filtres_query .= " AND `".RT_LIST."`.`manager_id` <> '24'";
     		$this->filtres_position = " `".RT_DOP_DATA."`.`row_status` <> 'red'";
 
     		$this->standart_request_method($id_row);

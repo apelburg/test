@@ -409,7 +409,8 @@
 						$html .= '<tr>';
 					    for ($j=1; $j<=3; $j++) {
 					    	if(isset($managers_arr[$i])){
-						    	$checked = ($managers_arr[$i]['id'] == $_POST['manager_id'])?'class="checked"':'';
+						    	$checked = ($managers_arr[$i]['id'] == $_POST['manager_id']
+						    		)?'class="checked"':'';
 						    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
 						    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
 					    		$i++;

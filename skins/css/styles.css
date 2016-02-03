@@ -139,6 +139,41 @@ button.CommonRightBtn{
 #authentication_menu_div a{
   color:#000;
 }
+#authentication_menu_div{
+  float: left;
+  width: 250px
+}
+
+#authentication_menu_div div a nobr {
+    float: left;
+    width: 98%;
+    /*background: rosybrown;*/
+    padding: 2px 3px;
+    margin: 0;
+}
+#authentication_menu_div div,
+#authentication_menu_div div a,
+#authentication_menu_div div a nobr{
+  padding: 0;
+  width: 100%;
+  float: left;
+  margin: 0;
+}
+#authentication_menu_div div a nobr{
+  padding-top: 5px;
+  padding-left: 4%;
+  padding-right: 10%;
+  width: 86%;
+  padding-bottom: 5px;
+}
+#authentication_menu_div div a {
+  /*padding: 2px*/
+}
+#authentication_menu_div div a nobr:hover{
+  background: #f1f1f1;
+}
+
+
 .main_menu_tbl .authentication_plank_tbl{
   width:100%;
   /*background-color:#FFC18D;*/
