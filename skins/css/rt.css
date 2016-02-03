@@ -75,10 +75,21 @@
 .svetofor_plank{
   z-index: 5;
 }
+
 .rt_tbl_head .bottom_border td{ border-bottom: #999 solid 2px;}
 .rt_tbl_head span.small{ 
  font-size:9px;
  border:#EEE solid 0px;
+}
+.rt_tbl_head td.relative { position:relative; }
+.rt_tbl_head .cap_name{ 
+ position:absolute;top:0px;left:50px;white-space:nowrap
+}
+.rt_tbl_head .cap_subname{
+ color:#333333; 
+ font-size:9px;
+ text-align:right;
+ margin:0 -5px 0 0;
 }
 
 .rt_tbl_head .master_button{
@@ -361,3 +372,6 @@ input.getSizesBtn {
     color: #797979;
     cursor: pointer;
 }
+
+.uslugi_panel div.ovalBtn:nth-of-type(1){float:left; margin:20px 0 35px 40px;}
+.uslugi_panel div.ovalBtn:nth-of-type(2){float:right; margin:20px 40px 35px 0;}

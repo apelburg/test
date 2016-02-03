@@ -3,26 +3,6 @@ window.onload = function(){
    rtCalculator.init_tbl('rt_tbl_head','rt_tbl_body');
 }
 
-
-
-
-
-
-
-///////////////  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   /////////////////////////
-///////////////                       УБРАТЬ РАБОТУ С ЭТИМИ ПОЛЯМИ                      /////////////////////////
-///////////////  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   /////////////////////////
-  
-        //rtCalculator.previos_data['print_in_summ'] = rtCalculator.tbl_model[row_id]['print_in_summ'];
-		//rtCalculator.previos_data['print_out_summ'] = rtCalculator.tbl_model[row_id]['print_out_summ'];
-		//rtCalculator.previos_data['dop_uslugi_in_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_in_summ'];
-		//rtCalculator.previos_data['dop_uslugi_out_summ'] = rtCalculator.tbl_model[row_id]['dop_uslugi_out_summ'];
-		
-		
-		//addToItog 
-		//subtractFromItog
-///////////////  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   /////////////////////////
-
 // инициализация
 /*if(window.addEventListener){
 	window.addEventListener('load',tableDataManager.install,false);
@@ -158,7 +138,7 @@ var rtCalculator = {
 					var type = tds_arr[j].getAttribute('type');
 					if(type == 'glob_counter' || type == 'master_btn' || type == 'name') continue;
 					
-					if(type == 'item_summ_in' || type == 'item_summ_out' || type == 'uslugi_summ_in' || type == 'uslugi_summ_out' || type == 'total_summ_in' || type == 'total_summ_out'){
+					if(type == 'item_summ_in' || type == 'item_summ_out' || type == 'uslugi_summ_in' || type == 'uslugi_summ_out' || type == 'total_summ_in' || type == 'total_summ_out' || type == 'margin'){
 						this.tbl_model[row_id][type] = parseFloat(tds_arr[j].getElementsByTagName('div')[0].innerHTML); 
 						
 					}
@@ -171,13 +151,6 @@ var rtCalculator = {
 						if(type=='total_summ_out'){
 							this.tbl_model[row_id].dop_data.expel.main=expel;
 						}
-						/*else if(type=='print_out_summ' || type=='print_in_summ'){
-							this.tbl_model[row_id].dop_data.expel.print=expel;
-						}
-						else if(type=='dop_uslugi_out_summ' || type=='dop_uslugi_in_summ'){
-							this.tbl_model[row_id].dop_data.expel.dop=expel;
-						}*/
-						
 					}
 					if(tds_arr[j].hasAttribute('svetofor')){
 						if(!this.tbl_model[row_id].dop_data)this.tbl_model[row_id].dop_data = {};
@@ -309,7 +282,7 @@ var rtCalculator = {
 								tds_arr[j].onclick = this.show_discount_window;//(this,'.$dop_key.','.$client_id.')
 							}
 							if(tds_arr[j].getAttribute('expel')){
-								tds_arr[j].onclick = this.expel_value_from_calculation;
+								//tds_arr[j].onclick = this.expel_value_from_calculation;
 							}
 							if(tds_arr[j].getAttribute('svetofor')){
 								//// console.log(j+' svetofor');
@@ -319,9 +292,9 @@ var rtCalculator = {
 							if(tds_arr[j].getAttribute('raschet_status')){
 								$(tds_arr[j]).mouseenter(function(e){ statusTooltip.schedule(this)});
 							}
-							if(tds_arr[j].getAttribute('calc_btn') && !block){
+							if(tds_arr[j].getAttribute('uslugi_btn') && !block){
 								//// console.log(j+' svetofor');
-								if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = printCalculator.start_calculator;
+								if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = this.launch_uslugi_panel;//tds_arr[j].getElementsByTagName('span')[0].onclick = printCalculator.start_calculator;
 								
 							}
 						}
@@ -329,7 +302,68 @@ var rtCalculator = {
 				}
 			}
 		}
-	}	
+	}
+	,
+	launch_uslugi_panel:function(e){
+	    e = e || window.event;
+		var cell = e.target || e.srcElement;
+		// метод срабатывающий первым ( изначально ) при клике по значку обозначаещему услуги в РТ
+		
+		//if(cell.parentNode.getAttribute('calc_btn') == 'print') alert('калькулятор нанесения логотипа');
+		//if(cell.parentNode.getAttribute('calc_btn') == 'extra') alert('калькулятор доп. услуг');
+		// определяем из какой ячейки сделан вызов калькулятора ( могут быть - нанесение или доп услуги)
+		var calculator_type = cell.parentNode.getAttribute('calc_btn');
+		
+        // родительский тэг tr
+		var trTag = cell.parentNode.parentNode;
+		// id - артикула
+		var art_id = trTag.getAttribute('art_id');
+		// id - родительского ряда (ряда рассчета) (ряда в таблице os__rt_dop_data)
+		var dop_data_row_id = trTag.getAttribute('row_id');
+		//var discount =  ($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1);
+		var discount = ($(trTag).find( "td[discount_fieid]" ).text()).slice(0,-1);
+		// определяем количество товара (берем данные из ячейки quantity данного ряда)
+		var tdsArr = trTag.getElementsByTagName('TD');
+		//alert(tdsArr);
+		for(var i =0;i < tdsArr.length;i++){
+			if(tdsArr[i].getAttribute('type') && tdsArr[i].getAttribute('type')=='quantity'){
+				var quantity = parseInt(tdsArr[i].innerHTML);
+			} 
+		}
+		if(typeof quantity === 'undefined'){
+			echo_message_js('Не удается получить данные о количестве товара!!!','system_message',3800);
+			return;
+		}
+		if(quantity === 0){
+		    echo_message_js('Расчет не возможен, тираж 0шт. !!!','system_message',3800);
+			return;
+		}
+		
+		
+		
+		var dialog = $('<div class="uslugi_panel"></div>');
+		var btn1 = document.createElement('DIV');
+		btn1.className = 'ovalBtn';
+		btn1.innerHTML = 'Список услуг';
+		btn1.onclick =  function(){ 
+		     $(dialog).remove();
+			 printCalculator.start_calculator({"calculator_type":"extra","cell":cell,"quantity":quantity,"art_id":art_id,"dop_data_row_id":dop_data_row_id,"discount":discount,"trTag":trTag});	
+	    };
+		dialog.append(btn1);
+	
+		var btn2 = document.createElement('DIV');
+		btn2.className = 'ovalBtn';
+		btn2.innerHTML = 'Калькулятор';
+		btn2.onclick =  function(){ 
+		     $(dialog).remove();
+			 printCalculator.start_calculator({"calculator_type":"print","cell":cell,"quantity":quantity,"art_id":art_id,"dop_data_row_id":dop_data_row_id,"discount":discount,"trTag":trTag});	
+	    };
+		dialog.append(btn2);
+		
+		$('body').append(dialog);
+		$(dialog).dialog({modal: true, width: 500,minHeight : 120 ,title: 'Выберите вид расчета',close: function() {$(this).remove();} });
+		$(dialog).dialog('open');
+	}
 	,
 	show_complite_saving_window:function(){
 		echo_message_js('изменения сохранены','system_message',800);
@@ -929,136 +963,6 @@ var rtCalculator = {
 		
 	}
 	,
-	expel_value_from_calculation:function(e){
-		// метод исключающий или включающий значения из подсчетов
-		// либо в текущих рядах, либо в окончательных суммах по всей таблице (итоговый ряд)
-		
-		// связано с состоянием интерфейса светофоров - поэтому слушаем его
-		if(rtCalculator.change_svetofor.in_process) return; 
-
-	    if(rtCalculator.expel_value_from_calculation.in_process) return; 
-		rtCalculator.expel_value_from_calculation.in_process = true;
-		
-	    e = e || window.event;
-		var cell = e.target || e.srcElement;
-		
-		if(cell.getAttribute('expel') == undefined){ alert('attribute expel dont exists'); return;}
-		
-	    // получаем текущий статус ячейки и меняем его на противоположный
-		var status = !(!!parseInt(cell.getAttribute('expel')));
-		// alert(status+' '+cell.getAttribute('expel')+' '+cell.getAttribute('type'));
-        
-		var row_id = cell.parentNode.getAttribute('row_id');
-		if(row_id == undefined) { alert('attribute row_id dont exists'); return;}
-		if(row_id == 0) {  rtCalculator.expel_value_from_calculation.in_process = false; return;}  // прерываем выполнение - вспомогательный ряд
-		//// console.log(row_id);
-		
-		var type = cell.getAttribute('type');
-		
-		// при отключении или включении ячеек НАНЕСЕНИЯ и ДОП УСЛУГ необходимо произвести перерасчет внутри ряда
-		// если откючается весь ряд этого делать не нужно
-		if(type=='print_out_summ' || type=='print_in_summ' || type=='dop_uslugi_out_summ' || type=='dop_uslugi_in_summ'){
-		    // получаем значения входящей и исходящей суммы по данному типу ячейки
-		    if(type=='print_out_summ' || type=='dop_uslugi_out_summ') var cur_out_summ = parseFloat(cell.innerHTML);
-			if(type=='print_in_summ'  || type=='dop_uslugi_in_summ') var cur_in_summ = parseFloat(cell.innerHTML);
-			// соседняя ячейка
-			if(type=='print_out_summ' || type=='dop_uslugi_out_summ') var sibling_cell = cell.previousSibling;
-			if(type=='print_in_summ'  || type=='dop_uslugi_in_summ') var sibling_cell = cell.nextSibling;
-			
-			while(sibling_cell != null){
-				if(sibling_cell.nodeName == 'TD'){
-					 if(type=='print_out_summ' || type=='dop_uslugi_out_summ')  var cur_in_summ  = parseFloat(sibling_cell.innerHTML);
-			         if(type=='print_in_summ'  || type=='dop_uslugi_in_summ')  var cur_out_summ  = parseFloat(sibling_cell.innerHTML);
-					 break;
-				}
-				if(type=='print_out_summ' || type=='dop_uslugi_out_summ') sibling_cell = sibling_cell.previousSibling;
-			    if(type=='print_in_summ'  || type=='dop_uslugi_in_summ') sibling_cell = sibling_cell.nextSibling;
-				
-			}
-
-			// получаем значения входящей и исходящей суммы по данному типу ячейки
-			if(status){// исключить из расчетов
-			    rtCalculator.tbl_model[row_id]['out_summ']-= cur_out_summ;
-				rtCalculator.tbl_model[row_id]['in_summ'] -= cur_in_summ;
-			}
-			else{// использовать в расчетах
-			    rtCalculator.tbl_model[row_id]['out_summ']+= cur_out_summ;
-				rtCalculator.tbl_model[row_id]['in_summ'] += cur_in_summ;
-			}
-			// меняем значения delta и margin текущей ячейки
-			rtCalculator.tbl_model[row_id]['delta'] = rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'];
-			rtCalculator.tbl_model[row_id]['margin'] = (rtCalculator.tbl_model[row_id]['out_summ']>0 && rtCalculator.tbl_model[row_id]['in_summ']>0)?((rtCalculator.tbl_model[row_id]['out_summ']-rtCalculator.tbl_model[row_id]['in_summ'])/rtCalculator.tbl_model[row_id]['out_summ'])*100:0;    
-		}
-		
-		// изменяем значение status в JS модели таблицы - rtCalculator.tbl_model
-		if(type =='out_summ' || type=='in_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] = status;
-		else if(type =='print_out_summ' || type=='print_in_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['print'] = status;
-		else if(type =='dop_uslugi_out_summ' || type=='dop_uslugi_in_summ') rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop'] = status;
-		
-		// меняем значение status в HTML
-		cell.setAttribute('expel',Number(status));
-		
-		// меняем значение аттрибута class во всех связанных ячейках
-		var connected_vals = cell.getAttribute('connected_vals');
-		var tdsArr = cell.parentNode.getElementsByTagName('td');
-		for(var i = 0 ;i < tdsArr.length ;i++){
-			 if(tdsArr[i].getAttribute('connected_vals') && tdsArr[i].getAttribute('connected_vals') == connected_vals){
-			     if(status){  tdsArr[i].className =  tdsArr[i].className+' red_cell'; }
-				 else{
-					  var classArr = tdsArr[i].className.split(' ');
-					  var newClassArr = [];
-				      for(var index in classArr){ if(classArr[index] != "red_cell") newClassArr.push(classArr[index]); }
-					  tdsArr[i].className =  newClassArr.join(' ');
-				 }
-			 }
-		}
-		
-		// перебираем ячейки ряда с итоговыми суммами и суммируем значения соответсвующих ячеек в rtCalculator.tbl_model
-		var total_row =  rtCalculator.tbl_model['total_row'];
-		for(var type in total_row){
-		    
-			var summ = 0;
-			// перебираем rtCalculator.tbl_model
-			for(var id in rtCalculator.tbl_model){
-			    // итоговый ряд пропускаем
-				if(id =='total_row') continue;
-				// если в ряд не участвует в расчете конечных сумм пропускаем его
-				// также если ряд имеет не зеленый светофор
-				if(rtCalculator.tbl_model[id]['dop_data']['expel']['main']) continue; 
-				if(!(rtCalculator.tbl_model[id]['dop_data']['svetofor']=='green' || rtCalculator.tbl_model[id]['dop_data']['svetofor']=='sgreen')) continue; 
-				//alert(id +' '+row_id+' '+type);
-				var row = rtCalculator.tbl_model[id];
-				
-				for(var prop in row){
-					if(prop==type){
-						// если ячеки не участвуют в расчете конечных сумм пропускаем их
-						if((type=='print_in_summ' || type=='print_out_summ' ) && row['dop_data']['expel']['print']) continue;
-						if((type=='dop_uslugi_in_summ' || type=='dop_uslugi_out_summ' ) && row['dop_data']['expel']['dop']) continue;
-						
-						summ+=row[prop];
-					} 
-				}
-			}
-			total_row[type] = summ;
-		}
-		
-	    // формируем url для AJAX запроса
-	    var markers = {}
-		for(var prop in rtCalculator.tbl_model[row_id]['dop_data']['expel']){
-			 if(rtCalculator.tbl_model[row_id]['dop_data']['expel'][prop]) markers[prop] = "1";
-		}
-
-		var url = OS_HOST+'?' + addOrReplaceGetOnURL('expel_value_from_calculation='+JSON.stringify(markers)+'&id='+row_id);
-		rtCalculator.send_ajax(url,callback);
-		
-		function callback(response){ /*alert(response);*/
-			// вызываем метод производящий замену значений в HTML
-			rtCalculator.change_html(row_id);
-	        //echo_message_js('изменения сохранены','system_message',800);
-			rtCalculator.expel_value_from_calculation.in_process = false;
-		}
-	}
-	,
 	show_svetofor:function(e){ 
 	   
 	    e = e|| window.event;
@@ -1114,8 +1018,11 @@ var rtCalculator = {
 	    e = e|| window.event;
 		var img_btn = e.target || e.srcElement;
 		//// console.log(); 
-        // связано с состоянием интерфейса исключения рядов - поэтому слущаем его
-		if(rtCalculator.expel_value_from_calculation.in_process) return; 
+		
+		
+        // ПОКА ОТКЛЮЧЕНО связано с состоянием интерфейса исключения рядов - поэтому слущаем его
+		// if(rtCalculator.expel_value_from_calculation.in_process) return; 
+		
 		if(rtCalculator.change_svetofor.in_process) return; 
 		rtCalculator.change_svetofor.in_process = true;
 		
@@ -1159,7 +1066,6 @@ var rtCalculator = {
 		function callback(response){ /*alert(response);*/
 		   td.getElementsByTagName('img')[0].src = OS_HOST + '/skins/images/img_design/rt_svetofor_'+new_status+'.png';
 		   td.setAttribute("svetofor",new_status);
-		    // alert(new_status+' '+ typeof rtCalculator.tbl_model[row_id]['dop_data']['expel']['main']+' '+rtCalculator.tbl_model[row_id]['out_summ']);
 			
 			if(new_status=='green'){
 				addToItog(row_id,cur_status);
@@ -1200,8 +1106,8 @@ var rtCalculator = {
 					}
 			    }
 				//суммы текущего устанавливаемого в sgreen ряда, при соответвии условиям прибавляются к Итого
-				 addToItog(row_id,cur_status);
-				 rtCalculator.tbl_model[row_id].dop_data.svetofor = new_status;
+				addToItog(row_id,cur_status);
+				rtCalculator.tbl_model[row_id].dop_data.svetofor = new_status;
 			}
 			function addToItog(row_id,cur_status){
 				// alert(cur_status);
@@ -1211,19 +1117,14 @@ var rtCalculator = {
 				// не надо(потому что они уже не должны учитываются в  Итого
 				if((cur_status == 'grey' || cur_status == 'red') && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
 					// alert('add');
-					rtCalculator.tbl_model['total_row']['out_summ'] += rtCalculator.tbl_model[row_id]['out_summ'];
-					rtCalculator.tbl_model['total_row']['in_summ'] += rtCalculator.tbl_model[row_id]['in_summ']; 
-					rtCalculator.tbl_model['total_row']['delta'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
-			        //rtCalculator.tbl_model['total_row']['margin'] = (rtCalculator.tbl_model['out_summ']>0 && rtCalculator.tbl_model['in_summ']>0)?((rtCalculator.tbl_model['out_summ']-rtCalculator.tbl_model['in_summ'])/rtCalculator.tbl_model['in_summ'])*100:0;
-
-					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print']){
-						rtCalculator.tbl_model['total_row']["print_in_summ"] += rtCalculator.tbl_model[row_id]["print_in_summ"];
-						rtCalculator.tbl_model['total_row']["print_out_summ"] += rtCalculator.tbl_model[row_id]["print_out_summ"];
-					}
-					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop']){
-						rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"] += rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"];
-						rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"] += rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"];
-					}
+					rtCalculator.tbl_model['total_row']["item_summ_in"] += rtCalculator.tbl_model[row_id]["item_summ_in"];
+					rtCalculator.tbl_model['total_row']["item_summ_out"] += rtCalculator.tbl_model[row_id]["item_summ_out"];
+					rtCalculator.tbl_model['total_row']["uslugi_summ_in"] += rtCalculator.tbl_model[row_id]["uslugi_summ_in"];
+					rtCalculator.tbl_model['total_row']["uslugi_summ_out"] += rtCalculator.tbl_model[row_id]["uslugi_summ_out"];
+					rtCalculator.tbl_model['total_row']['total_summ_out'] += rtCalculator.tbl_model[row_id]['total_summ_out'];
+					rtCalculator.tbl_model['total_row']['total_summ_in'] += rtCalculator.tbl_model[row_id]['total_summ_in']; 
+					rtCalculator.tbl_model['total_row']['delta'] = rtCalculator.tbl_model['total_row']['total_summ_out'] - rtCalculator.tbl_model['total_row']['total_summ_in'];
+					
 				}
 			}
 			function subtractFromItog(row_id,cur_status){
@@ -1234,18 +1135,14 @@ var rtCalculator = {
 				// не надо(потому что они уже не учитываются в  Итого		 
 				if((cur_status == 'green' || cur_status == 'sgreen') && rtCalculator.tbl_model[row_id]['dop_data']['expel']['main'] != true ){
 					// alert('subtract');
-					rtCalculator.tbl_model['total_row']['out_summ'] -= rtCalculator.tbl_model[row_id]['out_summ'];
-					rtCalculator.tbl_model['total_row']['in_summ'] -= rtCalculator.tbl_model[row_id]['in_summ']; 
-				    rtCalculator.tbl_model['total_row']['delta'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
-			        //rtCalculator.tbl_model['total_row']['margin'] = rtCalculator.tbl_model['total_row']['out_summ'] - rtCalculator.tbl_model['total_row']['in_summ'];
-					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['print']){
-						rtCalculator.tbl_model['total_row']["print_in_summ"] -= rtCalculator.tbl_model[row_id]["print_in_summ"];
-						rtCalculator.tbl_model['total_row']["print_out_summ"] -= rtCalculator.tbl_model[row_id]["print_out_summ"];
-					}
-					if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['dop']){
-						rtCalculator.tbl_model['total_row']["dop_uslugi_in_summ"] -= rtCalculator.tbl_model[row_id]["dop_uslugi_in_summ"];
-						rtCalculator.tbl_model['total_row']["dop_uslugi_out_summ"] -= rtCalculator.tbl_model[row_id]["dop_uslugi_out_summ"];
-					}
+					rtCalculator.tbl_model['total_row']["item_summ_in"] -= rtCalculator.tbl_model[row_id]["item_summ_in"];
+					rtCalculator.tbl_model['total_row']["item_summ_out"] -= rtCalculator.tbl_model[row_id]["item_summ_out"];
+					rtCalculator.tbl_model['total_row']["uslugi_summ_in"] -= rtCalculator.tbl_model[row_id]["uslugi_summ_in"];
+					rtCalculator.tbl_model['total_row']["uslugi_summ_out"] -= rtCalculator.tbl_model[row_id]["uslugi_summ_out"];
+					rtCalculator.tbl_model['total_row']['total_summ_in'] -= rtCalculator.tbl_model[row_id]['total_summ_in']; 
+					rtCalculator.tbl_model['total_row']['total_summ_out'] -= rtCalculator.tbl_model[row_id]['total_summ_out'];
+				    rtCalculator.tbl_model['total_row']['delta'] = rtCalculator.tbl_model['total_row']['total_summ_out'] - rtCalculator.tbl_model['total_row']['total_summ_in'];
+					
 				}
 			}
 			rtCalculator.change_html(row_id);/**/
