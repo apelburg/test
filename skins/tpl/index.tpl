@@ -43,7 +43,7 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
 <script type="text/javascript" src="libs/js/upWindowMenu.js"></script>
 <script type="text/javascript" src="libs/js/sample.js"></script>
 <script type="text/javascript" src="libs/js/standard_response_handler.js"></script>
-<title>Онлайн сервис</title>
+<title><?=$title;?></title>
 </head>
 
 <body>
@@ -90,19 +90,19 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
             <td style="width:250px;padding:0px;">
                 <table class="authentication_plank_tbl">
                     <tr>
-                        <td style="width:auto;text-align:right;">
+                        <td style="width:auto;text-align:right; cursor:pointer"  onclick="$('#authentication_menu_div').toggle();">
                             <div style="overflow:hidden;">
                                 <nobr><?php echo $position.': '.$user_name.' '.$user_last_name; ?></nobr>
                             </div>
                         </td>
                         <td style="padding:0px 2px;">
                             <div>
-                                <a href="#" onclick="return show_hide_div('authentication_menu_div');"><img src="./skins/images/img_design/flag.png"></a>
+                                <a href="#" onclick="$('#authentication_menu_div').toggle();"><img src="./skins/images/img_design/flag.png"></a>
                             </div>
                             <div class="authentication_menu_container">
                                <div class="authentication_menu_div" id="authentication_menu_div">
                                     <?php echo $authentication_menu_dop_items; ?>
-                                    <div class="cap2" id=""><nobr><a href="#" onclick="autorisation_qute()">выйти из приложения <!--<span class="cross">&#215</span>--></a></nobr></div>
+                                    <div class="cap2" id=""><a href="#" onclick="autorisation_qute()"><nobr>выйти из приложения <!--<span class="cross">&#215</span>--></nobr></a></div>
                                   
                                </div>
                             </div>

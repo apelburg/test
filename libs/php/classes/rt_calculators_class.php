@@ -337,9 +337,14 @@
 					    $place_id = $row['place_id'];
 						$row['item_id'] = $row['id'];
 					    unset($row['id'],$row['place_id'],$row['default']);
+						
+						
 						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения и id места нанесения
 					    if(!$default_sizes) $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
-						else  $out_put['print_types'][$print_id]['sizes'][0][] = $row; 
+						else  $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
+						// а также сбрасываем все места нанесения в один общий элемент для типов "не определено" и "стандартно"
+						$out_put['print_types'][$print_id]['sizes'][0][] = $row; 
+						
 				    }
 				}
 				
@@ -621,10 +626,10 @@
 			$out_put['row_id'] = $dop_data_id;
 			$out_put['print']['result']='ok';
 			$out_put['extra']['result']='ok';
-			if($source=='card')$out_put['new_sums_details']	= array();
+			if($source=='rt') $out_put['itog_values'] = array("price_in"=>0,"price_out"=>0,"summ_in"=>0,"summ_out"=>0);
+			if($source=='card') $out_put['new_sums_details']	= array();
 			
 			if($print == 'true'){
-			    $itog_sums = array("summ_in"=>0,"summ_out"=>0);
 				// делаем запрос чтобы получить данные о всех расчетах нанесений привязанных к данному ряду
 				$query="SELECT uslugi.print_details print_details, uslugi.id uslugi_row_id, uslugi.discount discount FROM `".RT_DOP_USLUGI."` uslugi INNER JOIN
 									`".RT_DOP_DATA."` dop_data
@@ -676,8 +681,10 @@
 							
 							// print_r($new_data)."\r";
 							if($source=='rt'){
-							    $itog_sums["summ_in"] += $new_data["new_summs"]["summ_in"];
-							    $itog_sums["summ_out"] += $new_data["new_summs"]["summ_out"];
+							    $out_put['itog_values']["price_in"] += $new_data["new_price_arr"]["price_in"];
+								$out_put['itog_values']["price_out"] += $new_data["new_price_arr"]["price_out"];
+								$out_put['itog_values']["summ_in"] += $new_data["new_summs"]["summ_in"];
+								$out_put['itog_values']["summ_out"] += $new_data["new_summs"]["summ_out"];
 							}
 							if($source=='card'){
 							   $new_sums_details[$dataVal['uslugi_row_id']] = array('price_in' => $new_data["new_price_arr"]["price_in"],'price_out' => $new_data["new_price_arr"]["price_out"]);
@@ -696,13 +703,11 @@
 					if(self::$needIndividCalculation)  $out_put['print']['needIndividCalculation'] = self::$needIndividCalculationDetails;
 					
 					if($out_put['print']['result']=='ok'){
-					     if($source=='rt') $out_put['print']['new_sums'] = $itog_sums;
 						 if($source=='card') $out_put['new_sums_details'] = $new_sums_details;
 					}
 				}
 			}
 			if($extra == 'true' && $out_put['print']['result']=='ok'){// $out_put['print']['result']=='error' то работать с extra нет смысла
-			    if($source=='rt') $out_put['extra']['new_sums'] = array("summ_in"=>0,"summ_out"=>0);
 			    // считаем новые itog_sums
 			    $query="SELECT*FROM `".RT_DOP_USLUGI."` WHERE glob_type ='extra' AND dop_row_id = '".$dop_data_id."'";
 				$result = $mysqli->query($query)or die($mysqli->error);
@@ -710,9 +715,11 @@
 					while($row = $result->fetch_assoc()){
 					     $row['price_out'] = ($row['discount'] != 0 )? (($row['price_out']/100)*(100 + $row['discount'])) : $row['price_out'];
 					     if($source=='rt'){
-						     $out_put['extra']['new_sums']['summ_in'] += ($row['for_how']=='for_all')? $row['price_in']:$quantity*$row['price_in'];
-						     $out_put['extra']['new_sums']['summ_out'] +=($row['for_how']=='for_all')? $row['price_out']:$quantity*$row['price_out'];
-							
+
+							 $out_put['itog_values']["price_in"] += ($row['for_how']=='for_all')? $row['price_in']/$quantity:$row['price_in'];
+							 $out_put['itog_values']["price_out"] += ($row['for_how']=='for_all')? $row['price_out']/$quantity:$row['price_out'];
+							 $out_put['itog_values']["summ_in"] += ($row['for_how']=='for_all')? $row['price_in']:$quantity*$row['price_in'];
+							 $out_put['itog_values']["summ_out"] += ($row['for_how']=='for_all')? $row['price_out']:$quantity*$row['price_out'];
 						 }
 						 if($source=='card'){
 						     $out_put['new_sums_details'][$row['id']] = array('for_how' => $row['for_how'],'price_in' => $row['price_in'],'price_out' => $row['price_out']);
@@ -828,14 +835,17 @@
 					if(self::$needIndividCalculation)  $json_str .= ',"needIndividCalculation":'.json_encode(self::$needIndividCalculationDetails);
 					$json_str .=  '}';
 					// используется в том числе при перерасчете нанесения при загрузке старницы в РТ
-					return $json_str;
+					return $json_str; 
 				}
 			}
 		}
 		static function change_quantity_and_calculators_price_query($quantity,$print_details_obj,$YPriceParam){
 		    global $mysqli;  
 			
-			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_details_obj->print_id."' AND `level` = '".$print_details_obj->level."'  ORDER by id, param_val";
+			$level = (isset($print_details_obj->level))? $print_details_obj->level:'full';
+			
+			$query="SELECT*FROM `".BASE__CALCULATORS_PRICE_TABLES_TBL."` WHERE `print_type_id` = '".$print_details_obj->print_id."' AND `level` = '".$level."'  ORDER by id, param_val";
+			
 				//echo $query;
 			$result = $mysqli->query($query)or die($mysqli->error);/**/
 			if($result->num_rows>0){

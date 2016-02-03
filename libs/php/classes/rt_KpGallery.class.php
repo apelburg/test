@@ -137,6 +137,46 @@ if ( isset($_SESSION['access']['user_id'])  && $_SESSION['access']['user_id'] ==
 				// $result = $this->mysqli->query($query) or die($this->mysqli->error);	
 				// return;
  			// }
+ 			protected function copy_kp_gallery_rows_AJAX(){
+ 				exit;
+				$query = "SELECT * FROM `".KP_MAIN_ROWS."`  ";
+ 				$arr = array();
+ 				$result = $this->mysqli->query($query);// or die($this->mysqli->error);
+ 				if(!$result){
+						$message = $this->mysqli->error;
+						$this->responseClass->addMessage($message,'error_message');
+					}
+
+ 				if($result->num_rows > 0){
+					// echo $result->num_rows;
+					while($row = $result->fetch_assoc()){
+						$arr[] = $row;
+					}
+				}	
+
+				foreach ($arr as $key => $value) {
+					
+					$query = "INSERT INTO `".KP_MAIN_ROWS_GALLERY."` 
+							   SET 
+							   `parent_id` = '".$value['id']."',
+							   `img_name` = '".$value['img']."',
+							   `folder` = '".$value['img_folder']."'
+							  ";
+					$result = $this->mysqli->query($query);// or die();
+					if(!$result){
+						$message = $this->mysqli->error;
+						$this->responseClass->addMessage($message,'error_message');
+					}
+				}
+
+
+
+
+ 				$html = 'OK';	
+				$this->responseClass->addMessage($html,'successful_message','25000');
+ 			}
+
+
  			// запрос позиции
  			private function getPosition($id){
  				// запрос наличия выбранного изображения для данной строки

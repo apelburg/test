@@ -171,10 +171,12 @@
 				 }
 				 //echo '<br>'; print_r($expel);
 				
+				 $print_exists_flag = $uslugi_exists_flag = ''; 
+				 $summ_in = $summ_out = array();
 				 // работаем с информацией о дополнительных услугах определяя что будет выводиться и где
 				 // 1. определяем данные описывающие варианты нанесения логотипа, они хранятся в $dop_row['dop_uslugi']['print']
 				 if(isset($dop_row['dop_uslugi']['print'])){ // если $dop_row['dop_uslugi']['print'] есть выводим данные о нанесениях 
-					 $summ_in = $summ_out = array();
+					 
 					 foreach($dop_row['dop_uslugi']['print'] as $extra_data){
 					     // если количество в расчете нанесения не равно количеству в колонке тираж товара 
 						 // необходимо присвоить нанесениям такое же количество и пересчитать их
@@ -201,20 +203,11 @@
 						 $summ_in[] = $extra_data['quantity']*$extra_data['price_in'];
 						 $summ_out[] = $extra_data['quantity']*$extra_data['price_out'];
 					 }
-					 $print_btn = '<span>'.count($dop_row['dop_uslugi']['print']).'</span>'; 
-					 $print_exists_flag = 'yes';
-					 $print_in_summ = array_sum($summ_in);
-					 $print_out_summ = array_sum($summ_out);
+				     $print_exists_flag = '1'; 
 				 }
-				 else{// если данных по печати нет то проверяем выводим кнопку добавление нанесения
-					 $print_btn = '<span>+</span>';
-					 $print_exists_flag = 'no';
-					 $print_in_summ = 0;
-					 $print_out_summ = 0;
-				 }
+			
 				 // 2. определяем данные описывающие варианты дополнительных услуг, они хранятся в $dop_row['dop_uslugi']['extra']
 				 if(isset($dop_row['dop_uslugi']['extra'])){// если $dop_row['dop_uslugi']['extra'] есть выводим данные о дополнительных услугах 
-					 $summ_in = $summ_out = array();
 					 foreach($dop_row['dop_uslugi']['extra'] as $extra_data){
 					     // если количество в расчете доп услуг не равно количеству в колонке тираж товара 
 						 // необходимо присвоить доп услугам такое же количество
@@ -229,45 +222,61 @@
 						 $summ_in[] = ($extra_data['for_how']=='for_all')? $extra_data['price_in']:$extra_data['quantity']*$extra_data['price_in'];
 						 $summ_out[] = ($extra_data['for_how']=='for_all')? $extra_data['price_out']:$extra_data['quantity']*$extra_data['price_out'];
 					 }
-					 $dop_uslugi_btn =  '<span>'.count($dop_row['dop_uslugi']['extra']).'</span>';
-					 $extra_exists_flag = 'extra_exists_flag="1"';
-					 $dop_uslugi_in_summ = array_sum($summ_in);
-					 $dop_uslugi_out_summ = array_sum($summ_out);
-					 if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);
+					 $uslugi_exists_flag = '1'; 
+				 }
+			
+				 
+				 if(count($summ_in)>0){
+				     $uslugi_summ_in = array_sum($summ_in);
+					 $uslugi_summ_out = array_sum($summ_out);
+					 $uslugi_price_in = ($dop_row['quantity']==0)? $uslugi_summ_in:$uslugi_summ_in/$dop_row['quantity'];
+					 $uslugi_price_out = ($dop_row['quantity']==0)? $uslugi_summ_out:$uslugi_summ_out/$dop_row['quantity'];
+					 
+					 $uslugi_btn = '<span>'.count($summ_in).'</span>';
 				 }
 				 else{// если данных по дополнительным услугам  нет выводим кнопку добавление дополнительных услуг
-				     $extra_exists_flag = '';
-					 $dop_uslugi_in_summ = 0;
-					 $dop_uslugi_out_summ = 0;
-					 $dop_uslugi_btn = '<span>+</span>';
-					 if($test_data) $extra_open_data =($counter==0)? 0:'0';
+				     $uslugi_price_in = $uslugi_price_out = $uslugi_summ_in = $uslugi_summ_out = 0;
+				     $uslugi_btn = '<span>+</span>';
 				 }
-				 
+
+
 				 // подсчет сумм в ряду
-				 $price_out = ($dop_row['discount'] != 0 )? (($dop_row['price_out']/100)*(100 + $dop_row['discount'])) : $dop_row['price_out'] ;
+				 $item_price_out = ($dop_row['discount'] != 0 )? (($dop_row['price_out']/100)*(100 + $dop_row['discount'])) : $dop_row['price_out'] ;
 				 // 1. подсчитываем входящую сумму
-				 $price_in_summ = $dop_row['quantity']*$dop_row['price_in'];
-				 $in_summ = $price_in_summ;
-				 if(!(!!$expel["print"]))$in_summ += $print_in_summ;
-				 if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
+				 $item_summ_in = $dop_row['quantity']*$dop_row['price_in'];
+				 $in_summ = $item_summ_in;
+				 //if(!(!!$expel["print"]))$in_summ += $print_in_summ;
+				 //if(!(!!$expel["dop"]))$in_summ += $dop_uslugi_in_summ;
+				 
+				 $in_summ += $uslugi_summ_in;
+
+				 
 				 // 2. подсчитываем исходящую сумму 
-				 $price_out_summ =  $dop_row['quantity']*$price_out;
-				 $out_summ =  $price_out_summ;
-				 if(!(!!$expel["print"]))$out_summ += $print_out_summ;
-				 if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
+				 $item_summ_out =  $dop_row['quantity']*$item_price_out;
+				 $out_summ =  $item_summ_out;
+				 //if(!(!!$expel["print"]))$out_summ += $print_out_summ;
+				 //if(!(!!$expel["dop"]))$out_summ += $dop_uslugi_out_summ;
+				 
+				 $out_summ += $uslugi_summ_out;
 				 
 				 $delta = $out_summ-$in_summ; 
 				 $margin = ($in_summ>0 && $out_summ>0)?(($out_summ-$in_summ)/$out_summ)*100:0;
 				 
-				 $price_out = number_format($price_out,'2','.','');
-				 $price_in_summ_format = number_format($price_in_summ,'2','.','');
-				 $price_out_summ_format = number_format($price_out_summ,'2','.','');
-				 $print_in_summ_format = number_format($print_in_summ,'2','.','');
-				 $print_out_summ_format = number_format($print_out_summ,'2','.','');
-				 $dop_uslugi_in_summ_format = number_format($dop_uslugi_in_summ,'2','.','');
-				 $dop_uslugi_out_summ_format = number_format($dop_uslugi_out_summ,'2','.','');
-				 $in_summ_format = number_format($in_summ,'2','.','');
-				 $out_summ_format = number_format($out_summ,'2','.','');
+				 $item_price_out = number_format($item_price_out,'2','.','');
+				 $item_summ_in_format = number_format($item_summ_in,'2','.','');
+				 $item_summ_out_format = number_format($item_summ_out,'2','.','');
+				 //$print_in_summ_format = number_format($print_in_summ,'2','.','');
+				 //$print_out_summ_format = number_format($print_out_summ,'2','.','');
+				 //$dop_uslugi_in_summ_format = number_format($dop_uslugi_in_summ,'2','.','');
+				 //$dop_uslugi_out_summ_format = number_format($dop_uslugi_out_summ,'2','.','');
+				 $uslugi_summ_in_format = number_format($uslugi_summ_in,'2','.','');
+				 $uslugi_summ_out_format = number_format($uslugi_summ_out,'2','.','');
+				 $uslugi_price_in_format = number_format($uslugi_price_in,'2','.','');
+				 $uslugi_price_out_format = number_format($uslugi_price_out,'2','.','');
+				 $total_summ_in_format = number_format($in_summ,'2','.','');
+				 $total_summ_out_format = number_format($out_summ,'2','.','');
+				 $total_price_in_format = number_format($in_summ/$dop_row['quantity'],'2','.','');
+				 $total_price_out_format = number_format($out_summ/$dop_row['quantity'],'2','.','');
 				 $delta_format = number_format($delta,'2','.','');
 				 $margin_format = number_format($margin,'2','.','');
 		         $margin_currency = '%';
@@ -275,12 +284,10 @@
 				 $svetofor_stat = ($dop_row['row_status']=='')?'green':$dop_row['row_status'];
 				 // если ряд не исключен из расчетов добавляем значения в итоговый ряд
 				 if(!(!!$expel["main"]) && ($svetofor_stat=='sgreen' || $svetofor_stat=='green')){// && ( || $dop_row['row_status']=='')
-					 @$total['price_in_summ'] += $price_in_summ;
-					 @$total['price_out_summ'] += $price_out_summ;
-					 if(!(!!$expel["print"])) @$total['print_in_summ'] += $print_in_summ;
-					 if(!(!!$expel["print"])) @$total['print_out_summ'] += $print_out_summ;
-					 if(!(!!$expel["dop"])) @$total['dop_uslugi_in_summ'] += $dop_uslugi_in_summ;
-					 if(!(!!$expel["dop"])) @$total['dop_uslugi_out_summ'] += $dop_uslugi_out_summ;
+					 @$total['item_summ_in'] += $item_summ_in;
+					 @$total['item_summ_out'] += $item_summ_out;
+					 @$total['uslugi_summ_in'] += $uslugi_summ_in;
+					 @$total['uslugi_summ_out'] += $uslugi_summ_out;
 					 @$total['in_summ'] += $in_summ;
 					 @$total['out_summ'] += $out_summ;
 				 }
@@ -310,10 +317,10 @@
 			     $expel = array ("main"=>0,"print"=>0,"dop"=>0);
 				 $svetofor = '<img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status.'.png" onclick="rtCalculator.svetofor_display_relay(this,true);" class="svetofor_btn">';
 			     $svetofor_td_attrs = 'svetofor_btn';
-				 $currency = $print_btn = $dop_uslugi_btn = '';
-				 $price_out = $price_in_summ_format = $price_out_summ_format = $print_in_summ_format = $print_out_summ_format = '';
-				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $in_summ_format = $out_summ_format = '';
-				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $discount_str = $srock_sdachi = $print_exists_flag = $extra_exists_flag = $margin_currency = '';
+				 $currency = $uslugi_btn = '';
+				 $item_price_out = $item_summ_in_format = $item_summ_out_format = $print_in_summ_format = $print_out_summ_format = '';
+				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $total_summ_in_format = $total_summ_out_format = '';
+				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $discount_str = $srock_sdachi = $uslugi_exists_flag = $print_exists_flag = $margin_currency = $uslugi_summ_in = $uslugi_summ_out = $uslugi_price_in = $uslugi_price_out = $uslugi_summ_in_format = $uslugi_summ_out_format = $uslugi_price_in_format = $uslugi_price_out_format = $total_price_in_format = $total_price_out_format = '' ;
 				 
 				  
 			 }
@@ -323,7 +330,7 @@
 			  //echo $row['row_type'].' = ';
 			 if($row['row_type'] == 'cat'){ 
 				 $extra_panel = '<div class="pos_plank cat">
-								   <a href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'">654654  '.$row['art'].'</a>
+								   <a href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'">'.$row['art'].'</a>
 								   <div class="pos_link_plank">
 									  <div class="catalog">
 										  <a id="" href="/description/'.$row['art_id'].'/" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
@@ -373,32 +380,29 @@
 			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
 			               <td width="40" type="svetofor" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
 			               <td width="60" type="quantity" class="quantity right r_border"  editable="true">'.$dop_row['quantity'].'</td>
-						   <td width="90" type="price_in" editable="true" swiched_cols="art_price" c_stat="1" class="in right">'.$dop_row['price_in'].'</td>
-						   <td width="15" swiched_cols="art_price" c_stat="1" class="currency left">'.$currency.'</td>
-						   <td width="90" type="price_in_summ" swiched_cols="art_price" c_stat="0" class="in right hidden">'.$price_in_summ_format.'</td>
-						  
-						   <td width="15" swiched_cols="art_price" c_stat="0" class="currency left hidden">'.$currency.'</td>
-						   <td width="45" class="center" type="discount" its_rt="true" discount_fieid="1">'.$discount_str.'</td>
-						   <td width="90" type="price_out" editable="'.(($discount!=0)?'false':'true').'" swiched_cols="art_price" c_stat="1" class="out right">'.$price_out.'</td>
-						   <td width="15" class="currency left r_border" swiched_cols="art_price" c_stat="1" >'.$currency.'</td>
-						   <td width="90" type="price_out_summ"  swiched_cols="art_price" c_stat="0" class="out right hidden">'.$price_out_summ_format.'</td>
-						   <td width="15" swiched_cols="art_price" c_stat="0" class="currency left r_border hidden">'.$currency.'</td>
-						   <td width="25" class="calc_btn" calc_btn="print">'.$print_btn.'</td>
-                           <td type="print_exists_flag" class="hidden">'.$print_exists_flag.'</td>
-			               <td width="80" type="print_in_summ"  connected_vals="print" swiched_cols="summs" c_stat="0" class="test_data in hidden '.$expel_class_print.'" expel_suspended="'.$expel['print'].'">'.$print_in_summ_format.$currency.'</td> 
-			               <td width="80" type="print_out_summ"  connected_vals="print" swiched_cols="summs" c_stat="1" class="out '.$expel_class_print.'" expel_suspended="'.$expel['print'].'">'.$print_out_summ_format.$currency.'</td>
-			               <td width="25" class="calc_btn" calc_btn="extra" '.$extra_exists_flag.' data-id="'.$key.' ">'.$dop_uslugi_btn.'</td>';
+						   <td width="90" type="item_price_in" editable="true" class="in right">'.$dop_row['price_in'].'</td>
+						   <td width="15" type="item_summ_in" class="currency left" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$item_summ_in_format.$currency.'</div></td>
+						   <td width="90" type="item_price_out" editable="'.(($discount!=0)?'false':'true').'" class="out right">'.$item_price_out.'</td>
+						    <td width="15" type="item_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$item_summ_out_format.$currency.'</div></td>
+						   <td width="33" class="calc_btn" uslugi_btn="1" print_exists_flag="'.$print_exists_flag.'" uslugi_exists_flag="'.$uslugi_exists_flag.'" pos_id="'.$key.'">'.$uslugi_btn.'</td>
+			               <td width="80" type="uslugi_price_in" class="out right '.$expel_class_print.'" expel_suspended="'.$expel['print'].'">'.$uslugi_price_in_format.'</td>
+						   
+						   
+						   <td width="15" type="uslugi_summ_in" class="currency left" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$uslugi_summ_in_format.$currency.'</div></td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
-			 $cur_row .=  '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" swiched_cols="summs" c_stat="0" class="test_data r_border in hidden '.$expel_class_dop.'" expel_suspended="'.$expel['dop'].'">'.$dop_uslugi_in_summ_format.$currency.'</td>';
-			 $cur_row .=  '<td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" swiched_cols="summs" c_stat="1"  class="out r_border '.$expel_class_dop.'" expel_suspended="'.$expel['dop'].'">'.$dop_uslugi_out_summ_format.$currency.'</td>
-						   <td type="in_summ" connected_vals="total_summ" swiched_cols="summs" c_stat="0" swiched_cols="summs" class="total in right hidden '.$expel_class_main.'"  expel="'.$expel['main'].'">'.$in_summ_format.'</td>
-						   <td width="15" connected_vals="total_summ" swiched_cols="summs" c_stat="0" class="currency hidden r_border '.$expel_class_main.'">'.$currency.'</td>
-						   <td type="out_summ" connected_vals="total_summ" swiched_cols="summs" c_stat="1" class="total out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$out_summ_format.'</td>
-						   <td width="15" connected_vals="total_summ" swiched_cols="summs" c_stat="1" class="currency r_border left '.$expel_class_main.'">'.$currency.'</td>
+			             $cur_row .=  '<td width="80" type="uslugi_price_out" class="out right '.$expel_class_dop.'" expel_suspended="'.$expel['dop'].'">'.$uslugi_price_out_format.'</td>
+			 
+			               <td width="15" type="uslugi_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$uslugi_summ_out_format.$currency.'</div></td>
+			 
+			               <td width="45" class="center" type="discount" its_rt="true" discount_fieid="1">'.$discount_str.'</td>
+						   <td type="total_price_in" c_stat="0" swiched_cols="summs" class="total in right hidden '.$expel_class_main.'"  expel="'.$expel['main'].'">'.$total_price_in_format.'</td>
+						   <td width="15" type="total_summ_in" swiched_cols="summs" c_stat="0" class="currency hidden r_border '.$expel_class_main.'" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$total_summ_in_format.$currency.'</div></td>
+						   <td type="total_price_out" swiched_cols="summs" c_stat="1" class="total out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$total_price_out_format.'</td>
+						   <td width="15" type="total_summ_out" swiched_cols="summs" c_stat="1" class="currency r_border left '.$expel_class_main.'" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$total_summ_out_format.$currency.'</div></td>
 						   <td width="70" class="grey r_border center">'.$srock_sdachi.'</td>
 						   <td type="delta" class="delta right">'.$delta_format.'</td>
-						   <td width="10" class="left">'.$currency.'</td>
-						   <td type="margin" class="margin center">'.$margin_format.$margin_currency.'</td>
+						   <td type="margin" width="10" class="left" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:3px;color:#ccc;">'.$margin_format.$margin_currency.'</div></td>
+						   <td></td>
 						  <!-- <td raschet_status="1" style="position: relative;overflow:hidden;white-space: nowrap;"  tooltip="'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>-->
 						<td></td>
 						</tr>';
@@ -426,39 +430,33 @@
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
 				  <td class="art_name right">
-				      <!--<a href="#" onclick="/*console.log(rtCalculator.tbl_model);*/print_r(rtCalculator.tbl_model);">_</a>&nbsp;
-					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>&nbsp;
+				      <a href="#" onclick="console.log(rtCalculator.tbl_model);/**/print_r(rtCalculator.tbl_model);">_</a>&nbsp;
+					  <!--<a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>&nbsp;
 					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:3,quantity:1});">_</a>-->
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
 				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status_all.'.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
 				  <td width="60" type="quantity" class="quantity right r_border">тираж</td>
-				  <td width="90" swiched_cols="art_price" c_stat="1" class="grey w_border  right pointer">$ товара<br><span class="small">входящая штука</span></td>
-				  <td width="15" swiched_cols="art_price" c_stat="1" class="grey w_border"></td>
-				  <td width="90" swiched_cols="art_price" c_stat="0" class="grey w_border right hidden pointer">$ товара<br><span class="small">входящая тираж</span></td>
-				  <td width="15" swiched_cols="art_price" c_stat="0" class="grey w_border hidden"></td>
-				  <td width="45" class="grey w_border">наценка</td>
-				  <td width="90" swiched_cols="art_price" c_stat="1" class="grey w_border right pointer">$ товара<br><span class="small">исходящая штука</span></td>
-				  <td width="15" swiched_cols="art_price" c_stat="1" class="grey w_border r_border"></td>
-				  <td width="90" swiched_cols="art_price" c_stat="0" class="grey w_border right pointer hidden">$ товара<br><span class="small">исходящая тираж</span></td>
-				  <td width="15" swiched_cols="art_price" c_stat="0" class="grey w_border r_border hidden"></td>
-				  <td width="25"></td>
-	              <td class="hidden">нанес подробн</td>
-	              <td width="80" connected_vals="print" swiched_cols="summs"  c_stat="0" class="pointer hidden">$ печать<br><span class="small">входящая тираж</span></td> 	  
-			      <td width="80" connected_vals="print" swiched_cols="summs"  c_stat="1" class="pointer">$ печать<br><span class="small">исходящая тираж</span></td>
-			      <td width="25"></td>';
+				  <td width="90" class="grey w_border relative"><div class="cap_name" style="left:80px;">сувенир</div><br><div class="cap_subname">входящая</div></td>
+				  <td width="15" class="grey w_border"></td>
+				  <td width="90" class="grey w_border"><br><div class="cap_subname">исходящая</div></td>
+				  <td width="15" class="grey w_border r_border"></td>
+				  <td width="33">кол-во</td>
+			      <td width="80" class="relative"><div class="cap_name">дополнительные услуги</div><br><div class="cap_subname">входящая</div></td>
+			      <td width="15"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
-           $rt.= '<td width="80"  connected_vals="uslugi" swiched_cols="summs"  c_stat="0" class="pointer r_border hidden">$ доп. услуги<br><span class="small">входящая тираж</span></td> 
-			      <td width="80"  connected_vals="uslugi" swiched_cols="summs"  c_stat="1" class="out pointer r_border">$ доп. услуги<br><span class="small">исходящая тираж</span></td>
-				  <td connected_vals="total_summ" c_stat="0" swiched_cols="summs"  class="total pointer hidden center">итого<br><span class="small">входящая</span></td>
-				  <td width="15" connected_vals="total_summ" swiched_cols="summs"  c_stat="0" class="hidden r_border"></td>
-				  <td connected_vals="total_summ" swiched_cols="summs"  c_stat="1" class="total pointer center">итого<br><span class="small">исходящая</span></td>
-				  <td width="15" connected_vals="total_summ" swiched_cols="summs"  c_stat="1" class="r_border"></td>
+           $rt.= '<td width="80" class="out pointer"><br><div class="cap_subname">исходящая</div></td>
+				  <td width="15" class="r_border"></td>
+				  <td width="45" class="grey w_border">наценка<br><span class="small">ср. знач-е</span></td>
+				  <td swiched_cols="summs" c_stat="0" class="total pointer hidden right">итого<br><span class="small">входящая</span></td>
+				  <td width="15" swiched_cols="summs" c_stat="0" class="hidden r_border"></td>
+				  <td swiched_cols="summs"  c_stat="1" class="total pointer right">итого<br><span class="small">исходящая</span></td>
+				  <td width="15" swiched_cols="summs" c_stat="1" class="r_border"></td>
 				  <td width="70" class="center grey r_border">срок сдачи</td>
-				  <td class="delta right">delta</td>
+				  <td class="delta right">маржа</td>
 				  <td width="10"></td>
-				  <td class="margin center">маржина-<br>льность</td>
+				  <td class="margin center"></td>
 				  <td><!--статус--></td>';              
 	    $rt.= '</tr>
 	           <tr row_id="total_row" class="grey bottom_border">
@@ -469,29 +467,23 @@
 				  <td class="hidden"></td>
 				  <td class="right"></td>
 				  <td class="hidden">dop_details</td>
-				  <td></td>
+				  <td width="15"></td>
 				  <td class="quantity r_border"></td>
-				  <td swiched_cols="art_price" c_stat="1"></td>
-				  <td width="15" swiched_cols="art_price" c_stat="1"></td>
-				  <td type="price_in_summ" swiched_cols="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_in_summ'],'2','.','').'</td>
-				  <td width="15" swiched_cols="art_price" c_stat="0" class="hidden">р</td>
-				  <td width="45" class=""></td>
-				  <td swiched_cols="art_price" c_stat="1"></td>
-				  <td width="15" swiched_cols="art_price" c_stat="1" class="r_border"></td>
-				  <td type="price_out_summ" swiched_cols="art_price" c_stat="0" class="right hidden">'.number_format(@$total['price_out_summ'],'2','.','').'</td>
-				  <td width="15" swiched_cols="art_price" c_stat="0" class="r_border hidden">р</td>
-				  <td></td>
-	              <td class="hidden">нанес подробн</td>
-	              <td type="print_in_summ" connected_vals="print" swiched_cols="summs" c_stat="0" class="hidden">'.number_format(@$total['print_in_summ'],'2','.','').'р</td> 		  
-			      <td type="print_out_summ" connected_vals="print" swiched_cols="summs" c_stat="1">'.number_format(@$total['print_out_summ'],'2','.','').'р</td>
-			      <td></td>';
+				  <td type="item_summ_in" class="right">'.number_format(@$total['item_summ_in'],'2','.','').'</td>
+				  <td width="15">р</td>
+				  <td type="item_summ_out" class="right">'.number_format(@$total['item_summ_out'],'2','.','').'</td>
+				  <td width="15" class="r_border">р</td>
+				  <td></td>	  
+			      <td type="uslugi_summ_in" class="right">'.number_format(@$total['uslugi_summ_in'],'2','.','').'</td>
+			      <td>р</td>';
     if($test_data)	$rt.= '<td class="test_data_cap"></td>';
-           $rt.= '<td width="80" type="dop_uslugi_in_summ" connected_vals="uslugi" swiched_cols="summs" c_stat="0"  class="r_border hidden">'.number_format(@$total['dop_uslugi_in_summ'],'2','.','').'р</td> 
-			      <td width="80" type="dop_uslugi_out_summ" connected_vals="uslugi" swiched_cols="summs" c_stat="1" class="out r_border">'.number_format(@$total['dop_uslugi_out_summ'],'2','.','').'р</td>
-			      <td type="in_summ" connected_vals="total_summ" swiched_cols="summs"c_stat="0" class="right hidden">'.number_format(@$total['in_summ'],'2','.','').'</td>
-				  <td width="15" connected_vals="total_summ" swiched_cols="summs" c_stat="0" class="left hidden r_border">р</td>
-				  <td  type="out_summ" connected_vals="total_summ" swiched_cols="summs" c_stat="1" class="right">'.number_format(@$total['out_summ'],'2','.','').'</td>
-				  <td width="15" connected_vals="total_summ" swiched_cols="summs" c_stat="1" class="left r_border">р</td>
+           $rt.= '<td width="80" type="uslugi_summ_out" class="out right">'.number_format(@$total['uslugi_summ_out'],'2','.','').'</td>
+				  <td width="" class="r_border">р</td>
+				  <td width="45" class=""></td>
+			      <td type="total_summ_in" swiched_cols="summs" c_stat="0" class="right hidden">'.number_format(@$total['in_summ'],'2','.','').'</td>
+				  <td width="15" swiched_cols="summs" c_stat="0" class="left hidden r_border">р</td>
+				  <td type="total_summ_out" swiched_cols="summs" c_stat="1" class="right">'.number_format(@$total['out_summ'],'2','.','').'</td>
+				  <td width="15" swiched_cols="summs" c_stat="1" class="left r_border">р</td>
 				  <td width="70" class="grey r_border"></td>
 				  <td type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>

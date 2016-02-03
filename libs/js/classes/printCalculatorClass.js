@@ -39,46 +39,13 @@ var printCalculator = {
 		
 	}
 	,
-	start_calculator:function(e){
-	    e = e || window.event;
-		var cell = e.target || e.srcElement;
-		// метод срабатывающий первым ( изначально ) при клике по значку обозначаещему нанесения в РТ
+	start_calculator:function(dataObj){
+		//console.log(dataObj);
 		
-		//if(cell.parentNode.getAttribute('calc_btn') == 'print') alert('калькулятор нанесения логотипа');
-		//if(cell.parentNode.getAttribute('calc_btn') == 'extra') alert('калькулятор доп. услуг');
-		// определяем из какой ячейки сделан вызов калькулятора ( могут быть - нанесение или доп услуги)
-		var calculator_type = cell.parentNode.getAttribute('calc_btn');
-		
-        // родительский тэг tr
-		var trTag = cell.parentNode.parentNode;
-		// id - артикула
-		var art_id = trTag.getAttribute('art_id');
-		// id - родительского ряда (ряда рассчета) (ряда в таблице os__rt_dop_data)
-		var dop_data_row_id = trTag.getAttribute('row_id');
-		
-		// скидка 
-		//printCalculator.discount = ($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1);
-		printCalculator.discount = ($(trTag).find( "td[discount_fieid]" ).text()).slice(0,-1);
-		
-		// определяем количество товара (берем данные из ячейки quantity данного ряда)
-		var tdsArr = trTag.getElementsByTagName('TD');
-		//alert(tdsArr);
-		for(var i =0;i < tdsArr.length;i++){
-			if(tdsArr[i].getAttribute('type') && tdsArr[i].getAttribute('type')=='quantity'){
-				var quantity = parseInt(tdsArr[i].innerHTML);
-			} 
-		}
-		if(typeof quantity === 'undefined'){
-			echo_message_js('Не удается получить данные о количестве товара!!!','system_message',3800);
-			return;
-		}
-		if(quantity === 0){
-		    echo_message_js('Расчет не возможен, тираж 0шт. !!!','system_message',3800);
-			return;
-		}
-		
-		
-		if(calculator_type == 'print'){
+		if(dataObj.calculator_type == 'print'){
+			// скидка 
+			printCalculator.discount = dataObj.discount;
+			
 			// ДВА ЭТАПА
 			// 1. отправляем запрос проверяющий есть ли расчеты дополнительных услуг для этого расчета
 			//    если есть получаем в ответ массив с данными если нет получаем пустой массив
@@ -86,14 +53,14 @@ var printCalculator = {
 			//    расчетов дополнительных услуг, если массив был пустой вызываем метод запускающий калькулятор
 			
 			// этап 1
-			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_dop_uslugi_for_row='+dop_data_row_id,'section');
+			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_dop_uslugi_for_row='+dataObj.dop_data_row_id,'section');
 			printCalculator.send_ajax(url,callback);
 			function callback(response){ 
 			    // alert(response);
 				// этап 1
 				if(typeof data_AboutPrintsArr !== 'undefined') delete data_AboutPrintsArr;
 				var data_AboutPrintsArr = JSON.parse(response);
-				printCalculator.dataObj_toEvokeCalculator = {"art_id":art_id,"dop_data_row_id":dop_data_row_id,"quantity":quantity,"cell":cell};
+				printCalculator.dataObj_toEvokeCalculator = {"art_id":dataObj.art_id,"dop_data_row_id":dataObj.dop_data_row_id,"quantity":dataObj.quantity,"cell":dataObj.cell};
 				
 				if(data_AboutPrintsArr.length == 0){
 					
@@ -105,32 +72,26 @@ var printCalculator = {
 					printCalculator.launch_dop_uslugi_panel(data_AboutPrintsArr);
 				}
 			}
-			/**/
-		//alert(quantity);
-		
 		}
-		else if(calculator_type == 'extra'){
+		else if(dataObj.calculator_type == 'extra'){
 			/**
 			 *	запрос окна добавления доп услуги
 			 *  @author  Алексей	
 			 *	@versoin 18:44 МСК 27.09.2015 		
 			 */
-			 var discount =  ($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1);
-			$.post(location.href+'&id='+cell.parentNode.getAttribute("data-id"), 
+			$.post(location.href+'&id='+dataObj.cell.parentNode.getAttribute("pos_id"), 
 				{
 					AJAX:"get_uslugi_list_Database_Html",
-					quantity:quantity,
-					dop_row_id:dop_data_row_id,
-					art_id:art_id,
+					quantity:dataObj.quantity,
+					dop_row_id:dataObj.dop_data_row_id,
+					art_id:dataObj.art_id,
 					for_all:1,
-					discount:discount
+					discount:dataObj.discount
 
 				}, function(data, textStatus, xhr) {
 					standard_response_handler(data);			
 			},'json');
-			
-		}
-		
+		}	
 	}
 	,
 	launch_dop_uslugi_panel:function(data_AboutPrintsArr){
@@ -282,7 +243,7 @@ var printCalculator = {
 		
 		document.body.appendChild(box);
 		// открываем панель
-		$("#calculatorDopUslugiBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Печать для этой позиции",modal:true,width: 730,close: function() {this.remove();$("#calculatorDopUslugiBox").remove();}});
+		$("#calculatorDopUslugiBox").dialog({autoOpen: false, position:{ at: "top+35%", of: window } ,title: "Печать для этой позиции",modal:true,width: 730,close: function() {$(this).remove();$("#calculatorDopUslugiBox").remove();}});
 		$("#calculatorDopUslugiBox").dialog("open");
 	}
 	,
@@ -493,6 +454,8 @@ var printCalculator = {
 						   // тоесть к нему можно все применять - так как не указано ничего конкретно
 						   // но если dop_details_obj.allowed_prints есть, то мы начинаем проверять на наличие в ней:
 						   // сначала вложенности указывающей конкретное place_id 
+						   // при этом если place_id =='0' || place_id =='-1' то мы ни чего не проверяем потомучто таких place_id в
+						   // dop_details_obj.allowed_prints не может быть из-за того что то исскуственно созданые для калькулятора
 						   // потом  вложенности указывающей конкретное print_id 
 						   // если все сошлось значит такое нанесение на таком месте к этой позиции можно применить 
 						   // причем сначала надо проверить первую вложенность а затем только вторую иначе может вылезти ошибка если  
@@ -510,11 +473,18 @@ var printCalculator = {
 
 							   console.log('print_id',printCalculator.currentCalculationData.print_details.print_id);
 							  
-							   var flag = true;
-							   for(var place_id in dop_details_obj.allowed_prints){
-								   if(typeof dop_details_obj.allowed_prints[place_id][printCalculator.currentCalculationData.print_details.print_id] !=='undefined')  flag = false;
-							   }
-							   if(flag) continue outerloop;
+							  
+							  if(printCalculator.currentCalculationData.print_details.place_id =='0' || printCalculator.currentCalculationData.print_details.place_id =='-1'){
+
+								   var flag = true;
+								   for(var place_id in dop_details_obj.allowed_prints){
+									   if(typeof dop_details_obj.allowed_prints[place_id][printCalculator.currentCalculationData.print_details.print_id] !=='undefined')  flag = false;
+								   }
+								   if(flag) continue outerloop;
+							  }
+							  else{
+								  if(typeof dop_details_obj.allowed_prints[printCalculator.currentCalculationData.print_details.place_id][printCalculator.currentCalculationData.print_details.print_id] ==='undefined') continue outerloop;
+							  }
 
 						   }
 						   
@@ -1079,7 +1049,14 @@ var printCalculator = {
 			
 		}
 		
-		if(CurrPrintTypeData['sizes'] && CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id]){
+		
+		console.log('wwwwwwwwwwwwwwwwwwwwwww');
+		console.log('place_id',printCalculator.currentCalculationData.print_details.place_id);
+		console.log(CurrPrintTypeData);
+		
+		var place_id_for_sizes = (printCalculator.currentCalculationData.print_details.place_id =='-1')?0:printCalculator.currentCalculationData.print_details.place_id;
+		
+		if(CurrPrintTypeData['sizes'] && CurrPrintTypeData['sizes'][place_id_for_sizes]){
 			// собираем данные для расчета
 			// площади нанесения
 			// if(typeof printCalculator.dataForProcessing['coefficients'] === 'undefined') printCalculator.dataForProcessing['coefficients']={};
@@ -1098,29 +1075,29 @@ var printCalculator = {
 				
 				printCalculator.makeProcessing();
 			}
-			for(var id in CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id]){
+			for(var id in CurrPrintTypeData['sizes'][place_id_for_sizes]){
 				if(typeof printCalculator.currentCalculationData.print_details.dop_params.sizes === 'undefined'){
 					printCalculator.currentCalculationData.print_details.dop_params.sizes = [];
-					printCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id'],'coeff':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['percentage'],'val':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['val'],'type':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['type'],'target':CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['target']};
+					printCalculator.currentCalculationData.print_details.dop_params.sizes[0] = {'id':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['item_id'],'coeff':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['percentage'],'val':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['val'],'type':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['type'],'target':CurrPrintTypeData['sizes'][place_id_for_sizes][id]['target']};
 				}
 				
 				
 				var option = document.createElement('OPTION');
 
 
-				option.setAttribute("value",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['percentage']);
+				option.setAttribute("value",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['percentage']);
 				// id значения (размер нанесения) который будет сохранен в базу данных и по нему будет отстроен калькулятор 
 				// в случае вызова по кокретному нанесению
-				option.setAttribute("item_id",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id']);
-				option.setAttribute("val",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['val']);
-				option.setAttribute("type",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['type']);
-				option.setAttribute("target",CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['target']);
+				option.setAttribute("item_id",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['item_id']);
+				option.setAttribute("val",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['val']);
+				option.setAttribute("type",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['type']);
+				option.setAttribute("target",CurrPrintTypeData['sizes'][place_id_for_sizes][id]['target']);
 				
 				
-				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['size']));
+				option.appendChild(document.createTextNode(CurrPrintTypeData['sizes'][place_id_for_sizes][id]['size']));
 				printSizesSelect.appendChild(option);
 				
-				if(printCalculator.currentCalculationData.print_details.dop_params.sizes && printCalculator.currentCalculationData.print_details.dop_params.sizes[0].id == CurrPrintTypeData['sizes'][printCalculator.currentCalculationData.print_details.place_id][id]['item_id']){
+				if(printCalculator.currentCalculationData.print_details.dop_params.sizes && printCalculator.currentCalculationData.print_details.dop_params.sizes[0].id == CurrPrintTypeData['sizes'][place_id_for_sizes][id]['item_id']){
 					option.setAttribute("selected",true);
 					
 				}
@@ -1781,7 +1758,7 @@ var printCalculator = {
 			BtnsDiv.appendChild(showProcDetBtn);
 			
 			var saveBtn = document.createElement('DIV');
-			saveBtn.className = 'saveBtn';
+			saveBtn.className = 'ovalBtn';
 			saveBtn.innerHTML = 'Сохранить расчет';
 			saveBtn.onclick =  printCalculator.saveCalculatorResult;
 			

@@ -1021,8 +1021,9 @@ $(document).on('change','.status_snab select',function(){
 //////////////////////////
 
 // запрос - прикрепить / сменить менеджера
-$(document).on('click', '.attach_the_manager', function(event) {
-	var client_id = Number($(this).parent().parent().parent().find('.attach_the_client').attr('data-id'));
+$(document).on('click', '.attach_the_manager,.attach_the_manager_any', function(event) {
+	event.stopImmediatePropagation();
+	var client_id = Number($(this).parent().parent().parent().find('.js--client_td').attr('data-id'));
 	var manager_id = Number($(this).attr('data-id'));
 	var rt_list_id = Number($(this).parent().parent().parent().attr('data-id'));
 	$.post('', {
@@ -1037,21 +1038,21 @@ $(document).on('click', '.attach_the_manager', function(event) {
 });
 
 // запрос - назначить несколько менеджеров
-$(document).on('click', '.attach_the_manager_any', function(event) {
-	var client_id = Number($(this).attr('data-client_id'));
-	var row_id = Number($(this).attr('data-row_id'));
-	var managers_id_str = $(this).find('.managers_id_str').html();
-	$.post('', {
-		AJAX:'get_choose_curators_edit',
-		client_id:client_id,
-		row_id:row_id,
-		managers_id_str:managers_id_str
+// $(document).on('click', '.attach_the_manager_any', function(event) {
+// 	var client_id = Number($(this).attr('data-client_id'));
+// 	var row_id = Number($(this).attr('data-row_id'));
+// 	var managers_id_str = $(this).find('.managers_id_str').html();
+// 	$.post('', {
+// 		AJAX:'get_choose_curators_edit',
+// 		client_id:client_id,
+// 		row_id:row_id,
+// 		managers_id_str:managers_id_str
 
-	}, function(data, textStatus, xhr) {
-		// show_dialog_and_send_POST_window(data,'Выбрать менеджера');
-		standard_response_handler(data);
-	},'json');
-});
+// 	}, function(data, textStatus, xhr) {
+// 		// show_dialog_and_send_POST_window(data,'Выбрать менеджера');
+// 		standard_response_handler(data);
+// 	},'json');
+// });
 
 
 // запрос - прикрепить / сменить клиента
@@ -2395,6 +2396,7 @@ $(window).load(function() {
 
 	$(document).on('click', '#get_commands_men_for_query li', function(event) {
 		$('#dialog_gen_window_form input[name="query_status"]').val($(this).attr('data-name_en'));
+		$('#dialog_gen_window_form input[name="AJAX"]').val($(this).attr('data-ajax'));
 	});
 
 	$(document).on('click', '#get_commands_men_for_order li', function(event) {
@@ -2613,15 +2615,36 @@ function reload_paperwork_tbl(){
 }
 
 // перезагрузка таблицы заказов
-function reload_order_tbl(){
-	if($('#general_panel_orders_tbl').length){
-		window_preload_add();
-		$('#general_panel_orders_tbl').load(' #general_panel_orders_tbl',function(){
-			window_preload_del();
-		});	
+function reload_order_tbl(data){
+	if( data.timeout === undefined ){
+			if($('#general_panel_orders_tbl').length){
+				window_preload_add();
+				$('#general_panel_orders_tbl').load(' #general_panel_orders_tbl',function(){
+					window_preload_del();
+					// подсветка строки при наведении на ячейки запроса, которые вызывают меню
+					$('#general_panel_orders_tbl .order_head_row td.show_main_menu').hover(function(event){
+						$(this).parent().addClass('hover_class');
+					},function(event){
+						$(this).parent().removeClass('hover_class');
+					});
+				});	
+			}else{
+				reload_paperwork_tbl();
+			}
 	}else{
-		reload_paperwork_tbl();
-	}
+		setTimeout(function(){
+			if($('#general_panel_orders_tbl').length){
+				window_preload_add();
+				$('#general_panel_orders_tbl').load(' #general_panel_orders_tbl',function(){
+					window_preload_del();
+				});	
+			}else{
+				reload_paperwork_tbl();
+			}
+		}, data.timeout)
+
+	}	
+	
 }
 // перезагрузка таблицы предзаказа
 function reload_paperwork_tbl(){
@@ -2629,6 +2652,12 @@ function reload_paperwork_tbl(){
 		window_preload_add();
 		$('#cabinet_general_content_row').load(' #cabinet_general_content_row',function(){
 			window_preload_del();
+			// подсветка строки при наведении на ячейки запроса, которые вызывают меню
+			$('#general_panel_orders_tbl .order_head_row td.show_main_menu').hover(function(event){
+				$(this).parent().addClass('hover_class');
+			},function(event){
+				$(this).parent().removeClass('hover_class');
+			});
 		});	
 	}else{
 		reload_order_tbl();
@@ -3284,20 +3313,20 @@ $(document).on('click', '.order_status_chenge', function(event) {
 
 
 // запрос на изменение статуса запроса
-$(document).on('click', '.query_status', function(event) {
-	event.preventDefault();
-	var row_id = $(this).parent().attr('data-id');
-	var client_id = $(this).prev().prev().prev().prev().prev().prev().prev().attr('data-id');
-	var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().prev().find('a').html());
-	$.post('', {
-		AJAX: 'get_command_for_change_status_query',
-		row_id:row_id,
-		client_id:client_id,
-		query_num:query_num
-	}, function(data, textStatus, xhr) {
-		standard_response_handler(data);
-	},'json');
-});
+// $(document).on('click', '.query_status', function(event) {
+// 	event.preventDefault();
+// 	var row_id = $(this).parent().attr('data-id');
+// 	var client_id = $(this).prev().prev().prev().prev().prev().prev().prev().attr('data-id');
+// 	var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().prev().find('a').html());
+// 	$.post('', {
+// 		AJAX: 'get_command_for_change_status_query',
+// 		row_id:row_id,
+// 		client_id:client_id,
+// 		query_num:query_num
+// 	}, function(data, textStatus, xhr) {
+// 		standard_response_handler(data);
+// 	},'json');
+// });
 
 // клик по фильтру
 $(document).on('click', '.filter_class', function(event) {
@@ -3361,5 +3390,29 @@ $(document).on('click', '#general_panel_orders_tbl tr td.rt_href_click', functio
 	
 });
 
+$(document).ready(function(event) {
+	$('#general_panel_orders_tbl .order_head_row td.show_main_menu').hover(function(event){
+		$(this).parent().addClass('hover_class');
+	},function(event){
+		$(this).parent().removeClass('hover_class');
+	})
+})
+
+$(document).on('click','.show_main_menu',function(){
+	event.preventDefault();
+	var row_id = $(this).parent().attr('data-id');
+	var client_id = $(this).parent().find('td:nth-of-type(3)').attr('data-id');
+	// var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().prev().find('a').html());
+	var query_num = Number($(this).parent().find('td:nth-of-type(2) a').html());
+
+	$.post('', {
+		AJAX: 'get_command_for_change_status_query',
+		row_id:row_id,
+		client_id:client_id,
+		query_num:query_num
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
 
 

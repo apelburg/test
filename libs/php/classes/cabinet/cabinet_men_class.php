@@ -15,7 +15,7 @@
 		'denied' => 'ТЗ не корректно',
 		'query_variant_in_pause' => 'На паузе',
 		'query_denided_variants' => 'Отказанные',
-		'query_history' => 'История',
+		'query_history' => 'Архив',
 		'query_all' => 'Все',
 
 

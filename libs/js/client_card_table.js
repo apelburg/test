@@ -610,7 +610,13 @@ $(function(){
 //
 // окно создания клиента
 $(document).on('click','#create_new_client',function(){
-    $('#create_client').dialog('open');
+    // $('#create_client').dialog('open');
+    $.post('', {
+        AJAX: 'get_form_the_create_client',
+        options:'for_me'
+    }, function(data, textStatus, xhr) {
+        standard_response_handler(data);
+    },'json');
 });
 $(function(){
     $('#create_client').dialog({

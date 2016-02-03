@@ -64,6 +64,7 @@ body{
   -webkit-box-shadow:  0px 0px 1px 1px #EEE;
   background-image:url(../images/img_design/some_btn_bg.png)
 }
+.ovalBtn {border:#CCC solid 1px;border-radius: 30px; padding:10px 35px; color:#FFFFFF; cursor:pointer; background-color:#99B52A}
 button.CommonRightBtn{
    float:right;
    margin:20px 5px 10px 5px;
@@ -119,7 +120,6 @@ button.CommonRightBtn{
   
   border:#000000 solid 0px;
 }
-
 .main_menu_tbl td a{
   text-decoration:none;
   color:#fff;padding: 3px 10px;
@@ -139,6 +139,41 @@ button.CommonRightBtn{
 #authentication_menu_div a{
   color:#000;
 }
+#authentication_menu_div{
+  float: left;
+  width: 250px
+}
+
+#authentication_menu_div div a nobr {
+    float: left;
+    width: 98%;
+    /*background: rosybrown;*/
+    padding: 2px 3px;
+    margin: 0;
+}
+#authentication_menu_div div,
+#authentication_menu_div div a,
+#authentication_menu_div div a nobr{
+  padding: 0;
+  width: 100%;
+  float: left;
+  margin: 0;
+}
+#authentication_menu_div div a nobr{
+  padding-top: 5px;
+  padding-left: 4%;
+  padding-right: 10%;
+  width: 86%;
+  padding-bottom: 5px;
+}
+#authentication_menu_div div a {
+  /*padding: 2px*/
+}
+#authentication_menu_div div a nobr:hover{
+  background: #f1f1f1;
+}
+
+
 .main_menu_tbl .authentication_plank_tbl{
   width:100%;
   /*background-color:#FFC18D;*/
@@ -1798,7 +1833,7 @@ ul.central_menu li a:hover{
 #calculatorDialogBox .itogDisplayTbl td.title{ width: 70px; text-align: left; font-size: 12px; font-weight:100;}
 #calculatorDialogBox .BtnsDiv{margin:2px 0 10px 77px; width: 585px; height:45px; border:#CCC solid 0px;}
 #calculatorDialogBox .showProcessingDetailsBtn{ float:left; border:#CCC solid 1px;border-radius: 30px; padding:10px 25px;cursor:pointer}
-#calculatorDialogBox .saveBtn {float:left; margin-left: 120px; border:#CCC solid 1px;border-radius: 30px; padding:10px 25px; color:#FFFFFF; cursor:pointer; background-color:#99B52A}
+#calculatorDialogBox .ovalBtn {float:left; margin-left: 120px;}
 #calculatorDialogBox .saveBtn:hover {background-color:#b8e34b}
 #calculatorDialogBox .distributionSaveBtn { float:right; margin:12px 65px 12px 0 ; color:#FFFFFF;border-radius:30px; border:#CCC solid 1px;padding:10px 25px;cursor:pointer; background-color:#99B52A}
 #calculatorDialogBox .distributionSaveBtn:hover {background-color:#b8e34b}
@@ -2775,3 +2810,53 @@ div#type_product_cirilic_name_form{
 }
 
 
+
+.notifyjs-foo-base {
+  opacity: 0.85;
+  width: 200px;
+  background: #F5F5F5;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.notifyjs-foo-base .title {
+  width: 100px;
+  float: left;
+  margin: 10px 0 0 10px;
+  text-align: right;
+}
+
+.notifyjs-foo-base .buttons {
+  width: 70px;
+  float: right;
+  font-size: 9px;
+  padding: 5px;
+  margin: 2px;
+}
+
+.notifyjs-foo-base button {
+  font-size: 9px;
+  padding: 5px;
+  margin: 2px;
+  width: 60px;
+}
+
+.notify-no{
+  font-weight: bold;
+  background: none;
+  border: none;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  cursor: pointer;
+  display: block;
+  overflow: hidden;
+  width: 25px;
+  height: 25px;
+  opacity: .4;
+  border:1px solid transparent;
+}
+.notify-no:hover{
+  border:1px solid rgba(0, 0, 0, 0.56);
+  border-radius: 5px;
+}

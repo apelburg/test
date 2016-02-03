@@ -2735,111 +2735,270 @@
 			// вывод меню комманд по запросу
 			protected function get_command_for_change_status_query_AJAX(){
 				
+				// global $mysqli;
+				// // запрос информации по заказу
+				// $query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['row_id']."';";
+				// $this->Query = array();
+				// // echo $query;
+				// $result = $mysqli->query($query) or die($mysqli->error);
+				// if($result->num_rows > 0){
+				// 	while($row = $result->fetch_assoc()){
+						$this->Query = $this->get_query((int)$_POST['row_id']);
+				// 	}
+				// }
+				unset($_POST['AJAX']);
+				$Query_menu = new CabinetMainMenu($this->Query, array('access'=>$this->user_access,'id'=>$this->user_id));
+				
+				return $Query_menu;
+				
+				echo 'asd';
+				exit;
+
+			}
+
+			// возврат запроса в отдел прадаж (ожидают распределения)
+			protected function command_not_process_admin_AJAX(){
+				$query = "UPDATE  `".RT_LIST."` SET ";
+				$query .= " `manager_id` = '24'";
+				// 2) меняем статус на "на рассмотрении" - taken_into_operation
+				$query .= ", `status` = 'not_process'";
+				
+				$query .= ", `dop_managers_id` = ''";
+				
+				$query .= " WHERE `id` = '".(int)$_POST['row_id']."'";
 				global $mysqli;
-				// запрос информации по заказу
-				$query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['row_id']."';";
-				$this->Query = array();
-				// echo $query;
+
 				$result = $mysqli->query($query) or die($mysqli->error);
-				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						$this->Query = $row;
-					}
+				$Query = $this->get_query((int)$_POST['row_id']);
+				// echo '<pre>';
+				// print_r($Query);
+				// echo '</pre>';
+				$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section=requests&subsection=query_wait_the_process';
+				$this->responseClass->addResponseFunction('location_href',$option);
+			}
+
+			// берём на рассмотрение (скрываем запрос от других)
+			function command_taken_into_operation_AJAX(){
+				// получаем данные по запросу
+				$Query = $this->get_query((int)$_POST['row_id']);
+
+				// если прикреплено несколько менеджеров на обработку запроса
+				// получа информацию в массив
+				$dop_managers_id =  trim($Query['dop_managers_id']);
+				$managers_arr = array();
+				if(trim($Query['dop_managers_id']) != ""){
+					$managers_arr = explode(",", $dop_managers_id);
 				}
 
+				// проверяем права на данную комманду
+				if($Query['manager_id'] != $this->user_id && !in_array($this->user_id,$managers_arr) && $this->user_access != 1){
+					$message = 'ОЙ, что-то пошло не так!!! К сожалению у Вас не достаточно прав для данной комманды.';
+					$this->responseClass->addResponseFunction('reload_order_tbl',array('timeout'=>'5000'));
+					$this->responseClass->addMessage($message,'error');	
+					return;
+				}
 
-				$html = '';
-				$n = 0;
-				$html .= '<ul id="get_commands_men_for_query" class="check_one_li_tag">';
-				$first_val = '';
-				$status_query_enablsed_arr = array();
+				$query = "UPDATE  `".RT_LIST."` SET ";
+				// 1) устанавливаем себя на место менеджера
+				if($this->user_access != 1){
+					$query .= " `manager_id` = '".$this->user_id."',";	
+				}
+				
+				// 2) меняем статус на "на рассмотрении" - taken_into_operation
+				$query .= " `status` = 'taken_into_operation'";
+				// 3) перезаписываем список.... менеджеров.... если их несколько
+				if(in_array($this->user_id,$managers_arr)){
+					unset($managers_arr[array_search($this->user_id, $managers_arr)]);
+				}
+				$query .= ", `dop_managers_id` = '".implode(',',$managers_arr)."'";
+				
+				$query .= " WHERE `id` = '".(int)$_POST['row_id']."'";
+				global $mysqli;
+				$result = $mysqli->query($query) or die($mysqli->error);
+
+				$message = 'Запрос взят на рассмотрение.';
+				$this->responseClass->addMessage($message,'successful_message');	
+				$this->responseClass->addResponseFunction('reload_order_tbl',array('timeout'=>'0'));
+			}
+
+			/**
+			  *	возвращает массив email 
+			  *
+			  *	@param 		$user
+			  *	@return  	
+			  *	@author  	Alexey Kapitonov
+			  *	@version 	
+			  */
+			protected function get_admin_email($user_id_arr){
+				global $mysqli;
+				$query = "SELECT * FROM `".MANAGERS_TBL."` WHERE id in ('".implode("','",$user_id_arr)."')";
+				$email = array();
+				$result = $mysqli->query($query) or die($mysqli->error);
+
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						if(trim($row['email'] != '')){
+							$email[] = $row['email'];
+						}else if(trim($row['email_2']) != ''){
+							$email[] = $row['email_2'];
+						}
+					}
+				}
+				return $email;
+			}	
+
+
+			/**
+			  *	отказ от запроса
+			  *
+			  *	@author  	Alexey Kapitonov
+			  *	@version 	23:58 02.02.2016
+			  */
+			function command_refused_AJAX(){
+				// проверяем есть ли объяснение причины
+				if(!isset($_POST['comment']) || (isset($_POST['comment']) && trim($_POST['comment']) == "")){
+					$html = '';
+					$html .= '<form>';
+					foreach ($_POST as $key => $value) {
+						$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+					}
+					if(isset($_POST['comment']) && trim($_POST['comment']) == ""){
+						$message = "Причину необходимо указать ОБЯЗАТЕЛЬНО!!!!";
+						$this->responseClass->addMessage($message,'error_message');
+					}
+					$html .= '<textarea name="comment" style="width:100%">'.(isset($_POST['comment'])?$_POST['comment']:'').'</textarea>';
+					$html .= '</form>';
+					$this->responseClass->addPostWindow($html,'укажите причину',array('width'=>"800"));
+					return;
+				}
+
+				// получаем данные по запросу
+				$Query = $this->get_query((int)$_POST['row_id']);
+
+				$dop_managers_id =  trim($Query['dop_managers_id']);
+				$managers_arr = array();
+				if(trim($Query['dop_managers_id']) != ""){
+					$managers_arr = explode(",", $dop_managers_id);
+				}
+
+				// проверяем права на данную комманду
+				if($Query['manager_id'] != $this->user_id && !in_array($this->user_id, $managers_arr) && $this->user_access != 1){
+					$message = 'ОЙ, что-то пошло не так!!! К сожалению у Вас не достаточно прав для данной комманды.';
+					$this->responseClass->addResponseFunction('reload_order_tbl',array('timeout'=>'5000'));
+					$this->responseClass->addMessage($message,'error');	
+					return;
+				}
+
+				$query = "UPDATE  `".RT_LIST."` SET ";
+				//if($this->user_id == $Query['manager_id']){
+					$query .= " `manager_id` = '0'";	
+				//}
+
+				// 3) перезаписываем список.... менеджеров.... если их несколько
+				if(in_array($this->user_id,$managers_arr)){
+					unset($managers_arr[array_search($this->user_id, $managers_arr)]);
+				}
+				$query .= ", `dop_managers_id` = '".implode(',',$managers_arr)."'";
+				// если прикреплённых менеджеров более одного 
+				$query .= ", `status` = 'not_process'";
 				
 
-				if($this->user_access == 5){
+				global $mysqli;
 
-					switch ($this->Query['status']) {
-						case 'history':
-							$status_query_enablsed_arr['in_work'] = 'В работу';
-							// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-							// exit;
-							break;
-						case 'taken_into_operation':
-							$status_query_enablsed_arr['in_work'] = 'В работу';
-							$status_query_enablsed_arr['history'] = 'История';
-							// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-							// exit;
+				$query .= " WHERE `id` = '".(int)$_POST['row_id']."'";
+				$result = $mysqli->query($query) or die($mysqli->error);
+
+
+				$name_arr = $this->get_manager_name_Database_Array($this->user_id);
+				$Manager_name = $name_arr['name'].' '.$name_arr['last_name'];
+
+				
+
+
+				$message = 'вы отказались от запроса.';
+				$this->responseClass->addMessage($message,'successful_message');	
+				$this->responseClass->addResponseFunction('reload_order_tbl',array('timeout'=>'1000'));
+
+				// include_once($_SERVER['DOCUMENT_ROOT'].'/libs/php/classes/mail_class.php');
+
+				$admin_email_arr = $this->get_admin_email(array(4,6));
+
+				switch (count($managers_arr)) {
+						case 0:
+							// оповещение админа !!!!!!!!!
+							$subject = 'Отказ от запроса';
+							$mail_message = "Менеджер $Manager_name отказаля от запроса № ".$Query['query_num'].'<br>';
+							$mail_message .= "Причина:<br>";
+							$mail_message .= $_POST['comment'];
+							
+
+						    
+						    
+						    $mailClass = new Mail();
+							foreach ($admin_email_arr as $key => $email) {
+								$mailClass->send($email,'os@apelburg.ru',$subject,$mail_message);
+							}
+							
+							
 							break;
 
-						case 'in_work':
-							$status_query_enablsed_arr['taken_into_operation'] = 'На рассмотрении';
-							$status_query_enablsed_arr['history'] = 'История';
-							// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-							// exit;
-							break;
+						case 1:
 
-						case 'not_process':
-							$status_query_enablsed_arr['in_work'] = 'В работу';
-							$status_query_enablsed_arr['taken_into_operation'] = 'На рассмотрение';
-							// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-							// exit;
+							$mail_message = "";
+							// оповещение остальных !!!!!!!!!
+							$managers_email_arr = $this->get_admin_email($managers_arr);
+							$subject = 'Отказ от запроса';
+							$mail_message .= 'Вам доступен новый запрос.';
+							$mail_message .= "Менеджер $Manager_name отказаля от запроса № ".$Query['query_num'].'<br>';
+							$mail_message .= "Причина:<br>";
+							$mail_message .= $_POST['comment'];
+						    
+						    $mailClass = new Mail();
+							
+							foreach ($admin_email_arr as $key => $email) {
+								$mailClass->send($email,'os@apelburg.ru',$subject,$mail_message);
+							}
 							break;
 						
 						default:
-							echo '{"response":"OK"}';
-							exit;
+							$mail_message = "";
+							// оповещение остальных !!!!!!!!!
+							$managers_email_arr = $this->get_admin_email($managers_arr);
+							$subject = 'Отказ от запроса';
+							$mail_message .= 'Вам доступен новый запрос.';
+							$mail_message .= "Менеджер $Manager_name отказаля от запроса № ".$Query['query_num'].'<br>';
+							$mail_message .= "Причина:<br>";
+							$mail_message .= $_POST['comment'];
+						    
+						    $mailClass = new Mail();
+																					
+							foreach ($admin_email_arr as $key => $email) {
+								$mailClass->send($email,'os@apelburg.ru',$subject,$mail_message);
+							}
+							break;
 							break;
 					}
 
-					// if($this->Query['status'] != 'history' && $this->Query['status'] != 'in_work'){
-					// 	$message = "Отсюда невозможно перевести запрос в другой статус.".$this->Query['status'];
-						
-					// }else{
-					// 	$status_query_enablsed_arr['history'] = 'История';
-					// 	$status_query_enablsed_arr['in_work'] = 'В работе';
-					// }
+				$manager_refused_comment = "Отказался от запроса<br>";
+				$manager_refused_comment .= "Причина:<br>".$_POST['comment'];
+				$this->save_query_comment($this->user_id, $Query['query_num'], $Manager_name, $manager_refused_comment);
 
-				}else if($this->user_access == 1){					
-					$status_query_enablsed_arr['in_work'] = 'В работе Sales';
-					// $status_query_enablsed_arr['new_query'] = 'Новый запрос';
-					$status_query_enablsed_arr['not_process'] = 'Не обработан менеджером';
-					$status_query_enablsed_arr['taken_into_operation'] = 'Взят на рассмотрение';	
-					$status_query_enablsed_arr['history'] = 'История';
-				}else{
-					echo '{"response":"OK"}';
-					exit;
-				}
+				global $mysqli;
 				
-				
-				foreach ($status_query_enablsed_arr as $name_en => $name_ru) {
-					$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
-					if($n==0){$first_val = $name_en;}
-					$n++;
-				}
-				
+			}
 
+			// сохранение комментария
+			protected function save_query_comment($user_id, $query_num, $name, $text){
+				global $mysqli;
+				$query ="INSERT INTO `".RT_LIST_COMMENTS."` SET
+			             `user_id` = '".$user_id."',
+			             `query_num` = '".$query_num."',
+			             `user_name` = '".$name."',
+			             `comment_text` = '".$text."',
+			            `create_time` = NOW()";
+				$result = $mysqli->query($query) or die($mysqli->error);	
 
-				$html .= '</ul>';
-
-
-				$html .= '<form>';
-
-				$html .= '<input type="hidden" name="query_status" value="'.$first_val.'">';	
-				$html .= '<input type="hidden" name="AJAX" value="command_for_change_status_query">';	
-
-				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
-				unset($_POST['AJAX']);
-				// перебираем остальные значения для передачи их далее
-				foreach ($_POST as $key => $value) {
-					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-				}
-
-				$html .= '</form>';
-
-				
-				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
-				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-				// echo 'base';
-				exit;
+				return  $mysqli->insert_id;
 			}
 
 			/**
@@ -2850,9 +3009,9 @@
 			  *	@author  	Alexey Kapitonov
 			  *	@version 	23:32 14.01.2016
 			  */
-			protected function check_the_empty_query(){
+			protected function check_the_empty_query_old(){
 				global $mysqli;
-				
+				// echo $query;
 				$query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$_POST['row_id']."';";
 				$Query = array();
 				// echo $query;
@@ -2869,16 +3028,101 @@
 			}
 
 			/**
+			  *	проверка запроса на принадлежность кому-либо
+			  * проще говоря взял его кто-то обработать или ещё нет
+			  *
+			  * @param 		$Query - выборка запроса из базы
+			  *	@return  	user_id хозяина
+			  *	@author  	Alexey Kapitonov
+			  *	@version 	23:32 14.01.2016
+			  */
+			protected function check_the_empty_query($Query){
+				if(!isset($Query['manager_id'])){
+					return 0;
+				}
+				return $Query['manager_id'];
+			}
+
+			/**
+			  *	получаем запрос по его id
+			  *
+			  *	@author  	Alexey Kapitonov
+			  *	@version 	23:32 14.01.2016
+			  */
+			protected function get_query($id){
+				global $mysqli;
+				
+				$query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$id."';";
+				$Query = array();
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$Query = $row;
+					}
+				}
+				return $Query;
+			}
+
+			// возвращает строку поиска по клиентам
+			protected function get_client_sherch_form_AJAX(){
+				$html = '';
+				if(isset($_POST['AJAX'])){unset($_POST['AJAX']);}
+				// if(isset($_POST['client_id'])){unset($_POST['client_id']);}
+
+				// $html .= '<form id="js--window_client_sherch_form">';
+				// foreach ($_POST as $key => $value) {
+				// 	$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+				// }
+				$html .= '<div class="quick_bar_tbl"><div class="search_div">
+                    <div class="search_cap">Поиск:</div>
+                    <div class="search_field">                    
+                        <input id="client_name_search" name="client_name_search" placeholder="поиск по клиентам" type="text" onclick="" value=""><div class="undo_btn"><a href="#" onclick="$(this).parent().prev().val(\'\');return false;">×</a></div></div>
+                    <div class="search_button" onclick="search_and_show_client_list();">&nbsp;</div>
+                    <div class="clear_div"></div>
+                </div></div>';
+				// $html .= '<input type="text" name="client_name_search">';
+				$html .= '<input type="hidden" name="AJAX" value="get_a_list_of_clients_to_be_attached_to_the_request">';
+				$html .= '<input type="hidden" name="client_id" value="'.$_POST['client_id'].'">';
+				// $html .= '</form>';
+
+				$options = array(
+					"height"=>"300",
+					"width"=>"1000",
+					"form_id"=>"js--window_client_sherch_form"
+					);
+				$this->responseClass->addPostWindow($html,"Поиск клиента",$options);
+				// echo '{"response":"show_new_window",
+				// "html":"'.base64_encode($html).'",
+				// "title":"Поиск клиента","height":"300","width":"1000"}';
+				// exit;
+			}
+
+			/**
 			  *	присваиваем запросу новый статус
 			  *
 			  *	@author  	Alexey Kapitonov
 			  *	@version	23:30 14.01.2016 	
 			  */
-			protected function command_for_change_status_query_AJAX(){
+			public function command_for_change_status_query_AJAX(){
 				// если статус меняет не админ
+				$query = $this->get_query((int)$_POST['row_id']);
+
+				// если клиент не назначен
+				if($query['client_id'] == 0){
+					$message = "Сначала нужно прикрепить клиента.";
+					// $message = 'Для выбранного клиента доступны следующие кураторы:';
+					$this->responseClass->addMessage($message,'error_message');
+					$this->get_client_sherch_form_AJAX();
+					return;
+				}
+
+
+
 				if( $this->user_access != 1 ){
 					// проверяем не принадлежит ли данный запрос другому менеджеру
-					$master = $this->check_the_empty_query( $this->user_id );
+					
+					$master = $this->check_the_empty_query($query);
 					if($master > 0 && $master != $this->user_id){
 						$user_name_arr = $this->get_manager_name_Database_Array($master);
 						$user_name = (!empty($user_name_arr))?$user_name_arr['last_name'].' '.$user_name_arr['name']:'';
@@ -2891,6 +3135,7 @@
 						// echo '{"response":"OK","function":"echo_message","message_type":"","message":
 						// "'.base64_encode($message).'","function2":"reload_order_tbl"}';	
 						// exit;
+						return;
 					}
 				}
 
@@ -2901,7 +3146,6 @@
 						'in_work' => 'query_worcked_men',
 						'history' => 'query_history'
 						);
-
 					
 					$link = '?';
 					$i = 0;
@@ -5727,14 +5971,14 @@
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					if($no_edit == 1){
-						$name= '<a href="./?page='.$_GET['page'].(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$row['id'].'"><div class="dop__info" data-id="'.$row['id'].'">'.$row['company'].'</div></a>';
+						$name= '<a href="./?page='.$_GET['page'].(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$row['id'].'"><div class="dop__info js--client_td" data-id="'.$row['id'].'">'.$row['company'].'</div></a>';
 					}else{
-						$name = '<div class="attach_the_client" data-id="'.$row['id'].'">'.$row['company'].'</div>';
+						$name = '<div class="attach_the_client" js--client_td data-id="'.$row['id'].'">'.$row['company'].'</div>';
 					}
 					
 				}
 			}else{
-				$name = '<div'.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</div>';
+				$name = '<div'.(($no_edit==0)?' class="attach_the_client js--client_td add"':' class="dop__info js--client_td"').' data-id="0">Прикрепить клиента</div>';
 			}
 			return $name;
 		}
@@ -5750,10 +5994,10 @@
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$href = './?page='.$_GET['page'].(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$row['id'];
-					$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client"':' class="dop__info filter_class" data-href="'.$href.'"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
+					$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client js--client_td"':' class="dop__info js--client_td filter_class" data-href="'.$href.'"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
 				}
 			}else{
-				$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client add"':' class="dop__info"').' data-id="0">Прикрепить клиента</td>';
+				$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client js--client_td add"':' class="dop__info js--client_td"').' data-id="0">Прикрепить клиента</td>';
 			}
 			return $name;
 		}
@@ -5899,7 +6143,8 @@
 
 		// сохраняем спискок прикреплённых менеджеров кандидатов
 		protected function save_get_choose_curators_edit_AJAX(){
-
+			$message = "просьба сообщить Админу. метод save_get_choose_curators_edit";
+			$this->responseClass->addMessage($message,'system_message');
 		}
 
 		// получаем список прикрепленных менеджеров - кандидатов для нового клиента в кабинете
@@ -7483,3 +7728,213 @@
 		
 		
    	}
+
+/**
+* 
+*/
+class CabinetMainMenu extends Cabinet{
+	
+	function __construct($Query,$user){
+
+		$this->user_access = $user['access'];
+		$this->user_id = $user['id'];
+		// echo '<pre>';
+		// print_r($this->user_access);
+		// echo '</pre>';
+		$this->Query = $Query;
+		$this->get_menu();
+		// echo 'as2d';
+	}
+
+	// для менеджера
+	private function menu_5(){
+		// меняем набор комманд относительно статуса запроса
+		switch ($this->Query['status']) {
+			// архив
+			case 'history':
+				$this->menu_list[] = array(
+					'in_work' => array(
+						'name_ru' => 'Взять в работу',
+						'name_en' => 'in_work',
+						'ajax' => 'command_for_change_status_query'
+						)
+					);
+				break;
+			// на рассмотрении	
+			case 'taken_into_operation':
+				$this->menu_list[] = array(
+					'in_work' => array(
+						'name_ru' => 'Взять в работу',
+						'name_en' => 'in_work',
+						'ajax' => 'command_for_change_status_query'
+						),
+					'not_process' => array(
+						'name_ru' => 'Отказаться',
+						'name_en' => 'refused',
+						'ajax' => 'command_refused'
+						),
+					'get_a_list_of_managers_to_be_attached_to_the_request' => array(
+						'name_ru' => 'Сменить куратора',
+						'name_en' => 'get_a_list_of_managers_to_be_attached_to_the_request',
+						'ajax' => 'get_a_list_of_managers_to_be_attached_to_the_request'
+						)
+					);
+				break;
+			// в работе
+			case 'in_work':
+				$this->menu_list[] = array(
+					'history' => array(
+						'name_ru' => 'Переместить в архив',
+						'name_en' => 'history',
+						'ajax' => 'command_for_change_status_query'
+						)
+					);
+				break;
+			// не обработанные
+			case 'not_process':
+				$this->menu_list[] = array(
+					'in_work' => array(
+						'name_ru' => 'Взять в работу',
+						'name_en' => 'in_work',
+						'ajax' => 'command_for_change_status_query'
+						),
+					'taken_into_operation' => array(
+						'name_ru' => 'Взять на рассмотрение<br><span class="dop_grey_small_info">(скрыть от других)</span>',
+						'name_en' => 'taken_into_operation',
+						'ajax' => 'command_taken_into_operation'
+						),
+					'not_process' => array(
+						'name_ru' => 'Отказаться',
+						'name_en' => 'refused',
+						'ajax' => 'command_refused'
+						),
+					);
+				// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+				// exit;
+				break;
+			default:
+				$message = "Нет доступных комманд";
+				echo '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+				exit;
+			break;
+		}
+	}
+
+	
+	// для admin
+	private function menu_1(){
+		// для админа всегда одни и те же комманды
+		
+		// основной список
+		$this->menu_list[] = array(
+					'in_work' => array(
+						'name_ru' => 'В работе Sales',
+						'name_en' => 'in_work',
+						'ajax' => 'command_for_change_status_query'
+						),
+					'not_process' => array(
+						'name_ru' => 'Не обработан менеджером',
+						'name_en' => 'not_process',
+						'ajax' => 'command_for_change_status_query'
+						),
+					'history' => array(
+						'name_ru' => 'Переместить в архив',
+						'name_en' => 'history',
+						'ajax' => 'command_for_change_status_query'
+						),
+					'taken_into_operation' => array(
+						'name_ru' => 'Взять на рассмотрение<br><span class="dop_grey_small_info">(скрыть от других)</span>',
+						'name_en' => 'taken_into_operation',
+						'ajax' => 'command_taken_into_operation'
+						),
+					'command_not_process_admin' => array(
+						'name_ru' => 'Ожидает распределения',
+						'name_en' => 'not_process_admin',
+						'ajax' => 'command_not_process_admin'
+						),
+					);
+		// вспомогательный список
+		$this->menu_list[] = array(
+					'not_process' => array(
+						'name_ru' => 'Назначить клиента<br><span class="dop_grey_small_info">(Сменить клиента)</span>',
+						'name_en' => 'get_client_sherch_form',
+						'ajax' => 'get_client_sherch_form'
+						),
+					);
+
+	}
+
+	// default
+	private function menu_default(){
+		echo '{"response":"OK"}';
+		exit;
+	}
+
+	// 
+	private function get_menu(){
+		// собираем название метода для меню
+		$get_my_menu = 'menu_'.$this->user_access;
+
+		// если меню для данного уровня допуска существует
+		if(method_exists($this, $get_my_menu)){
+			$this->menu = $this->$get_my_menu();
+		}else{
+			// если не существует - грузим default
+			$this->menu = $this->menu_default();
+		}		
+
+
+		// echo 'asd';
+		$html = '';
+		$n = 0;
+		$html .= '<div id="get_commands_men_for_query">';
+		
+		$first_val = '';
+		$status_query_enablsed_arr = array();
+			
+		// $htm	
+		$i = 0;
+		foreach ($this->menu_list as $menu_arr) {
+			$html .= ($i>0)?'<div style="padding-top:5px;border-bottom: 1px dashed #E0E0E0;"></div>':'';
+			$html .= '<ul class="check_one_li_tag">';
+				foreach ($menu_arr as $key => $menu_list) {
+					$html .= '<li data-ajax="'.$menu_list['ajax'].'" 
+						data-name_en="not_process" '.(($n==0)?'class="checked"':'').'>
+						'.$menu_list['name_ru'].'</li>';
+					
+					if($n==0){$first_val = $menu_list['name_en'];}
+					$n++;
+				}
+			$html .= '</ul>';			
+			$i++;
+		}
+		$html .= '</div>';
+
+
+		$html .= '<form>';
+			$html .= '<input type="hidden" name="query_status" value="'.$first_val.'">';
+			$html .= '<input type="hidden" name="manager_id" value="'.$this->user_id.'">';	
+			if(!isset($_POST['rt_list_id']) && isset($_POST['row_id'])){
+				$_POST['rt_list_id'] = $_POST['row_id'];
+			}
+			if(!isset($_POST['row_id']) && isset($_POST['rt_list_id'])){
+				$_POST['row_id'] = $_POST['rt_list_id'];
+			}
+			$html .= '<input type="hidden" name="AJAX" value="command_for_change_status_query">';	
+
+			// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+			unset($_POST['AJAX']);
+			// перебираем остальные значения для передачи их далее
+			foreach ($_POST as $key => $value) {
+				$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+			}
+
+		$html .= '</form>';
+
+				
+		echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
+		
+		exit;		
+	
+	}
+}

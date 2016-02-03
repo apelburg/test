@@ -2514,3 +2514,16 @@
 	      }
 	  },'json');
 	}
+
+
+// $('#authentication_menu_div').hover(function(){},function(){$(this).fadeOut('show')})
+
+jQuery(function($){
+	$(document).mouseup(function (e){ // событие клика по веб-документу
+		var div = $("#authentication_plank_tbl"); // тут указываем ID элемента
+		if (!div.is(e.target) // если клик был не по нашему блоку
+		    && div.has(e.target).length === 0) { // и не по его дочерним элементам
+			$('#authentication_menu_div').hide(); // скрываем его
+		}
+	});
+});
