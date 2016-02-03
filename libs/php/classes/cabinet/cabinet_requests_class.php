@@ -430,7 +430,7 @@
 			$no_edit = 1;
 			if($this->Query['client_id'] == 0){
 				$no_edit = 0;
-				if($this->Query['status'] == 'not_process' && $this->user_access != 1){
+				if($this->user_access != 1){
 					$no_edit = 1;
 				}				
 			}
@@ -458,7 +458,8 @@
 					$no_edit = 0;	
 				}
 
-				if($this->user_access != 1 && $this->Query['client_id'] == 0){
+				// if($this->user_access != 1 && $this->Query['client_id'] == 0){
+				if($this->user_access != 1){
 					$no_edit = 1;
 				}else{
 					$no_edit = 0;
@@ -504,7 +505,7 @@
 		protected function get_header_start_position_list_tr_empty(){
 			$html = '<tr class="query_detail cab_position_div" '.$this->open_close_tr_style.'>';
 				$html .= '<th></th>';
-				$html .= '<th colspan="7">Данные отсутствуют</th>';
+				$html .= '<th colspan="8">Данные отсутствуют</th>';
 			$html .= '</tr>';
 			return $html; 	
 		}

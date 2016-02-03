@@ -3414,5 +3414,3 @@ $(document).on('click','.show_main_menu',function(){
 		standard_response_handler(data);
 	},'json');
 });
-
-

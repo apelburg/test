@@ -1320,6 +1320,31 @@ class Client extends aplStdAJAXMethod{
 						$men_arr[$this->user_id] = $this->user_id;
 						$this->attach_for_query_many_managers($men_arr,$this->client_id);
 
+						if(isset($_POST['query_status']) && $_POST['query_status'] == 'in_work'){
+							global $mysqli;
+							// include_once ('./cabinet/cabinet_class.php');
+							include_once($_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/cabinet/cabinet_class.php');
+							$Cabinet = new Cabinet;
+							$this->Query = $Cabinet->get_query((int)$_POST['row_id']);
+							
+							if($_POST['query_status'] != $this->Query['status']){
+								$query = "UPDATE  `".RT_LIST."` SET";
+								$query .= " `status` =  'in_work' ";
+								$query .= "WHERE  `id` ='".$this->Query['id']."';";
+								$result = $mysqli->query($query) or die($mysqli->error);
+							}
+							// echo '<pre>';
+							// print_r($_POST);
+							// echo '</pre>';
+							$link = '?page=client_folder&client_id='.$_POST['client_id'].'&query_num='.$_POST['query_num'];
+							// переадресация на другую вкладку
+							$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/'.$link;
+								
+							echo '{"response":"OK","function":"location_href","href":"'.$option['href'].'"}';
+							exit;
+						}
+
+
 						echo '{"response":"OK","function":"reload_order_tbl"}';
 						exit;
 						break;

@@ -1540,7 +1540,7 @@
 			protected function calculate_the_pyment_price($spec_id){
 				// проверка на дату оплаты
 					if(!isset($_POST['date']) || isset($_POST['date']) && trim($_POST['date']) == ''){
-						$message = 'Для корректного сохранения данных по оплате, сначало заполните поле "дата"!!!';
+						$message = 'Для корректного сохранения данных по оплате, сначала заполните поле "дата"!!!';
 						$json = '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
 						echo $json;
 						exit;
@@ -3049,7 +3049,7 @@
 			  *	@author  	Alexey Kapitonov
 			  *	@version 	23:32 14.01.2016
 			  */
-			protected function get_query($id){
+			public function get_query($id){
 				global $mysqli;
 				
 				$query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$id."';";
@@ -3110,9 +3110,9 @@
 
 				// если клиент не назначен
 				if($query['client_id'] == 0){
-					$message = "Сначала нужно прикрепить клиента.";
+					$message = "Прикрепите клиента.";
 					// $message = 'Для выбранного клиента доступны следующие кураторы:';
-					$this->responseClass->addMessage($message,'error_message');
+					$this->responseClass->addMessage($message,'system_message');
 					$this->get_client_sherch_form_AJAX();
 					return;
 				}
@@ -3120,8 +3120,7 @@
 
 
 				if( $this->user_access != 1 ){
-					// проверяем не принадлежит ли данный запрос другому менеджеру
-					
+					// проверяем не принадлежит ли данный запрос другому менеджеру					
 					$master = $this->check_the_empty_query($query);
 					if($master > 0 && $master != $this->user_id){
 						$user_name_arr = $this->get_manager_name_Database_Array($master);
@@ -3180,116 +3179,116 @@
 				// exit;
 			}
 
-			// вывод меню комманд по заказу
-			protected function get_commands_for_order_status_AJAX(){
-				if($this->user_access != 1 and $this->user_access != 5){
-					$message = "У вас не достаточно прав для изменения статуса Заказа / предзаказа.";
-					echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-					exit;
-				}
-				global $mysqli;
-				// запрос информации по заказу
-				$query = "SELECT * FROM `".CAB_ORDER_ROWS."` WHERE `id` = '".(int)$_POST['order_id']."';";
-				$this->Order = array();
-				// echo $query;
-				$result = $mysqli->query($query) or die($mysqli->error);
-				if($result->num_rows > 0){
-					while($row = $result->fetch_assoc()){
-						$this->Order = $row;
-					}
-				}
+			// // вывод меню комманд по заказу
+			// protected function get_commands_for_order_status_AJAX(){
+			// 	if($this->user_access != 1 and $this->user_access != 5){
+			// 		$message = "У вас не достаточно прав для изменения статуса Заказа / предзаказа.";
+			// 		echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+			// 		exit;
+			// 	}
+			// 	global $mysqli;
+			// 	// запрос информации по заказу
+			// 	$query = "SELECT * FROM `".CAB_ORDER_ROWS."` WHERE `id` = '".(int)$_POST['order_id']."';";
+			// 	$this->Order = array();
+			// 	// echo $query;
+			// 	$result = $mysqli->query($query) or die($mysqli->error);
+			// 	if($result->num_rows > 0){
+			// 		while($row = $result->fetch_assoc()){
+			// 			$this->Order = $row;
+			// 		}
+			// 	}
 
 
-				$html = '';
-				$n = 0;
-				$html .= '<ul id="get_commands_men_for_order" class="check_one_li_tag">';
-				$first_val = '';
-				$status_order_enablsed_arr = array();
+			// 	$html = '';
+			// 	$n = 0;
+			// 	$html .= '<ul id="get_commands_men_for_order" class="check_one_li_tag">';
+			// 	$first_val = '';
+			// 	$status_order_enablsed_arr = array();
 
-				if($this->user_access == 5){
+			// 	if($this->user_access == 5){
 
-					switch ($this->Order['global_status']) {
-						case 'paused': // приостановлен
-							$status_order_enablsed_arr[] = 'in_work';
-							break;
-						case 'in_work': // в работе
-							$status_order_enablsed_arr[] = 'paused';
-							$status_order_enablsed_arr[] = 'cancelled';
-							break;
-						case 'in_operation': // запуск в работу
-							$status_order_enablsed_arr[] = 'in_work';
-							$status_order_enablsed_arr[] = 'cancelled';
-							$status_order_enablsed_arr[] = 'paused';
+			// 		switch ($this->Order['global_status']) {
+			// 			case 'paused': // приостановлен
+			// 				$status_order_enablsed_arr[] = 'in_work';
+			// 				break;
+			// 			case 'in_work': // в работе
+			// 				$status_order_enablsed_arr[] = 'paused';
+			// 				$status_order_enablsed_arr[] = 'cancelled';
+			// 				break;
+			// 			case 'in_operation': // запуск в работу
+			// 				$status_order_enablsed_arr[] = 'in_work';
+			// 				$status_order_enablsed_arr[] = 'cancelled';
+			// 				$status_order_enablsed_arr[] = 'paused';
 							
-							break;					
-						case 'being_prepared': // в оформлении
+			// 				break;					
+			// 			case 'being_prepared': // в оформлении
 
-							$status_order_enablsed_arr[] = 'maket_without_payment';
-							$status_order_enablsed_arr[] = 'query_in_work';
-							$status_order_enablsed_arr[] = 'cancelled';
-							$status_order_enablsed_arr[] = 'paperwork_paused';
-							break;
-						case 'paperwork_paused': // предзаказ приостановлен
-							$status_order_enablsed_arr[] = 'being_prepared';
-							break;
-						default:					
-							break;
-					}
+			// 				$status_order_enablsed_arr[] = 'maket_without_payment';
+			// 				$status_order_enablsed_arr[] = 'query_in_work';
+			// 				$status_order_enablsed_arr[] = 'cancelled';
+			// 				$status_order_enablsed_arr[] = 'paperwork_paused';
+			// 				break;
+			// 			case 'paperwork_paused': // предзаказ приостановлен
+			// 				$status_order_enablsed_arr[] = 'being_prepared';
+			// 				break;
+			// 			default:					
+			// 				break;
+			// 		}
 					
-					// елси комманд для данного статуса не нашлось
-					if(count($status_order_enablsed_arr) == 0){
-						$message = "Для данного статуса Заказа / Предзаказа не предусмотрено ни одной комманды.";
-						echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
-						exit;
-					}
+			// 		// елси комманд для данного статуса не нашлось
+			// 		if(count($status_order_enablsed_arr) == 0){
+			// 			$message = "Для данного статуса Заказа / Предзаказа не предусмотрено ни одной комманды.";
+			// 			echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
+			// 			exit;
+			// 		}
 					
-					foreach ($status_order_enablsed_arr as $key => $name_en) {
-						if(isset($this->order_service_status[$name_en])){
-							$name_ru = $this->order_service_status[$name_en];
-						}else if(isset($this->order_status[$name_en])){
-							$name_ru = $this->order_status[$name_en];
-						}else{
-							$name_ru = 'Имя <strong>'.$name_en.'</strong> не известно системе';
-						}
-						$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
-						if($n==0){$first_val = $name_en;}
-						$n++;
-					}
+			// 		foreach ($status_order_enablsed_arr as $key => $name_en) {
+			// 			if(isset($this->order_service_status[$name_en])){
+			// 				$name_ru = $this->order_service_status[$name_en];
+			// 			}else if(isset($this->order_status[$name_en])){
+			// 				$name_ru = $this->order_status[$name_en];
+			// 			}else{
+			// 				$name_ru = 'Имя <strong>'.$name_en.'</strong> не известно системе';
+			// 			}
+			// 			$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+			// 			if($n==0){$first_val = $name_en;}
+			// 			$n++;
+			// 		}
 						
-				}else{
-					$result = array_merge ($this->order_service_status, $this->order_status);
-					$status_order_enablsed_arr = array_merge($this->paperwork_status, $result);
+			// 	}else{
+			// 		$result = array_merge ($this->order_service_status, $this->order_status);
+			// 		$status_order_enablsed_arr = array_merge($this->paperwork_status, $result);
 
-					foreach ($status_order_enablsed_arr as $name_en => $name_ru) {
-						$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
-						if($n==0){$first_val = $name_en;}
-						$n++;
-					}
-				}
-
-
-				$html .= '</ul>';
+			// 		foreach ($status_order_enablsed_arr as $name_en => $name_ru) {
+			// 			$html .= '<li data-name_en="'.$name_en.'" '.(($n==0)?'class="checked"':'').'>'.$name_ru.'</li>';
+			// 			if($n==0){$first_val = $name_en;}
+			// 			$n++;
+			// 		}
+			// 	}
 
 
-				$html .= '<form>';
+			// 	$html .= '</ul>';
 
-				$html .= '<input type="hidden" name="status_order" value="'.$first_val.'">';	
-				$html .= '<input type="hidden" name="AJAX" value="command_for_change_status_order">';	
 
-				// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
-				unset($_POST['AJAX']);
-				// перебираем остальные значения для передачи их далее
-				foreach ($_POST as $key => $value) {
-					$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-				}
+			// 	$html .= '<form>';
 
-				$html .= '</form>';
+			// 	$html .= '<input type="hidden" name="status_order" value="'.$first_val.'">';	
+			// 	$html .= '<input type="hidden" name="AJAX" value="command_for_change_status_order">';	
 
-				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
-				// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
-				// echo 'base';
-				exit;
-			}	
+			// 	// удаляем пеерменную AJAX - она содержит название метода AJAX, оно изменится 
+			// 	unset($_POST['AJAX']);
+			// 	// перебираем остальные значения для передачи их далее
+			// 	foreach ($_POST as $key => $value) {
+			// 		$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+			// 	}
+
+			// 	$html .= '</form>';
+
+			// 	echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите действие:"}';
+			// 	// echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+			// 	// echo 'base';
+			// 	exit;
+			// }	
 
 			// статусы заказов
 			protected function command_for_change_status_order_AJAX(){
@@ -7754,7 +7753,7 @@ class CabinetMainMenu extends Cabinet{
 			case 'history':
 				$this->menu_list[] = array(
 					'in_work' => array(
-						'name_ru' => 'Взять в работу',
+						'name_ru' => 'Вернуть в работу',
 						'name_en' => 'in_work',
 						'ajax' => 'command_for_change_status_query'
 						)
@@ -7774,7 +7773,7 @@ class CabinetMainMenu extends Cabinet{
 						'ajax' => 'command_refused'
 						),
 					'get_a_list_of_managers_to_be_attached_to_the_request' => array(
-						'name_ru' => 'Сменить куратора',
+						'name_ru' => 'Сменить куратора заявки',
 						'name_en' => 'get_a_list_of_managers_to_be_attached_to_the_request',
 						'ajax' => 'get_a_list_of_managers_to_be_attached_to_the_request'
 						)
@@ -7787,8 +7786,21 @@ class CabinetMainMenu extends Cabinet{
 						'name_ru' => 'Переместить в архив',
 						'name_en' => 'history',
 						'ajax' => 'command_for_change_status_query'
+						),
+					'get_a_list_of_managers_to_be_attached_to_the_request' => array(
+						'name_ru' => 'Сменить куратора заявки',
+						'name_en' => 'get_a_list_of_managers_to_be_attached_to_the_request',
+						'ajax' => 'get_a_list_of_managers_to_be_attached_to_the_request'
 						)
 					);
+				// вспомогательный список
+				// $this->menu_list[] = array(
+				// 	'not_process' => array(
+				// 		'name_ru' => 'Назначить другого клиента',
+				// 		'name_en' => 'get_client_sherch_form',
+				// 		'ajax' => 'get_client_sherch_form'
+				// 		),
+				// 	);
 				break;
 			// не обработанные
 			case 'not_process':
@@ -7807,8 +7819,18 @@ class CabinetMainMenu extends Cabinet{
 						'name_ru' => 'Отказаться',
 						'name_en' => 'refused',
 						'ajax' => 'command_refused'
-						),
+						)
 					);
+				if($this->Query['dop_managers_id'] == "" && $this->Query['manager_id'] == $this->user_id){
+					$this->menu_list[] = array(
+					
+							'get_a_list_of_managers_to_be_attached_to_the_request' => array(
+						'name_ru' => 'Сменить куратора заявки',
+						'name_en' => 'get_a_list_of_managers_to_be_attached_to_the_request',
+						'ajax' => 'get_a_list_of_managers_to_be_attached_to_the_request'
+						)
+					);
+				}
 				// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
 				// exit;
 				break;
@@ -7899,7 +7921,7 @@ class CabinetMainMenu extends Cabinet{
 			$html .= '<ul class="check_one_li_tag">';
 				foreach ($menu_arr as $key => $menu_list) {
 					$html .= '<li data-ajax="'.$menu_list['ajax'].'" 
-						data-name_en="not_process" '.(($n==0)?'class="checked"':'').'>
+						data-name_en="'.$menu_list['name_en'].'" '.(($n==0)?'class="checked"':'').'>
 						'.$menu_list['name_ru'].'</li>';
 					
 					if($n==0){$first_val = $menu_list['name_en'];}
