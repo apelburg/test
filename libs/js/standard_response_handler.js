@@ -85,8 +85,7 @@
 				    $.post('', serialize, function(data, textStatus, xhr) {
 				    	if(data['response'] != 'false'){
 				    		obj.dialog( "destroy" );
-				    	}
-				    		
+				    	}				    		
 						standard_response_handler(data);
 					},'json');				    	
 			    }
@@ -182,7 +181,7 @@
 		}
 
 		// вывод системного сообщения 
-		function echo_message(data){
+		function echo_message_NEW(data){
 			var time = (data['time'] !== undefined)?data['time']:'7000';
 			// var data.message_type = (data['message_type'] !== undefined)?data['message_type']:'successful_message';
 			
@@ -224,7 +223,7 @@
 		 //    });
 		}	
 
-		function echo_message_old(data){
+		function echo_message(data){
 			var time = (data['time'] !== undefined)?data['time']:'7000';
 			$("<li/>", {
 			      "class": data.message_type,
@@ -255,7 +254,14 @@
 		}
 		// перезагрузка окна
 		function window_reload(data) {
-			location.reload();
+			if( data.timeout === undefined ){
+				location.reload();
+			}else{
+				setTimeout(function(){
+					location.reload();
+				}, data.timeout)
+
+			}
 		}
 		// переадресация из php
 		function location_href(data){
@@ -276,7 +282,7 @@
 			}	
 		});
 
-	function echo_message_js(text, message_type, timer){
+	function echo_message_js_NEW(text, message_type, timer){
 		timer = timer || 7000;
 		message_type = message_type || 'system_message';
 		// if(data['message_type'] !== undefined){
@@ -302,7 +308,7 @@
 		})
 	}
 	
-	function echo_message_js_OLD(text, message_type, timer){
+	function echo_message_js(text, message_type, timer){
 		message_type = message_type || 'system_message';
 		timer = timer || 7000;
 		$("<li/>", {

@@ -13,7 +13,7 @@
 			'query_taken_into_operation' => 'На рассмотрении',
 			'query_worcked_men' => 'В работе Sales',
 			'query_worcked_snab' => 'Работа Snab',
-			'query_history' => 'История',
+			'query_history' => 'Архив',
 			'query_all' => 'Все',
 
 
@@ -40,7 +40,7 @@
 			
 			'ready_for_shipment' => 'Готов к отгрузке',
 			'paused' => 'на паузе',
-			'history' => 'История',
+			'history' => 'Архив',
 			'simples' => 'Образцы',
 			'closed'=>'Закрытые',
 			'all' => 'Все',

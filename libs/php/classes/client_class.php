@@ -1002,8 +1002,10 @@ class Client extends aplStdAJAXMethod{
 	}
 
 	// новая форма заведения нового клиента
-	private function get_form_the_create_client_AJAX($AJAX = 'insert_new_client'){
-
+	public function get_form_the_create_client_AJAX($AJAX = 'insert_new_client'){
+		// echo 'get_form_the_create_client_AJAX<pre>';
+		// print_r($_POST);
+		// echo '</pre>';
 		$html = '';
 		$html .= '<div id="create_client">';
 		if(isset($_POST['company']) && trim($_POST['company']) == ''){
@@ -1011,6 +1013,9 @@ class Client extends aplStdAJAXMethod{
 			$html .= $this->wrap_text_in_warning_message_post($text);
 		}
 		$html .= '<form>';
+			foreach ($_POST as $key => $value) {
+				$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
+			}
 			$html .= '<table>';
 				$html .= '<tr>';
 					$html .= '<td>Название</td>';
@@ -1028,13 +1033,11 @@ class Client extends aplStdAJAXMethod{
 				$html .= '</tr>	';
 			$html .= '</table>';
 
-		unset($_POST['AJAX']);
-		unset($_POST['company']);
-		unset($_POST['dop_info']);
+		// unset($_POST['AJAX']);
+		// unset($_POST['company']);
+		// unset($_POST['dop_info']);
 
-		foreach ($_POST as $key => $value) {
-			$html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-		}
+		
 
 		$html .= '</form>';
 
@@ -1043,9 +1046,10 @@ class Client extends aplStdAJAXMethod{
 		// echo '654654654sasasd312';
 		$this->responseClass->addPostWindow($html,'Новый клиент',array('width' => '500'));
 		// echo '654654654sasasd312';
-		// echo '<pre>';
-		// print_r($this->responseClass);
-		// echo '</pre>';
+		echo $this->responseClass->getResponse();					
+				// exit;
+		// echo json_encode($this->responseClass);
+		exit;
 			
 	}
 
@@ -1280,11 +1284,22 @@ class Client extends aplStdAJAXMethod{
 	// заведение нового клиента при присвоении его к существующему запросу
 	protected function insert_new_client_AJAX(){
 		if(!isset($_POST['company']) || trim($_POST['company']) == ''){
+			// echo '<pre>';
+			// 	print_r($_POST);
+			// 	echo '</pre>';
+			// 	exit;
 			$this->get_form_the_create_client_AJAX();
-			// exit;
+				// $this->insert_new_client_for_new_qury_AJAX();
+			exit;
 		}else{
 
 			//если клиент был создан из запроса
+			if(isset($_POST['row_id']) && (int)$_POST['row_id'] > 0){
+				$_POST['rt_list_id'] = $_POST['row_id'];
+			}
+			// echo '<pre>';
+			// print_r($_POST);
+			// echo '</pre>';
 			if(isset($_POST['rt_list_id']) && (int)$_POST['rt_list_id'] > 0){
 				switch ($this->user_access) {
 					case '1':
@@ -1292,6 +1307,7 @@ class Client extends aplStdAJAXMethod{
 						// для выбора куратора клиента
 						$html = $this->get_choose_curators();
 						echo '{"response":"show_new_window","title":"Выберите менеджера","html":"'.base64_encode($html).'"}';
+						exit;
 						break;
 					case '5':
 						$this->client_id = $this->create_new_client($_POST['company'], $_POST['dop_info']);
@@ -1305,12 +1321,34 @@ class Client extends aplStdAJAXMethod{
 						$this->attach_for_query_many_managers($men_arr,$this->client_id);
 
 						echo '{"response":"OK","function":"reload_order_tbl"}';
+						exit;
 						break;
 					default:
 						break;
+
+				exit;
 				}
+			}else{
+				
+				if(isset($_POST['options']) && $_POST['options'] == 'for_me'){
+					// создаётся из раздела клиенты
+					$client_id = $this->create_new_client($_POST['company'], $_POST['dop_info']);
+					global $mysqli;
+					$query = "INSERT INTO `".RELATE_CLIENT_MANAGER_TBL."` SET 
+					    `client_id` = '".$client_id."', 
+					    `manager_id` = '".$this->user_id."';";
+					$result = $mysqli->query($query) or die($mysqli->error);
+					$html = 'клиент Добавлен';
+					$this->responseClass->addMessage($html,'successful_message');
+					$href = "http://".$_SERVER['HTTP_HOST']."/os/?page=clients&section=client_folder&subsection=client_card_table&client_id=".$client_id;
+					$this->responseClass->addResponseFunction('location_href',array('href' => $href));
+					echo $this->responseClass->getResponse();					
+					exit;
+				}
+
+				
 			}	
-			exit;	
+				
 		}
 	}
 
@@ -1324,12 +1362,14 @@ class Client extends aplStdAJAXMethod{
 		return $mysqli->insert_id;
 	}
 
-	// получаем форму выбора кураторов
-	private function get_choose_curators(){
+	// получаем форму выбора кураторов для нового клиента
+	public function get_choose_curators(){
 		// получаем список менеджеров
 		$access_arr[] = 5;
 		$managers_arr = $this->get_manager_list($access_arr);
-
+		// echo '<pre>';
+		// print_r($managers_arr);
+		// echo '</pre>';
 		$html = '';
 		$html .= '<form  id="chose_many_curators_tbl">';
 		$html .=' <div id="json_manager_arr">{}</div>';
@@ -1341,7 +1381,7 @@ class Client extends aplStdAJAXMethod{
 					$html .= '<tr>';
 				    for ($j=1; $j<=3; $j++) {
 				    	if(isset($managers_arr[$i])){
-					    	$checked = ($managers_arr[$i]['id'] == $_POST['manager_id'])?'class="checked"':'';
+					    	$checked = (isset($_POST['manager_id']) && $managers_arr[$i]['id'] == $_POST['manager_id'])?'class="checked"':'';
 					    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
 					    	$html .= '<td '.$checked.' date-lll="'.$i.'" data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
 				    		$i++;
@@ -1375,7 +1415,7 @@ class Client extends aplStdAJAXMethod{
 		
 		// если кураторы не были получены
 		if(empty($managers_arr)){
-			$message = "Для создания заказа необхождимо выбрать минимум одного претендента на обработку запроса.";
+			$message = "Необходимо выбрать минимум одного менеджера на обработку запроса.";
 			// echo '{"response":"show_new_window","title":"Выбрать куратора","html":"'.base64_encode($this->get_choose_curators()).'"}';	
 			echo '{"response":"false","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
 			exit;
@@ -1392,7 +1432,10 @@ class Client extends aplStdAJAXMethod{
 			// случай для редактирования списка админом
 			$message = 'Список прикреплённых менеджеров успешно изменён';
 			$this->client_id = (int)$_POST['client_id'];
-			$_POST['rt_list_id'] = $_POST['row_id'];
+			if(isset($_POST['row_id']) && !isset($_POST['rt_list_id'])){
+				$_POST['rt_list_id'] = $_POST['row_id'];	
+			}
+			
 		}
 		
 
@@ -2042,6 +2085,7 @@ class Client extends aplStdAJAXMethod{
 			    ON `".MANAGERS_TBL."`.`id` = `".RELATE_CLIENT_MANAGER_TBL."`.`manager_id`
 			    WHERE `".RELATE_CLIENT_MANAGER_TBL."`.`client_id` = '".$client_id."' 
     		";
+    	// echo $query;
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$manager_names = array();			
 		if($result->num_rows > 0){
@@ -2051,6 +2095,7 @@ class Client extends aplStdAJAXMethod{
 		}
 		return $manager_names;
 	}
+
 
 	static function get_ralate_manager_names($client_id){
 		$men_names = array();
@@ -2071,7 +2116,7 @@ class Client extends aplStdAJAXMethod{
 		}
 
 		global $mysqli;
-		$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `access` IN (".$access_str.") ORDER BY `last_name` ASC;";
+		$query = "SELECT * FROM  `".MANAGERS_TBL."` WHERE `access` IN (".$access_str.") ORDER BY `name` ASC;";
 		$result = $mysqli->query($query) or die($mysqli->error);
 		$manager_names = array();			
 		if($result->num_rows > 0){

@@ -220,7 +220,7 @@
 </div>
 
 <style type="text/css">
-	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2,#create_requesit,#create_client,#new_person_type_req,#client_delete_div{display:none;}#create_client input{width: 100%}
+	#show_requesit,#edit_requesit,#dialog-confirm,#dialog-confirm2,#create_requesit,#new_person_type_req,#client_delete_div{display:none;}#create_client input{width: 100%}
 	#new_person_type_req table{width: 100%}
 	#new_person_type_req input{width: 90%}
 	#create_client input{width: 100%}
@@ -228,7 +228,7 @@
 <div id="show_requesit"></div>
 <div id="create_requesit"></div>
 <div id="edit_requesit"></div>
-<div id="create_client">
+<!-- <div id="create_client">
 	<form>
 		
 		<table>
@@ -249,7 +249,7 @@
 		</tr>	
 	</table>
 	</form>
-</div>
+</div> -->
 <div id="new_person_type_req">
 	<form>
 		<input type="hidden" name="AJAX" value="new_person_type_req">

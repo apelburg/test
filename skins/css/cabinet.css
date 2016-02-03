@@ -126,7 +126,26 @@ td.class_no_calc{
 #cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.query_detail td:nth-of-type(7){
 	text-align: right;
 }
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr td:last-of-type{
+	width: 150px;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.order_head_row td:nth-of-type(9){
+	width: 150px;
+}
 
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.order_head_row td:nth-of-type(8),
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.order_head_row td:nth-of-type(7){
+	width: 100px;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.order_head_row td:nth-of-type(6){
+	width: 100px;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.order_head_row td:nth-of-type(5){
+	width: 120px;
+}
+#cabinet_general_content #general_panel_orders_tbl.query_tbl  tr.order_head_row td:nth-of-type(2){
+	width: 50px;
+}
 /*#cabinet_general_content #general_panel_orders_tbl  tr.order_head_row.row_open td{
 
     box-shadow: inset 0 15px 15px  -17px #333 , inset 0 0px 0px  -15px ;
@@ -845,6 +864,7 @@ input.calendar_date_ready{
 #dialog_gen_window_form .check_one_li_tag{
 	list-style: none;
 	padding: 0px;
+	margin: 0;
 }
 #dialog_gen_window_form .check_one_li_tag li{
 	padding: 3px 14px;
@@ -1459,4 +1479,39 @@ table#general_panel_orders_tbl {
 }
 #cabinet_general_content .rt_href_click:hover{
 	background: #BAD08B;
+}
+
+
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class td:nth-of-type(3),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class td:nth-of-type(4),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class td:nth-of-type(5),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class td:nth-of-type(6),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class td:nth-of-type(7),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class td:nth-of-type(9),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class td:nth-of-type(10),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class td:nth-of-type(11){
+	background-color: #BAD08B;
+}
+
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class.row_close td:nth-of-type(3),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class.row_close td:nth-of-type(4),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class.row_close td:nth-of-type(5),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class.row_close td:nth-of-type(6),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class.row_close td:nth-of-type(7),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class.row_close td:nth-of-type(9),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class.row_close td:nth-of-type(10),
+#cabinet_general_content #general_panel_orders_tbl tr.order_head_row.hover_class.row_close td:nth-of-type(11){
+	    background-color: #E2E2E2;
+}
+#cabinet_general_content #general_panel_orders_tbl td.query_theme_and_comment{
+	width: 250px;
+	max-width: 250px;
+}
+.icon_comment_show{
+	width: 35px;
+    float: left;
+    height: 19px;
+}
+.icon_comment_show:hover{
+	/*background: red*/
 }
