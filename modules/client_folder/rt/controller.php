@@ -239,29 +239,7 @@
 				     $uslugi_btn = '<span>+</span>';
 				 }
 
-				 ///////////////////////////////////////////////
-				/* else{// если данных по дополнительным услугам  нет выводим кнопку добавление дополнительных услуг
-				     $extra_exists_flag = '';
-					 $dop_uslugi_in_summ = 0;
-					 $dop_uslugi_out_summ = 0;
-					 $dop_uslugi_btn = '<span>+</span>';
-					 if($test_data) $extra_open_data =($counter==0)? 0:'0';
-				 }
-					 else{// если данных по печати нет то проверяем выводим кнопку добавление нанесения
-					 $print_btn = '<span>+</span>';
-					 $print_exists_flag = 'no';
-					 $print_in_summ = 0;
-					 $print_out_summ = 0;
-				 } 
-				  $print_btn = '<span>'.count($dop_row['dop_uslugi']['print']).'</span>'; 
-					 $print_exists_flag = 'yes';
-					 
-					   $dop_uslugi_btn =  '<span>'.count($dop_row['dop_uslugi']['extra']).'</span>';
-					 $dop_uslugi_in_summ = array_sum($summ_in);
-					 $dop_uslugi_out_summ = array_sum($summ_out);
-					 if($test_data) $extra_open_data =  print_r($dop_row['dop_uslugi']['extra'],TRUE);*/
-				 
-				 
+
 				 // подсчет сумм в ряду
 				 $item_price_out = ($dop_row['discount'] != 0 )? (($dop_row['price_out']/100)*(100 + $dop_row['discount'])) : $dop_row['price_out'] ;
 				 // 1. подсчитываем входящую сумму
@@ -339,7 +317,7 @@
 			     $expel = array ("main"=>0,"print"=>0,"dop"=>0);
 				 $svetofor = '<img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status.'.png" onclick="rtCalculator.svetofor_display_relay(this,true);" class="svetofor_btn">';
 			     $svetofor_td_attrs = 'svetofor_btn';
-				 $currency = $print_btn = $dop_uslugi_btn = '';
+				 $currency = $uslugi_btn = '';
 				 $item_price_out = $item_summ_in_format = $item_summ_out_format = $print_in_summ_format = $print_out_summ_format = '';
 				 $dop_uslugi_in_summ_format = $dop_uslugi_out_summ_format = $total_summ_in_format = $total_summ_out_format = '';
 				 $delta_format = $margin_format = $expel_class_main = $expel_class_print = $expel_class_dop = $quantity_dim = $discount = $discount_str = $srock_sdachi = $uslugi_exists_flag = $print_exists_flag = $margin_currency = $uslugi_summ_in = $uslugi_summ_out = $uslugi_price_in = $uslugi_price_out = $uslugi_summ_in_format = $uslugi_summ_out_format = $uslugi_price_in_format = $uslugi_price_out_format = $total_price_in_format = $total_price_out_format = '' ;
@@ -406,7 +384,7 @@
 						   <td width="15" type="item_summ_in" class="currency left" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$item_summ_in_format.$currency.'</div></td>
 						   <td width="90" type="item_price_out" editable="'.(($discount!=0)?'false':'true').'" class="out right">'.$item_price_out.'</td>
 						    <td width="15" type="item_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$item_summ_out_format.$currency.'</div></td>
-						   <td width="25" class="calc_btn" calc_btn="print" print_exists_flag="'.$print_exists_flag.'" uslugi_exists_flag="'.$uslugi_exists_flag.'">'.$print_btn.'</td>
+						   <td width="33" class="calc_btn" uslugi_btn="1" print_exists_flag="'.$print_exists_flag.'" uslugi_exists_flag="'.$uslugi_exists_flag.'" pos_id="'.$key.'">'.$uslugi_btn.'</td>
 			               <td width="80" type="uslugi_price_in" class="out right '.$expel_class_print.'" expel_suspended="'.$expel['print'].'">'.$uslugi_price_in_format.'</td>
 						   
 						   
@@ -460,25 +438,25 @@
 				  <td class="hidden">draft</td>
 				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status_all.'.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
 				  <td width="60" type="quantity" class="quantity right r_border">тираж</td>
-				  <td width="90" class="grey w_border  right pointer">входящая</td>
+				  <td width="90" class="grey w_border relative"><div class="cap_name" style="left:80px;">сувенир</div><br><div class="cap_subname">входящая</div></td>
 				  <td width="15" class="grey w_border"></td>
-				  <td width="90" class="grey w_border right pointer">исходящая</td>
+				  <td width="90" class="grey w_border"><br><div class="cap_subname">исходящая</div></td>
 				  <td width="15" class="grey w_border r_border"></td>
-				  <td width="25">кол-во</td>
-			      <td width="80" class="pointer">входящая</td>
+				  <td width="33">кол-во</td>
+			      <td width="80" class="relative"><div class="cap_name">дополнительные услуги</div><br><div class="cap_subname">входящая</div></td>
 			      <td width="15"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
-           $rt.= '<td width="80" class="out pointer">исходящая</td>
+           $rt.= '<td width="80" class="out pointer"><br><div class="cap_subname">исходящая</div></td>
 				  <td width="15" class="r_border"></td>
-				  <td width="45" class="grey w_border">наценка</td>
-				  <td swiched_cols="summs" c_stat="0" class="total pointer hidden center">итого<br><span class="small">входящая</span></td>
+				  <td width="45" class="grey w_border">наценка<br><span class="small">ср. знач-е</span></td>
+				  <td swiched_cols="summs" c_stat="0" class="total pointer hidden right">итого<br><span class="small">входящая</span></td>
 				  <td width="15" swiched_cols="summs" c_stat="0" class="hidden r_border"></td>
-				  <td swiched_cols="summs"  c_stat="1" class="total pointer center">итого<br><span class="small">исходящая</span></td>
+				  <td swiched_cols="summs"  c_stat="1" class="total pointer right">итого<br><span class="small">исходящая</span></td>
 				  <td width="15" swiched_cols="summs" c_stat="1" class="r_border"></td>
 				  <td width="70" class="center grey r_border">срок сдачи</td>
-				  <td class="delta right">delta</td>
+				  <td class="delta right">маржа</td>
 				  <td width="10"></td>
-				  <td class="margin center">маржина-<br>льность</td>
+				  <td class="margin center"></td>
 				  <td><!--статус--></td>';              
 	    $rt.= '</tr>
 	           <tr row_id="total_row" class="grey bottom_border">
