@@ -454,15 +454,15 @@
 			$html .= '</td>';
 			$html .= '<td class="show_main_menu">';
 
-			if($this->user_access == 1){
-				$no_edit = 0;	
-			}
+				if($this->user_access == 1){
+					$no_edit = 0;	
+				}
 
-			if($this->user_access != 1 && $this->Query['client_id'] == 0){
-				$no_edit = 1;
-			}else{
-				$no_edit = 0;
-			}
+				if($this->user_access != 1 && $this->Query['client_id'] == 0){
+					$no_edit = 1;
+				}else{
+					$no_edit = 0;
+				}
 			
 
 				$html .= '<div>'.$this->get_all_manager_name_Database_Html($this->Query,$no_edit).'</div>';
@@ -474,7 +474,7 @@
 			
 			$html .= '<td class="show_main_menu">'.$this->Query['create_time'].'</td>';
 			$html .= '<td class="show_main_menu"></td>';
-			$html .= '<td>
+			$html .= '<td class="show_main_menu">
 </td>';
 			
 			// $rrr = RT::calcualte_query_summ($this->Query['query_num']);

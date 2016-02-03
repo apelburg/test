@@ -3,6 +3,8 @@
 //////////////////////////
 
 $(document).on('click', '.icon_comment_show', function(event) {
+	event.stopImmediatePropagation()
+
 	var query_num = $(this).attr('data-rt_list_query_num');
 	$.post('', {
 		AJAX: 'get_comment_for_query',
