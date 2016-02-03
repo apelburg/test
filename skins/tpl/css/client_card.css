@@ -1,0 +1,50 @@
+.edit_row{ padding: 5px; cursor: default;float: left;}
+.edit_row:hover{ background: rgb(255, 228, 228); }  
+.adress_note{ float: left; padding-top: 10px; color: rgb(176, 175, 175)}
+
+#edit-client-adres,#edit-client-adres table{ width: 100%}
+#edit-client-adres .table_2 input{width: 40px; padding-left: 5px; padding-right: 5px}
+#edit-client-adres tr td{padding: 5px }
+#edit-client-adres input, #edit-client-adres textarea{ width: 98%;
+padding-top: 5px;
+padding-bottom: 5px;
+padding-left: 1%;
+padding-right: 1%;border: 1px solid rgb(213, 213, 213);
+}
+
+#edit-client-adres tr td:nth-of-type(1){ width: 60px; padding-right: 5px; text-align: right; color: #AEAEAE; font-size: 14px }
+#edit-client-adres tr td table:nth-of-type(1) tr td:nth-of-type(1)
+{ width: 55px; padding-right: 5px; text-align: right; color: #AEAEAE; font-size: 14px }
+#edit-client-adres tr td table tr td { width: auto;}
+#edit-client-adres .type_adress,.city_fast{ cursor:default;padding: 5px 7px;border: 1px solid rgb(213, 213, 213);margin-left: 10px;
+color: #C2C2C2;}
+#edit-client-adres .type_adress:active,.city_fast:active{ background-color: grey}
+#edit-client-adres .type_adress.checked{ padding: 5px 7px; background-color: #9dbe8e; color: #000;border: 1px solid #9dbe8e;}
+#del_text,.del_text2{ height:22px; padding: 0; opacity: 0.7; width:36px; float: right; top:5px;right: 20px; position: absolute; background: no-repeat url(http://ssl.gstatic.com/mail/sprites/general_black-16bf964ab5b51c4b7462e4429bfa7fe8.png) 7px -411px; background-color: #BBBBBB;
+cursor: default; opacity: 0.4}
+.c_r{position:relative; padding-right:48px;float: left;
+width: 100%;}
+#del_text2:hover,#del_text:hover{ opacity: 1}
+.table_other_contact_information tr td:nth-of-type(2) div,.table_phone_contact_information tr td:nth-of-type(2) div{ padding: 5px 5px 5px 0px;height: 100%; float: left; cursor: default;}
+.delete_contact_face_table{ padding: 0 10px }
+.delete_contact_face_table > div{ padding: 4px 9px 2px 9px; position: absolute; right: 20px; border: 1px solid grey; float: right; cursor: default; margin-top: 10px}
+.delete_contact_face_table > div:hover{ background-color: #f1f1f1}
+.edit_general_info tr td:nth-of-type(2):hover div,
+.table_other_contact_information tr td:nth-of-type(2):hover div,
+.table_phone_contact_information tr td:nth-of-type(2):hover div,
+.contact_face_tbl_edit:hover,
+#client_dop_information:hover{cursor: default;background-color: #EFFAE7;}
+input, textarea, select{font-size: 12px;color: #444;width: 100%;height: 1.694em; margin-bottom:15px;text-indent: .8em;border: 1px solid #efefef;}
+input:hover,textarea:hover,textarea:focus, input:focus{outline: none;box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 6px 0px, rgba(0, 0, 0, 0.0470588) 0px 2px 3px 0px;
+ }
+ textarea{padding:1px 0;}
+body .quick_bar_tbl td .quick_button_div{background: none;}
+body .quick_bar_tbl td .quick_button_div .button {text-decoration: none; display: block; line-height: 30px;background-color: #CD2328;color: #fff; }
+.no_edit:hover div,.no_edit:hover{ background: none}
+#client_delete{ float: left; margin-top: 15px; color: grey; background: #f3f3f3; padding: 5px 10px; cursor: default;border: 1px solid grey}
+#client_delete:hover{ float: left; background: #D3D3D3;}
+.errors_text {
+  font-weight: bold;
+  color: red;
+  font-size: 10px;
+}
