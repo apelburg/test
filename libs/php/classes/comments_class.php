@@ -167,7 +167,7 @@ class Comments_for_query_class{
 							$html .= '<div class="div_for_button">';
 								// $html .= '<button class="add_nah">ОК</button>';
 								// $html .= '<button class="add_nah">Принял</button>';
-								$html .= '<button id="add_new_comment_button">Отправить</button>';
+								$html .= '<button id="add_new_comment_button">Сохранить</button>';
 							$html .= '</div>';
 					$html .= '</div>';
 				$html .= '</div>';
@@ -177,7 +177,6 @@ class Comments_for_query_class{
 			$html .= '<input name="AJAX" type="hidden" value="add_new_comment_for_query"></input>';
 			$html .= '<input name="id" type="hidden" value="'.$this->user_id.'"></input>';
 			$html .= '<input name="query_num" type="hidden" value="'.$_POST['query_num'].'"></input>';
-			
 		$html .= '</form>';
 		$html .= '</div>';
 		return $html;
@@ -349,7 +348,7 @@ class Comments_for_order_class extends Comments_for_query_class{
 					$html .= '<div class="div_for_button">';
 						// $html .= '<button class="add_nah">ОК</button>';
 						// $html .= '<button class="add_nah">Принял</button>';
-						$html .= '<button id="add_new_comment_button">Отправить</button>';
+						$html .= '<button id="add_new_comment_button">Сохранить</button>';
 					$html .= '</div>';
 					$html .= '</div>';
 				$html .= '</div>';
@@ -562,7 +561,7 @@ class Comments_for_order_dop_data_class extends Comments_for_order_class{
 						$html .= '<div class="div_for_button">';
 							// $html .= '<button class="add_nah">ОК</button>';
 							// $html .= '<button class="add_nah">Принял</button>';
-							$html .= '<button id="add_new_comment_button">Отправить</button>';
+							$html .= '<button id="add_new_comment_button">Сохранить</button>';
 						$html .= '</div>';
 						$html .= '<input name="name" type="hidden" value="'.$this->user_name .'"></input>';
 						$html .= '<input name="AJAX" type="hidden" value="add_new_comment_for_position"></input>';

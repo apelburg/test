@@ -437,8 +437,22 @@
 
 			$html .= $this->get_client_name_for_query_Database(
 				$this->Query['client_id'],$no_edit);
-			$html .= '<td>'.$this->Query['theme'].'</td>';
-			$html .= '<td>';
+			$html .= '<td class="show_main_menu query_theme_and_comment">';
+				$html .= '<div class="table" style="width:100%">';
+					$html .= '<div class="row">';
+						$html .= '<div clas="cell">'; 
+							// тема
+							$html .= $this->Query['theme'];
+						$html .= '</div>';
+						$html .= '<div class="cell">';
+							// комментарии
+							$html .= '<span data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span>';
+						$html .= '</div>';
+					$html .= '</div>';
+				$html .= '</div>';
+
+			$html .= '</td>';
+			$html .= '<td class="show_main_menu">';
 
 			if($this->user_access == 1){
 				$no_edit = 0;	
@@ -458,18 +472,15 @@
 				}				
 			$html .= '</td>';
 			
-			$html .= '<td>'.$this->Query['create_time'].'</td>';
-			$html .= '<td></td>';
-			$html .= '<td><span style="
-    width: 43px;
-    float: left;
-    height: 53px;
-" data-rt_list_query_num="'.$this->Query['query_num'].'" class="icon_comment_show white '.Comments_for_query_class::check_the_empty_query_coment_Database($this->Query['query_num']).'"></span></td>';
+			$html .= '<td class="show_main_menu">'.$this->Query['create_time'].'</td>';
+			$html .= '<td class="show_main_menu"></td>';
+			$html .= '<td>
+</td>';
 			
 			// $rrr = RT::calcualte_query_summ($this->Query['query_num']);
 			$rrr = $this->price_for_the_position_ITOGO;
-			$html .='<td td="'.$rrr.'">'.$rrr.'</td>';
-			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.' query_status">'.$this->status_or_button.'</td>';
+			$html .='<td class="show_main_menu" td="'.$rrr.'">'.$rrr.'</td>';
+			$html .='<td class="'.$this->Query['status'].'_'.$this->user_access.' show_main_menu query_status">'.$this->status_or_button.'</td>';
 			return $html;
 		}
 
@@ -552,8 +563,8 @@
 					$html .= '<th>Тема</th>';
 					$html .= '<th>Менеджер</th>';
 					$html .= '<th style="width:87px">Дата запроса</th>';
-					$html .= '<th></th>';
-					$html .= '<th>Комментарий</th>';
+					$html .= '<th colspan="2"></th>';
+					// $html .= '<th>Комментарий</th>';
 					$html .= '<th>Сумма</th>';
 					$html .= '<th>Статус</th>';
 				$html .= '</tr>';

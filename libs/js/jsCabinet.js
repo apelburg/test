@@ -3376,5 +3376,30 @@ $(document).on('click', '#general_panel_orders_tbl tr td.rt_href_click', functio
 	
 });
 
+// // подсветка строки при наведении на ячейки запроса, которые вызывают меню
+// $(document).ready(function(event) {
+// 	$('#general_panel_orders_tbl .order_head_row td').hover(function(event){
+// 		$(this).parent().addClass('hover_class');
+// 	},function(event){
+// 		$(this).parent().removeClass('hover_class');
+// 	})
+// })
+
+// $(document).on('click','.show_main_menu',function(){
+// 	event.preventDefault();
+// 	var row_id = $(this).parent().attr('data-id');
+// 	var client_id = $(this).parent().find('td:nth-of-type(3)').attr('data-id');
+// 	// var query_num = Number($(this).prev().prev().prev().prev().prev().prev().prev().prev().find('a').html());
+// 	var query_num = Number($(this).parent().find('td:nth-of-type(2) a').html());
+
+// 	$.post('', {
+// 		AJAX: 'get_command_for_change_status_query',
+// 		row_id:row_id,
+// 		client_id:client_id,
+// 		query_num:query_num
+// 	}, function(data, textStatus, xhr) {
+// 		standard_response_handler(data);
+// 	},'json');
+// });
 
 

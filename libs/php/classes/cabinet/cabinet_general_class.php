@@ -290,15 +290,24 @@
 				}
 				
 			// получаем форму выбора кураторов для нового клиента
-			protected function get_choose_curators_form($managers_arr){
+			protected function get_choose_curators_form($managers_arr_all){
 				// получаем список менеджеров
 				// echo '<pre>';
 				// print_r($managers_arr);
 				// echo '</pre>';
 
-
+				foreach ($managers_arr_all as $key => $manager) {
+					if($manager['id'] != 24){
+						$managers_arr[] = $manager;
+					}
+				}
+				
 				$menegers_checked_arr = array();
 				$html = '';
+				// echo '<pre>';
+				// print_r($managers_arr);
+				// echo '</pre>';
+
 				$html .= '<form  id="chose_many_curators_tbl">';
 				
 				
@@ -309,6 +318,7 @@
 							$html .= '<tr>';
 						    for ($j=1; $j<=3; $j++) {
 						    	if(isset($managers_arr[$i])){
+						    		//исключаем отдел продаж
 							    	$checked = '';
 							    	if(isset($_POST['manager_id']) && $managers_arr[$i]['id'] == $_POST['manager_id']){
 							    		$checked = ' class="checked"';
@@ -720,7 +730,8 @@
 								$html .= '<tr>';
 							    for ($j=1; $j<=3; $j++) {
 							    	if(isset($managers_arr[$i])){
-								    	$checked = ($managers_arr[$i]['id'] == $managers_arr[0]['id'])?'class="checked"':'';
+								    	//$checked = ($managers_arr[$i]['id'] == $managers_arr[0]['id'])?'class="checked"':'';
+								    	$checked = '';
 								    	$name = ((trim($managers_arr[$i]['name']) == '' && trim($managers_arr[$i]['last_name']) == '')?$managers_arr[$i]['nickname']:$managers_arr[$i]['name'].' '.$managers_arr[$i]['last_name']);
 								    	$html .= '<td '.$checked.' data-id="'.$managers_arr[$i]['id'].'">'.$name."</td>";
 							    	}else{

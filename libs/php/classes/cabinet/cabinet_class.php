@@ -6115,10 +6115,10 @@
 			if($result->num_rows > 0){
 				while($row = $result->fetch_assoc()){
 					$href = './?page='.$_GET['page'].(isset($_GET['section'])?'&section='.$_GET['section']:'').(isset($_GET['subsection'])?'&subsection='.$_GET['subsection']:'').'&client_id='.$row['id'];
-					$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client js--client_td"':' class="dop__info js--client_td filter_class" data-href="'.$href.'"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
+					$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client show_main_menu js--client_td"':' class="dop__info show_main_menu js--client_td filter_class" data-href="'.$href.'"').' data-id="'.$row['id'].'">'.$row['company'].'</td>';
 				}
 			}else{
-				$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client js--client_td add"':' class="dop__info js--client_td"').' data-id="0">Прикрепить клиента</td>';
+				$name = '<td'.$display.' '.(($no_edit==0)?' class="attach_the_client show_main_menu js--client_td add"':' class="dop__info show_main_menu js--client_td"').' data-id="0">Прикрепить клиента</td>';
 			}
 			return $name;
 		}
