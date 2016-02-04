@@ -29,7 +29,7 @@
 		 
 		 $query = "SELECT main_tbl.id AS main_id ,main_tbl.type AS main_row_type  ,main_tbl.art_id AS art_id ,main_tbl.art AS art ,main_tbl.name AS item_name ,main_tbl.master_btn AS master_btn , main_tbl.svetofor_display AS svetofor_display ,
 		 
-		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel, dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_type AS shipping_type, dop_data_tbl.shipping_time AS shipping_time, dop_data_tbl.status_snab AS status_snab,
+		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.row_status AS row_status, dop_data_tbl.glob_status AS glob_status, dop_data_tbl.expel AS expel, dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_type AS shipping_type, dop_data_tbl.shipping_time AS shipping_time, dop_data_tbl.status_snab AS status_snab, dop_data_tbl.dop_men_text AS dop_men_text,
 						  
 						  dop_uslugi_tbl.id AS uslgi_t_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.discount AS uslugi_t_discount , dop_uslugi_tbl.for_how AS uslugi_t_for_how
@@ -68,6 +68,7 @@
 																	'row_status' => $row['row_status'],
 																	'glob_status' => $row['glob_status'],
 																	'status_snab' => $row['status_snab'],
+																	'dop_men_text_class' => ($row['dop_men_text']!='')?'filled':'empty',										
 																	'quantity' => $row['dop_t_quantity'],
 																	'discount' => $row['dop_t_discount'],
 																	'price_in' => $row['dop_t_price_in'],
@@ -275,8 +276,8 @@
 				 $uslugi_price_out_format = number_format($uslugi_price_out,'2','.','');
 				 $total_summ_in_format = number_format($in_summ,'2','.','');
 				 $total_summ_out_format = number_format($out_summ,'2','.','');
-				 $total_price_in_format = number_format($in_summ/$dop_row['quantity'],'2','.','');
-				 $total_price_out_format = number_format($out_summ/$dop_row['quantity'],'2','.','');
+				 $total_price_in_format = ($dop_row['quantity']!=0)? number_format($in_summ/$dop_row['quantity'],'2','.',''):number_format($in_summ,'2','.','');
+				 $total_price_out_format = ($dop_row['quantity']!=0)?number_format($out_summ/$dop_row['quantity'],'2','.',''):number_format($out_summ,'2','.','');
 				 $delta_format = number_format($delta,'2','.','');
 				 $margin_format = number_format($margin,'2','.','');
 		         $margin_currency = '%';
@@ -295,7 +296,7 @@
 				 
 				 $svetofor_src = $img_design_path.'rt_svetofor_'.$svetofor_stat.'.png';
 				 $svetofor = '<img src="'.$svetofor_src.'" />';
-				 $svetofor .= '<div class="comment_div" data-href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'" data-id="'.$dop_key.'"></div>';
+				 $svetofor .= '<div class="comment_div '.$dop_row['dop_men_text_class'].'" data-href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'" data-id="'.$dop_key.'"></div>';
 				 $svetofor_td_attrs = 'svetofor="'.$svetofor_stat.'" class="svetofor pointer center"';
 				 $svetofor_tr_display = ($row['svetofor_display']==1 && $dop_row['row_status']=='red')?'hidden':'';
 				 $currency = 'р';
@@ -394,17 +395,17 @@
 			 
 			               <td width="15" type="uslugi_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$uslugi_summ_out_format.$currency.'</div></td>
 			 
-			               <td width="45" class="center" type="discount" its_rt="true" discount_fieid="1">'.$discount_str.'</td>
+			               <td width="50" class="center r_border" type="discount" its_rt="true" discount_fieid="1">'.$discount_str.'</td>
 						   <td type="total_price_in" c_stat="0" swiched_cols="summs" class="total in right hidden '.$expel_class_main.'"  expel="'.$expel['main'].'">'.$total_price_in_format.'</td>
 						   <td width="15" type="total_summ_in" swiched_cols="summs" c_stat="0" class="currency hidden r_border '.$expel_class_main.'" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$total_summ_in_format.$currency.'</div></td>
 						   <td type="total_price_out" swiched_cols="summs" c_stat="1" class="total out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$total_price_out_format.'</td>
 						   <td width="15" type="total_summ_out" swiched_cols="summs" c_stat="1" class="currency r_border left '.$expel_class_main.'" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$total_summ_out_format.$currency.'</div></td>
-						   <td width="70" class="grey r_border center">'.$srock_sdachi.'</td>
+						   <td width="70" class="r_border center">'.$srock_sdachi.'</td>
 						   <td type="delta" class="delta right">'.$delta_format.'</td>
 						   <td type="margin" width="10" class="left" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:3px;color:#ccc;">'.$margin_format.$margin_currency.'</div></td>
 						   <td></td>
-						  <!-- <td raschet_status="1" style="position: relative;overflow:hidden;white-space: nowrap;"  tooltip="'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>-->
-						<td></td>
+						   <!-- <td raschet_status="1" style="position: relative;overflow:hidden;white-space: nowrap;"  tooltip="'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>-->
+						   <td></td>
 						</tr>';
 			 // загружаем сформированный ряд в итоговый массив
 		     $tbl_rows[]= $cur_row;
@@ -438,22 +439,22 @@
 				  <td class="hidden">draft</td>
 				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status_all.'.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
 				  <td width="60" type="quantity" class="quantity right r_border">тираж</td>
-				  <td width="90" class="grey w_border relative"><div class="cap_name" style="left:80px;">сувенир</div><br><div class="cap_subname">входящая</div></td>
-				  <td width="15" class="grey w_border"></td>
-				  <td width="90" class="grey w_border"><br><div class="cap_subname">исходящая</div></td>
-				  <td width="15" class="grey w_border r_border"></td>
-				  <td width="33">кол-во</td>
+				  <td width="90" class="w_border relative"><div class="cap_name" style="left:105px;">сувенир</div><br><div class="cap_subname">входящая</div></td>
+				  <td width="15" class="w_border"></td>
+				  <td width="90" class="w_border"><br><div class="cap_subname">исходящая</div></td>
+				  <td width="15" class="w_border r_border"></td>
+				  <td width="33"><br><span class="small">кол-во</span></td>
 			      <td width="80" class="relative"><div class="cap_name">дополнительные услуги</div><br><div class="cap_subname">входящая</div></td>
 			      <td width="15"></td>';
     if($test_data)	 $rt.= '<td class="test_data_cap">доп.усл подробн</td>';
            $rt.= '<td width="80" class="out pointer"><br><div class="cap_subname">исходящая</div></td>
 				  <td width="15" class="r_border"></td>
-				  <td width="45" class="grey w_border">наценка<br><span class="small">ср. знач-е</span></td>
-				  <td swiched_cols="summs" c_stat="0" class="total pointer hidden right">итого<br><span class="small">входящая</span></td>
-				  <td width="15" swiched_cols="summs" c_stat="0" class="hidden r_border"></td>
-				  <td swiched_cols="summs"  c_stat="1" class="total pointer right">итого<br><span class="small">исходящая</span></td>
-				  <td width="15" swiched_cols="summs" c_stat="1" class="r_border"></td>
-				  <td width="70" class="center grey r_border">срок сдачи</td>
+				  <td width="50" class="w_border center">наценка<br><span class="small">ср. знач-е</span></td>
+				  <td swiched_cols="summs" c_stat="0" class="total grey pointer hidden right">итого<br><span class="small">входящая</span></td>
+				  <td width="15" swiched_cols="summs" c_stat="0" class="hidden pointer grey r_border"></td>
+				  <td swiched_cols="summs"  c_stat="1" class="total grey pointer right">итого<br><span class="small">исходящая</span></td>
+				  <td width="15" swiched_cols="summs" c_stat="1" class="grey pointer r_border"></td>
+				  <td width="70" class="center r_border">срок сдачи</td>
 				  <td class="delta right">маржа</td>
 				  <td width="10"></td>
 				  <td class="margin center"></td>
@@ -479,12 +480,12 @@
     if($test_data)	$rt.= '<td class="test_data_cap"></td>';
            $rt.= '<td width="80" type="uslugi_summ_out" class="out right">'.number_format(@$total['uslugi_summ_out'],'2','.','').'</td>
 				  <td width="" class="r_border">р</td>
-				  <td width="45" class=""></td>
-			      <td type="total_summ_in" swiched_cols="summs" c_stat="0" class="right hidden">'.number_format(@$total['in_summ'],'2','.','').'</td>
+				  <td width="50" class=""></td>
+			      <td type="total_summ_in" swiched_cols="summs" c_stat="0" class="grey right hidden">'.number_format(@$total['in_summ'],'2','.','').'</td>
 				  <td width="15" swiched_cols="summs" c_stat="0" class="left hidden r_border">р</td>
-				  <td type="total_summ_out" swiched_cols="summs" c_stat="1" class="right">'.number_format(@$total['out_summ'],'2','.','').'</td>
+				  <td type="total_summ_out" swiched_cols="summs" c_stat="1" class="grey right">'.number_format(@$total['out_summ'],'2','.','').'</td>
 				  <td width="15" swiched_cols="summs" c_stat="1" class="left r_border">р</td>
-				  <td width="70" class="grey r_border"></td>
+				  <td width="70" class="r_border"></td>
 				  <td type="delta" class="right">'.number_format((@$total['out_summ']-@$total['in_summ']),'2','.','').'</td>
 				  <td width="10" class="left">р</td>
 				  <td type="margin" class="right"></td>
