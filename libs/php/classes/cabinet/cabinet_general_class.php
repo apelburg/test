@@ -464,6 +464,23 @@
 					
 					$this->responseClass->addMessage($message,'system_message');
 					$this->responseClass->addResponseFunction('reload_order_tbl');
+
+					// оповещение менеджера
+					$mail_message = "";
+					$Cabinet = new Cabinet();
+					$this->Query = $this->get_query((int)$_POST['rt_list_id']);
+					$managers_email_arr = $Cabinet->get_users_email(array($_POST['manager_id']));
+					$subject = 'Вам доступен новый запрос.';
+					$mail_message .= 'Здравствуйте, '.$manager.'!<br><br>';
+					$mail_message .= 'Вам доступен <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&query_num='.$this->Query['query_num'].'">новый запрос № '.$this->Query['query_num'].'</a><br>';
+					$mail_message .= '<br>';
+					$mail_message .= 'P.S. Запрос доступен только Вам!';
+					    
+					$mailClass = new Mail();
+							
+					foreach ($admin_email_arr as $key => $email) {
+						$mailClass->send($email,'os@apelburg.ru',$subject,$mail_message);
+					}
 				}else{
 					$query .= ",`status` = 'in_work'";
 					$this->Query = $this->get_query((int)$_POST['rt_list_id']);

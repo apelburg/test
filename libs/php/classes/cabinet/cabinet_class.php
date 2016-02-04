@@ -320,6 +320,11 @@
 				if(isset($_GET['order_num']) && $_GET['order_num'] != ''){
 					$this->filtres_html['order_num'] = '<li>заказ №'.self::show_order_num($_GET['order_num']).'<a href="'.$this->link_exit_out_filters('order_num').'" class="close">x</a></li>';	
 				}
+
+				// проверяем на наличие фильтра по заказу
+				if(isset($_GET['query_num']) && $_GET['query_num'] != ''){
+					$this->filtres_html['query_num'] = '<li>запрос №'.self::show_query_num($_GET['query_num']).'<a href="'.$this->link_exit_out_filters('query_num').'" class="close">x</a></li>';	
+				}
 				
 				// проверяем на наличие фильтра по заказу
 				if(isset($_GET['manager_id']) && $_GET['manager_id'] != ''){
@@ -1528,8 +1533,8 @@
 				// устанавливаем статус запроса на history
 				global $mysqli;
                 $query = "UPDATE `".RT_LIST."` SET `status`= '".$new_status."'"; 
-                if($new_status=="in_work"){
-
+                if($new_status=="in_work" && $this->user_access != 1){
+                	$query .= " ,`manager_id`= '".$this->user_id."'";
                 }
                 $query .= " WHERE  `id` = '".$id."';";
                 $result = $mysqli->query($query) or die($mysqli->error);
@@ -2824,12 +2829,12 @@
 			/**
 			  *	возвращает массив email 
 			  *
-			  *	@param 		$user
+			  *	@param 		$user_id_arr
 			  *	@return  	
 			  *	@author  	Alexey Kapitonov
 			  *	@version 	
 			  */
-			protected function get_admin_email($user_id_arr){
+			public function get_users_email($user_id_arr){
 				global $mysqli;
 				$query = "SELECT * FROM `".MANAGERS_TBL."` WHERE id in ('".implode("','",$user_id_arr)."')";
 				$email = array();
@@ -2921,13 +2926,13 @@
 
 				// include_once($_SERVER['DOCUMENT_ROOT'].'/libs/php/classes/mail_class.php');
 
-				$admin_email_arr = $this->get_admin_email(array(4,6));
+				$admin_email_arr = $this->get_users_email(array(4,6,42));
 
 				switch (count($managers_arr)) {
 						case 0:
 							// оповещение админа !!!!!!!!!
 							$subject = 'Отказ от запроса';
-							$mail_message = "Менеджер $Manager_name отказаля от запроса № ".$Query['query_num'].'<br>';
+							$mail_message = "Менеджер $Manager_name отказаля от <a href=\"http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&query_num=".$Query['query_num']."\">запроса № ".$Query['query_num']."</a><br>";
 							$mail_message .= "Причина:<br>";
 							$mail_message .= $_POST['comment'];
 							
@@ -2946,10 +2951,10 @@
 
 							$mail_message = "";
 							// оповещение остальных !!!!!!!!!
-							$managers_email_arr = $this->get_admin_email($managers_arr);
+							$managers_email_arr = $this->get_users_email($managers_arr);
 							$subject = 'Отказ от запроса';
 							$mail_message .= 'Вам доступен новый запрос.';
-							$mail_message .= "Менеджер $Manager_name отказаля от запроса № ".$Query['query_num'].'<br>';
+							$mail_message .= "Менеджер $Manager_name отказаля от <a href=\"http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&query_num=".$Query['query_num']."\">запроса № ".$Query['query_num']."</a><br>";
 							$mail_message .= "Причина:<br>";
 							$mail_message .= $_POST['comment'];
 						    
@@ -2963,10 +2968,10 @@
 						default:
 							$mail_message = "";
 							// оповещение остальных !!!!!!!!!
-							$managers_email_arr = $this->get_admin_email($managers_arr);
+							$managers_email_arr = $this->get_users_email($managers_arr);
 							$subject = 'Отказ от запроса';
 							$mail_message .= 'Вам доступен новый запрос.';
-							$mail_message .= "Менеджер $Manager_name отказаля от запроса № ".$Query['query_num'].'<br>';
+							$mail_message .= "Менеджер $Manager_name отказаля от <a href=\"http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&query_num=".$Query['query_num']."\">запроса № ".$Query['query_num']."</a><br>";
 							$mail_message .= "Причина:<br>";
 							$mail_message .= $_POST['comment'];
 						    
@@ -3108,18 +3113,17 @@
 				// если статус меняет не админ
 				$query = $this->get_query((int)$_POST['row_id']);
 
-				// если клиент не назначен
-				if($query['client_id'] == 0){
-					$message = "Прикрепите клиента.";
-					// $message = 'Для выбранного клиента доступны следующие кураторы:';
-					$this->responseClass->addMessage($message,'system_message');
-					$this->get_client_sherch_form_AJAX();
-					return;
-				}
-
-
+				
 
 				if( $this->user_access != 1 ){
+					// если клиент не назначен
+					if($query['client_id'] == 0){
+						$message = "Прикрепите клиента.";
+						// $message = 'Для выбранного клиента доступны следующие кураторы:';
+						$this->responseClass->addMessage($message,'system_message');
+						$this->get_client_sherch_form_AJAX();
+						return;
+					}
 					// проверяем не принадлежит ли данный запрос другому менеджеру					
 					$master = $this->check_the_empty_query($query);
 					if($master > 0 && $master != $this->user_id){
@@ -5960,6 +5964,20 @@
 			
 		}
 
+		static function show_query_num($key){
+			if($key != 0){
+				$i = 6 - strlen($key);
+				// echo $i.'    */';
+				$str = '';
+				for ($t=0; $t < $i ; $t++) { 
+					$str .='';		}
+				return $str.$key;	
+			}else{
+				return '<span style="color:grey">не заведён</span>';
+			}
+			
+		}
+
 		// выводит имя клиента для запроса в форме редактирования
 		protected function get_client_name_Database($id,$no_edit=0){
 			global $mysqli;		
@@ -7747,6 +7765,11 @@ class CabinetMainMenu extends Cabinet{
 
 	// для менеджера
 	private function menu_5(){
+		// проверяем принадлежность запроса другому менеджеру
+		if((int)$this->Query['manager_id']>0 && $this->Query['manager_id'] != $this->user_id){
+			$this->Query['status'] = 'disabled';
+		}
+
 		// меняем набор комманд относительно статуса запроса
 		switch ($this->Query['status']) {
 			// архив
@@ -7834,6 +7857,11 @@ class CabinetMainMenu extends Cabinet{
 				// echo '{"response":"OK","function":"echo_message","message_type":"system_message","message":"'.base64_encode($message).'"}';
 				// exit;
 				break;
+				case 'disabled':
+					$message = "Вы не можете изменять данный запрос. С ним работает другой менеджер.";
+					echo '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
+				exit;
+					break;
 			default:
 				$message = "Нет доступных комманд";
 				echo '{"response":"OK","function":"echo_message","message_type":"error_message","message":"'.base64_encode($message).'"}';
