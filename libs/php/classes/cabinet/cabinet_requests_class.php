@@ -562,7 +562,7 @@
 		protected function get_header_general_tbl(){
 			$html = '<table class="query_tbl" id="general_panel_orders_tbl">';
 				$html .= '<tr>';
-					$html .= '<th id="show_allArt"></th>';
+					$html .= '<th id="show_allArt" style="width: 8px;"></th>';
 					$html .= '<th>Номер</th>';					
 					$display = (isset($_GET['client_id']) && (int)$_GET['client_id'] > 0)?' style="display:none"':'';	
 					$html .= '<th'.$display.'>Компания</th>';

@@ -11,12 +11,12 @@ if (isset($_GET['query_num']) && (int)$_GET['query_num']) {
           <ul class="central_menu" >
             
             <li <?php if(!isset($_GET['show_all'])){echo 'class="selected"';} ?>>
-              <a href="http://www.apelburg.ru/os/?page=client_folder&section=business_offers&query_num=<?=$_GET['query_num'];?>&client_id=<?=$_GET['client_id'];?>">
+              <a href="http://<?=$_SERVER['HTTP_HOST'];?>/os/?page=client_folder&section=business_offers&query_num=<?=$_GET['query_num'];?>&client_id=<?=$_GET['client_id'];?>">
                 <div class="border">По запросу</div>
               </a>
             </li>
             <li <?php if(isset($_GET['show_all'])){echo 'class="selected"';} ?>>
-              <a href="http://www.apelburg.ru/os/?page=client_folder&section=business_offers&query_num=<?=$_GET['query_num'];?>&show_all=1&client_id=<?=$_GET['client_id'];?>">
+              <a href="http://<?=$_SERVER['HTTP_HOST'];?>/os/?page=client_folder&section=business_offers&query_num=<?=$_GET['query_num'];?>&show_all=1&client_id=<?=$_GET['client_id'];?>">
                 <div class="border">Все</div>
               </a>
             </li>

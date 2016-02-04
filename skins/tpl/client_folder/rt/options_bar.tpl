@@ -80,32 +80,32 @@ function timing_save_input(fancName,obj){
 <div class="cabinet_top_menu">
   <ul class="central_menu">
     <li <?php if($manager_id == '24' ){echo 'class="selected"';}?> >
-      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_wait_the_process&client_id=<?=$_GET['client_id'];?>">
+      <a href="http://<?=$_SERVER['HTTP_HOST'];?>/os/?page=cabinet&section=requests&subsection=query_wait_the_process&client_id=<?=$_GET['client_id'];?>">
         <div class="border">Ожидают распределения</div>
       </a>
     </li>
     <li <?php if($query_status == 'not_process' ){echo 'class="selected"';}?>>
-      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&client_id=<?=$_GET['client_id'];?>">
+      <a href="http://<?=$_SERVER['HTTP_HOST'];?>/os/?page=cabinet&section=requests&subsection=no_worcked_men&client_id=<?=$_GET['client_id'];?>">
         <div class="border">Не обработанные МЕН</div>
       </a>
     </li>
     <li <?php if($query_status == 'taken_into_operation' ){echo 'class="selected"';}?>>
-      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_taken_into_operation&client_id=<?=$_GET['client_id'];?>">
+      <a href="http://<?=$_SERVER['HTTP_HOST'];?>/os/?page=cabinet&section=requests&subsection=query_taken_into_operation&client_id=<?=$_GET['client_id'];?>">
         <div class="border">На рассмотрении</div>
       </a>
     </li>
     <li <?php if($query_status == 'in_work' ){echo 'class="selected"';}?>>
-      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_worcked_men&client_id=<?=$_GET['client_id'];?>">
+      <a href="http://<?=$_SERVER['HTTP_HOST'];?>/os/?page=cabinet&section=requests&subsection=query_worcked_men&client_id=<?=$_GET['client_id'];?>">
         <div class="border">В работе Sales</div>
       </a>
     </li>
     <li <?php if($query_status == 'history' ){echo 'class="selected"';}?>>
-      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_history&client_id=<?=$_GET['client_id'];?>">
+      <a href="http://<?=$_SERVER['HTTP_HOST'];?>/os/?page=cabinet&section=requests&subsection=query_history&client_id=<?=$_GET['client_id'];?>">
         <div class="border">История </div>
       </a>
     </li>
     <li>
-      <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=query_all&client_id=888">
+      <a href="http://<?=$_SERVER['HTTP_HOST'];?>/os/?page=cabinet&section=requests&subsection=query_all&client_id=888">
         <div class="border">Все</div>
       </a>
     </li>

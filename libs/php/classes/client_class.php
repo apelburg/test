@@ -1767,30 +1767,6 @@ class Client extends aplStdAJAXMethod{
 			}
 		}
 		
-		////////////////////////////////////////
-		//	получаем данные из основной таблицы
-		////////////////////////////////////////
-		// $Client_info = self::get_client_informationDatabase($id);
-		
-		// $company_name = '';
-		
-		// if(!empty($Client_info)){
-		// 	$company_name = $Client_info['company'];
-		// }
-
-		// //////////////////////////
-		// //	получаем телефоны и емейл
-		// //////////////////////////
-		// // global $mysqli;
-		// $contacts = array();
-		// $query = "SELECT * FROM `".CONT_FACES_CONTACT_INFO_TBL."` WHERE `table` = 'CLIENTS_TBL' AND `parent_id` = '".(int)$id."'";
-		
-		// $result = $mysqli->query($query) or die($mysqli->error);
-		// if($result->num_rows > 0){
-		// 	while($row = $result->fetch_assoc()){
-		// 		$contacts[] = $row;
-		// 	}
-		// }
 		
 		$get_str = '';
 		$n = 0;
@@ -1802,19 +1778,7 @@ class Client extends aplStdAJAXMethod{
 			}
 		}
 		$back_without_client = '<a id="back_without_client" href="./'.$get_str.'"></a>';
-
-		// $phone = '';
-		// $email = '';
-
-		// foreach ($contacts as $contact) {
-		// 	if($contact['type'] == 'phone' && $phone == ''){
-		// 		$phone = $contact['contact'];
-		// 	}
-		// 	if($contact['type'] == 'email' && $email == ''){
-		// 		$email = $contact['contact'];
-		// 	}
-		// }
-
+		$back_without_client = '';
 		include './skins/tpl/clients/client_list/condensed_information_on_the_client.tpl';
 		return;
 	}
