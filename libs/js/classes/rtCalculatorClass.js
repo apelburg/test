@@ -231,6 +231,14 @@ var rtCalculator = {
 								   rtCalculator.primary_val = rtCalculator.cur_cell.innerHTML;
                                    // устанавливаем текущюю ячейку
 								   rtCalculator.changes_in_process = true;
+								   
+                                   if(rtCalculator.cur_cell.getAttribute('type')!= 'quantity'){
+									   $(rtCalculator.cur_cell).addClass('rt_cell_bg');
+									   $(rtCalculator.cur_cell).next().addClass('rt_cell_bg_next');
+								   }
+								   if(rtCalculator.cur_cell.getAttribute('type')== 'quantity'){
+									   $(rtCalculator.cur_cell).addClass('rt_qcell_bg');
+								   }
 								}
 								tds_arr[j].onkeydown = function(e){ 
 								   e = e || window.event;
@@ -276,6 +284,13 @@ var rtCalculator = {
 										   if(isNaN(val) || val==0) rtCalculator.cur_cell.innerHTML = '0';
 									   }
 								   } 
+								   if(rtCalculator.cur_cell.getAttribute('type')!= 'quantity'){
+									   $(rtCalculator.cur_cell).removeClass('rt_cell_bg');
+									   $(rtCalculator.cur_cell).next().removeClass('rt_cell_bg_next');
+								   }
+								   if(rtCalculator.cur_cell.getAttribute('type')== 'quantity'){
+									   $(rtCalculator.cur_cell).removeClass('rt_qcell_bg');
+								   }
 								}
 								if(tds_arr[j].getAttribute('editable') =='true') tds_arr[j].setAttribute("contenteditable",true);
 								tds_arr[j].style.outline="none";

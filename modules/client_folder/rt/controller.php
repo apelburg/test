@@ -382,27 +382,27 @@
 			               <td width="40" type="svetofor" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
 			               <td width="60" type="quantity" class="quantity right r_border"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="90" type="item_price_in" editable="true" class="in right">'.$dop_row['price_in'].'</td>
-						   <td width="15" type="item_summ_in" class="currency left" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$item_summ_in_format.$currency.'</div></td>
+						   <td width="15" type="item_summ_in" class="currency left" style="position:relative;">'.$currency.'<div class="summ_cell">'.$item_summ_in_format.$currency.'</div></td>
 						   <td width="90" type="item_price_out" editable="'.(($discount!=0)?'false':'true').'" class="out right">'.$item_price_out.'</td>
-						    <td width="15" type="item_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$item_summ_out_format.$currency.'</div></td>
+						   <td width="15" type="item_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div class="summ_cell">'.$item_summ_out_format.$currency.'</div></td>
 						   <td width="33" class="calc_btn" uslugi_btn="1" print_exists_flag="'.$print_exists_flag.'" uslugi_exists_flag="'.$uslugi_exists_flag.'" pos_id="'.$key.'">'.$uslugi_btn.'</td>
 			               <td width="80" type="uslugi_price_in" class="out right '.$expel_class_print.'" expel_suspended="'.$expel['print'].'">'.$uslugi_price_in_format.'</td>
 						   
 						   
-						   <td width="15" type="uslugi_summ_in" class="currency left" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$uslugi_summ_in_format.$currency.'</div></td>';
+						   <td width="15" type="uslugi_summ_in" class="currency left" style="position:relative;">'.$currency.'<div class="summ_cell">'.$uslugi_summ_in_format.$currency.'</div></td>';
 			     if($test_data)	 $cur_row .=  '<td class="test_data">'.$extra_open_data.'</td>';
 			             $cur_row .=  '<td width="80" type="uslugi_price_out" class="out right '.$expel_class_dop.'" expel_suspended="'.$expel['dop'].'">'.$uslugi_price_out_format.'</td>
 			 
-			               <td width="15" type="uslugi_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$uslugi_summ_out_format.$currency.'</div></td>
+			               <td width="15" type="uslugi_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div class="summ_cell">'.$uslugi_summ_out_format.$currency.'</div></td>
 			 
 			               <td width="50" class="center r_border" type="discount" its_rt="true" discount_fieid="1">'.$discount_str.'</td>
 						   <td type="total_price_in" c_stat="0" swiched_cols="summs" class="total in right hidden '.$expel_class_main.'"  expel="'.$expel['main'].'">'.$total_price_in_format.'</td>
-						   <td width="15" type="total_summ_in" swiched_cols="summs" c_stat="0" class="currency hidden r_border '.$expel_class_main.'" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$total_summ_in_format.$currency.'</div></td>
+						   <td width="15" type="total_summ_in" swiched_cols="summs" c_stat="0" class="currency hidden r_border '.$expel_class_main.'" style="position:relative;">'.$currency.'<div class="summ_cell">'.$total_summ_in_format.$currency.'</div></td>
 						   <td type="total_price_out" swiched_cols="summs" c_stat="1" class="total out right '.$expel_class_main.'" expel="'.$expel['main'].'">'.$total_price_out_format.'</td>
-						   <td width="15" type="total_summ_out" swiched_cols="summs" c_stat="1" class="currency r_border left '.$expel_class_main.'" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:8px;color:#ccc;">'.$total_summ_out_format.$currency.'</div></td>
+						   <td width="15" type="total_summ_out" swiched_cols="summs" c_stat="1" class="currency r_border left '.$expel_class_main.'" style="position:relative;">'.$currency.'<div class="summ_cell">'.$total_summ_out_format.$currency.'</div></td>
 						   <td width="70" class="r_border center">'.$srock_sdachi.'</td>
 						   <td type="delta" class="delta right">'.$delta_format.'</td>
-						   <td type="margin" width="10" class="left" style="position:relative;">'.$currency.'<div style="position:absolute;top:25px;right:3px;color:#ccc;">'.$margin_format.$margin_currency.'</div></td>
+						   <td type="margin" width="10" class="left" style="position:relative;">'.$currency.'<div style="right:3px;" class="summ_cell">'.$margin_format.$margin_currency.'</div></td>
 						   <td></td>
 						   <!-- <td raschet_status="1" style="position: relative;overflow:hidden;white-space: nowrap;"  tooltip="'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'"><div style="position:absolute;" class="tooltips">&nbsp;'.((isset($dop_row['status_snab']))?$Position_no_catalog->get_name_group($dop_row['status_snab']):'').'<div></td>-->
 						   <td></td>

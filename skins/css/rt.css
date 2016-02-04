@@ -74,10 +74,8 @@
 .rt_tbl_body .comment_div{
   top: 7px;
 }
-
-
 .svetofor_plank{
-  z-index: 5;
+ z-index: 5;
 }
 
 .rt_tbl_head .bottom_border td{ border-bottom: #999 solid 2px;}
@@ -322,6 +320,24 @@ height:200px;
 .rt_tbl_body .left, .rt_tbl_head .left{ text-align:left;}
 .rt_tbl_body .center, .rt_tbl_head .center{ text-align:center;}
 .rt_tbl_body .pointer, .rt_tbl_head .pointer{ cursor:pointer;}
+.rt_tbl_body .rt_cell_bg{
+ background: url(../../skins/images/img_design/rt_cell_bg.png);
+ background-repeat: no-repeat;
+ background-position: right top;
+} 
+.rt_tbl_body .rt_cell_bg_next{
+ background: url(../../skins/images/img_design/rt_cell_bg_next.png);
+ background-repeat: no-repeat;
+ background-position: left top;
+}
+.rt_tbl_body .rt_qcell_bg{
+ background: url(../../skins/images/img_design/rt_qcell_bg.png);
+ background-repeat: no-repeat;
+ background-position: right top;
+}  
+.rt_tbl_body .summ_cell{
+ position:absolute;top:26px;right:8px;color:#ccc;
+}
 
 
 #options_bar{ background-color: #c7c8ca; padding: 0 32px;}
