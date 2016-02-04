@@ -384,7 +384,7 @@
 						   <td width="90" type="item_price_in" editable="true" class="in right">'.$dop_row['price_in'].'</td>
 						   <td width="15" type="item_summ_in" class="currency left" style="position:relative;">'.$currency.'<div class="summ_cell">'.$item_summ_in_format.$currency.'</div></td>
 						   <td width="90" type="item_price_out" editable="'.(($discount!=0)?'false':'true').'" class="out right">'.$item_price_out.'</td>
-						    <td width="15" type="item_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div class="summ_cell">'.$item_summ_out_format.$currency.'</div></td>
+						   <td width="15" type="item_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div class="summ_cell">'.$item_summ_out_format.$currency.'</div></td>
 						   <td width="33" class="calc_btn" uslugi_btn="1" print_exists_flag="'.$print_exists_flag.'" uslugi_exists_flag="'.$uslugi_exists_flag.'" pos_id="'.$key.'">'.$uslugi_btn.'</td>
 			               <td width="80" type="uslugi_price_in" class="out right '.$expel_class_print.'" expel_suspended="'.$expel['print'].'">'.$uslugi_price_in_format.'</td>
 						   

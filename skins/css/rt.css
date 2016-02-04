@@ -326,10 +326,10 @@ height:200px;
  background-repeat: no-repeat;
  background-position: left top;
 }
-.rt_tbl_body .rt_cell_bg_next{
- background: url(../../skins/images/img_design/rt_cell_bg_next.png);
+.rt_tbl_body .rt_qcell_bg{
+ background: url(../../skins/images/img_design/rt_qcell_bg.png);
  background-repeat: no-repeat;
- background-position: left top;
+ background-position: right top;
 }  
 .rt_tbl_body .summ_cell{
  position:absolute;top:26px;right:8px;color:#ccc;
