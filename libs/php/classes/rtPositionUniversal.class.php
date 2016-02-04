@@ -933,6 +933,7 @@ class Images extends rtPositionUniversal
 		$first_img= '';
 		$main_img_src = '';
 
+		// echo '<br><br><br><br><br><br><br><br><br><br><br><br> ';
 		// изображения с сайта
 		foreach ($small_images as $key => $img) {
 			// удаление изображений для админов
@@ -961,9 +962,11 @@ class Images extends rtPositionUniversal
 				$previews_block[$c] .= $deleting_img;
 				$previews_block[$c--] .= '</div>';
 			}else{
-				if($b == 0) {
+				if($b == 1) {
+					// echo 'test';
 					$main_img_src = $this->checkImgExists( APELBURG_HOST.'/img/'.$big_images[$key]);
 				}
+				// echo 'test'.$b.'654';
 				$previews_block[$b]  = '<div  class="carousel-block">';
 				$previews_block[$b] .= '<img class="articulusImagesMiniImg imagePr" alt="" src="'.checkImgExists(APELBURG_HOST.'/img/'.$img).'" data-file="'.$big_images[$key].'" data-src_IMG_link="'.APELBURG_HOST.'/img/'.$big_images[$key].'">';
 				$previews_block[$b] .= $deleting_img;
@@ -1000,7 +1003,7 @@ class Images extends rtPositionUniversal
 						$previews_block[$c] .= '<img class="articulusImagesMiniImg imagePr" alt="" data-file="'.$files[$i].'"  src="'.checkImgExists($global_link_dir.''.$files[$i]).'" data-src_IMG_link="'.$global_link_dir.''.$files[$i].'">';
 						$previews_block[$c--] .= '</div>';
 					}else{
-						if($b == 0) {
+						if($b == 1) {
 							$main_img_src = $this->checkImgExists( $global_link_dir.''.$files[$i] );
 						}
 
@@ -1015,6 +1018,7 @@ class Images extends rtPositionUniversal
 		// echo '<pre>';
 		// print_r($previews_block);
 		// echo '</pre>';
+			// echo '*** '.$main_img_src.'***';
 		if (isset($previews_block)) {
 			
 			ksort($previews_block);
