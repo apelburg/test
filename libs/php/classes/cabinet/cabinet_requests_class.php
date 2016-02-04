@@ -26,6 +26,10 @@
 
 			include_once ('./libs/php/classes/comments_class.php');
 
+			if(isset($_GET['query_num']) && (int)$_GET['query_num'] > 0){
+				$id_row = $_GET['query_num'];
+			}
+
 			// экземпляр класса продукции НЕ каталог
 			$this->POSITION_NO_CATALOG = new Position_no_catalog();
 
@@ -190,8 +194,8 @@
 				DATE_FORMAT(`".RT_LIST."`.`create_time`,'%d.%m.%Y %H:%i')  AS `create_time`
 				FROM `".RT_LIST."`";
 				
-			if($id_row==1){
-				$query .= " ".(($where)?'AND':'WHERE')." WHERE `".RT_LIST."`.`id` = '".$id_row."'";
+			if((int)$id_row > 0){
+				$query .= " ".(($where)?'AND':'WHERE')." `".RT_LIST."`.`query_num` = '".$id_row."'";
 				$where = 1;
 			}else{				
 				// фильтрация по клиенту
@@ -305,6 +309,7 @@
 			$this->positions_arr = $this->get_positions_Database_Array();
 
 			
+			
 			$this->query_num = '';
 			// итого за запрос
 			$this->price_for_the_position_ITOGO = 0;
@@ -391,9 +396,9 @@
 					$general_tbl_row_body = $this->get_row_query_Html_temp();
 					
 					// если запрос по строке, возвращаем строку
-					if($id_row != 0){
-						return $general_tbl_row_body;
-					}
+					// if($id_row != 0){
+					// 	return $general_tbl_row_body;
+					// }
 
 					$general_tbl_row .= '<tr data-id="'.$this->Query['id'].'" id="rt_list_id_'.$this->Query['id'].'"  class="order_head_row '.$this->open_close_row_class.'" '.$this->open_close_tr_style.'>
 										'.$general_tbl_row_body.'
@@ -430,7 +435,7 @@
 			$no_edit = 1;
 			if($this->Query['client_id'] == 0){
 				$no_edit = 0;
-				if($this->Query['status'] == 'not_process' && $this->user_access != 1){
+				if($this->user_access != 1){
 					$no_edit = 1;
 				}				
 			}
@@ -454,15 +459,16 @@
 			$html .= '</td>';
 			$html .= '<td class="show_main_menu">';
 
-			if($this->user_access == 1){
-				$no_edit = 0;	
-			}
+				if($this->user_access == 1){
+					$no_edit = 0;	
+				}
 
-			if($this->user_access != 1 && $this->Query['client_id'] == 0){
-				$no_edit = 1;
-			}else{
-				$no_edit = 0;
-			}
+				// if($this->user_access != 1 && $this->Query['client_id'] == 0){
+				if($this->user_access != 1){
+					$no_edit = 1;
+				}else{
+					$no_edit = 0;
+				}
 			
 
 				$html .= '<div>'.$this->get_all_manager_name_Database_Html($this->Query,$no_edit).'</div>';
@@ -474,7 +480,7 @@
 			
 			$html .= '<td class="show_main_menu">'.$this->Query['create_time'].'</td>';
 			$html .= '<td class="show_main_menu"></td>';
-			$html .= '<td>
+			$html .= '<td class="show_main_menu">
 </td>';
 			
 			// $rrr = RT::calcualte_query_summ($this->Query['query_num']);
@@ -504,7 +510,7 @@
 		protected function get_header_start_position_list_tr_empty(){
 			$html = '<tr class="query_detail cab_position_div" '.$this->open_close_tr_style.'>';
 				$html .= '<th></th>';
-				$html .= '<th colspan="7">Данные отсутствуют</th>';
+				$html .= '<th colspan="8">Данные отсутствуют</th>';
 			$html .= '</tr>';
 			return $html; 	
 		}

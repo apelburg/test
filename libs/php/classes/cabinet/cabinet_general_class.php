@@ -456,18 +456,50 @@
 				if($this->user_id != $_POST['manager_id']){
 					$query .= ",`time_attach_manager` = NOW()";
 					$query .= ",`status` = 'not_process'";	
+					// перенаправление другому менеджеру
+					include_once ('./libs/php/classes/manager_class.php');
+					$manager = Manager::get_snab_name_for_query_String($_POST['manager_id']);
+					
+					$message = 'Запрос был перенаправлен менеджеру '.$manager;
+					
+					$this->responseClass->addMessage($message,'system_message');
+					$this->responseClass->addResponseFunction('reload_order_tbl');
+
+					// оповещение менеджера
+					$mail_message = "";
+					$Cabinet = new Cabinet();
+					$this->Query = $this->get_query((int)$_POST['rt_list_id']);
+					$managers_email_arr = $Cabinet->get_users_email(array($_POST['manager_id']));
+					$subject = 'Вам доступен новый запрос.';
+					$mail_message .= 'Здравствуйте, '.$manager.'!<br><br>';
+					$mail_message .= 'Вам доступен <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&query_num='.$this->Query['query_num'].'">новый запрос № '.$this->Query['query_num'].'</a><br>';
+					$mail_message .= '<br>';
+					$mail_message .= 'P.S. Запрос доступен только Вам!';
+					    
+					$mailClass = new Mail();
+							
+					foreach ($admin_email_arr as $key => $email) {
+						$mailClass->send($email,'os@apelburg.ru',$subject,$mail_message);
+					}
+				}else{
+					$query .= ",`status` = 'in_work'";
+					$this->Query = $this->get_query((int)$_POST['rt_list_id']);
+
+					$link = '?page=client_folder&client_id='.$this->Query['client_id'].'&query_num='.$this->Query['query_num'];
+										
+					// переадресация на другую вкладку
+					$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/'.$link;
+					$option['timeout'] = '0';
+					$this->responseClass->addResponseFunction('location_href',$option);
+					// $message = 'Вы взяли запрос в работу. Вы будете перенаправлены на другую вкладку.';
+					// $this->responseClass->addMessage($message,'successful_message');	
+					
 				}				
 				$query .= " WHERE `id` = '".(int)$_POST['rt_list_id']."';";	
 				$result = $this->mysqli->query($query) or die($this->mysqli->error);	
 				// echo '{"response":"OK"}';
 
-				include_once ('./libs/php/classes/manager_class.php');
-				$manager = Manager::get_snab_name_for_query_String($_POST['manager_id']);
 				
-				$message = 'Запрос был перенаправлен менеджеру '.$manager;
-				
-				$this->responseClass->addMessage($message,'system_message');
-				$this->responseClass->addResponseFunction('reload_order_tbl');
 
 				// $options['width'] = 1200;
 				// $query .= $this->print_arr($_POST);
@@ -606,12 +638,32 @@
 					exit;
 				}
 
+			/**
+			  *	получаем запрос по его id
+			  *
+			  *	@author  	Alexey Kapitonov
+			  *	@version 	23:16 03.02.2016
+			  */
+			protected function get_query($id){
+				global $mysqli;
+				
+				$query = "SELECT * FROM `".RT_LIST."` WHERE `id` = '".(int)$id."';";
+				$Query = array();
+				// echo $query;
+				$result = $mysqli->query($query) or die($mysqli->error);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						$Query = $row;
+					}
+				}
+				return $Query;
+			}
 
 			// прикрепляет клиента к запросу
 			protected function attach_client_to_request_AJAX(){
 
 				include_once ('./libs/php/classes/client_class.php');
-
+				
 				if($_POST['client_id'] == 'new_client'){
 					// не админ создаёт клиента
 					if($this->user_access != 1){
@@ -628,7 +680,7 @@
 					// $client -> get_new_client_form_from_query();
 					// echo '321321321sdsad';
 					// exit;
-				}else {
+				}else{
 					// получаем кураторов по выбранному клиенту
 					// подключаем класс клиента
 					if(isset($_POST['row_id'])){
@@ -774,7 +826,30 @@
 							$this->responseClass->addResponseFunction('reload_order_tbl');
 							break;
 					}
+
+					if(isset($_POST['row_id']) && (int)$_POST['row_id'] > 0){
+					$this->Query = $this->get_query((int)$_POST['row_id']);
+					// echo '<pre>';
+					// print_r($this->Query);
+					// echo '</pre>';
+					// echo '<pre>';
+					// print_r($_POST);
+					// echo '</pre>';
+					if(isset($_POST['query_status']) && $_POST['query_status']!= $this->Query['status']){
+						if((int)$_POST['client_id'] != $this->Query['client_id']){
+							include_once ('cabinet_class.php');
+							$cabinet = new Cabinet;
+							$cabinet->responseClass = new responseClass;
+							$cabinet->command_for_change_status_query_AJAX();
+							// echo $this->responseClass->getResponse();					
+							exit;
+							
+						}
+					}
 				}
+				}
+
+
 				// exit;			
 			}
 

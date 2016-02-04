@@ -1,0 +1,105 @@
+/****************************************
+		комментарии к запросам		
+*****************************************/
+
+.icon_comment_show,
+.icon_comment_order_show{
+	cursor: pointer;
+	    height: 25px;
+    width: 34px;
+    float: left;
+    padding: 2px;
+    cursor: default;
+    border: 1px solid transparent;
+    background-image: url('../../skins/images/img_design/comment_icons.png');
+    background-repeat: no-repeat;
+    /* background-position-y: 5px; */
+    /* background-position-x: 5px; */
+    /*background-color: red;*/
+        margin-top: -4px;
+}
+.icon_comment_show:hover,
+.icon_comment_order_show:hover{
+	/*border:1px dashed #8b8a89;*/
+}
+.icon_comment_show.no_empty,
+.icon_comment_order_show.no_empty{
+	background-position-x: -54px;
+}
+
+.icon_comment_show.white,
+.icon_comment_order_show.white{
+	/*background-position-y: 5px;*/
+}
+.history_query {
+	background-color: #f1f1f1;
+	margin-bottom: 15px;
+}
+.history_order {
+	background-color: #f3f5a9;
+	margin-bottom: 15px;
+}
+.add_new_comment textarea{
+	width: 100%;
+	min-height:  150px;
+}
+
+.add_new_comment .comment.table .row .cell.comment_text{
+	  vertical-align: baseline;
+	  font-size: 12px;
+}
+.add_new_comment .comment.table .row .cell{ padding: 5px}
+.add_new_comment .comment.table{ width: 100%}
+.add_new_comment .user_name_comments{
+	vertical-align: top;
+ 	padding-top: 15px;
+  	width: 170px;
+}
+#add_new_comment_button{ float: right;}
+#add_comments_of_query,
+#add_comments_of_order,
+#add_comments_of_position{
+	border: 1px solid #e8e8e8;
+    color: #e8e8e8;
+    text-align: center;
+    padding: 5px;
+    margin: 0 auto;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+#add_comments_of_query:hover,
+#add_comments_of_order:hover,
+#add_comments_of_position:hover{
+	background-color: #e8e8e8;
+	color: #000
+}
+
+#add_comments_of_query.no_empty,
+#add_comments_of_order.no_empty,
+#add_comments_of_position.no_empty{
+	background-color: #f1f1f1;
+    color: #8A8A8A;
+}
+
+#add_comments_of_query.loading,
+#add_comments_of_order.loading,
+#add_comments_of_position.loading{
+	background-image: url(../images/img_design/preloader.gif);
+	background-repeat: no-repeat;
+	background-position: 50%;
+}
+
+.add_nah {
+    /*float: right;   */
+    margin-right: 10px;
+}
+.div_for_button {
+    padding-top: 13px;
+}
+.create_time_message{
+	font-size: 11px;
+    color: #B1B1B1;
+}
+.user_name {
+    color: #5F5F5F;
+}

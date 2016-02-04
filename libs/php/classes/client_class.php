@@ -1320,6 +1320,31 @@ class Client extends aplStdAJAXMethod{
 						$men_arr[$this->user_id] = $this->user_id;
 						$this->attach_for_query_many_managers($men_arr,$this->client_id);
 
+						if(isset($_POST['query_status']) && $_POST['query_status'] == 'in_work'){
+							global $mysqli;
+							// include_once ('./cabinet/cabinet_class.php');
+							include_once($_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/cabinet/cabinet_class.php');
+							$Cabinet = new Cabinet;
+							$this->Query = $Cabinet->get_query((int)$_POST['row_id']);
+							
+							if($_POST['query_status'] != $this->Query['status']){
+								$query = "UPDATE  `".RT_LIST."` SET";
+								$query .= " `status` =  'in_work' ";
+								$query .= "WHERE  `id` ='".$this->Query['id']."';";
+								$result = $mysqli->query($query) or die($mysqli->error);
+							}
+							// echo '<pre>';
+							// print_r($_POST);
+							// echo '</pre>';
+							$link = '?page=client_folder&client_id='.$_POST['client_id'].'&query_num='.$_POST['query_num'];
+							// переадресация на другую вкладку
+							$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/'.$link;
+								
+							echo '{"response":"OK","function":"location_href","href":"'.$option['href'].'"}';
+							exit;
+						}
+
+
 						echo '{"response":"OK","function":"reload_order_tbl"}';
 						exit;
 						break;
@@ -1447,10 +1472,50 @@ class Client extends aplStdAJAXMethod{
 		// foreach ($managers_arr as $key => $user_id) {
 		// 	$this->attach_relate_manager($this->client_id, $user_id);
 		// }
+		
 		// прикрепляем к запросу менеджера(ов)
 		$this->attach_for_query_many_managers($managers_arr,$this->client_id);
 		
+		// оповещение группы менеджеров о новом запросе
+		$mail_message = "";
+		include_once($_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/cabinet/cabinet_class.php');
+		$Cabinet = new Cabinet;
+
+		$this->Query = $Cabinet->get_query((int)$_POST['rt_list_id']);
+
+		 
+
+		$managers_email_arr = $Cabinet->get_users_email($managers_arr);
+		$managers_info_arr = $this->getUserArrDatabase($managers_arr);
+
 		
+		if(count($managers_arr)>1){
+			$subject = 'Вам доступен новый запрос.';
+			$mail_message .= 'Вам и ещё нескольким менеджерам доступен <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&query_num='.$this->Query['query_num'].'">новый запрос № '.$this->Query['query_num'].'</a>';
+			$mail_message .= '<br>';
+			$mail_message .= 'P.S. Запрос так же увидят:';
+			$mail_message .= '<br>';
+			foreach ($managers_info_arr as $key => $manager) {
+				$mail_message .= ($manager['name'] != "")?$manager['name']:'';
+				$mail_message .= ' ';
+				$mail_message .= ($manager['last_name'] != "")?$manager['last_name']:'';
+				$mail_message .= '<br>';
+			}	
+		}else{
+			$subject = 'Вам доступен новый запрос.';
+			$mail_message .= 'Вам доступен <a href="http://www.apelburg.ru/os/?page=cabinet&section=requests&subsection=no_worcked_men&query_num='.$this->Query['query_num'].'">новый запрос № '.$this->Query['query_num'].'</a>';
+			$mail_message .= '<br>';
+			$mail_message .= 'P.S. Запрос доступен только Вам!';
+		}
+		
+
+
+		$mailClass = new Mail();
+							
+		foreach ($managers_email_arr as $key => $email) {
+			// echo $email.' *** ';
+			$mailClass->send($email,'os@apelburg.ru',$subject,$mail_message);
+		}
 		/*
 			тут нужно уведомление на почту для каждого прикреплённого менеджера !!!!!!!!!!
 		*/
