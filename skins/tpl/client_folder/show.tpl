@@ -11,6 +11,9 @@
 <script async type="text/javascript" src="../libs/js/jquery.uploadify.js"></script>
 
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/comments.js"></script>
+
+<!-- мультивыбор строк таблицы -->
+<script type="text/javascript" src="./libs/js/shifty.jquery.js"></script>
  <!-- комментарии к запросу END -->
 
 <?php echo $content; ?> 

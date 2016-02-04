@@ -730,14 +730,65 @@ $(document).keydown(function(event) {
 	// } 
 });
 
+// выбор одной из строк в найденных артикулах
+// $(document).on('click', '#choose_one_of_several_articles tr td', function(event) {
+// 	var art_id = $(this).parent().attr('data-art_id');
+// 	var art = $(this).parent().attr('data-art');
+// 	var art_name = $(this).parent().attr('data-art_name');
+// 	// подставляем выбранные значения
+// 	$('#information_block_of_articul input[name="art"]').val(art);
+// 	$('#information_block_of_articul input[name="art_id"]').val(art_id);
+// 	$('#information_block_of_articul input[name="art_name"]').val(art_name);
+// 	$('#choose_one_of_several_articles tr.checked').removeClass('checked');
+// 	$(this).parent().find('input[type="checkbox"]').prop('checked', true);
+// 	$(this).parent().addClass('checked');
+// });
+
+$(document).on('click', '#choose_one_of_several_articles tr td', function(event) {
+	// event.preventDefault();
+	// event.stopImmediatePropagation();
+	if($(this).find('input[type="checkbox"]').length > 0){return;}
+	var tr = $(this).parent();
+	var checkbox = tr.find('input');
+	if(checkbox.prop('checked')){
+		tr.removeClass('checked');
+		checkbox.prop('checked',false);
+	}else{		
+		tr.addClass('checked');
+		checkbox.prop('checked',true);
+	}
+});
+
+
+
+
+// function treatment_choose_art_tbl(){
+// 	$('#choose_one_of_several_articles tr').shifty({
+// 		className:'checked', // класс выделенного элемента
+// 		select:function(el){el.find('input').prop('checked',true);}, // выделение
+// 		unselect:function(el){el.find('input').prop('checked',false);} // снятие выделения
+// 	});
+// };
+
 function focus_art_form_search(){
 	if($('#add_new_articul_in_rt').length > 0){
 		$('#add_new_articul_in_rt').focus();
 	}
 }
 
+// отправка формы при выборе
+$(document).on('change', '#get_form_Html_tbl input[type="radio"]', function(event) {
+	$.post('', $('#get_form_Html_tbl').parent().serialize(), function(data, textStatus, xhr) {
+		$(this).parent().parent().parent().html('');
+		$(this).parent().parent().parent().dialog( "destroy" );
+		standard_response_handler(data);
+
+	},'json');	
+});
+
+
 // отправка формы поиска артикула
-$(document).on('change keyup', '#add_new_articul_in_rt', function(event) {
+$(document).on('keyup', '#add_new_articul_in_rt', function(event) {
 	event.preventDefault();
 
 	var art = $(this).val();
@@ -748,25 +799,28 @@ $(document).on('change keyup', '#add_new_articul_in_rt', function(event) {
 	}, function(data, textStatus, xhr) {
 		if(data['response']=="OK"){
 			$('#information_block_of_articul').removeClass('loader').html(Base64.decode(data['html']));
-		}else{
-			alert('Что-то пошло не так');
+			standard_response_handler(data);
 		}
 	},'json');
 });
 
-$(document).on('click', '#choose_one_of_several_articles tr td', function(event) {
-	var art_id = $(this).parent().attr('data-art_id');
-	var art = $(this).parent().attr('data-art');
-	var art_name = $(this).parent().attr('data-art_name');
-	// подставляем выбранные значения
-	$('#information_block_of_articul input[name="art"]').val(art);
-	$('#information_block_of_articul input[name="art_id"]').val(art_id);
-	$('#information_block_of_articul input[name="art_name"]').val(art_name);
-
-	$('#choose_one_of_several_articles tr.checked').removeClass('checked');
-	$(this).parent().addClass('checked');
-
+$(document).on('change', '#choose_one_of_several_articles input[type="checkbox"]', function(event) {
+	// event.preventDefault();
+	// event.stopImmediatePropagation();
+	// $(this).parent().click();
+	console.log($(this).prop('checked'))
+	if($(this).prop('checked')){
+		$(this).parent().parent().parent().addClass('checked');
+		
+		//	$(this).prop('checked',false)
+	}else{
+		$(this).parent().parent().parent().removeClass('checked');
+		
+		// $(this).prop('checked',true)
+	}
+	/* Act on the event */
 });
+
 
 $(document).on('click', '#choose_the_size tr td', function(event) {
 	var size = $(this).parent().find('td').eq(0).html();

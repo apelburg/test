@@ -2712,12 +2712,15 @@ ul.central_menu li a:hover{
   width: 10px;
 }
 #choose_one_of_several_articles tr th:nth-of-type(2){
+  width: 10px;
+}
+#choose_one_of_several_articles tr th:nth-of-type(3){
   width: 140px;
 }
-#choose_one_of_several_articles tr th:nth-of-type(4){
+#choose_one_of_several_articles tr th:nth-of-type(5){
   width: 100px;
 }
-#choose_one_of_several_articles tr th:nth-of-type(5){
+#choose_one_of_several_articles tr th:nth-of-type(6){
   width: 100px;
 }
 #choose_one_of_several_articles tr td,

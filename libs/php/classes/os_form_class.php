@@ -260,50 +260,15 @@ PS было бы неплохо взять взять это за правило
                     // получаем количесвто найденных совпадений
                     $count = count($art_arr);
                     switch ($count) {
-                         case 1: // всё впорядке, мы нашли то, что искали
-                              $html .= '<div class="inform_message">Найдено <strong>одно</strong> совпадение</div>';
-                              $html .= '<table id="choose_one_of_several_articles">';
-                              $html .= '<tr>';
-                              $html .= '<th>п</th>';
-                              $html .= '<th>Арт.</th>';
-                              $html .= '<th>Название</th>';
-                              $html .= '<th>Поставщик</th>';
-                              $html .= '<th>Апл</th>';
-                              $html .= '</tr>';
-                              $n = 1;
-                              $html .= '<tr data-art_id="'.$art_arr[0]['id'].'"  data-art_name="'.$art_arr[0]['name'].'" data-art="'.$art_arr[0]['art'].'" class="checked">';
-                              $html .= '<td>'.$n++.'</td>';
-                              $html .= '<td>'.$art_arr[0]['art'].'</td>';
-                              $html .= '<td>'.$art_arr[0]['name'].'</td>';
-                              $html .= '<td>'.identify_supplier_by_prefix($art_arr[0]['art']).'</td>';
-                              $html .= '<td><a target="_blank" href="http://www.apelburg.ru/description/'.$art_arr[0]['id'].'/">на сайт</a></td>';
-                              $html .= '</tr>';
-                              // добавляем полное описание артикула
-                              if(trim($art_arr[0]['description']) != ''){
-                                   $html .= '<tr>';
-                                   $html .= '<td colspan="5">';
-                                   $html .= '<div>'.$art_arr[0]['description'].'</div>';
-                                   $html .= '</td>';
-                                   $html .= '</tr>';     
-                              }
-                              
-                              $html .= '</table>';
-                              
-                              // добавляем скрытые поля
-                              $html .= '<input type="hidden" name="AJAX" value="insert_in_database_new_catalog_position">';
-                              $html .= '<input type="hidden" name="art_id" value="'.$art_arr[0]['id'].'">';
-                              $html .= '<input type="hidden" name="art" value="'.$art_arr[0]['art'].'">';
-                              $html .= '<input type="hidden" name="art_name" value="'.$art_arr[0]['name'].'">';
-                              $html .= '</form>';
-                              break;
                          case 0: // мы ненашли ничего
                               $html = '<div class="inform_message red">Такого артикула нет в базе. Попробуйте ввести другое значение.</div>';
                               break;
-                         
+                         //
                          default: // мы нашли более одного совпадения
                               $html .= '<div class="inform_message">Найдено <strong>'.$count.'</strong> совпадения(й). Пожалуйста уточните Ваш запрос.</div>';
                               $html .= '<table id="choose_one_of_several_articles">';
                               $html .= '<tr>';
+                              $html .= '<th class="admin_checkbox"></th>';
                               $html .= '<th>п</th>';
                               $html .= '<th>Арт.</th>';
                               $html .= '<th>Название</th>';
@@ -313,6 +278,11 @@ PS было бы неплохо взять взять это за правило
                               $n = 1;
                               foreach ($art_arr as $key => $articul) {
                                    $html .= '<tr data-art_id="'.$articul['id'].'" data-art_name="'.$articul['name'].'" data-art="'.$articul['art'].'" '.(($key==0)?'class="checked"':'').'>';
+                                   $html .= '<td class="admin_checkbox">';
+                                        $html .= '<label style="width:100%;height100%;" for="'.$key.'_checkb">';
+                                             $html .= '<input name="article[]" type="checkbox" id="'.$key.'_checkb" value="'.$articul['id'].'" '.(($key==0)?'checked="checked"':'').'>';
+                                        $html .= '</label>';
+                                   $html .= '</td>';
                                    $html .= '<td>'.$n++.'</td>';
                                    $html .= '<td>'.$articul['art'].'</td>';
                                    $html .= '<td>'.$articul['name'].'</td>';
@@ -327,101 +297,186 @@ PS было бы неплохо взять взять это за правило
                               $html .= '<input type="hidden" name="art_name" value="'.$art_arr[0]['name'].'">';
                               $html .= '<input type="hidden" name="art" value="'.$art_arr[0]['art'].'">';
                               $html .= '</form>';
+                              // if($this->user_access != 1){
+                              //      $html .= '<style type="text/css">
+                              //          .admin_checkbox{
+                              //        display: none;
+                              //      }
+                              //      </style>';     
+                              // }                              
                               break;
                     }
-                    
                     echo '{"response":"OK","html":"'.base64_encode($html).'"}';
+                    // echo '{"response":"OK","html":"'.base64_encode($html).'","function":"treatment_choose_art_tbl"}';
                     exit;
                }
-               // добавление каталожного товара в РТ
+               
+               /**
+                *     добавление каталожного товара в РТ
+                *
+                *     @author       Алексей Капитонов
+                *     @version      16:59 04.02.2016
+                */
                protected function insert_in_database_new_catalog_position_AJAX(){
-                    global $mysqli; 
-                    if(!isset($_POST['chosen_size'])){
-                         //////////////////////////
-                         //  запрашиваем размеры к выбранному артикулу
-                         //////////////////////////
-                         $query = "SELECT * FROM `".BASE_DOP_PARAMS_TBL."` where art_id = '".(int)$_POST['art_id']."'";
-                         $size_arr = array();
-                         $result = $mysqli->query($query) or die($mysqli->error);
-                         if($result->num_rows > 0){
-                              while($row = $result->fetch_assoc()){
-                                   $size_arr[] = $row;
-                              }
-                         }
+                    // сообщения Warning
+                    //$warning = 0;
 
+                    $positions_arr = $this->get_articles($_POST['article']);
+
+                   
+                         
+                    $this->positions_arr = array();
+                    $i = 0;
+                    foreach ($positions_arr as $key => $articul) {
+                         // получаем массив размеров по id артикула
+                         $size_arr = $this->get_article_sizes($articul['id']);
+
+                        //  if($this->user_id == 42){
+                        //       echo '<pre>';
+                        //       print_r($positions_arr);
+                        //       echo '</pre>';                                   
+                        // }
                          // проверяем, есть ли в ценах размеров различия
                          $size_price = 0;
-                         $price_differ = 0;
+                         $price_different = array(); // массив содержит разные по цене размеры
                          foreach ($size_arr as $key => $size) {
                               if($key == 0){
-                                   $$size_price = $size['price'];
+                                   $size_price = (int)$size['price'];
+                                   $price_different[] = $size;
+                                   // if($this->user_id == 42){
+                                   //      echo 'первый = '.$size_price . ' ** '.(int)$size['price'].PHP_EOL;
+                                   // }
                               }else{
-                                   if($$size_price != $size['price']){
-                                        $price_differ++;
+                                   if((int)$size_price <> (int)$size['price']){
+                                        $price_different[] = $size;
+                                        $size_price = (int)$size['price'];
+                                        // if($this->user_id == 42){
+                                        //      echo 'следующий размер '.$size_price . ' != '.(int)$size['price'].PHP_EOL;
+                                        // }
                                    }
                               }
-
                          }
 
-
-                         // если размеров более одного выводим новую форму с выбором размера
-                         // и у них разные цены
-                         if(count($size_arr) > 1 && $price_differ > 0){ 
-                              $html = '';
-                              $html .= '<form>';
-                              // выводим таблицу размеров
-                              $html .= '<div class="inform_message">Выберите размер</div>';
-                              $html .= '<table id="choose_the_size">';
-                              $html .= '<tr><th colspan="2">'.$_POST['art_name'].'</th></tr>';
-                              $html .= '<tr><th>Размер</th><th>Цена</th></tr>';
-                              foreach ($size_arr as $key => $value) {
-                                   $html .= '<tr>';
-                                        $html .= '<td>';
-                                             $html .= $value['size'];
-                                        $html .= '</td>';
-                                        $html .= '<td>';
-                                             $html .= '<span>'.$value['price'].'</span> р.';
-                                        $html .= '</td>';
-                                   $html .= '</tr>';
-                              }
-                              $html .= '</table>';
-                              $html .= '<input type="hidden" name="chosen_size" class="chosen_size" value="">';// размер
-                              $html .= '<input type="hidden" name="price_out" class="price_out" value="">';// размер
-                              // вывод скрытых полей переданных ранее
-                              foreach ($_POST as $key => $value) {
-                                   $html .= '<input type="hidden" name="'.$key.'" value="'.$value.'">';
-                              }
-                              $html .= '</form>';
-                              echo '{"response":"show_new_window" , "title":"Выберите размер","html":"'.base64_encode($html).'"}';
-                              exit;
-                         }else{
-                              $this->price_out = $size_arr[0]['price'];
+                         // отлавливаем размеры с разными ценами по одному артикулу
+                         // и создаём для них дополнительную позицию с другой ценой
+                         $different_size = '';
+                         foreach ($price_different as $key => $size) {
+                              $this->positions_arr[$i] = $articul;
+                              $this->positions_arr[$i]['size'] = $size;
+                              $this->positions_arr[$i]['price_out'] = $size['price'];
+                              $i++;
+                              $different_size .= (($key > 0)?',':'').((trim($size['size']) == "")?'не указан':$size['size']);
                          }
-                    }else{
-                         $this->price_out = $_POST['price_out'];
+
+                         // если нам все таки попались размеры с разной ценой
+                         if(count($price_different) > 1){
+                              // вывод сообщения, что по размеру 
+                              //$warning = 1;                              
+                              $message = 'В размерах '.$different_size.' для артикула '.$articul['art'].' были обнаружены разные цены, поэтому для него было добавлено '.count($price_different).' позиции(й)';
+                              $this->responseClass->addResponseFunction('window_reload',array('timeout'=>'2000'));
+                              $this->responseClass->addMessage($message,'system_message');    
+                         }
                     }
-                    // echo '{"response":"none"}';
-                    // echo $this->print_arr($this);
-                    // echo $this->print_arr($_POST);
-                    // exit;
-                    //////////////////////////
+
+                    
+
                     //  осущевствляем проверку всех необходимых данных
-                    //////////////////////////
                     if(isset($_GET['query_num'])){
                          $this->query_num = (int)$_GET['query_num'];
                     }else{
                          return 'не указан query_num';
                     }
+
+                    // заводим позиции
+                    // if($this->user_id != 42){
+                         foreach ($this->positions_arr as $key => $art) {
+                              $this->create_position($art);
+                         }
+                    // }else{
+                         // echo 'добавлено '.count($this->positions_arr).' строк'.PHP_EOL;
+                    // }
+
+                    if(count($this->positions_arr)>0){
+                         $message = 'Вы успешно добавили '.count($this->positions_arr).' позиции(й)';
+                         $this->responseClass->addMessage($message,'successful_message');    
+                         $this->responseClass->addResponseFunction('window_reload',array('timeout'=>'2000'));
+                    }else{
+                         $message = 'Добавилено '.count($this->positions_arr).' позиции(й)';
+                         $message = '<br>Капитонов пилит, скоро все заработает';
+                         $this->responseClass->addMessage($message,'error_message');  
+                         if($this->user_id == 42){
+                              $message = $this->printArr($this->positions_arr);
+                              $this->responseClass->addMessage($message,'error_message');  
+                              $this->responseClass->response['response'] = 'FUCK';
+                         }  
+                    }
+                    
+
+                    // if($warning == 0){
+                    //      $this->responseClass->addResponseFunction('reload_order_tbl',array('timeout'=>'0'));
+                    // }
+               }
+
+               /**
+                *     запрос размеров из базы
+                *
+                *     @author       Алексей Капитонов
+                *     @version      16:32 04.02.2016
+                */
+               private function get_article_sizes($art_id){
+                    global $mysqli;
+                    $query = "SELECT * FROM `".BASE_DOP_PARAMS_TBL."` where art_id = '".$art_id."'";
+                    $size_arr = array();
+                    $result = $mysqli->query($query) or die($mysqli->error);
+                    if($result->num_rows > 0){
+                         while($row = $result->fetch_assoc()){
+                              $size_arr[] = $row;
+                         }
+                    }
+                    return $size_arr;
+               }
+
+               /**
+                *     запрос артикулов из базы
+                *
+                *     @author       Алексей Капитонов
+                *     @version      16:16 04.02.2016
+                */
+               private function get_articles($id_arr){
+                    global $mysqli;
+                    $query = "SELECT * FROM `".BASE_TBL."` WHERE `id` IN ('".implode("','", $id_arr)."')";
+                    $positions_arr = array();
+                    $result = $mysqli->query($query) or die($mysqli->error);
+                    if($result->num_rows > 0){
+                              while($row = $result->fetch_assoc()){
+                              $positions_arr[] = $row;
+                         }
+                    }
+                    return $positions_arr;
+               }
+
+               
+               /**
+                *     заведение одной позиции с одним вариантом
+                *
+                *     @param        $art - выгрузка по информации по артикулу из базы
+                *     @author       Алексей Капитонов
+                *     @version      16:04 04.02.2016
+                */
+               private function create_position($art){
+                    global $mysqli;
+
                     //////////////////////////
                     //  Вставляем строку в main_rows
                     //////////////////////////
                     $this->sort_num = $this->get_sort_num();    
+
                     $query ="INSERT INTO `".RT_MAIN_ROWS."` SET
                          `query_num` = '".$this->query_num."',
-                         `name` = '".trim($_POST['art_name'])."',
+                         `name` = '".trim($art['name'])."',
                          `date_create` = CURRENT_DATE(),
-                         `art_id` = '".$_POST['art_id']."',
-                         `art` = '".$_POST['art']."',
+                         `art_id` = '".$art['id']."',
+                         `art` = '".$art['art']."',
                          `type` = 'cat',
                          `sort` = '".$this->sort_num."'";                    
                    
@@ -431,19 +486,17 @@ PS было бы неплохо взять взять это за правило
                     //////////////////////////
                     //  вставляем строку в dop_data
                     //////////////////////////
-                     $query ="INSERT INTO `".RT_DOP_DATA."` SET
+                    $query ="INSERT INTO `".RT_DOP_DATA."` SET
                          `row_id` = '".$main_rows_id."',                         
-                         `price_out` = '".$this->price_out."',
+                         `price_out` = '".$art['price_out']."',
                          `row_status` = 'green',
-                         `glob_status` = 'в работе'";                    
+                         `glob_status` = 'в работе'";                   
                    
                     $result = $mysqli->query($query) or die($mysqli->error);
-                    
-                    // $main_rows_id = $mysqli->insert_id; 
-                    echo '{"response":"OK","function":"window_reload"}';
-                    // echo $this->print_arr($_POST);
-                    exit;
                }
+
+
+
                // выводит форму выбора типа товара
                protected function to_chose_the_type_product_form_AJAX(){
                     // форма выбора типа продукта
@@ -938,7 +991,7 @@ PS было бы неплохо взять взять это за правило
                                    $readonly_style = ($value['readonly'])?'style="color:grey"':'';
                                    $html .= '<tr>';
                                         $html .= '<td>';
-                                        $html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'" '.$readonly.' '.(($readonly == '' && $checked == false)?'checked':'').'><label '.$readonly_style.' for="type_product_'.$i.'">'.$value['name'].'</label>';
+                                        $html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'" '.$readonly.' ><label '.$readonly_style.' for="type_product_'.$i.'">'.$value['name'].'</label>';
                                         $html .= '</td>';
                                         $html .= '<td>';
                                         $html .= '<label '.$readonly_style.' for="type_product_'.$i.'">'.$value['description'].'</label>';

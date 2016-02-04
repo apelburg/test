@@ -40,4 +40,18 @@
     background-image: url(./skins/images/img_design/quick_search_button.png);
     background-repeat: no-repeat;
 }
+#choose_one_of_several_articles input[type="checkbox"]{
+	display: block;
+}
+#choose_one_of_several_articles .admin_checkbox{
+	padding: 0;
+}
+#choose_one_of_several_articles label{
+	width: 100%;
+    height: 100%;
+    float: left;
+    /* background: red; */
+    padding: 5px 2px;
+    cursor: pointer;
+}
 </style>
