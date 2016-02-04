@@ -231,7 +231,7 @@ PS было бы неплохо взять взять это за правило
                     //   Для каталожной продукции
                     //////////////////////////
                     if(isset($_POST['type_product']) && $_POST['type_product'] == "cat"){
-                         echo '{"response":"show_new_window","type":"cat","title":"Введите № артикула","html":"'.base64_encode($this->get_for_add_catalog_product()).'"}';  
+                         echo '{"response":"show_new_window","type":"cat","title":"Введите № артикула","html":"'.base64_encode($this->get_for_add_catalog_product()).'","width":"830px","height":"500","function":"focus_art_form_search"}';  
                          exit;
                     }
                     //////////////////////////
@@ -923,6 +923,7 @@ PS было бы неплохо взять взять это за правило
                     $html .= '<table id="get_form_Html_tbl">';
                     $html .= '<tr><th>Тип</th><th>Описание типа</th></tr>';
                     $i=0;
+                    $checked = false;
                     // получаем группы товаров и их секции с описанием
                     $arr_section_product = $this->get_arr_section_product_Database();
                     foreach ($this->arr_section_product as $section_product => $section_product_array) {
@@ -937,13 +938,16 @@ PS было бы неплохо взять взять это за правило
                                    $readonly_style = ($value['readonly'])?'style="color:grey"':'';
                                    $html .= '<tr>';
                                         $html .= '<td>';
-                                        $html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'" '.$readonly.'><label '.$readonly_style.' for="type_product_'.$i.'">'.$value['name'].'</label>';
+                                        $html .= '<input type="radio" name="type_product" id="type_product_'.$i.'" value="'.$key.'" '.$readonly.' '.(($readonly == '' && $checked == false)?'checked':'').'><label '.$readonly_style.' for="type_product_'.$i.'">'.$value['name'].'</label>';
                                         $html .= '</td>';
                                         $html .= '<td>';
                                         $html .= '<label '.$readonly_style.' for="type_product_'.$i.'">'.$value['description'].'</label>';
                                         $html .= '</td>';
                                    $html .= '</tr>';
                                    $i++;
+                                   if($readonly == '' && $checked == false){
+                                        $checked = 'true';
+                                   }
                               }
                          }
                     }

@@ -937,7 +937,7 @@ var printCalculator = {
 			// добавляем поле Выбрать в начало селекта
 			var option = document.createElement('OPTION');
             option.setAttribute("value",0);
-            option.appendChild(document.createTextNode(' -- выбрать -- '));
+            option.appendChild(document.createTextNode(' -- нет цвета -- '));
 			YPriceParamSelect.insertBefore(option, YPriceParamSelect.firstChild); 
 			
 			// ссылка добавить цвет

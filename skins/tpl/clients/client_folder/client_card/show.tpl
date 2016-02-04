@@ -1,3 +1,12 @@
+<style type="text/css">
+    #quick_button_back{
+  float: left;  
+  width: 33px;
+  height: 44px;
+  display: block;
+}
+
+</style>
 <div id="content_general_header">
     <table>
         <tr>

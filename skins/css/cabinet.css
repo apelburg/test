@@ -84,7 +84,7 @@ td.class_no_calc{
 	color: grey;
 }
 #general_panel_orders_tbl td.show_hide{
-	width: 15px; 
+	/*width: 15px; */
 	cursor: default;
 }
 .cabinett_row_hide,

@@ -678,7 +678,68 @@ function show_dialog_var(html){
 
 // }
 
+
+
+
+
+$(document).keydown(function(event) {
+	// отработка поиска артикула по клику на Enter
+	if(event.keyCode == 13) {
+		if( $("#add_new_articul_in_rt").is(":focus") ){
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
+			if($('#choose_one_of_several_articles .checked').length == 1 && $('#choose_one_of_several_articles .checked').length == 1){
+				$.post('', $('#dialog_gen_window_form form').serialize(),function(data, textStatus, xhr) {
+					standard_response_handler(data);
+				},'json');
+			}
+		}		
+	}
+	// выбор формы на Enter
+	if(event.keyCode == 13) {
+		if($('#get_form_Html_tbl').length){
+			var send = false;
+			$('#get_form_Html_tbl input[type="radio"]').each(function(index, el) {
+				if($(this).prop("checked")){
+					sent = true;
+				}
+			});
+			if(sent){
+				$.post('', $('#dialog_gen_window_form form').serialize(),function(data, textStatus, xhr) {
+					standard_response_handler(data);
+				},'json');
+			}
+		}
+	}
+
+
+
+	// TAB
+
+	// if (event.keyCode == 9) { 
+	// 	event.preventDefault(); 
+	// 	if( $("#add_new_articul_in_rt").is(":focus") ){
+	// 		if($('#choose_one_of_several_articles .checked').length == 1){
+	// 			$("#add_new_articul_in_rt").blur();	
+	// 			$('#choose_one_of_several_articles .checked').addClass('tab_click');
+
+	// 		}
+			
+	// 	}
+	// } 
+});
+
+function focus_art_form_search(){
+	if($('#add_new_articul_in_rt').length > 0){
+		$('#add_new_articul_in_rt').focus();
+	}
+}
+
+// отправка формы поиска артикула
 $(document).on('change keyup', '#add_new_articul_in_rt', function(event) {
+	event.preventDefault();
+
 	var art = $(this).val();
 	$('#information_block_of_articul').addClass('loader');
 	$.post('', {
