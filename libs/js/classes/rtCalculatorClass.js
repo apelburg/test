@@ -183,7 +183,9 @@ var rtCalculator = {
 				for(var j in tds_arr){
 					if(tds_arr[j].nodeName == 'TD'){
 				        if(i == 0 && tds_arr[j].getAttribute('swiched_cols')){// swiched_cols взаимно переключаемые ряды (ед/тираж, вход/выход)
-						   tds_arr[j].onclick = this.swich_cols;
+						   //tds_arr[j].onclick = this.swich_cols;
+						   $(tds_arr[j]).mousedown(function(){ rtCalculator.swich_cols(this,'show'); }).mouseup(function(){ rtCalculator.swich_cols(this,'hide'); })
+						   
 					    }
 					}
 			    }	
@@ -1254,7 +1256,37 @@ var rtCalculator = {
 	    
 	}
 	,
-	swich_cols:function(e){ 
+	swich_cols:function(cell,action){ 
+	    //alert(cell);
+		//alert(action);
+	  
+		if(cell.nodeName=='SPAN') cell = cell.parentNode;
+		var name =  cell.getAttribute("swiched_cols");
+		
+		var tds_arr = rtCalculator.head_tbl.getElementsByTagName('td');
+		relay(tds_arr,name,action);
+		var tds_arr = rtCalculator.body_tbl.getElementsByTagName('td');
+		relay(tds_arr,name,action);
+		function relay(tds_arr,name,action){
+			for(var j in tds_arr){
+				if(tds_arr[j].getAttribute){
+					if(tds_arr[j].getAttribute('swiched_cols') && tds_arr[j].getAttribute('swiched_cols')==name){
+						 var stat = parseInt(tds_arr[j].getAttribute("c_stat"));
+                         if(stat=='1'){
+							 if(action=='show') $(tds_arr[j]).addClass('hidden');
+							 if(action=='hide') $(tds_arr[j]).removeClass('hidden');
+						 }
+						 if(stat=='0'){
+							 if(action=='show') $(tds_arr[j]).removeClass('hidden');
+							 if(action=='hide') $(tds_arr[j]).addClass('hidden');
+						 }
+					}
+				}
+			}
+		}
+	}
+	,
+	/*swich_cols_old_version:function(e){ 
 	   
 	    e = e|| window.event;
 		var cell = e.target || e.srcElement;
@@ -1289,7 +1321,7 @@ var rtCalculator = {
 			}
 		}
 	}
-	,
+	,*/
 	get_active_rows:function(dop_params_obj){ 
 	    
 		// обходим РТ чтобы 
