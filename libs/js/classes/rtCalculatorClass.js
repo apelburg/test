@@ -331,6 +331,9 @@ var rtCalculator = {
 		// определяем из какой ячейки сделан вызов калькулятора ( могут быть - нанесение или доп услуги)
 		var calculator_type = cell.parentNode.getAttribute('calc_btn');
 		
+		// пользователь 
+		var creator_id = $('*[user_id]').attr('user_id');
+
         // родительский тэг tr
 		var trTag = cell.parentNode.parentNode;
 		// id - артикула
@@ -364,7 +367,7 @@ var rtCalculator = {
 		btn1.innerHTML = 'Список услуг';
 		btn1.onclick =  function(){ 
 		     $(dialog).remove();
-			 printCalculator.start_calculator({"calculator_type":"extra","cell":cell,"quantity":quantity,"art_id":art_id,"dop_data_row_id":dop_data_row_id,"discount":discount,"trTag":trTag});	
+			 printCalculator.start_calculator({"calculator_type":"extra","cell":cell,"quantity":quantity,"art_id":art_id,"dop_data_row_id":dop_data_row_id,"discount":discount,"trTag":trTag,"creator_id":creator_id});	
 	    };
 		dialog.append(btn1);
 	
@@ -373,7 +376,7 @@ var rtCalculator = {
 		btn2.innerHTML = 'Калькулятор';
 		btn2.onclick =  function(){ 
 		     $(dialog).remove();
-			 printCalculator.start_calculator({"calculator_type":"print","cell":cell,"quantity":quantity,"art_id":art_id,"dop_data_row_id":dop_data_row_id,"discount":discount,"trTag":trTag});	
+			 printCalculator.start_calculator({"calculator_type":"print","cell":cell,"quantity":quantity,"art_id":art_id,"dop_data_row_id":dop_data_row_id,"discount":discount,"trTag":trTag,"creator_id":creator_id});	
 	    };
 		dialog.append(btn2);
 		
@@ -560,7 +563,7 @@ var rtCalculator = {
 				str =  substr_arr[0] + substr_arr[1];
 			    
 		    }
-			if(str.length>10){ wrong_input = true;  str = '1000000000'; pos = 10;}
+			if(str.length>7){ wrong_input = true;  str = '1000000'; pos = 7;}
 			
 		    // если был выявлен некорректный ввод исправляем содержимое ячейки 
 			if(wrong_input) cell.innerHTML = str ;  
