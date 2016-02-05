@@ -66,6 +66,10 @@
     background-position-y: 2px;
     cursor: pointer;
     border: 1px solid #f1f1f1;
+    background-position-x: 0;
+}
+.rt_tbl_body .comment_div.filled {
+  background-position-x: -21px;
 }
 .rt_tbl_body .comment_div{
   top: 7px;
