@@ -227,11 +227,14 @@
 	}
    	
 
-		if(isset($_POST['AJAX'])){
-				
+		if(isset($_POST['AJAX'])){				
 		    if($_POST['AJAX']=='edit_query_theme'){
 		        RT::save_theme($_POST['query_num'],$_POST['theme']);
 				echo '{"response":"OK"}';
+				exit;
+			}
+			if($_POST['AJAX']=='update_new_sort_rt'){
+		        RT::update_new_sort_rt_AJAX();
 				exit;
 			}
 		}
