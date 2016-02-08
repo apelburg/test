@@ -311,8 +311,12 @@ height:200px;
  border-right:#e3e5e5 solid 1px;
 }
 .rt_tbl_body .calc_btn{   text-align:center;}
-.rt_tbl_body .calc_btn > *{  border:#92b73e solid 1px; color:#000; padding:1px 4px 1px 4px; font-size:11px;cursor:pointer;}
+.rt_tbl_body .calc_btn > span{  border:#92b73e solid 1px; color:#000; padding:1px 4px 1px 4px; font-size:11px;cursor:pointer;}
 .rt_tbl_body .calc_btn_no_active > *{  border:#92b73e solid 1px; color:#000; padding:1px 4px 1px 4px; font-size:11px;}
+.rt_tbl_body .uslugi_details_window {  position:absolute;top:0px;left:30px;display:none;background-color:#FFFFFF;width:500px; z-index:5;}
+.rt_tbl_body .uslugi_details_window > table { border-collapse:collapse; background-color:#5B5C61;}
+.rt_tbl_body .uslugi_details_window > table td{ color:#FFFFFF; border: 1px solid #FFFFFF; text-align:left}
+.rt_tbl_body .uslugi_details_window table > td.right{ text-align:right }
 .rt_tbl_body .quantity{ padding-right:8px;}
 .rt_tbl_body .quantity_dim{ font-size:11px; line-height:14px;}
 

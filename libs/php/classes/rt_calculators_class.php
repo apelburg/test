@@ -78,9 +78,7 @@
 			
 			$out_put = self::get_all_print_types(); 
 			//print_r($out_put);
-			// получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
-			$level = (isset($data->level))?$data->level:'full'; // тип прайса - рекламщики, конечники
-            $out_put = self::get_print_types_related_data($out_put,$level/*,$all_sizes_in_one_place*/);
+			
 			
 			// если id артикула передано и не равно 0 
 			if(isset($data->art_id) && (int)$data->art_id!=0){ 
@@ -95,6 +93,10 @@
 			   // если есть совпадение то пропускаем такой тип нанесения
 			   // если были найдены какието оригинальные типы нанесения то добавляем их в $out_put внутри "Стандартно"*/
 			$out_put = self::get_related_art_and_print_types($out_put,$data->art_id,false);
+			
+			// получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
+			$level = (isset($data->level))?$data->level:'full'; // тип прайса - рекламщики, конечники
+            $out_put = self::get_print_types_related_data($out_put,$level/*,$all_sizes_in_one_place*/);
 			
 			//print_r($out_put);
 			echo json_encode($out_put);
@@ -205,7 +207,8 @@
 			        INNER JOIN  `".BASE__PRINT_PLACES_TYPES_TBL."` tbl2 
 					ON tbl1.`place_id`  = tbl2.`id`
                     WHERE tbl1.`art_id` = '".$art_id."'";
-			//echo $query;
+			echo $query;
+			exit;
 			$result = $mysqli->query($query)or die($mysqli->error);
 			if($result->num_rows>0){
 			    while($row = $result->fetch_assoc()){

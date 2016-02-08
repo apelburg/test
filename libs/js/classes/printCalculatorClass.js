@@ -270,7 +270,7 @@ var printCalculator = {
 		printCalculator.send_ajax(url,callback);
 		//alert(last_val);
 		function callback(response_calculatorParamsData){
-			//alert(response_calculatorParamsData);
+			alert(response_calculatorParamsData);
 			// return;
 			if(typeof printCalculator.calculatorParamsObj !== 'undefined') delete printCalculator.calculatorParamsObj;
 			
