@@ -130,11 +130,10 @@
 			
 			// записываем файл
 			$file_name = $full_dir_name.'/agreement.tpl';
-			//$file_name = $dir_name_full.'/com_pred_1_1.doc';
-			if(file_exists($file_name)){
-				echo 'файл с таким именем уже существует (2)';
-				exit;
-			}
+			//if(file_exists($file_name)){
+				//echo 'файл с таким именем уже существует (2)';
+				//exit;
+			//}
 			
 
 			$origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/long_term.tpl';	
@@ -357,12 +356,10 @@
 
 			// записываем файл
 			$file_name = $full_dir_name.'/'.$oferta_id.'.tpl';
-			//echo $file_name;
-			//$file_name = $dir_name_full.'/com_pred_1_1.doc';
-			if(file_exists($file_name)){
-				echo 'файл с таким именем уже существует (2)';
-				exit;
-			}
+			//if(file_exists($file_name)){
+				//echo 'файл с таким именем уже существует (222)';
+				//exit;
+			//}
 	
 			if($dateDataObj->data_type=='days') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/oferta.tpl';
 			if($dateDataObj->data_type=='date') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/oferta_type2_by_date.tpl';
@@ -912,10 +909,10 @@
 			$file_name = $full_dir_name.'/'.$specification_num.'.tpl';
 			//echo $file_name;
 			//$file_name = $dir_name_full.'/com_pred_1_1.doc';
-			if(file_exists($file_name)){
-				echo 'файл с таким именем уже существует (2)';
-				exit;
-			}
+			//if(file_exists($file_name)){
+				//echo 'файл с таким именем уже существует (232)';
+				//exit;
+			//}
 	
 			if($dateDataObj->data_type=='days') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/specification.tpl';
 			if($dateDataObj->data_type=='date') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/specification_type2_by_date.tpl';
