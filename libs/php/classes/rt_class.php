@@ -1517,6 +1517,36 @@ echo $query;
 			}
 			else  return false;
 		}
+
+		/**
+		 *	сохранение ресорта
+		 *
+		 *	@author  	Alexey Kapitonov
+		 *	@version 	12:55 08.02.2016
+		 */
+		static function update_new_sort_rt_AJAX(){
+			if(!isset($_POST['json'])){
+				$message = "Сортировка не сохранена!";
+				echo '{"response":"OK","function":"echo_message","type":"system_message","message":"'.$message.'"}';
+				exit;
+			}
+
+			$positions_arr = json_decode($_POST['json'],true);
+
+			global $mysqli;
+			$query = '';
+			foreach ($positions_arr as $position) {
+				$query = "UPDATE `".RT_MAIN_ROWS."` SET ";
+				$query .= " `sort` = '".$position['sort']."'";
+				$query .= " WHERE `id` = '".$position['id']."';";
+
+				$result = $mysqli->query($query)or die($mysqli->error);
+			}
+			
+			echo '{"response":"OK"}';
+			exit;
+		}
+
 	
     }
 ?>
