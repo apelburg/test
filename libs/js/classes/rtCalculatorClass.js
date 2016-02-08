@@ -309,9 +309,12 @@ var rtCalculator = {
 							if(tds_arr[j].getAttribute('raschet_status')){
 								$(tds_arr[j]).mouseenter(function(e){ statusTooltip.schedule(this)});
 							}
-							if(tds_arr[j].getAttribute('uslugi_btn') && !block){
+							if(tds_arr[j].getAttribute('uslugi_btn')){
 								//// console.log(j+' svetofor');
-								if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = this.launch_uslugi_panel;//tds_arr[j].getElementsByTagName('span')[0].onclick = printCalculator.start_calculator;
+								if(!block) if(tds_arr[j].getElementsByTagName('span')[0]) tds_arr[j].getElementsByTagName('span')[0].onclick = this.launch_uslugi_panel;
+								if(tds_arr[j].getAttribute('print_exists_flag') == '1' || tds_arr[j].getAttribute('uslugi_exists_flag') == '1'){
+									$(tds_arr[j]).mouseenter(function() {this.getElementsByTagName('div')[0].style.display = 'block';}).mouseleave(function() {this.getElementsByTagName('div')[0].style.display = 'none';});
+								}
 								
 							}
 						}

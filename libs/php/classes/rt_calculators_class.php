@@ -80,12 +80,14 @@
 			//print_r($out_put);
 			// получаем дополнительные данные соответсвующие нанесениям ( возможные размеры, цвета, таблицы прайсов )
 			$level = (isset($data->level))?$data->level:'full'; // тип прайса - рекламщики, конечники
-            $out_put = self::get_print_types_related_data($out_put,$level/*,$all_sizes_in_one_place*/);
+            
 			
 			// если id артикула передано и не равно 0 
 			if(isset($data->art_id) && (int)$data->art_id!=0){ 
 				$print_places = self::get_related_print_places($data->art_id);
-				if($print_places) $out_put['places'] = array_merge ($out_put['places'],$print_places['out_put']['places']);
+				
+				// здесь НИВКОЕМ СЛУЧАЕ не использовать array_merge() он перезаписывает значени ключей
+				if($print_places) $out_put['places'] = $out_put['places']+$print_places['out_put']['places'];
 			}
 			
 			// ищем типы нанесения присвоенные данному артикулу на прямую
@@ -95,6 +97,8 @@
 			   // если есть совпадение то пропускаем такой тип нанесения
 			   // если были найдены какието оригинальные типы нанесения то добавляем их в $out_put внутри "Стандартно"*/
 			$out_put = self::get_related_art_and_print_types($out_put,$data->art_id,false);
+			
+			$out_put = self::get_print_types_related_data($out_put,$level/*,$all_sizes_in_one_place*/);
 			
 			//print_r($out_put);
 			echo json_encode($out_put);
@@ -219,9 +223,7 @@
 					if($result_2->num_rows>0){
 					    $print_types = array();
 						while($row_2 = $result_2->fetch_assoc()){
-						    // создаем элемент (массив) с ключом равным id типа нанесения, дальше в этот массив будет добавленна подробная 
-						    // информация об этом нанесении с помощью функции get_print_types_related_data()
-						    if(!isset($out_put['print_types'][$row_2['print_id']])) $out_put['print_types'][$row_2['print_id']] = array();	
+						    // создаем массив с ключом равным id типа нанесения, дальше в этот массив будет добавленна подробная
 						    $print_types[$row_2['print_id']] = $row_2['name'];
 							// служебный для следующего этапа
 							$print_types_ids[] = $row_2['print_id'];
@@ -324,11 +326,9 @@
 				// мест нанесений добавленных напрямую (товару либо было присвоен тип нанесения напрямую либо вообще ничего
 				// небыло присвоено) тогда добавляем к этому типу нанесения специально для такого случая промаркированные
 				// размеры нанесения
-				$default_sizes = false;
-				if(count($out_put['places'])==1 && key($out_put['places'])==0) $default_sizes = true;
+				//if(count($out_put['places'])==1 && key($out_put['places'])==0) $default_sizes = true;
 				
 				$query="SELECT*FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."` WHERE `print_id` = '".$print_id."'";
-				if($default_sizes) $query .=" AND `default`=1 ";
 				$query .=" ORDER by id";
 				// echo $query; exit;
 				$result = $mysqli->query($query)or die($mysqli->error);/**/
@@ -336,14 +336,14 @@
 				    while($row = $result->fetch_assoc()){
 					    $place_id = $row['place_id'];
 						$row['item_id'] = $row['id'];
+						$default = $row['default'];
 					    unset($row['id'],$row['place_id'],$row['default']);
 						
 						
 						// добавляем результат в итоговый массив ключем устанавливаем id типа нанесения и id места нанесения
-					    if(!$default_sizes) $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
-						else  $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
+					    $out_put['print_types'][$print_id]['sizes'][$place_id][] = $row; 
 						// а также сбрасываем все места нанесения в один общий элемент для типов "не определено" и "стандартно"
-						$out_put['print_types'][$print_id]['sizes'][0][] = $row; 
+						if($default=='1') $out_put['print_types'][$print_id]['sizes'][0][] = $row; 
 						
 				    }
 				}
