@@ -2,7 +2,7 @@ var printCalculator = {
 	evoke_calculator_directly: function(data){
 	    //console.log(data);
 		printCalculator.discount = Number($('.percent_nacenki.js--calculate_tbl-edit_percent:visible').attr('data-val'));
-		//alert(rr);
+		printCalculator.creator_id = $('*[user_id]').attr('user_id');
 		
 		if(data.dop_uslugi_id){
 			var url = OS_HOST+'?' + addOrReplaceGetOnURL('page=client_folder&fetch_data_for_dop_uslugi_row='+data.dop_uslugi_id,'section');
@@ -16,6 +16,7 @@ var printCalculator = {
 				printCalculator.currentCalculationData = [];
 				printCalculator.currentCalculationData[0] = data_AboutPrintsArr;
 				printCalculator.currentCalculationData[0].dop_uslugi_id =  data_AboutPrintsArr.id;
+				
 			
 				if(typeof printCalculator.currentCalculationData.id !== 'undefined') delete printCalculator.currentCalculationData.id;
 				if(typeof printCalculator.currentCalculationData.type !== 'undefined') delete printCalculator.currentCalculationData.type;
@@ -27,6 +28,7 @@ var printCalculator = {
 				// из-за проверки этого значения в начале build_print_calculator 
 				// в условиии if(printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id)
 				printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id = "0";
+				printCalculator.dataObj_toEvokeCalculator.creator_id =  printCalculator.creator_id;
 				printCalculator.evoke_calculator();
 			  
 				
@@ -34,6 +36,7 @@ var printCalculator = {
 		}
 		else{
 			printCalculator.dataObj_toEvokeCalculator = data; //{"art_id":15431,"dop_data_row_id":3,"quantity":1};
+			printCalculator.dataObj_toEvokeCalculator.creator_id =  printCalculator.creator_id;
 		    printCalculator.evoke_calculator();
 		}
 		
@@ -60,7 +63,7 @@ var printCalculator = {
 				// этап 1
 				if(typeof data_AboutPrintsArr !== 'undefined') delete data_AboutPrintsArr;
 				var data_AboutPrintsArr = JSON.parse(response);
-				printCalculator.dataObj_toEvokeCalculator = {"art_id":dataObj.art_id,"dop_data_row_id":dataObj.dop_data_row_id,"quantity":dataObj.quantity,"cell":dataObj.cell};
+				printCalculator.dataObj_toEvokeCalculator = {"art_id":dataObj.art_id,"dop_data_row_id":dataObj.dop_data_row_id,"quantity":dataObj.quantity,"cell":dataObj.cell,"creator_id":dataObj.creator_id};
 				
 				if(data_AboutPrintsArr.length == 0){
 					
@@ -573,8 +576,8 @@ var printCalculator = {
 	    if(printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id){
 			printCalculator.currentCalculationData =  printCalculator.currentCalculationData[printCalculator.dataObj_toEvokeCalculator.currentCalculationData_id];
 			printCalculator.currentCalculationData.dop_data_row_id = printCalculator.dataObj_toEvokeCalculator.dop_data_row_id;
-			
-			
+			printCalculator.currentCalculationData.creator_id = printCalculator.dataObj_toEvokeCalculator.creator_id;
+
 			if(typeof printCalculator.currentCalculationData.dop_row_id !== 'undefined') delete printCalculator.currentCalculationData.dop_row_id;
 			if(typeof printCalculator.currentCalculationData.price_in !== 'undefined') delete printCalculator.currentCalculationData.price_in;
 			if(typeof printCalculator.currentCalculationData.price_out !== 'undefined') delete printCalculator.currentCalculationData.price_out;
@@ -582,10 +585,11 @@ var printCalculator = {
 		else{
 		    printCalculator.currentCalculationData =  {};	
 			printCalculator.currentCalculationData.quantity = printCalculator.dataObj_toEvokeCalculator.quantity;
+			printCalculator.currentCalculationData.creator_id = printCalculator.dataObj_toEvokeCalculator.creator_id;
 		    printCalculator.currentCalculationData.dop_data_row_id = printCalculator.dataObj_toEvokeCalculator.dop_data_row_id;
 			printCalculator.currentCalculationData.print_details = {};
 			printCalculator.currentCalculationData.print_details.dop_params = {};
-			
+
 			if(typeof printCalculator.discount !== 'undefined'){
 				printCalculator.currentCalculationData.discount = printCalculator.discount;
 			}
@@ -1829,6 +1833,7 @@ var printCalculator = {
 		printCalculator.currentCalculationData.print_details.print_type =  printCalculator.calculatorParamsObj.places[printCalculator.currentCalculationData.print_details.place_id].prints[printCalculator.currentCalculationData.print_details.print_id];
 		printCalculator.currentCalculationData.print_details.level = printCalculator.level;
 		printCalculator.currentCalculationData.print_details.discount = printCalculator.currentCalculationData.discount;
+		printCalculator.currentCalculationData.print_details.creator_id = printCalculator.currentCalculationData.creator_id;
 		
 		if(typeof printCalculator.currentCalculationData.glob_type !== 'undefined') delete printCalculator.currentCalculationData.glob_type;
 		if(typeof printCalculator.currentCalculationData.dop_row_id !== 'undefined') delete printCalculator.currentCalculationData.dop_row_id;

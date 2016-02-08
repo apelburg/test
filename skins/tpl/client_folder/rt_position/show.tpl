@@ -75,7 +75,7 @@
 </div>
 
 <div id="order_art_edit">
-	<div id="info_string_on_query">
+	<div id="info_string_on_query" user_id="<?php echo $user_id; ?>">
 		<ul>
 			<li style="opacity:0" id="back_to_string_of_claim"></li>
 			<li id="claim_number" data-order="<?=$POSITION->position['id'];?>">

@@ -455,6 +455,7 @@
 									   `price_in` = '".$details_obj->price_in."',
 									   `price_out` ='".$details_obj->price_out."',
 									   `discount` ='".$details_obj->discount."',
+									   `creator_id` ='".$details_obj->creator_id."',
 									   `print_details` ='".cor_data_for_SQL($print_details)."'"; 
 				//echo $query;
 				$mysqli->query($query)or die($mysqli->error);
@@ -470,6 +471,7 @@
 									   `quantity` ='".$details_obj->quantity."',
 									   `price_in` = '".$details_obj->price_in."',
 									   `price_out` ='".$details_obj->price_out."',
+									   `creator_id` ='".$details_obj->creator_id."',
 									   `print_details` ='".$print_details."'
 									    WHERE `id` ='".$details_obj->dop_uslugi_id."'"; 
 				 //echo $query;

@@ -243,6 +243,7 @@
 
 				 // подсчет сумм в ряду
 				 $item_price_out = ($dop_row['discount'] != 0 )? (($dop_row['price_out']/100)*(100 + $dop_row['discount'])) : $dop_row['price_out'] ;
+				 $item_price_out = round($item_price_out, 2);
 				 // 1. подсчитываем входящую сумму
 				 $item_summ_in = $dop_row['quantity']*$dop_row['price_in'];
 				 $in_summ = $item_summ_in;
@@ -380,11 +381,11 @@
 			 $cur_row .=  '<td class="hidden"></td>
 			               <td type="dop_details" class="hidden">'.json_encode($dop_details).'</td>
 			               <td width="40" type="svetofor" '.$svetofor_td_attrs.'>'.$svetofor.'</td>
-			               <td width="60" type="quantity" class="quantity right r_border"  editable="true">'.$dop_row['quantity'].'</td>
+			               <td width="65" type="quantity" class="quantity right r_border"  editable="true">'.$dop_row['quantity'].'</td>
 						   <td width="90" type="item_price_in" editable="true" class="in right">'.$dop_row['price_in'].'</td>
 						   <td width="15" type="item_summ_in" class="currency left" style="position:relative;">'.$currency.'<div class="summ_cell">'.$item_summ_in_format.$currency.'</div></td>
 						   <td width="90" type="item_price_out" editable="'.(($discount!=0)?'false':'true').'" class="out right">'.$item_price_out.'</td>
-						   <td width="15" type="item_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div class="summ_cell">'.$item_summ_out_format.$currency.'</div></td>
+						    <td width="15" type="item_summ_out" class="currency left r_border" style="position:relative;">'.$currency.'<div class="summ_cell">'.$item_summ_out_format.$currency.'</div></td>
 						   <td width="33" class="calc_btn" uslugi_btn="1" print_exists_flag="'.$print_exists_flag.'" uslugi_exists_flag="'.$uslugi_exists_flag.'" pos_id="'.$key.'">'.$uslugi_btn.'</td>
 			               <td width="80" type="uslugi_price_in" class="out right '.$expel_class_print.'" expel_suspended="'.$expel['print'].'">'.$uslugi_price_in_format.'</td>
 						   
@@ -431,14 +432,14 @@
 	              <td class="hidden"></td>
 				  <td class="hidden">тип</td>
 				  <td class="art_name right">
-				      <a href="#" onclick="console.log(rtCalculator.tbl_model);/**/print_r(rtCalculator.tbl_model);">_</a>&nbsp;
-					  <!--<a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>&nbsp;
+				      <!--<a href="#" onclick="console.log(rtCalculator.tbl_model);/**/print_r(rtCalculator.tbl_model);">_</a>&nbsp;
+					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:54,dop_uslugi_id:74});">_</a>&nbsp;
 					  <a href="#" onclick="printCalculator.evoke_calculator_directly({art_id:15431,dop_data_row_id:3,quantity:1});">_</a>-->
 				  </td>
 				  <td class="hidden">dop_details</td>
 				  <td class="hidden">draft</td>
 				  <td width="40" class="center"><img src="'.HOST.'/skins/images/img_design/rt_svetofor_top_btn_'.$svetofor_display_relay_status_all.'.png" onclick="rtCalculator.svetofor_display_relay(this);"></td>
-				  <td width="60" type="quantity" class="quantity right r_border">тираж</td>
+				  <td width="65" type="quantity" class="quantity right r_border">тираж</td>
 				  <td width="90" class="w_border relative"><div class="cap_name" style="left:105px;">сувенир</div><br><div class="cap_subname">входящая</div></td>
 				  <td width="15" class="w_border"></td>
 				  <td width="90" class="w_border"><br><div class="cap_subname">исходящая</div></td>
@@ -494,19 +495,13 @@
 	         </table>'; 
 	   if(isset($tbl_rows)){          
 	       $rt.= '<div id="scrolled_part_container" class="scrolled_tbl_movable_part" style="position:relative;">
-	             <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0">'.implode('',$tbl_rows).'</table>'
+	             <table class="rt_tbl_body" id="rt_tbl_body" scrolled="body" client_id="'.$client_id.'" query_num="'.$query_num.'" user_id="'.$user_id.'" border="0">'.implode('',$tbl_rows).'</table>'
 				 .(($block_page_elements)?'<div id="blanket" style="position:absolute;top:0px;left:0px;right:0px;bottom:0px;border:#ff0000 solid 0px" onclick="noticeQueryBlocked();"></div>':'').'
 			  </div>';
 	    }
 		else{
-		   $rt.= '<table class="rt_tbl_body" id="rt_tbl_body" client_id="'.$client_id.'" query_num="'.$query_num.'" border="0" width="100%" height="400"><tr><td align="center">зявка не содержит данных</td></tr></table>';
-		}
-			  
-			  
-			  
-			  
-			  
-			  
+		   $rt.= '<table class="rt_tbl_body" id="rt_tbl_body" client_id="'.$client_id.'" query_num="'.$query_num.'" user_id="'.$user_id.'" border="0" width="100%" height="400"><tr><td align="center">зявка не содержит данных</td></tr></table>';
+		} 
 			  
 	/*	
 	     РЕАЛИЗАЦИЯ ФУНКЦИОНАЛА "ДРАФТ" оказалась не востребованной
