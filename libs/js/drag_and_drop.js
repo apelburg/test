@@ -8,7 +8,7 @@
  */
 function get_dop_data_rows(row){
 	// if(window.ui_add_class == 0){
-		if(!row.hasClass('pos_edge')){
+		if(!row.hasClass('ui-sort')){
 			row.addClass('checked-row');
 			if(row.next().length){
 				get_dop_data_rows(row.next());
@@ -88,7 +88,7 @@ $(function() {
 			height_div += $(this).height();
 		});
 		$('#rt_tbl_body tr.orderBottomRow.placeh.ui-state-highlight td').height(height_div);
-		console.log($('#draggingContainer').height());
+		// console.log($('#draggingContainer').height());
 
 
 		if($('#basket_del_absolute').length==0){$('body').append('<div id ="basket_del_absolute">ПЕРЕТАЩИТЕ СЮДА ВЫБРАННЫЕ ЭЛЕМЕНТЫ, ЧТОБЫ ИХ УДАЛИТЬ</div>');
@@ -102,43 +102,56 @@ $(function() {
 		}
 		return ui;
 	}
-	var befor = function(e, ui){
-
+			
+	var fixBefor = function(e, ui){		
+		
 		// console.log(window.bCheckSort);		
 		if(window.bCheckSort==1){
 			//alert(ui.attr(class))
-		var clone = $('#draggingContainer .my-ui').clone();
+			var clone = $('#draggingContainer .my-ui').clone();
 
-		$('.rt_tbl_body .my-ui').remove();
-		$('.ui-state-highlight').replaceWith(clone);
-		
-		$('.rt_tbl_body .my-ui')
-		.removeClass('my-ui')
-		.removeAttr('style')
-		.removeClass('checked-row').find('.checked').removeClass('checked');
-		$('#draggingContainer').fadeOut().remove();
-		$('.rt_tbl_body .checked-row').fadeIn('fast');
-		//ui не возвращаем
-		
+			$('.rt_tbl_body .my-ui').remove();
+			$('.ui-state-highlight').replaceWith(clone);
+			
+			$('.rt_tbl_body .my-ui').removeClass('my-ui').removeAttr('style').removeClass('checked-row').find('.checked').removeClass('checked');
+			$('#draggingContainer').fadeOut().remove();
+			$('.rt_tbl_body .checked-row').fadeIn('fast');
+			//ui не возвращаем
+			
 			if($('#basket_del_absolute')){$('#basket_del_absolute').remove();}
 			//пересчет html таблицы
 			// reCalculate();	
-			window.bCheckSort =0;	
+			window.bCheckSort = 0;	
 			$('#rt_tbl_body .checked-row').removeClass('checked-row');
 		}else{
 			if($('#basket_del_absolute')){$('#basket_del_absolute').remove();}
 			//пересчет html таблицы
 			// reCalculate();	
-			window.bCheckSort =0;	
+			window.bCheckSort = 0;	
 			$('#rt_tbl_body .checked-row').removeClass('checked-row');
-			return ui;
-			
 		}
+		return ui;
+		
+	}
+
+	var fixUpdate = function(e, ui){
+		// alert(654);
+		$('#rt_tbl_body .pos_edge td:first-child').each(function(index, el) {
+			// $(this).find('td.glob_counter').html(++index);
+			console.log($(this).html(++index));
+			console.log($(this).html());
+		});
+
+		// сохраняем ресорт
+		
+
+
+
+		return ui;
 	}
 	
 	var fixStop = function(e, ui){	
-		// return ui;
-
+		// return ui;		
 		$('.ui-state-highlight').height($('#draggingContainer').height());
 		if(window.bCheckSort==1){
 			var cont = '';
@@ -165,19 +178,24 @@ $(function() {
 	}
 
 	$('body').append('<div id="dragdiv"></div>');
+	// добавляем новый класс для работы sortable
+	$('#rt_tbl_body .pos_edge').addClass('ui-sort');
+
 	$("#rt_tbl_body").sortable({
 		delay: 100,
+		deactivate: fixUpdate,
+		// stop:fixUpdate,
 		appendTo:'#dragdiv',
 		distance:5,
-		beforeStop: befor,
-		stop:fixStop,
-		items: ".pos_edge",
+		items: ".ui-sort",
 		revert:true,
 		connectToSortable: ".rt_tbl_body",
 		placeholder:"orderBottomRow placeh ui-state-highlight",
 		helper: fixHelper,
 		start: fixStart,
-		scope:'tasks'	
+		beforeStop: fixBefor,
+		// update: fixUpdate,
+		// scope:'tasks'	
 	}).disableSelection();	
 	/*  КОНЕЦ СКРИПТА ПЕРЕМЕЩЕНИЯ СТРОК  */
 	//пересчет html таблицы
