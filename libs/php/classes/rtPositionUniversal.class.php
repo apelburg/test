@@ -450,7 +450,7 @@ class rtPositionUniversal extends Position_general_Class
 		if($this->position['type'] == 'cat'){
 			$this->get_all_info($this->position['art_id']);
 			// ссылка на сайт 
-			$link_of_the_site = '<a target="_blank" href="http://'.$_SERVER['HTTP_HOST'].'/description/'.$this->position['art_id'].'"><img src="http://'.$_SERVER['HTTP_HOST'].'/os/skins/images/img_design/basic_site_link.png"></a>';
+			$link_of_the_site = '<a target="_blank" href="http://'.$_SERVER['HTTP_HOST'].'/description/'.$this->position['art_id'].'">APL</a>';
 			ob_start();
 			include_once __DIR__.'/../../../skins/tpl/client_folder/rt_position/characteristics_cat.tpl';
 			$html = ob_get_contents();

@@ -487,7 +487,8 @@ $(document).on('click', '.tz_text_new', function(event) {
 
 	$(this).attr('id',id);
 	// окно редактирования ТЗ
-	show_dialog_and_send_POST_window2(text+ajax_name,'ТЗ');
+	// show_dialog_and_send_POST_window2(text+ajax_name,'ТЗ');
+	show_simple_dialog_window(text+ajax_name,'ТЗ');
 });
 
 $(document).on('keyup', '.tz_taxtarea_edit', function(event) {
