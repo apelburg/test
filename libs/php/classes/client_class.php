@@ -937,10 +937,11 @@ class Client extends aplStdAJAXMethod{
 		}
 		
 		protected function new_person_type_req_AJAX() {
-			$query = "INSERT INTO  `" . CLIENT_PERSON_REQ_TBL . "` SET  shouldBe();
+			$query = "INSERT INTO  `" . CLIENT_PERSON_REQ_TBL . "` SET  
 				`type` =  '',
 				`position` =  '" . $_POST['position'] . "',
 				`position_in_padeg` =  '" . $_POST['position_in_padeg'] . "'";
+			
 			$result = $this->mysqli->query($query) or die($this->mysqli->error);
 			
 			// echo $query;

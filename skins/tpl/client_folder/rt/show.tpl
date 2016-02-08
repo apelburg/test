@@ -36,6 +36,11 @@ $( document ).ready(function() {
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/jquery_ui/jquery.datetimepicker.js"></script>
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/calendar_consturctor.js"></script>
 
+<?php
+if(isset($_SESSION) && $_SESSION['access']['user_id'] == 42){
+	echo '<script type="text/javascript" src="'.HOST.'/libs/js/drag_and_drop.js"></script>';
+}
+?>
 
 <link href="<?php  echo HOST; ?>/skins/css/rt.css" rel="stylesheet" type="text/css">
 <link href="<?php  echo HOST; ?>/skins/css/checkboxes.css" rel="stylesheet" type="text/css">
