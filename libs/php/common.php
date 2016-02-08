@@ -2090,7 +2090,7 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		$date= fetchOneValFromGeneratedAgreementTbl(array('retrieve'=>'date','coll'=>'id','val'=>$agreement_id));
 		
 		
-	    $file_name = 'data/agreements/'.strval($client_id).'/'.substr($date,0,4).'/long_term/'.$our_requisit_id.'_'.$client_requisit_id.'/specifications/'.$specification_num.'.tpl';
+	    $file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.strval($client_id).'/'.substr($date,0,4).'/long_term/'.$our_requisit_id.'_'.$client_requisit_id.'/specifications/'.$specification_num.'.tpl';
 		
 		if(file_exists($file_name)) unlink($file_name);
 		
@@ -2233,11 +2233,11 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 	
 	function delete_agreement($agreement_id){
 	    global $db;
-		
+
 		
 		$query = "SELECT*FROM `".GENERATED_AGREEMENTS_TBL."` WHERE id='$agreement_id'";
 		$result = mysql_query($query,$db) or die (mysql_error());
-		
+
 		$client_id = mysql_result($result,0,'client_id');
 		$date = mysql_result($result,0,'date');
 		$date = substr($date,0,4);
@@ -2245,24 +2245,28 @@ WHERE `requisites_id` = '".$id."' AND `acting` =  '1'
 		$our_requisit_id = mysql_result($result,0,'our_requisit_id');
 		$client_requisit_id = mysql_result($result,0,'client_requisit_id');
 		$filename = 'agreement.tpl';
-		
-		unlink('data/agreements/'.$client_id.'/'.$date.'/'.$type.'/'.$our_requisit_id.'_'.$client_requisit_id.'/'.$filename);
-		$path = 'data/agreements/'.$client_id.'/'.$date.'/'.$type.'/'.$our_requisit_id.'_'.$client_requisit_id;
+        $file_name = $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.$date.'/'.$type.'/'.$our_requisit_id.'_'.$client_requisit_id.'/'.$filename;
+		if(file_exists($file_name)) unlink( $file_name );
+		$path =  $_SERVER['DOCUMENT_ROOT'].'/admin/order_manager/data/agreements/'.$client_id.'/'.$date.'/'.$type.'/'.$our_requisit_id.'_'.$client_requisit_id;
 		$specifications_folder = $path.'/specifications';
-		$dir = opendir($specifications_folder);
-		while(($file = readdir()) !== FALSE)
-		{
-		    if($file != '.' && $file != '..')
+		if(file_exists($specifications_folder)){
+			$dir = opendir($specifications_folder);
+			while(($file = readdir()) !== FALSE)
 			{
-			    unlink($specifications_folder.'/'.$file);			
+				if($file != '.' && $file != '..')
+				{
+				   if(file_exists($specifications_folder.'/'.$file)) unlink($specifications_folder.'/'.$file);			
+				}
 			}
 		}
 		// неработает
 		//rmdir($specifications_folder);
 		//rmdir($path);
-		
 	    $query = "DELETE FROM `".GENERATED_AGREEMENTS_TBL."` WHERE id='$agreement_id'";
 		mysql_query($query,$db) or die (mysql_error());
+		
+		$query = "DELETE FROM `".GENERATED_SPECIFICATIONS_TBL."` WHERE agreement_id = '$agreement_id'";
+		mysql_query($query,$db) or die(mysql_error());
 		
 	}
 	
