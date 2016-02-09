@@ -1361,6 +1361,7 @@
 		a.setAttribute('control_num',control_num);
 		a.setAttribute('id',id);
 		a.onclick = insertRow;
+
 		a.appendChild(document.createTextNode('Вставить строку'));
 		innerDiv.appendChild(a);
 		div.appendChild(innerDiv);

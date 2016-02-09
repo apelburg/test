@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -34,13 +34,13 @@ echo '<link href="./skins/css/main.css" rel="stylesheet" type="text/css">' . PHP
 
 // if(false/*isset($_SESSION['access']['user_id'])*/){
    echo '<script src="'.HOST.'/libs/js/classes/reminder.js"></script>'.PHP_EOL;
-   echo '<link href="'.HOST.'/skins/css/reminder.css" rel="stylesheet" type="text/css">'.PHP_EOL;
+
    echo '<link href="'.HOST.'/libs/js/classes/reminder.css" rel="stylesheet" type="text/css">'.PHP_EOL;
 // }
 ?>
 <script type="text/javascript" src="libs/js/common.js"></script>
 <script type="text/javascript" src="libs/js/geometry.js"></script>
-<script type="text/javascript" src="libs/js/upWindowMenu2.js"></script>
+<script type="text/javascript" src="libs/js/upWindowMenu.js"></script>
 <script type="text/javascript" src="libs/js/sample.js"></script>
 <script type="text/javascript" src="libs/js/standard_response_handler.js"></script>
 <title><?=$title;?></title>

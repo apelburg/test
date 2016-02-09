@@ -422,7 +422,7 @@
 	}
 	
 	function resetMasterBtn(element,target_id){
-		alert(1);
+		
         if(resetMasterBtn.onProcessing) return;
 		resetMasterBtn.onProcessing = true;
 		var data = (getCountOfCheckedAndAllCeckboxes(target_id)).split('|');
@@ -440,6 +440,9 @@
 		
 		// формируем url для AJAX запроса
 		var url = OS_HOST+'?' + addOrReplaceGetOnURL('set_masterBtn_status={"ids":"'+idsSting+'","status":"'+Number(status)+'"}');
+		
+		console.log('url',url);
+		
 		make_ajax_request(url,callback);
 
 		function callback(response){
