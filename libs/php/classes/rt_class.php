@@ -1423,19 +1423,31 @@ echo $query;
 			$discount = isset($_POST['discount'])?$_POST['discount']:0;
 			// вставляем новую услугу в базу
 			$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
-						 `dop_row_id` = '".$dop_row_id."',
-						 `uslugi_id` = '".$id_uslugi."',
-						 `glob_type` = 'extra',
-						 `price_in` = '".$usluga['price_in']."',
-						 `price_out` = '".$usluga['price_out']."',					 
-						 `performer` = '".$usluga['performer']."',
+			             `dop_row_id` = '".$dop_row_id."',
+			             `uslugi_id` = '".$id_uslugi."',
+						 `glob_type` = 'extra',";
+			if($id_uslugi == 103){
+				$query .= "`price_in` = '".(int)$_POST['price_in']."',";
+				$query .= "`price_out` = '".(int)$_POST['price_out']."',";
+			}else {
+				$query .= "`price_in` = '".$usluga['price_in']."',";
+				$query .= "`price_out` = '".$usluga['price_out']."',";
+			}
+						 
+			$query .= "`performer` = '".$usluga['performer']."',
 						 `price_out_snab` = '".$usluga['price_out']."',
 						 `for_how` = '".$usluga['for_how']."',
 						 `creator_id` = '". $_SESSION['access']['user_id']."',
 						 `discount` = '".$discount."',
 						 `quantity` = '".$quantity."'";
+			
 			if (isset($_POST['comment']) && trim($_POST['comment']) != "") {
 				$query .= ", `tz`= '".base64_encode($_POST['comment'])."'";	
+			}
+
+			// новое дополнительное название для НЕТ В СПИСКЕ
+			if (isset($_POST['other_name']) && trim($_POST['other_name']) != "") {
+				$query .= ", `other_name`= '".$_POST['other_name']."'";	
 			}
 			
 			$result = $mysqli->multi_query($query) or die($mysqli->error);
