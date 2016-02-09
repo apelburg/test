@@ -777,34 +777,49 @@ $(document).on('click','.chose_curators',function(){
 //////////////////////////
 // ОКНО РЕКВИЗИТЫ 
 $(document).on('click',' #requisits_button', function(){
-    $('#requesites_form').dialog("open");
+    $.post('', {
+        AJAX:"get_requisites",
+    }, function(data, textStatus, xhr) {
+        standard_response_handler(data);
+    },'json');
 });
-$(function() {
-    $('#requesites_form').dialog({
-        width: 'auto',
-        height: 'auto',
-        title: 'Реквизиты',
-        autoOpen : false,
-        buttons: [
-            {
-                text: 'Добавить',
-                click: function() {
-                    $.post('', {AJAX: "create_requesit"}, function(data, textStatus, xhr) {
-                      $('#create_requesit').html(data).dialog('open'); 
-                    });     
-                    
-                    $( this ).dialog( "close" );                  
-                }
-            },
-            {
-                text: 'Закрыть',
-                click: function() {
-                    $( this ).dialog( "close" );
-                }
-            }
-       ]
+
+
+function get_requisites_window(data){
+    var html = Base64.decode(data['html']);
+    var window_num = $('.ui-dialog').length;
+    var title = (data['title'] !== undefined)?data['title']:'Название окна';
+    var height = (data['height'] !== undefined)?data['height']:'auto';
+    var width = (data['width'] !== undefined)?data['width']:'auto';
+    
+    var buttons = new Array();
+    buttons.push({
+        text: 'Добавить',
+        click: function() {
+            $.post('', {AJAX: "create_requesit"}, function(data, textStatus, xhr) {
+              $('#create_requesit').html(data).dialog('open'); 
+            });
+            $( this ).dialog( "close" );                 
+        }
+    }); 
+    buttons.push({
+        text: 'Закрыть',
+        click: function() {
+            $( this ).dialog( "destroy" );
+        }
+    });         
+
+    $('body').append('<div style="display:none" id="dialog_gen_window_form_'+window_num+'"></div>');            
+    $('#dialog_gen_window_form_'+window_num+'').html(html);
+    $('#dialog_gen_window_form_'+window_num+'').dialog({
+        width: width,
+        height: height,
+        modal: true,
+        title : title,
+        autoOpen : true,
+        buttons: buttons          
     });
-});
+}
 
 
 // показать окно с добавлением новых реквизитов
@@ -853,7 +868,7 @@ $(function() {
 
 // ПОКАЗТЬ РЕКВИЗИТЫ
 $(document).on('click', '#requesites_form a', function(event) {
-    
+    event.preventDefault();
     $.post('', {
         AJAX: "show_requesit",
         id:$(this).attr('data-id'),

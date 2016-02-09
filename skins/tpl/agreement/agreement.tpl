@@ -56,6 +56,25 @@
                      $href = '?page=agreement&section=specification_editor&client_id='.$client_id.'&oferta_id='.$oferta_id.'&dateDataObj='.htmlspecialchars('{"doc_type":"oferta"}');
                     // echo $href;
                 ?>
+                    <script type="text/javascript">
+                        $(document).on('click', '#qetwertwertwtretwretwe', function(event) {
+                            // event.preventDefault();
+                            var url = 'http://<?=$_SERVER['HTTP_HOST']?>/os/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
+                            // event.preventDefault();
+                                $.post(url, {
+                                    AJAX: "show_requesit",
+                                    id:"<?=$client_firm['id']?>",
+                                    title:"<?=$client_firm['company']?>"
+                                }, function(data, textStatus, xhr) {
+                                    // $("#show_requesit").html(data);
+                                    // $("#show_requesit").dialog('option', 'title', title);
+                                    // $("#show_requesit").dialog("open");
+                                    standard_response_handler(data);
+                                },'json');  
+                        });
+                    </script>
+
+                    <button type="button" id="qetwertwertwtretwretwe" data-client_id="" style="cursor:pointer;">реквизиты</button>
                     <button type="button" onclick="location = '?<?php echo htmlspecialchars(addOrReplaceGetOnURL('section=oferta_full_editor')); ?>';" style="cursor:pointer;">редактировать текст Оферты</button>
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     <button type="button" onclick="location = location.pathname + '<?php echo $href; ?>';" style="cursor:pointer;">редактировать Оферту</button>
@@ -64,6 +83,25 @@
                     if($dateDataObj->doc_type=='spec' && isset($_GET['open']) && $_GET['open']== 'specification')
                     {
                 ?>
+                    <script type="text/javascript">
+                        $(document).on('click', '#qetwertwertwtretwretwe', function(event) {
+                            // event.preventDefault();
+                            var url = 'http://<?=$_SERVER['HTTP_HOST']?>/os/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
+                            // event.preventDefault();
+                                $.post(url, {
+                                    AJAX: "show_requesit",
+                                    id:"<?=$client_firm['id']?>",
+                                    title:"<?=$client_firm['company']?>"
+                                }, function(data, textStatus, xhr) {
+                                    // $("#show_requesit").html(data);
+                                    // $("#show_requesit").dialog('option', 'title', title);
+                                    // $("#show_requesit").dialog("open");
+                                    standard_response_handler(data);
+                                },'json');  
+                        });
+                    </script>
+
+                    <button type="button" id="qetwertwertwtretwretwe" data-client_id="" style="cursor:pointer;">реквизиты</button>
                 
                     <button type="button" onclick="location = '?<?php echo htmlspecialchars(addOrReplaceGetOnURL('section=specification_full_editor')); ?>';" style="cursor:pointer;">редактировать текст СП</button>
                     &nbsp;&nbsp;&nbsp;&nbsp;
@@ -74,12 +112,32 @@
             
                         // if($user_status=='1' && ((boolean)$agreement['standart'])){
                        if((boolean)$agreement['standart']){
-                  ?>
+                  ?>    
+                    <script type="text/javascript">
+                        $(document).on('click', '#qetwertwertwtretwretwe', function(event) {
+                            // event.preventDefault();
+                            var url = 'http://<?=$_SERVER['HTTP_HOST']?>/os/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
+                            // event.preventDefault();
+                                $.post(url, {
+                                    AJAX: "show_requesit",
+                                    id:"<?=$client_firm['id']?>",
+                                    title:"<?=$client_firm['company']?>"
+                                }, function(data, textStatus, xhr) {
+                                    // $("#show_requesit").html(data);
+                                    // $("#show_requesit").dialog('option', 'title', title);
+                                    // $("#show_requesit").dialog("open");
+                                    standard_response_handler(data);
+                                },'json');  
+                        });
+                    </script>
+
+                    <button type="button" id="qetwertwertwtretwretwe" data-client_id="" style="cursor:pointer;">реквизиты</button>
                         <button type="button" onclick="location = '?<?php echo addOrReplaceGetOnURL('section=agreement_full_editor'); ?>';" style="cursor:pointer;">редактировать договор</button>
                 <?php 
                         }
                     }
                 ?>
+
                 <button type="button" onclick="conv_specification.start();print_agreement();" style="cursor:pointer;">распечатать</button>&nbsp;&nbsp;&nbsp;&nbsp;
               
             </td>

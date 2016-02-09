@@ -228,6 +228,69 @@ class Client extends aplStdAJAXMethod{
 			$this->responseClass->addSimpleWindow($html,$_POST['title'],$options);	        
 	    }
 
+	    /**
+	     *	получить окно со списком реквизитов
+	     *
+	     *	@author  	Alexey Kapitonov
+	     *	@version 	10:21 09.02.2016
+	     */
+	    protected function get_requisites_AJAX(){
+	    	if(!isset($_GET['client_id'])){
+	    		$html = 'Не указан ID клиента.';
+				$this->responseClass->addMessage($html,'error_message');
+				return;
+	    	}
+	    	// получаем реквизиты
+	    	$query = "SELECT * FROM `".CLIENT_REQUISITES_TBL."` "; 
+	    	// $query .= " INNER JOIN `".CLIENTS_TBL."` ON `".CLIENTS_TBL."`.`id` = `".CLIENT_REQUISITES_TBL."`.`client_id` ";
+	    	$query .= " WHERE client_id = '".$_GET['client_id']."'";
+	        $requisites = array();
+	        
+	        $result = $this->mysqli->query($query) or die($this->mysqli->error);
+	        if ($result->num_rows > 0) {
+	            while ($row = $result->fetch_assoc()) {
+	                $requisites[] = $row;
+	            }
+	        }
+
+	        $html = '';
+	        $html .= '<style type="text/css">#requesites_form{}#requesites_form table tr td:nth-of-type(2){min-width: 50px;text-align: right;}#requesites_form table tr td:nth-of-type(2) img{ margin: 0 0 0 10px; border: 1px solid #fff; padding: 1px 7px}#requesites_form table tr td:nth-of-type(2) img:hover{ border:1px solid #DBDBDB;}</style>';
+	        $html .= '<div id="requesites_form">';
+			$html .= '<form>';
+			$html .= '<table>';
+
+
+			$edit_buttons = ($this->user_access == 1 || $this->user_access == 5)?'':' style="display:none;"';
+			$edit_buttons_all = (!isset($_POST['no_edit']))?'':' style="display:none;"';
+
+				if (count($requisites)>0) {
+					foreach ($requisites as $key => $value) {
+						$html .= "<tr>
+								<td>
+								".++$key.". <a class=\"show_requesit\" href=\"#\" data-id=\"".$value['id']."\" title=\"".$value['company']."\">".$value['company']."</a>
+								</td>
+								<td ".$edit_buttons_all.">
+									<img title=\"Редактировать реквизиты\" class=\"edit_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/edit.png\" >
+									<img title=\"Удалить реквизиты\" class=\"delete_this_req\" data-id=\"".$value['id']."\" src=\"skins/images/img_design/delete.png\" ".$edit_buttons.">
+								</td>
+							</tr>";
+					}
+				}
+			$html .= '</table>';
+			$html .= '</form>';
+			$html .= '</div>';
+			if(!isset($_POST['no_edit'])){
+				// выводим новое окно с кнопкой добавить
+				$option['html'] = $html;
+				$option['title'] = 'Реквизиты';
+				$this->responseClass->addResponseFunction('get_requisites_window',$option);	
+			}else{
+				// стандартное окно с кнопкой "Закрыть"
+				$this->responseClass->addSimpleWindow($html,'Реквизиты');
+			}
+			
+		}
+
 	    // изменения рейтинга клиента
 	    protected function update_reiting_cont_face_AJAX() {
 	    	$query = "UPDATE  `" . CLIENTS_TBL . "` SET  `rate` =  '" . $_POST['rate'] . "' WHERE  `id` = '" . $_POST['id'] . "';";

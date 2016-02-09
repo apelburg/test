@@ -5,7 +5,7 @@
 	
 	function standard_response_handler(data){
 		if(data['response']=='show_new_window'){
-			title = data['title'];// для генерации окна всегда должен передаваться title
+			var title = (data['title'] !== undefined)?data['title']:'Название окна';
 			var height = (data['height'] !== undefined)?data['height']:'auto';
 			var width = (data['width'] !== undefined)?data['width']:'auto';
 			var button_name = (data['button_name'] !== undefined)?data['button_name']:'OK';
@@ -14,12 +14,9 @@
 		}
 		
 		if(data['response']=='show_new_window_simple'){
-			title = data['title'];// для генерации окна всегда должен передаваться title
+			var title = (data['title'] !== undefined)?data['title']:'Название окна';
 			var height = (data['height'] !== undefined)?data['height']:'auto';
-			var width = (data['width'] !== undefined)?data['width']:'auto';
-			console.log(Base64.decode(data['html']));
-			console.log(title);
-			
+			var width = (data['width'] !== undefined)?data['width']:'auto';	
 			show_simple_dialog_window(Base64.decode(data['html']),title,height,width);
 			window_preload_del();
 		}
