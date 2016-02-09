@@ -291,8 +291,14 @@
 									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$uslugi_data['discount']);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
-									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
-									 $name = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
+									 // если альтернативное название отсутствует (вводится при заведении услуги "НЕТ В СПИСКЕ")
+									 if(trim($uslugi_data['other_name']) == ""){
+									 	$extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
+									 	$name = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 	
+									 }else{
+									 	$name = $uslugi_data['other_name'];
+									 }
+									 
 									 
 									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
 									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
@@ -828,9 +834,14 @@
 									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$uslugi_data['discount'],$date,$dateDataObj,$dates_data);
 								 }
 								 if($uslugi_data['glob_type'] == 'extra' && !(!!$expel["dop"])){
-									 $extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
-									 $name = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
-									 
+									 // если альтернативное название отсутствует (вводится при заведении услуги "НЕТ В СПИСКЕ")
+									 if(trim($uslugi_data['other_name']) == ""){
+									 	$extra_usluga_details = self::get_usluga_details($uslugi_data['uslugi_id']);
+										$name = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено';									 	
+									 }else{
+									 	$name = $uslugi_data['other_name'];
+									 }
+										
 									 // меняем количество на 1(еденицу) если это надбавка на всю стоимость
 									 $uslugi_data['quantity'] = ($uslugi_data['for_how']=='for_all')? 1: $uslugi_data['quantity'];
 									 // записываем ряд
