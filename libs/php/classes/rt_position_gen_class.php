@@ -92,20 +92,21 @@ class Position_general_Class{
 
 		// AJAX options			
 		if(trim($_POST['tz'])==''){
-			$options['name'] = 'save_empty_tz_text_AJAX';
+			$function = 'save_empty_tz_text_AJAX';
 			if(isset($_POST['increment_id'])){
 				$options['increment_id'] = $_POST['increment_id'];
 			}
 			// echo '{"response":"OK" , "name":"save_empty_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';
 		}else{
-			$options['name'] = 'save_tz_text_AJAX';
+			$function = 'save_tz_text_AJAX';
 			if(isset($_POST['increment_id'])){
 				$options['increment_id'] = $_POST['increment_id'];
 			}
 			// echo '{"response":"OK" , "name":"save_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';	
 		}	
 		// AJAX options prepare
-		$this->responseClass->addResponseOptions($options);	
+		$this->responseClass->addResponseFunction($function,$options);
+		// $this->responseClass->addResponseOptions($options);	
 	}
 
 	// редактирование темы в запросе

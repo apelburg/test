@@ -127,10 +127,17 @@ function round_s(int_r){
 	return Math.ceil((int_r)*100)/100;
 }
 
+function save_empty_tz_text_AJAX(data){
+	$('#'+data.increment_id).attr('class','tz_text_new').removeAttr('id');
+}
+function save_tz_text_AJAX(data){
+	$('#'+data.increment_id).attr('class','tz_text_edit').removeAttr('id');
+}
 
 // показать окно
-function show_dialog_and_send_POST_window2(html,title,height){
-	height_window = height || 'auto';
+function show_dialog_and_send_POST_window2(html,title,height,width){
+	height = height || 'auto';
+	width = width || 'auto';
 	var buttons = new Array();
 	buttons.push({
 	    text: 'OK',
@@ -155,10 +162,6 @@ function show_dialog_and_send_POST_window2(html,title,height){
 					}
 
 
-					// меняем иконку добавления ТЗ на пустое
-					if(data['name'] == 'save_empty_tz_text_AJAX'){
-						$('#'+data.increment_id).attr('class','tz_text_new').removeAttr('id');
-					}
 
 					if(data['name'] == 'chose_supplier_end'){
 						$('#chose_supplier_id').removeAttr('id');
@@ -497,7 +500,7 @@ $(document).on('click', '.tz_text_new', function(event) {
 	$(this).attr('id',id);
 	// окно редактирования ТЗ
 	// show_dialog_and_send_POST_window2(text+ajax_name,'ТЗ');
-	show_simple_dialog_window(text+ajax_name,'ТЗ');
+	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ');
 });
 
 $(document).on('keyup', '.tz_taxtarea_edit', function(event) {
@@ -514,7 +517,7 @@ $(document).on('click', '.tz_text_edit', function(event) {
 
 	$(this).attr('id',id);
 	// окно редактирования ТЗ
-	show_dialog_and_send_POST_window2(text+ajax_name,'ТЗ');
+	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ');
 });
 
 
