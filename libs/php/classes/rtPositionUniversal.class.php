@@ -1393,6 +1393,13 @@ class Services extends Variants
 								}
 								
 							$html .= '</div>';
+							$string__a_new = base64_decode($service_attach['tz']);
+							$string__a = mb_substr($string__a_new, 0, 80);
+							if($string__a_new != $string__a)$string__a .= '...';
+							// $string__a = rtrim($string__a, "!,.-");
+							// $string__a = mb_substr($string__a, 0, strrpos($string__a, ' ')).'...';
+
+							$html .= '<div><span style="float:left" class="greyText">'.$string__a.'</span></div>';
 						$html .= '</td>';
 						
 						// тираж
