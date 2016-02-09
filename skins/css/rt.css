@@ -55,9 +55,9 @@
 }
 .rt_tbl_body .comment_div {
     background: url(../../skins/images/img_design/rt_comment_icon.png);
-        z-index: 4;
+    z-index: 4;
     position: absolute;
-    width: 21px;
+    width: 23px;
     height: 19px;
     left: 0;
     top: 9px;
@@ -65,11 +65,18 @@
     background-repeat: no-repeat;
     background-position-y: 2px;
     cursor: pointer;
-    border: 1px solid #f1f1f1;
+    /* border: 1px solid #f1f1f1; */
 }
 .rt_tbl_body .comment_div{
   top: 7px;
 }
+.pos_edge .comment_div{
+  top: 5px;
+}
+.rt_tbl_body .comment_div.filled{
+  background-position-x:-23px;
+}
+
 .svetofor_plank{
  z-index: 5;
 }
@@ -300,8 +307,9 @@ height:200px;
 .rt_tbl_body .pos_plank .pos_link_plank a{
  display:block;
 }
-.rt_tbl_body .pos_plank .pos_link_plank .catalog{ width:14px;}
-.rt_tbl_body .pos_plank .pos_link_plank .supplier{ width:100px;}
+.rt_tbl_body .pos_plank .pos_link_plank .catalog{ width:23px; text-decoration: underline;}
+.rt_tbl_body .pos_plank .pos_link_plank .catalog:hover{ width:23px; text-decoration: none;}
+.rt_tbl_body .pos_plank .pos_link_plank .supplier{ }
 
 .rt_tbl_body .r_border{
  border-right:#e3e5e5 solid 1px;

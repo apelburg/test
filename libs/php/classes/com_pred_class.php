@@ -663,7 +663,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 								   <a href="?page=client_folder&section=rt_position&id='.$key.'">'.$row['art'].'</a>
 								   <div class="pos_link_plank">
 									  <div class="catalog">
-										  <a id="" href="/?page=description&id='.$row['art_id'].'" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
+										  <a id="" href="/?page=description&id='.$row['art_id'].'" target="_blank" onmouseover="change_href(this);return false;">APL</a>
 									  </div>
 									  <div class="supplier">
 										   '.identify_supplier_by_prefix($row['art']).'

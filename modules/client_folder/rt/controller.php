@@ -358,7 +358,7 @@
 								   <a href="?page=client_folder&section=rt_position&id='.$key.'&client_id='.$client_id.'">'.$row['art'].'</a>
 								   <div class="pos_link_plank">
 									  <div class="catalog">
-										  <a id="" href="/description/'.$row['art_id'].'/" target="_blank" onmouseover="change_href(this);return false;"><img src="./skins/images/img_design/basic_site_link.png" border="0" /></a>
+										  <a id="" href="/description/'.$row['art_id'].'/" target="_blank" onmouseover="change_href(this);return false;">APL</a>
 									  </div>
 									  <div class="supplier">
 										   '.identify_supplier_by_prefix($row['art']).'
