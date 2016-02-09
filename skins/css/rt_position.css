@@ -1149,3 +1149,10 @@ table.calkulate_table span {
 .variant_info table tr td.no_edit_class_disc input[type="text"]{
   background: #f1f1f1;
 }
+.js-service-other-name{
+  cursor: pointer;
+  text-decoration: underline;
+}
+.js-service-other-name:hover{
+  text-decoration: none;
+}

@@ -136,6 +136,50 @@ class rtPositionUniversal extends Position_general_Class
 
 			// $this->responseClass->addMessage($query);
 		}
+
+		/**
+		 * 	окно редактирования названия услуги	
+		 *
+		 *  @author  	Alexey Kapitonov
+		 *	@version 	15:07 09.02.2016
+		 */
+		function get_window_service_other_name_AJAX(){
+			$html = '';
+			unset($_POST['AJAX']);
+			$html .= '<div id="js-edit-service-other-name">';
+			$html .= '<input type="text" style="width:100%" name="new_other_name" value="'.base64_decode($_POST['html']).'">';
+			$html .= '<input type="hidden" name="AJAX" value="save_service_other_name">';
+			$options['width'] = '350px';
+			$html .= '</div>';
+			$this->responseClass->addPostWindow($html,"Введите название услуги",$options);
+		}
+
+		/**
+		 *	сохранение альтернативного имени
+		 *
+		 *	@author  	Alexey Kapitonov
+		 *	@version 	15:21 09.02.2016
+		 */
+		function save_service_other_name_AJAX(){
+			if(trim($_POST['new_other_name'])!= ""){
+				$query  = "UPDATE `".RT_DOP_USLUGI."` SET";
+				$query .= " `other_name` = '".addslashes(trim($_POST['new_other_name']))."'";
+				$query .= " WHERE  `id` = '".(int)$_POST['id_row']."'";
+					
+				$result = $this->mysqli->query($query) or die($this->mysqli->error);	
+				
+				$message = "Новое имя услуги сохранено";
+				$this->responseClass->addMessage($message,'successful_message');	
+				
+				// вставка имени на стороне клиента
+				$option['tr_id'] = $_POST['tr_id'];
+				$option['html'] = $_POST['new_other_name'];
+				$this->responseClass->addResponseFunction('change_service_name_in_html', $option);
+				
+			}
+		}
+
+
 		/**
 		 *	получаем окно примечания к вариантам
 		 *
@@ -1382,22 +1426,30 @@ class Services extends Variants
 					$buttons_tz = (trim($service_attach['tz'])=='')?'<span class="tz_text_new"></span>':'<span class="tz_text_edit"></span>';
 					$html .= '<tr id="editable_from_rtClass_'.$variant['id'].'_'.$service_attach['id'].'" class="calculate calculate_usl '.$calc_tr_class.'" data-dop_uslugi_id="'.$service_attach['id'].'" data-our_uslugi_id="'.@$services_arr[$service_attach['uslugi_id']]['id'].'" data-our_uslugi_parent_id="'.@trim($services_arr[$service_attach['uslugi_id']]['parent_id']).'"  data-for_how="'.@trim($services_arr[$service_attach['uslugi_id']]['for_how']).'">';
 						$html .= '<td title="'.@$services_arr[$service_attach['uslugi_id']]['note'].'">';
-							$html .= '<div class="'.$calc_class.'">';
+							// класс для услуги "НЕТ В СПИСКЕ"
+							if($service_attach['uslugi_id'] == 103){
+								$calc_class .=  ' js-service-other-name';
+							}
+
+							$html .= '<div class="'.$calc_class.'" data-id="'.$service_attach['uslugi_id'].'" >';
 								// кнопка для вызхова калькулятора
 								$html .= $calc_button;
 								// название услуги (калькулятора)
-								if($service_attach['uslugi_id'] != 0){
-									$html .= @$services_arr[$service_attach['uslugi_id']]['name'];	
+								if($service_attach['other_name'] != ""){
+									$html .= $service_attach['other_name'];
 								}else{
-									$html .= '<strong style="color:red">Услуга не определена</strong>';
+									if($service_attach['uslugi_id'] != 0){
+										$html .= @$services_arr[$service_attach['uslugi_id']]['name'];	
+									}else{
+										$html .= '<strong style="color:red">Услуга не определена</strong>';
+									}
+	
 								}
-								
+																
 							$html .= '</div>';
 							$string__a_new = base64_decode($service_attach['tz']);
 							$string__a = mb_substr($string__a_new, 0, 80);
 							if($string__a_new != $string__a)$string__a .= '...';
-							// $string__a = rtrim($string__a, "!,.-");
-							// $string__a = mb_substr($string__a, 0, strrpos($string__a, ' ')).'...';
 
 							$html .= '<div><span style="float:left" class="greyText">'.$string__a.'</span></div>';
 						$html .= '</td>';

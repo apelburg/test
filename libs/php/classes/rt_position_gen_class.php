@@ -105,6 +105,15 @@ class Position_general_Class{
 			// echo '{"response":"OK" , "name":"save_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';	
 		}	
 		// AJAX options prepare
+		
+		$string__a = mb_substr($_POST['tz'], 0, 80);
+		if($_POST['tz'] != $string__a)$string__a .= '...';
+		$options['html'] = $string__a;
+		// $options['html'] = $_POST['tz'];
+		// echo '<pre>';
+		// print_r($_POST);
+		// echo '</pre>';
+			
 		$this->responseClass->addResponseFunction($function,$options);
 		// $this->responseClass->addResponseOptions($options);	
 	}
@@ -167,9 +176,15 @@ class Position_general_Class{
 					 `creator_id` = '". $this->user_id."',
 					 `discount` = '".$discount."',
 					 `quantity` = '".$quantity."'";
+		
 		if (isset($_POST['comment']) && trim($_POST['comment']) != "") {
-				$query .= ", `tz`= '".base64_encode($_POST['comment'])."'";	
-			}
+			$query .= ", `tz`= '".base64_encode($_POST['comment'])."'";	
+		}
+		
+		// новое дополнительное название для НЕТ В СПИСКЕ
+		if (isset($_POST['other_name']) && trim($_POST['other_name']) != "") {
+			$query .= ", `other_name`= '".base64_encode($_POST['other_name'])."'";	
+		}
 
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 

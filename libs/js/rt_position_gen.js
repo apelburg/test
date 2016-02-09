@@ -85,18 +85,51 @@ $(document).on('click', '.add_usl', function(event) {
 //отработка выбора услуги в диалоговом окне
 $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', function(event) {
 	// выделяем выбранную услугу
-	// console.log($(this));
+	$('#dialog_gen_window_form form .may_bee_checked').removeClass('checked');
+	$(this).addClass('checked');
+
+	// добавляем DIV
 	if($('#js-add-comment').length){
 		$('#js-add-comment').remove();
 	}
-	console.log()
-	// добавляем поле комментариев
-	$(this).after('<div id="js-add-comment"><textarea name="comment" placeholder="ТЗ/Комментарии к услуге"></textarea></div>')
+	var obj = $('<div></div>',{
+		"id":"js-add-comment"
+	}).css({'paddingLeft':$(this).css('paddingLeft'),'paddingRight':"42px"});
+	$(this).after(obj);
+
+	// добавляем поля
+	if(Number($(this).attr('data-id')) == 103){
+		var input = $('<input>',{
+			"name": 	"other_name",
+			"type": 	"text", 
+			"placeholder": 	"Название услуги", 
+		}).css({'width':'100%'});
+		var div = $('<div>').css({'paddingBottom':"0","paddingTop":"5px"});
+		div.append(input);
+
+		var textarea = $('<textarea></textarea>',{
+			"name": 		"comment",
+			"placeholder": 	"ТЗ/Комментарии к услуге"
+		}).css({'minHeight':'auto','height':'52px'});
+		// для всех кроме услуги НЕТ В СПИСКЕ
+		$('#js-add-comment')
+		.append(div).append('<br>')
+		.append(textarea)
+		.find('input:first-child').focus();
+	}else{
+		var input = $('<textarea></textarea>',{
+			"name": 		"comment",
+			"placeholder": 	"ТЗ/Комментарии к услуге"
+		}).css({'minHeight':'auto','height':'52px'});
+		// для всех кроме услуги НЕТ В СПИСКЕ
+		$('#js-add-comment')
+		.append(input)
+		.find('textarea').focus();
+	}
 	
 
-	$('#dialog_gen_window_form form .may_bee_checked').removeClass('checked');
-	$(this).addClass('checked');
-	$('#js-add-comment').css({'paddingLeft':$(this).css('paddingLeft'),'paddingRight':"42px"}).find('textarea').css({'minHeight':'auto','height':'52px'}).focus();
+
+
 	var id,dop_row_id,quantity;
 	// для каталожной и некаталожной карточки продукции основные данные ищем по разному
 	// if($('#dialog_gen_window_form form input[name="type_product"]').val() != 'cat'){
@@ -128,10 +161,14 @@ function round_s(int_r){
 }
 
 function save_empty_tz_text_AJAX(data){
+	var id = $('#'+data.increment_id).parent().parent().attr('id');
 	$('#'+data.increment_id).attr('class','tz_text_new').removeAttr('id');
+	$('#'+id+' td:first-child .greyText').html(Base64.decode(data['html']));
 }
 function save_tz_text_AJAX(data){
+	var id = $('#'+data.increment_id).parent().parent().attr('id');
 	$('#'+data.increment_id).attr('class','tz_text_edit').removeAttr('id');
+	$('#'+id+' td:first-child .greyText').html(Base64.decode(data['html']));	
 }
 
 // показать окно
@@ -502,6 +539,27 @@ $(document).on('click', '.tz_text_new', function(event) {
 	// show_dialog_and_send_POST_window2(text+ajax_name,'ТЗ');
 	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ');
 });
+
+// редактирование имени услуги "НЕТ В СПИСКЕ"
+$(document).on('click', '.js-service-other-name', function(event) {
+
+	event.preventDefault();
+	$.post('', {
+		AJAX: 	'get_window_service_other_name',
+		id_row: $(this).parent().parent().attr('data-dop_uslugi_id'),
+		tr_id:$(this).parent().parent().attr('id'),
+		html: 	Base64.encode($(this).html())
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+// 
+function change_service_name_in_html(data){
+	// console.log(data.tr_id)
+	// console.log($('#'+data.tr_id+' .js-service-other-name').length);
+	$('#'+data.tr_id+' .js-service-other-name').html(Base64.decode(data.html));
+}
 
 $(document).on('keyup', '.tz_taxtarea_edit', function(event) {
 	$('#'+$(this).attr('data-id')).parent().find('.tz_text').html($(this).val());
