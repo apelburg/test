@@ -19,8 +19,8 @@
 		//alert(headWidth);
 		
 		// ячейки верхних рядов - верхней панели и прокручиваемой области
-		var top_head_tds = (tbl_head.getElementsByTagName('tr')[0]).getElementsByTagName('td');
-		var top_body_tds = (tbl_body.getElementsByTagName('tr')[0]).getElementsByTagName('td');
+		var top_head_tds = $(tbl_head.getElementsByTagName('tr')[0]).children('td');
+		var top_body_tds = $(tbl_body.getElementsByTagName('tr')[0]).children('td');
 	
 		if(top_head_tds.length != top_body_tds.length){ alert('num colls in head and body RT not equal'); return;}
 		

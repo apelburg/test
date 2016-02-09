@@ -45,7 +45,7 @@ $( document ).ready(function() {
 
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/scrolledTableSizeFixing.js"></script>
 
-<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/rtCalculatorClass.js"></script>
+<script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/rtCalculatorClass2.js"></script>
 
 <script type="text/javascript" src="<?php  echo HOST; ?>/libs/js/classes/printCalculatorClass.js"></script>
 <script type="text/javascript" src="./libs/js/up_window_consructor.js"></script>

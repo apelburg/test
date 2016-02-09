@@ -183,14 +183,14 @@ function get_ui_window(){
               warning_messages = val;
               /*делаем что-то с сообщениями*/
               $.each(val, function(index, val) {
-                console.log(index);
+                // console.log(index);
                 var type = index; // green, black
                 // if(type=='last_update'){var last_update = val}
                 // if(type=='was_shown'){var was_shown = val}
                 var class_w = type+'_t reminder_win';
                 $.each(val, function(index, val) {
                   var type_action = index;
-                  console.log(index);
+                  // console.log(index);
                   var event_type = index;  
                   // console.log(val['type']);
                   $.each($(this), function(index, val) {
@@ -307,11 +307,11 @@ function get_ui_window(){
               var min_timer = 600;
               if(timer_load_window2!=0 && Number(timer_load_window2)>=min_timer){
                 var timer = timer_load_window2*1000-last_time;
-                console.log('старт из html через '+timer+' милисекунд');
+                // console.log('старт из html через '+timer+' милисекунд');
                 setTimeout(get_ui_window, timer);
               }else{
                 var timer = min_timer*1000 - last_time;
-                console.log('старт из js через '+timer+' милисекунд');
+                // console.log('старт из js через '+timer+' милисекунд');
                 setTimeout(get_ui_window, timer);
               }
               break;

@@ -1798,12 +1798,13 @@
 		// 2. если Мастер Кнопка нажата проверяем светофор - должна быть нажата только одна зеленая кнопка (если больше или ни одна прерываемся)
 		
 		var tbl = document.getElementById('rt_tbl_body');
-		var trsArr = tbl.getElementsByTagName('tr');
+		var trsArr = ($(tbl).children('tbody').length>0)? $(tbl).children('tbody').children('tr'):$(tbl).children('tr');
 		var nothing = true;
 		var pos_id = false;
 		var idsObj = {};
 		// обходим ряды таблицы
-		for( var i= 0 ; i < trsArr.length; i++){
+		var ln = trsArr.length;
+		for( var i= 0 ; i < ln; i++){
 			var flag ;
 			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
 			if(trsArr[i].getAttribute('pos_id')){
@@ -1824,8 +1825,9 @@
 			if(pos_id!==false){
 				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
 				// работаем с рядом - ищем светофор 
-				var tdsArr = trsArr[i].getElementsByTagName('td');   
-				for( var j= 0 ; j < tdsArr.length; j++){
+				var tdsArr = $(trsArr[i]).children('td');
+				var ln = tdsArr.length;
+				for( var j= 0 ; j < ln; j++){
 					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
 						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
 						nothing = false;

@@ -417,7 +417,7 @@
 	 
 	 $rt = '<table class="rt_tbl_head" id="rt_tbl_head" scrolled="head" style="width: 100%;" border="0">
 	          <tr class="w_border cap">
-			      <td width="30"><button id="js-rt-resort-lock"></button></td>
+			      <td width="30">'.((@$_SESSION['access']['user_id']==18)?'<button id="js-rt-resort-lock"></button>':'').'</td>
 			       <td width="35" class="top">
 				      <div class="master_button_container">
 						  <div class="master_button noselect">

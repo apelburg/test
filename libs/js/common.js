@@ -422,10 +422,11 @@
 	}
 	
 	function resetMasterBtn(element,target_id){
+		alert(1);
         if(resetMasterBtn.onProcessing) return;
 		resetMasterBtn.onProcessing = true;
 		var data = (getCountOfCheckedAndAllCeckboxes(target_id)).split('|');
-		console.log(data);
+		console.log('resetMasterBtn',data);
 		var status = false;
 		if(data[0]==0){
 			var idsSting = getIdsOfAllRows(target_id);
@@ -433,7 +434,8 @@
 		}
 		else if(data[0]==data[1]) var idsSting = getIdsOfAllRows(target_id);
 		else var idsSting = (getIdsOfCheckedRows(target_id)).join(';');
-
+        
+		console.log('idsSting',idsSting);
 
 		
 		// формируем url для AJAX запроса

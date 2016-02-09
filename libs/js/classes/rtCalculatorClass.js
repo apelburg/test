@@ -78,8 +78,10 @@ var rtCalculator = {
 	    this.tbl_model={};
 		
 		// считываем данные из head_tbl
-		var trs_arr = this.head_tbl.getElementsByTagName('tr');
-		for(var i = 0;i < trs_arr.length;i++){ 
+		var trs_arr = ($(this.head_tbl).children('tbody').length>0)? $(this.head_tbl).children('tbody').children('tr'):$(this.head_tbl).children('tr');
+		
+		var ln = trs_arr.length;
+		for(var i = 0;i < ln;i++){ 
 		
 		    if(!trs_arr[i].getAttribute('row_id')) continue;
 			
@@ -90,9 +92,10 @@ var rtCalculator = {
 		    if(row_id=='total_row') this.tbl_total_row = trs_arr[i]; 
 			
 			
-			var tds_arr = trs_arr[i].getElementsByTagName('td');
+			var tds_arr = $(trs_arr[i]).children('td');
 			//alert(row_id);
-			for(var j = 0;j < tds_arr.length;j++){
+			var ln2 = tds_arr.length;
+			for(var j = 0;j < ln2;j++){
 				//if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 				if(tds_arr[j].hasAttribute('type')){
 					var type = tds_arr[j].getAttribute('type');
@@ -103,8 +106,10 @@ var rtCalculator = {
 	    }
 		
 		//  считываем данные из body_tbl
-	    var trs_arr = this.body_tbl.getElementsByTagName('tr');
-		for(var i = 0;i < trs_arr.length;i++){
+        var trs_arr = ($(this.body_tbl).children('tbody').length>0)? $(this.body_tbl).children('tbody').children('tr'):$(this.body_tbl).children('tr');
+		
+		var ln = trs_arr.length;
+		for(var i = 0;i < ln;i++){ 
 		    // если ряд не имеет атрибута row_id пропускаем его
 		    if(!trs_arr[i].getAttribute('row_id')) continue;
 			
@@ -124,8 +129,8 @@ var rtCalculator = {
 			    var expel = !!parseInt(trs_arr[i].getAttribute('expel'));
 			    this.tbl_model[row_id].dop_data={'expel':expel};
 			}*/
-			
-			var tds_arr = trs_arr[i].getElementsByTagName('td');
+			var tds_arr = $(trs_arr[i]).children('td');
+			var ln2 = tds_arr.length;
 			for(var j = 0;j < tds_arr.length;j++){
 				
 				if(parent_pos_id){
@@ -175,11 +180,12 @@ var rtCalculator = {
 	set_interactive_cells:function(){
 	    // Этот метод устанавливает необходимым ячекам различные интерактивные свойства
 		// и навешивает обработчики событий
-		var trs_arr = this.head_tbl.getElementsByTagName('tr');
+		var trs_arr = ($(this.head_tbl).children('tbody').length>0)? $(this.head_tbl).children('tbody').children('tr'):$(this.head_tbl).children('tr');
+		
 		for(var i in trs_arr){
 	        if(trs_arr[i].nodeName=='TR'){
 				//// console.log(trs_arr[i]);
-				var tds_arr = trs_arr[i].getElementsByTagName('td');
+				var tds_arr = $(trs_arr[i]).children('td');
 				for(var j in tds_arr){
 					if(tds_arr[j].nodeName == 'TD'){
 				        if(i == 0 && tds_arr[j].getAttribute('swiched_cols')){// swiched_cols взаимно переключаемые ряды (ед/тираж, вход/выход)
@@ -192,12 +198,14 @@ var rtCalculator = {
 		    }
 		}
 		
-		var trs_arr = this.body_tbl.getElementsByTagName('tr');
+
+		var trs_arr = ($(this.body_tbl).children('tbody').length>0)? $(this.body_tbl).children('tbody').children('tr'):$(this.body_tbl).children('tr');
+		
 		for(var i in trs_arr){
 			if(trs_arr[i].getAttribute){
 			    if(trs_arr[i].getAttribute("row_id")!='0'){
 					var block = (trs_arr[i].hasAttribute("block") && trs_arr[i].getAttribute("block")=='1')?true:false;
-					var tds_arr = trs_arr[i].getElementsByTagName('td');
+					var tds_arr = $(trs_arr[i]).children('td');
 					for(var j in tds_arr){
 						if(tds_arr[j].getAttribute){
 							if(tds_arr[j].getAttribute('editable') && !block){
@@ -346,9 +354,10 @@ var rtCalculator = {
 		//var discount =  ($($(cell).parents('tr')).find( "td[discount_fieid]" ).text()).slice(0,-1);
 		var discount = ($(trTag).find( "td[discount_fieid]" ).text()).slice(0,-1);
 		// определяем количество товара (берем данные из ячейки quantity данного ряда)
-		var tdsArr = trTag.getElementsByTagName('TD');
+		var tdsArr = $(trTag).children('td');
 		//alert(tdsArr);
-		for(var i =0;i < tdsArr.length;i++){
+		var ln = tdsArr.length;
+		for(var i =0;i < ln;i++){
 			if(tdsArr[i].getAttribute('type') && tdsArr[i].getAttribute('type')=='quantity'){
 				var quantity = parseInt(tdsArr[i].innerHTML);
 			} 
@@ -522,7 +531,7 @@ var rtCalculator = {
 		var val = cell.innerHTML;
 		var row_id = cell.parentNode.getAttribute('row_id');
 		var cur_tr = cell.parentNode;
-		var tds_arr = cur_tr.getElementsByTagName('td');
+		var tds_arr = $(cur_tr).children('td');
 		var printsExists = false;
 		var extraExists = false;
 		
@@ -928,8 +937,10 @@ var rtCalculator = {
 	    // метод который вносит изменения (итоги рассчетов в таблицу HTML)
 		// alert(row_id);
 		// вычисляем текущий ряд
-		var trs_arr = rtCalculator.body_tbl.getElementsByTagName('tr');
-		for(var i = 0;i < trs_arr.length;i++){
+		var trs_arr = ($(this.body_tbl).children('tbody').length>0)? $(this.body_tbl).children('tbody').children('tr'):$(this.body_tbl).children('tr');
+		
+		var ln = trs_arr.length;
+		for(var i = 0;i < ln;i++){
 			if(trs_arr[i].hasAttribute && trs_arr[i].hasAttribute('row_id')){
 				if(trs_arr[i].getAttribute('row_id') == row_id) var cur_tr = trs_arr[i];
 			}
@@ -937,7 +948,7 @@ var rtCalculator = {
 		 console.log(rtCalculator.tbl_model);	
 			
 		// внесение изменений в затронутый ряд
-		var tds_arr = cur_tr.getElementsByTagName('td');
+		var tds_arr = $(cur_tr).children('td');
 		var ln = tds_arr.length;
 		for(var j = 0;j < ln; j++){
 			if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
@@ -974,8 +985,9 @@ var rtCalculator = {
        
 		// если ряд не исключен из рассчетов внoсим изменения в итоговый ряд
 	   // if(!rtCalculator.tbl_model[row_id]['dop_data']['expel']['main']){
-			var tds_arr = this.tbl_total_row.getElementsByTagName('td');
-			for(var j = 0;j < tds_arr.length;j++){
+			var tds_arr = $(this.tbl_total_row).children('td');
+			var ln2 = tds_arr.length;
+			for(var j = 0;j < ln2;j++){
 				if(tds_arr[j].getAttribute && tds_arr[j].getAttribute('type')){
 					var type = tds_arr[j].getAttribute('type');
 					if(type == 'margin') continue;
@@ -1101,7 +1113,7 @@ var rtCalculator = {
 			if(new_status=='sgreen'){
 				
 				var tbl = document.getElementById('rt_tbl_body');
-		        var trsArr = tbl.getElementsByTagName('tr');
+		        var trsArr = ($(tbl).children('tbody').length>0)? $(tbl).children('tbody').children('tr'):$(tbl).children('tr');
 	
 		        // обходим ряды таблицы
 				// В РЕЗУЛЬТАТЕ ОБХОДА, суммы всех рядов позиции, кроме текущего устанавливаемого в sgreen, 
@@ -1111,7 +1123,7 @@ var rtCalculator = {
 					// проверяем входит ли расчет в расчеты данной позиции, причем текущий устанавливаемый не входит в idsObj
 				    if(trsArr[i].hasAttribute('row_id') && idsObj[trsArr[i].getAttribute('row_id')]){
 						var r_id = trsArr[i].getAttribute('row_id');
-						var tdsArr = trsArr[i].getElementsByTagName('td');
+						var tdsArr = $(trsArr[i]).children('td');
 						// проверяем какое текущее значение у светофора ряда если grey то не трогаем ряд, пропускаем его
 						for( var j= 0 ; j < tdsArr.length; j++){
 							 if(tdsArr[j].hasAttribute('svetofor')){
@@ -1214,7 +1226,7 @@ var rtCalculator = {
 			 }
 			 // tr.style.backgroundColor = '#FF0000';
 			 // if(tr.getAttribute("pos_id")) continue;
-			 var tdsArr = tr.getElementsByTagName('td');
+			 var tdsArr = $(tr).children('td');
 			 for(var j in tdsArr){
 				 if(tdsArr[j].nodeName == 'TD'){
 					// tdsArr[j].style.backgroundColor = '#FFFF00';//
@@ -1241,7 +1253,7 @@ var rtCalculator = {
 				 if(typeof pos_row !=='undefined'){
 					 var val = (action == 'show')?1:-1;
 					 
-					 var tdsArr = pos_row.getElementsByTagName('td');
+					 var tdsArr = $(pos_row).children('td');
 					 for(var j in tdsArr){
 						 if(tdsArr[j].nodeName == 'TD' && tdsArr[j].hasAttribute("rowspan")){
 							row_span = parseInt(tdsArr[j].getAttribute("rowspan"))+val;
@@ -1284,9 +1296,11 @@ var rtCalculator = {
 		if(cell.nodeName=='SPAN') cell = cell.parentNode;
 		var name =  cell.getAttribute("swiched_cols");
 		
-		var tds_arr = rtCalculator.head_tbl.getElementsByTagName('td');
+		//var tds_arr = rtCalculator.head_tbl.getElementsByTagName('td');
+		var trs_arr = ($(rtCalculator.head_tbl).children('tbody').length>0)? $(rtCalculator.head_tbl).children('tbody').children('tr').children('td'):$(rtCalculator.head_tbl).children('tr').children('td');
 		relay(tds_arr,name,action);
-		var tds_arr = rtCalculator.body_tbl.getElementsByTagName('td');
+		//var tds_arr = rtCalculator.body_tbl.getElementsByTagName('td');
+		var trs_arr = ($(rtCalculator.body_tbl).children('tbody').length>0)? $(rtCalculator.body_tbl).children('tbody').children('tr').children('td'):$(rtCalculator.body_tbl).children('tr').children('td');
 		relay(tds_arr,name,action);
 		function relay(tds_arr,name,action){
 			for(var j in tds_arr){
@@ -1350,12 +1364,14 @@ var rtCalculator = {
 		// 2. если Мастер Кнопка нажата проверяем светофор есть ли зеленые маркеры
 		
 		var tbl = document.getElementById('rt_tbl_body');
-		var trsArr = tbl.getElementsByTagName('tr');
+		var trsArr = ($(tbl).children('tbody').length>0)? $(tbl).children('tbody').children('tr'):$(tbl).children('tr');
+
 		var nothing = true;
 		var pos_id = false;
 		var idsObj = {};
 		// обходим ряды таблицы
-		for( var i= 0 ; i < trsArr.length; i++){
+		var ln = trsArr.length;
+		for( var i= 0 ; i < ln; i++){
 			var flag = false;
 			
 			// фильтруем по типу позиции (каталог, не каталог и т.п.) если равно указаному значению прерываем выполненин
@@ -1382,14 +1398,15 @@ var rtCalculator = {
 					else  pos_id = false;*/
 				}
 			}
-			console.log(pos_id);
+			// console.log(pos_id);
 			// если в ряду позиции была нажата Мастер Кнопка проверяем этот и последующие до нового ряда позици на нажатие зеленой кнопки
 			// светофора (позиции для отправки в КП)
 			if(pos_id!==false){
 				//// console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
 				// работаем с рядом - ищем светофор 
-				var tdsArr = trsArr[i].getElementsByTagName('td');   
-				for( var j= 0 ; j < tdsArr.length; j++){
+				var tdsArr = $(trsArr[i]).children('td');
+				var ln2 = tdsArr.length;
+				for( var j= 0 ; j < ln2; j++){
 					if(tdsArr[j].getAttribute('svetofor')){
 						if(tdsArr[j].getAttribute('svetofor')=='green' || tdsArr[j].getAttribute('svetofor')=='sgreen'){
 							if(typeof idsObj[pos_id] == 'undefined') idsObj[pos_id] = {};
@@ -1414,11 +1431,12 @@ var rtCalculator = {
 		// 1. определить какие Мастер Кнопки были нажаты 
 		
 		var tbl = document.getElementById('rt_tbl_body');
-		var trsArr = tbl.getElementsByTagName('tr');
+		var trsArr = ($(tbl).children('tbody').length>0)? $(tbl).children('tbody').children('tr'):$(tbl).children('tr');
 		var pos_id = false;
 		var idsArr = [];
 		// обходим ряды таблицы
-		for( var i= 0 ; i < trsArr.length; i++){
+		var ln = trsArr.length;
+		for( var i= 0 ; i < ln; i++){
 			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
 			if(trsArr[i].getAttribute('pos_id')){
 				pos_id = trsArr[i].getAttribute('pos_id');
@@ -1439,9 +1457,10 @@ var rtCalculator = {
 
 		var counter=0;
 		var tbl = document.getElementById('rt_tbl_body');
-		var trsArr = tbl.getElementsByTagName('tr');
+		var trsArr = ($(tbl).children('tbody').length>0)? $(tbl).children('tbody').children('tr'):$(tbl).children('tr');
 		// обходим ряды таблицы
-		for( var i= 0 ; i < trsArr.length; i++){
+		var ln = trsArr.length;
+		for( var i= 0 ; i < ln; i++){
 			// если это ряд позиции
 			if(trsArr[i].getAttribute('pos_id')) counter++;
 		}
@@ -1491,8 +1510,10 @@ var rtCalculator = {
 		var idsObj = {};
 		var goAhead = false;
 		var nothing = true;
-		var trsArr = this.body_tbl.getElementsByTagName('tr');
-		for(var i = 0;i < trsArr.length;i++){
+		var trsArr = ($(this.body_tbl).children('tbody').length>0)? $(this.body_tbl).children('tbody').children('tr'):$(this.body_tbl).children('tr');
+		
+		var ln = trsArr.length;
+		for(var i = 0;i < ln; i++){
 		    // если ряд не имеет атрибута row_id пропускаем его
 		    if(!trsArr[i].getAttribute('row_id')) continue;
 			
@@ -1509,8 +1530,9 @@ var rtCalculator = {
 			}
 			if(goAhead){
 				// работаем с рядом - ищем светофор 
-				var tdsArr = trsArr[i].getElementsByTagName('td'); 
-				for( var j= 0 ; j < tdsArr.length; j++){
+				var tdsArr = $(trsArr[i]).children('td');
+				var ln2 = tdsArr.length;
+				for( var j= 0 ; j < ln2; j++){
 					if(tdsArr[j].getAttribute('svetofor') && (tdsArr[j].getAttribute('svetofor')=='green' || tdsArr[j].getAttribute('svetofor')=='sgreen')){
 						if(typeof idsObj[pos_id] == 'undefined') idsObj[pos_id] = {};
 						idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
@@ -1626,14 +1648,15 @@ var rtCalculator = {
 		// 2. если Мастер Кнопка нажата проверяем светофор - должна быть нажата только одна зеленая кнопка (если больше или ни одна прерываемся)
 		
 		var tbl = document.getElementById('rt_tbl_body');
-		var trsArr = tbl.getElementsByTagName('tr');
+		var trsArr = ($(tbl).children('tbody').length>0)? $(tbl).children('tbody').children('tr'):$(tbl).children('tr');
 		var nothing = true;
 		var pos_id = false;
 		var idsObj = {};
 		var dopInfObj = {};
 		
 		// обходим ряды таблицы
-		for( var i= 0 ; i < trsArr.length; i++){
+		var ln = trsArr.length;
+		for( var i= 0 ; i < ln; i++){
 			var flag ;
 			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
 			if(trsArr[i].getAttribute('pos_id')){
@@ -1648,10 +1671,10 @@ var rtCalculator = {
 				    }
 					else pos_id = false;
 				}*/
+				var tdsArr = $(trsArr[i]).children('td');
 				
-				var tdsArr = trsArr[i].getElementsByTagName('TD');
-				
-				for(var j =0; j < tdsArr.length; j++){
+				var ln2 = tdsArr.length;
+				for(var j =0; j < ln2; j++){
 					if(tdsArr[j].getAttribute('type')){
 						var type = tdsArr[j].getAttribute('type');
 						
@@ -1688,8 +1711,10 @@ var rtCalculator = {
 			if(pos_id!==false){
 				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
 				// работаем с рядом - ищем светофор 
-				var tdsArr = trsArr[i].getElementsByTagName('td');   
-				for( var j= 0 ; j < tdsArr.length; j++){
+
+				var tdsArr = $(trsArr[i]).children('td');
+				var ln3 = tdsArr.length;
+				for( var j= 0 ; j < ln3; j++){
 					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='green'){
 						// idsObj[pos_id][trsArr[i].getAttribute('row_id')]=true;
 						idsObj[pos_id].push(trsArr[i].getAttribute('row_id'));
@@ -1812,13 +1837,14 @@ var rtCalculator = {
 		// 2. если Мастер Кнопка нажата проверяем светофор - должна быть нажата только одна зеленая кнопка (если больше или ни одна прерываемся)
 		
 		var tbl = document.getElementById('rt_tbl_body');
-		var trsArr = tbl.getElementsByTagName('tr');
+		var trsArr = ($(tbl).children('tbody').length>0)? $(tbl).children('tbody').children('tr'):$(tbl).children('tr');
+
+		
 		var pos_id = false;
 		var idsObj = {};
 		var idsArr = [];
 		var dopInfObj = {};
 		var indexCounter = 0;
-		
 		
 		// обходим ряды таблицы
 		for( var i= 0 ; i < trsArr.length; i++){
@@ -1829,8 +1855,8 @@ var rtCalculator = {
 				pos_id = trsArr[i].getAttribute('pos_id');
 				
 				// работаем с рядом - ищем мастер кнопку
-				var tdsArr = trsArr[i].getElementsByTagName('TD');
-				
+				var tdsArr = $(trsArr[i]).children('td');
+				console.log(tdsArr);
 				for(var j =0; j < tdsArr.length; j++){
 					if(tdsArr[j].getAttribute('type')){
 						var type = tdsArr[j].getAttribute('type');
@@ -1865,7 +1891,7 @@ var rtCalculator = {
 			if(pos_id!==false){
 				//console.log(pos_id+' '+trsArr[i].getAttribute('row_id'));
 				// работаем с рядом - ищем светофор 
-				var tdsArr = trsArr[i].getElementsByTagName('td');   
+				var tdsArr = $(trsArr[i]).children('td');   
 				for( var j= 0 ; j < tdsArr.length; j++){
 					if(tdsArr[j].getAttribute('svetofor') && tdsArr[j].getAttribute('svetofor')=='sgreen'){
 
@@ -1878,7 +1904,7 @@ var rtCalculator = {
 			
 		}
 		
-		//console.log(idsObj);
+		console.log(idsObj);
 		
 		// проверяем сколько зеленых кнопок светофора были нажаты и в итоге были учтены
 		var nothing = true; // если вообще ни однин светофор не был суперзеленым
@@ -2402,19 +2428,22 @@ var rtCalculator = {
 		// 1. определить какие Мастер Кнопки были нажаты 
 		
 		var tbl = document.getElementById('rt_tbl_body');
-		var trsArr = tbl.getElementsByTagName('tr');
+		var trsArr = ($(tbl).children('tbody').length>0)? $(tbl).children('tbody').children('tr'):$(tbl).children('tr');
+		
 		var nothing = true;
 		var idsArr = [];
 		
 		// обходим ряды таблицы
-		for( var i= 0 ; i < trsArr.length; i++){
+		var ln = trsArr.length;
+		for( var i= 0 ; i < ln; i++){
 			// если это ряд позиции проверяем не нажата ли Мастер Кнопка
 			if(trsArr[i].getAttribute('pos_id')){
 				var pos_id = trsArr[i].getAttribute('pos_id');
 				
-				var tdsArr = trsArr[i].getElementsByTagName('TD');
+				var tdsArr = $(trsArr[i]).children('td');
 				
-				for(var j =0; j < tdsArr.length; j++){
+				var ln2 = tdsArr.length;	
+				for(var j =0; j < ln2; j++){
 					if(tdsArr[j].getAttribute('type')){
 						var type = tdsArr[j].getAttribute('type');
 						
