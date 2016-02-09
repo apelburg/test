@@ -226,6 +226,7 @@
 										   `price_out` = '".$row5['price_out']."',
 										   `discount` = '".$row5['discount']."',
 										   `for_how` = '".$row5['for_how']."',
+										   `other_name` = '".$row5['other_name']."',
 										   `print_details` = '".$row5['print_details']."' 
 										   ";
 										   
@@ -358,7 +359,7 @@
 		 
 		                  dop_data_tbl.id AS dop_data_id , dop_data_tbl.row_id AS dop_t_row_id , dop_data_tbl.quantity AS dop_t_quantity , dop_data_tbl.price_in AS dop_t_price_in , dop_data_tbl.price_out AS dop_t_price_out , dop_data_tbl.discount AS dop_t_discount , dop_data_tbl.expel AS expel,dop_data_tbl.shipping_date AS shipping_date,dop_data_tbl.shipping_time AS shipping_time,
 dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data_tbl.dop_men_text_details AS dop_men_text_details,		  
-						  dop_uslugi_tbl.id AS uslugi_id ,dop_uslugi_tbl.uslugi_id AS dop_usluga_id , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
+						  dop_uslugi_tbl.id AS uslugi_id ,dop_uslugi_tbl.uslugi_id AS dop_usluga_id ,dop_uslugi_tbl.other_name AS other_name , dop_uslugi_tbl.dop_row_id AS uslugi_t_dop_row_id ,dop_uslugi_tbl.type AS uslugi_t_type ,
 		                  dop_uslugi_tbl.glob_type AS uslugi_t_glob_type , dop_uslugi_tbl.quantity AS uslugi_t_quantity , dop_uslugi_tbl.price_in AS uslugi_t_price_in , dop_uslugi_tbl.price_out AS uslugi_t_price_out, dop_uslugi_tbl.discount AS uslugi_t_discount, dop_uslugi_tbl.for_how AS for_how, dop_uslugi_tbl.print_details AS print_details
 		          FROM
 		          `".KP_LIST."`  list_tbl 
@@ -413,6 +414,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 									'price_in' => $row['uslugi_t_price_in'],
 									'price_out' => $row['uslugi_t_price_out'],
 									'discount' => $row['uslugi_t_discount'],
+									'other_name' => $row['other_name'],
 									'for_how' => $row['for_how'],
 									'print_details' => $row['print_details']
 									);
@@ -1268,13 +1270,21 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							//echo '<table style="margin-top:5px;border-collapse:collapse;" border="1">'.implode('',$rows_2).'</table>';
 						}
 					}
+
+					// перебор доп услуг
 					if(isset($r_level['dop_uslugi']['extra'])){
 	
 						foreach($r_level['dop_uslugi']['extra'] as $u_key => $u_level){
-					         if($u_level['price_out']==0) continue;
-                             include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
-							 $extra_usluga_details = Agreement::get_usluga_details($u_level['usluga_id']);
-							 $u_level['name'] = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
+					        if($u_level['price_out']==0) continue;
+                            include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+                            // если альтернативное название отсутствует (вводится при заведении услуги "НЕТ В СПИСКЕ")
+							if(trim($u_level['other_name']) == ""){
+								$extra_usluga_details = Agreement::get_usluga_details($u_level['usluga_id']);
+								$u_level['name'] = ($extra_usluga_details)? $extra_usluga_details['name']:'Неопределено'; 
+							}else{
+							  	$u_level['name'] = $u_level['other_name'];
+							}
+							 
 							 
 						     $print_summ = ($u_level['for_how']=='for_all')? $u_level['price_out'] :$quantity*$u_level['price_out'];
 						     $all_extra_summ += $print_summ;
