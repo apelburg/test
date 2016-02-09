@@ -88,6 +88,71 @@ $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', functio
 	$('#dialog_gen_window_form form .may_bee_checked').removeClass('checked');
 	$(this).addClass('checked');
 
+	// добавляем DIV
+	if($('#js-add-comment').length){
+		$('#js-add-comment').remove();
+	}
+	var obj = $('<div></div>',{
+		"id":"js-add-comment"
+	}).css({'paddingLeft':$(this).css('paddingLeft'),'paddingRight':"42px"});
+	$(this).after(obj);
+
+	// добавляем поля
+	if(Number($(this).attr('data-id')) == 103){
+		// название
+		var input_name = $('<input>',{
+			"name": 	"other_name",
+			"type": 	"text", 
+			"placeholder": 	"Название услуги", 
+		}).css({'width':'100%'});
+		var div = $('<div>').css({'paddingBottom':"0","paddingTop":"5px"});
+		input_name = div.append(input_name);
+
+		// цена входящая
+		var input_price_in = $('<input>',{
+			"name": 	"price_in",
+			"type": 	"text", 
+			"placeholder": 	"Цена входящая", 
+		}).css({'width':'46%'});
+		div = $('<div>').css({'paddingBottom':"0","paddingTop":"5px"});
+		div.append(input_price_in).append('<span> р. &nbsp;</span>');
+
+
+		// цена исходящая
+		var input_price_out = $('<input>',{
+			"name": 	"price_out",
+			"type": 	"text", 
+			"placeholder": 	"Цена входящая", 
+		}).css({'width':'46%'});
+		// div = $('<div>').css({'paddingBottom':"0","paddingTop":"5px"});
+		input_price = div.append(input_price_out).append('<span> р. &nbsp;</span>');
+
+		// ТЗ
+		var textarea = $('<textarea></textarea>',{
+			"name": 		"comment",
+			"placeholder": 	"ТЗ/Комментарии к услуге"
+		}).css({'minHeight':'auto','height':'52px'});
+		// для всех кроме услуги НЕТ В СПИСКЕ
+		$('#js-add-comment')
+		.append(input_name).append('<br>')
+		.append(input_price)
+		.append(textarea)
+		.find('div:first-child input').focus();
+	}else{
+		// ТЗ
+		var textarea = $('<textarea></textarea>',{
+			"name": 		"comment",
+			"placeholder": 	"ТЗ/Комментарии к услуге"
+		}).css({'minHeight':'auto','height':'52px'});
+		// для всех кроме услуги НЕТ В СПИСКЕ
+		$('#js-add-comment')
+		.append(textarea)
+		.find('textarea').focus();
+	}
+	
+
+
+
 	var id,dop_row_id,quantity;
 	// для каталожной и некаталожной карточки продукции основные данные ищем по разному
 	// if($('#dialog_gen_window_form form input[name="type_product"]').val() != 'cat'){
@@ -118,10 +183,21 @@ function round_s(int_r){
 	return Math.ceil((int_r)*100)/100;
 }
 
+function save_empty_tz_text_AJAX(data){
+	var id = $('#'+data.increment_id).parent().parent().attr('id');
+	$('#'+data.increment_id).attr('class','tz_text_new').removeAttr('id');
+	$('#'+id+' td:first-child .greyText').html(Base64.decode(data['html']));
+}
+function save_tz_text_AJAX(data){
+	var id = $('#'+data.increment_id).parent().parent().attr('id');
+	$('#'+data.increment_id).attr('class','tz_text_edit').removeAttr('id');
+	$('#'+id+' td:first-child .greyText').html(Base64.decode(data['html']));	
+}
 
 // показать окно
-function show_dialog_and_send_POST_window2(html,title,height){
-	height_window = height || 'auto';
+function show_dialog_and_send_POST_window2(html,title,height,width){
+	height = height || 'auto';
+	width = width || 'auto';
 	var buttons = new Array();
 	buttons.push({
 	    text: 'OK',
@@ -146,10 +222,6 @@ function show_dialog_and_send_POST_window2(html,title,height){
 					}
 
 
-					// меняем иконку добавления ТЗ на пустое
-					if(data['name'] == 'save_empty_tz_text_AJAX'){
-						$('#'+data.increment_id).attr('class','tz_text_new').removeAttr('id');
-					}
 
 					if(data['name'] == 'chose_supplier_end'){
 						$('#chose_supplier_id').removeAttr('id');
@@ -488,8 +560,29 @@ $(document).on('click', '.tz_text_new', function(event) {
 	$(this).attr('id',id);
 	// окно редактирования ТЗ
 	// show_dialog_and_send_POST_window2(text+ajax_name,'ТЗ');
-	show_simple_dialog_window(text+ajax_name,'ТЗ');
+	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ');
 });
+
+// редактирование имени услуги "НЕТ В СПИСКЕ"
+$(document).on('click', '.js-service-other-name', function(event) {
+
+	event.preventDefault();
+	$.post('', {
+		AJAX: 	'get_window_service_other_name',
+		id_row: $(this).parent().parent().attr('data-dop_uslugi_id'),
+		tr_id:$(this).parent().parent().attr('id'),
+		html: 	Base64.encode($(this).html())
+	}, function(data, textStatus, xhr) {
+		standard_response_handler(data);
+	},'json');
+});
+
+// 
+function change_service_name_in_html(data){
+	// console.log(data.tr_id)
+	// console.log($('#'+data.tr_id+' .js-service-other-name').length);
+	$('#'+data.tr_id+' .js-service-other-name').html(Base64.decode(data.html));
+}
 
 $(document).on('keyup', '.tz_taxtarea_edit', function(event) {
 	$('#'+$(this).attr('data-id')).parent().find('.tz_text').html($(this).val());
@@ -505,7 +598,7 @@ $(document).on('click', '.tz_text_edit', function(event) {
 
 	$(this).attr('id',id);
 	// окно редактирования ТЗ
-	show_dialog_and_send_POST_window2(text+ajax_name,'ТЗ');
+	show_dialog_and_send_POST_window(text+ajax_name,'ТЗ');
 });
 
 

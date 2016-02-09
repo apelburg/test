@@ -92,20 +92,30 @@ class Position_general_Class{
 
 		// AJAX options			
 		if(trim($_POST['tz'])==''){
-			$options['name'] = 'save_empty_tz_text_AJAX';
+			$function = 'save_empty_tz_text_AJAX';
 			if(isset($_POST['increment_id'])){
 				$options['increment_id'] = $_POST['increment_id'];
 			}
 			// echo '{"response":"OK" , "name":"save_empty_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';
 		}else{
-			$options['name'] = 'save_tz_text_AJAX';
+			$function = 'save_tz_text_AJAX';
 			if(isset($_POST['increment_id'])){
 				$options['increment_id'] = $_POST['increment_id'];
 			}
 			// echo '{"response":"OK" , "name":"save_tz_text_AJAX"'.(isset($_POST['increment_id'])?',"increment_id":"'.$_POST['increment_id'].'"':'').'}';	
 		}	
 		// AJAX options prepare
-		$this->responseClass->addResponseOptions($options);	
+		
+		$string__a = mb_substr($_POST['tz'], 0, 80);
+		if($_POST['tz'] != $string__a)$string__a .= '...';
+		$options['html'] = $string__a;
+		// $options['html'] = $_POST['tz'];
+		// echo '<pre>';
+		// print_r($_POST);
+		// echo '</pre>';
+			
+		$this->responseClass->addResponseFunction($function,$options);
+		// $this->responseClass->addResponseOptions($options);	
 	}
 
 	// редактирование темы в запросе
@@ -157,15 +167,31 @@ class Position_general_Class{
 		$query ="INSERT INTO `".RT_DOP_USLUGI."` SET
 		             `dop_row_id` = '".$dop_row_id."',
 		             `uslugi_id` = '".$id_uslugi."',
-					 `glob_type` = 'extra',
-					 `price_in` = '".$usluga['price_in']."',
-					 `price_out` = '".$usluga['price_out']."',					 
-					 `performer` = '".$usluga['performer']."',
+					 `glob_type` = 'extra',";
+		if($id_uslugi == 103){
+			$query .= "`price_in` = '".(int)$_POST['price_in']."',";
+			$query .= "`price_out` = '".(int)$_POST['price_out']."',";
+		}else {
+			$query .= "`price_in` = '".$usluga['price_in']."',";
+			$query .= "`price_out` = '".$usluga['price_out']."',";
+		}
+					 
+		$query .= "`performer` = '".$usluga['performer']."',
 					 `price_out_snab` = '".$usluga['price_out']."',
 					 `for_how` = '".$usluga['for_how']."',
 					 `creator_id` = '". $this->user_id."',
 					 `discount` = '".$discount."',
 					 `quantity` = '".$quantity."'";
+		
+		if (isset($_POST['comment']) && trim($_POST['comment']) != "") {
+			$query .= ", `tz`= '".base64_encode($_POST['comment'])."'";	
+		}
+
+		// новое дополнительное название для НЕТ В СПИСКЕ
+		if (isset($_POST['other_name']) && trim($_POST['other_name']) != "") {
+			$query .= ", `other_name`= '".$_POST['other_name']."'";	
+		}
+
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
 		// формируем массив для генерации HTML выдачи для ajax
@@ -247,7 +273,7 @@ class Position_general_Class{
 			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
 			$html .= '</form>';
 			
-			$options['width'] = '100%';
+			$options['width'] = '860px';
 			$options['height'] = '100%';
 			$this->responseClass->addPostWindow($html,"Выберите услугу",$options);
 		

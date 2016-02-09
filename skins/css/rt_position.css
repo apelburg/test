@@ -845,7 +845,8 @@ span.snab_comment {
 }
 
 .may_bee_checked.checked{
-  background-color: grey
+  background-color: grey;
+  color: #fff;
 }
 
 .calculate.calculate_usl.editing td{ background-color: #f1f1f1}
@@ -1147,4 +1148,11 @@ table.calkulate_table span {
 }
 .variant_info table tr td.no_edit_class_disc input[type="text"]{
   background: #f1f1f1;
+}
+.js-service-other-name{
+  cursor: pointer;
+  text-decoration: underline;
+}
+.js-service-other-name:hover{
+  text-decoration: none;
 }
