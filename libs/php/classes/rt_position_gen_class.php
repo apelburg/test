@@ -166,6 +166,10 @@ class Position_general_Class{
 					 `creator_id` = '". $this->user_id."',
 					 `discount` = '".$discount."',
 					 `quantity` = '".$quantity."'";
+		if (isset($_POST['comment']) && trim($_POST['comment']) != "") {
+				$query .= ", `tz`= '".base64_encode($_POST['comment'])."'";	
+			}
+
 		$result = $mysqli->multi_query($query) or die($mysqli->error);
 
 		// формируем массив для генерации HTML выдачи для ajax
@@ -247,7 +251,7 @@ class Position_general_Class{
 			$html .= '<input type="hidden" name="AJAX" value="add_new_usluga">';
 			$html .= '</form>';
 			
-			$options['width'] = '100%';
+			$options['width'] = '860px';
 			$options['height'] = '100%';
 			$this->responseClass->addPostWindow($html,"Выберите услугу",$options);
 		

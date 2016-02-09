@@ -845,7 +845,8 @@ span.snab_comment {
 }
 
 .may_bee_checked.checked{
-  background-color: grey
+  background-color: grey;
+  color: #fff;
 }
 
 .calculate.calculate_usl.editing td{ background-color: #f1f1f1}

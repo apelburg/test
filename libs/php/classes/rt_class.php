@@ -1388,7 +1388,7 @@ echo $query;
 				$html .= '<input type="hidden" name="type_product" value="'.$type_product.'">';
 				$html .= '<input type="hidden" name="AJAX" value="add_new_dop_service">';
 				$html .= '</form>';
-				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите услугу","width":"100%","height":"100%"}';
+				echo '{"response":"show_new_window", "html":"'.base64_encode($html).'","title":"Выберите услугу","width":"860px","height":"100%"}';
 				
 				// echo '{"response":"show_new_window","title":"Выберите услугу","html":"'.base64_encode($html).'"}';
 			}
@@ -1434,6 +1434,10 @@ echo $query;
 						 `creator_id` = '". $_SESSION['access']['user_id']."',
 						 `discount` = '".$discount."',
 						 `quantity` = '".$quantity."'";
+			if (isset($_POST['comment']) && trim($_POST['comment']) != "") {
+				$query .= ", `tz`= '".base64_encode($_POST['comment'])."'";	
+			}
+			
 			$result = $mysqli->multi_query($query) or die($mysqli->error);
 			echo '{"response":"OK","function":"window_reload"}';
 		}

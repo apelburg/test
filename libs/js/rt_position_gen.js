@@ -85,9 +85,18 @@ $(document).on('click', '.add_usl', function(event) {
 //отработка выбора услуги в диалоговом окне
 $(document).on('click', '#dialog_gen_window_form form .may_bee_checked', function(event) {
 	// выделяем выбранную услугу
+	// console.log($(this));
+	if($('#js-add-comment').length){
+		$('#js-add-comment').remove();
+	}
+	console.log()
+	// добавляем поле комментариев
+	$(this).after('<div id="js-add-comment"><textarea name="comment" placeholder="ТЗ/Комментарии к услуге"></textarea></div>')
+	
+
 	$('#dialog_gen_window_form form .may_bee_checked').removeClass('checked');
 	$(this).addClass('checked');
-
+	$('#js-add-comment').css({'paddingLeft':$(this).css('paddingLeft'),'paddingRight':"42px"}).find('textarea').css({'minHeight':'auto','height':'52px'}).focus();
 	var id,dop_row_id,quantity;
 	// для каталожной и некаталожной карточки продукции основные данные ищем по разному
 	// if($('#dialog_gen_window_form form input[name="type_product"]').val() != 'cat'){
