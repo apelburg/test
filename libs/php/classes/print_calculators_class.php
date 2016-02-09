@@ -2,6 +2,38 @@
     class printCalculator{
 	    function __consturct(){
 		}
+		static function get_sizes(){
+		
+		    global $mysqli;
+			
+			$out_put = array();
+			
+			$query = "SELECT id, size FROM `".BASE__CALCULATORS_PRINT_TYPES_SIZES_PLACES_REL_TBL."`";
+			// echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()) {
+				   $out_put[$row['id']] = $row['size'];
+				}
+			}
+			return $out_put;
+		}
+		static function get_uslugi(){
+		
+		    global $mysqli;
+			
+			$out_put = array();
+			
+			$query = "SELECT id, name FROM `".OUR_USLUGI_LIST."`";
+			// echo $query;
+			$result = $mysqli->query($query)or die($mysqli->error);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()) {
+				   $out_put[$row['id']] = $row['name'];
+				}
+			}
+			return $out_put;
+		}
 		static function convert_print_details($print_details){
 		
 		    global $mysqli;
