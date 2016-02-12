@@ -76,7 +76,7 @@ div.dialog_window  {font-size:12px;font-family: Gotham, "Helvetica Neue", Helvet
 .red_t .ui-dialog-titlebar{ border-color: #E46233; background: #E46233;}
 .green_t .ui-dialog-titlebar{ border-color: #51BD4E; background: #51BD4E;}
 .black_t .ui-dialog-titlebar{ border-color: #868C85; background: #868C85;}
-.need_approval_t .ui-dialog-titlebar{ border-color: #9ED0D2; background: #9ED0D2;}
+.need_approval_t .ui-dialog-titlebar{ border-color: #9ED0D2; background: #9ED0D2; color: #fff}
 .need_approval_t .mini_cap{ color:#222; border: #BBB solid 1px; background-color:#DDD;padding:0px 4px 1px 4px;border-radius: 3px;-moz-border-radius: 3px;-webkit-border-radius: 3px;}
 .quote_t {
   background-color: #f1f1f1;

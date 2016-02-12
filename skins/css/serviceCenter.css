@@ -1,0 +1,21 @@
+#js-win-sv{
+	cursor: pointer;
+	position:fixed;
+	right:40px;
+	bottom:20px;
+	padding : 5px;
+	width :25px;
+	height :25px;
+	border-radius:25px;
+	color:#fff;
+	font-size:15px;
+	
+	background: url(http://www.apelburg.ru/test/skins/images/img_design/b_new.png) no-repeat center;
+    -webkit-background-size: 23px 23px;
+    background-size: 23px 23px;
+    background-color:#db4437;
+}
+.sc-win-buttons{
+	background: #99cc33;
+	border-radius: 5px;
+}
