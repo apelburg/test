@@ -754,7 +754,7 @@ class Client extends aplStdAJAXMethod{
 			    
 			    // сообщение об отказе от клиента
 			    $text = '';
-			    $clien_href = '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=clients&section=client_folder&subsection=client_card_table&client_id='.$Client['id'].'">'.$client_name_i.'</a>';
+			    $clien_href = '<a href="'.HOST.'/?page=clients&section=client_folder&subsection=client_card_table&client_id='.$Client['id'].'">'.$client_name_i.'</a>';
 			    if(isset($_POST['text'])){
 			    	$text .= 'Куратор '.$this->user_name.' '. $this->user_last_name.' отказался от клиента '.$clien_href.'. ';
 			    	$text .= '<br>Причина: '.$_POST['text']; 
@@ -1156,7 +1156,7 @@ class Client extends aplStdAJAXMethod{
 			// $qury_num_NEW = 10;
 			$href = '?page=client_folder&client_id='.$_GET['client_id'].'&query_num='.$qury_num_NEW;
 			echo '{"response":"OK","function":"location_href","href":"'.$href.'"}';
-			// header('Location: http://'.$_SERVER['HTTP_HOST'].'/os/'.$href);
+			// header('Location: '.HOST.'/'.$href);
 			exit;
 		}else{ // если мы находимся вне клиента
 			$html = $this->get_form_attach_the_client('attach_client_for_new_query');
@@ -1387,7 +1387,7 @@ class Client extends aplStdAJAXMethod{
 						if(isset($_POST['query_status']) && $_POST['query_status'] == 'in_work'){
 							global $mysqli;
 							// include_once ('./cabinet/cabinet_class.php');
-							include_once($_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/cabinet/cabinet_class.php');
+							include_once(ROOT.'/libs/php/classes/cabinet/cabinet_class.php');
 							$Cabinet = new Cabinet;
 							$this->Query = $Cabinet->get_query((int)$_POST['row_id']);
 							
@@ -1402,7 +1402,7 @@ class Client extends aplStdAJAXMethod{
 							// echo '</pre>';
 							$link = '?page=client_folder&client_id='.$_POST['client_id'].'&query_num='.$_POST['query_num'];
 							// переадресация на другую вкладку
-							$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/'.$link;
+							$option['href'] = ''.HOST.'/'.$link;
 								
 							echo '{"response":"OK","function":"location_href","href":"'.$option['href'].'"}';
 							exit;
@@ -1542,7 +1542,7 @@ class Client extends aplStdAJAXMethod{
 		
 		// оповещение группы менеджеров о новом запросе
 		$mail_message = "";
-		include_once($_SERVER['DOCUMENT_ROOT'].'/os/libs/php/classes/cabinet/cabinet_class.php');
+		include_once(ROOT.'/libs/php/classes/cabinet/cabinet_class.php');
 		$Cabinet = new Cabinet;
 
 		$this->Query = $Cabinet->get_query((int)$_POST['rt_list_id']);

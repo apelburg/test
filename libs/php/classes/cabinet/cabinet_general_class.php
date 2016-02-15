@@ -488,7 +488,7 @@
 					$link = '?page=client_folder&client_id='.$this->Query['client_id'].'&query_num='.$this->Query['query_num'];
 										
 					// переадресация на другую вкладку
-					$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/'.$link;
+					$option['href'] = ''.HOST.'/'.$link;
 					$option['timeout'] = '0';
 					$this->responseClass->addResponseFunction('location_href',$option);
 					// $message = 'Вы взяли запрос в работу. Вы будете перенаправлены на другую вкладку.';
@@ -965,7 +965,7 @@
 			foreach ($this->ACCESS['cabinet']['section'] as $key => $value) {
 				if($value['access']){
 					$menu .= '<li '.((isset($_GET["section"]) && $_GET["section"]==$key)?'class="selected"':'').'>';
-						$menu .= '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section='.$key.'&subsection='.key($value['subsection']).$filters.'">';
+						$menu .= '<a href="'.HOST.'/?page=cabinet&section='.$key.'&subsection='.key($value['subsection']).$filters.'">';
 							$menu .= $this->CLASS->menu_name_arr[$key];
 						$menu .= '</a>';
 					$menu .= '<li>';
@@ -995,7 +995,7 @@
 			}
 			foreach ($menu_central_arr as $key2 => $value2) {
 				$menu .= '<li '.((isset($_GET["subsection"]) && $_GET["subsection"]==$key2)?'class="selected"':'').'>';
-					$menu .= '<a href="http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.$filters.'">';
+					$menu .= '<a href="'.HOST.'/?page=cabinet'.((isset($_GET["section"]))?'&section='.$_GET["section"]:'').'&subsection='.$key2.$filters.'">';
 						$menu .= '<div class="border">';
 							$menu .= $this->CLASS->menu_name_arr[$key2];
 						$menu .= '</div>';

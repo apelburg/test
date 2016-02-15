@@ -136,7 +136,7 @@
 			//}
 			
 
-			$origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/long_term.tpl';	
+			$origin_file_name = ROOT.'/modules/agreement/agreements_templates/long_term.tpl';	
 			$fd_origin = fopen($origin_file_name,'r');
 			$file_content = fread($fd_origin,filesize($origin_file_name));
 			fclose($fd_origin);
@@ -230,7 +230,7 @@
 							     if($uslugi_data['glob_type']=='print' && ($uslugi_data['quantity']!=$dop_data['quantity'])){
 									 $reload['flag'] = true;
 									 //echo $dop_data['quantity'];
-									 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+									 include_once(ROOT."/libs/php/classes/rt_calculators_class.php");
 									 $json_out =  rtCalculators::change_quantity_and_calculators($dop_data['quantity'],$dop_data['id'],'true','false');
 									 $json_out_obj =  json_decode($json_out);
 									 
@@ -260,8 +260,8 @@
 						 }
 						 
 						 if($main_data['type']!='cat'){
-							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/os_form_class.php");
-							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
+							 include_once(ROOT."/libs/php/classes/os_form_class.php");
+							 include_once(ROOT."/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
 							 $cabinet = new Cabinet();
 							 $details =  $cabinet->get_a_detailed_specifications($main_data['type'], $dop_data['no_cat_json']);
 							 $details =  strip_tags($details,'<div><br><br/><br />');
@@ -285,7 +285,7 @@
 						     while($uslugi_data = $result3->fetch_assoc()){
 					            // 3). uslugi_data
 								 if($uslugi_data['glob_type'] == 'print' && !(!!$expel["print"])){
-									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+									  include_once(ROOT."/libs/php/classes/print_calculators_class.php");
 								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
 									 // записываем ряд
 									 $specIdsArr[] =  self::insert_row_in_oferta($oferta_id,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$uslugi_data['discount']);
@@ -367,8 +367,8 @@
 				//exit;
 			//}
 	
-			if($dateDataObj->data_type=='days') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/oferta.tpl';
-			if($dateDataObj->data_type=='date') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/oferta_type2_by_date.tpl';
+			if($dateDataObj->data_type=='days') $origin_file_name = ROOT.'/modules/agreement/agreements_templates/oferta.tpl';
+			if($dateDataObj->data_type=='date') $origin_file_name = ROOT.'/modules/agreement/agreements_templates/oferta_type2_by_date.tpl';
 			
 			$fd_origin = fopen($origin_file_name,'r');
 			$file_content = fread($fd_origin,filesize($origin_file_name));
@@ -380,7 +380,7 @@
 			
 			/*
 			// создаем предзаказ 
-			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+			include_once(ROOT."/libs/php/classes/rt_class.php");
 			
 		    RT::make_order($rows_data,$client_id,$_GET['query_num'],0,$oferta_id,$dateDataObj->doc_type,$dateDataObj->data_type,$dates_data['shipping_date_time'],$dates_data['item_production_term'],$dates_data['final_date_time']);*/
 			
@@ -515,7 +515,7 @@
 				$for_pay = strtr($for_pay,$change_word_ending_arr_III);
 				$for_pay = strtr($for_pay,$change_word_ending_arr_IV);
 
-				$delivery_adderss_tpl_path = ($general_data['address'] == 'samo_vivoz')? $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/samo_vivoz.tpl':$_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/nasha_dostavka.tpl';
+				$delivery_adderss_tpl_path = ($general_data['address'] == 'samo_vivoz')? ROOT.'/modules/agreement/agreements_templates/samo_vivoz.tpl':ROOT.'/modules/agreement/agreements_templates/nasha_dostavka.tpl';
 				$fd = fopen($delivery_adderss_tpl_path,'rb');
 				$delivery_adderss_string = fread($fd,filesize($delivery_adderss_tpl_path));
 				fclose($fd);
@@ -524,7 +524,7 @@
 			   if($general_data['type'] == 'days'){
 				    //$prepayment_term = '<?php include ($_SERVER[\'DOCUMENT_ROOT\'].\'/os/modules/agreement/agreements_templates/\'.$general_data[\'prepayment\'].\'_prepaiment_conditions.tpl\'); ? >';
 					/**/
-					$prepayment_term_tpl_path = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/'.$general_data['prepayment'].'_prepaiment_conditions_oferta.tpl';
+					$prepayment_term_tpl_path = ROOT.'/modules/agreement/agreements_templates/'.$general_data['prepayment'].'_prepaiment_conditions_oferta.tpl';
 					$fd = fopen($prepayment_term_tpl_path,'rb');
 					$prepayment_term = fread($fd,filesize($prepayment_term_tpl_path));
 					fclose($fd);
@@ -556,7 +556,7 @@
 					$doc = str_replace('[MAKET_SIGN_DATE]',$maket_sign_date,$doc );
 				
 				     
-					$prepayment_term_tpl_path = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/'.$general_data['prepayment'].'_prepaiment_conditions_oferta_by_date.tpl';
+					$prepayment_term_tpl_path = ROOT.'/modules/agreement/agreements_templates/'.$general_data['prepayment'].'_prepaiment_conditions_oferta_by_date.tpl';
 					$fd = fopen($prepayment_term_tpl_path,'rb');
 					$prepayment_term = fread($fd,filesize($prepayment_term_tpl_path));
 					fclose($fd);
@@ -772,7 +772,7 @@
 							     if($uslugi_data['glob_type']=='print' && ($uslugi_data['quantity']!=$dop_data['quantity'])){
 									 $reload['flag'] = true;
 									 //echo $dop_data['quantity'];
-									 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+									 include_once(ROOT."/libs/php/classes/rt_calculators_class.php");
 									 $json_out =  rtCalculators::change_quantity_and_calculators($dop_data['quantity'],$dop_data['id'],'true','false');
 									 $json_out_obj =  json_decode($json_out);
 									 
@@ -802,8 +802,8 @@
 						 }
 						 
 						 if($main_data['type']!='cat'){
-							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/os_form_class.php");
-							 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
+							 include_once(ROOT."/libs/php/classes/os_form_class.php");
+							 include_once(ROOT."/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
 							 $cabinet = new Cabinet();
 							 $details =  $cabinet->get_a_detailed_specifications($main_data['type'], $dop_data['no_cat_json']);
 							 $details =  strip_tags($details,'<div><br><br/><br />');
@@ -828,7 +828,7 @@
 						     while($uslugi_data = $result3->fetch_assoc()){
 					            // 3). uslugi_data
 								 if($uslugi_data['glob_type'] == 'print' && !(!!$expel["print"])){
-									  include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+									  include_once(ROOT."/libs/php/classes/print_calculators_class.php");
 								      $name = printCalculator::convert_print_details($uslugi_data['print_details']);
 									 // записываем ряд
 									 $specIdsArr[] =  Agreement::insert_row($client_id,$agreement_id,$our_firm_acting_manegement_face,$client_firm_acting_manegement_face,$specification_num,$short_description,$address,$prepayment,$name,$uslugi_data['quantity'],$uslugi_data['price_out'],$uslugi_data['discount'],$date,$dateDataObj,$dates_data);
@@ -925,8 +925,8 @@
 				//exit;
 			//}
 	
-			if($dateDataObj->data_type=='days') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/specification.tpl';
-			if($dateDataObj->data_type=='date') $origin_file_name = $_SERVER['DOCUMENT_ROOT'].'/os/modules/agreement/agreements_templates/specification_type2_by_date.tpl';
+			if($dateDataObj->data_type=='days') $origin_file_name = ROOT.'/modules/agreement/agreements_templates/specification.tpl';
+			if($dateDataObj->data_type=='date') $origin_file_name = ROOT.'/modules/agreement/agreements_templates/specification_type2_by_date.tpl';
 			
 			$fd_origin = fopen($origin_file_name,'r');
 			$file_content = fread($fd_origin,filesize($origin_file_name));
@@ -938,7 +938,7 @@
 			
 			/*
 			// создаем предзаказ 
-			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_class.php");
+			include_once(ROOT."/libs/php/classes/rt_class.php");
 
 			RT::make_order($rows_data,$client_id,$_GET['query_num'],$specification_num,$agreement_id,$dateDataObj->doc_type,$dateDataObj->data_type,$dates_data['shipping_date_time'],$dates_data['item_production_term'],$dates_data['final_date_time']);
 			*/

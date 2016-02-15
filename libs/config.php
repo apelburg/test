@@ -1,7 +1,7 @@
 <?php
 
-    define('ROOT', $_SERVER['DOCUMENT_ROOT'].'/os');
-	define('HOST', 'http://'.$_SERVER['HTTP_HOST'].'/os');
+    define('ROOT', $_SERVER['DOCUMENT_ROOT'].'/test');
+	define('HOST', 'http://'.$_SERVER['HTTP_HOST'].'/test');
 	define('APELBURG_HOST', 'http://www.apelburg.ru');
 	
 	define('GIFTS_MENU_TBL','menu_for_gifts_new');

@@ -59,7 +59,7 @@
                     <script type="text/javascript">
                         $(document).on('click', '#qetwertwertwtretwretwe', function(event) {
                             // event.preventDefault();
-                            var url = 'http://<?=$_SERVER['HTTP_HOST']?>/os/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
+                            var url = 'http://<?=HOST;?>/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
                             // event.preventDefault();
                                 $.post(url, {
                                     AJAX: "show_requesit",
@@ -86,7 +86,7 @@
                     <script type="text/javascript">
                         $(document).on('click', '#qetwertwertwtretwretwe', function(event) {
                             // event.preventDefault();
-                            var url = 'http://<?=$_SERVER['HTTP_HOST']?>/os/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
+                            var url = 'http://<?=HOST;?>/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
                             // event.preventDefault();
                                 $.post(url, {
                                     AJAX: "show_requesit",
@@ -116,7 +116,7 @@
                     <script type="text/javascript">
                         $(document).on('click', '#qetwertwertwtretwretwe', function(event) {
                             // event.preventDefault();
-                            var url = 'http://<?=$_SERVER['HTTP_HOST']?>/os/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
+                            var url = 'http://<?=HOST;?>/?page=clients&section=client_folder&subsection=client_card_table&client_id=<?=$_GET['client_id'];?>';
                             // event.preventDefault();
                                 $.post(url, {
                                     AJAX: "show_requesit",

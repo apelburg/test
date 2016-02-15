@@ -64,7 +64,7 @@
 								  if($row_dop2['glob_type']=='print' && ($row_dop2['quantity']!=$row_dop1['quantity'])){
 								       $reload['flag'] = true;
 									   //echo $dop_data['quantity'];
-									   include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+									   include_once(ROOT."/libs/php/classes/rt_calculators_class.php");
 									   $json_out =  rtCalculators::change_quantity_and_calculators($row_dop1['quantity'],$row_dop1['id'],'true','false');
 									   $json_out_obj =  json_decode($json_out);
 									 
@@ -177,8 +177,8 @@
 						    $row3=$result3->fetch_assoc();
 							
 							if($row['type']!='cat'){
-							    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/os_form_class.php");
-							    include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
+							    include_once(ROOT."/libs/php/classes/os_form_class.php");
+							    include_once(ROOT."/libs/php/classes/cabinet/cabinet_class.php");//os_form_class.php
 							    $cabinet = new Cabinet();
 							    $details =  $cabinet->get_a_detailed_specifications($row['type'], $row3['no_cat_json']);
 								$details =  strip_tags($details,'<div><br><br/><br />');
@@ -462,7 +462,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
             exit;
 	   }
 	   static function clear_client_kp_folder($kp_id,$attached_files){
-	        $dirname = $_SERVER['DOCUMENT_ROOT'].'/os/data/com_offers/'.strval(intval($_GET['client_id'])).'/'.strval(intval($kp_id));
+	        $dirname = ROOT.'/data/com_offers/'.strval(intval($_GET['client_id'])).'/'.strval(intval($kp_id));
 	        if($files_arr = read_Dir($dirname)){
 			    foreach($files_arr as $file){
 				     $flag=TRUE;
@@ -487,7 +487,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 	   
             $html = self::open_in_blank($kp_id,$client_id,$user_id,true);
 			
-			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
+			include(ROOT."/libs/php/mpdf60/mpdf.php");
 			$mpdf=new mPDF();
 			//$mpdf->SetHTMLHeader('<div style="height:80px;border:#000 solid 1px;"><img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg"></div><br><br><br><br>'); 
 			$mpdf->SetHTMLHeader('<img src="'.HOST.'/skins/images/img_design/spec_offer_top_plank_2.jpg">');
@@ -499,7 +499,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
             $html = self::open_in_blank($kp_id,$client_id,$user_id,true);
 		    //echo $html;
 		    //exit;
-			include($_SERVER['DOCUMENT_ROOT']."/os/libs/php/mpdf60/mpdf.php");
+			include(ROOT."/libs/php/mpdf60/mpdf.php");
             //$stylesheet = file_get_contents('style.css');
 			$filename = 'Презентация_'.$client_id.'_'.date('Ymd_His').'.pdf';
 
@@ -1015,14 +1015,14 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 							//$new_price_arr['price_in'] = $u_level['price_in'];
 							//$new_price_arr['price_out'] = $u_level['price_out'];
 							
-							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/rt_calculators_class.php");
+							include_once(ROOT."/libs/php/classes/rt_calculators_class.php");
 							$calculations = rtCalculators::make_calculations($quantity,$new_price_arr,$print_details_obj->dop_params);
 							// echo  '<pre>'; print_r($new_price_arr); echo '</pre>';  //
                             /*if(@$_SESSION['access']['user_id']==18){ 
 									echo '<pre>';print_r($calculations);echo '</pre>';
 							} */
 							// наименование нанесения
-							include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+							include_once(ROOT."/libs/php/classes/print_calculators_class.php");
 							$print_data = printCalculator::convert_print_details_for_kp($u_level['print_details']);
                             /*if(@$_SESSION['access']['user_id']==18){ 
 									echo '<pre>';print_r($print_data);echo '</pre>';
@@ -1276,7 +1276,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 	
 						foreach($r_level['dop_uslugi']['extra'] as $u_key => $u_level){
 					        if($u_level['price_out']==0) continue;
-                            include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/agreement_class.php");
+                            include_once(ROOT."/libs/php/classes/agreement_class.php");
                             // если альтернативное название отсутствует (вводится при заведении услуги "НЕТ В СПИСКЕ")
 							if(trim($u_level['other_name']) == ""){
 								$extra_usluga_details = Agreement::get_usluga_details($u_level['usluga_id']);
@@ -1354,7 +1354,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 			// потом передаем его в метод Client::get_cont_face_details($recipient_id);
 			reset($multi_dim_arr);
 			$recipient_id = $multi_dim_arr[key($multi_dim_arr)]['recipient_id'];
-			include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+			include_once(ROOT."/libs/php/classes/client_class.php");
 			$cont_face_data = Client::get_cont_face_details($recipient_id);
 			//print_r($cont_face_data_arr);//exit;625
 			
@@ -1808,7 +1808,7 @@ dop_data_tbl.details AS details, dop_data_tbl.tirage_str AS tirage_str, dop_data
 					 }
 					 else $send_time = 'не отправленно';
 					 
-					 include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/client_class.php");
+					 include_once(ROOT."/libs/php/classes/client_class.php");
 					 $cont_face_data = Client::get_cont_face_details($row['recipient_id']);
 					 
 					 $recipient = '<div class="client_faces_select1" sourse="kp" row_id="'.$row['id'].'" client_id="'.$client_id.'" onclick="openCloseMenu(event,\'clientManagerMenu\');">'.(($row['recipient_id']==0)?'не установлен':$cont_face_data['last_name'].' '.$cont_face_data['name'].' '.$cont_face_data['surname']).'</div>';

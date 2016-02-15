@@ -67,8 +67,8 @@
 				$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/'.$folder.'/';
  				$dir = $_SERVER['DOCUMENT_ROOT'].'/'.$folder.'/';				
 			}else{
-				$global_dir = 'http://'.$_SERVER['HTTP_HOST'].'/os/data/images/'.$folder.'/';
- 				$dir = $_SERVER['DOCUMENT_ROOT'].'/os/data/images/'.$folder.'/';
+				$global_dir = ''.HOST.'/data/images/'.$folder.'/';
+ 				$dir = ROOT.'/data/images/'.$folder.'/';
 			}
 
 			// проверка наличия изображения

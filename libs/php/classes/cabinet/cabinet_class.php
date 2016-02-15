@@ -999,7 +999,7 @@
 			protected function link_enter_to_filters($keyName,$newVal){
 				$name = $keyName.'link';
 				if(!isset($$name)){
-					$link = 'http://'.$_SERVER['HTTP_HOST'].'/os/';
+					$link = ''.HOST.'/';
 
 					$n = 0;
 					foreach ($_GET as $key => $value) {
@@ -1017,7 +1017,7 @@
 			protected function link_exit_out_filters($keyName){
 				//$this->order_num;
 					
-				$link = 'http://'.$_SERVER['HTTP_HOST'].'/os/';
+				$link = ''.HOST.'/';
 
 				$n = 0;
 				foreach ($_GET as $key => $value) {
@@ -2778,7 +2778,7 @@
 				// echo '<pre>';
 				// print_r($Query);
 				// echo '</pre>';
-				$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section=requests&subsection=query_wait_the_process';
+				$option['href'] = ''.HOST.'/?page=cabinet&section=requests&subsection=query_wait_the_process';
 				$this->responseClass->addResponseFunction('location_href',$option);
 			}
 
@@ -3170,7 +3170,7 @@
 
 
 					// переадресация на другую вкладку
-					$option['href'] = 'http://'.$_SERVER['HTTP_HOST'].'/os/'.$link;
+					$option['href'] = ''.HOST.'/'.$link;
 					$option['timeout'] = '2000';
 					$this->responseClass->addResponseFunction('location_href',$option);
 					$message = 'Статус успешно изменён. Вы будете перенаправлены на другую вкладку.';
@@ -3311,7 +3311,7 @@
 				switch ($_POST['status_order']) {
 					case 'query_in_work':
 						if($this->check_the_pyment_order((int)$_POST['order_id'])){
-							$href = 'http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section=orders&subsection=order_start';
+							$href = ''.HOST.'/?page=cabinet&section=orders&subsection=order_start';
 							$json_answer = '{"response":"OK","function":"location_href","href":"'.$href.'"}';
 							$new_status = 'in_operation';
 						}else{
@@ -3343,7 +3343,7 @@
 
 
 						if($this->check_the_pyment_order((int)$_POST['order_id'])){
-							$href = 'http://'.$_SERVER['HTTP_HOST'].'/os/?page=cabinet&section=orders&subsection=order_start';
+							$href = ''.HOST.'/?page=cabinet&section=orders&subsection=order_start';
 							$json_answer = '{"response":"OK","function":"location_href","href":"'.$href.'"}';
 							}else{
 							$message = "Заказ не был оплачен в достаточном размере для его запуска!";
@@ -5367,7 +5367,7 @@
 				$readonly = ($enable_edit == 0)?' disabled':'';
 
 				
-				include_once($_SERVER['DOCUMENT_ROOT']."/os/libs/php/classes/print_calculators_class.php");
+				include_once(ROOT."/libs/php/classes/print_calculators_class.php");
 				// запрашиваем информацию по ТЗ и , если нужно
 				if(!isset($this->Service)){ // если нам ничего не известно по строке из CAB_DOP_USLUGI
 					$query = "SELECT * FROM ".CAB_DOP_USLUGI." WHERE `id` = '".$dop_usluga_id."'";
